@@ -162,7 +162,7 @@ describe('auth.ts NextAuth callbacks', () => {
   });
 
   describe('session callback', () => {
-    it('populates session.accessToken from token.jwt', async () => {
+      it('does NOT expose accessToken on the session object (security: token must stay server-side)', async () => {
       const sessionCallback = authOptions.callbacks?.session;
       if (!sessionCallback) return;
 
@@ -170,7 +170,9 @@ describe('auth.ts NextAuth callbacks', () => {
       const token = { accessToken: 'jwt-token-xyz', githubId: '111', githubLogin: 'user1' } as any;
       const result = await sessionCallback({ session, token, user: {} } as any);
 
-      expect((result as any).accessToken).toBe('jwt-token-xyz');
+      // session is exposed to client-side code via useSession()/getSession(),
+      // so the raw GitHub token must never be copied onto it.
+      expect((result as any).accessToken).toBeUndefined();
     });
 
     it('populates session.githubId from token.jwt', async () => {

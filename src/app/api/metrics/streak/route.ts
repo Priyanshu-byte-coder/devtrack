@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
@@ -146,7 +147,8 @@ export async function GET(req: NextRequest) {
   // githubLogin and githubId are both required: login for the Search API query,
   // githubId for cache key scoping and multi-account lookups.
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin || !session.githubId) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin || !session?.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -154,7 +156,7 @@ export async function GET(req: NextRequest) {
   const bypass = isMetricsCacheBypassed(req);
   let appUserId: string | null = null;
 
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
   appUserId = userRow?.id ?? null;
 
   // accountId param requires a resolved app user — without one we can't look
@@ -200,9 +202,9 @@ export async function GET(req: NextRequest) {
   if (!accountId) {
     try {
       const activeDates = await fetchActiveDates(
-        session.githubLogin,
-        session.accessToken,
-        { bypass, userId: session.githubId },
+        session?.githubLogin,
+        accessToken,
+        { bypass, userId: session?.githubId },
         timeZone
       );
       const streakData = calculateStreakFromDates(activeDates, freezeDates, timeZone);
@@ -226,9 +228,9 @@ export async function GET(req: NextRequest) {
   if (accountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        token: accessToken,
+        githubId: session?.githubId,
+        githubLogin: session?.githubLogin,
       },
       appUserId
     );
@@ -264,10 +266,10 @@ export async function GET(req: NextRequest) {
   }
 
   // Single specific account — resolve its token and login from Supabase.
-  let resolvedToken = session.accessToken;
-  let resolvedLogin = session.githubLogin;
+  let resolvedToken = accessToken;
+  let resolvedLogin = session?.githubLogin;
 
-  if (accountId !== session.githubId) {
+  if (accountId !== session?.githubId) {
     const accountToken = await getAccountToken(appUserId, accountId);
 
     if (!accountToken) {
@@ -301,7 +303,7 @@ export async function GET(req: NextRequest) {
     );
     const streakData = calculateStreakFromDates(activeDates, freezeDates, timeZone);
 
-    if (accountId === session.githubId && streakData.current > 0) {
+    if (accountId === session?.githubId && streakData.current > 0) {
       checkAndRecordMilestone(appUserId, streakData.current).catch(() => {});
     }
 

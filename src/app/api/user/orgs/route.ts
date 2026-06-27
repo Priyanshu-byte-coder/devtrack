@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -16,8 +17,9 @@ interface GitHubOrg {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
+  const accessToken = await getAccessToken();
 
-    if (!session?.githubId || !session?.accessToken) {
+    if (!session?.githubId || !accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -40,7 +42,7 @@ export async function GET() {
       // Get all accounts (primary and linked) to fetch orgs for all of them
       allAccounts = await getAllAccounts(
         {
-          token: session.accessToken,
+          token: accessToken,
           githubId: session.githubId,
           githubLogin: session.githubLogin || "",
         },
@@ -50,7 +52,7 @@ export async function GET() {
       // Fallback if Supabase is unavailable (or mock login): use active session details
       allAccounts = [
         {
-          token: session.accessToken,
+          token: accessToken,
           githubId: session.githubId,
           githubLogin: session.githubLogin || "",
           orgs: [

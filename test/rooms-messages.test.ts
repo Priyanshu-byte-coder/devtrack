@@ -22,6 +22,13 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/get-session-token", () => ({
+  getAccessToken: vi.fn(async () => {
+    const { getServerSession } = await import("next-auth");
+    const session = await (getServerSession as any)();
+    return session?.accessToken ?? null;
+  }),
+}));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/supabase-rooms", () => ({
   getRoomById: mocks.getRoomById,

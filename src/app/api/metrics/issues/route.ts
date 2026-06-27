@@ -1,4 +1,5 @@
 import { getServerSession, type Session } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { fetchIssuesMetrics } from "@/lib/github";
@@ -18,17 +19,18 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.error === "TokenRevoked") {
+  if (session?.error === "TokenRevoked") {
     return githubAuthErrorResponse();
   }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
   if (accountId === "combined") {
-    return await getCombinedIssuesMetrics(session, req);
+    return await getCombinedIssuesMetrics(session, accessToken, req);
   }
   let orgName: string | null = null;
   let targetAccountId: string | null = accountId;
@@ -42,8 +44,8 @@ export async function GET(req: NextRequest) {
   // Load excluded organizations config
   let excludedOrgs: string[] = [];
   let userRow: AppUser | null = null;
-  if (isSupabaseAdminAvailable && session.githubId) {
-    userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  if (isSupabaseAdminAvailable && session?.githubId) {
+    userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
     if (userRow) {
       try {
         const { data: dbUser } = await supabaseAdmin
@@ -62,12 +64,12 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  let token = session.accessToken;
-  let userId = session.githubId ?? session.githubLogin;
-  let githubLogin = session.githubLogin;
+  let token = accessToken;
+  let userId = session?.githubId ?? session?.githubLogin;
+  let githubLogin = session?.githubLogin;
 
-  if (targetAccountId && targetAccountId !== session.githubId) {
-    if (!session.githubId) {
+  if (targetAccountId && targetAccountId !== session?.githubId) {
+    if (!session?.githubId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (!userRow) {
@@ -111,13 +113,14 @@ export async function GET(req: NextRequest) {
 }
 async function getCombinedIssuesMetrics(
   session: Session,
+  accessToken: string,
   req: NextRequest
 ) {
-  if (!session.githubId || !session.accessToken || !session.githubLogin) {
+  if (!session?.githubId || !accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -126,9 +129,9 @@ async function getCombinedIssuesMetrics(
 
   const accounts = await getAllAccounts(
     {
-      token: session.accessToken,
-      githubId: session.githubId,
-      githubLogin: session.githubLogin,
+      token: accessToken,
+      githubId: session?.githubId,
+      githubLogin: session?.githubLogin,
     },
     userRow.id
   );

@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API, GitHubCommitSearchItem } from "@/lib/github";
@@ -173,7 +174,8 @@ async function fetchTopLanguages(token: string, repos: string[]) {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -183,8 +185,8 @@ export async function GET(req: NextRequest) {
   try {
     const { commits, contributionsByDate, hours, totalCommits } =
       await fetchYearCommits(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        session?.githubLogin,
         startDate,
         endDate
       );
@@ -192,10 +194,10 @@ export async function GET(req: NextRequest) {
       (repo) => repo !== "unknown"
     );
     const [topLanguages, prsMerged] = await Promise.all([
-      fetchTopLanguages(session.accessToken, repos),
+      fetchTopLanguages(accessToken, repos),
       fetchMergedPRCount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        session?.githubLogin,
         startDate,
         endDate
       ),
@@ -218,7 +220,7 @@ export async function GET(req: NextRequest) {
 
     return Response.json({
       year,
-      username: session.githubLogin,
+      username: session?.githubLogin,
       totalCommits,
       activeDays,
       longestStreak,

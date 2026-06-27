@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { computeHealthScore } from "@/lib/repo-health";
@@ -146,7 +147,8 @@ export async function GET(req: NextRequest) {
   // Session contains the GitHub OAuth token issued at sign-in.
   // Both accessToken and githubLogin are required for the API calls below.
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -155,7 +157,7 @@ export async function GET(req: NextRequest) {
   const days = requestedDays === 7 || requestedDays === 30 || requestedDays === 90 ? requestedDays : 30;
 
   const bypass = isMetricsCacheBypassed(req);
-  const key = metricsCacheKey(session.githubId ?? session.githubLogin, "repo-health" as any, { days });
+  const key = metricsCacheKey(session?.githubId ?? session?.githubLogin, "repo-health" as any, { days });
 
   try {
     // Cache TTL of 10 minutes (600 seconds) — longer than most other metrics because
@@ -165,7 +167,7 @@ export async function GET(req: NextRequest) {
     // the 30 req/min Search API quota in under 2 minutes.
     const data = await withMetricsCache({ bypass, key, ttlSeconds: 10 * 60 }, async () => {
       // Step 1: identify the top 6 repos via Commit Search (1 Search API request).
-      const topRepos = (await fetchReposForAccount(session.accessToken!, session.githubLogin!, days)).repos;
+      const topRepos = (await fetchReposForAccount(accessToken!, session?.githubLogin!, days)).repos;
 
       const scores: RepoHealthScore[] = [];
       for (const repo of topRepos) {
@@ -173,7 +175,7 @@ export async function GET(req: NextRequest) {
           // Step 2: fetch health signals for each repo (up to 4 Search + 1 REST per repo).
           // Individual repo failures are silently skipped — a rate limit on one repo
           // should not prevent health scores for the remaining repos from loading.
-          const signals = await fetchSignalsForRepo(session.accessToken!, repo.name, days);
+          const signals = await fetchSignalsForRepo(accessToken!, repo.name, days);
           scores.push(computeHealthScore(repo.name, signals));
         } catch (e) {
           // Swallow per-repo errors (rate limit, private repo, network blip).

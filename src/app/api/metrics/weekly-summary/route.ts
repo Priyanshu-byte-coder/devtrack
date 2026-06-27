@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -345,10 +346,11 @@ export async function GET(req: NextRequest) {
   // Session contains the GitHub OAuth token issued at sign-in.
   // Both accessToken and githubLogin are required for all API calls below.
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.error === "TokenRevoked") {
+  if (session?.error === "TokenRevoked") {
     return githubAuthErrorResponse();
   }
 
@@ -357,10 +359,10 @@ export async function GET(req: NextRequest) {
 
   // If combined account view is requested
   if (accountId === "combined") {
-    if (!session.githubId) {
+    if (!session?.githubId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+    const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
     if (!userRow) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -371,16 +373,16 @@ export async function GET(req: NextRequest) {
       const data = await withMetricsCache({ bypass, key: combinedKey, ttlSeconds: 5 * 60 }, async () => {
         const accounts = await getAllAccounts(
           {
-            token: session.accessToken!,
-            githubId: session.githubId!,
-            githubLogin: session.githubLogin!,
+            token: accessToken!,
+            githubId: session?.githubId!,
+            githubLogin: session?.githubLogin!,
           },
           userRow.id
         );
 
         const summaryPromises = accounts.map(async (acc) => {
-          const token = acc.githubId === session.githubId
-            ? session.accessToken
+          const token = acc.githubId === session?.githubId
+            ? accessToken
             : await getAccountToken(userRow.id, acc.githubId);
           if (!token) return null;
           return fetchWeeklySummaryForAccount(token, acc.githubLogin, acc.githubId, bypass);
@@ -491,15 +493,15 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  let token = session.accessToken;
-  let githubLogin = session.githubLogin;
-  let userId = session.githubId ?? session.githubLogin;
+  let token = accessToken;
+  let githubLogin = session?.githubLogin;
+  let userId = session?.githubId ?? session?.githubLogin;
 
-  if (accountId && accountId !== session.githubId) {
-    if (!session.githubId) {
+  if (accountId && accountId !== session?.githubId) {
+    if (!session?.githubId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+    const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
     if (!userRow) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }

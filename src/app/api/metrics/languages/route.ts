@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { isMetricsCacheBypassed, metricsCacheKey, withMetricsCache, METRICS_CACHE_TTL_SECONDS} from "@/lib/metrics-cache";
@@ -11,20 +12,21 @@ const GITHUB_API = "https://api.github.com";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
-  let token = session.accessToken;
-  let githubLogin = session.githubLogin;
-  let userId = session.githubId ?? session.githubLogin;
+  let token = accessToken;
+  let githubLogin = session?.githubLogin;
+  let userId = session?.githubId ?? session?.githubLogin;
 
-  if (accountId && accountId !== session.githubId) {
-    if (!session.githubId) {
+  if (accountId && accountId !== session?.githubId) {
+    if (!session?.githubId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+    const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
     if (!userRow) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -139,7 +141,7 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : "Unknown error";
     console.error("[METRICS] Language metrics endpoint error", {
-      userId: session.githubId ?? session.githubLogin,
+      userId: session?.githubId ?? session?.githubLogin,
       error: errorMessage,
     });
     return Response.json({ error: "GitHub API error", isComplete: false }, { status: 502 });

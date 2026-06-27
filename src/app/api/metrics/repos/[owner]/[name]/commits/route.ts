@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -15,19 +16,20 @@ export async function GET(
   const resolvedParams = await params;
 
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const repoFullName = `${resolvedParams.owner}/${resolvedParams.name}`;
   const accountId = req.nextUrl.searchParams.get("accountId");
   
-  let token = session.accessToken;
-  let authorLogin = session.githubLogin;
+  let token = accessToken;
+  let authorLogin = session?.githubLogin;
 
-  if (accountId && accountId !== "combined" && accountId !== session.githubId) {
-    if (session.githubId) {
-      const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  if (accountId && accountId !== "combined" && accountId !== session?.githubId) {
+    if (session?.githubId) {
+      const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
       if (userRow) {
         const accountToken = await getAccountToken(userRow.id, accountId);
         if (accountToken) {

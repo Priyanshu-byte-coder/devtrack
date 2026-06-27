@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
@@ -537,18 +538,19 @@ async function fetchReviewMetrics(token: string): Promise<ReviewMetrics> {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const gitlabToken = typeof session.gitlabToken === "string" ? session.gitlabToken : undefined;
+  const gitlabToken = typeof session?.gitlabToken === "string" ? session?.gitlabToken : undefined;
   const accountId = req.nextUrl.searchParams.get("accountId");
   const range = req.nextUrl.searchParams.get("range") || "30d";
   const bypass = isMetricsCacheBypassed(req);
 
   const gitlabCacheContext = {
     bypass,
-    userId: session.githubId ?? session.githubLogin ?? "primary",
+    userId: session?.githubId ?? session?.githubLogin ?? "primary",
   };
 
   let orgName: string | null = null;
@@ -563,8 +565,8 @@ export async function GET(req: NextRequest) {
   // Load excluded organizations config
   let excludedOrgs: string[] = [];
   let userRow: AppUser | null = null;
-  if (isSupabaseAdminAvailable && session.githubId) {
-    userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  if (isSupabaseAdminAvailable && session?.githubId) {
+    userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
     if (userRow) {
       try {
         const { data: dbUser } = await supabaseAdmin
@@ -586,12 +588,12 @@ export async function GET(req: NextRequest) {
   if (!targetAccountId) {
     try {
       const result = await fetchCachedPRMetrics(
-        session.accessToken,
+        accessToken,
         {
           bypass,
-          userId: session.githubId ?? session.githubLogin ?? "primary",
+          userId: session?.githubId ?? session?.githubLogin ?? "primary",
         },
-        session.githubLogin,
+        session?.githubLogin,
         orgName,
         excludedOrgs,
         range
@@ -599,7 +601,7 @@ export async function GET(req: NextRequest) {
 
       const [gitlab, reviews] = await Promise.all([
         getGitLabMetrics(gitlabToken, gitlabCacheContext),
-        fetchReviewMetrics(session.accessToken).catch(() => null),
+        fetchReviewMetrics(accessToken).catch(() => null),
       ]);
 
       return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });
@@ -610,7 +612,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (!session.githubId || !session.githubLogin) {
+  if (!session?.githubId || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -621,13 +623,13 @@ export async function GET(req: NextRequest) {
   if (targetAccountId === "combined") {
     try {
       const allAccounts = await getAllAccounts(
-        { token: session.accessToken!, githubId: session.githubId, githubLogin: session.githubLogin },
+        { token: accessToken!, githubId: session?.githubId, githubLogin: session?.githubLogin },
         userRow.id
       );
 
       const metricsPromises = allAccounts.map(async (acc) => {
-        const token = acc.githubId === session.githubId
-          ? session.accessToken
+        const token = acc.githubId === session?.githubId
+          ? accessToken
           : await getAccountToken(userRow.id, acc.githubId);
         if (!token) return null;
         return fetchCachedPRMetrics(token, { bypass, userId: acc.githubId }, acc.githubLogin, orgName, excludedOrgs, range);
@@ -702,7 +704,7 @@ export async function GET(req: NextRequest) {
 
       const [gitlab, reviews] = await Promise.all([
         getGitLabMetrics(gitlabToken, gitlabCacheContext),
-        fetchReviewMetrics(session.accessToken).catch(() => null),
+        fetchReviewMetrics(accessToken).catch(() => null),
       ]);
 
       return Response.json({ ...formatPRMetricsResponse(combinedMetrics, gitlab), reviews });
@@ -711,8 +713,8 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const token = !targetAccountId || targetAccountId === session.githubId
-    ? session.accessToken
+  const token = !targetAccountId || targetAccountId === session?.githubId
+    ? accessToken
     : await getAccountToken(userRow.id, targetAccountId);
 
   if (!token) return Response.json({ error: "Account not found" }, { status: 404 });
@@ -724,7 +726,7 @@ export async function GET(req: NextRequest) {
     .eq("github_id", targetAccountId)
     .single();
 
-  const githubLogin = targetAccountId === session.githubId ? session.githubLogin : accountRow?.github_login;
+  const githubLogin = targetAccountId === session?.githubId ? session?.githubLogin : accountRow?.github_login;
 
   if (!githubLogin) {
     return Response.json({ error: "Account not found" }, { status: 404 });
@@ -735,7 +737,7 @@ export async function GET(req: NextRequest) {
       token,
       {
         bypass,
-        userId: targetAccountId === session.githubId ? session.githubId : targetAccountId,
+        userId: targetAccountId === session?.githubId ? session?.githubId : targetAccountId,
       },
       githubLogin,
       orgName,
@@ -745,7 +747,7 @@ export async function GET(req: NextRequest) {
 
     const [gitlab, reviews] = await Promise.all([
       getGitLabMetrics(gitlabToken, gitlabCacheContext),
-      fetchReviewMetrics(session.accessToken).catch(() => null),
+      fetchReviewMetrics(accessToken).catch(() => null),
     ]);
 
     return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });

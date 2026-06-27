@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
@@ -109,14 +110,15 @@ async function getConsistencyScoreForDates(
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin || !session.githubId) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin || !session?.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
   const appUserId = userRow?.id ?? null;
 
   if (accountId && !appUserId) {
@@ -134,23 +136,25 @@ export async function GET(req: NextRequest) {
   }
 
   if (!accountId) {
-    try {
-      const activeDates = await fetchActiveDates(
-        session.githubLogin,
-        session.accessToken,
-        { bypass, userId: session.githubId },
-        timeZone
-      );
-      const result = await getConsistencyScoreForDates(activeDates, timeZone, {
-        bypass,
-        userId: session.githubId,
-        accountKey: "default",
-      });
-      return Response.json(result);
-    } catch {
-      return Response.json({ error: "GitHub API error" }, { status: 502 });
-    }
+  try {
+    const activeDates = await fetchActiveDates(
+      session?.githubLogin,
+      accessToken,
+      { bypass, userId: session?.githubId },
+      timeZone,
+    );
+
+    const result = await getConsistencyScoreForDates(activeDates, timeZone, {
+      bypass,
+      userId: session?.githubId,
+      accountKey: "default",
+    });
+
+    return Response.json(result);
+  } catch {
+    return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
+}
 
   if (!appUserId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -159,9 +163,9 @@ export async function GET(req: NextRequest) {
   if (accountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        token: accessToken,
+        githubId: session?.githubId,
+        githubLogin: session?.githubLogin,
       },
       appUserId
     );
@@ -197,10 +201,10 @@ export async function GET(req: NextRequest) {
     return Response.json(scoreData);
   }
 
-  let resolvedToken = session.accessToken;
-  let resolvedLogin = session.githubLogin;
+  let resolvedToken = accessToken;
+  let resolvedLogin = session?.githubLogin;
 
-  if (accountId !== session.githubId) {
+  if (accountId !== session?.githubId) {
     const accountToken = await getAccountToken(appUserId, accountId);
 
     if (!accountToken) {

@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
+import { getAccessToken } from "@/lib/get-session-token";
 import { authOptions } from "@/lib/auth";
 import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
@@ -96,12 +97,13 @@ async function fetchAchievementMetrics(
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
+  const accessToken = await getAccessToken();
 
-  if (!session?.accessToken || !session.githubId || !session.githubLogin) {
+  if (!accessToken || !session?.githubId || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  const user = await resolveAppUser(session?.githubId, session?.githubLogin);
   if (!user) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -110,7 +112,7 @@ export async function GET(req: NextRequest) {
 
   let metrics: { mergedPRs: number; acceptedAnswers: number } | null;
   try {
-    metrics = await fetchAchievementMetrics(session.accessToken, user.id, bypass);
+    metrics = await fetchAchievementMetrics(accessToken, user.id, bypass);
   } catch (err) {
     if (err instanceof GitHubAuthError) {
       return githubAuthErrorResponse();

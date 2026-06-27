@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAccessToken } from "@/lib/get-session-token";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -45,11 +46,12 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubId) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  const user = await resolveAppUser(session?.githubId, session?.githubLogin);
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const { searchParams } = new URL(req.url);

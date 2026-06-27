@@ -3,6 +3,7 @@ import {
   throwIfGitHubRateLimited,
 } from "@/lib/github-rate-limit";
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -363,7 +364,8 @@ async function mergeGitLabContributions(
 export async function GET(req: NextRequest) {
   const timezone = req.nextUrl.searchParams.get("timezone") || "UTC";
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -391,7 +393,7 @@ export async function GET(req: NextRequest) {
   const username = usernameParam ? normalizeGitHubUsername(usernameParam) : null;
   const bypass = isMetricsCacheBypassed(req);
   const gitlabToken =
-    typeof session.gitlabToken === "string" ? session.gitlabToken : undefined;
+    typeof session?.gitlabToken === "string" ? session?.gitlabToken : undefined;
 
   if (usernameParam && !username) {
     return Response.json({ error: "Invalid GitHub username" }, { status: 400 });
@@ -412,12 +414,12 @@ export async function GET(req: NextRequest) {
 
   // Load excluded organizations config
   let excludedOrgs: string[] = [];
-  if (isSupabaseAdminAvailable && session.githubId) {
+  if (isSupabaseAdminAvailable && session?.githubId) {
     try {
       const { data: dbUser } = await supabaseAdmin
         .from("users")
         .select("organizations_config")
-        .eq("github_id", session.githubId)
+        .eq("github_id", session?.githubId)
         .single();
 
       const orgsConfig = (dbUser?.organizations_config || {}) as Record<string, boolean>;
@@ -436,10 +438,10 @@ export async function GET(req: NextRequest) {
   if (username) {
     try {
       const result = await fetchContributionsForAccount(
-        session.accessToken,
+        accessToken,
         username,
         days,
-        { bypass, userId: session.githubId ?? session.githubLogin },
+        { bypass, userId: session?.githubId ?? session?.githubLogin },
         timezone,
         fromDate,
         repoParam,
@@ -455,10 +457,10 @@ export async function GET(req: NextRequest) {
   if (!targetAccountId) {
     try {
       const result = await fetchContributionsForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        session?.githubLogin,
         days,
-        { bypass, userId: session.githubId ?? session.githubLogin },
+        { bypass, userId: session?.githubId ?? session?.githubLogin },
         timezone,
         fromDate,
         repoParam,
@@ -472,7 +474,7 @@ export async function GET(req: NextRequest) {
 
       const merged = await mergeGitLabContributions(result, gitlabToken, days, {
         bypass,
-        userId: session.githubId ?? session.githubLogin,
+        userId: session?.githubId ?? session?.githubLogin,
       });
 
       return Response.json(merged);
@@ -481,11 +483,11 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (!session.githubId) {
+  if (!session?.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
 
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -494,9 +496,9 @@ export async function GET(req: NextRequest) {
   if (targetAccountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        token: accessToken,
+        githubId: session?.githubId,
+        githubLogin: session?.githubLogin,
       },
       userRow.id
     );
@@ -553,19 +555,19 @@ if (rateLimitedResult) {
 
     const combined = await mergeGitLabContributions(merged, gitlabToken, days, {
       bypass,
-      userId: session.githubId,
+      userId: session?.githubId,
     });
 
     return Response.json(combined);
   }
 
-  if (targetAccountId === session.githubId) {
+  if (targetAccountId === session?.githubId) {
     try {
       const result = await fetchContributionsForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        session?.githubLogin,
         days,
-        { bypass, userId: session.githubId },
+        { bypass, userId: session?.githubId },
         timezone,
         fromDate,
         repoParam,
@@ -579,7 +581,7 @@ if (rateLimitedResult) {
 
       const merged = await mergeGitLabContributions(result, gitlabToken, days, {
         bypass,
-        userId: session.githubId,
+        userId: session?.githubId,
       });
 
       return Response.json(merged);

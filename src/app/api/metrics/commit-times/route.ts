@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -13,13 +14,14 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const bypass = isMetricsCacheBypassed(req);
   const key = metricsCacheKey(
-    session.githubId ?? session.githubLogin,
+    session?.githubId ?? session?.githubLogin,
     "commit-times",
     { days: 90 }
   );
@@ -40,10 +42,10 @@ export async function GET(req: NextRequest) {
         let page = 1;
         while (true) {
           const res = await fetch(
-            `${GITHUB_API}/search/commits?q=author:${session.githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
+            `${GITHUB_API}/search/commits?q=author:${session?.githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
             {
               headers: {
-                Authorization: `Bearer ${session.accessToken}`,
+                Authorization: `Bearer ${accessToken}`,
                 Accept: "application/vnd.github+json",
               },
               cache: "no-store",
