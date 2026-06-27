@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -224,11 +225,13 @@ async function fetchReposForAccount(
 }
 
 export async function GET(req: NextRequest) {
-  // Session contains the GitHub OAuth token issued at sign-in.
+  // Session no longer carries accessToken (see auth.ts session callback) —
+  // it's read separately, server-side only, via getAccessToken().
   // Both accessToken and githubLogin are required: token for API auth,
   // login for the Commit Search query filter.
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (session.error === "TokenRevoked") {
@@ -274,7 +277,7 @@ export async function GET(req: NextRequest) {
   if (!targetAccountId) {
     try {
       const result = await fetchReposForAccount(
-        session.accessToken,
+        accessToken,
         session.githubLogin,
         days,
         { bypass, userId: session.githubId ?? session.githubLogin },
@@ -301,7 +304,7 @@ export async function GET(req: NextRequest) {
   if (targetAccountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
+        token: accessToken,
         githubId: session.githubId,
         githubLogin: session.githubLogin,
       },
@@ -342,7 +345,7 @@ export async function GET(req: NextRequest) {
   if (targetAccountId === session.githubId) {
     try {
       const result = await fetchReposForAccount(
-        session.accessToken,
+        accessToken,
         session.githubLogin,
         days,
         { bypass, userId: session.githubId },
