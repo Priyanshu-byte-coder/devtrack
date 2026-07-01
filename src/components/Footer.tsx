@@ -55,19 +55,30 @@ function FooterLink({
   href,
   children,
   external = false,
+  onClick,
 }: {
-  href: string;
+  href?: string;
   children: React.ReactNode;
   external?: boolean;
+  onClick?: () => void;
 }) {
   const baseClass =
-    "group relative w-fit text-[14px] text-[var(--muted-foreground)] transition-colors duration-200 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 rounded-sm";
+    "group relative w-fit text-[14px] text-[var(--muted-foreground)] transition-colors duration-200 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 rounded-sm text-left";
 
   const underline = (
     <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--accent)] transition-all duration-300 group-hover:w-full" />
   );
 
-  if (external) {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className={baseClass}>
+        {children}
+        {underline}
+      </button>
+    );
+  }
+
+  if (external && href) {
     return (
       <a
         href={href}
@@ -82,7 +93,7 @@ function FooterLink({
   }
 
   return (
-    <Link href={href} className={baseClass}>
+    <Link href={href || "#"} className={baseClass}>
       {children}
       {underline}
     </Link>
@@ -171,35 +182,24 @@ export default function Footer() {
             >
               Product
             </h3>
-            <div className="mt-6 flex flex-col gap-4 text-[14px] text-[var(--muted-foreground)]">
-              <Link className="transition-all duration-200 hover:text-[var(--foreground)] hover:translate-x-1 w-fit" href="/">
-                Home
-              </Link>
-              {isAuthenticated ? (
-                <Link className="transition-all duration-200 hover:text-[var(--foreground)] hover:translate-x-1 w-fit" href="/dashboard">
-                  Dashboard
-                </Link>
-              ) : (
-                <button
-                  className="transition-all duration-200 hover:text-[var(--foreground)] hover:translate-x-1 w-fit text-left"
-                  onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-                >
-                  Dashboard
-                </button>
-              )}
-              <Link className="transition-all duration-200 hover:text-[var(--foreground)] hover:translate-x-1 w-fit" href="/leaderboard">
-                Leaderboard
-              </Link>
-              <Link className="transition-all duration-200 hover:text-[var(--foreground)] hover:translate-x-1 w-fit" href="/contact">
-                Contact
-              </Link>
-            </div>
             <nav aria-label="Product links" className="mt-6 flex flex-col gap-3">
-              {PRODUCT_LINKS.map(({ label, href }) => (
-                <FooterLink key={label} href={href}>
-                  {label}
-                </FooterLink>
-              ))}
+              {PRODUCT_LINKS.map(({ label, href }) => {
+                if (label === "Dashboard" && !isAuthenticated) {
+                  return (
+                    <FooterLink
+                      key={label}
+                      onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+                    >
+                      {label}
+                    </FooterLink>
+                  );
+                }
+                return (
+                  <FooterLink key={label} href={href}>
+                    {label}
+                  </FooterLink>
+                );
+              })}
             </nav>
           </div>
 

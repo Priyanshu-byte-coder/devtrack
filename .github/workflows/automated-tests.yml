@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Code Repository Layers
         uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v6
         with:
           version: 11
 

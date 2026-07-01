@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Check, ChevronDown, Copy, Download, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -17,8 +17,8 @@ interface WeeklySummaryData {
     lastWeek: { opened: number; merged: number };
   };
   issues?: {
-    thisWeek: number;
-    lastWeek: number;
+    thisWeek: { opened: number; closed: number } | number;
+    lastWeek: { opened: number; closed: number } | number;
   };
   productivityScore?: {
     current: number;
@@ -65,8 +65,17 @@ export default function WeeklySummaryCard() {
     ? Math.max(summary.activeDays.thisWeek, summary.activeDays.lastWeek, 1)
     : 1;
 
+  const getIssuesCount = (val: { opened: number; closed: number } | number | undefined) => {
+    if (typeof val === "number") return val;
+    if (val && typeof val === "object") return val.closed;
+    return 0;
+  };
+
+  const issuesThisWeek = getIssuesCount(summary?.issues?.thisWeek);
+  const issuesLastWeek = getIssuesCount(summary?.issues?.lastWeek);
+
   const maxIssues = summary?.issues
-    ? Math.max(summary.issues.thisWeek, summary.issues.lastWeek, 1)
+    ? Math.max(issuesThisWeek, issuesLastWeek, 1)
     : 1;
 
   const fetchSummary = useCallback(() => {
@@ -124,7 +133,8 @@ Change              : ${summary.commits.trend === "up" ? "+" : summary.commits.t
 
 PRs Opened          : ${summary.prs.thisWeek.opened}
 PRs Merged          : ${summary.prs.thisWeek.merged}
-${summary.issues ? `\nIssues Resolved     : ${summary.issues.thisWeek}\nIssues Last Week    : ${summary.issues.lastWeek}` : ""}
+${summary.issues ? `\nIssues Resolved     : ${issuesThisWeek}
+Issues Last Week    : ${issuesLastWeek}` : ""}
 
 Active Days         : ${summary.activeDays.thisWeek} / 7
 Current Streak      : ${summary.streak} days
@@ -480,7 +490,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                     Issues Resolved
                   </span>
                   <span className="text-base font-semibold text-[var(--card-foreground)]">
-                    {summary.issues.thisWeek}
+                    {issuesThisWeek}
                   </span>
                 </div>
                 <div className="space-y-1.5">
@@ -491,9 +501,9 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                     <div className="flex-1">
                       <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
                         <div
-                          className="h-full bg-[var(--muted-foreground)]"
+                          className="h-full bg-[var(--muted-foreground)] opacity-50 rounded-full transition-all duration-500 ease-out"
                           style={{
-                            width: `${((summary.issues.lastWeek / maxIssues) * 100).toFixed(0)}%`,
+                            width: `${((issuesLastWeek / maxIssues) * 100).toFixed(0)}%`,
                           }}
                         />
                       </div>
@@ -508,7 +518,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                         <div
                           className="h-full bg-[var(--success)]"
                           style={{
-                            width: `${((summary.issues.thisWeek / maxIssues) * 100).toFixed(0)}%`,
+                            width: `${((issuesThisWeek / maxIssues) * 100).toFixed(0)}%`,
                           }}
                         />
                       </div>

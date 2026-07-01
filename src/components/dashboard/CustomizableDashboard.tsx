@@ -143,6 +143,11 @@ export const ContributionHeatmapSkeleton = () => (
   </div>
 );
 
+const WeeklyProgressSummary = dynamic(
+  () => import("@/components/WeeklyProgressSummary"),
+  { ssr: false, loading: () => <SkeletonCard /> },
+);
+
 const CodingActivityInsightsCard = dynamic(
   () => import("@/components/CodingActivityInsightsCard"),
   { ssr: false, loading: () => <ChartSkeleton /> },
@@ -273,7 +278,8 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
   switch (widgetId) {
     case "weekly-summary":
       return <WeeklySummaryCard />;
-
+    case "weekly-progress-summary":
+      return <WeeklyProgressSummary />;
     case "personal-records":
       return <PersonalRecords />;
 
