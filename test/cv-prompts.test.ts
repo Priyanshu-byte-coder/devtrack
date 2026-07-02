@@ -1,1 +1,315 @@
-aW1wb3J0IHsgZGVzY3JpYmUsIGl0LCBleHBlY3QgfSBmcm9tICJ2aXRlc3QiOwppbXBvcnQgewogIGN2QnVsbGV0UG9pbnRQcm9tcHQsCiAgY3ZQcm9qZWN0RGVzY3JpcHRpb25Qcm9tcHQsCiAgY3ZQcm9mZXNzaW9uYWxTdW1tYXJ5UHJvbXB0LAogIGN2U2tpbGxTdW1tYXJ5UHJvbXB0LAp9IGZyb20gIi4uL3NyYy9saWIvY3YvY3YtcHJvbXB0cyI7CmltcG9ydCB0eXBlIHsgQ29udHJpYnV0aW9uQ2xhc3NpZmljYXRpb24gfSBmcm9tICJAL3R5cGVzL2N2LXR5cGVzIjsKCmNvbnN0IG1ha2VDbGFzc2lmaWNhdGlvbiA9ICgKICBvdmVycmlkZXM6IFBhcnRpYWw8Q29udHJpYnV0aW9uQ2xhc3NpZmljYXRpb24+ID0ge30KKTogQ29udHJpYnV0aW9uQ2xhc3NpZmljYXRpb24gPT4gKHsKICB0ZWNoU3RhY2s6IHsgbGFuZ3VhZ2VzOiBbXSwgZnJhbWV3b3JrczogW10sIHRvb2xzOiBbXSB9LAogIGRvbWFpbnM6IFtdLAogIHByaW1hcnlEb21haW46ICJGdWxsU3RhY2siLAogIHJlcG9zaXRvcnlBbmFseXNlczogW10sCiAgY29udHJpYnV0aW9uU2NvcmVzOiB7CiAgICB0b3RhbFBSc01lcmdlZDogMCwKICAgIHRvdGFsQ29tbWl0czogMCwKICAgIHRvdGFsQWRkaXRpb25zOiAwLAogICAgdG90YWxEZWxldGlvbnM6IDAsCiAgICB0b3RhbFJlcG9zQ29udHJpYnV0ZWQ6IDAsCiAgICB0b3RhbElzc3VlczogMCwKICAgIHRvdGFsUmV2aWV3czogMCwKICAgIGF2Z1BSU2l6ZTogMCwKICAgIHRvcExhbmd1YWdlczogW10sCiAgfSwKICBnZW5lcmF0ZWRBdDogbmV3IERhdGUoKS50b0lTT1N0cmluZygpLAogIC4uLm92ZXJyaWRlcywKfSk7Cgpjb25zdCBST0xFID0gIkZyb250ZW5kIERldmVsb3BlciIgYXMgY29uc3Q7CgpkZXNjcmliZSgiY3YtcHJvbXB0cyIsICgpID0+IHsKICBkZXNjcmliZSgiY3ZCdWxsZXRQb2ludFByb21wdCIsICgpID0+IHsKICAgIGl0KCJpbmNsdWRlcyB0aGUgdGFyZ2V0IHJvbGUgaW4gdGhlIHByb21wdCBzdHJpbmciLCAoKSA9PiB7CiAgICAgIGNvbnN0IGNsYXNzaWZpY2F0aW9uID0gbWFrZUNsYXNzaWZpY2F0aW9uKCk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2QnVsbGV0UG9pbnRQcm9tcHQoY2xhc3NpZmljYXRpb24sIFJPTEUpOwogICAgICBleHBlY3QocHJvbXB0KS50b0NvbnRhaW4oUk9MRSk7CiAgICB9KTsKCiAgICBpdCgiaW5jbHVkZXMgcmVwb3NpdG9yeSBuYW1lcyB3aGVuIHJlcG9zIGFyZSBwcmVzZW50IiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7CiAgICAgICAgcmVwb3NpdG9yeUFuYWx5c2VzOiBbCiAgICAgICAgICB7CiAgICAgICAgICAgIG5hbWU6ICJteS1yZXBvIiwKICAgICAgICAgICAgbmFtZVdpdGhPd25lcjogIm93bmVyL215LXJlcG8iLAogICAgICAgICAgICB1cmw6ICJodHRwczovL2dpdGh1Yi5jb20vb3duZXIvbXktcmVwbyIsCiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAiQSBjb29sIHByb2plY3QiLAogICAgICAgICAgICBkZXRlY3RlZERvbWFpbnM6IFtdLAogICAgICAgICAgICBsYW5ndWFnZXM6IFsiVHlwZVNjcmlwdCJdLAogICAgICAgICAgICB0b3BpY3M6IFtdLAogICAgICAgICAgICBjb21wbGV4aXR5OiAibWVkaXVtIiwKICAgICAgICAgICAgcHJzTWVyZ2VkOiA1LAogICAgICAgICAgICB0b3RhbEFkZGl0aW9uczogNTAwLAogICAgICAgICAgICB0b3RhbERlbGV0aW9uczogMTAwLAogICAgICAgICAgICByZWxldmFuY2VCeVJvbGU6IHsgIkZyb250ZW5kIERldmVsb3BlciI6IDgwIH0sCiAgICAgICAgICB9LAogICAgICAgIF0sCiAgICAgIH0pOwogICAgICBjb25zdCBwcm9tcHQgPSBjdkJ1bGxldFBvaW50UHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJvd25lci9teS1yZXBvIik7CiAgICAgIGV4cGVjdChwcm9tcHQpLnRvQ29udGFpbigibXktcmVwbyIpOwogICAgfSk7CgogICAgaXQoImluY2x1ZGVzIGxhbmd1YWdlIGRhdGEgZm9yIHJlcG9zaXRvcmllcyIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oewogICAgICAgIHJlcG9zaXRvcnlBbmFseXNlczogWwogICAgICAgICAgewogICAgICAgICAgICBuYW1lOiAidHMtYXBwIiwKICAgICAgICAgICAgbmFtZVdpdGhPd25lcjogIm93bmVyL3RzLWFwcCIsCiAgICAgICAgICAgIHVybDogImh0dHBzOi8vZ2l0aHViLmNvbS9vd25lci90cy1hcHAiLAogICAgICAgICAgICBkZXNjcmlwdGlvbjogbnVsbCwKICAgICAgICAgICAgZGV0ZWN0ZWREb21haW5zOiBbXSwKICAgICAgICAgICAgbGFuZ3VhZ2VzOiBbIlR5cGVTY3JpcHQiLCAiUmVhY3QiXSwKICAgICAgICAgICAgdG9waWNzOiBbXSwKICAgICAgICAgICAgY29tcGxleGl0eTogIm1lZGl1bSIsCiAgICAgICAgICAgIHByc01lcmdlZDogMywKICAgICAgICAgICAgdG90YWxBZGRpdGlvbnM6IDMwMCwKICAgICAgICAgICAgdG90YWxEZWxldGlvbnM6IDUwLAogICAgICAgICAgICByZWxldmFuY2VCeVJvbGU6IHsgIkZyb250ZW5kIERldmVsb3BlciI6IDkwIH0sCiAgICAgICAgICB9LAogICAgICAgIF0sCiAgICAgIH0pOwogICAgICBjb25zdCBwcm9tcHQgPSBjdkJ1bGxldFBvaW50UHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJUeXBlU2NyaXB0Iik7CiAgICAgIGV4cGVjdChwcm9tcHQpLnRvQ29udGFpbigiUmVhY3QiKTsKICAgIH0pOwoKICAgIGl0KCJoYW5kbGVzIGVtcHR5IHJlcG9zaXRvcnkgbGlzdCBncmFjZWZ1bGx5IiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbigpOwogICAgICBjb25zdCBwcm9tcHQgPSBjdkJ1bGxldFBvaW50UHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKFJPTEUpOwogICAgICBleHBlY3QocHJvbXB0KS50b0NvbnRhaW4oIk5vIGNvbnRyaWJ1dGlvbiBkYXRhIGF2YWlsYWJsZSIpOwogICAgfSk7CgogICAgaXQoImxpbWl0cyBpbmNsdWRlZCByZXBvcyB0byB0b3AgNSBieSByZWxldmFuY2UiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHJlcG9zID0gQXJyYXkuZnJvbSh7IGxlbmd0aDogMTAgfSwgKF8sIGkpID0+ICh7CiAgICAgICAgbmFtZTogXGByZXBvLSR7aX1cYCwKICAgICAgICBuYW1lV2l0aE93bmVyOiBcYG93bmVyL3JlcG8tJHtpfVxgLAogICAgICAgIHVybDogXGBodHRwczovL2dpdGh1Yi5jb20vb3duZXIvcmVwby0ke2l9XGAsCiAgICAgICAgZGVzY3JpcHRpb246IG51bGwsCiAgICAgICAgZGV0ZWN0ZWREb21haW5zOiBbXSwKICAgICAgICBsYW5ndWFnZXM6IFsiUmVhY3QiXSwKICAgICAgICB0b3BpY3M6IFtdLAogICAgICAgIGNvbXBsZXhpdHk6ICJsb3ciIGFzIGNvbnN0LAogICAgICAgIHByc01lcmdlZDogMSwKICAgICAgICB0b3RhbEFkZGl0aW9uczogMTAsCiAgICAgICAgdG90YWxEZWxldGlvbnM6IDIsCiAgICAgICAgcmVsZXZhbmNlQnlSb2xlOiB7ICJGcm9udGVuZCBEZXZlbG9wZXIiOiAxMDAgLSBpIH0sCiAgICAgIH0pKTsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oeyByZXBvc2l0b3J5QW5hbHlzZXM6IHJlcG9zIH0pOwogICAgICBjb25zdCBwcm9tcHQgPSBjdkJ1bGxldFBvaW50UHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJyZXBvLTAiKTsKICAgICAgZXhwZWN0KHByb21wdCkubm90LnRvQ29udGFpbigicmVwby05Iik7CiAgICB9KTsKICB9KTsKCiAgZGVzY3JpYmUoImN2UHJvamVjdERlc2NyaXB0aW9uUHJvbXB0IiwgKCkgPT4gewogICAgaXQoImluY2x1ZGVzIHJlcG9zaXRvcnkgbmFtZXMgd2hlbiByZXBvcyBhcmUgcHJlc2VudCIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oewogICAgICAgIHJlcG9zaXRvcnlBbmFseXNlczogWwogICAgICAgICAgewogICAgICAgICAgICBuYW1lOiAiYXdlc29tZS1wcm9qZWN0IiwKICAgICAgICAgICAgbmFtZVdpdGhPd25lcjogIm93bmVyL2F3ZXNvbWUtcHJvamVjdCIsCiAgICAgICAgICAgIHVybDogImh0dHBzOi8vZ2l0aHViLmNvbS9vd25lci9hd2Vzb21lLXByb2plY3QiLAogICAgICAgICAgICBkZXNjcmlwdGlvbjogIkFuIGF3ZXNvbWUgcHJvamVjdCIsCiAgICAgICAgICAgIGRldGVjdGVkRG9tYWluczogW10sCiAgICAgICAgICAgIGxhbmd1YWdlczogWyJUeXBlU2NyaXB0Il0sCiAgICAgICAgICAgIHRvcGljczogWyJyZWFjdCIsICJ0eXBlc2NyaXB0Il0sCiAgICAgICAgICAgIGNvbXBsZXhpdHk6ICJoaWdoIiwKICAgICAgICAgICAgcHJzTWVyZ2VkOiAxMCwKICAgICAgICAgICAgdG90YWxBZGRpdGlvbnM6IDIwMDAsCiAgICAgICAgICAgIHRvdGFsRGVsZXRpb25zOiA1MDAsCiAgICAgICAgICAgIHJlbGV2YW5jZUJ5Um9sZTogeyAiRnJvbnRlbmQgRGV2ZWxvcGVyIjogOTUgfSwKICAgICAgICAgIH0sCiAgICAgICAgXSwKICAgICAgfSk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2UHJvamVjdERlc2NyaXB0aW9uUHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJhd2Vzb21lLXByb2plY3QiKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJvd25lci9hd2Vzb21lLXByb2plY3QiKTsKICAgIH0pOwoKICAgIGl0KCJpbmNsdWRlcyByZXBvc2l0b3J5IFVSTCIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oewogICAgICAgIHJlcG9zaXRvcnlBbmFseXNlczogWwogICAgICAgICAgewogICAgICAgICAgICBuYW1lOiAicHJvaiIsCiAgICAgICAgICAgIG5hbWVXaXRoT3duZXI6ICJvd25lci9wcm9qIiwKICAgICAgICAgICAgdXJsOiAiaHR0cHM6Ly9naXRodWIuY29tL293bmVyL3Byb2oiLAogICAgICAgICAgICBkZXNjcmlwdGlvbjogbnVsbCwKICAgICAgICAgICAgZGV0ZWN0ZWREb21haW5zOiBbXSwKICAgICAgICAgICAgbGFuZ3VhZ2VzOiBbIlJlYWN0Il0sCiAgICAgICAgICAgIHRvcGljczogW10sCiAgICAgICAgICAgIGNvbXBsZXhpdHk6ICJtZWRpdW0iLAogICAgICAgICAgICBwcnNNZXJnZWQ6IDUsCiAgICAgICAgICAgIHRvdGFsQWRkaXRpb25zOiA1MDAsCiAgICAgICAgICAgIHRvdGFsRGVsZXRpb25zOiAxMDAsCiAgICAgICAgICAgIHJlbGV2YW5jZUJ5Um9sZTogeyAiRnJvbnRlbmQgRGV2ZWxvcGVyIjogNzAgfSwKICAgICAgICAgIH0sCiAgICAgICAgXSwKICAgICAgfSk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2UHJvamVjdERlc2NyaXB0aW9uUHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJodHRwczovL2dpdGh1Yi5jb20vb3duZXIvcHJvaiIpOwogICAgfSk7CgogICAgaXQoImluY2x1ZGVzIGNvbXBsZXhpdHkgbGV2ZWwiLCAoKSA9PiB7CiAgICAgIGNvbnN0IGNsYXNzaWZpY2F0aW9uID0gbWFrZUNsYXNzaWZpY2F0aW9uKHsKICAgICAgICByZXBvc2l0b3J5QW5hbHlzZXM6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgbmFtZTogInByb2oiLAogICAgICAgICAgICBuYW1lV2l0aE93bmVyOiAib3duZXIvcHJvaiIsCiAgICAgICAgICAgIHVybDogImh0dHBzOi8vZ2l0aHViLmNvbS9vd25lci9wcm9qIiwKICAgICAgICAgICAgZGVzY3JpcHRpb246IG51bGwsCiAgICAgICAgICAgIGRldGVjdGVkRG9tYWluczogW10sCiAgICAgICAgICAgIGxhbmd1YWdlczogWyJQeXRob24iXSwKICAgICAgICAgICAgdG9waWNzOiBbXSwKICAgICAgICAgICAgY29tcGxleGl0eTogImhpZ2giIGFzIGNvbnN0LAogICAgICAgICAgICBwcnNNZXJnZWQ6IDE1LAogICAgICAgICAgICB0b3RhbEFkZGl0aW9uczogNjAwMCwKICAgICAgICAgICAgdG90YWxEZWxldGlvbnM6IDIwMDAsCiAgICAgICAgICAgIHJlbGV2YW5jZUJ5Um9sZTogeyAiRnJvbnRlbmQgRGV2ZWxvcGVyIjogNTAgfSwKICAgICAgICAgIH0sCiAgICAgICAgXSwKICAgICAgfSk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2UHJvamVjdERlc2NyaXB0aW9uUHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJoaWdoIik7CiAgICB9KTsKCiAgICBpdCgiaGFuZGxlcyBlbXB0eSByZXBvc2l0b3J5IGxpc3QgZ3JhY2VmdWxseSIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oKTsKICAgICAgY29uc3QgcHJvbXB0ID0gY3ZQcm9qZWN0RGVzY3JpcHRpb25Qcm9tcHQoY2xhc3NpZmljYXRpb24sIFJPTEUpOwogICAgICBleHBlY3QocHJvbXB0KS50b0NvbnRhaW4oIk5vIHByb2plY3RzIGF2YWlsYWJsZSIpOwogICAgfSk7CgogICAgaXQoImxpbWl0cyByZXBvcyB0byB0b3AgNCBieSByZWxldmFuY2UiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHJlcG9zID0gQXJyYXkuZnJvbSh7IGxlbmd0aDogOCB9LCAoXywgaSkgPT4gKHsKICAgICAgICBuYW1lOiBcYHJlcG8tJHtpfVxgLAogICAgICAgIG5hbWVXaXRoT3duZXI6IFxgb3duZXIvcmVwby0ke2l9XGAsCiAgICAgICAgdXJsOiBcYGh0dHBzOi8vZ2l0aHViLmNvbS9vd25lci9yZXBvLSR7aX1cYCwKICAgICAgICBkZXNjcmlwdGlvbjogbnVsbCwKICAgICAgICBkZXRlY3RlZERvbWFpbnM6IFtdLAogICAgICAgIGxhbmd1YWdlczogWyJSZWFjdCJdLAogICAgICAgIHRvcGljczogW10sCiAgICAgICAgY29tcGxleGl0eTogImxvdyIgYXMgY29uc3QsCiAgICAgICAgcHJzTWVyZ2VkOiAxLAogICAgICAgIHRvdGFsQWRkaXRpb25zOiAxMCwKICAgICAgICB0b3RhbERlbGV0aW9uczogMiwKICAgICAgICByZWxldmFuY2VCeVJvbGU6IHsgIkZyb250ZW5kIERldmVsb3BlciI6IDEwMCAtIGkgfSwKICAgICAgfSkpOwogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7IHJlcG9zaXRvcnlBbmFseXNlczogcmVwb3MgfSk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2UHJvamVjdERlc2NyaXB0aW9uUHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJyZXBvLTAiKTsKICAgICAgZXhwZWN0KHByb21wdCkubm90LnRvQ29udGFpbigicmVwby01Iik7CiAgICB9KTsKICB9KTsKCiAgZGVzY3JpYmUoImN2UHJvZmVzc2lvbmFsU3VtbWFyeVByb21wdCIsICgpID0+IHsKICAgIGl0KCJpbmNsdWRlcyB0aGUgcHJpbWFyeSBkb21haW4iLCAoKSA9PiB7CiAgICAgIGNvbnN0IGNsYXNzaWZpY2F0aW9uID0gbWFrZUNsYXNzaWZpY2F0aW9uKHsgcHJpbWFyeURvbWFpbjogIkZyb250ZW5kIiB9KTsKICAgICAgY29uc3QgcHJvbXB0ID0gY3ZQcm9mZXNzaW9uYWxTdW1tYXJ5UHJvbXB0KGNsYXNzaWZpY2F0aW9uLCBST0xFKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCJGcm9udGVuZCIpOwogICAgfSk7CgogICAgaXQoImluY2x1ZGVzIGNvbnRyaWJ1dGlvbiBzdGF0aXN0aWNzIiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7CiAgICAgICAgY29udHJpYnV0aW9uU2NvcmVzOiB7CiAgICAgICAgICB0b3RhbFBSc01lcmdlZDogNDIsCiAgICAgICAgICB0b3RhbENvbW1pdHM6IDMwMCwKICAgICAgICAgIHRvdGFsQWRkaXRpb25zOiAxMDAwMCwKICAgICAgICAgIHRvdGFsRGVsZXRpb25zOiAyMDAwLAogICAgICAgICAgdG90YWxSZXBvc0NvbnRyaWJ1dGVkOiA1LAogICAgICAgICAgdG90YWxJc3N1ZXM6IDEwLAogICAgICAgICAgdG90YWxSZXZpZXdzOiAyMCwKICAgICAgICAgIGF2Z1BSU2l6ZTogMjM4LAogICAgICAgICAgdG9wTGFuZ3VhZ2VzOiBbIlR5cGVTY3JpcHQiLCAiUHl0aG9uIl0sCiAgICAgICAgfSwKICAgICAgfSk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2UHJvZmVzc2lvbmFsU3VtbWFyeVByb21wdChjbGFzc2lmaWNhdGlvbiwgUk9MRSk7CiAgICAgIGV4cGVjdChwcm9tcHQpLnRvQ29udGFpbigiNDIiKTsKICAgICAgZXhwZWN0KHByb21wdCkudG9Db250YWluKCIzMDAiKTsKICAgIH0pOwoKICAgIGl0KCJpbmNsdWRlcyB0b3AgbGFuZ3VhZ2VzIiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7CiAgICAgICAgdGVjaFN0YWNrOiB7CiAgICAgICAgICBsYW5ndWFnZXM6IFt7IG5hbWU6ICJUeXBlU2NyaXB0IiwgY29uZmlkZW5jZTogImhpZ2giLCBzb3VyY2U6ICJsYW5ndWFnZSIgYXMgY29uc3QsIG9jY3VycmVuY2VzOiA1IH1dLAogICAgICAgICAgZnJhbWV3b3JrczogW10sCiAgICAgICAgICB0b29sczogW10sCiAgICAgICAgfSwKICAgICAgfSk7CiAgICAgIGNvbnN0IHByb21wdCA9IGN2UHJvZmVzc2lvbmFsU3VtbWFyeVByb21wdChjbGFzc2lmaWNhdGlvbiwgUk9MRSk7CiAgICAgIGV4cGVjdChwcm9tcHQpLnRvQ29udGFpbigiVHlwZVNjcmlwdCIpOwogICAgfSk7CgogICAgaXQoImRvZXMgbm90IGluY2x1ZGUgdW5yZWNvZ25pc2VkIHRlY2hub2xvZ2llcyIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oewogICAgICAgIHRlY2hTdGFjazogewogICAgICAgICAgbGFuZ3VhZ2VzOiBbeyBuYW1lOiAiU29tZUZha2VMYW5nIiwgY29uZmlkZW5jZTogImxvdyIsIHNvdXJjZTogInByX2NvbnRlbnQiIGFzIGNvbnN0LCBvY2N1cnJlbmNlczogMSB9XSwKICAgICAgICAgIGZyYW1ld29ya3M6IFtdLAogICAgICAgICAgdG9vbHM6IFtdLAogICAgICAgIH0sCiAgICAgIH0pOwogICAgICBjb25zdCBwcm9tcHQgPSBjdlByb2Zlc3Npb25hbFN1bW1hcnlQcm9tcHQoY2xhc3NpZmljYXRpb24sIFJPTEUpOwogICAgICBleHBlY3QocHJvbXB0KS5ub3QudG9Db250YWluKCJTb21lRmFrZUxhbmciKTsKICAgIH0pOwogIH0pOwoKICBkZXNjcmliZSgiY3ZTa2lsbFN1bW1hcnlQcm9tcHQiLCAoKSA9PiB7CiAgICBpdCgicmV0dXJucyBhIEpTT04tcGFyc2VhYmxlIHN0cmluZyIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oKTsKICAgICAgY29uc3QgcmVzdWx0ID0gY3ZTa2lsbFN1bW1hcnlQcm9tcHQoY2xhc3NpZmljYXRpb24sIFJPTEUpOwogICAgICBleHBlY3QoKCkgPT4gSlNPTi5wYXJzZShyZXN1bHQpKS5ub3QudG9UaHJvdygpOwogICAgfSk7CgogICAgaXQoInBhcnNlZCByZXN1bHQgY29udGFpbnMgcmVxdWlyZWQgdG9wLWxldmVsIGZpZWxkcyIsICgpID0+IHsKICAgICAgY29uc3QgY2xhc3NpZmljYXRpb24gPSBtYWtlQ2xhc3NpZmljYXRpb24oKTsKICAgICAgY29uc3QgcmVzdWx0ID0gY3ZTa2lsbFN1bW1hcnlQcm9tcHQoY2xhc3NpZmljYXRpb24sIFJPTEUpOwogICAgICBjb25zdCBwYXJzZWQgPSBKU09OLnBhcnNlKHJlc3VsdCk7CiAgICAgIGV4cGVjdChwYXJzZWQpLnRvSGF2ZVByb3BlcnR5KCJzdW1tYXJ5Iik7CiAgICAgIGV4cGVjdChwYXJzZWQpLnRvSGF2ZVByb3BlcnR5KCJza2lsbHMiKTsKICAgIH0pOwoKICAgIGl0KCJza2lsbHMgYXJyYXkgY29udGFpbnMgb2JqZWN0cyB3aXRoIGNhdGVnb3J5IGFuZCBza2lsbHMgZmllbGRzIiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7CiAgICAgICAgdGVjaFN0YWNrOiB7CiAgICAgICAgICBsYW5ndWFnZXM6IFt7IG5hbWU6ICJUeXBlU2NyaXB0IiwgY29uZmlkZW5jZTogImhpZ2giLCBzb3VyY2U6ICJsYW5ndWFnZSIgYXMgY29uc3QsIG9jY3VycmVuY2VzOiAzIH1dLAogICAgICAgICAgZnJhbWV3b3JrczogW3sgbmFtZTogIlJlYWN0IiwgY29uZmlkZW5jZTogImhpZ2giLCBzb3VyY2U6ICJsYW5ndWFnZSIgYXMgY29uc3QsIG9jY3VycmVuY2VzOiAyIH1dLAogICAgICAgICAgdG9vbHM6IFtdLAogICAgICAgIH0sCiAgICAgIH0pOwogICAgICBjb25zdCByZXN1bHQgPSBjdlNraWxsU3VtbWFyeVByb21wdChjbGFzc2lmaWNhdGlvbiwgUk9MRSk7CiAgICAgIGNvbnN0IHBhcnNlZCA9IEpTT04ucGFyc2UocmVzdWx0KTsKICAgICAgZXhwZWN0KEFycmF5LmlzQXJyYXkocGFyc2VkLnNraWxscykpLnRvQmUodHJ1ZSk7CiAgICAgIGZvciAoY29uc3QgY2F0IG9mIHBhcnNlZC5za2lsbHMpIHsKICAgICAgICBleHBlY3QoY2F0KS50b0hhdmVQcm9wZXJ0eSgiY2F0ZWdvcnkiKTsKICAgICAgICBleHBlY3QoY2F0KS50b0hhdmVQcm9wZXJ0eSgic2tpbGxzIik7CiAgICAgICAgZXhwZWN0KEFycmF5LmlzQXJyYXkoY2F0LnNraWxscykpLnRvQmUodHJ1ZSk7CiAgICAgIH0KICAgIH0pOwoKICAgIGl0KCJza2lsbHMgYXJlIGZpbHRlcmVkIHRvIGRldGVjdGVkIHRlY2hub2xvZ2llcyBvbmx5IiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7CiAgICAgICAgdGVjaFN0YWNrOiB7CiAgICAgICAgICBsYW5ndWFnZXM6IFt7IG5hbWU6ICJUeXBlU2NyaXB0IiwgY29uZmlkZW5jZTogImhpZ2giLCBzb3VyY2U6ICJsYW5ndWFnZSIgYXMgY29uc3QsIG9jY3VycmVuY2VzOiA1IH1dLAogICAgICAgICAgZnJhbWV3b3JrczogW3sgbmFtZTogIlJlYWN0IiwgY29uZmlkZW5jZTogImhpZ2giLCBzb3VyY2U6ICJsYW5ndWFnZSIgYXMgY29uc3QsIG9jY3VycmVuY2VzOiAzIH1dLAogICAgICAgICAgdG9vbHM6IFtdLAogICAgICAgIH0sCiAgICAgIH0pOwogICAgICBjb25zdCByZXN1bHQgPSBjdlNraWxsU3VtbWFyeVByb21wdChjbGFzc2lmaWNhdGlvbiwgUk9MRSk7CiAgICAgIGNvbnN0IHBhcnNlZCA9IEpTT04ucGFyc2UocmVzdWx0KTsKICAgICAgY29uc3QgYWxsU2tpbGxzID0gcGFyc2VkLnNraWxscy5mbGF0TWFwKChjYXQ6IHsgc2tpbGxzOiBzdHJpbmdbXSB9KSA9PiBjYXQuc2tpbGxzKTsKICAgICAgZXhwZWN0KGFsbFNraWxscykudG9Db250YWluKCJSZWFjdCIpOwogICAgICBleHBlY3QoYWxsU2tpbGxzKS50b0NvbnRhaW4oIlR5cGVTY3JpcHQiKTsKICAgIH0pOwoKICAgIGl0KCJpbmNsdWRlcyBkb21haW4gc2NvcmVzIiwgKCkgPT4gewogICAgICBjb25zdCBjbGFzc2lmaWNhdGlvbiA9IG1ha2VDbGFzc2lmaWNhdGlvbih7CiAgICAgICAgZG9tYWluczogWwogICAgICAgICAgeyBkb21haW46ICJGcm9udGVuZCIsIHNjb3JlOiA3NSwgZXZpZGVuY2U6IFsiVGVjaDogUmVhY3QiXSB9LAogICAgICAgICAgeyBkb21haW46ICJCYWNrZW5kIiwgc2NvcmU6IDIwLCBldmlkZW5jZTogW10gfSwKICAgICAgICBdLAogICAgICB9KTsKICAgICAgY29uc3QgcmVzdWx0ID0gY3ZTa2lsbFN1bW1hcnlQcm9tcHQoY2xhc3NpZmljYXRpb24sIFJPTEUpOwogICAgICBleHBlY3QocmVzdWx0KS50b0NvbnRhaW4oIkZyb250ZW5kIik7CiAgICAgIGV4cGVjdChyZXN1bHQpLnRvQ29udGFpbigiNzUiKTsKICAgIH0pOwogIH0pOwp9KTsK
+import { describe, it, expect } from "vitest";
+import {
+  cvBulletPointPrompt,
+  cvProjectDescriptionPrompt,
+  cvProfessionalSummaryPrompt,
+  cvSkillSummaryPrompt,
+} from "../src/lib/cv/cv-prompts";
+import type { ContributionClassification } from "@/types/cv-types";
+
+const makeClassification = (
+  overrides = {}
+) => ({
+  techStack: { languages: [], frameworks: [], tools: [] },
+  domains: [],
+  primaryDomain: "FullStack",
+  repositoryAnalyses: [],
+  contributionScores: {
+    totalPRsMerged: 0,
+    totalCommits: 0,
+    totalAdditions: 0,
+    totalDeletions: 0,
+    totalReposContributed: 0,
+    totalIssues: 0,
+    totalReviews: 0,
+    avgPRSize: 0,
+    topLanguages: [],
+  },
+  generatedAt: new Date().toISOString(),
+  ...overrides,
+});
+
+const ROLE = "Frontend Developer";
+
+describe("cv-prompts", () => {
+  describe("cvBulletPointPrompt", () => {
+    it("includes the target role in the prompt string", () => {
+      const classification = makeClassification();
+      const prompt = cvBulletPointPrompt(classification, ROLE);
+      expect(prompt).toContain(ROLE);
+    });
+
+    it("includes repository names when repos are present", () => {
+      const classification = makeClassification({
+        repositoryAnalyses: [
+          {
+            name: "my-repo",
+            nameWithOwner: "owner/my-repo",
+            url: "https://github.com/owner/my-repo",
+            description: "A cool project",
+            detectedDomains: [],
+            languages: ["TypeScript"],
+            topics: [],
+            complexity: "medium",
+            prsMerged: 5,
+            totalAdditions: 500,
+            totalDeletions: 100,
+            relevanceByRole: { "Frontend Developer": 80 },
+          },
+        ],
+      });
+      const prompt = cvBulletPointPrompt(classification, ROLE);
+      expect(prompt).toContain("owner/my-repo");
+      expect(prompt).toContain("my-repo");
+    });
+
+    it("includes language data for repositories", () => {
+      const classification = makeClassification({
+        repositoryAnalyses: [
+          {
+            name: "ts-app",
+            nameWithOwner: "owner/ts-app",
+            url: "https://github.com/owner/ts-app",
+            description: null,
+            detectedDomains: [],
+            languages: ["TypeScript", "React"],
+            topics: [],
+            complexity: "medium",
+            prsMerged: 3,
+            totalAdditions: 300,
+            totalDeletions: 50,
+            relevanceByRole: { "Frontend Developer": 90 },
+          },
+        ],
+      });
+      const prompt = cvBulletPointPrompt(classification, ROLE);
+      expect(prompt).toContain("TypeScript");
+      expect(prompt).toContain("React");
+    });
+
+    it("handles empty repository list gracefully", () => {
+      const classification = makeClassification();
+      const prompt = cvBulletPointPrompt(classification, ROLE);
+      expect(prompt).toContain(ROLE);
+      expect(prompt).toContain("No contribution data available");
+    });
+
+    it("limits included repos to top 5 by relevance", () => {
+      const repos = Array.from({ length: 10 }, (_, i) => ({
+        name: `repo-${i}`,
+        nameWithOwner: `owner/repo-${i}`,
+        url: `https://github.com/owner/repo-${i}`,
+        description: null,
+        detectedDomains: [],
+        languages: ["React"],
+        topics: [],
+        complexity: "low",
+        prsMerged: 1,
+        totalAdditions: 10,
+        totalDeletions: 2,
+        relevanceByRole: { "Frontend Developer": 100 - i },
+      }));
+      const classification = makeClassification({ repositoryAnalyses: repos });
+      const prompt = cvBulletPointPrompt(classification, ROLE);
+      expect(prompt).toContain("repo-0");
+      expect(prompt).not.toContain("repo-9");
+    });
+  });
+
+  describe("cvProjectDescriptionPrompt", () => {
+    it("includes repository names when repos are present", () => {
+      const classification = makeClassification({
+        repositoryAnalyses: [
+          {
+            name: "awesome-project",
+            nameWithOwner: "owner/awesome-project",
+            url: "https://github.com/owner/awesome-project",
+            description: "An awesome project",
+            detectedDomains: [],
+            languages: ["TypeScript"],
+            topics: ["react", "typescript"],
+            complexity: "high",
+            prsMerged: 10,
+            totalAdditions: 2000,
+            totalDeletions: 500,
+            relevanceByRole: { "Frontend Developer": 95 },
+          },
+        ],
+      });
+      const prompt = cvProjectDescriptionPrompt(classification, ROLE);
+      expect(prompt).toContain("awesome-project");
+      expect(prompt).toContain("owner/awesome-project");
+    });
+
+    it("includes repository URL", () => {
+      const classification = makeClassification({
+        repositoryAnalyses: [
+          {
+            name: "proj",
+            nameWithOwner: "owner/proj",
+            url: "https://github.com/owner/proj",
+            description: null,
+            detectedDomains: [],
+            languages: ["React"],
+            topics: [],
+            complexity: "medium",
+            prsMerged: 5,
+            totalAdditions: 500,
+            totalDeletions: 100,
+            relevanceByRole: { "Frontend Developer": 70 },
+          },
+        ],
+      });
+      const prompt = cvProjectDescriptionPrompt(classification, ROLE);
+      expect(prompt).toContain("https://github.com/owner/proj");
+    });
+
+    it("includes complexity level", () => {
+      const classification = makeClassification({
+        repositoryAnalyses: [
+          {
+            name: "proj",
+            nameWithOwner: "owner/proj",
+            url: "https://github.com/owner/proj",
+            description: null,
+            detectedDomains: [],
+            languages: ["Python"],
+            topics: [],
+            complexity: "high",
+            prsMerged: 15,
+            totalAdditions: 6000,
+            totalDeletions: 2000,
+            relevanceByRole: { "Frontend Developer": 50 },
+          },
+        ],
+      });
+      const prompt = cvProjectDescriptionPrompt(classification, ROLE);
+      expect(prompt).toContain("high");
+    });
+
+    it("handles empty repository list gracefully", () => {
+      const classification = makeClassification();
+      const prompt = cvProjectDescriptionPrompt(classification, ROLE);
+      expect(prompt).toContain("No projects available");
+    });
+
+    it("limits repos to top 4 by relevance", () => {
+      const repos = Array.from({ length: 8 }, (_, i) => ({
+        name: `repo-${i}`,
+        nameWithOwner: `owner/repo-${i}`,
+        url: `https://github.com/owner/repo-${i}`,
+        description: null,
+        detectedDomains: [],
+        languages: ["React"],
+        topics: [],
+        complexity: "low",
+        prsMerged: 1,
+        totalAdditions: 10,
+        totalDeletions: 2,
+        relevanceByRole: { "Frontend Developer": 100 - i },
+      }));
+      const classification = makeClassification({ repositoryAnalyses: repos });
+      const prompt = cvProjectDescriptionPrompt(classification, ROLE);
+      expect(prompt).toContain("repo-0");
+      expect(prompt).not.toContain("repo-5");
+    });
+  });
+
+  describe("cvProfessionalSummaryPrompt", () => {
+    it("includes the primary domain", () => {
+      const classification = makeClassification({ primaryDomain: "Frontend" });
+      const prompt = cvProfessionalSummaryPrompt(classification, ROLE);
+      expect(prompt).toContain("Frontend");
+    });
+
+    it("includes contribution statistics", () => {
+      const classification = makeClassification({
+        contributionScores: {
+          totalPRsMerged: 42,
+          totalCommits: 300,
+          totalAdditions: 10000,
+          totalDeletions: 2000,
+          totalReposContributed: 5,
+          totalIssues: 10,
+          totalReviews: 20,
+          avgPRSize: 238,
+          topLanguages: ["TypeScript", "Python"],
+        },
+      });
+      const prompt = cvProfessionalSummaryPrompt(classification, ROLE);
+      expect(prompt).toContain("42");
+      expect(prompt).toContain("300");
+    });
+
+    it("includes top languages", () => {
+      const classification = makeClassification({
+        techStack: {
+          languages: [{ name: "TypeScript", confidence: "high", source: "language", occurrences: 5 }],
+          frameworks: [],
+          tools: [],
+        },
+      });
+      const prompt = cvProfessionalSummaryPrompt(classification, ROLE);
+      expect(prompt).toContain("TypeScript");
+    });
+
+    it("includes all languages from techStack without filtering by confidence", () => {
+      const classification = makeClassification({
+        techStack: {
+          languages: [
+            { name: "TypeScript", confidence: "high", source: "language", occurrences: 3 },
+            { name: "Webpack", confidence: "low", source: "pr_content", occurrences: 1 },
+          ],
+          frameworks: [],
+          tools: [],
+        },
+      });
+      const prompt = cvProfessionalSummaryPrompt(classification, ROLE);
+      expect(prompt).toContain("TypeScript");
+      expect(prompt).toContain("Webpack");
+    });
+  });
+
+  describe("cvSkillSummaryPrompt", () => {
+    it("returns a string prompt that instructs the LLM to respond with JSON", () => {
+      const classification = makeClassification();
+      const result = cvSkillSummaryPrompt(classification, ROLE);
+      expect(typeof result).toBe("string");
+      expect(result).toContain("You are an expert");
+      expect(result).toContain("TARGET ROLE");
+      expect(result).toContain("Respond ONLY with valid JSON");
+    });
+
+    it("includes detected languages in the prompt", () => {
+      const classification = makeClassification({
+        techStack: {
+          languages: [{ name: "TypeScript", confidence: "high", source: "language", occurrences: 3 }],
+          frameworks: [{ name: "React", confidence: "high", source: "language", occurrences: 2 }],
+          tools: [],
+        },
+      });
+      const result = cvSkillSummaryPrompt(classification, ROLE);
+      expect(result).toContain("TypeScript");
+      expect(result).toContain("React");
+    });
+
+    it("includes domain scores when domains are provided", () => {
+      const classification = makeClassification({
+        domains: [
+          { domain: "Frontend", score: 75, evidence: ["Tech: React"] },
+          { domain: "Backend", score: 20, evidence: [] },
+        ],
+      });
+      const result = cvSkillSummaryPrompt(classification, ROLE);
+      expect(result).toContain("Frontend");
+      expect(result).toContain("75");
+    });
+
+    it("handles empty techStack gracefully", () => {
+      const classification = makeClassification();
+      const result = cvSkillSummaryPrompt(classification, ROLE);
+      expect(typeof result).toBe("string");
+      expect(result).toContain("TARGET ROLE");
+    });
+  });
+});
