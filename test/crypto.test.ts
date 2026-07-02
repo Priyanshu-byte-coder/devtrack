@@ -1,1 +1,179 @@
-aW1wb3J0IHsgZGVzY3JpYmUsIGl0LCBleHBlY3QsIGJlZm9yZUVhY2gsIGFmdGVyRWFjaCB9IGZyb20gInZpdGVzdCI7CmltcG9ydCB7CiAgZW5jcnlwdFRva2VuLAogIGRlY3J5cHRUb2tlbiwKICBzYWZlQ29tcGFyZSwKICBnZXRFeHBlY3RlZFNpZ25hdHVyZSwKICB2ZXJpZnlHaXRIdWJTaWduYXR1cmUsCn0gZnJvbSAiLi4vc3JjL2xpYi9jcnlwdG8iOwoKY29uc3QgVkFMSURfS0VZID0gIjAiLnJlcGVhdCg2NCk7CmNvbnN0IFdFQkhPT0tfU0VDUkVUID0gInRlc3Qtd2ViaG9vay1zZWNyZXQiOwoKZGVzY3JpYmUoImNyeXB0byIsICgpID0+IHsKICBkZXNjcmliZSgiZW5jcnlwdFRva2VuIiwgKCkgPT4gewogICAgYmVmb3JlRWFjaCgoKSA9PiB7CiAgICAgIHByb2Nlc3MuZW52LkVOQ1JZUFRJT05fS0VZID0gVkFMSURfS0VZOwogICAgfSk7CgogICAgYWZ0ZXJFYWNoKCgpID0+IHsKICAgICAgZGVsZXRlIHByb2Nlc3MuZW52LkVOQ1JZUFRJT05fS0VZOwogICAgfSk7CgogICAgaXQoInJldHVybnMgYW4gb2JqZWN0IHdpdGggZW5jcnlwdGVkIGFuZCBpdiBwcm9wZXJ0aWVzIiwgKCkgPT4gewogICAgICBjb25zdCByZXN1bHQgPSBlbmNyeXB0VG9rZW4oImhlbGxvIHdvcmxkIik7CiAgICAgIGV4cGVjdChyZXN1bHQpLnRvSGF2ZVByb3BlcnR5KCJlbmNyeXB0ZWQiKTsKICAgICAgZXhwZWN0KHJlc3VsdCkudG9IYXZlUHJvcGVydHkoIml2Iik7CiAgICB9KTsKCiAgICBpdCgiZW5jcnlwdGVkIGlzIGEgaGV4IHN0cmluZyIsICgpID0+IHsKICAgICAgY29uc3QgeyBlbmNyeXB0ZWQgfSA9IGVuY3J5cHRUb2tlbigiaGVsbG8gd29ybGQiKTsKICAgICAgZXhwZWN0KGVuY3J5cHRlZCkudG9NYXRjaCgvXlswLTlhLWZdKyQvKTsKICAgIH0pOwoKICAgIGl0KCJpdiBpcyBhIDI0LWNoYXJhY3RlciBoZXggc3RyaW5nICgxMiBieXRlcykiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHsgaXYgfSA9IGVuY3J5cHRUb2tlbigiaGVsbG8gd29ybGQiKTsKICAgICAgZXhwZWN0KGl2KS50b01hdGNoKC9eWzAtOWEtZl17MjR9JC8pOwogICAgfSk7CgogICAgaXQoImRpZmZlcmVudCBjYWxscyBwcm9kdWNlIGRpZmZlcmVudCBJVnMiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHsgaXY6IGl2MSB9ID0gZW5jcnlwdFRva2VuKCJzYW1lIHRleHQiKTsKICAgICAgY29uc3QgeyBpdjogaXYyIH0gPSBlbmNyeXB0VG9rZW4oInNhbWUgdGV4dCIpOwogICAgICBleHBlY3QoaXYxKS5ub3QudG9CZShpdjIpOwogICAgfSk7CgogICAgaXQoInRocm93cyBmb3IgbWlzc2luZyBFTkNSWVBUSU9OX0tFWSIsICgpID0+IHsKICAgICAgZGVsZXRlIHByb2Nlc3MuZW52LkVOQ1JZUFRJT05fS0VZOwogICAgICBleHBlY3QoKCkgPT4gZW5jcnlwdFRva2VuKCJwbGFpbnRleHQiKSkudG9UaHJvdygpOwogICAgfSk7CgogICAgaXQoInRocm93cyBmb3IgaW52YWxpZCBFTkNSWVBUSU9OX0tFWSAodG9vIHNob3J0KSIsICgpID0+IHsKICAgICAgcHJvY2Vzcy5lbnYuRU5DUllQVElPTl9LRVkgPSAiYWJjZCIucmVwZWF0KDE2KTsKICAgICAgZXhwZWN0KCgpID0+IGVuY3J5cHRUb2tlbigicGxhaW50ZXh0IikpLnRvVGhyb3coKTsKICAgIH0pOwoKICAgIGl0KCJ0aHJvd3MgZm9yIEVOQ1JZUFRJT05fS0VZIHRoYXQgaXMgbm90IDY0IGhleCBjaGFycyIsICgpID0+IHsKICAgICAgcHJvY2Vzcy5lbnYuRU5DUllQVElPTl9LRVkgPSAiZ2ciLnJlcGVhdCgzMik7CiAgICAgIGV4cGVjdCgoKSA9PiBlbmNyeXB0VG9rZW4oInBsYWludGV4dCIpKS50b1Rocm93KCk7CiAgICB9KTsKICB9KTsKCiAgZGVzY3JpYmUoImRlY3J5cHRUb2tlbiIsICgpID0+IHsKICAgIGJlZm9yZUVhY2goKCkgPT4gewogICAgICBwcm9jZXNzLmVudi5FTkNSWVBUSU9OX0tFWSA9IFZBTElEX0tFWTsKICAgIH0pOwoKICAgIGFmdGVyRWFjaCgoKSA9PiB7CiAgICAgIGRlbGV0ZSBwcm9jZXNzLmVudi5FTkNSWVBUSU9OX0tFWTsKICAgIH0pOwoKICAgIGl0KCJyb3VuZC10cmlwcyBlbmNyeXB0IHRoZW4gZGVjcnlwdCBhbmQgcmVjb3ZlcnMgb3JpZ2luYWwgcGxhaW50ZXh0IiwgKCkgPT4gewogICAgICBjb25zdCBwbGFpbnRleHQgPSAibXktc3VwZXItc2VjcmV0LXRva2VuLTEyMyEiOwogICAgICBjb25zdCB7IGVuY3J5cHRlZCwgaXYgfSA9IGVuY3J5cHRUb2tlbihwbGFpbnRleHQpOwogICAgICBjb25zdCBkZWNyeXB0ZWQgPSBkZWNyeXB0VG9rZW4oZW5jcnlwdGVkLCBpdik7CiAgICAgIGV4cGVjdChkZWNyeXB0ZWQpLnRvQmUocGxhaW50ZXh0KTsKICAgIH0pOwoKICAgIGl0KCJyZXR1cm5zIG51bGwgZm9yIHRhbXBlcmVkIGNpcGhlcnRleHQiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHsgZW5jcnlwdGVkLCBpdiB9ID0gZW5jcnlwdFRva2VuKCJvcmlnaW5hbCB0ZXh0Iik7CiAgICAgIGNvbnN0IHRhbXBlcmVkID0gZW5jcnlwdGVkLnNsaWNlKDAsIC0yKSArICJmZiI7CiAgICAgIGV4cGVjdChkZWNyeXB0VG9rZW4odGFtcGVyZWQsIGl2KSkudG9CZU51bGwoKTsKICAgIH0pOwoKICAgIGl0KCJyZXR1cm5zIG51bGwgZm9yIHdyb25nIElWIiwgKCkgPT4gewogICAgICBjb25zdCB7IGVuY3J5cHRlZCB9ID0gZW5jcnlwdFRva2VuKCJvcmlnaW5hbCB0ZXh0Iik7CiAgICAgIGNvbnN0IHdyb25nSXYgPSAiYSIucmVwZWF0KDI0KTsKICAgICAgZXhwZWN0KGRlY3J5cHRUb2tlbihlbmNyeXB0ZWQsIHdyb25nSXYpKS50b0JlTnVsbCgpOwogICAgfSk7CgogICAgaXQoInJldHVybnMgbnVsbCBmb3IgSVYgdGhhdCBpcyBub3QgMTIgYnl0ZXMgKDI0IGhleCBjaGFycykiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHsgZW5jcnlwdGVkIH0gPSBlbmNyeXB0VG9rZW4oIm9yaWdpbmFsIHRleHQiKTsKICAgICAgY29uc3Qgc2hvcnRJdiA9ICJhIi5yZXBlYXQoMjApOwogICAgICBleHBlY3QoZGVjcnlwdFRva2VuKGVuY3J5cHRlZCwgc2hvcnRJdikpLnRvQmVOdWxsKCk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBudWxsIHdoZW4gY2lwaGVydGV4dCBpcyB0b28gc2hvcnQiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHNob3J0RW5jcnlwdGVkID0gImEiLnJlcGVhdCgyMCk7CiAgICAgIGNvbnN0IGl2ID0gImIiLnJlcGVhdCgyNCk7CiAgICAgIGV4cGVjdChkZWNyeXB0VG9rZW4oc2hvcnRFbmNyeXB0ZWQsIGl2KSkudG9CZU51bGwoKTsKICAgIH0pOwoKICAgIGl0KCJ0aHJvd3MgZm9yIG1pc3NpbmcgRU5DUllQVElPTl9LRVkiLCAoKSA9PiB7CiAgICAgIGRlbGV0ZSBwcm9jZXNzLmVudi5FTkNSWVBUSU9OX0tFWTsKICAgICAgY29uc3QgeyBlbmNyeXB0ZWQsIGl2IH0gPSBlbmNyeXB0VG9rZW4oInRleHQiKTsKICAgICAgZXhwZWN0KCgpID0+IGRlY3J5cHRUb2tlbihlbmNyeXB0ZWQsIGl2KSkudG9UaHJvdygpOwogICAgfSk7CgogICAgaXQoImhhbmRsZXMgdW5pY29kZSBwbGFpbnRleHQgY29ycmVjdGx5IiwgKCkgPT4gewogICAgICBjb25zdCBwbGFpbnRleHQgPSAidG9rZW4td2l0aC11bmljb2RlOiB0ZXN0IjsKICAgICAgY29uc3QgeyBlbmNyeXB0ZWQsIGl2IH0gPSBlbmNyeXB0VG9rZW4ocGxhaW50ZXh0KTsKICAgICAgZXhwZWN0KGRlY3J5cHRUb2tlbihlbmNyeXB0ZWQsIGl2KSkudG9CZShwbGFpbnRleHQpOwogICAgfSk7CgogICAgaXQoImhhbmRsZXMgZW1wdHkgc3RyaW5nIHBsYWludGV4dCIsICgpID0+IHsKICAgICAgY29uc3QgeyBlbmNyeXB0ZWQsIGl2IH0gPSBlbmNyeXB0VG9rZW4oIiIpOwogICAgICBleHBlY3QoZGVjcnlwdFRva2VuKGVuY3J5cHRlZCwgaXYpKS50b0JlKCIiKTsKICAgIH0pOwogIH0pOwoKICBkZXNjcmliZSgic2FmZUNvbXBhcmUiLCAoKSA9PiB7CiAgICBpdCgicmV0dXJucyB0cnVlIGZvciBpZGVudGljYWwgc3RyaW5ncyIsICgpID0+IHsKICAgICAgZXhwZWN0KHNhZmVDb21wYXJlKCJoZWxsbyIsICJoZWxsbyIpKS50b0JlKHRydWUpOwogICAgfSk7CgogICAgaXQoInJldHVybnMgZmFsc2UgZm9yIHN0cmluZ3Mgb2YgZGlmZmVyZW50IGxlbmd0aCIsICgpID0+IHsKICAgICAgZXhwZWN0KHNhZmVDb21wYXJlKCJoZWxsbyIsICJoZWxsbyEiKSkudG9CZShmYWxzZSk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBmYWxzZSBmb3Igc2FtZS1sZW5ndGggYnV0IGRpZmZlcmVudCBjb250ZW50IiwgKCkgPT4gewogICAgICBleHBlY3Qoc2FmZUNvbXBhcmUoImhlbGxvIiwgIndvcmxkIikpLnRvQmUoZmFsc2UpOwogICAgfSk7CgogICAgaXQoInJldHVybnMgdHJ1ZSBmb3IgZW1wdHkgc3RyaW5ncyIsICgpID0+IHsKICAgICAgZXhwZWN0KHNhZmVDb21wYXJlKCIiLCAiIikpLnRvQmUodHJ1ZSk7CiAgICB9KTsKCiAgICBpdCgiaGFuZGxlcyB1bmljb2RlIHN0cmluZ3MiLCAoKSA9PiB7CiAgICAgIGV4cGVjdChzYWZlQ29tcGFyZSgiY2FmZSIsICJjYWZlIikpLnRvQmUodHJ1ZSk7CiAgICAgIGV4cGVjdChzYWZlQ29tcGFyZSgiY2FmZSIsICJ0ZWEiKSkudG9CZShmYWxzZSk7CiAgICB9KTsKICB9KTsKCiAgZGVzY3JpYmUoImdldEV4cGVjdGVkU2lnbmF0dXJlIiwgKCkgPT4gewogICAgaXQoInJldHVybnMgYSBzdHJpbmcgcHJlZml4ZWQgd2l0aCBzaGEyNTY9IiwgKCkgPT4gewogICAgICBjb25zdCBzaWcgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZShXRUJIT09LX1NFQ1JFVCwgInBheWxvYWQiKTsKICAgICAgZXhwZWN0KHNpZy5zdGFydHNXaXRoKCJzaGEyNTY9IikpLnRvQmUodHJ1ZSk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBhIDcxLWNoYXJhY3RlciBoZXggc3RyaW5nIChzaGEyNTYgPSAzMiBieXRlcyA9IDY0IGhleCBjaGFycykiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHNpZyA9IGdldEV4cGVjdGVkU2lnbmF0dXJlKFdFQkhPT0tfU0VDUkVULCAicGF5bG9hZCIpOwogICAgICBleHBlY3Qoc2lnKS50b01hdGNoKC9ec2hhMjU2PVswLTlhLWZdezY0fSQvKTsKICAgIH0pOwoKICAgIGl0KCJzYW1lIHNlY3JldCBhbmQgYm9keSBhbHdheXMgcHJvZHVjZSB0aGUgc2FtZSBzaWduYXR1cmUiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHNpZzEgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZSgic2VjcmV0IiwgImJvZHkiKTsKICAgICAgY29uc3Qgc2lnMiA9IGdldEV4cGVjdGVkU2lnbmF0dXJlKCJzZWNyZXQiLCAiYm9keSIpOwogICAgICBleHBlY3Qoc2lnMSkudG9CZShzaWcyKTsKICAgIH0pOwoKICAgIGl0KCJkaWZmZXJlbnQgYm9kaWVzIHByb2R1Y2UgZGlmZmVyZW50IHNpZ25hdHVyZXMiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHNpZzEgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZSgic2VjcmV0IiwgImJvZHkxIik7CiAgICAgIGNvbnN0IHNpZzIgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZSgic2VjcmV0IiwgImJvZHkyIik7CiAgICAgIGV4cGVjdChzaWcxKS5ub3QudG9CZShzaWcyKTsKICAgIH0pOwoKICAgIGl0KCJkaWZmZXJlbnQgc2VjcmV0cyBwcm9kdWNlIGRpZmZlcmVudCBzaWduYXR1cmVzIGZvciBzYW1lIGJvZHkiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHNpZzEgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZSgic2VjcmV0MSIsICJib2R5Iik7CiAgICAgIGNvbnN0IHNpZzIgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZSgic2VjcmV0MiIsICJib2R5Iik7CiAgICAgIGV4cGVjdChzaWcxKS5ub3QudG9CZShzaWcyKTsKICAgIH0pOwogIH0pOwoKICBkZXNjcmliZSgidmVyaWZ5R2l0SHViU2lnbmF0dXJlIiwgKCkgPT4gewogICAgaXQoInJldHVybnMgdHJ1ZSBmb3IgYSB2YWxpZCBzaGEyNTY9IHNpZ25hdHVyZSIsICgpID0+IHsKICAgICAgY29uc3QgYm9keSA9ICd7ImFjdGlvbiI6InB1c2gifSc7CiAgICAgIGNvbnN0IHNpZyA9IGdldEV4cGVjdGVkU2lnbmF0dXJlKFdFQkhPT0tfU0VDUkVULCBib2R5KTsKICAgICAgZXhwZWN0KHZlcmlmeUdpdEh1YlNpZ25hdHVyZShib2R5LCBzaWcsIFdFQkhPT0tfU0VDUkVUKSkudG9CZSh0cnVlKTsKICAgIH0pOwoKICAgIGl0KCJyZXR1cm5zIGZhbHNlIGZvciBhbiBpbnZhbGlkIHNpZ25hdHVyZSIsICgpID0+IHsKICAgICAgY29uc3QgYm9keSA9ICd7ImFjdGlvbiI6InB1c2gifSc7CiAgICAgIGNvbnN0IGJhZFNpZyA9ICJzaGEyNTY9IiArICJhIi5yZXBlYXQoNjQpOwogICAgICBleHBlY3QodmVyaWZ5R2l0SHViU2lnbmF0dXJlKGJvZHksIGJhZFNpZywgV0VCSE9PS19TRUNSRVQpKS50b0JlKGZhbHNlKTsKICAgIH0pOwoKICAgIGl0KCJyZXR1cm5zIGZhbHNlIGZvciBudWxsIHNpZ25hdHVyZSIsICgpID0+IHsKICAgICAgZXhwZWN0KHZlcmlmeUdpdEh1YlNpZ25hdHVyZSgiYm9keSIsIG51bGwsIFdFQkhPT0tfU0VDUkVUKSkudG9CZShmYWxzZSk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBmYWxzZSBmb3Igc2lnbmF0dXJlIHdpdGhvdXQgc2hhMjU2PSBwcmVmaXgiLCAoKSA9PiB7CiAgICAgIGNvbnN0IGJvZHkgPSAneyJhY3Rpb24iOiJwdXNoIn0nOwogICAgICBjb25zdCBzaWcgPSBnZXRFeHBlY3RlZFNpZ25hdHVyZShXRUJIT09LX1NFQ1JFVCwgYm9keSk7CiAgICAgIGNvbnN0IG5vUHJlZml4ID0gc2lnLnJlcGxhY2UoInNoYTI1Nj0iLCAiIik7CiAgICAgIGV4cGVjdCh2ZXJpZnlHaXRIdWJTaWduYXR1cmUoYm9keSwgbm9QcmVmaXgsIFdFQkhPT0tfU0VDUkVUKSkudG9CZShmYWxzZSk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBmYWxzZSBmb3IgdW5kZWZpbmVkIHNpZ25hdHVyZSIsICgpID0+IHsKICAgICAgZXhwZWN0KAogICAgICAgIHZlcmlmeUdpdEh1YlNpZ25hdHVyZSgiYm9keSIsIHVuZGVmaW5lZCwgV0VCSE9PS19TRUNSRVQpCiAgICAgICkudG9CZShmYWxzZSk7CiAgICB9KTsKICB9KTsKfSk7Cg==
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import {
+  encryptToken,
+  decryptToken,
+  safeCompare,
+  getExpectedSignature,
+  verifyGitHubSignature,
+} from "../src/lib/crypto";
+
+const VALID_KEY = "0".repeat(64);
+const WEBSOCKET_SECRET = "test-websocket-secret";
+
+describe("crypto", () => {
+  beforeEach(() => {
+    process.env.ENCRYPTION_KEY = VALID_KEY;
+    process.env.WEBSOCKET_SECRET = WEBSOCKET_SECRET;
+  });
+
+  afterEach(() => {
+    delete process.env.ENCRYPTION_KEY;
+    delete process.env.WEBSOCKET_SECRET;
+  });
+
+  describe("encryptToken", () => {
+    it("returns an object with encrypted and iv properties", () => {
+      const result = encryptToken("hello world");
+      expect(result).toHaveProperty("encrypted");
+      expect(result).toHaveProperty("iv");
+    });
+
+    it("encrypted is a hex string", () => {
+      const { encrypted } = encryptToken("hello world");
+      expect(encrypted).toMatch(/^[0-9a-f]+$/);
+    });
+
+    it("iv is a 24-character hex string (12 bytes)", () => {
+      const { iv } = encryptToken("hello world");
+      expect(iv).toHaveLength(24);
+      expect(iv).toMatch(/^[0-9a-f]{24}$/);
+    });
+
+    it("different calls produce different IVs", () => {
+      const { iv: iv1 } = encryptToken("hello");
+      const { iv: iv2 } = encryptToken("hello");
+      expect(iv1).not.toBe(iv2);
+    });
+
+    it("throws for missing ENCRYPTION_KEY", () => {
+      delete process.env.ENCRYPTION_KEY;
+      expect(() => encryptToken("test")).toThrow();
+    });
+
+    it("throws for ENCRYPTION_KEY that is not 64 hex chars", () => {
+      process.env.ENCRYPTION_KEY = "not-valid";
+      expect(() => encryptToken("test")).toThrow();
+    });
+
+    it("round-trips encrypt then decrypt and recovers original plaintext", () => {
+      const plaintext = "sensitive data with unicode";
+      const { encrypted, iv } = encryptToken(plaintext);
+      const decrypted = decryptToken(encrypted, iv);
+      expect(decrypted).toBe(plaintext);
+    });
+
+    it("returns null for tampered ciphertext", () => {
+      const { encrypted, iv } = encryptToken("hello");
+      const tampered = encrypted.slice(0, -2) + "ff";
+      expect(decryptToken(tampered, iv)).toBeNull();
+    });
+
+    it("returns null for wrong IV", () => {
+      const { encrypted } = encryptToken("hello");
+      const wrongIv = "a".repeat(24);
+      expect(decryptToken(encrypted, wrongIv)).toBeNull();
+    });
+
+    it("returns null for IV that is not 12 bytes (24 hex chars)", () => {
+      const { encrypted } = encryptToken("hello");
+      const shortIv = "abcd";
+      expect(decryptToken(encrypted, shortIv)).toBeNull();
+    });
+
+    it("returns null when ciphertext is too short", () => {
+      const short = "aabbccdd";
+      const iv = "a".repeat(24);
+      expect(decryptToken(short, iv)).toBeNull();
+    });
+
+    it("handles unicode plaintext correctly", () => {
+      const plaintext = "cafe resume test";
+      const { encrypted, iv } = encryptToken(plaintext);
+      const decrypted = decryptToken(encrypted, iv);
+      expect(decrypted).toBe(plaintext);
+    });
+  });
+
+  describe("decryptToken", () => {
+    it("decrypts correctly with valid inputs", () => {
+      const { encrypted, iv } = encryptToken("decrypt me");
+      expect(decryptToken(encrypted, iv)).toBe("decrypt me");
+    });
+
+    it("returns null for invalid key", () => {
+      const { encrypted, iv } = encryptToken("test");
+      process.env.ENCRYPTION_KEY = "a".repeat(64);
+      expect(decryptToken(encrypted, iv)).toBeNull();
+    });
+
+    it("returns null for missing ENCRYPTION_KEY", () => {
+      delete process.env.ENCRYPTION_KEY;
+      const { encrypted, iv } = encryptToken("test");
+      expect(decryptToken(encrypted, iv)).toBeNull();
+    });
+  });
+
+  describe("safeCompare", () => {
+    it("returns true for equal strings", () => {
+      expect(safeCompare("abc", "abc")).toBe(true);
+    });
+
+    it("returns false for different strings", () => {
+      expect(safeCompare("abc", "abd")).toBe(false);
+    });
+
+    it("returns false for different length strings", () => {
+      expect(safeCompare("short", "longer string")).toBe(false);
+    });
+
+    it("handles empty strings", () => {
+      expect(safeCompare("", "")).toBe(true);
+      expect(safeCompare("", "a")).toBe(false);
+    });
+  });
+
+  describe("getExpectedSignature", () => {
+    it("returns a sha256= prefixed string", () => {
+      const sig = getExpectedSignature("secret", "body");
+      expect(sig).toMatch(/^sha256=[0-9a-f]{64}$/);
+    });
+
+    it("produces consistent signatures for same input", () => {
+      const sig1 = getExpectedSignature("secret", "body");
+      const sig2 = getExpectedSignature("secret", "body");
+      expect(sig1).toBe(sig2);
+    });
+
+    it("produces different signatures for different secrets", () => {
+      const sig1 = getExpectedSignature("secret1", "body");
+      const sig2 = getExpectedSignature("secret2", "body");
+      expect(sig1).not.toBe(sig2);
+    });
+  });
+
+  describe("verifyGitHubSignature", () => {
+    it("returns true for valid signature", () => {
+      const body = '{"action":"push"}';
+      const secret = "webhook-secret";
+      const sig = getExpectedSignature(secret, body);
+      expect(verifyGitHubSignature(body, sig, secret)).toBe(true);
+    });
+
+    it("returns false for invalid signature", () => {
+      const body = '{"action":"push"}';
+      const secret = "webhook-secret";
+      expect(verifyGitHubSignature(body, "sha256=wrong", secret)).toBe(false);
+    });
+
+    it("returns false for null signature", () => {
+      expect(verifyGitHubSignature("body", null, "secret")).toBe(false);
+    });
+
+    it("returns false for signature without sha256= prefix", () => {
+      const body = "body";
+      const sig = getExpectedSignature("secret", body);
+      const badSig = sig.replace("sha256=", "");
+      expect(verifyGitHubSignature(body, badSig, "secret")).toBe(false);
+    });
+  });
+});
