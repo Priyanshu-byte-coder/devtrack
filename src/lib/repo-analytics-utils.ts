@@ -14,7 +14,7 @@ export interface ParsedRepo {
  * Returns the split components on success, or null if the value is invalid.
  */
 export function parseRepoParam(raw: string): ParsedRepo | null {
-  const normalized = raw.trim().replace(/^\/+,"").replace(/\/+/g,"/");
+  const normalized = raw.trim().replace(/\/+/, "").replace(/\/+/g, "/");
   const match = REPO_IDENTIFIER_RE.exec(normalized);
   if (!match) return null;
 
