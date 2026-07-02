@@ -9,11 +9,13 @@ export interface ParsedRepo {
 
 /**
  * Validates and parses a raw "owner/repo" string.
+ * Handles inputs that may contain a leading slash (e.g. from URL paths)
+ * or consecutive slashes.
  * Returns the split components on success, or null if the value is invalid.
  */
 export function parseRepoParam(raw: string): ParsedRepo | null {
-  const trimmed = raw.trim();
-  const match = REPO_IDENTIFIER_RE.exec(trimmed);
+  const normalized = raw.trim().replace(/^\/+,"").replace(/\/+/g,"/");
+  const match = REPO_IDENTIFIER_RE.exec(normalized);
   if (!match) return null;
 
   const [, owner, repo] = match;
