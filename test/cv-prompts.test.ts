@@ -5,11 +5,17 @@ import {
   cvProfessionalSummaryPrompt,
   cvSkillSummaryPrompt,
 } from "../src/lib/cv/cv-prompts";
-import type { ContributionClassification } from "@/types/cv-types";
+import type { ContributionClassification, TechItem } from "@/types/cv-types";
 
-const makeClassification = (
-  overrides = {}
-) => ({
+const makeTechItem = (name: string, overrides: Partial<TechItem> = {}): TechItem => ({
+  name,
+  confidence: "high",
+  source: "language",
+  occurrences: 1,
+  ...overrides,
+});
+
+const makeClassification = (overrides: Partial<ContributionClassification> = {}): ContributionClassification => ({
   techStack: { languages: [], frameworks: [], tools: [] },
   domains: [],
   primaryDomain: "FullStack",
@@ -109,7 +115,7 @@ describe("cv-prompts", () => {
         totalDeletions: 2,
         relevanceByRole: { "Frontend Developer": 100 - i },
       }));
-      const classification = makeClassification({ repositoryAnalyses: repos });
+      const classification = makeClassification({ repositoryAnalyses: repos as any });
       const prompt = cvBulletPointPrompt(classification, ROLE);
       expect(prompt).toContain("repo-0");
       expect(prompt).not.toContain("repo-9");
@@ -208,7 +214,7 @@ describe("cv-prompts", () => {
         totalDeletions: 2,
         relevanceByRole: { "Frontend Developer": 100 - i },
       }));
-      const classification = makeClassification({ repositoryAnalyses: repos });
+      const classification = makeClassification({ repositoryAnalyses: repos as any });
       const prompt = cvProjectDescriptionPrompt(classification, ROLE);
       expect(prompt).toContain("repo-0");
       expect(prompt).not.toContain("repo-5");
@@ -244,7 +250,7 @@ describe("cv-prompts", () => {
     it("includes top languages", () => {
       const classification = makeClassification({
         techStack: {
-          languages: [{ name: "TypeScript", confidence: "high", source: "language", occurrences: 5 }],
+          languages: [makeTechItem("TypeScript", { confidence: "high", source: "language", occurrences: 3 })],
           frameworks: [],
           tools: [],
         },
@@ -257,8 +263,8 @@ describe("cv-prompts", () => {
       const classification = makeClassification({
         techStack: {
           languages: [
-            { name: "TypeScript", confidence: "high", source: "language", occurrences: 3 },
-            { name: "Webpack", confidence: "low", source: "pr_content", occurrences: 1 },
+            makeTechItem("TypeScript", { confidence: "high", source: "language", occurrences: 3 }),
+            makeTechItem("Webpack", { confidence: "low", source: "pr_content", occurrences: 1 }),
           ],
           frameworks: [],
           tools: [],
@@ -283,8 +289,8 @@ describe("cv-prompts", () => {
     it("includes detected languages in the prompt", () => {
       const classification = makeClassification({
         techStack: {
-          languages: [{ name: "TypeScript", confidence: "high", source: "language", occurrences: 3 }],
-          frameworks: [{ name: "React", confidence: "high", source: "language", occurrences: 2 }],
+          languages: [makeTechItem("TypeScript", { confidence: "high", source: "language", occurrences: 3 })],
+          frameworks: [makeTechItem("React", { confidence: "high", source: "language", occurrences: 2 })],
           tools: [],
         },
       });
