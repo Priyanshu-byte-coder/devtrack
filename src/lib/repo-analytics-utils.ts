@@ -1,1 +1,23 @@
-Ly8gQSB2YWxpZCBHaXRIdWIgcmVwb3NpdG9yeSBpZGVudGlmaWVyIGlzIGV4YWN0bHkgIm93bmVyL3JlcG8iLgpjb25zdCBSRVBPX0lERU5USUZJRVJfUkUgPQogIC9eKFthLXpBLVowLTldKD86W2EtekEtWjAtOS1dezAsMzd9W2EtekEtWjAtOV0pPylcXC8oW2EtekEtWjAtOS5fLV17MSwxMDB9KSQvOwoKZXhwb3J0IGludGVyZmFjZSBQYXJzZWRSZXBvIHsKICBvd25lcjogc3RyaW5nOwogIHJlcG86IHN0cmluZzsKfQoKLyoqCiAqIFZhbGlkYXRlcyBhbmQgcGFyc2VzIGEgcmF3ICJvd25lci9yZXBvIiBzdHJpbmcuCiAqIEhhbmRsZXMgaW5wdXRzIHRoYXQgbWF5IGNvbnRhaW4gYSBsZWFkaW5nIHNsYXNoIChlLmcuIGZyb20gVVJMIHBhdGhzKQogKiBvciBjb25zZWN1dGl2ZSBzbGFzaGVzLgogKiBSZXR1cm5zIHRoZSBzcGxpdCBjb21wb25lbnRzIG9uIHN1Y2Nlc3MsIG9yIG51bGwgaWYgdGhlIHZhbHVlIGlzIGludmFsaWQuCiAqLwpleHBvcnQgZnVuY3Rpb24gcGFyc2VSZXBvUGFyYW0ocmF3OiBzdHJpbmcpOiBQYXJzZWRSZXBvIHwgbnVsbCB7CiAgY29uc3Qgbm9ybWFsaXplZCA9IHJhdy50cmltKCkucmVwbGFjZSgvXlxcLyssICIiKS5yZXBsYWNlKC9cXC8rL2csICIvIik7CiAgY29uc3QgbWF0Y2ggPSBSRVBPX0lERU5USUZJRVJfUkUuZXhlYyhub3JtYWxpemVkKTsKICBpZiAoIW1hdGNoKSByZXR1cm4gbnVsbDsKCiAgY29uc3QgWywgb3duZXIsIHJlcG9dID0gbWF0Y2g7CiAgaWYgKHJlcG8gPT09ICIuIiB8fCByZXBvID09PSAiLi4iKSByZXR1cm4gbnVsbDsKCiAgcmV0dXJuIHsgb3duZXIsIHJlcG8gfTsKfQo=
+// A valid GitHub repository identifier is exactly "owner/repo".
+const REPO_IDENTIFIER_RE =
+  /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?)\/([a-zA-Z0-9._-]{1,100})$/;
+
+export interface ParsedRepo {
+  owner: string;
+  repo: string;
+}
+
+/**
+ * Validates and parses a raw "owner/repo" string.
+ * Returns the split components on success, or null if the value is invalid.
+ */
+export function parseRepoParam(raw: string): ParsedRepo | null {
+  const trimmed = raw.trim();
+  const match = REPO_IDENTIFIER_RE.exec(trimmed);
+  if (!match) return null;
+
+  const [, owner, repo] = match;
+  if (repo === "." || repo === "..") return null;
+
+  return { owner, repo };
+}
