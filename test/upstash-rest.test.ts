@@ -1,1 +1,55 @@
-aW1wb3J0IHsgZGVzY3JpYmUsIGl0LCBleHBlY3QsIGJlZm9yZUVhY2gsIGFmdGVyRWFjaCB9IGZyb20gInZpdGVzdCI7CmltcG9ydCB7IGdldFVwc3Rhc2hDb25maWcgfSBmcm9tICIuLi9zcmMvbGliL3Vwc3Rhc2gtcmVzdCI7CgpkZXNjcmliZSgidXBzdGFzaC1yZXN0IiwgKCkgPT4gewogIGRlc2NyaWJlKCJnZXRVcHN0YXNoQ29uZmlnIiwgKCkgPT4gewogICAgYmVmb3JlRWFjaCgoKSA9PiB7CiAgICAgIGRlbGV0ZSBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVVJMOwogICAgICBkZWxldGUgcHJvY2Vzcy5lbnYuVVBTVEFTSF9SRURJU19SRVNUX1RPS0VOOwogICAgfSk7CgogICAgYWZ0ZXJFYWNoKCgpID0+IHsKICAgICAgZGVsZXRlIHByb2Nlc3MuZW52LlVQU1RBU0hfUkVESVNfUkVTVF9VUkw7CiAgICAgIGRlbGV0ZSBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVE9LRU47CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBudWxsIHdoZW4gVVBTVEFTSF9SRURJU19SRVNUX1VSTCBpcyBtaXNzaW5nIiwgKCkgPT4gewogICAgICBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVE9LRU4gPSAic29tZS10b2tlbiI7CiAgICAgIGV4cGVjdChnZXRVcHN0YXNoQ29uZmlnKCkpLnRvQmVOdWxsKCk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBudWxsIHdoZW4gVVBTVEFTSF9SRURJU19SRVNUX1RPS0VOIGlzIG1pc3NpbmciLCAoKSA9PiB7CiAgICAgIHByb2Nlc3MuZW52LlVQU1RBU0hfUkVESVNfUkVTVF9VUkwgPSAiaHR0cHM6Ly9zb21lLnVwc3Rhc2guaW8iOwogICAgICBleHBlY3QoZ2V0VXBzdGFzaENvbmZpZygpKS50b0JlTnVsbCgpOwogICAgfSk7CgogICAgaXQoInJldHVybnMgbnVsbCB3aGVuIGJvdGggZW52IHZhcnMgYXJlIG1pc3NpbmciLCAoKSA9PiB7CiAgICAgIGV4cGVjdChnZXRVcHN0YXNoQ29uZmlnKCkpLnRvQmVOdWxsKCk7CiAgICB9KTsKCiAgICBpdCgicmV0dXJucyBudWxsIHdoZW4gVVBTVEFTSF9SRURJU19SRVNUX1VSTCBpcyBlbXB0eSBzdHJpbmciLCAoKSA9PiB7CiAgICAgIHByb2Nlc3MuZW52LlVQU1RBU0hfUkVESVNfUkVTVF9VUkwgPSAiIjsKICAgICAgcHJvY2Vzcy5lbnYuVVBTVEFTSF9SRURJU19SRVNUX1RPS0VOID0gInNvbWUtdG9rZW4iOwogICAgICBleHBlY3QoZ2V0VXBzdGFzaENvbmZpZygpKS50b0JlTnVsbCgpOwogICAgfSk7CgogICAgaXQoInJldHVybnMgbnVsbCB3aGVuIFVQU1RBU0hfUkVESVNfUkVTVF9UT0tFTiBpcyBlbXB0eSBzdHJpbmciLCAoKSA9PiB7CiAgICAgIHByb2Nlc3MuZW52LlVQU1RBU0hfUkVESVNfUkVTVF9VUkwgPSAiaHR0cHM6Ly9zb21lLnVwc3Rhc2guaW8iOwogICAgICBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVE9LRU4gPSAiIjsKICAgICAgZXhwZWN0KGdldFVwc3Rhc2hDb25maWcoKSkudG9CZU51bGwoKTsKICAgIH0pOwoKICAgIGl0KCJyZXR1cm5zIG51bGwgd2hlbiBib3RoIGVudiB2YXJzIGFyZSBlbXB0eSBzdHJpbmdzIiwgKCkgPT4gewogICAgICBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVVJMID0gIiI7CiAgICAgIHByb2Nlc3MuZW52LlVQU1RBU0hfUkVESVNfUkVTVF9UT0tFTiA9ICIiOwogICAgICBleHBlY3QoZ2V0VXBzdGFzaENvbmZpZygpKS50b0JlTnVsbCgpOwogICAgfSk7CgogICAgaXQoInJldHVybnMgeyB1cmwsIHRva2VuIH0gd2hlbiBib3RoIGVudiB2YXJzIGFyZSBzZXQiLCAoKSA9PiB7CiAgICAgIHByb2Nlc3MuZW52LlVQU1RBU0hfUkVESVNfUkVTVF9VUkwgPSAiaHR0cHM6Ly9teS1kYi51cHN0YXNoLmlvIjsKICAgICAgcHJvY2Vzcy5lbnYuVVBTVEFTSF9SRURJU19SRVNUX1RPS0VOID0gIm15LXNlY3JldC10b2tlbiI7CiAgICAgIGNvbnN0IGNvbmZpZyA9IGdldFVwc3Rhc2hDb25maWcoKTsKICAgICAgZXhwZWN0KGNvbmZpZykudG9FcXVhbCh7CiAgICAgICAgdXJsOiAiaHR0cHM6Ly9teS1kYi51cHN0YXNoLmlvIiwKICAgICAgICB0b2tlbjogIm15LXNlY3JldC10b2tlbiIsCiAgICAgIH0pOwogICAgfSk7CgogICAgaXQoInByZXNlcnZlcyB0aGUgZXhhY3QgdmFsdWVzIGZyb20gZW52IHZhcnMiLCAoKSA9PiB7CiAgICAgIGNvbnN0IHVybCA9ICJodHRwczovL3NwZWNpYWwtY2hhcnMudXBzdGFzaC5pbzo0NDMiOwogICAgICBjb25zdCB0b2tlbiA9ICJ0b2tlbl93aXRoX3VuZGVyc2NvcmVzX2FuZC1kYXNoZXMiOwogICAgICBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVVJMID0gdXJsOwogICAgICBwcm9jZXNzLmVudi5VUFNUQVNIX1JFRElTX1JFU1RfVE9LRU4gPSB0b2tlbjsKICAgICAgY29uc3QgY29uZmlnID0gZ2V0VXBzdGFzaENvbmZpZygpOwogICAgICBleHBlY3QoY29uZmlnPy51cmwpLnRvQmUodXJsKTsKICAgICAgZXhwZWN0KGNvbmZpZz8udG9rZW4pLnRvQmUodG9rZW4pOwogICAgfSk7CiAgfSk7Cn0pOwo=
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { getUpstashConfig } from "../src/lib/upstash-rest";
+
+describe("upstash-rest", () => {
+  beforeEach(() => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  });
+
+  afterEach(() => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    // Restore globalThis.fetch if it was mocked
+    if ((globalThis as any)._originalFetch) {
+      globalThis.fetch = (globalThis as any)._originalFetch;
+      delete (globalThis as any)._originalFetch;
+    }
+  });
+
+  describe("getUpstashConfig", () => {
+    it("returns null when UPSTASH_REDIS_REST_URL is missing", () => {
+      process.env.UPSTASH_REDIS_REST_TOKEN = "some-token";
+      expect(getUpstashConfig()).toBeNull();
+    });
+
+    it("returns null when UPSTASH_REDIS_REST_TOKEN is missing", () => {
+      process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+      expect(getUpstashConfig()).toBeNull();
+    });
+
+    it("returns null when both env vars are missing", () => {
+      expect(getUpstashConfig()).toBeNull();
+    });
+
+    it("returns config object when both env vars are set", () => {
+      process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+      process.env.UPSTASH_REDIS_REST_TOKEN = "my-token";
+      const config = getUpstashConfig();
+      expect(config).toEqual({
+        url: "https://example.upstash.io",
+        token: "my-token",
+      });
+    });
+
+    it("returns config with correct structure", () => {
+      process.env.UPSTASH_REDIS_REST_URL = "https://api.upstash.io";
+      process.env.UPSTASH_REDIS_REST_TOKEN = "token123";
+      const config = getUpstashConfig();
+      expect(config).toHaveProperty("url");
+      expect(config).toHaveProperty("token");
+      expect(config!.url).toBe("https://api.upstash.io");
+      expect(config!.token).toBe("token123");
+    });
+  });
+});
