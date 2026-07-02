@@ -528,3 +528,424 @@ paths:
           description: Unauthorized
         '404':
           description: Account not found
+
+  # NOTIFICATIONS ROUTES
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: Get recent notifications
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                        message:
+                          type: string
+                        read:
+                          type: boolean
+                        created_at:
+                          type: string
+                          format: date-time
+                  unreadCount:
+                    type: number
+        '401':
+          description: Unauthorized
+    patch:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: All notifications marked as read
+        '401':
+          description: Unauthorized
+
+  /api/notifications/{id}:
+    patch:
+      tags: [Notifications]
+      summary: Mark a specific notification as read
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification marked as read
+        '401':
+          description: Unauthorized
+        '404':
+          description: Notification not found
+
+  # LEADERBOARD ROUTES
+  /api/leaderboard:
+    get:
+      tags: [Leaderboard]
+      summary: Get public leaderboard rankings
+      parameters:
+        - name: lang
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by primary language
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [week, month, year]
+          description: Filter by time period
+      responses:
+        '200':
+          description: Leaderboard data
+          content:
+            application/json:
+              schema:
+                type: object
+        '429':
+          description: Rate limit exceeded
+
+  /api/leaderboard/refresh:
+    post:
+      tags: [Leaderboard]
+      summary: Trigger leaderboard refresh
+      responses:
+        '200':
+          description: Leaderboard refresh triggered
+
+  /api/leaderboard/rebuild:
+    post:
+      tags: [Leaderboard]
+      summary: Full leaderboard rebuild
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Bearer token with LEADERBOARD_REBUILD_TOKEN
+      responses:
+        '200':
+          description: Leaderboard rebuild started
+        '401':
+          description: Invalid or missing rebuild token
+
+  # PUBLIC PROFILE ROUTES
+  /api/public/{username}:
+    get:
+      tags: [Public]
+      summary: Get public profile data for a user
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Public profile data
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: User not found or profile is private
+
+  /api/public/privacy:
+    get:
+      tags: [Public]
+      summary: Get current user's privacy settings
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Privacy settings
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+    patch:
+      tags: [Public]
+      summary: Update privacy settings
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Privacy settings updated
+        '401':
+          description: Unauthorized
+
+  # WEBHOOK ROUTES
+  /api/webhooks/github:
+    post:
+      tags: [Webhooks]
+      summary: Receive GitHub push events
+      parameters:
+        - name: x-hub-signature-256
+          in: header
+          required: true
+          schema:
+            type: string
+          description: GitHub webhook signature
+        - name: x-github-event
+          in: header
+          required: true
+          schema:
+            type: string
+          description: GitHub event type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed successfully
+        '401':
+          description: Invalid signature
+        '400':
+          description: Bad request
+
+  /api/webhooks/custom:
+    get:
+      tags: [Webhooks]
+      summary: List user's configured webhooks
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+    post:
+      tags: [Webhooks]
+      summary: Create a new webhook
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Webhook created
+        '401':
+          description: Unauthorized
+        '400':
+          description: Invalid URL or configuration
+
+  /api/webhooks/custom/{id}:
+    get:
+      tags: [Webhooks]
+      summary: Get webhook details
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook details
+        '401':
+          description: Unauthorized
+        '404':
+          description: Webhook not found
+    patch:
+      tags: [Webhooks]
+      summary: Update a webhook
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Webhook not found
+    delete:
+      tags: [Webhooks]
+      summary: Delete a webhook
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Webhook not found
+
+  # AI FEATURES
+  /api/ai/roast:
+    post:
+      tags: [AI]
+      summary: Generate AI roast or hype of coding style
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: AI-generated content
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable (GROQ_API_KEY not configured)
+
+  /api/ai/weekly-summary:
+    post:
+      tags: [AI]
+      summary: Generate AI weekly summary
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: AI-generated weekly summary
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+
+  # WAKATIME INTEGRATION
+  /api/wakatime:
+    get:
+      tags: [Integrations]
+      summary: Get WakaTime connection status
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: WakaTime connection status
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+    delete:
+      tags: [Integrations]
+      summary: Disconnect WakaTime
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: WakaTime disconnected
+        '401':
+          description: Unauthorized
+
+  /api/wakatime/sync:
+    post:
+      tags: [Integrations]
+      summary: Trigger WakaTime data sync
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: WakaTime sync triggered
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+
+  # STREAK FREEZE
+  /api/streak/freeze:
+    post:
+      tags: [Streak]
+      summary: Use a streak freeze to protect current streak
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Streak freeze applied
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '400':
+          description: No streak freezes available

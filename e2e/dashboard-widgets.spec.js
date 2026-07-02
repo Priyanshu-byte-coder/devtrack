@@ -184,6 +184,7 @@ test.beforeEach(async ({ page }) => {
     "**/api/metrics/repo-explorer**",
     "**/api/metrics/pr-review-time**",
     "**/api/metrics/achievement-progress**",
+    "**/api/metrics/sponsors**",
   ];
 
   for (const pattern of metricRoutes) {
@@ -229,14 +230,15 @@ test("dashboard widgets render with mocked metrics", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Dashboard", exact: true })
   ).toBeVisible({ timeout: 30000 });
-  await expect(page.getByRole("heading", { name: "Your Commits" })).toBeVisible(
+  await expect(page.getByRole("heading", { name: "Your Commits" }).first()).toBeVisible(
     { timeout: 10000 }
   );
-  await expect(page.getByRole("heading", { name: "PR Analytics" }).first()).toBeVisible(
+  await expect(page.getByRole("heading", { name: "PR Analytics" })).toHaveCount(1);
+  await expect(page.getByRole("heading", { name: "PR Analytics" })).toBeVisible(
     { timeout: 10000 }
   );
   await expect(
-    page.getByRole("heading", { name: "Goals", exact: true })
+    page.getByRole("heading", { name: "Goals", exact: true }).first()
   ).toBeVisible({ timeout: 10000 });
   await expect(page.getByText("Make 10 commits")).toBeVisible({
     timeout: 10000,
@@ -348,22 +350,24 @@ function mockMetricResponse(url) {
         thisWeek: { opened: 3, merged: 2 },
         lastWeek: { opened: 1, merged: 1 },
       },
-      issues: { thisWeek: 4, lastWeek: 3 },
-      productivityScore: { current: 85, previous: 78 },
+      issues: { 
+        thisWeek: { opened: 4, closed: 2 }, 
+        lastWeek: { opened: 3, closed: 1 } 
+      },
+      productivityScore: { current: 85, previous: 80 },
       activeDays: {
         thisWeek: 5,
         lastWeek: 4,
       },
-      issues: {
-        thisWeek: 2,
-        lastWeek: 1,
-      },
-      productivityScore: {
-        current: 85,
-        previous: 80,
-      },
       streak: 3,
       topRepo: "demo/repo",
+      repoBreakdown: [
+        { repoName: "demo/devtrack", commits: 10 },
+      ],
+      dailyCommits: [
+        { date: "2023-10-07", commits: 5 },
+      ],
+      mostActiveDay: "2023-10-07"
     };
   }
   if (url.includes("/api/metrics/compare")) {

@@ -444,3 +444,222 @@ When adding or modifying API routes:
 4. Update this document if a new API category or major endpoint group is introduced.
 
 Keeping these resources synchronized ensures contributors, self-hosters, and integrators always have accurate API documentation.
+
+---
+
+## Error Responses
+
+### Common Error Codes
+
+| Status Code | Description | Troubleshooting |
+|-------------|-------------|----------------|
+| `400 Bad Request` | Invalid request parameters or malformed JSON | Check request body format and required fields |
+| `401 Unauthorized` | Missing or invalid authentication | Ensure session cookie is present and valid |
+| `403 Forbidden` | Insufficient permissions for the requested resource | Verify user has access to the requested resource |
+| `404 Not Found` | Resource does not exist | Check endpoint URL and resource identifiers |
+| `409 Conflict` | Resource already exists or state conflict | Review current state before retrying |
+| `422 Validation Error` | Request validation failed | Check field constraints and data types |
+| `429 Too Many Requests` | Rate limit exceeded | Wait before retrying or implement exponential backoff |
+| `500 Internal Server Error` | Server error | Check server logs and contact support if persistent |
+
+### Error Response Format
+
+All error responses follow this format:
+
+```json
+{
+  "error": "Error message describing what went wrong"
+}
+```
+
+### Rate Limiting
+
+Some endpoints have rate limits to prevent abuse:
+
+- **Leaderboard API**: 20 requests per minute per IP address
+- **Public Profile API**: Rate limited to prevent abuse
+- **GitHub API**: Inherits GitHub's rate limits (5,000 req/hr authenticated, 60 req/hr unauthenticated)
+
+Rate limit responses include appropriate headers and status codes.
+
+---
+
+## Code Examples
+
+### Authentication
+
+Most endpoints require authentication via NextAuth session cookies. For programmatic access, you'll need to authenticate first.
+
+#### JavaScript (Fetch)
+
+```javascript
+// Example: Get user goals
+async function getGoals() {
+  const response = await fetch('https://devtrack.vercel.app/api/goals', {
+    method: 'GET',
+    credentials: 'include', // Include cookies for authentication
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data;
+}
+```
+
+#### Python (Requests)
+
+```python
+import requests
+
+# Example: Get user goals
+def get_goals():
+    response = requests.get(
+        'https://devtrack.vercel.app/api/goals',
+        cookies={'next-auth.session-token': 'your-session-token'}
+    )
+
+    if response.status_code != 200:
+        raise Exception(f'HTTP error! status: {response.status_code}')
+
+    return response.json()
+```
+
+#### cURL
+
+```bash
+# Example: Get user goals
+curl -X GET 'https://devtrack.vercel.app/api/goals' \
+  -H 'Content-Type: application/json' \
+  --cookie 'next-auth.session-token=your-session-token'
+```
+
+### Goals API Examples
+
+#### Create a Goal
+
+**JavaScript:**
+```javascript
+async function createGoal(title, target, unit) {
+  const response = await fetch('https://devtrack.vercel.app/api/goals', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      title: title,
+      target: target,
+      unit: unit
+    }),
+  });
+
+  return response.json();
+}
+```
+
+**Python:**
+```python
+def create_goal(title, target, unit):
+    response = requests.post(
+        'https://devtrack.vercel.app/api/goals',
+        cookies={'next-auth.session-token': 'your-session-token'},
+        json={
+            'title': title,
+            'target': target,
+            'unit': unit
+        }
+    )
+    return response.json()
+```
+
+**cURL:**
+```bash
+curl -X POST 'https://devtrack.vercel.app/api/goals' \
+  -H 'Content-Type: application/json' \
+  --cookie 'next-auth.session-token=your-session-token' \
+  -d '{
+    "title": "Weekly Commits",
+    "target": 20,
+    "unit": "commits"
+  }'
+```
+
+### Metrics API Examples
+
+#### Get Contribution Data
+
+**JavaScript:**
+```javascript
+async function getContributions(days = 30) {
+  const response = await fetch(
+    `https://devtrack.vercel.app/api/metrics/contributions?days=${days}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  );
+
+  return response.json();
+}
+```
+
+**Python:**
+```python
+def get_contributions(days=30):
+    response = requests.get(
+        f'https://devtrack.vercel.app/api/metrics/contributions?days={days}',
+        cookies={'next-auth.session-token': 'your-session-token'}
+    )
+    return response.json()
+```
+
+**cURL:**
+```bash
+curl -X GET 'https://devtrack.vercel.app/api/metrics/contributions?days=30' \
+  --cookie 'next-auth.session-token=your-session-token'
+```
+
+### Public Profile API Examples
+
+#### Get Public Profile
+
+**JavaScript:**
+```javascript
+async function getPublicProfile(username) {
+  const response = await fetch(
+    `https://devtrack.vercel.app/api/public/${username}`,
+    {
+      method: 'GET',
+    }
+  );
+
+  if (response.status === 404) {
+    throw new Error('User not found or profile is private');
+  }
+
+  return response.json();
+}
+```
+
+**Python:**
+```python
+def get_public_profile(username):
+    response = requests.get(
+        f'https://devtrack.vercel.app/api/public/{username}'
+    )
+
+    if response.status_code == 404:
+        raise Exception('User not found or profile is private')
+
+    return response.json()
+```
+
+**cURL:**
+```bash
+curl -X GET 'https://devtrack.vercel.app/api/public/username'

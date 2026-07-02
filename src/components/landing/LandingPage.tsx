@@ -753,10 +753,7 @@ function AboutHighlightCard({
         >
           {item.title}
         </h3>
-        <p
-          className="text-slate-600 dark:text-slate-300"
-          style={{ fontSize: 14, lineHeight: 1.65, margin: 0 }}
-        >
+        <p style={{ color: 'var(--foreground)', opacity: 0.85, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
           {item.desc}
         </p>
       </div>
