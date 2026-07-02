@@ -7,12 +7,9 @@ import {
   classifyContributions,
   filterByRole,
 } from "../src/lib/cv/cv-classifier";
-import type {
-  GitHubContributionData,
-  RepositoryData,
-} from "@/types/cv-types";
+import type { RepositoryData } from "@/types/cv-types";
 
-const makeRepo = (overrides = {}) => ({
+const makeRepo = (overrides: Partial<RepositoryData> = {}): RepositoryData => ({
   name: "test-repo",
   nameWithOwner: "owner/test-repo",
   description: null,
@@ -63,7 +60,7 @@ describe("cv-classifier", () => {
     it("sorts each bucket by occurrences descending", () => {
       const repo = makeRepo({
         languages: ["Python"],
-        pullRequests: [{ title: "Add TypeScript support", body: null, additions: 10, deletions: 2, changedFiles: 1, labels: [], state: "MERGED", mergedAt: null, createdAt: "" }],
+        pullRequests: [{ title: "Add TypeScript support", body: null, additions: 10, deletions: 2, changedFiles: 1, labels: [], state: "MERGED" as const, mergedAt: null, createdAt: "" }],
         commits: [{ message: "Add Docker config", committedDate: "", additions: 5, deletions: 1 }],
       });
       const stack = detectTechnologies([repo]);
@@ -168,7 +165,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 2, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 2 },
         fetchedAt: "",
       };
-      expect(scoreContributions(data).totalPRsMerged).toBe(2);
+      expect(scoreContributions(data as any).totalPRsMerged).toBe(2);
     });
 
     it("computes avgPRSize correctly", () => {
@@ -186,7 +183,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 2, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 2 },
         fetchedAt: "",
       };
-      expect(scoreContributions(data).avgPRSize).toBe(180);
+      expect(scoreContributions(data as any).avgPRSize).toBe(180);
     });
 
     it("returns avgPRSize of 0 when no merged PRs", () => {
@@ -196,7 +193,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 0 },
         fetchedAt: "",
       };
-      expect(scoreContributions(data).avgPRSize).toBe(0);
+      expect(scoreContributions(data as any).avgPRSize).toBe(0);
     });
 
     it("counts commits across repos", () => {
@@ -209,7 +206,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 2, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 2 },
         fetchedAt: "",
       };
-      expect(scoreContributions(data).totalCommits).toBe(2);
+      expect(scoreContributions(data as any).totalCommits).toBe(2);
     });
 
     it("computes topLanguages sorted by frequency", () => {
@@ -223,7 +220,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 0 },
         fetchedAt: "",
       };
-      const scores = scoreContributions(data);
+      const scores = scoreContributions(data as any);
       expect(scores.topLanguages[0]).toBe("Python");
       expect(scores.topLanguages[1]).toBe("Go");
     });
@@ -259,7 +256,7 @@ describe("cv-classifier", () => {
 
     it("classifies as high complexity for > 10 merged PRs", () => {
       const prs = Array.from({ length: 11 }, (_, i) => ({
-        title: `PR ${i}`, body: null, additions: 10, deletions: 2, changedFiles: 1, labels: [], state: "MERGED", mergedAt: null, createdAt: "",
+        title: `PR ${i}`, body: null, additions: 10, deletions: 2, changedFiles: 1, labels: [], state: "MERGED" as const, mergedAt: null, createdAt: "",
       }));
       expect(analyzeRepository(makeRepo({ pullRequests: prs, commits: [] })).complexity).toBe("high");
     });
@@ -286,7 +283,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 5, totalPullRequestContributions: 3, totalIssueContributions: 1, totalPullRequestReviewContributions: 2, totalContributions: 10 },
         fetchedAt: "",
       };
-      const result = classifyContributions(data);
+      const result = classifyContributions(data as any);
       expect(result).toHaveProperty("techStack");
       expect(result).toHaveProperty("domains");
       expect(result).toHaveProperty("primaryDomain");
@@ -302,7 +299,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 0 },
         fetchedAt: "",
       };
-      expect(classifyContributions(data).primaryDomain).toBe("FullStack");
+      expect(classifyContributions(data as any).primaryDomain).toBe("FullStack");
     });
 
     it("sets generatedAt to an ISO timestamp", () => {
@@ -312,7 +309,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 0 },
         fetchedAt: "",
       };
-      const result = classifyContributions(data);
+      const result = classifyContributions(data as any);
       expect(new Date(result.generatedAt).toISOString()).toBe(result.generatedAt);
     });
   });
@@ -321,11 +318,11 @@ describe("cv-classifier", () => {
     it("returns a new classification object (not mutated)", () => {
       const data = {
         user: { login: "test", avatarUrl: "", bio: null },
-        repositories: [makeRepo({ languages: ["Python", "React"], name: "repo" })],
+        repositories: [makeRepo({ languages: ["React", "TypeScript"], name: "repo" })],
         contributionStats: { totalCommitContributions: 5, totalPullRequestContributions: 3, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 8 },
         fetchedAt: "",
       };
-      const original = classifyContributions(data);
+      const original = classifyContributions(data as any);
       expect(filterByRole(original, ROLE)).not.toBe(original);
     });
 
@@ -336,7 +333,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 5, totalPullRequestContributions: 3, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 8 },
         fetchedAt: "",
       };
-      const filtered = filterByRole(classifyContributions(data), "Frontend Developer");
+      const filtered = filterByRole(classifyContributions(data as any), "Frontend Developer");
       expect(filtered.techStack.languages.map(l => l.name)).not.toContain("Python");
     });
 
@@ -350,7 +347,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 5, totalPullRequestContributions: 3, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 8 },
         fetchedAt: "",
       };
-      const filtered = filterByRole(classifyContributions(data), "Frontend Developer");
+      const filtered = filterByRole(classifyContributions(data as any), "Frontend Developer");
       expect(filtered.repositoryAnalyses.map(r => r.name)).toContain("frontend-repo");
     });
 
@@ -364,7 +361,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 0 },
         fetchedAt: "",
       };
-      const filtered = filterByRole(classifyContributions(data), "Frontend Developer");
+      const filtered = filterByRole(classifyContributions(data as any), "Frontend Developer");
       const relevances = filtered.repositoryAnalyses.map(r => r.relevanceByRole["Frontend Developer"]);
       for (let i = 0; i < relevances.length - 1; i++) {
         expect(relevances[i]).toBeGreaterThanOrEqual(relevances[i + 1]);
@@ -378,7 +375,7 @@ describe("cv-classifier", () => {
         contributionStats: { totalCommitContributions: 0, totalPullRequestContributions: 0, totalIssueContributions: 0, totalPullRequestReviewContributions: 0, totalContributions: 0 },
         fetchedAt: "",
       };
-      const original = classifyContributions(data);
+      const original = classifyContributions(data as any);
       expect(filterByRole(original, "Unknown Role")).toEqual(original);
     });
   });
