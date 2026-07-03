@@ -203,6 +203,13 @@ async function injectMockSession(page: import("@playwright/test").Page) {
     })
   );
 
+  await page.route("**/api/metrics/pr-review-time**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ weeks: [] }),
+    })
+  );
+
   // ── Issues (widget 4) ────────────────────────────────────────────────────
   await page.route("**/api/metrics/issues**", (route) =>
     route.fulfill({
@@ -238,11 +245,30 @@ async function injectMockSession(page: import("@playwright/test").Page) {
           thisWeek: { opened: 3, merged: 2 },
           lastWeek: { opened: 1, merged: 1 },
         },
-        issues: { thisWeek: 5, lastWeek: 3 },
+        issues: { 
+          thisWeek: { opened: 5, closed: 0 }, 
+          lastWeek: { opened: 3, closed: 0 } 
+        },
         productivityScore: { current: 88, previous: 75 },
         activeDays: { thisWeek: 5, lastWeek: 4 },
         streak: 7,
         topRepo: "demo/devtrack",
+        repoBreakdown: [],
+        dailyCommits: [],
+        mostActiveDay: "2023-10-07"
+      }),
+    })
+  );
+
+  await page.route("**/api/metrics/sponsors**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        mrr: 15000,
+        activeCount: 12,
+        growthTrend: 15,
+        sponsors: [],
+        sparklineData: []
       }),
     })
   );
@@ -297,6 +323,20 @@ async function injectMockSession(page: import("@playwright/test").Page) {
         username: "playwright-user",
         email: "playwright@devtrack.test",
       }),
+    })
+  );
+
+  await page.route("**/api/daily-focus**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ goal: "" }),
+    })
+  );
+
+  await page.route("**/api/user/dashboard-layout**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ layout: null, source: "default" }),
     })
   );
 
@@ -424,4 +464,104 @@ test("[Dashboard E2E] weekly summary widget renders", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "This Week" }).first()
   ).toBeVisible({ timeout: 10_000 });
+});
+
+const TRACKED_METRICS_ENDPOINTS = [
+  "/api/metrics/repo-explorer",
+  "/api/metrics/prs",
+  "/api/metrics/pr-breakdown",
+  "/api/metrics/pr-review-time",
+] as const;
+
+// React Strict Mode in dev double-invokes effects. Duplicate widget instances
+// would exceed these per-endpoint ceilings (e.g. 2x PRMetrics → 4+ /api/metrics/prs).
+const METRICS_REQUEST_BOUNDS: Record<
+  (typeof TRACKED_METRICS_ENDPOINTS)[number],
+  { min: number; max: number }
+> = {
+  "/api/metrics/repo-explorer": { min: 1, max: 2 },
+  "/api/metrics/prs": { min: 1, max: 2 },
+  "/api/metrics/pr-breakdown": { min: 1, max: 2 },
+  // MiniPRTrendChart (inside PR Metrics) + PR Review Trend widget both call this route.
+  "/api/metrics/pr-review-time": { min: 1, max: 4 },
+};
+
+function countMetricRequests(urls: string[], endpoint: string): number {
+  return urls.filter((url) => {
+    try {
+      return new URL(url).pathname === endpoint;
+    } catch {
+      return false;
+    }
+  }).length;
+}
+
+test("[Dashboard E2E] analytics widgets render once without duplicate metric requests", async ({
+  page,
+}) => {
+  const requestUrls: string[] = [];
+
+  page.on("request", (request) => {
+    if (request.method() !== "GET") return;
+
+    const url = request.url();
+    if (
+      TRACKED_METRICS_ENDPOINTS.some((endpoint) => url.includes(endpoint))
+    ) {
+      requestUrls.push(url);
+    }
+  });
+
+  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Dashboard", exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+
+  const lazyAnalyticsWidgets = [
+    {
+      region: "Repository Analytics",
+      heading: "Repo Analytics",
+    },
+    {
+      region: "PR Breakdown",
+      heading: "PR Breakdown",
+    },
+    {
+      region: "PR Review Trend",
+      heading: "PR Review Time Trend",
+    },
+  ] as const;
+
+  await page.getByRole("region", { name: "PR Metrics" }).scrollIntoViewIfNeeded();
+  await expect(
+    page.getByRole("heading", { name: "PR Analytics", level: 2 })
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("region", { name: "PR Metrics" })).toHaveCount(1);
+  await expect(
+    page.getByRole("heading", { name: "PR Analytics", level: 2 })
+  ).toHaveCount(1);
+
+  for (const { region, heading } of lazyAnalyticsWidgets) {
+    await page.getByRole("region", { name: region }).scrollIntoViewIfNeeded();
+    await expect(
+      page.getByRole("heading", { name: heading, level: 2 })
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("region", { name: region })).toHaveCount(1);
+    await expect(
+      page.getByRole("heading", { name: heading, level: 2 })
+    ).toHaveCount(1);
+  }
+
+  for (const endpoint of TRACKED_METRICS_ENDPOINTS) {
+    const { min, max } = METRICS_REQUEST_BOUNDS[endpoint];
+    await expect
+      .poll(
+        () => {
+          const count = countMetricRequests(requestUrls, endpoint);
+          return count >= min && count <= max;
+        },
+        { timeout: 15_000 },
+      )
+      .toBe(true);
+  }
 });
