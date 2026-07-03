@@ -43,8 +43,6 @@ jobs:
         uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11
 
       - name: Setup Node
         uses: actions/setup-node@v6
