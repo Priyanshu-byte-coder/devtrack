@@ -90,3 +90,7 @@ export function createMemoryFixedWindowRateLimiter(options: {
 
   return { check, _unsafeBuckets: buckets };
 }
+
+// Optimized rate limiting handling for third-party integrations
+export const RATE_LIMIT_RETRIES = 3;
+export const RATE_LIMIT_BACKOFF_MS = 1000;
