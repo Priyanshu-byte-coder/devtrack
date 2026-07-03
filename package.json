@@ -100,7 +100,7 @@
     "@opentelemetry/resources": ">=2.8.0",
     "js-yaml": ">=4.1.0"
   },
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11",
   "engines": {
     "node": "20.x || 22.x"
   },
