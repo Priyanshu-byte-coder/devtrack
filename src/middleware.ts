@@ -29,7 +29,7 @@ const WINDOW_SECONDS = 60;
    limits apply during local testing only.
    ==========================================
    ============================================================ */
-const isTest = isDev || process.env.CI === "true" || process.env.NODE_ENV === "test";
+const isTest = isDev || process.env.NODE_ENV === "test";
 const AUTHENTICATED_LIMIT = isTest ? 5000 : 60;
 const ANONYMOUS_LIMIT = isTest ? 1000 : 10;
 

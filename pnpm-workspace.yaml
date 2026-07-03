@@ -1,12 +1,10 @@
 packages:
   - '.'
-
 overrides:
   serialize-javascript: ">=7.0.3"
   postcss: ">=8.4.31"
   uuid: ">=9.0.1"
   js-yaml: "4.1.0"
-
 allowBuilds:
   '@parcel/watcher': true
   '@scarf/scarf': true

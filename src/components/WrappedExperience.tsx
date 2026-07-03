@@ -162,12 +162,16 @@ export default function WrappedExperience() {
             : `You coded at ${stats.peakCodingHour.label} most often.`,
         metric: "Peak coding time",
       },
-      {
-        eyebrow: "Your Coding Persona",
-        title: `${stats.personality.icon} ${stats.personality.name}`,
-        body: `${stats.personality.description} ${stats.personality.reason}`,
-        metric: "Coding Personality",
-      },
+      ...(stats.personality
+        ? [
+            {
+              eyebrow: "Your Coding Persona",
+              title: `${stats.personality.icon} ${stats.personality.name}`,
+              body: `${stats.personality.description} ${stats.personality.reason}`,
+              metric: "Coding Personality",
+            },
+          ]
+        : []),
     ];
   }, [stats]);
 
@@ -260,8 +264,9 @@ export default function WrappedExperience() {
             aria-live="polite"
             aria-busy="true"
             className="grid flex-1 place-items-center py-16"
-          ><div
-            className="
+          >
+            <div
+              className="
               w-full
               max-w-4xl
               animate-pulse
@@ -273,7 +278,7 @@ export default function WrappedExperience() {
               min-h-[250px]
               max-h-[520px]
             "
-          />
+            />
             <span className="sr-only">Loading your Year in Code</span>
           </section>
         ) : error ? (
@@ -293,7 +298,7 @@ export default function WrappedExperience() {
         ) : stats && currentSlide ? (
           <>
             <section className="grid flex-1 items-center gap-6 py-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
-             <div
+              <div
                 tabIndex={0}
                 role="region"
                 aria-label="Year in Code slides"
