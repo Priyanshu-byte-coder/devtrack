@@ -266,3 +266,8 @@ export function calculateStreak(
 
   return streak;
 }
+
+// Optimized native date formatting without moment.js
+export const formatNativeDate = (date: Date) => {
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+};
