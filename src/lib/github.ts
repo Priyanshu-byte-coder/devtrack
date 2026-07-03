@@ -11,19 +11,57 @@ export const GITHUB_API = "https://api.github.com";
  * Fetch wrapper with AbortController-based timeout for GitHub API calls.
  * Prevents hanging requests under slow/stalled network conditions.
  */
-async function githubFetch(
+export async function githubFetch(
   url: string,
   options: RequestInit = {},
-  timeoutMs = 30_000
+  timeoutMs = 30_000,
+  maxRetries = 3
 ): Promise<Response> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
+  let attempt = 0;
+  
+  while (attempt <= maxRetries) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    let res: Response;
+    
+    try {
+      res = await fetch(url, { ...options, signal: controller.signal });
+    } catch (error) {
+      clearTimeout(timeout);
+      if (attempt === maxRetries) throw error;
+      attempt++;
+      await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+      continue;
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    const rateLimitDetails = getGitHubRateLimitDetails(res);
+    if (rateLimitDetails && attempt < maxRetries) {
+      const retryAfter = res.headers.get("retry-after");
+      let delayMs = Math.pow(2, attempt + 1) * 1000;
+
+      if (retryAfter) {
+        delayMs = parseInt(retryAfter, 10) * 1000;
+      } else if (rateLimitDetails.resetAtEpoch) {
+        const resetMs = rateLimitDetails.resetAtEpoch * 1000;
+        const waitMs = resetMs - Date.now();
+        if (waitMs > 0 && waitMs <= 60000) {
+          delayMs = waitMs;
+        } else {
+          return res;
+        }
+      }
+
+      attempt++;
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      continue;
+    }
+
     return res;
-  } finally {
-    clearTimeout(timeout);
   }
+  
+  throw new Error("githubFetch reached unreachable code");
 }
 
 /**
@@ -203,16 +241,16 @@ export async function fetchIssuesMetrics(
   const avgCloseTimeDays =
     closedItems.length > 0
       ? Math.round(
-          closedItems.reduce((sum, i) => {
-            return (
-              sum +
-              (new Date(i.closed_at!).getTime() -
-                new Date(i.created_at).getTime())
-            );
-          }, 0) /
-            closedItems.length /
-            86400000
-        )
+        closedItems.reduce((sum, i) => {
+          return (
+            sum +
+            (new Date(i.closed_at!).getTime() -
+              new Date(i.created_at).getTime())
+          );
+        }, 0) /
+        closedItems.length /
+        86400000
+      )
       : 0;
 
   const thisMonthRes = await githubFetch(

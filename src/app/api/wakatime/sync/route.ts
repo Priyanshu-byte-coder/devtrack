@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { decryptToken } from "@/lib/crypto";
 import { validateCronRequest } from "@/lib/cron-auth";
@@ -42,16 +42,35 @@ export async function GET(req: Request) {
           return;
         }
 
-        // Fetch from Wakatime with no-store cache
-        const res = await fetch("https://wakatime.com/api/v1/users/current/summaries?range=Last%207%20Days", {
-          headers: {
-            Authorization: `Basic ${Buffer.from(apiKey + ":").toString("base64")}`,
-          },
-          cache: "no-store"
-        });
+        // Fetch from Wakatime with no-store cache and retry logic
+        let res: Response | null = null;
+        let attempt = 0;
+        const maxRetries = 3;
 
-        if (!res.ok) {
-          console.error(`Wakatime API error for user ${user.id}: ${res.status}`);
+        while (attempt <= maxRetries) {
+          try {
+            res = await fetch("https://wakatime.com/api/v1/users/current/summaries?range=Last%207%20Days", {
+              headers: {
+                Authorization: `Basic ${Buffer.from(apiKey + ":").toString("base64")}`,
+              },
+              cache: "no-store"
+            });
+            
+            if (res.status === 429 && attempt < maxRetries) {
+              attempt++;
+              await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+              continue;
+            }
+            break; // Success or non-retriable error
+          } catch (e) {
+            if (attempt === maxRetries) throw e;
+            attempt++;
+            await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          }
+        }
+
+        if (!res || !res.ok) {
+          console.error(`Wakatime API error for user ${user.id}: ${res?.status}`);
           failureCount++;
           return;
         }

@@ -11,7 +11,7 @@ import {
   mergeMetrics,
 } from "@/lib/github-accounts";
 import { orgSearchSegment } from "@/lib/github-orgs";
-import { GITHUB_API, GitHubCommitSearchItem, CommitItem } from "@/lib/github";
+import { GITHUB_API, GitHubCommitSearchItem, CommitItem, githubFetch } from "@/lib/github";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -176,7 +176,7 @@ async function fetchContributionsForAccount(
         // Authorization header raises the rate limit from 60 req/hr (unauthenticated,
         // shared per IP) to 5,000 req/hr per user. Without it, shared server IPs
         // would exhaust the unauthenticated quota almost immediately.
-        const searchRes = await fetch(
+        const searchRes = await githubFetch(
           searchUrl.toString(),
           {
             headers: {
