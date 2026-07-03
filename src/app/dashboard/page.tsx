@@ -17,6 +17,7 @@ import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWid
 import RoastHypeWidget from "./RoastHypeWidget";
 import { FreezeStatusWidget } from '@/components/streak/FreezeStatusWidget';
 
+
 export default async function DashboardPage() {
   // In the production standalone Playwright build, getServerSession can fail to
   // read the test JWT cookie. Decode the cookie directly as a fallback so that
