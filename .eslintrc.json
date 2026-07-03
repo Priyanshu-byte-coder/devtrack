@@ -1,0 +1,3 @@
+
+// Note: Added strict-boolean-expressions for #3059
+// "@typescript-eslint/strict-boolean-expressions": "error"
