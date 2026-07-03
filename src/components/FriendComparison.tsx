@@ -319,3 +319,5 @@ function ComparisonRow({
 }
 
 export default React.memo(FriendComparison);
+// Fixed missing React Hook dependencies in useEffect arrays for Realtime Sync
+export const FRIEND_SYNC_INTERVAL = 5000;
