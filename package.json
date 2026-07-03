@@ -100,7 +100,7 @@
     "@opentelemetry/resources": ">=2.8.0",
     "js-yaml": ">=4.1.0"
   },
-  "packageManager": "pnpm@11",
+  "packageManager": "pnpm@11.9.0",
   "engines": {
     "node": "20.x || 22.x"
   },
@@ -111,6 +111,6 @@
     "@parcel/watcher-darwin-x64": "^2.5.6",
     "@parcel/watcher-linux-x64-glibc": "^2.5.6",
     "@parcel/watcher-linux-x64-musl": "^2.5.6",
-    "@swc/core-linux-x64-gnu": "^1.15.41"
+    "@swc/core-linux-x64-gnu": "^1.15.43"
   }
 }
