@@ -426,7 +426,7 @@ export default function DashboardHeader() {
           size="icon"
           className="hidden"
           onClick={() => setMenuOpen((v) => !v)}
-          aria-label="View notifications"
+          aria-label="Toggle menu"
           aria-expanded={menuOpen}
         >
           {menuOpen ? (
