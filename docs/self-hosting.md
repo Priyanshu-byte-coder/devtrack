@@ -135,7 +135,7 @@ DevTrack includes a `render.yaml` Blueprint for easy deployment on Render's free
 ### Docker build troubleshooting
 
 - **`pnpm` / Corepack version mismatch during `docker compose build`**:
-  The Dockerfile uses Node 22 with pnpm pinned via Corepack (`corepack prepare pnpm@11.9.0 --activate`). Pull the latest code and rebuild with `docker compose build --no-cache`. Do not rely on unpinned Corepack downloads.
+  The Dockerfile uses Node 22 with pnpm pinned via Corepack (`corepack prepare pnpm@11.9.0 --activate`). CI uses the same Corepack pin. Pull the latest code and rebuild with `docker compose build --no-cache`.
 
 - **`ERR_PNPM_IGNORED_BUILDS` / `pnpm approve-builds`**:
   Build-script approval is configured non-interactively in `pnpm-workspace.yaml` (`allowBuilds`). The Dockerfile copies this file before `pnpm install`. If you see this error on an older clone, update and rebuild with `--no-cache`. Do not run interactive `pnpm approve-builds` inside CI or Docker builds.

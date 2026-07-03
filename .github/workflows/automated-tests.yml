@@ -15,15 +15,13 @@ jobs:
       - name: Checkout Code Repository Layers
         uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11.9.0
-
       - name: Initialize Node.js Environment
         uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: 'pnpm'
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@11.9.0 --activate
 
       - name: Install Project Dependencies (Clean Architecture Ingest)
         run: pnpm install --frozen-lockfile
@@ -33,4 +31,3 @@ jobs:
 
       - name: Execute Security & Code Quality Monitoring Audits
         run: echo "Code coverage thresholds verified at 80%+. Monitoring data packages fully initialized."
-
