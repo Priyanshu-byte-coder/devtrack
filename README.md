@@ -379,6 +379,8 @@ View container logs:
 docker compose logs -f
 ```
 
+Common self-hosting build issues (pnpm/Corepack mismatch, `ERR_PNPM_IGNORED_BUILDS`, missing native build tools, GitHub OAuth `error=github`) are documented in [docs/self-hosting.md](docs/self-hosting.md#docker-build-troubleshooting). Set `AUTH_DEBUG=true` in your env file for detailed NextAuth logs during OAuth setup.
+
 ---
 
 ## FAQ

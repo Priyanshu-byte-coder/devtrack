@@ -1,5 +1,6 @@
 import { type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
+import { authDebugEnabled, nextAuthLogger } from "./auth-config";
 import { syncGitHubAchievementsForUser } from "./github-achievements";
 import { supabaseAdmin } from "./supabase";
 
@@ -14,6 +15,8 @@ const GITHUB_API = "https://api.github.com";
 const TOKEN_VALIDATION_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 export const authOptions: NextAuthOptions = {
+  debug: authDebugEnabled,
+  logger: nextAuthLogger,
   // Playwright runs on plain HTTP (127.0.0.1) and relies on the default
   // `next-auth.session-token` cookie name. If NextAuth infers HTTPS via
   // forwarded headers, it may switch to secure cookie prefixes and the E2E
@@ -47,6 +50,13 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "github" && profile) {
         const p = profile as { id: number; login: string; email?: string };
 
+        if (authDebugEnabled) {
+          console.debug("[auth] GitHub signIn callback", {
+            login: p.login,
+            supabaseConfigured: Boolean(supabaseAdmin),
+          });
+        }
+
         // Guard: supabaseAdmin is null when Supabase env vars are missing or
         // contain placeholder values (see src/lib/supabase.ts). Calling .from()
         // on null throws a TypeError which NextAuth silently converts to
@@ -54,8 +64,8 @@ export const authOptions: NextAuthOptions = {
         // so authentication can still succeed with degraded functionality.
         if (!supabaseAdmin) {
           console.warn(
-            "signIn: supabaseAdmin is not configured; skipping DB upsert. " +
-            "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local."
+            "[auth] supabaseAdmin is not configured; skipping DB upsert. " +
+              "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
           );
           return true;
         }

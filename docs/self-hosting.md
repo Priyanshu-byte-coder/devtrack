@@ -53,6 +53,7 @@ DevTrack uses `@supabase/supabase-js` which relies on the Supabase REST API, so 
 | `WAKATIME_CLIENT_ID` | Optional | WakaTime OAuth Client ID (for WakaTime integration) | `waka_...` |
 | `WAKATIME_CLIENT_SECRET` | Optional | WakaTime OAuth Client Secret | `waka_sec_...` |
 | `ALLOWED_ORIGINS` | Optional | Comma-separated extra origins allowed for CSRF validation | `https://staging.example.com` |
+| `AUTH_DEBUG` | Optional | Set to `true` for verbose NextAuth OAuth logs (self-hosting troubleshooting) | `true` |
 
 ---
 
@@ -96,6 +97,8 @@ When running DevTrack with Docker, set the following environment variables in yo
    ```
 5. DevTrack will be available at `http://localhost:3000`.
 
+> **Note:** The bundled `docker-compose.yml` targets the `development` stage and runs `npm run dev` with hot reload. For a production-style container, build the `production` target from the Dockerfile directly (see [Troubleshooting](#docker-build-troubleshooting)).
+
 ---
 
 ## 2. Railway
@@ -128,6 +131,25 @@ DevTrack includes a `render.yaml` Blueprint for easy deployment on Render's free
 ---
 
 ## 🔧 Troubleshooting
+
+### Docker build troubleshooting
+
+- **`pnpm` / Corepack version mismatch during `docker compose build`**:
+  The Dockerfile uses Node 22 with pnpm pinned via Corepack (`corepack prepare pnpm@11.9.0 --activate`). CI uses the same Corepack pin. Pull the latest code and rebuild with `docker compose build --no-cache`.
+
+- **`ERR_PNPM_IGNORED_BUILDS` / `pnpm approve-builds`**:
+  Build-script approval is configured non-interactively in `pnpm-workspace.yaml` (`allowBuilds`). The Dockerfile copies this file before `pnpm install`. If you see this error on an older clone, update and rebuild with `--no-cache`. Do not run interactive `pnpm approve-builds` inside CI or Docker builds.
+
+- **Native module build failures (`sharp`, `esbuild`, etc.)**:
+  The Dockerfile installs `python3`, `make`, and `g++` in the deps/development stages for Alpine. Rebuild with `docker compose build --no-cache` after pulling fixes.
+
+- **GitHub OAuth redirects with `error=github`**:
+  1. Confirm `GITHUB_ID` and `GITHUB_SECRET` match your GitHub OAuth app.
+  2. Set `NEXTAUTH_URL` to your public URL with no trailing slash (e.g. `https://devtrack.example.com`).
+  3. Set the GitHub OAuth **Authorization callback URL** to `<NEXTAUTH_URL>/api/auth/callback/github`.
+  4. Enable verbose auth logging: set `AUTH_DEBUG=true` in your `.env` and inspect container logs (`docker compose logs -f`). Look for `[auth]` and `[nextauth]` lines.
+
+### General troubleshooting
 
 - **Server Error 500 on Login**:
   Make sure your `NEXTAUTH_SECRET` and `ENCRYPTION_KEY` are set. If `ENCRYPTION_KEY` is missing or the wrong length (must be 32 bytes / 64 hex chars), the OAuth callback will crash when attempting to encrypt the GitHub token.

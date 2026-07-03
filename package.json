@@ -101,7 +101,7 @@
     "js-yaml": ">=4.1.0"
   },
   "engines": {
-    "node": "20.x"
+    "node": "20.x || 22.x"
   },
   "optionalDependencies": {
     "@esbuild/linux-x64": "^0.28.0",
@@ -111,21 +111,5 @@
     "@parcel/watcher-linux-x64-glibc": "^2.5.6",
     "@parcel/watcher-linux-x64-musl": "^2.5.6",
     "@swc/core-linux-x64-gnu": "^1.15.43"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "@scarf/scarf",
-      "@sentry/cli",
-      "@swc/core",
-      "@tree-sitter-grammars/tree-sitter-yaml",
-      "core-js-pure",
-      "core-js",
-      "esbuild",
-      "sharp",
-      "tree-sitter-json",
-      "tree-sitter",
-      "unrs-resolver"
-    ]
   }
 }
