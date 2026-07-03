@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { encode } from "next-auth/jwt";
+import { mockMetricResponse } from "./helpers/dashboard-mocks";
 
 const authSecret =
   process.env.NEXTAUTH_SECRET || "test-nextauth-secret-for-playwright-tests";
@@ -136,7 +137,7 @@ test.describe("[Streak E2E]", () => {
       await page.route(pattern, async (route) => {
         await route.fulfill({
           contentType: "application/json",
-          body: JSON.stringify({}),
+          body: JSON.stringify(mockMetricResponse(route.request().url())),
         });
       });
     }

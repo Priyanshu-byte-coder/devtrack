@@ -44,7 +44,7 @@ export default function LeaderboardFilters() {
   const rawPeriod = searchParams.get("period");
   const period: Period = isPeriod(rawPeriod) ? rawPeriod : "all";
 
-  const hasFilters = language !== "" || period !== "all";
+  const hasFilters = searchParams.has("lang") || searchParams.has("period");
 
   const currentFilters = useMemo(
     () => ({ lang: language, period }),
@@ -71,6 +71,7 @@ export default function LeaderboardFilters() {
         if (parsed.lang) {
           nextParams.set("lang", parsed.lang);
         }
+
         const storedPeriod = parsed.period ?? null;
         if (isPeriod(storedPeriod) && storedPeriod !== "all") {
           nextParams.set("period", storedPeriod);
@@ -146,6 +147,7 @@ export default function LeaderboardFilters() {
           <div className="grid grid-cols-3 gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] p-1">
             {periods.map((item) => {
               const active = item.value === period;
+
               return (
                 <button
                   key={item.value}
