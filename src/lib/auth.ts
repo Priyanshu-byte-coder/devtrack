@@ -175,8 +175,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (typeof token.accessToken === "string")
-        session.accessToken = token.accessToken;
       if (typeof token.githubId === "string")
         session.githubId = token.githubId;
       if (typeof token.githubLogin === "string")
