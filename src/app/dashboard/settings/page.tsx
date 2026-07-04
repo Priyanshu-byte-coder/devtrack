@@ -225,7 +225,7 @@ function SettingsPageContent() {
   const profileUrl = useMemo(
     () =>
       publicProfileUsername
-        ? `https://devtrack-delta.vercel.app/u/${publicProfileUsername}`
+        ? `https://devtrack-silk-kappa.vercel.app/u/${publicProfileUsername}`
         : "",
     [publicProfileUsername]
   );

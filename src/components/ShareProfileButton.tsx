@@ -18,7 +18,7 @@ export default function ShareProfileButton({
     try {
       const baseUrl =
         process.env.NEXT_PUBLIC_APP_URL ||
-        "https://devtrack-delta.vercel.app";
+        "https://devtrack-silk-kappa.vercel.app";
 
       const profileUrl = `${baseUrl}/u/${githubLogin}`;
 
