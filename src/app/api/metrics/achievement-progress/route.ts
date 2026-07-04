@@ -1,4 +1,4 @@
-﻿import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
