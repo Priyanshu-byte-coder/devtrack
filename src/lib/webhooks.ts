@@ -97,34 +97,51 @@ export async function dispatchWebhook(
   let errorMessage: string | undefined;
 
   try {
-    const response = await fetch(webhook.url, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Webhook-Signature": `sha256=${signature}`,
-    "X-Webhook-Event": event,
-    "X-Webhook-Delivery-Id": webhookId,
-  },
-  body: payloadString,
-  signal: AbortSignal.timeout(10000),
-  redirect: "manual",
-});
+    let currentUrl = webhook.url;
+    let redirectsFollowed = 0;
+    const MAX_REDIRECTS = 3;
+    let response: Response;
 
-if ([301, 302, 303, 307, 308].includes(response.status)) {
-  const location = response.headers.get("location");
+    while (true) {
+      response = await fetch(currentUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Webhook-Signature": `sha256=${signature}`,
+          "X-Webhook-Event": event,
+          "X-Webhook-Delivery-Id": webhookId,
+        },
+        body: payloadString,
+        signal: AbortSignal.timeout(10000),
+        redirect: "manual",
+      });
 
-  if (!location) {
-    throw new Error("Redirect response missing location header");
-  }
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        if (redirectsFollowed >= MAX_REDIRECTS) {
+          throw new Error("SSRF protection: max redirect limit exceeded");
+        }
 
-  const redirectSafe = await isSafeUrl(location);
+        const location = response.headers.get("location");
+        if (!location) {
+          throw new Error("Redirect response missing location header");
+        }
 
-  if (!redirectSafe) {
-    throw new Error(
-      "SSRF protection: blocked redirect to private/internal address"
-    );
-  }
-}
+        const resolvedUrl = new URL(location, currentUrl).toString();
+
+        const redirectSafe = await isSafeUrl(resolvedUrl);
+        if (!redirectSafe) {
+          throw new Error(
+            "SSRF protection: blocked redirect to private/internal address"
+          );
+        }
+
+        currentUrl = resolvedUrl;
+        redirectsFollowed++;
+        continue;
+      }
+
+      break;
+    }
 
     statusCode = response.status;
     const success = response.ok;

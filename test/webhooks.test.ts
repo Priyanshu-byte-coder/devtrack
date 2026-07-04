@@ -511,6 +511,79 @@ describe("Webhooks Module", () => {
         expect(headers["X-Webhook-Event"]).toBe(event);
       }
     });
+
+    it("should follow a safe redirect", async () => {
+      (global.fetch as any)
+        .mockResolvedValueOnce({
+          status: 302,
+          headers: {
+            get: (name: string) => (name.toLowerCase() === "location" ? "https://safe.com/webhook-final" : null),
+          },
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+        });
+
+      const result = await dispatchWebhook("webhook_123", "goal.completed", {});
+      expect(result.success).toBe(true);
+      expect(result.statusCode).toBe(200);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect((global.fetch as any).mock.calls[0][0]).toBe(mockWebhookConfig.url);
+      expect((global.fetch as any).mock.calls[1][0]).toBe("https://safe.com/webhook-final");
+    });
+
+    it("should handle relative redirect URLs", async () => {
+      (global.fetch as any)
+        .mockResolvedValueOnce({
+          status: 302,
+          headers: {
+            get: (name: string) => (name.toLowerCase() === "location" ? "/webhook-final" : null),
+          },
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+        });
+
+      const result = await dispatchWebhook("webhook_123", "goal.completed", {});
+      expect(result.success).toBe(true);
+      expect(result.statusCode).toBe(200);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect((global.fetch as any).mock.calls[1][0]).toBe("https://example.com/webhook-final");
+    });
+
+    it("should block redirects to unsafe locations", async () => {
+      vi.mocked(ssrfModule.isSafeUrl).mockImplementation(async (url) => {
+        return url === mockWebhookConfig.url; // Safe only for initial URL
+      });
+
+      (global.fetch as any).mockResolvedValueOnce({
+        status: 302,
+        headers: {
+          get: (name: string) => (name.toLowerCase() === "location" ? "https://unsafe.com/webhook" : null),
+        },
+      });
+
+      const result = await dispatchWebhook("webhook_123", "goal.completed", {});
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("blocked redirect");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should fail if maximum redirect depth limit is exceeded", async () => {
+      (global.fetch as any).mockResolvedValue({
+        status: 302,
+        headers: {
+          get: (name: string) => (name.toLowerCase() === "location" ? "https://redirect.com/webhook" : null),
+        },
+      });
+
+      const result = await dispatchWebhook("webhook_123", "goal.completed", {});
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("max redirect limit exceeded");
+      expect(global.fetch).toHaveBeenCalledTimes(4); // 1 initial + 3 redirects
+    });
   });
 
   // ============================================================
