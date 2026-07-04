@@ -1,0 +1,56 @@
+name: Test Coverage
+description: Propose adding or improving tests for a module
+title: "test: "
+labels: ["type:testing", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening this issue, **search existing issues** (open AND closed) to make sure a test issue for this module does not already exist. Duplicate issues will be closed immediately.
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Duplicate Check
+      description: Confirm you searched for existing issues.
+      options:
+        - label: I have searched open and closed issues and confirmed this is not a duplicate.
+          required: true
+
+  - type: input
+    id: module
+    attributes:
+      label: Module / File Path
+      description: Which source file needs tests?
+      placeholder: "src/lib/example.ts"
+    validations:
+      required: true
+
+  - type: textarea
+    id: existing-coverage
+    attributes:
+      label: Existing Coverage
+      description: Does a test file already exist? If so, what is missing?
+      placeholder: "test/example.test.ts exists but does not cover edge cases for negative input."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-tests
+    attributes:
+      label: Proposed Test Cases
+      description: List the specific scenarios you plan to test.
+      placeholder: |
+        - returns empty array for null input
+        - throws on invalid date format
+        - handles timezone edge case
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any relevant background (related bugs, tricky logic, etc.)
+    validations:
+      required: false

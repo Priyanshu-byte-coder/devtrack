@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Award, Sparkles, FolderKanban } from "lucide-react";
 import { cn } from "@/lib/utils";
