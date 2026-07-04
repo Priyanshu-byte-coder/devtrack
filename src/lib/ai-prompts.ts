@@ -66,3 +66,46 @@ Respond with ONLY valid JSON, no markdown fences, no commentary, matching exactl
   "funFact": "one playful one-line observation derived from the data"
 }`;
 }
+
+export interface GoalMentorPromptParams {
+  totalCommits: number;
+  activeDays: number;
+  longestStreak: number;
+  prsMerged: number;
+  topRepoName: string;
+  repoCount: number;
+  languages: string[];
+}
+
+export function goalMentorPrompt(params: GoalMentorPromptParams): string {
+  return `You are a senior engineering mentor suggesting realistic, yet challenging coding goals for a developer based on their recent GitHub activity.
+
+Here is their data from the past 30 days:
+- Active coding days: ${params.activeDays} days
+- Total commits: ${params.totalCommits}
+- Longest streak: ${params.longestStreak} days
+- PRs merged: ${params.prsMerged}
+- Top repository: ${params.topRepoName} (active across ${params.repoCount} repositories)
+- Programming languages used: ${params.languages.join(", ")}
+
+Suggest exactly 3 customized weekly or monthly coding goals.
+For each suggestion, provide:
+1. title: A short description of the goal (e.g. "Increase commits to ${params.topRepoName}", "Commit consistently to maintain streak")
+2. target: A realistic number (integer) to aim for.
+3. unit: The target unit. Must be exactly one of: "commits", "prs", "hours", "streak", or "language" (Lines of Code).
+4. recurrence: Must be "weekly" or "monthly".
+5. reasoning: A short, encouraging one-sentence explanation of why this goal is suggested based on the data.
+
+Respond with ONLY valid JSON, matching exactly this shape:
+{
+  "suggestions": [
+    {
+      "title": "goal title",
+      "target": 10,
+      "unit": "commits",
+      "recurrence": "weekly",
+      "reasoning": "You committed 8 times to ${params.topRepoName} last week. Aim for 10 to keep the momentum!"
+    }
+  ]
+}`;
+}
