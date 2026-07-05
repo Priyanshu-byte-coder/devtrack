@@ -1,7 +1,9 @@
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { isMetricsCacheBypassed, metricsCacheKey, withMetricsCache } from "@/lib/metrics-cache";
+import { fetchUserRepos } from "@/lib/github";
 import { ExplorerRepoCardData } from "@/lib/repo-analytics-types";
+
 
 export const dynamic = "force-dynamic";
 const GITHUB_API = "https://api.github.com";
@@ -18,15 +20,14 @@ export async function GET(req: NextRequest) {
   const bypass = isMetricsCacheBypassed(req);
   const key = metricsCacheKey(session.githubId ?? session.githubLogin!, "repo-explorer-v2" as any, { days: 7 });
 
-  try {
-    const data = await withMetricsCache({ bypass, key, ttlSeconds: 30 * 60 }, async () => {
-      const reposRes = await fetch(`${GITHUB_API}/user/repos?sort=pushed&per_page=100`, {
-        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
-        cache: "no-store",
-      });
 
-      if (!reposRes.ok) throw new Error("API error fetching repos");
-      const repos = await reposRes.json();
+ try {
+  const data = await withMetricsCache(
+    { bypass, key, ttlSeconds: 30 * 60 },
+    async () => {
+      const repos = await fetchUserRepos(session.accessToken);
+
+ 
 
       const since = new Date();
       since.setDate(since.getDate() - 30);
@@ -93,7 +94,8 @@ export async function GET(req: NextRequest) {
       result.sort((a, b) => b.commitCount - a.commitCount || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
       return { repos: result };
-    });
+    }
+  );
     return Response.json(data);
   } catch (error) {
     console.error(error);
