@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
-import { activeStreamConnections } from "@/lib/sse";
+import { activeStreamConnections, sseConnections } from "@/lib/sse";
 
 // ─── hoisted mocks ──────────────────────────────────────────────────────────
 
@@ -86,6 +86,7 @@ describe("GET /api/stream — SSE stream route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     activeStreamConnections.clear();
+    sseConnections.clear();
 
     mocks.getServerSession.mockResolvedValue({
       githubId: "gh-1",
@@ -274,5 +275,50 @@ describe("GET /api/stream — SSE stream route", () => {
     const { GET } = await import("@/app/api/stream/route");
     const res = await GET(makeRequest());
     expect(res.headers.get("Connection")).toBe("keep-alive");
+  });
+
+  // ── sse connections registry ──────────────────────────────────────────
+
+  it("registers controller in sseConnections on connection", async () => {
+    const { GET } = await import("@/app/api/stream/route");
+    await GET(makeRequest());
+
+    const userConnections = sseConnections.get("user-1");
+    expect(userConnections).toBeDefined();
+    expect(userConnections instanceof Set).toBe(true);
+    expect(userConnections?.size).toBe(1);
+  });
+
+  it("removes controller from sseConnections on disconnection", async () => {
+    const { GET } = await import("@/app/api/stream/route");
+    const { req, abort } = makeAbortableRequest();
+
+    await GET(req);
+    expect(sseConnections.get("user-1")?.size).toBe(1);
+
+    abort();
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(sseConnections.has("user-1")).toBe(false);
+  });
+
+  it("supports concurrent tab connections in sseConnections", async () => {
+    const { GET } = await import("@/app/api/stream/route");
+
+    const res1 = await GET(makeRequest());
+    const res2 = await GET(makeRequest());
+    const { req: req3, abort: abort3 } = makeAbortableRequest();
+    await GET(req3);
+
+    const userConnections = sseConnections.get("user-1");
+    expect(userConnections?.size).toBe(3);
+
+    abort3();
+    await new Promise((r) => setTimeout(r, 10));
+    expect(sseConnections.get("user-1")?.size).toBe(2);
+
+    await res1.body?.getReader().cancel();
+    await res2.body?.getReader().cancel();
+    expect(sseConnections.has("user-1")).toBe(false);
   });
 });
