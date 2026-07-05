@@ -54,8 +54,8 @@ describe("toCsv", () => {
     expect(toCsv([])).toBe("");
   });
 
-  it("returns header row only for single row", () => {
-    expect(toCsv([{ name: "Alice", age: 30 }])).toBe("name,age");
+  it("returns header and data row for single row", () => {
+  expect(toCsv([{ name: "Alice", age: 30 }])).toBe("name,age\nAlice,30");
   });
 
   it("serialises multiple rows with correct values", () => {

@@ -15,7 +15,7 @@
     "supabase:generate-types": "npx supabase@latest gen types typescript --local > src/types/supabase.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.104.2",
+    "@anthropic-ai/sdk": "^0.107.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -33,11 +33,11 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dompurify": "^3.4.11",
-    "driver.js": "^1.4.0",
+    "driver.js": "^1.6.0",
     "fflate": "^0.8.3",
-    "groq-sdk": "^1.2.1",
+    "groq-sdk": "^1.3.0",
     "html-to-image": "^1.11.13",
-    "idb-keyval": "^6.2.5",
+    "idb-keyval": "^6.2.6",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.577.0",
@@ -54,14 +54,14 @@
     "server-only": "^0.0.1",
     "sharp": "^0.35.1",
     "sonner": "^2.0.7",
-    "swagger-ui-react": "^5.32.6",
+    "swagger-ui-react": "5.32.6",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@emnapi/core": "^1.11.0",
     "@emnapi/runtime": "^1.11.0",
     "@next/env": "^16.2.7",
-    "@playwright/test": "1.61.0",
+    "@playwright/test": "1.61.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -71,21 +71,21 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/swagger-ui-react": "^5.18.0",
-    "@typescript-eslint/eslint-plugin": "^8.60.0",
-    "@typescript-eslint/parser": "^8.60.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
     "@vitest/coverage-v8": "^4.1.8",
-    "autoprefixer": "^10.4.19",
+    "autoprefixer": "^10.5.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.9",
     "jsdom": "^29.1.1",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.16",
     "tailwind-scrollbar": "^3.1.0",
     "tailwindcss": "^3.4.1",
     "tree-sitter": "^0.25.0",
     "ts-jest": "^29.4.11",
     "typescript": "^6",
     "vitest": "^4.1.8",
-    "web-tree-sitter": "^0.26.9"
+    "web-tree-sitter": "^0.26.10"
   },
   "overrides": {
     "glob": ">=10.5.0",
@@ -110,7 +110,7 @@
     "@parcel/watcher-darwin-x64": "^2.5.6",
     "@parcel/watcher-linux-x64-glibc": "^2.5.6",
     "@parcel/watcher-linux-x64-musl": "^2.5.6",
-    "@swc/core-linux-x64-gnu": "^1.15.41"
+    "@swc/core-linux-x64-gnu": "^1.15.43"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
