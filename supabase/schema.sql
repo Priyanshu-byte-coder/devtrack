@@ -334,3 +334,24 @@ CREATE POLICY "Users can delete own sponsor metrics"
   ON user_sponsor_metrics FOR DELETE
   USING (auth.uid()::text = user_id);
 
+-- -------------------------------------------------------
+-- WakaTime Stats: caches daily WakaTime coding summaries per user
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wakatime_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    total_seconds INTEGER NOT NULL DEFAULT 0,
+    languages JSONB NOT NULL DEFAULT '[]'::jsonb,
+    projects JSONB NOT NULL DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, date)
+);
+
+ALTER TABLE wakatime_stats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own wakatime stats" ON wakatime_stats;
+CREATE POLICY "Users can view their own wakatime stats"
+    ON wakatime_stats FOR SELECT
+    USING (auth.uid()::text = user_id);
