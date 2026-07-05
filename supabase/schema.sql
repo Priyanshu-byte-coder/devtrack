@@ -297,7 +297,6 @@ CREATE TABLE IF NOT EXISTS leaderboard_cache (
   building_until timestamptz,
   updated_at timestamptz default now()
 );
-);
 
 -- -------------------------------------------------------
 -- User Sponsor Metrics: cache for user-specific GitHub Sponsors data
