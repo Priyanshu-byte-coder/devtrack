@@ -281,6 +281,7 @@ export async function middleware(req: NextRequest) {
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
+
   if ((isProtectedRoute || isAdminRoute) && !token) {
     const url = req.nextUrl.clone();
     url.pathname = "/";

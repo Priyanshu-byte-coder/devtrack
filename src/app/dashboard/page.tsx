@@ -15,6 +15,7 @@ import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import RoastHypeWidget from "./RoastHypeWidget";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 
 export default async function DashboardPage() {
@@ -90,7 +91,7 @@ export default async function DashboardPage() {
 
             {/* Today Focus */}
             <section>
-              <TodayFocusHero userName={session.user?.name ?? null} />
+              <TodayFocusHero userName={session?.user?.name ?? null} />
             </section>
 
             {/* Featured Section */}
@@ -146,6 +147,8 @@ export default async function DashboardPage() {
               <MilestonePlanner />
             </section>
           </div>
+
+          <ScrollToTopButton />
         </main>
       </DashboardWidgetA11yProvider>
     </DashboardSSEProvider>
