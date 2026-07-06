@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface IssueData {
   opened: number;
@@ -84,11 +85,7 @@ return (
       >
         <span className="sr-only">Loading issue analytics</span>
         {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            aria-hidden="true"
-            className="h-20 rounded-lg skeleton-shimmer"
-          />
+          <SkeletonBlock key={i} className="h-24 rounded-lg" />
         ))}
       </div>
     ) : error ? (

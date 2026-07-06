@@ -7,6 +7,7 @@ import type { RepoHealthScore } from "@/types/repo-health";
 import RepoHealthPanel from "@/components/RepoHealthPanel";
 import RepoActivityDrawer from "@/components/RepoActivityDrawer";
 import { Search, Bookmark } from "lucide-react";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface RepoItemProps {
   repo: Repo;
@@ -85,7 +86,7 @@ const RepoItem = memo(({
         </div>
         <span className="shrink-0 flex items-center gap-2">
           {healthLoading ? (
-            <div className="h-5 w-9 rounded bg-[var(--card-muted)] animate-pulse" />
+            <SkeletonBlock className="h-5 w-9 rounded" />
           ) : health ? (
             <button
               type="button"
@@ -515,12 +516,10 @@ export default function TopRepos() {
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i}>
                 <div className="flex items-center justify-between mb-2">
-                  <div className="h-4 w-1/3 bg-[var(--card-muted)] rounded animate-pulse" />
-                  <div className="h-4 w-16 bg-[var(--card-muted)] rounded animate-pulse" />
+                  <SkeletonBlock className="h-4 w-1/3" />
+                  <SkeletonBlock className="h-4 w-16" />
                 </div>
-                <div className="h-1.5 w-full bg-[var(--control)] rounded-full overflow-hidden">
-                  <div className="h-full bg-[var(--card-muted)] animate-pulse w-1/2" />
-                </div>
+                <SkeletonBlock className="h-1.5 w-full" />
               </div>
             ))}
           </div>

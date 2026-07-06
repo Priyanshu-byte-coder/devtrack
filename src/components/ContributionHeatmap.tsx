@@ -5,6 +5,7 @@ import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
 import DailyBreakdownSheet from "@/components/DailyBreakdownSheet";
 import { getContributionInsights } from "@/lib/contribution-insights";
 import { Calendar, TrendingUp, Zap, Clock, Award, BarChart2 } from "lucide-react";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface ContributionHeatmapProps {
   days?: number;
@@ -486,7 +487,7 @@ export default function ContributionHeatmap({
       </div>
 
       {loading ? (
-        <div className="h-[300px] animate-pulse rounded-lg bg-[var(--card-muted)]" />
+        <SkeletonBlock className="h-[300px] w-full rounded-lg" />
       ) : error ? (
         <div className="flex h-[180px] items-center rounded-lg border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4">
           <p className="text-sm text-[var(--destructive)]">{error} Please try refreshing.</p>
