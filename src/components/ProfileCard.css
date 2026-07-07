@@ -212,3 +212,21 @@
 @media (min-width: 920px){
   .profile-card__social-text{ display:inline-block; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-card {
+    transition: none !important;
+  }
+
+  .profile-card:hover {
+    transform: none !important;
+  }
+
+  .profile-card__social a {
+    transition: none !important;
+  }
+
+  .profile-card__social a:hover {
+    transform: none !important;
+  }
+}

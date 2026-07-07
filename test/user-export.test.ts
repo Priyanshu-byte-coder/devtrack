@@ -46,7 +46,9 @@ function makeRequest(headers: Record<string, string> = {}): NextRequest {
  * The final call in the chain (`maybeSingle` or `limit`) resolves to `result`.
  */
 function buildChain(result: unknown) {
-  const chain: Record<string, unknown> = {};
+  const chain: any = {
+    then: (onfulfilled: any) => Promise.resolve(result).then(onfulfilled),
+  };
   const resolve = vi.fn().mockResolvedValue(result);
   const methods = ["select", "eq", "gte", "order", "limit", "maybeSingle", "single"];
   for (const m of methods) {
@@ -68,6 +70,7 @@ function setupSupabase(auditRow: unknown = null) {
   const auditInsert = vi.fn().mockResolvedValue({ data: null, error: null });
   const emptyResult = { data: [], error: null };
   const singleResult = { data: { id: "user-1", github_login: "alice", bio: "", is_public: false, leaderboard_opt_in: false, weekly_digest_opt_in: false, timezone: "UTC", created_at: "2024-01-01T00:00:00Z" }, error: null };
+  const streakMilestonesSelect = vi.fn().mockReturnValue(buildChain(emptyResult).chain);
 
   mocks.supabaseFrom.mockImplementation((table: string) => {
     if (table === "data_export_audit") {
@@ -92,12 +95,15 @@ function setupSupabase(auditRow: unknown = null) {
       const { chain } = buildChain(singleResult);
       return { select: vi.fn().mockReturnValue(chain) };
     }
+    if (table === "streak_milestones") {
+      return { select: streakMilestonesSelect };
+    }
     // All other tables return empty arrays
     const { chain } = buildChain(emptyResult);
     return { select: vi.fn().mockReturnValue(chain) };
   });
 
-  return { auditInsert };
+  return { auditInsert, streakMilestonesSelect };
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -218,6 +224,13 @@ describe("GET /api/user/export", () => {
     const { GET } = await import("@/app/api/user/export/route");
     await GET(makeRequest());
     expect(auditInsert).not.toHaveBeenCalled();
+  });
+
+  it("queries the correct column names for streak milestones", async () => {
+    const { streakMilestonesSelect } = setupSupabase(null);
+    const { GET } = await import("@/app/api/user/export/route");
+    await GET(makeRequest());
+    expect(streakMilestonesSelect).toHaveBeenCalledWith("id, streak_count, achieved_at");
   });
 });
 

@@ -128,6 +128,7 @@ async function fetchContributionsForAccount(
   const key = metricsCacheKey(cacheContext.userId, "contributions", {
     days,
     githubLogin,
+    timezone,
     from: fromDate ?? undefined,
     repo,
     orgName: orgName || undefined,

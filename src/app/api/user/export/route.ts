@@ -183,7 +183,7 @@ async function collectStreaks(userId: string) {
 
   const { data: milestones } = await supabaseAdmin
     .from("streak_milestones")
-    .select("id, streak_length, milestone_type, achieved_at")
+    .select("id, streak_count, achieved_at")
     .eq("user_id", userId)
     .order("achieved_at", { ascending: false });
 

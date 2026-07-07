@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import Image from "next/image";
 import Link from 'next/link';
 import { Activity, GitPullRequest, Goal, Share2, Flame, FolderGit2, LogIn, LayoutDashboard, Target, Brain, Trophy, Users, Server, type LucideIcon } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
 
 /* ═══════════════════════════════════════════════════════════
    PUBLIC TYPES
@@ -99,8 +98,12 @@ const ABOUT_HIGHLIGHTS: Array<{
    ═══════════════════════════════════════════════════════════ */
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
-  const [vis, setVis] = useState(false);
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [vis, setVis] = useState(prefersReducedMotion);
   useEffect(() => {
+    if (prefersReducedMotion) return;
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -111,7 +114,7 @@ function useScrollReveal(threshold = 0.15) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold]);
+  }, [threshold, prefersReducedMotion]);
   return [ref, vis] as const;
 }
 
@@ -624,7 +627,6 @@ function HeroSection() {
 
       {/* Right: bento window frame */}
       <div style={{ flex: '1 1 340px', display: 'flex', flexDirection: 'column',alignItems: 'flex-end', gap: 24, position: 'relative', zIndex: 2 }}>
-        <ThemeToggle />
         <div style={{
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid rgba(255,255,255,0.05)',
@@ -742,7 +744,7 @@ function AboutHighlightCard({
         }}>
           {item.title}
         </h3>
-        <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
+        <p style={{ color: 'var(--foreground)', opacity: 0.85, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
           {item.desc}
         </p>
       </div>
@@ -1400,7 +1402,7 @@ function LandingFooter() {
         justifyContent: 'space-between', alignItems: 'center',
       }}
     >
-      <span style={{ fontFamily: MONO, fontSize: 11, color: '#222' }}>
+      <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED }}>
         © {new Date().getFullYear()} DEVTRACK
       </span>
       <div style={{ display: 'flex', gap: 20 }}>

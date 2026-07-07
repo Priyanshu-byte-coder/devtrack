@@ -12,14 +12,14 @@ export interface AchievementEstimate {
 const TIERS_STANDARD = [1, 16, 128, 1024];
 const TIERS_STARSTRUCK = [16, 128, 512, 4096];
 
-function calculateNextTier(current: number, tiers: number[]): number | null {
+export function calculateNextTier(current: number, tiers: number[]): number | null {
   for (const tier of tiers) {
     if (current < tier) return tier;
   }
   return null; // Maxed out
 }
 
-function calculatePercentage(current: number, nextTier: number | null): number {
+export function calculatePercentage(current: number, nextTier: number | null): number {
   if (nextTier === null || current >= nextTier) return 100;
   return Math.floor((current / nextTier) * 100);
 }

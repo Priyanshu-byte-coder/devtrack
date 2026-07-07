@@ -79,7 +79,7 @@ export const RepoWidgetSkeleton = () => (
             <div className="h-4 w-16 bg-[var(--card-muted)] rounded animate-pulse" />
           </div>
           <div className="h-1.5 w-full bg-[var(--control)] rounded-full overflow-hidden">
-             <div className="h-full bg-[var(--card-muted)] animate-pulse w-1/2" />
+            <div className="h-full bg-[var(--card-muted)] animate-pulse w-1/2" />
           </div>
         </div>
       ))}
@@ -92,7 +92,7 @@ export const ChartSkeleton = () => (
     role="status"
     aria-busy="true"
     aria-label="Loading chart"
-    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full"
+    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full min-h-[280px]"
   >
     <div className="h-6 w-32 bg-[var(--card-muted)] rounded mb-6 animate-pulse" aria-hidden="true" />
     <div className="h-48 w-full bg-[var(--card-muted)] rounded-lg animate-pulse" aria-hidden="true" />
@@ -120,7 +120,7 @@ export const SkeletonCard = () => (
     role="status"
     aria-busy="true"
     aria-label="Loading widget"
-    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
+    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm min-h-[200px]"
   >
     <div className="h-6 w-48 bg-[var(--card-muted)] rounded mb-4 animate-pulse" aria-hidden="true" />
     <div className="h-40 bg-[var(--card-muted)] rounded animate-pulse" aria-hidden="true" />
@@ -141,6 +141,11 @@ export const ContributionHeatmapSkeleton = () => (
       ))}
     </div>
   </div>
+);
+
+const WeeklyProgressSummary = dynamic(
+  () => import("@/components/WeeklyProgressSummary"),
+  { ssr: false, loading: () => <SkeletonCard /> },
 );
 
 const CodingActivityInsightsCard = dynamic(
@@ -228,10 +233,14 @@ const SECTION_ACCENT_CLASSES: Record<DashboardSectionId, string> = {
 };
 
 const SECTION_GRID_CLASSES: Record<DashboardSectionId, string> = {
-  overview: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 w-full",
-  activity: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full",
+  // xl: breakpoints are required here — not just for capping column width,
+  // but because WIDGET_SPAN_CLASSES uses xl:col-span-2 on several widgets.
+  // Without an explicit xl:grid-cols-N, those col-span rules have no effect
+  // and the rendered layout diverges from the skeleton at viewports ≥1280px.
+  overview: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 w-full",
+  activity: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full",
   analytics: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 w-full",
-  goals: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full",
+  goals: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full",
 };
 
 const WIDGET_SPAN_CLASSES: Partial<Record<DashboardWidgetId, string>> = {
@@ -269,7 +278,8 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
   switch (widgetId) {
     case "weekly-summary":
       return <WeeklySummaryCard />;
-
+    case "weekly-progress-summary":
+      return <WeeklyProgressSummary />;
     case "personal-records":
       return <PersonalRecords />;
 
@@ -645,55 +655,54 @@ export default function CustomizableDashboard() {
           onDragEnd={handleDragEnd}
         >
           {layout.sections.map((sectionId) => {
-          const sectionWidgets = layout.widgets[sectionId];
+            const sectionWidgets = layout.widgets[sectionId];
 
-          return (
-            <section
-              key={sectionId}
-              id={SECTION_ANCHOR_IDS[sectionId]}
-              className={`scroll-mt-28 ${
-                sectionId === "goals" ? "mb-16" : "mb-14"
-              }`}
-            >
-              <div className="space-y-2 mb-6">
-                <div
-                  className={`w-12 ${SECTION_ACCENT_CLASSES[sectionId]}`}
-                />
-                <div>
-                  <h2 className="text-3xl font-bold tracking-tight text-[var(--foreground)]">
-                    {DASHBOARD_SECTION_LABELS[sectionId]}
-                  </h2>
-                  <p className="mt-1 text-sm text-[var(--muted-foreground)] font-medium">
-                    {sectionId === "overview" && "Quick summary of your development profile"}
-                    {sectionId === "activity" && "Your coding patterns and contributions"}
-                    {sectionId === "analytics" && "In-depth analysis of your repositories and code"}
-                    {sectionId === "goals" && "Track progress, milestones, and insights"}
-                  </p>
-                </div>
-              </div>
-
-              <SortableContext
-                items={sectionWidgets}
-                strategy={rectSortingStrategy}
+            return (
+              <section
+                key={sectionId}
+                id={SECTION_ANCHOR_IDS[sectionId]}
+                className={`scroll-mt-28 ${sectionId === "goals" ? "mb-16" : "mb-14"
+                  }`}
               >
-                <div className={`${SECTION_GRID_CLASSES[sectionId]} auto-rows-max`}>
-                  {sectionWidgets.map((widgetId) => (
-                    <SortableDashboardWidget
-                      key={widgetId}
-                      id={widgetId}
-                      title={DASHBOARD_WIDGET_LABELS[widgetId]}
-                      isEditing={isEditing}
-                      onHide={handleHideWidget}
-                      className={WIDGET_SPAN_CLASSES[widgetId] ?? ""}
-                    >
-                      {renderDashboardWidget(widgetId)}
-                    </SortableDashboardWidget>
-                  ))}
+                <div className="space-y-2 mb-6">
+                  <div
+                    className={`w-12 ${SECTION_ACCENT_CLASSES[sectionId]}`}
+                  />
+                  <div>
+                    <h2 className="text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                      {DASHBOARD_SECTION_LABELS[sectionId]}
+                    </h2>
+                    <p className="mt-1 text-sm text-[var(--muted-foreground)] font-medium">
+                      {sectionId === "overview" && "Quick summary of your development profile"}
+                      {sectionId === "activity" && "Your coding patterns and contributions"}
+                      {sectionId === "analytics" && "In-depth analysis of your repositories and code"}
+                      {sectionId === "goals" && "Track progress, milestones, and insights"}
+                    </p>
+                  </div>
                 </div>
-              </SortableContext>
-            </section>
-          );
-        })}
+
+                <SortableContext
+                  items={sectionWidgets}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className={`${SECTION_GRID_CLASSES[sectionId]} auto-rows-max`}>
+                    {sectionWidgets.map((widgetId) => (
+                      <SortableDashboardWidget
+                        key={widgetId}
+                        id={widgetId}
+                        title={DASHBOARD_WIDGET_LABELS[widgetId]}
+                        isEditing={isEditing}
+                        onHide={handleHideWidget}
+                        className={WIDGET_SPAN_CLASSES[widgetId] ?? ""}
+                      >
+                        {renderDashboardWidget(widgetId)}
+                      </SortableDashboardWidget>
+                    ))}
+                  </div>
+                </SortableContext>
+              </section>
+            );
+          })}
         </DndContext>
       </DashboardWidgetA11yProvider>
     </div>
