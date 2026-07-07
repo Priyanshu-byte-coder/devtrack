@@ -638,7 +638,7 @@ export default function StreakTracker() {
                   <stat.icon size={20} className="text-[var(--accent)]" aria-hidden="true" />
                 </div>
                 <div
-                  className={`text-lg font-bold leading-tight break-all ${stat.highlight ? "text-[var(--accent)]" : "text-[var(--accent)]"
+                  className={`text-lg font-bold leading-tight tabular-nums ${stat.highlight ? "text-[var(--accent)]" : "text-[var(--accent)]"
                     }`}
                 >
                   {stat.value}

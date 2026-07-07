@@ -365,7 +365,11 @@ export default function DashboardHeader() {
               coding activity at a glance
             </p>
             {minutesAgo !== null && (
-              <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
+              <p
+                aria-live="polite"
+                aria-atomic="true"
+                className="mt-1 flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]"
+              >
                 {minutesAgo <= 0 ? "Synced just now" : `Synced ${minutesAgo} min ago`}
                 {isHeaderLive && (
                   <span

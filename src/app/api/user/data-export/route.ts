@@ -247,7 +247,7 @@ export async function GET(req: NextRequest) {
 
   const { data: streakMilestones } = await supabaseAdmin
     .from("streak_milestones")
-    .select("id, user_id, streak_length, milestone_type, achieved_at")
+    .select("id, user_id, streak_count, achieved_at")
     .eq("user_id", user.id);
   sections.streakMilestones = streakMilestones || [];
 

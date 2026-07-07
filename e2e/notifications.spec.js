@@ -47,6 +47,8 @@ function mockMetricResponse(url) {
     };
   if (url.includes("/api/streak/freeze"))
     return { hasFreeze: false, freezeDate: null };
+  if (url.includes("/api/metrics/sponsors"))
+    return { mrr: 15000, activeCount: 12, growthTrend: 15, sponsors: [], sparklineData: [] };
   if (url.includes("/api/metrics/weekly-summary"))
     return {
       commits: { current: 10, previous: 7, delta: 3, trend: "up" },
@@ -54,13 +56,17 @@ function mockMetricResponse(url) {
         thisWeek: { opened: 3, merged: 2 },
         lastWeek: { opened: 1, merged: 1 },
       },
-      issues: { thisWeek: 4, lastWeek: 3 },
-      productivityScore: { current: 85, previous: 78 },
-      activeDays: { thisWeek: 5, lastWeek: 4 },
-      issues: { thisWeek: 2, lastWeek: 1 },
+      issues: { 
+        thisWeek: { opened: 4, closed: 2 }, 
+        lastWeek: { opened: 3, closed: 1 } 
+      },
       productivityScore: { current: 85, previous: 80 },
+      activeDays: { thisWeek: 5, lastWeek: 4 },
       streak: 3,
       topRepo: "demo/repo",
+      repoBreakdown: [],
+      dailyCommits: [],
+      mostActiveDay: "2023-10-07"
     };
   if (url.includes("/api/metrics/compare"))
     return { user: { commits: 10 }, friend: { commits: 8 } };
@@ -278,7 +284,9 @@ test.beforeEach(async ({ page }) => {
     "**/api/metrics/productive-hours**",
     "**/api/user/pinned-repos/details**",
     "**/api/metrics/repo-explorer**",
+    "**/api/metrics/pr-review-time**",
     "**/api/metrics/achievement-progress**",
+    "**/api/metrics/sponsors**",
   ];
 
   for (const pattern of metricRoutes) {
@@ -340,7 +348,7 @@ test("notification bell opens and closes drawer", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible({ timeout: 30000 });
 
   // Find and click the notification bell
-  const bellButton = page.getByRole("button", { name: /Notifications/ });
+  const bellButton = page.getByRole("button", { name: /Notifications/ }).first();
   await expect(bellButton).toBeVisible({ timeout: 10000 });
 
   await bellButton.click();
