@@ -34,10 +34,12 @@ async function fetchRepoData(owner: string, repo: string) {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
+  const safeOwner = encodeURIComponent(owner);
+  const safeRepo = encodeURIComponent(repo);
   const [repoRes, readmeRes, languagesRes] = await Promise.all([
-    fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers }),
-    fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, { headers }),
-    fetch(`https://api.github.com/repos/${owner}/${repo}/languages`, { headers }),
+    fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}`, { headers }),
+    fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}/readme`, { headers }),
+    fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}/languages`, { headers }),
   ]);
 
   const repoData = repoRes.ok ? await repoRes.json() : {};

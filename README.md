@@ -6,29 +6,28 @@
 
 > Track your GitHub activity, commit streaks, PR analytics, and coding goals in one clean, self-hostable dashboard — no enterprise plan, no vendor lock-in.
 
-[![CI](https://github.com/Umbrella-io/devtrack/actions/workflows/ci.yml/badge.svg)](https://github.com/Umbrella-io/devtrack/actions/workflows/ci.yml)
+[![CI](https://github.com/Priyanshu-byte-coder/devtrack/actions/workflows/ci.yml/badge.svg)](https://github.com/Priyanshu-byte-coder/devtrack/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 [![Stack](https://img.shields.io/badge/stack-Next.js%2016%20%7C%20Supabase%20%7C%20TypeScript-blue)](./DEVELOPMENT.md)
-[![Good First Issues](https://img.shields.io/github/issues/Umbrella-io/devtrack/good%20first%20issue?label=good%20first%20issues&color=7c3aed)](https://github.com/Umbrella-io/devtrack/issues?q=label%3A%22good+first+issue%22)
-[![Contributors](https://img.shields.io/github/contributors/Umbrella-io/devtrack?color=brightgreen)](https://github.com/Umbrella-io/devtrack/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/Umbrella-io/devtrack)](https://github.com/Umbrella-io/devtrack/commits/main)
+[![Stars](https://img.shields.io/github/stars/Priyanshu-byte-coder/devtrack?style=flat&color=yellow)](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)
+[![Forks](https://img.shields.io/github/forks/Priyanshu-byte-coder/devtrack?style=flat&color=blue)](https://github.com/Priyanshu-byte-coder/devtrack/network/members)
+[![Contributors](https://img.shields.io/github/contributors/Priyanshu-byte-coder/devtrack?color=brightgreen)](https://github.com/Priyanshu-byte-coder/devtrack/graphs/contributors)
+[![Last Commit](https://img.shields.io/github/last-commit/Priyanshu-byte-coder/devtrack)](https://github.com/Priyanshu-byte-coder/devtrack/commits/main)
+[![Views](https://komarev.com/ghpvc/?username=Priyanshu-byte-coder&label=Views&color=blueviolet)](https://github.com/Priyanshu-byte-coder/devtrack)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/Priyanshu-byte-coder?label=sponsors&color=ea4aaa)](https://github.com/sponsors/Priyanshu-byte-coder)
+[![Good First Issues](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[![Help Wanted](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/help%20wanted?label=help%20wanted&color=008672)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 
-**[Live Demo](https://devtrack-delta.vercel.app)** · **[Dev Guide](./DEVELOPMENT.md)** · **[Report Bug](https://github.com/Umbrella-io/devtrack/issues/new?template=bug_report.md)** · **[Request Feature](https://github.com/Umbrella-io/devtrack/issues/new?template=feature_request.md)** · **[Discussions](https://github.com/Umbrella-io/devtrack/discussions)** · **[Sponsor](https://github.com/sponsors/Priyanshu-byte-coder)**
+**[Live Demo](https://devtrack-silk-kappa.vercel.app)** · **[Dev Guide](./DEVELOPMENT.md)** · **[Report Bug](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=bug_report.md)** · **[Request Feature](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=feature_request.md)** · **[Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** · **[Sponsor](https://github.com/sponsors/Priyanshu-byte-coder)**
+
+<br />
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack&project-name=devtrack&repository-name=devtrack&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,NEXTAUTH_URL,NEXTAUTH_SECRET,GITHUB_ID,GITHUB_SECRET,ENCRYPTION_KEY&envDescription=Supabase%20keys%2C%20GitHub%20OAuth%20app%20credentials%2C%20and%20a%20NextAuth%20secret&envLink=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack%2Fblob%2Fmain%2FDEVELOPMENT.md)
+
+⭐ **If DevTrack saves you time, [star the repo](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)** — it helps more developers discover it.
 
 </div>
-
----
-
-## Project Stats
-
-| Metric | Count |
-|---|---|
-| GitHub Stars | 130+ |
-| Forks | 369 |
-| Merged PRs | 800+ |
-| Contributors | 224 |
 
 ---
 
@@ -65,20 +64,23 @@
 ## Table of Contents
 
 - [Why DevTrack?](#why-devtrack)
-- [Project Stats](#project-stats)
 - [Demo](#demo)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Architecture](#architecture)
+- [API Documentation](#api-documentation)
 - [Getting Started](#getting-started)
 - [Docker Development Setup](#docker-development-setup)
+- [FAQ](#faq)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Community](#community)
 - [Built With](#built-with)
 - [Sponsors](#sponsors)
+- [Star History](#star-history)
 - [License](#license)
+- [Maintainers](#maintainers)
 - [Contributors](#contributors)
 
 ---
@@ -202,9 +204,9 @@ To deploy your own instance, see the **[Self-Hosting Guide](./docs/self-hosting.
 **1. Clone and install**
 
 ```bash
-git clone https://github.com/Umbrella-io/devtrack.git
+git clone https://github.com/Priyanshu-byte-coder/devtrack.git
 cd devtrack
-npm install
+pnpm install
 ```
 
 **2. Set up Supabase**
@@ -250,7 +252,7 @@ cp .env.example .env.local
 **5. Run locally**
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and sign in with GitHub.
@@ -259,11 +261,11 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with GitHub.
 
 ```bash
 # Unit tests
-npm test
+pnpm test
 
 # End-to-end tests (requires Chromium)
 npx playwright install --with-deps chromium
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 ### E2E Test Suite (Playwright)
@@ -283,7 +285,7 @@ DevTrack ships a Playwright-based end-to-end suite covering the full user journe
 npx playwright install --with-deps chromium
 
 # Run the full suite (dev server auto-starts on port 3002)
-npm run test:e2e
+pnpm run test:e2e
 
 # Run a single spec
 npx playwright test e2e/goals.spec.ts
@@ -388,6 +390,114 @@ docker compose logs -f
 
 ---
 
+## FAQ
+
+Answers to questions new contributors and self-hosters ask most often. For deeper setup detail, see [DEVELOPMENT.md](./DEVELOPMENT.md) and the [Self-Hosting Guide](./docs/self-hosting.md).
+
+<details>
+<summary><strong>How do I configure GitHub OAuth?</strong></summary>
+
+1. Go to [GitHub → Settings → Developer Settings → OAuth Apps](https://github.com/settings/applications/new) and create a new OAuth App.
+2. Set the **Authorization callback URL** to:
+   - Local dev: `http://localhost:3000/api/auth/callback/github`
+   - Production: `https://<your-domain>/api/auth/callback/github`
+3. Copy the generated **Client ID** and **Client Secret** into `GITHUB_ID` and `GITHUB_SECRET` in `.env.local`.
+4. Make sure `NEXTAUTH_URL` matches the base URL you're running on, and `NEXTAUTH_SECRET` is set (generate one with `openssl rand -base64 32`).
+
+</details>
+
+<details>
+<summary><strong>Why is login not working?</strong></summary>
+
+This is almost always one of the following:
+
+- **Callback URL mismatch** — the URL registered on your GitHub OAuth App must exactly match `NEXTAUTH_URL` + `/api/auth/callback/github`, including protocol and trailing slashes.
+- **Missing/incorrect `NEXTAUTH_SECRET`** — sessions will silently fail without it.
+- **Stale `.env.local`** — restart `pnpm dev` after changing any auth-related env vars; Next.js doesn't hot-reload env files.
+- **Supabase RLS blocking the user row** — check that the relevant migrations from `supabase/migrations/` have been applied in order.
+
+If the issue persists, check your browser console and terminal logs for the specific NextAuth error code, then search/open a [Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
+
+</details>
+
+<details>
+<summary><strong>How do I obtain Supabase credentials?</strong></summary>
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Open **Project Settings → API**.
+3. Copy:
+   - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
+   - **anon public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY` (server-side only — never expose this in client code or commit it)
+4. Run all SQL files in `supabase/migrations/` via the Supabase SQL editor, in order, before starting the app.
+
+</details>
+
+<details>
+<summary><strong>Why are GitHub metrics not loading?</strong></summary>
+
+- You're likely hitting **GitHub's unauthenticated API rate limit**. Set the optional `GITHUB_TOKEN` (a personal access token) in `.env.local` to raise the limit significantly.
+- Check that your GitHub OAuth scopes were granted during sign-in — if you denied a permission, re-authenticate by signing out and back in.
+- If you're self-hosting behind a proxy or firewall, confirm outbound requests to `api.github.com` aren't being blocked.
+- Look at the server logs/terminal for the specific API error (403 usually means rate-limited; 401 means a token problem).
+
+</details>
+
+<details>
+<summary><strong>How do I run tests?</strong></summary>
+
+```bash
+# Unit tests
+pnpm test
+
+# End-to-end tests (Playwright, first-time setup)
+npx playwright install --with-deps chromium
+pnpm run test:e2e
+
+# Run a single e2e spec
+npx playwright test e2e/goals.spec.ts
+
+# Visual regression tests
+npx playwright test -c playwright.visual.config.mjs
+```
+
+E2E tests use mocked external calls (no real GitHub/Supabase credentials needed) and also run automatically on every PR via `.github/workflows/e2e.yml`.
+
+</details>
+
+<details>
+<summary><strong>How can I contribute?</strong></summary>
+
+1. Browse [open issues](https://github.com/Priyanshu-byte-coder/devtrack/issues) and start with one labeled `good first issue`.
+2. Comment on the issue to get assigned before starting work.
+3. Fork the repo, branch off `main` (e.g. `feat/issue-42-description`), and open a PR.
+4. Before pushing, make sure CI passes locally:
+   ```bash
+   pnpm run lint && pnpm run type-check
+   ```
+5. See [CONTRIBUTING.md](./CONTRIBUTING.md) for commit message style, branch naming conventions, and the review process.
+
+Questions are welcome anytime in [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
+
+</details>
+
+<details>
+<summary><strong>Which Node.js and pnpm versions are supported?</strong></summary>
+
+| Tool | Version | Check |
+|------|---------|-------|
+| Node.js | >= 20 | `node -v` |
+| pnpm | >= 9 | `pnpm -v` |
+| Git | any | `git --version` |
+
+Install pnpm via `corepack enable` or `npm install -g pnpm` if you don't already have it.
+
+If your local versions differ and you hit install/build errors, aligning your Node.js/pnpm version with the table above is the first thing to check.
+
+</details>
+
+---
+
 ## Roadmap
 
 ### Shipped
@@ -425,12 +535,12 @@ Want to contribute? Pick an item below and open an issue or start a PR.
 
 | Feature | Difficulty | Issue |
 |---|---|---|
-| Contribution heatmap calendar | Intermediate | [#18](https://github.com/Umbrella-io/devtrack/issues/18) |
-| Chart type toggle (bar / line) | Intermediate | [#17](https://github.com/Umbrella-io/devtrack/issues/17) |
-| Language breakdown widget | Intermediate | [#32](https://github.com/Umbrella-io/devtrack/issues/32) |
-| Activity feed | Intermediate | [#33](https://github.com/Umbrella-io/devtrack/issues/33) |
-| Auto-progress goals from commits | Advanced | [#34](https://github.com/Umbrella-io/devtrack/issues/34) |
-| GitLab integration | Advanced | [#6](https://github.com/Umbrella-io/devtrack/issues/6) |
+| Contribution heatmap calendar | Intermediate | [#18](https://github.com/Priyanshu-byte-coder/devtrack/issues/18) |
+| Chart type toggle (bar / line) | Intermediate | [#17](https://github.com/Priyanshu-byte-coder/devtrack/issues/17) |
+| Language breakdown widget | Intermediate | [#32](https://github.com/Priyanshu-byte-coder/devtrack/issues/32) |
+| Activity feed | Intermediate | [#33](https://github.com/Priyanshu-byte-coder/devtrack/issues/33) |
+| Auto-progress goals from commits | Advanced | [#34](https://github.com/Priyanshu-byte-coder/devtrack/issues/34) |
+| GitLab integration | Advanced | [#6](https://github.com/Priyanshu-byte-coder/devtrack/issues/6) |
 | Jira integration | Advanced | — |
 | Team dashboards | Advanced | — |
 | Embeddable stats widgets | Intermediate | — |
@@ -448,14 +558,14 @@ Setup takes under 10 minutes — see [DEVELOPMENT.md](./DEVELOPMENT.md) for the 
 
 ### How to contribute
 
-1. Browse [open issues](https://github.com/Umbrella-io/devtrack/issues) — start with `good first issue`
+1. Browse [open issues](https://github.com/Priyanshu-byte-coder/devtrack/issues) — start with `good first issue`
 2. Comment on the issue to get assigned before starting work
 3. Fork → branch (`feat/issue-42-description`) → PR against `main`
-4. Ensure CI passes: `npm run lint && npm run type-check`
+4. Ensure CI passes: `pnpm run lint && pnpm run type-check`
 
 See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for commit style, branch naming, and the review process.
 
-Questions? Open a [Discussion](https://github.com/Umbrella-io/devtrack/discussions).
+Questions? Open a [Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
 
 ---
 
@@ -505,11 +615,27 @@ Want a standalone sponsor brief to share with your company's finance team? See [
 
 Have questions, ideas, or want to connect with other contributors?
 
-- **[GitHub Discussions](https://github.com/Umbrella-io/devtrack/discussions)** — ask questions, share ideas, show what you've built
-- **[Open an Issue](https://github.com/Umbrella-io/devtrack/issues/new/choose)** — bug reports, feature requests, and good-first-issues
+- **[GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** — ask questions, share ideas, show what you've built
+- **[Open an Issue](https://github.com/Priyanshu-byte-coder/devtrack/issues/new/choose)** — bug reports, feature requests, and good-first-issues
 - **[Email the maintainer](mailto:doshipriyanshu3@gmail.com)** — for anything else
 
 All contributors are expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+---
+
+## Star History
+
+<div align="center">
+
+<a href="https://star-history.com/#Priyanshu-byte-coder/devtrack&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" width="600" />
+  </picture>
+</a>
+
+</div>
 
 ---
 
@@ -519,14 +645,23 @@ MIT — see [LICENSE](./LICENSE) for details.
 
 ---
 
+## Maintainers
+
+| Name | GitHub | Role |
+|---|---|---|
+| Priyanshu Doshi | [@Priyanshu-byte-coder](https://github.com/Priyanshu-byte-coder) | Founder & Maintainer |
+| Saahil Doshi | [@Legit-Ox](https://github.com/Legit-Ox) | Maintainer |
+
+---
+
 ## Contributors
 
-Thanks to everyone who has helped build DevTrack. Want to join the list? See [CONTRIBUTING.md](./CONTRIBUTING.md) and pick a [good first issue](https://github.com/Umbrella-io/devtrack/issues?q=label%3A%22good+first+issue%22).
+Thanks to everyone who has helped build DevTrack. Want to join the list? See [CONTRIBUTING.md](./CONTRIBUTING.md) and pick a [good first issue](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=label%3A%22good+first+issue%22).
 
 <div align="center">
 
-<a href="https://github.com/Umbrella-io/devtrack/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Umbrella-io/devtrack" alt="Contributors" />
+<a href="https://github.com/Priyanshu-byte-coder/devtrack/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Priyanshu-byte-coder/devtrack" alt="Contributors" />
 </a>
 
 </div>
@@ -535,7 +670,7 @@ Thanks to everyone who has helped build DevTrack. Want to join the list? See [CO
 
 <div align="center">
 
-Built by the DevTrack community · [devtrack-delta.vercel.app](https://devtrack-delta.vercel.app)
+Built by the DevTrack community · [devtrack-silk-kappa.vercel.app](https://devtrack-silk-kappa.vercel.app)
 
 Star this repo if DevTrack is useful to you.
 

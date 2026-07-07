@@ -62,3 +62,5 @@ temp.*
 upstream-*.ts
 screenshot.png
 
+# Prevent npm lockfile conflicts
+package-lock.json

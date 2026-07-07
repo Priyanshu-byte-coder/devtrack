@@ -1,68 +1,92 @@
 import { describe, it, expect } from "vitest";
-import { cleanUsername, formatRepositoryName } from "../src/lib/string-utils";
+import { cleanUsername, formatRepositoryName } from "@/lib/string-utils";
 
 describe("string-utils", () => {
   describe("cleanUsername", () => {
-    it("should trim whitespace from username", () => {
-      expect(cleanUsername("  testuser  ")).toBe("testuser");
+    it("returns trimmed lowercase string for normal input", () => {
+      expect(cleanUsername("someUser")).toBe("someuser");
     });
 
-    it("should convert username to lowercase", () => {
-      expect(cleanUsername("TestUser")).toBe("testuser");
+    it("handles leading whitespace", () => {
+      expect(cleanUsername("  alice")).toBe("alice");
     });
 
-    it("should handle username with both whitespace and uppercase", () => {
-      expect(cleanUsername("  TestUser  ")).toBe("testuser");
+    it("handles trailing whitespace", () => {
+      expect(cleanUsername("bob  ")).toBe("bob");
     });
 
-    it("should return empty string for empty input", () => {
-      expect(cleanUsername("")).toBe("");
+    it("handles leading and trailing whitespace", () => {
+      expect(cleanUsername("  charlie  ")).toBe("charlie");
     });
 
-    it("should handle single character username", () => {
-      expect(cleanUsername("A")).toBe("a");
+    it("handles all-uppercase username", () => {
+      expect(cleanUsername("ALICE")).toBe("alice");
     });
 
-    it("should handle username with special characters", () => {
-      expect(cleanUsername("test@#$")).toBe("test@#$");
+    it("handles mixed-case username", () => {
+      expect(cleanUsername("BobSmith")).toBe("bobsmith");
     });
 
-    it("should handle multiple spaces in username", () => {
-      expect(cleanUsername("test  user")).toBe("test  user");
+    it("handles username with spaces", () => {
+      expect(cleanUsername("  Alice Bob  ")).toBe("alice bob");
+    });
+
+    it("returns empty string for input that trims to empty", () => {
+      expect(cleanUsername("   ")).toBe("");
+    });
+
+    it("preserves numbers in username", () => {
+      expect(cleanUsername("User123")).toBe("user123");
+    });
+
+    it("handles hyphens and underscores", () => {
+      expect(cleanUsername("Bob-Smith_42")).toBe("bob-smith_42");
     });
   });
 
   describe("formatRepositoryName", () => {
-    it("should trim whitespace from name", () => {
-      expect(formatRepositoryName("  my-repo  ")).toBe("my-repo");
+    it("returns trimmed lowercase string for normal input", () => {
+      expect(formatRepositoryName("MyRepo")).toBe("myrepo");
     });
 
-    it("should replace spaces with hyphens", () => {
+    it("replaces spaces with hyphens", () => {
       expect(formatRepositoryName("my repo")).toBe("my-repo");
     });
 
-    it("should convert name to lowercase", () => {
-      expect(formatRepositoryName("MyRepo")).toBe("myrepo");
+    it("replaces multiple consecutive spaces with single hyphen", () => {
+      expect(formatRepositoryName("my   repo")).toBe("my-repo");
     });
 
-    it("should replace multiple spaces with single hyphen", () => {
-      expect(formatRepositoryName("my  repo")).toBe("my-repo");
+    it("handles leading whitespace", () => {
+      expect(formatRepositoryName("  repo")).toBe("repo");
     });
 
-    it("should handle name with leading/trailing spaces and multiple whitespace", () => {
-      expect(formatRepositoryName("  My   Repo  ")).toBe("my-repo");
+    it("handles trailing whitespace", () => {
+      expect(formatRepositoryName("repo  ")).toBe("repo");
     });
 
-    it("should return empty string for empty input", () => {
-      expect(formatRepositoryName("")).toBe("");
+    it("handles leading and trailing whitespace", () => {
+      expect(formatRepositoryName("  repo-name  ")).toBe("repo-name");
     });
 
-    it("should handle single word name", () => {
-      expect(formatRepositoryName("MyRepo")).toBe("myrepo");
+    it("handles mixed case", () => {
+      expect(formatRepositoryName("MyRepoName")).toBe("myreponame");
     });
 
-    it("should handle name with mixed whitespace", () => {
-      expect(formatRepositoryName("my  repo  name")).toBe("my-repo-name");
+    it("returns empty string for input that trims to empty", () => {
+      expect(formatRepositoryName("   ")).toBe("");
+    });
+
+    it("preserves numbers in name", () => {
+      expect(formatRepositoryName("repo123")).toBe("repo123");
+    });
+
+    it("handles hyphens already present", () => {
+      expect(formatRepositoryName("my-repo-name")).toBe("my-repo-name");
+    });
+
+    it("handles spaces and hyphens together", () => {
+      expect(formatRepositoryName("  My Repo - Name  ")).toBe("my-repo---name");
     });
   });
 });

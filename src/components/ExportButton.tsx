@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toast } from "sonner";
 
 interface PRData {
   open: number;
@@ -297,9 +298,9 @@ export default function ExportButton() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([day, commits]) => ({ day, commits: commits as number }));
 
-    return { 
-      prData, 
-      contribData, 
+    return {
+      prData,
+      contribData,
       goalsData: goalsData?.goals as Goal[],
       dbExportData
     };
@@ -404,6 +405,13 @@ export default function ExportButton() {
       ]);
 
       downloadFile(csv, "dashboard-metrics.csv", "text/csv");
+      toast.success("CSV exported successfully.");
+    } catch (error) {
+      console.error("CSV export failed:", error);
+
+      toast.error(
+        "Failed to export CSV. Please try again."
+      );
     } finally {
       setIsExportingCSV(false);
     }
@@ -658,7 +666,15 @@ export default function ExportButton() {
       addFooter(doc, generatedAt);
 
       doc.save(`devtrack-export-${reportName || "metrics"}-${new Date().toISOString().slice(0, 10)}.pdf`);
-    } finally {
+      toast.success("PDF exported successfully.");
+    } catch (error) {
+      console.error("PDF export failed:", error);
+
+      toast.error(
+        "Failed to export PDF. Please try again."
+      );
+    }
+    finally {
       setIsExportingPDF(false);
     }
   };
@@ -668,7 +684,7 @@ export default function ExportButton() {
     try {
       const { prData, goalsData, contribData, dbExportData } = await fetchData();
       const generatedAt = formatGeneratedTimestamp();
-      
+
       const jsonData = {
         generatedAt,
         githubUser: reportName || "unknown",

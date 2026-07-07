@@ -279,7 +279,7 @@ export default function CodingActivityInsightsCard() {
           className="space-y-4"
         >
           <span className="sr-only">Loading coding activity insights</span>
-          <Skeleton className="h-[260px] w-full rounded-lg" />
+          <Skeleton className="h-[260px] lg:h-[300px] w-full rounded-lg" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((item) => (
               <Skeleton key={item} className="h-16 w-full rounded-lg" />
@@ -305,7 +305,7 @@ export default function CodingActivityInsightsCard() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="h-[260px] min-h-[260px]">
+          <div className="h-[260px] min-h-[200px] lg:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={chartData}
