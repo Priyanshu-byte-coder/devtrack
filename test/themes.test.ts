@@ -1,59 +1,59 @@
-/**
- * Tests for src/lib/themes.ts
- *
- * Coverage
- * --------
- * isThemeId           -- valid IDs, invalid strings, null/undefined
- * getThemeDefinition   -- known theme, unknown ID returns DEFAULT_THEME
- * isDarkTheme          -- dark themes, light themes
- * nextThemeId          -- normal advance, wraps around, unknown ID
- */
-
 import { describe, it, expect } from "vitest";
 import {
+  THEME_OPTIONS,
+  DEFAULT_THEME,
   isThemeId,
   getThemeDefinition,
   isDarkTheme,
   nextThemeId,
-  DEFAULT_THEME,
-  THEME_OPTIONS,
+  type ThemeId,
 } from "../src/lib/themes";
 
 describe("isThemeId", () => {
-  it("returns true for each valid theme ID", () => {
+  it("returns true for every valid theme id", () => {
     for (const theme of THEME_OPTIONS) {
       expect(isThemeId(theme.id)).toBe(true);
     }
   });
 
-  it("returns false for invalid strings", () => {
-    expect(isThemeId("not-a-theme")).toBe(false);
-    expect(isThemeId("classic-dark-extra")).toBe(false);
+  it("returns false for an unknown string", () => {
+    expect(isThemeId("not-a-real-theme")).toBe(false);
+  });
+
+  it("returns false for an empty string", () => {
     expect(isThemeId("")).toBe(false);
   });
 
-  it("returns false for null and undefined", () => {
+  it("returns false for null", () => {
     expect(isThemeId(null)).toBe(false);
+  });
+
+  it("returns false for undefined", () => {
     expect(isThemeId(undefined)).toBe(false);
+  });
+
+  it("is case-sensitive (rejects mismatched casing)", () => {
+    expect(isThemeId("Classic-Dark")).toBe(false);
   });
 });
 
 describe("getThemeDefinition", () => {
-  it("returns the correct definition for a known theme", () => {
-    const def = getThemeDefinition("nordic-frost");
-    expect(def.id).toBe("nordic-frost");
-    expect(def.name).toBe("Nordic Frost");
-    expect(def.mode).toBe("dark");
+  it("returns the matching definition for each valid id", () => {
+    for (const theme of THEME_OPTIONS) {
+      expect(getThemeDefinition(theme.id)).toEqual(theme);
+    }
   });
 
-  it("returns DEFAULT_THEME definition for an unknown ID", () => {
-    const def = getThemeDefinition("unknown-id" as any);
-    expect(def.id).toBe(DEFAULT_THEME);
+  it("falls back to the first theme option for an unrecognized id", () => {
+    // Cast is required since the function's type signature expects a ThemeId,
+    // but we want to verify runtime behavior for unexpected/invalid input.
+    const result = getThemeDefinition("bogus-theme" as ThemeId);
+    expect(result).toEqual(THEME_OPTIONS[0]);
   });
 
-  it("returns DEFAULT_THEME for empty string", () => {
-    const def = getThemeDefinition("" as any);
-    expect(def.id).toBe(DEFAULT_THEME);
+  it("fallback matches the DEFAULT_THEME id", () => {
+    const result = getThemeDefinition("bogus-theme" as ThemeId);
+    expect(result.id).toBe(DEFAULT_THEME);
   });
 });
 
@@ -67,23 +67,45 @@ describe("isDarkTheme", () => {
   it("returns false for light-mode themes", () => {
     expect(isDarkTheme("modern-light-blue")).toBe(false);
   });
+
+  it("falls back to the default theme's mode for an unrecognized id", () => {
+    const fallbackMode = getThemeDefinition(DEFAULT_THEME).mode;
+    const result = isDarkTheme("bogus-theme" as ThemeId);
+    expect(result).toBe(fallbackMode === "dark");
+  });
 });
 
 describe("nextThemeId", () => {
-  it("advances to the next theme in order", () => {
-    expect(nextThemeId("classic-dark")).toBe("modern-light-blue");
-    expect(nextThemeId("modern-light-blue")).toBe("nordic-frost");
-    expect(nextThemeId("nordic-frost")).toBe("cyberpunk-matrix");
-    expect(nextThemeId("cyberpunk-matrix")).toBe("classic-dark");
+  it("cycles forward through consecutive themes in THEME_OPTIONS order", () => {
+    for (let i = 0; i < THEME_OPTIONS.length - 1; i++) {
+      const current = THEME_OPTIONS[i].id;
+      const expected = THEME_OPTIONS[i + 1].id;
+      expect(nextThemeId(current)).toBe(expected);
+    }
   });
 
-  it("wraps from last theme back to first", () => {
-    const lastTheme = THEME_OPTIONS[THEME_OPTIONS.length - 1].id;
-    expect(nextThemeId(lastTheme)).toBe(THEME_OPTIONS[0].id);
+  it("wraps around from the last theme back to the first", () => {
+    const last = THEME_OPTIONS[THEME_OPTIONS.length - 1].id;
+    const first = THEME_OPTIONS[0].id;
+    expect(nextThemeId(last)).toBe(first);
   });
 
-  it("uses index 0 as fallback for unknown ID", () => {
-    // an unknown ID falls back to index 0, so next is index 1
-    expect(nextThemeId("not-a-theme" as any)).toBe(THEME_OPTIONS[1].id);
+  it("visits every theme exactly once over a full cycle", () => {
+    const visited: ThemeId[] = [];
+    let current = THEME_OPTIONS[0].id;
+    for (let i = 0; i < THEME_OPTIONS.length; i++) {
+      visited.push(current);
+      current = nextThemeId(current);
+    }
+    const uniqueIds = new Set(visited);
+    expect(uniqueIds.size).toBe(THEME_OPTIONS.length);
+    // After a full cycle we should be back at the start
+    expect(current).toBe(THEME_OPTIONS[0].id);
+  });
+
+  it("falls back to the first theme's next when given an invalid id", () => {
+    // fallbackIndex resolves to 0, so next should be THEME_OPTIONS[1]
+    const result = nextThemeId("not-a-real-theme" as ThemeId);
+    expect(result).toBe(THEME_OPTIONS[1].id);
   });
 });

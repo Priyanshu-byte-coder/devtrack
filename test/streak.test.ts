@@ -39,7 +39,7 @@ afterEach(() => {
 
 describe("calculateStreakFromDates", () => {
   it("returns zeros for empty active dates", () => {
-    const result = calculateStreakFromDates(new Set());
+    const result = calculateStreakFromDates(new Set(), new Set(), "UTC");
     expect(result.current).toBe(0);
     expect(result.longest).toBe(0);
     expect(result.lastCommitDate).toBeNull();
@@ -79,6 +79,15 @@ describe("calculateStreakFromDates", () => {
     expect(result.longest).toBe(3); // freeze fills the gap making longest = 3
     expect(result.totalActiveDays).toBe(3);
     expect(result.freezeDates).toEqual(["2026-06-22"]);
+  
+  });
+  it("streak is alive when timezone is Asia/Kolkata and last date is today", () => {
+  // FIXED_NOW = 2026-06-24T12:00:00Z = 2026-06-24 17:30 IST
+  // Both UTC and IST resolve to same date here, so current streak should be 1
+  const dates = new Set(["2026-06-24"]);
+  const result = calculateStreakFromDates(dates, new Set(), "Asia/Kolkata");
+  expect(result.current).toBe(1);
+  expect(result.longest).toBe(1);
   });
 
   it("current is 0 when last active day is older than yesterday", () => {
@@ -96,9 +105,10 @@ describe("calculateCurrentStreak", () => {
   });
 
   it("accepts an array of ISO timestamp strings and deduplicates", () => {
-    const dates = ["2026-06-23T10:00:00Z", "2026-06-23T20:00:00Z", "2026-06-22T08:00:00Z"];
-    const result = calculateCurrentStreak(dates);
-    expect(result).toBe(2);
+  // 2 timestamps on same date (2026-06-23) → slice(0,10) deduplicates → only 2 unique days
+  const dates = ["2026-06-23T10:00:00Z", "2026-06-23T20:00:00Z", "2026-06-22T08:00:00Z"];
+  const result = calculateCurrentStreak(dates);
+  expect(result).toBe(2);
   });
 
   it("returns 0 for an empty array", () => {

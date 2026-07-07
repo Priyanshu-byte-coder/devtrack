@@ -16,8 +16,16 @@
 [![Last Commit](https://img.shields.io/github/last-commit/Priyanshu-byte-coder/devtrack)](https://github.com/Priyanshu-byte-coder/devtrack/commits/main)
 [![Views](https://komarev.com/ghpvc/?username=Priyanshu-byte-coder&label=Views&color=blueviolet)](https://github.com/Priyanshu-byte-coder/devtrack)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/Priyanshu-byte-coder?label=sponsors&color=ea4aaa)](https://github.com/sponsors/Priyanshu-byte-coder)
+[![Good First Issues](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[![Help Wanted](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/help%20wanted?label=help%20wanted&color=008672)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 
-**[Live Demo](https://devtrack-delta.vercel.app)** · **[Dev Guide](./DEVELOPMENT.md)** · **[Report Bug](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=bug_report.md)** · **[Request Feature](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=feature_request.md)** · **[Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** · **[Sponsor](https://github.com/sponsors/Priyanshu-byte-coder)**
+**[Live Demo](https://devtrack-silk-kappa.vercel.app)** · **[Dev Guide](./DEVELOPMENT.md)** · **[Report Bug](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=bug_report.md)** · **[Request Feature](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=feature_request.md)** · **[Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** · **[Sponsor](https://github.com/sponsors/Priyanshu-byte-coder)**
+
+<br />
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack&project-name=devtrack&repository-name=devtrack&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,NEXTAUTH_URL,NEXTAUTH_SECRET,GITHUB_ID,GITHUB_SECRET,ENCRYPTION_KEY&envDescription=Supabase%20keys%2C%20GitHub%20OAuth%20app%20credentials%2C%20and%20a%20NextAuth%20secret&envLink=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack%2Fblob%2Fmain%2FDEVELOPMENT.md)
+
+⭐ **If DevTrack saves you time, [star the repo](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)** — it helps more developers discover it.
 
 </div>
 
@@ -64,11 +72,13 @@
 - [API Documentation](#api-documentation)
 - [Getting Started](#getting-started)
 - [Docker Development Setup](#docker-development-setup)
+- [FAQ](#faq)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Community](#community)
 - [Built With](#built-with)
 - [Sponsors](#sponsors)
+- [Star History](#star-history)
 - [License](#license)
 - [Maintainers](#maintainers)
 - [Contributors](#contributors)
@@ -380,6 +390,114 @@ docker compose logs -f
 
 ---
 
+## FAQ
+
+Answers to questions new contributors and self-hosters ask most often. For deeper setup detail, see [DEVELOPMENT.md](./DEVELOPMENT.md) and the [Self-Hosting Guide](./docs/self-hosting.md).
+
+<details>
+<summary><strong>How do I configure GitHub OAuth?</strong></summary>
+
+1. Go to [GitHub → Settings → Developer Settings → OAuth Apps](https://github.com/settings/applications/new) and create a new OAuth App.
+2. Set the **Authorization callback URL** to:
+   - Local dev: `http://localhost:3000/api/auth/callback/github`
+   - Production: `https://<your-domain>/api/auth/callback/github`
+3. Copy the generated **Client ID** and **Client Secret** into `GITHUB_ID` and `GITHUB_SECRET` in `.env.local`.
+4. Make sure `NEXTAUTH_URL` matches the base URL you're running on, and `NEXTAUTH_SECRET` is set (generate one with `openssl rand -base64 32`).
+
+</details>
+
+<details>
+<summary><strong>Why is login not working?</strong></summary>
+
+This is almost always one of the following:
+
+- **Callback URL mismatch** — the URL registered on your GitHub OAuth App must exactly match `NEXTAUTH_URL` + `/api/auth/callback/github`, including protocol and trailing slashes.
+- **Missing/incorrect `NEXTAUTH_SECRET`** — sessions will silently fail without it.
+- **Stale `.env.local`** — restart `pnpm dev` after changing any auth-related env vars; Next.js doesn't hot-reload env files.
+- **Supabase RLS blocking the user row** — check that the relevant migrations from `supabase/migrations/` have been applied in order.
+
+If the issue persists, check your browser console and terminal logs for the specific NextAuth error code, then search/open a [Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
+
+</details>
+
+<details>
+<summary><strong>How do I obtain Supabase credentials?</strong></summary>
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Open **Project Settings → API**.
+3. Copy:
+   - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
+   - **anon public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY` (server-side only — never expose this in client code or commit it)
+4. Run all SQL files in `supabase/migrations/` via the Supabase SQL editor, in order, before starting the app.
+
+</details>
+
+<details>
+<summary><strong>Why are GitHub metrics not loading?</strong></summary>
+
+- You're likely hitting **GitHub's unauthenticated API rate limit**. Set the optional `GITHUB_TOKEN` (a personal access token) in `.env.local` to raise the limit significantly.
+- Check that your GitHub OAuth scopes were granted during sign-in — if you denied a permission, re-authenticate by signing out and back in.
+- If you're self-hosting behind a proxy or firewall, confirm outbound requests to `api.github.com` aren't being blocked.
+- Look at the server logs/terminal for the specific API error (403 usually means rate-limited; 401 means a token problem).
+
+</details>
+
+<details>
+<summary><strong>How do I run tests?</strong></summary>
+
+```bash
+# Unit tests
+pnpm test
+
+# End-to-end tests (Playwright, first-time setup)
+npx playwright install --with-deps chromium
+pnpm run test:e2e
+
+# Run a single e2e spec
+npx playwright test e2e/goals.spec.ts
+
+# Visual regression tests
+npx playwright test -c playwright.visual.config.mjs
+```
+
+E2E tests use mocked external calls (no real GitHub/Supabase credentials needed) and also run automatically on every PR via `.github/workflows/e2e.yml`.
+
+</details>
+
+<details>
+<summary><strong>How can I contribute?</strong></summary>
+
+1. Browse [open issues](https://github.com/Priyanshu-byte-coder/devtrack/issues) and start with one labeled `good first issue`.
+2. Comment on the issue to get assigned before starting work.
+3. Fork the repo, branch off `main` (e.g. `feat/issue-42-description`), and open a PR.
+4. Before pushing, make sure CI passes locally:
+   ```bash
+   pnpm run lint && pnpm run type-check
+   ```
+5. See [CONTRIBUTING.md](./CONTRIBUTING.md) for commit message style, branch naming conventions, and the review process.
+
+Questions are welcome anytime in [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
+
+</details>
+
+<details>
+<summary><strong>Which Node.js and pnpm versions are supported?</strong></summary>
+
+| Tool | Version | Check |
+|------|---------|-------|
+| Node.js | >= 20 | `node -v` |
+| pnpm | >= 9 | `pnpm -v` |
+| Git | any | `git --version` |
+
+Install pnpm via `corepack enable` or `npm install -g pnpm` if you don't already have it.
+
+If your local versions differ and you hit install/build errors, aligning your Node.js/pnpm version with the table above is the first thing to check.
+
+</details>
+
+---
+
 ## Roadmap
 
 ### Shipped
@@ -505,6 +623,22 @@ All contributors are expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.
 
 ---
 
+## Star History
+
+<div align="center">
+
+<a href="https://star-history.com/#Priyanshu-byte-coder/devtrack&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" width="600" />
+  </picture>
+</a>
+
+</div>
+
+---
+
 ## License
 
 MIT — see [LICENSE](./LICENSE) for details.
@@ -536,7 +670,7 @@ Thanks to everyone who has helped build DevTrack. Want to join the list? See [CO
 
 <div align="center">
 
-Built by the DevTrack community · [devtrack-delta.vercel.app](https://devtrack-delta.vercel.app)
+Built by the DevTrack community · [devtrack-silk-kappa.vercel.app](https://devtrack-silk-kappa.vercel.app)
 
 Star this repo if DevTrack is useful to you.
 
