@@ -1,20 +1,24 @@
 export function stripHtml(value: string): string {
-  return value
-    .normalize("NFKC")
-    // Decode entities first so entity-encoded tags are also stripped below
-    .replace(/&(?:lt|gt|amp|quot|#x27|#39);/gi, (m) => {
-      const map: Record<string, string> = {
-        "&lt;": "<",
-        "&gt;": ">",
-        "&amp;": "&",
-        "&quot;": '"',
-        "&#x27;": "'",
-        "&#39;": "'",
-      };
-      return map[m] ?? m;
-    })
-    .replace(/<[^>]*>/g, "")
-    .trim();
+  let text = value.normalize("NFKC");
+  // Decode entities first so entity-encoded tags are also stripped below
+  text = text.replace(/&(?:lt|gt|amp|quot|#x27|#39);/gi, (m) => {
+    const map: Record<string, string> = {
+      "&lt;": "<",
+      "&gt;": ">",
+      "&amp;": "&",
+      "&quot;": '"',
+      "&#x27;": "'",
+      "&#39;": "'",
+    };
+    return map[m] ?? m;
+  });
+  // Strip tags iteratively until stable — prevents nested/split tag bypass
+  let prev: string;
+  do {
+    prev = text;
+    text = text.replace(/<[^>]*>/g, "");
+  } while (text !== prev);
+  return text.trim();
 }
 
 export interface ValidationResult {

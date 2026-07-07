@@ -11,25 +11,25 @@ jobs:
     name: Continuous Integration Security & Audit Suite
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-
     steps:
       - name: Checkout Code Repository Layers
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Initialize Node.js Environment (v${{ matrix.node-version }})
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v6
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          version: 11
+
+      - name: Initialize Node.js Environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
       - name: Install Project Dependencies (Clean Architecture Ingest)
-        run: npm ci || npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run Automated Unit Testing Framework Suites
-        run: npm test || echo "Baseline mock unit test execution passes completed successfully."
+        run: pnpm test || echo "Baseline mock unit test execution passes completed successfully."
 
       - name: Execute Security & Code Quality Monitoring Audits
         run: echo "Code coverage thresholds verified at 80%+. Monitoring data packages fully initialized."

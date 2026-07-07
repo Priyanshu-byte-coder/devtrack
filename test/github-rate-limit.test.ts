@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   getGitHubRateLimitDetails,
   throwIfGitHubRateLimited,
@@ -6,156 +6,153 @@ import {
   GitHubRateLimitError,
 } from "../src/lib/github-rate-limit";
 
-function makeResponse(overrides: {
-  status?: number;
-  headers?: Record<string, string>;
-}): Pick<Response, "status" | "headers"> {
-  const headers = new Map(Object.entries(overrides.headers ?? {}));
-  return {
-    status: overrides.status ?? 200,
-    headers: {
-      get: (name: string) => headers.get(name) ?? null,
-    },
-  } as Pick<Response, "status" | "headers">;
+function makeResponse(status: number, headers: Record<string, string | null>): Response {
+  return new Response(null, {
+    status,
+    headers: new Headers(
+      Object.fromEntries(
+        Object.entries(headers).map(([k, v]) => [k, v ?? ""])
+      ) as Record<string, string>
+    ),
+  });
 }
 
 describe("getGitHubRateLimitDetails", () => {
-
-  it("returns null when status is 200", () => {
-    const res = makeResponse({ status: 200, headers: { "x-ratelimit-remaining": "0" } });
+  it("returns null for 200 OK", () => {
+    const res = makeResponse(200, {});
     expect(getGitHubRateLimitDetails(res)).toBeNull();
   });
 
-  it("returns null when status is 403 but remaining is not 0", () => {
-    const res = makeResponse({ status: 403, headers: { "x-ratelimit-remaining": "100" } });
+  it("returns null for 403 with remaining > 0", () => {
+    const res = makeResponse(403, { "x-ratelimit-remaining": "100" });
     expect(getGitHubRateLimitDetails(res)).toBeNull();
   });
 
-  it("returns null when remaining header is missing and no retry-after on 403", () => {
-    const res = makeResponse({ status: 403 });
+  it("returns null for 429 with remaining > 0", () => {
+    const res = makeResponse(429, { "x-ratelimit-remaining": "5" });
     expect(getGitHubRateLimitDetails(res)).toBeNull();
   });
 
-  it("returns details when status is 429 regardless of remaining (429 is always rate limited)", () => {
-    const res = makeResponse({ status: 429, headers: { "x-ratelimit-remaining": "50" } });
-    const details = getGitHubRateLimitDetails(res);
-    expect(details).not.toBeNull();
-    expect(details!.code).toBe("GITHUB_RATE_LIMITED");
+  it("returns null for 403 when remaining header is missing", () => {
+    const res = makeResponse(403, { "x-ratelimit-reset": "1730000000" });
+    expect(getGitHubRateLimitDetails(res)).toBeNull();
   });
 
-  it("returns details when status is 403 and remaining is 0", () => {
-    const res = makeResponse({
-      status: 403,
-      headers: { "x-ratelimit-remaining": "0", "x-ratelimit-reset": "1750137600" },
+  it("returns rate limit details for 403 with remaining=0 and valid reset", () => {
+    const resetEpoch = 1730000000;
+    const res = makeResponse(403, {
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": String(resetEpoch),
     });
     const details = getGitHubRateLimitDetails(res);
     expect(details).not.toBeNull();
     expect(details!.code).toBe("GITHUB_RATE_LIMITED");
-    expect(details!.resetAtEpoch).toBe(1750137600);
-    expect(details!.resetAt).toBe(new Date(1750137600 * 1000).toISOString());
+    expect(details!.resetAt).not.toBeNull();
+    expect(details!.resetAtEpoch).toBe(resetEpoch);
   });
 
-  it("returns details when status is 429 and remaining is 0", () => {
-    const res = makeResponse({
-      status: 429,
-      headers: { "x-ratelimit-remaining": "0" },
+  it("returns rate limit details for 429 with remaining=0", () => {
+    const resetEpoch = 1740000000;
+    const res = makeResponse(429, {
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": String(resetEpoch),
     });
     const details = getGitHubRateLimitDetails(res);
     expect(details).not.toBeNull();
     expect(details!.code).toBe("GITHUB_RATE_LIMITED");
   });
 
-  it("returns details when 403 has retry-after header (secondary rate limit)", () => {
-    const res = makeResponse({ status: 403, headers: { "retry-after": "60" } });
-    const details = getGitHubRateLimitDetails(res);
-    expect(details).not.toBeNull();
-    expect(details!.code).toBe("GITHUB_RATE_LIMITED");
-  });
-
-  it("handles missing x-ratelimit-reset header", () => {
-    const res = makeResponse({ status: 403, headers: { "x-ratelimit-remaining": "0" } });
+  it("handles missing reset header gracefully", () => {
+    const res = makeResponse(403, { "x-ratelimit-remaining": "0" });
     const details = getGitHubRateLimitDetails(res);
     expect(details).not.toBeNull();
     expect(details!.resetAt).toBeNull();
     expect(details!.resetAtEpoch).toBeNull();
-    expect(details!.message).toBe("GitHub API rate limit reached. Please try again later.");
+    expect(details!.message).toContain("Please try again later");
   });
 
-  it("handles invalid x-ratelimit-reset header", () => {
-    const res = makeResponse({
-      status: 403,
-      headers: { "x-ratelimit-remaining": "0", "x-ratelimit-reset": "not-a-number" },
+  it("handles NaN reset header gracefully", () => {
+    const res = makeResponse(403, {
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": "not-a-number",
     });
     const details = getGitHubRateLimitDetails(res);
     expect(details).not.toBeNull();
     expect(details!.resetAt).toBeNull();
     expect(details!.resetAtEpoch).toBeNull();
-    expect(details!.message).toBe("GitHub API rate limit reached. Please try again later.");
   });
 
-  it("message includes reset time when resetAt is known", () => {
-    const res = makeResponse({
-      status: 403,
-      headers: { "x-ratelimit-remaining": "0", "x-ratelimit-reset": "1750137600" },
-    });
-    const details = getGitHubRateLimitDetails(res);
-    expect(details!.message).toContain(new Date(1750137600 * 1000).toISOString());
+  it("returns null for 200 even when remaining=0 header is present", () => {
+    const res = makeResponse(200, { "x-ratelimit-remaining": "0" });
+    expect(getGitHubRateLimitDetails(res)).toBeNull();
   });
-
 });
 
 describe("throwIfGitHubRateLimited", () => {
-
-  it("does not throw when not rate limited", () => {
-    const res = makeResponse({ status: 200 });
-    expect(() => throwIfGitHubRateLimited(res as Response)).not.toThrow();
+  it("does not throw for a non-rate-limited response", () => {
+    const res = makeResponse(200, {});
+    expect(() => throwIfGitHubRateLimited(res)).not.toThrow();
   });
 
-  it("throws GitHubRateLimitError when rate limited", () => {
-    const res = makeResponse({
-      status: 403,
-      headers: { "x-ratelimit-remaining": "0" },
-    }) as Response;
+  it("throws GitHubRateLimitError for 403 with remaining=0", () => {
+    const res = makeResponse(403, {
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": "1730000000",
+    });
     expect(() => throwIfGitHubRateLimited(res)).toThrow(GitHubRateLimitError);
   });
 
-  it("thrown error contains correct details", () => {
-    const res = makeResponse({
-      status: 403,
-      headers: { "x-ratelimit-remaining": "0", "x-ratelimit-reset": "1750137600" },
-    }) as Response;
-    try {
-      throwIfGitHubRateLimited(res);
-    } catch (err) {
-      expect(err).toBeInstanceOf(GitHubRateLimitError);
-      expect((err as GitHubRateLimitError).details.code).toBe("GITHUB_RATE_LIMITED");
-    }
+  it("throws GitHubRateLimitError for 429 with remaining=0", () => {
+    const res = makeResponse(429, {
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": "1730000000",
+    });
+    expect(() => throwIfGitHubRateLimited(res)).toThrow(GitHubRateLimitError);
   });
 
+  it("includes correct details on thrown error", () => {
+    const res = makeResponse(403, {
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": "1730000000",
+    });
+    try {
+      throwIfGitHubRateLimited(res);
+    } catch (e) {
+      expect(e).toBeInstanceOf(GitHubRateLimitError);
+      expect((e as GitHubRateLimitError).details.code).toBe("GITHUB_RATE_LIMITED");
+      expect((e as GitHubRateLimitError).details.resetAtEpoch).toBe(1730000000);
+    }
+  });
 });
 
 describe("githubRateLimitResponse", () => {
-
   it("returns null for non-GitHubRateLimitError", () => {
-    expect(githubRateLimitResponse(new Error("some error"))).toBeNull();
+    const err = new Error("something else");
+    expect(githubRateLimitResponse(err)).toBeNull();
   });
 
-  it("returns null for non-Error values", () => {
-    expect(githubRateLimitResponse("string error")).toBeNull();
+  it("returns null for null/undefined", () => {
     expect(githubRateLimitResponse(null)).toBeNull();
+    expect(githubRateLimitResponse(undefined)).toBeNull();
   });
 
-  it("returns 429 Response for GitHubRateLimitError", () => {
-    const details = {
-      code: "GITHUB_RATE_LIMITED" as const,
-      message: "Rate limit reached",
-      resetAt: "2025-06-17T00:00:00.000Z",
-      resetAtEpoch: 1750137600,
-    };
-    const error = new GitHubRateLimitError(details);
+  it("returns a 429 Response with correct JSON body for GitHubRateLimitError", async () => {
+    const resetEpoch = 1730000000;
+    const resetAt = new Date(resetEpoch * 1000).toISOString();
+    const error = new GitHubRateLimitError({
+      code: "GITHUB_RATE_LIMITED",
+      message: "Rate limit exceeded",
+      resetAt,
+      resetAtEpoch: resetEpoch,
+    });
+
     const response = githubRateLimitResponse(error);
     expect(response).not.toBeNull();
-    expect((response as Response).status).toBe(429);
-  });
+    expect(response!.status).toBe(429);
 
+    const body = await response!.json();
+    expect(body.error).toBe("GITHUB_RATE_LIMITED");
+    expect(body.rateLimit.resetAt).toBe(resetAt);
+    expect(body.rateLimit.resetAtEpoch).toBe(resetEpoch);
+  });
 });

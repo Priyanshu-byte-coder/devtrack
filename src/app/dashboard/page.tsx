@@ -1,27 +1,12 @@
-import StreakTracker from "@/components/StreakTracker";
 import WeeklyProductivitySummary from "@/components/dashboard/WeeklyProductivitySummary";
-import RepoAnalyticsExplorer from "@/components/repo-analytics/RepoAnalyticsExplorer";
-import PinnedReposWidget from "@/components/PinnedReposWidget";
-import InactiveRepositoriesCard from "@/components/InactiveRepositoriesCard";
-import TopRepos from "@/components/TopRepos";
-import dynamic from "next/dynamic";
 import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
 import ThrottleBanner from "@/components/ThrottleBanner";
 import CustomizableDashboard from "@/components/dashboard/CustomizableDashboard";
 import MilestonePlanner from "@/components/MilestonePlanner";
-import LazyWidget from "@/components/LazyWidget";
-import DiscussionsWidget from "@/components/DiscussionsWidget";
-import CommunityMetrics from "@/components/CommunityMetrics";
-import GoalTracker from "@/components/GoalTracker";
 import TodayFocusHero from "@/components/TodayFocusHero";
 import DashboardHeader from "@/components/DashboardHeader";
 import ExportButton from "@/components/ExportButton";
 import Link from "next/link";
-import PersonalRecords from "@/components/PersonalRecords";
-import LocalCodingTime from "@/components/LocalCodingTime";
-import CodingTimeWidget from "@/components/CodingTimeWidget";
-import RecentActivity from "@/components/RecentActivity";
-import FriendComparison from "@/components/FriendComparison";
 import { ChevronRight } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
@@ -32,70 +17,6 @@ import DashboardSSEProvider from "@/components/DashboardSSEProvider";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import RoastHypeWidget from "./RoastHypeWidget";
 
-const SkeletonCard = () => (
-  <div
-    role="status"
-    aria-busy="true"
-    aria-live="polite"
-    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
-  >
-    <div className="h-6 w-48 bg-[var(--card-muted)] rounded mb-4 animate-pulse" />
-    <div className="h-40 bg-[var(--card-muted)] rounded animate-pulse" />
-  </div>
-);
-
-const ContributionGraphSkeleton = () => (
-  <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-    <h2 className="text-lg font-semibold text-[var(--foreground)]">Your Commits</h2>
-    <div className="mt-3 h-40 rounded bg-[var(--card-muted)] animate-pulse" />
-  </div>
-);
-
-const PRMetricsSkeleton = () => (
-  <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-    <h2 className="text-lg font-semibold text-[var(--card-foreground)]">PR Analytics</h2>
-    <div className="mt-3 h-40 rounded bg-[var(--card-muted)] animate-pulse" />
-  </div>
-);
-
-const CodingActivityInsightsCard = dynamic(
-  () => import("@/components/CodingActivityInsightsCard"),
-  { loading: () => <SkeletonCard /> },
-);
-
-const ActivityRingChart = dynamic(
-  () => import("@/components/ActivityRingChart"),
-  { loading: () => <SkeletonCard /> },
-);
-
-const ContributionGraph = dynamic(
-  () => import("@/components/ContributionGraph"),
-  { loading: () => <ContributionGraphSkeleton /> },
-);
-
-const ContributionHeatmap = dynamic(
-  () => import("@/components/ContributionHeatmap"),
-  { loading: () => <SkeletonCard /> },
-);
-
-const PRMetrics = dynamic(() => import("@/components/PRMetrics"), {
-  loading: () => <PRMetricsSkeleton />,
-});
-
-const PRBreakdownChart = dynamic(
-  () => import("@/components/PRBreakdownChart"),
-  { loading: () => <SkeletonCard /> },
-);
-
-const CommitTimeChart = dynamic(
-  () => import("@/components/CommitTimeChart"),
-  { loading: () => <SkeletonCard /> },
-);
-
-const PRReviewTrendChart = dynamic(
-  () => import("@/components/PRReviewTrendChart"),
-  { loading: () => <SkeletonCard /> },
-);
 
 export default async function DashboardPage() {
   // In the production standalone Playwright build, getServerSession can fail to
@@ -130,172 +51,91 @@ export default async function DashboardPage() {
   return (
     <DashboardSSEProvider>
       <DashboardWidgetA11yProvider>
-        <div className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
+        <main className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
           <DashboardHeader />
 
-          {/* Quick actions */}
-          <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
-            <Link
-              href="/wrapped"
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)] transition-opacity hover:opacity-90"
-            >
-              ✨ Year in Code
-            </Link>
-            <Link
-              href="/friend-compare"
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)] transition-opacity hover:opacity-90"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-              Compare Friends
-            </Link>
-            <Link
-              href="/dashboard/settings"
-              className="secondary-button inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium"
-            >
-              Settings
-            </Link>
-            <div className="sm:ml-auto">
-              <ExportButton />
-            </div>
-          </div>
-
-          {/* Info Banners */}
-          <div className="space-y-3 mb-8">
-            <ThrottleBanner />
-            <StreakAtRiskBanner />
-          </div>
-
-          {/* Today Focus Section */}
-          <section className="mt-10 mb-10">
-            <TodayFocusHero userName={session.user?.name ?? null} />
-          </section>
-
-          <WeeklyProductivitySummary />
-
-          {/* Featured Section */}
-          <section className="mt-10 mb-12">
-            <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-gradient-to-r from-violet-950/20 via-indigo-950/10 to-transparent p-8 shadow-lg hover:shadow-xl transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-              <div className="space-y-3 max-w-xl flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-bold text-violet-400 tracking-wider px-2.5 py-1 rounded bg-violet-500/10 border border-violet-500/20">
-                    New Feature
-                  </span>
-                  <span className="text-xs text-[var(--muted-foreground)] font-medium">
-                    AI Resume Generator
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-bold text-[var(--foreground)] leading-tight">
-                  Generate an ATS-Friendly CV Backed by Your Real Code
-                </h3>
+          <div className="mt-6 space-y-8">
+            {/* Quick actions */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <Link
+                href="/wrapped"
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)] transition-opacity hover:opacity-90"
+              >
+                ✨ Year in Code
+              </Link>
+              <Link
+                href="/friend-compare"
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)] transition-opacity hover:opacity-90"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Compare Friends
+              </Link>
+              <Link
+                href="/dashboard/settings"
+                className="secondary-button inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium"
+              >
+                Settings
+              </Link>
+              <div className="sm:ml-auto">
+                <ExportButton />
               </div>
             </div>
-          </section>
 
-            {/* Right: streak + coding time */}
-            <div className="flex flex-col gap-6">
-              <RoastHypeWidget 
+            {/* Info Banners */}
+            <div className="space-y-3">
+              <ThrottleBanner />
+              <StreakAtRiskBanner />
+            </div>
+
+            {/* Today Focus */}
+            <section>
+              <TodayFocusHero userName={session.user?.name ?? null} />
+            </section>
+
+            <WeeklyProductivitySummary />
+
+            {/* Featured Section */}
+            <section>
+              <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-gradient-to-r from-violet-950/20 via-indigo-950/10 to-transparent p-8 shadow-lg hover:shadow-xl transition-shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                <div className="space-y-3 max-w-xl flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold text-violet-400 tracking-wider px-2.5 py-1 rounded bg-violet-500/10 border border-violet-500/20">
+                      New Feature
+                    </span>
+                    <span className="text-xs text-[var(--muted-foreground)] font-medium">
+                      AI Resume Generator
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-[var(--foreground)] leading-tight">
+                    Generate an ATS-Friendly CV Backed by Your Real Code
+                  </h3>
+                </div>
+              </div>
+            </section>
+
+            {/* Roast/Hype Widget */}
+            <section>
+              <RoastHypeWidget
                 stats={{
                   commits: 42,
                   languages: ["TypeScript", "Python"],
                   mergedPRs: 5,
-                  failedGoals: 1
-                }} 
+                  failedGoals: 1,
+                }}
               />
-              <StreakTracker />
-              <LocalCodingTime />
-              <CodingTimeWidget />
-            </div>
+            </section>
 
-          {/* Repo analytics explorer — full width */}
-          <div className="mt-6">
-            <LazyWidget fallback={<SkeletonCard />}>
-              <RepoAnalyticsExplorer />
-            </LazyWidget>
-          </div>
+            {/* All dashboard widgets (drag-and-drop customizable) */}
+            <CustomizableDashboard />
 
-          {/* -- Row 2: PR metrics + Community metrics -- */}
-          <div id="pull-requests" className="mt-6 grid grid-cols-1 gap-6 scroll-mt-24 md:grid-cols-2">
-            <PRMetrics />
-            <CommunityMetrics />
-          </div>
-
-          {/* PR breakdown + commit time — 2-col so charts have room */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <LazyWidget fallback={<SkeletonCard />}>
-              <PRBreakdownChart />
-            </LazyWidget>
-            <LazyWidget fallback={<SkeletonCard />}>
-              <CommitTimeChart />
-            </LazyWidget>
-          </div>
-
-          {/* Activity ring — full width */}
-          <div className="mt-6">
-            <LazyWidget fallback={<SkeletonCard />}>
-              <ActivityRingChart />
-            </LazyWidget>
-          </div>
-
-          {/* Coding activity insights — full width */}
-          <div className="mt-6">
-            <LazyWidget fallback={<SkeletonCard />}>
-              <CodingActivityInsightsCard />
-            </LazyWidget>
-          </div>
-
-          {/* PR review trend — full width */}
-          <div className="mt-6">
-            <LazyWidget fallback={<SkeletonCard />}>
-              <PRReviewTrendChart />
-            </LazyWidget>
-          </div>
-
-          {/* -- Row 3: Issues (2/3) + CI analytics (1/3) -- */}
-          <div id="goals" className="mt-6 grid grid-cols-1 gap-6 scroll-mt-24 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <LazyWidget fallback={<SkeletonCard />}>
-                <RepoAnalyticsExplorer />
-              </LazyWidget>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-              <div className="flex flex-col gap-6 w-full overflow-hidden">
-                <PRMetrics />
-                <LazyWidget fallback={<SkeletonCard />}>
-                  <PRBreakdownChart />
-                </LazyWidget>
-                <LazyWidget fallback={<SkeletonCard />}>
-                  <PRReviewTrendChart />
-                </LazyWidget>
-                <LazyWidget fallback={<SkeletonCard />}>
-                  <DiscussionsWidget />
-                </LazyWidget>
+            {/* Goals & Insights */}
+            <section id="goals-insights" className="space-y-6 scroll-mt-24">
+              <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                <div className="h-8 w-1.5 rounded-full bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
+                <h2 className="text-2xl font-bold tracking-tight">Goals & Insights</h2>
               </div>
-              <div className="flex flex-col gap-6 w-full overflow-hidden">
-                <CommunityMetrics />
-                <LazyWidget fallback={<SkeletonCard />}>
-                  <PinnedReposWidget />
-                </LazyWidget>
-                <LazyWidget fallback={<SkeletonCard />}>
-                  <TopRepos />
-                </LazyWidget>
-                <LazyWidget fallback={<SkeletonCard />}>
-                  <InactiveRepositoriesCard />
-                </LazyWidget>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. GOALS & INSIGHTS */}
-          <section id="goals" className="mt-14 space-y-6 scroll-mt-28 mb-12">
-            <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-              <div className="h-8 w-1.5 rounded-full bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
-              <h2 className="text-2xl font-bold tracking-tight">Goals & Insights</h2>
-            </div>
-
               <Link
                 href="/dashboard/career-intelligence"
                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-indigo-500/20 hover:shadow-lg hover:scale-[1.03] transition-all whitespace-nowrap active:scale-95"
@@ -303,12 +143,13 @@ export default async function DashboardPage() {
                 Build Resume
                 <ChevronRight className="h-5 w-5" />
               </Link>
-          </section>
-          <section className="mt-8">
-            <MilestonePlanner />
-          </section>
-          <CustomizableDashboard />
-        </div>
+            </section>
+
+            <section>
+              <MilestonePlanner />
+            </section>
+          </div>
+        </main>
       </DashboardWidgetA11yProvider>
     </DashboardSSEProvider>
   );

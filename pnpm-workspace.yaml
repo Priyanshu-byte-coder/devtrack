@@ -1,0 +1,20 @@
+packages:
+  - '.'
+overrides:
+  serialize-javascript: ">=7.0.3"
+  postcss: ">=8.4.31"
+  uuid: ">=9.0.1"
+  js-yaml: "4.1.0"
+allowBuilds:
+  '@parcel/watcher': true
+  '@scarf/scarf': true
+  '@sentry/cli': true
+  '@swc/core': true
+  '@tree-sitter-grammars/tree-sitter-yaml': true
+  core-js: true
+  core-js-pure: true
+  esbuild: true
+  sharp: true
+  tree-sitter: true
+  tree-sitter-json: true
+  unrs-resolver: true

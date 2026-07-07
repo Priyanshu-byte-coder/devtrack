@@ -1,0 +1,63 @@
+name: Duplicate Issue Check
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  check-duplicate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for duplicate issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+
+            // Extract core topic from test issue titles
+            // "test: add unit tests for foo.ts" → "foo"
+            const testMatch = title.match(/test\s*add\s*(?:unit\s*)?tests?\s*(?:for|of)\s*(.+)/);
+            const topic = testMatch ? testMatch[1].replace(/\.ts$/, '').trim() : null;
+
+            if (!topic) return; // Only check test issues for now
+
+            // Search open AND recently closed issues with similar titles
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 100,
+              sort: 'created',
+              direction: 'desc'
+            });
+
+            const duplicates = openIssues.filter(i => {
+              if (i.number === issue.number) return false;
+              if (i.pull_request) return false;
+              const otherTitle = i.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+              const otherMatch = otherTitle.match(/test\s*add\s*(?:unit\s*)?tests?\s*(?:for|of)\s*(.+)/);
+              if (!otherMatch) return false;
+              const otherTopic = otherMatch[1].replace(/ts$/, '').trim();
+              return otherTopic === topic || otherTopic.includes(topic) || topic.includes(otherTopic);
+            });
+
+            if (duplicates.length > 0) {
+              const refs = duplicates.slice(0, 5).map(d => `#${d.number} (${d.state})`).join(', ');
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Duplicate detected — the following issue(s) already cover this topic: ${refs}.\n\nPlease search existing issues (open **and** closed) before opening a new one. Closing this issue.`
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                labels: [...issue.labels.map(l => l.name), 'duplicate']
+              });
+            }

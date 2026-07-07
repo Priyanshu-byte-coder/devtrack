@@ -245,7 +245,7 @@ export default function PRMetrics() {
         >
           <span className="sr-only">Loading PR analytics</span>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6, 7].map((i) => (
               <div
                 key={i}
@@ -286,7 +286,7 @@ export default function PRMetrics() {
                 ))}
               </div>
             </div>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {githubStats
                 .filter((stat) => {
                   if (prFilter === "all") return true;
@@ -347,7 +347,7 @@ export default function PRMetrics() {
           {metrics?.gitlab && (
             <div className="space-y-4 border-t border-[var(--border)] pt-4">
               <p className="text-sm font-medium text-[var(--muted-foreground)]">GitLab MRs</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {gitlabStats
                   .filter((stat) => {
                     if (prFilter === "all") return true;
