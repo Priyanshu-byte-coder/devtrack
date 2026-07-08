@@ -202,7 +202,7 @@ async function fetchContributionsForAccount(
       // Fetch remaining pages in parallel to prevent Serverless timeouts
       if (!firstPage.rateLimited && firstPage.items.length === 100 && totalCount > 100) {
         const totalNeededPages = Math.min(10, Math.ceil(totalCount / 100));
-        const promises = [];
+        const promises: ReturnType<typeof fetchPage>[] = [];
         for (let p = 2; p <= totalNeededPages; p++) {
           promises.push(fetchPage(p));
         }
