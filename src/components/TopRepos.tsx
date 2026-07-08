@@ -8,6 +8,7 @@ import RepoHealthPanel from "@/components/RepoHealthPanel";
 import RepoActivityDrawer from "@/components/RepoActivityDrawer";
 import { Search, Bookmark } from "lucide-react";
 import { SkeletonBlock } from "./WidgetSkeleton";
+import { getCodebaseSizeFromLanguages, type CodebaseSize } from "@/lib/codebase-size";
 
 interface RepoItemProps {
   repo: Repo;
@@ -54,6 +55,22 @@ const RepoItem = memo(({
         : "bg-[var(--destructive)]/15 text-[var(--destructive)] border border-[var(--destructive)]/25";
 
   const visibleLanguages = repo.languages ? getVisibleLanguages(repo.languages) : [];
+  const codebaseSize = getCodebaseSizeFromLanguages(repo.languages);
+
+  const sizeConfig: Record<CodebaseSize, { classes: string; ariaLabel: string }> = {
+    Small: {
+      classes: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+      ariaLabel: "Small codebase, under 50KB total code",
+    },
+    Medium: {
+      classes: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+      ariaLabel: "Medium codebase, between 50KB and 500KB total code",
+    },
+    Large: {
+      classes: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+      ariaLabel: "Large codebase, over 500KB total code",
+    },
+  };
 
   return (
     <li>
@@ -155,7 +172,7 @@ const RepoItem = memo(({
         />
       </div>
       <div className="mt-2 min-h-6">
-        {visibleLanguages.length > 0 && (
+        {(visibleLanguages.length > 0 || codebaseSize) && (
           <div className="flex flex-wrap gap-1.5 text-[11px] text-[var(--muted-foreground)]">
             {visibleLanguages.map((language) => (
               <span
@@ -171,6 +188,15 @@ const RepoItem = memo(({
                 <span>{language.percentage}%</span>
               </span>
             ))}
+            {codebaseSize && (
+              <span
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-medium ${sizeConfig[codebaseSize].classes}`}
+                aria-label={sizeConfig[codebaseSize].ariaLabel}
+                title={sizeConfig[codebaseSize].ariaLabel}
+              >
+                {codebaseSize} Codebase
+              </span>
+            )}
           </div>
         )}
       </div>

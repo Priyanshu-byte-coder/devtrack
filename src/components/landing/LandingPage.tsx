@@ -762,7 +762,7 @@ function AboutSection() {
       aria-labelledby="about-heading"
       style={{
         padding: '88px clamp(20px,4vw,48px)',
-        borderTop: '1px solid #1e293b',
+        borderTop: `1px solid ${BORDER}`,
         position: 'relative',
         zIndex: 1,
       }}
@@ -979,8 +979,8 @@ function FeatureCard({ f, index }: { f: typeof FEATURES[0]; index: number }) {
       className="relative overflow-hidden"
       style={{
         display: 'flex', flexDirection: 'column', gap: 16,
-        padding: '28px 24px', background: 'rgba(10, 10, 12, 0.7)', border: '1px solid #1e293b',
-        borderRadius: 16, boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+        padding: '28px 24px', background: 'color-mix(in srgb, var(--card) 70%, transparent)', border: `1px solid ${BORDER}`,
+        borderRadius: 16, boxShadow: 'var(--shadow-medium)',
         opacity: vis ? 1 : 0,
         transformStyle: 'preserve-3d',
         transform: vis ? 'translateY(0)' : 'translateY(12px)',
@@ -1021,7 +1021,7 @@ function FeaturesSection() {
   return (
     <section style={{
       padding: '80px clamp(20px,4vw,48px)',
-      borderTop: '1px solid #1e293b',
+      borderTop: `1px solid ${BORDER}`,
       maxWidth: 1200, margin: '0 auto',
     }}>
       <div style={{
@@ -1068,7 +1068,7 @@ function WhyDevTrackSection() {
     <section
       style={{
         padding: "80px clamp(20px,4vw,48px)",
-        borderTop: "1px solid #1e293b",
+        borderTop: `1px solid ${BORDER}`,
         maxWidth: 1200,
         margin: "0 auto",
       }}
@@ -1113,9 +1113,10 @@ function WhyDevTrackSection() {
               key={item.title}
               style={{
                 padding: "24px",
-                border: "1px solid #1e293b",
+                border: `1px solid ${BORDER}`,
                 borderRadius: "16px",
-                background: "rgba(10,10,12,0.7)",
+                background: "color-mix(in srgb, var(--card) 70%, transparent)",
+                boxShadow: "var(--shadow-soft)",
               }}
             >
               <Icon
@@ -1173,7 +1174,7 @@ function HowItWorksSection() {
         opacity: vis ? 1 : 0,
         transform: vis ? 'translateY(0)' : 'translateY(20px)',
         transition: 'all 0.8s cubic-bezier(0.16,1,0.3,1)',
-        borderTop: '1px solid #1e293b',
+        borderTop: `1px solid ${BORDER}`,
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -1191,8 +1192,8 @@ function HowItWorksSection() {
         {STEPS.map((step, i) => {
           const Icon = step.icon;
           return (
-          <Link key={i} href={step.href} className="group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/15" style={{ flex: '1 1 300px', background: 'rgba(10, 10, 12, 0.7)', border: '1px solid #1e293b', borderRadius: 16, padding: '32px 24px', textAlign: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'default' }}>
-            <div className="group-hover:border-indigo-500/40 transition-colors duration-300" style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 24, border: '1px solid #1e293b', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(129,140,248,0.05)' }}>
+          <Link key={i} href={step.href} className="group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/15" style={{ flex: '1 1 300px', background: 'color-mix(in srgb, var(--card) 70%, transparent)', border: `1px solid ${BORDER}`, borderRadius: 16, padding: '32px 24px', textAlign: 'center', boxShadow: 'var(--shadow-medium)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'default' }}>
+            <div className="group-hover:border-indigo-500/40 transition-colors duration-300" style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 24, border: `1px solid ${BORDER}`, boxShadow: 'var(--shadow-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(129,140,248,0.05)' }}>
               <Icon size={64} strokeWidth={1} color="#818cf8" className="group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-90" />
             </div>
             <div className="group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all duration-300 group-hover:border-indigo-500/40" style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)', color: A, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontFamily: MONO, fontSize: 18, fontWeight: 700 }}>
@@ -1346,10 +1347,10 @@ function ContributeSection({ stats }: { stats: RepoStats }) {
           {stats.contributorCount > stats.contributors.length && (
             <div style={{
               width: 38, height: 38, borderRadius: '50%',
-              border: `2px solid #000000`,
-              background: '#1e293b', marginLeft: -11,
+              border: `2px solid var(--background)`,
+              background: 'var(--control)', marginLeft: -11,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: MONO, fontSize: 10, color: '#cbd5e1', flexShrink: 0,
+              fontFamily: MONO, fontSize: 10, color: 'var(--muted-foreground)', flexShrink: 0,
             }}>
               +{stats.contributorCount - stats.contributors.length}
             </div>

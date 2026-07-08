@@ -113,7 +113,11 @@ export default function PRMetrics() {
         label: "Lines Changed",
         value: `+${(source.totalAdditions ?? 0).toLocaleString()} / -${(source.totalDeletions ?? 0).toLocaleString()}`
       },
-      { label: labels.avgReview, value: `${source.avgReviewHours}h` },
+      {
+        label: `${labels.avgReview} ⓘ`,
+        value: `${source.avgReviewHours}h`,
+        title: "Average time from PR creation to close, based on your last 30 closed PRs",
+      },
       {
         label: labels.avgFirstReview,
         value: formatReviewCycle(source.avgFirstReviewHours),
