@@ -52,11 +52,11 @@ function isPrivateIP(ip: string): boolean {
   return PRIVATE_RANGES.some(({ start, end }) => num >= start && num <= end);
 }
 
-export async function isSafeUrl(url: string): Promise<boolean> {
+export async function isSafeUrl(url: string): Promise<{ safe: boolean; ip?: string }> {
   try {
     const parsed = new URL(url);
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return false;
+      return { safe: false };
     }
 
     const hostname = parsed.hostname;
@@ -67,11 +67,11 @@ export async function isSafeUrl(url: string): Promise<boolean> {
 
     // Block localhost/unspecified/loopback hostnames before DNS resolution
     if (hostname === "localhost" || ipToCheck === "0.0.0.0" || ipToCheck === "::1") {
-      return false;
+      return { safe: false };
     }
 
     if (net.isIP(ipToCheck)) {
-      return !isPrivateIP(ipToCheck);
+      return { safe: !isPrivateIP(ipToCheck), ip: ipToCheck };
     }
 
     const addresses: string[] = [];
@@ -82,22 +82,22 @@ export async function isSafeUrl(url: string): Promise<boolean> {
         addresses.push(...lookupResults.map((r) => r.address));
       }
     } catch {
-      return false;
+      return { safe: false };
     }
 
     if (addresses.length === 0) {
-      return false;
+      return { safe: false };
     }
 
     for (const addr of addresses) {
       if (isPrivateIP(addr)) {
-        return false;
+        return { safe: false };
       }
     }
 
-    return true;
+    return { safe: true, ip: addresses[0] };
   } catch {
-    return false;
+    return { safe: false };
   }
 }
 
