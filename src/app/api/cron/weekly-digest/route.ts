@@ -70,12 +70,51 @@ type SendResult = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function currentWeekLabel(): string {
-  const now = new Date();
-  const dayOfWeek = now.getDay();
+function isUserLocalTimeTargetRange(timezone: string | null | undefined): boolean {
+  if (!timezone) {
+    // Fallback: If no timezone is set, treat as UTC.
+    const nowUtc = new Date();
+    const utcHour = nowUtc.getUTCHours();
+    const utcDay = nowUtc.getUTCDay(); // 1 = Monday
+    return utcDay === 1 && utcHour === 9;
+  }
+
+  try {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour12: false,
+      weekday: "short",
+      hour: "numeric",
+    });
+    const parts = formatter.formatToParts(new Date());
+    const partsMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+    const localWeekday = partsMap.weekday; // "Mon", "Tue", etc.
+    const localHour = parseInt(partsMap.hour, 10);
+    return localWeekday === "Mon" && localHour === 9;
+  } catch (err) {
+    // Fallback on invalid timezone
+    const nowUtc = new Date();
+    const utcHour = nowUtc.getUTCHours();
+    const utcDay = nowUtc.getUTCDay();
+    return utcDay === 1 && utcHour === 9;
+  }
+}
+
+function currentWeekLabelInTimezone(timezone: string | null | undefined): string {
+  let localDate = new Date();
+  if (timezone) {
+    try {
+      const options = { timeZone: timezone, year: "numeric", month: "numeric", day: "numeric" } as const;
+      const formatter = new Intl.DateTimeFormat("en-US", options);
+      localDate = new Date(formatter.format(new Date()));
+    } catch (_) {}
+  }
+
+  const dayOfWeek = localDate.getDay();
   const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + daysToMonday);
+  const monday = new Date(localDate);
+  monday.setDate(localDate.getDate() + daysToMonday);
+
   return monday.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
@@ -148,17 +187,21 @@ async function recordDigestSent(userId: string): Promise<void> {
 }
 
 /**
- * Process a single user: check cooldown, fetch metrics, render and send email,
+ * Process a single user: check timezone, check cooldown, fetch metrics, render and send email,
  * then record the send timestamp.
  */
 async function processUser(
   user: UserRow,
-  weekLabel: string,
   githubToken: string | undefined
 ): Promise<{
-  status: "sent" | "failed" | "skipped_cooldown" | "skipped_unconfigured";
+  status: "sent" | "failed" | "skipped_cooldown" | "skipped_unconfigured" | "skipped_timezone";
   error?: string;
 }> {
+  // ── Timezone check ────────────────────────────────────────────────────────
+  if (!isUserLocalTimeTargetRange(user.timezone)) {
+    return { status: "skipped_timezone" };
+  }
+
   // ── Cooldown guard ────────────────────────────────────────────────────────
   if (user.last_digest_sent_at) {
     const lastSent = new Date(user.last_digest_sent_at).getTime();
@@ -166,6 +209,9 @@ async function processUser(
       return { status: "skipped_cooldown" };
     }
   }
+
+  // ── Dynamic Week Label ───────────────────────────────────────────────────
+  const weekLabel = currentWeekLabelInTimezone(user.timezone);
 
   // ── Metric aggregation ────────────────────────────────────────────────────
   let metrics: DigestMetrics | null = null;
@@ -238,13 +284,13 @@ export async function GET(request: Request) {
   }
 
   try {
-    const weekLabel = currentWeekLabel();
     const githubToken = process.env.GITHUB_TOKEN || undefined;
 
     let totalUsersProcessed = 0;
     let emailsSent = 0;
     let emailsFailed = 0;
     let skippedCount = 0;
+    let skippedTimezoneCount = 0;
     const errors: SendError[] = [];
 
     // 2. Page through opted-in users so no single query loads the full table.
@@ -257,6 +303,7 @@ export async function GET(request: Request) {
         .select("id, github_login, email, timezone, last_digest_sent_at")
         .eq("weekly_digest_opt_in", true)
         .not("email", "is", null)
+        .order("id")
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
       if (error) {
@@ -276,7 +323,7 @@ export async function GET(request: Request) {
         const batch = (users as UserRow[]).slice(i, i + BATCH_SIZE);
 
         const results = await Promise.allSettled(
-          batch.map((user) => processUser(user, weekLabel, githubToken))
+          batch.map((user) => processUser(user, githubToken))
         );
 
         for (let j = 0; j < results.length; j++) {
@@ -304,6 +351,8 @@ export async function GET(request: Request) {
               });
             } else if (status === "skipped_cooldown") {
               skippedCount++;
+            } else if (status === "skipped_timezone") {
+              skippedTimezoneCount++;
             }
           }
         }
@@ -319,7 +368,7 @@ export async function GET(request: Request) {
     }
 
     console.log(
-      `[weekly-digest] done — processed:${totalUsersProcessed} sent:${emailsSent} failed:${emailsFailed} skipped:${skippedCount}`
+      `[weekly-digest] done — processed:${totalUsersProcessed} sent:${emailsSent} failed:${emailsFailed} skipped_cooldown:${skippedCount} skipped_timezone:${skippedTimezoneCount}`
     );
 
     return NextResponse.json({
@@ -328,6 +377,7 @@ export async function GET(request: Request) {
       emailsSent,
       emailsFailed,
       skippedCount,
+      skippedTimezoneCount,
       errors,
     });
   } catch (err) {

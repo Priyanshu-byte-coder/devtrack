@@ -52,7 +52,7 @@ export async function GET(
 
   const { data: recentDeliveries } = await supabaseAdmin
     .from("webhook_deliveries")
-    .select("id, event, status_code, success, error_message, delivered_at")
+    .select("id, event, status_code, success, error_message, delivered_at, payload")
     .eq("webhook_id", id)
     .order("delivered_at", { ascending: false })
     .limit(20);
