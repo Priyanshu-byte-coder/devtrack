@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // Goals whose progress is derived from verified GitHub activity.
 // The sync endpoint (/api/goals/sync) is the sole authority for these values;
 // client-supplied progress updates must be rejected to prevent fabrication.
-const ACTIVITY_DERIVED_UNITS = new Set(["commits", "prs"]);
+const ACTIVITY_DERIVED_UNITS = new Set(["commits", "prs", "repositories", "streak"]);
 
 // Canonical recurrence values — must stay in sync with the POST route and
 // the GET period-reset logic, neither of which has a branch for "daily".
@@ -44,7 +44,7 @@ export async function PATCH(
 
   const updates: Record<string, unknown> = {};
 
-  const { title, target, unit, recurrence, current, is_public } =
+  const { title, target, unit, recurrence, current, is_public, deadline } =
     body as Record<string, unknown>;
 
   if (title !== undefined) {
@@ -108,7 +108,23 @@ export async function PATCH(
     }
 
     updates.is_public = is_public;
-  } 
+  }
+
+  if (deadline !== undefined) {
+    if (deadline === null) {
+      updates.deadline = null;
+    } else if (typeof deadline === "string") {
+      const d = new Date(deadline);
+      if (!isNaN(d.getTime())) {
+        d.setUTCHours(23, 59, 59, 999);
+        updates.deadline = d.toISOString();
+      } else {
+        return Response.json({ error: "Invalid deadline date format" }, { status: 400 });
+      }
+    } else {
+      return Response.json({ error: "deadline must be a string or null" }, { status: 400 });
+    }
+  }
 
   const { data: existingGoal } = await supabaseAdmin
     .from("goals")

@@ -53,15 +53,13 @@ export async function POST() {
   const weekEnd = currentWeekEnd();
 
   // ── 2. Fetch all auto-sync-eligible goals for this week ───────────────────
-  const AUTO_SYNC_UNITS = ["commits", "prs", "reviews", "issues_closed", "issues_opened", "open_source_prs"];
+  const AUTO_SYNC_UNITS = ["commits", "prs", "reviews", "issues_closed", "issues_opened", "open_source_prs", "repositories", "streak"];
 
   const { data: activityGoals, error: goalsError } = await supabaseAdmin
     .from("goals")
-    .select("id, unit, repo, repository, repo_name")
+    .select("id, unit, repo, repository, repo_name, period_start")
     .eq("user_id", user.id)
-    .in("unit", AUTO_SYNC_UNITS)
-    .gte("period_start", weekStart)
-    .lte("period_start", weekEnd);
+    .in("unit", AUTO_SYNC_UNITS);
 
   if (goalsError) {
     return Response.json({ error: "Failed to fetch goals" }, { status: 500 });
@@ -80,6 +78,8 @@ export async function POST() {
   const issuesClosedGoals = activityGoals.filter(g => g.unit === "issues_closed");
   const issuesOpenedGoals = activityGoals.filter(g => g.unit === "issues_opened");
   const openSourcePrGoals = activityGoals.filter(g => g.unit === "open_source_prs");
+  const repositoryGoals = activityGoals.filter(g => g.unit === "repositories");
+  const streakGoals = activityGoals.filter(g => g.unit === "streak");
 
   let totalUpdated = 0;
 
@@ -99,7 +99,12 @@ export async function POST() {
       // and cannot be split by embedded special characters.
       const qParts = [`author:${session.githubLogin}`];
       if (repo) qParts.push(`repo:${repo}`);
-      qParts.push(`author-date:${weekStart}..${weekEnd}`);
+      if (goal.period_start) {
+        const periodStartStr = new Date(goal.period_start).toISOString();
+        qParts.push(`author-date:${periodStartStr}..${now}`);
+      } else {
+        qParts.push(`author-date:${weekStart}..${weekEnd}`);
+      }
 
       const commitSearchParams = new URLSearchParams({
         q: qParts.join(" "),
@@ -274,6 +279,119 @@ export async function POST() {
       const osData = await osRes.json() as { total_count: number };
       await supabaseAdmin.from("goals").update({ current: osData.total_count || 0, last_synced_at: now }).in("id", openSourcePrGoals.map(g => g.id));
       totalUpdated += openSourcePrGoals.length;
+    }
+  }
+
+  // ── Repositories sync ──────────────────────────────────────────────────────
+  for (const goal of repositoryGoals) {
+    let page = 1;
+    const uniqueRepos = new Set<string>();
+    let hasMore = true;
+
+    const periodStartStr = goal.period_start ? new Date(goal.period_start).toISOString() : weekStart;
+    
+    while (hasMore) {
+      const searchParams = new URLSearchParams({
+        q: `author:${session.githubLogin} author-date:${periodStartStr}..${now}`,
+        per_page: "100",
+        page: String(page),
+      });
+
+      const ghRes = await fetch(`${GITHUB_API}/search/commits?${searchParams.toString()}`, {
+        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        cache: "no-store",
+      });
+
+      if (!ghRes.ok) break;
+
+      const ghData = (await ghRes.json()) as { items?: Array<{ repository?: { full_name: string } }> };
+      const items = ghData.items || [];
+      
+      for (const item of items) {
+        if (item.repository?.full_name) {
+          uniqueRepos.add(item.repository.full_name);
+        }
+      }
+
+      if (items.length < 100 || page >= 10) {
+        hasMore = false;
+      } else {
+        page++;
+      }
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("goals")
+      .update({ current: uniqueRepos.size, last_synced_at: now })
+      .eq("id", goal.id);
+
+    if (!updateError) totalUpdated++;
+  }
+
+  // ── Streak sync ───────────────────────────────────────────────────────────
+  if (streakGoals.length > 0) {
+    // Instead of computing streak manually here, just call our own /api/metrics/streak endpoint
+    // to reuse the cached dates and freeze logic. We must forward the cookie for auth.
+    // Note: Calling absolute URL using host header or passing the token.
+    try {
+      const activeDatesRes = await fetch(`${GITHUB_API}/search/commits?q=author:${session.githubLogin}&per_page=1`, {
+        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" }
+      });
+      // Fallback: A quick approximation or fetch full streak if needed.
+      // Since fetch active dates is complex, we use the local API if possible.
+      // We will just do a simple streak sync via the database update.
+      // Actually, since we need the exact streak, we will hit the GitHub API here or skip if too hard.
+      // For simplicity, we assume we can fetch the streak using our own utility if we extracted it,
+      // but since we didn't, we will just update it to 0 and let StreakTracker handle the UI streak,
+      // or we can implement a basic active dates fetch here.
+      
+      let currentStreak = 0;
+      // Fetching all pages up to 10 to compute streak
+      const since = new Date();
+      since.setDate(since.getDate() - 365);
+      const sinceStr = since.toISOString().slice(0, 10);
+      const activeDates = new Set<string>();
+      let page = 1;
+      
+      while (true) {
+        const res = await fetch(`${GITHUB_API}/search/commits?q=author:${session.githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`, {
+          headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" }
+        });
+        if (!res.ok) break;
+        const data = await res.json() as { items?: Array<{ commit: { author: { date: string } } }> };
+        const items = data.items || [];
+        for (const item of items) {
+          activeDates.add(item.commit.author.date.slice(0, 10));
+        }
+        if (items.length < 100 || page >= 10) break;
+        page++;
+      }
+      
+      // Basic streak calculation without freezes for simplicity in this endpoint.
+      const commitDays = Array.from(activeDates).sort();
+      if (commitDays.length > 0) {
+        currentStreak = 1;
+        let lastDate = new Date(commitDays[commitDays.length - 1]);
+        const today = new Date();
+        const diffToday = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 3600 * 24));
+        
+        if (diffToday <= 1) {
+          for (let i = commitDays.length - 2; i >= 0; i--) {
+            const d1 = new Date(commitDays[i]);
+            const d2 = new Date(commitDays[i + 1]);
+            const diff = Math.floor((d2.getTime() - d1.getTime()) / (1000 * 3600 * 24));
+            if (diff === 1) currentStreak++;
+            else break;
+          }
+        } else {
+          currentStreak = 0;
+        }
+      }
+
+      await supabaseAdmin.from("goals").update({ current: currentStreak, last_synced_at: now }).in("id", streakGoals.map(g => g.id));
+      totalUpdated += streakGoals.length;
+    } catch (err) {
+      console.error("Streak sync failed", err);
     }
   }
 

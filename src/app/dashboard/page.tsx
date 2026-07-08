@@ -2,7 +2,9 @@ import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
 import ThrottleBanner from "@/components/ThrottleBanner";
 import CustomizableDashboard from "@/components/dashboard/CustomizableDashboard";
 import MilestonePlanner from "@/components/MilestonePlanner";
+
 import TodayFocusHero from "@/components/TodayFocusHero";
+import AchievementsDashboard from "@/components/achievements/AchievementsDashboard";
 import DashboardHeader from "@/components/DashboardHeader";
 import ExportButton from "@/components/ExportButton";
 import Link from "next/link";
@@ -144,6 +146,10 @@ export default async function DashboardPage() {
 
             <section>
               <MilestonePlanner />
+            </section>
+
+            <section className="mt-8">
+              <AchievementsDashboard />
             </section>
           </div>
         </main>
