@@ -8,6 +8,8 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
 import EmptyState from "@/components/EmptyState";
+import { useLastUpdated } from "@/hooks/useLastUpdated";
+import LastUpdatedTimestamp from "@/components/LastUpdatedTimestamp";
 
 
 type Recurrence = "none" | "weekly" | "monthly";
@@ -44,8 +46,7 @@ export function useGoalTracker() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [minutesAgo, setMinutesAgo] = useState(0);
+  const { lastUpdated, setLastUpdated, relativeLabel } = useLastUpdated();
   const [title, setTitle] = useState("");
   const [target, setTarget] = useState(7);
   const [unit, setUnit] = useState("commits");
@@ -102,7 +103,7 @@ export function useGoalTracker() {
       }
       await loadGoals();
       setLastUpdated(new Date());
-      setMinutesAgo(0);
+      
     } catch (e) {
       setSyncError("Network error. Failed to sync goals.");
     } finally {
@@ -129,7 +130,7 @@ export function useGoalTracker() {
       .finally(() => {
         setLoading(false);
         setLastUpdated(new Date());
-        setMinutesAgo(0);
+        
       });
   }, [loadGoals, handleSync]);
 
@@ -138,7 +139,7 @@ export function useGoalTracker() {
       loadGoals()
         .then(() => {
           setLastUpdated(new Date());
-          setMinutesAgo(0);
+          
         })
         .catch(() => {
           setSyncError("Failed to sync goals. Please try again.");
@@ -264,15 +265,7 @@ export function useGoalTracker() {
     }
   }, [goals]);
 
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
-      setMinutesAgo(diff);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
-
+ 
   return {
     goals,
     setGoals,
@@ -282,7 +275,7 @@ export function useGoalTracker() {
     syncError,
     setSyncError,
     lastUpdated,
-    minutesAgo,
+    relativeLabel,
     title,
     setTitle,
     target,
@@ -320,7 +313,7 @@ export default function GoalTracker() {
     syncError,
     setSyncError,
     lastUpdated,
-    minutesAgo,
+    relativeLabel,
     title,
     setTitle,
     target,
@@ -753,11 +746,7 @@ export default function GoalTracker() {
         </ul>
       )}
 
-      {lastUpdated && (
-        <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
-          {minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}
-        </p>
-      )}
+      <LastUpdatedTimestamp lastUpdated={lastUpdated} relativeLabel={relativeLabel} />
 
       {/* Goal Creation Form */}
       <form

@@ -5,6 +5,8 @@ import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
 import DailyBreakdownSheet from "@/components/DailyBreakdownSheet";
 import { getContributionInsights } from "@/lib/contribution-insights";
 import { Calendar, TrendingUp, Zap, Clock, Award, BarChart2 } from "lucide-react";
+import { useLastUpdated } from "@/hooks/useLastUpdated";
+import LastUpdatedTimestamp from "@/components/LastUpdatedTimestamp";
 
 interface ContributionHeatmapProps {
   days?: number;
@@ -100,8 +102,7 @@ export default function ContributionHeatmap({
   const [data, setData] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [minutesAgo, setMinutesAgo] = useState(0);
+  const { lastUpdated, setLastUpdated, relativeLabel } = useLastUpdated();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const handleCloseSheet = useCallback(() => setSelectedDate(null), []);
 
@@ -224,7 +225,7 @@ export default function ContributionHeatmap({
         if (!active) return;
         setData(result.data ?? {});
         setLastUpdated(new Date());
-        setMinutesAgo(0);
+        
       })
       .catch(() => {
         if (!active) return;
@@ -240,13 +241,7 @@ export default function ContributionHeatmap({
     };
   }, [currentFrom, currentTo]);
 
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      setMinutesAgo(Math.floor((Date.now() - lastUpdated.getTime()) / 60000));
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
+  
 
   const { themeConfig, theme, setTheme } = useHeatmapTheme();
   
@@ -604,9 +599,7 @@ export default function ContributionHeatmap({
             <p>
               {totalCommits} commits shown across {displayDays} days.
             </p>
-            {lastUpdated && (
-              <p>{minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}</p>
-            )}
+            <LastUpdatedTimestamp lastUpdated={lastUpdated} relativeLabel={relativeLabel} />
           </div>
 
           {/* Contribution Insights section */}

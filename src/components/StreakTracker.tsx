@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { toPng } from "html-to-image";
 import { Flame, Trophy, Calendar, Zap, Copy, CheckCircle, Medal, Star, Sparkles } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import { useLastUpdated } from "@/hooks/useLastUpdated";
+import LastUpdatedTimestamp from "@/components/LastUpdatedTimestamp";
 
 const DATA_WINDOW_DAYS = 90;
 const dataWindowLabel = `Last ${DATA_WINDOW_DAYS} days`;
@@ -45,8 +47,7 @@ export function useStreakTracker() {
   const [loading, setLoading] = useState(true);
   const [dismissedMilestones, setDismissedMilestones] = useState<number[]>([]);
   const [lastCelebratedMilestone, setLastCelebratedMilestone] = useState<number>(0);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [minutesAgo, setMinutesAgo] = useState(0);
+  const { lastUpdated, setLastUpdated, relativeLabel } = useLastUpdated();
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
@@ -117,7 +118,7 @@ export function useStreakTracker() {
     } finally {
       setLoading(false);
       setLastUpdated(new Date());
-      setMinutesAgo(0);
+      
     }
   }, [selectedAccount]);
 
@@ -171,14 +172,7 @@ export function useStreakTracker() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
-      setMinutesAgo(diff);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
+ 
 
   async function handleApplyFreeze() {
     setFreezeLoading(true);
@@ -347,7 +341,7 @@ export function useStreakTracker() {
     lastCelebratedMilestone,
     setLastCelebratedMilestone,
     lastUpdated,
-    minutesAgo,
+    relativeLabel,
     copied,
     setCopied,
     error,
@@ -396,7 +390,7 @@ export default function StreakTracker() {
     dismissedMilestones,
     lastCelebratedMilestone,
     lastUpdated,
-    minutesAgo,
+    relativeLabel,
     copied,
     setCopied,
     error,
@@ -737,14 +731,7 @@ export default function StreakTracker() {
               </div>
             </div>
           )}
-          {lastUpdated && (
-            <p className="mt-2 text-right text-xs text-[var(--muted-foreground)]">
-              {minutesAgo === 0
-                ? "Updated just now"
-                : `Updated ${minutesAgo} min ago`}
-            </p>
-          )}
-
+          <LastUpdatedTimestamp lastUpdated={lastUpdated} relativeLabel={relativeLabel} />
           {freeze && freeze.hasFreeze && (
             <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-4 py-3">
               <div className="flex items-center gap-2">

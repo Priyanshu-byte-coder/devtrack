@@ -7,6 +7,8 @@ import type { RepoHealthScore } from "@/types/repo-health";
 import RepoHealthPanel from "@/components/RepoHealthPanel";
 import RepoActivityDrawer from "@/components/RepoActivityDrawer";
 import { Search, Bookmark } from "lucide-react";
+import { useLastUpdated } from "@/hooks/useLastUpdated";
+import LastUpdatedTimestamp from "@/components/LastUpdatedTimestamp";
 
 interface RepoItemProps {
   repo: Repo;
@@ -265,8 +267,7 @@ export default function TopRepos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(30);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [minutesAgo, setMinutesAgo] = useState(0);
+  const { lastUpdated, setLastUpdated, relativeLabel } = useLastUpdated();
   const [healthScores, setHealthScores] = useState<Record<string, RepoHealthScore>>({});
   const [healthLoading, setHealthLoading] = useState(true);
   const [sortColumn, setSortColumn] = useState<"commits" | "name">("commits");
@@ -372,7 +373,7 @@ export default function TopRepos() {
       .finally(() => {
         setLoading(false);
         setLastUpdated(new Date());
-        setMinutesAgo(0);
+        
       });
   }, [days, selectedAccount]);
 
@@ -394,14 +395,7 @@ export default function TopRepos() {
       .finally(() => setHealthLoading(false));
   }, [days, selectedAccount]);
 
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
-      setMinutesAgo(diff);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
+ 
 
   useEffect(() => {
     fetchRepos();
@@ -647,14 +641,7 @@ export default function TopRepos() {
 </>
 )}
 
-{lastUpdated && (
-  <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
-    {minutesAgo === 0
-      ? "Updated just now"
-      : `Updated ${minutesAgo} min ago`}
-  </p>
-)}
-
+<LastUpdatedTimestamp lastUpdated={lastUpdated} relativeLabel={relativeLabel} />
 {activeHealthRepo && healthScores[activeHealthRepo] && (
   <RepoHealthPanel
     health={healthScores[activeHealthRepo]}

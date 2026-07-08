@@ -7,6 +7,8 @@ import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA1
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import PRStatusDonutChart from "./PRStatusDonutChart";
 import MiniPRTrendChart from "./MiniPRTrendChart";
+import { useLastUpdated } from "@/hooks/useLastUpdated";
+import LastUpdatedTimestamp from "@/components/LastUpdatedTimestamp";
 
 interface PRMetricsSummary {
   open: number;
@@ -48,10 +50,9 @@ function formatReviewCycle(hours: number | null): string {
 
 export default function PRMetrics() {
   const { selectedAccount } = useAccount();
+  const { lastUpdated, setLastUpdated, relativeLabel } = useLastUpdated();
   const [metrics, setMetrics] = useState<PRData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [minutesAgo, setMinutesAgo] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"authored" | "reviews">("authored");
   const [prFilter, setPrFilter] = useState<"all" | "merged" | "open">("all");
@@ -75,7 +76,7 @@ export default function PRMetrics() {
       .then((data: PRData) => {
         setMetrics(data);
         setLastUpdated(new Date());
-        setMinutesAgo(0);
+        
       })
       .catch(() => setError("We couldn't load your PR analytics right now. Please try again in a moment."))
       .finally(() => setLoading(false));
@@ -85,15 +86,7 @@ export default function PRMetrics() {
     fetchMetrics();
   }, [fetchMetrics]);
 
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
-      setMinutesAgo(diff);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
-
+ 
   const buildStats = (
     source: PRMetricsSummary,
     labels: {
@@ -377,11 +370,7 @@ export default function PRMetrics() {
         </div>
       )}
 
-      {lastUpdated && (
-        <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
-          {minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}
-        </p>
-      )}
+      <LastUpdatedTimestamp lastUpdated={lastUpdated} relativeLabel={relativeLabel} />
     </div>
   );
 }
