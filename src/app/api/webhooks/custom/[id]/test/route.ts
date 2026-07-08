@@ -49,7 +49,7 @@ export async function POST(
     return Response.json({ error: "Failed to decrypt webhook secret" }, { status: 500 });
   }
 
-  const safe = await isSafeUrl(webhook.url);
+  const { safe } = await isSafeUrl(webhook.url);
   if (!safe) {
     return Response.json(
       { error: "Webhook URL is not allowed. Private, loopback, and internal addresses are blocked." },

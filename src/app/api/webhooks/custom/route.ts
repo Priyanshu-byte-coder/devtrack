@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const safe = await isSafeUrl(url);
+  const { safe } = await isSafeUrl(url);
   if (!safe) {
     return Response.json(
       { error: "Webhook URL is not allowed. Private, loopback, and internal addresses are blocked." },

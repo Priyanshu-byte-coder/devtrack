@@ -110,7 +110,7 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      const safe = await isSafeUrl(body.url);
+      const { safe } = await isSafeUrl(body.url);
       if (!safe) {
         return Response.json(
           { error: "Webhook URL is not allowed. Private, loopback, and internal addresses are blocked." },

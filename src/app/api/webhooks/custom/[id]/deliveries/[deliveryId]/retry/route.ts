@@ -67,7 +67,7 @@ export async function POST(
     .eq("id", id)
     .single();
 
-  if (!webhookUrl || !(await isSafeUrl(webhookUrl.url))) {
+  if (!webhookUrl || !(await isSafeUrl(webhookUrl.url)).safe) {
     return Response.json(
       { error: "Webhook URL is not allowed. Private, loopback, and internal addresses are blocked." },
       { status: 400 }
