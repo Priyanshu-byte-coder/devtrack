@@ -23,7 +23,7 @@ import dynamic from "next/dynamic";
 import LazyWidget from "@/components/LazyWidget";
 import DiscussionsWidget from "@/components/DiscussionsWidget";
 import CommunityMetrics from "@/components/CommunityMetrics";
-import GoalTracker from "@/components/GoalTracker";
+import GoalsSection from "@/components/goals/GoalsSection";
 import StreakTracker from "@/components/StreakTracker";
 import ConsistencyScoreWidget from "@/components/ConsistencyScoreWidget";
 import TopRepos from "@/components/TopRepos";
@@ -421,7 +421,7 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
     case "goal-tracker":
       return (
         <WidgetErrorBoundary>
-          <GoalTracker />
+          <GoalsSection />
         </WidgetErrorBoundary>
       );
 
