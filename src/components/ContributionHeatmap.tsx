@@ -4,14 +4,44 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
 import DailyBreakdownSheet from "@/components/DailyBreakdownSheet";
 import { getContributionInsights } from "@/lib/contribution-insights";
-import { Calendar, TrendingUp, Zap, Clock, Award, BarChart2 } from "lucide-react";
+import { Calendar, TrendingUp, Zap, Clock, Award, BarChart2, Filter } from "lucide-react";
+import { useAccount } from "@/components/AccountContext";
 
 interface ContributionHeatmapProps {
   days?: number;
 }
 
+interface CommitItem {
+  sha: string;
+  message: string;
+  date: string;
+  repo: string;
+  url: string;
+}
+
 interface ContributionResponse {
+  days: number;
+  total: number;
   data: Record<string, number>;
+  commits: CommitItem[];
+}
+
+interface RepoLanguage {
+  name: string;
+  bytes: number;
+  percentage: number;
+}
+
+interface RepoSummary {
+  name: string;
+  commits: number;
+  description: string | null;
+  url: string;
+  languages?: RepoLanguage[];
+}
+
+interface ReposApiResponse {
+  repos: RepoSummary[];
 }
 
 interface HeatmapCell {
@@ -97,7 +127,13 @@ function buildHeatmap(days: number, contributions: Record<string, number>, fromD
 export default function ContributionHeatmap({
   days = DEFAULT_DAYS,
 }: ContributionHeatmapProps) {
+  const { selectedAccount } = useAccount();
   const [data, setData] = useState<Record<string, number>>({});
+  const [commits, setCommits] = useState<CommitItem[]>([]);
+  const [reposData, setReposData] = useState<RepoSummary[]>([]);
+  const [selectedRepo, setSelectedRepo] = useState<string>("all");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("all");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -214,21 +250,36 @@ export default function ContributionHeatmap({
     const params = new URLSearchParams();
     params.set("from", currentFrom);
     params.set("to", currentTo);
+    if (selectedAccount) {
+      params.set("accountId", selectedAccount);
+    }
     
-    fetch(`/api/metrics/contributions?${params.toString()}`)
-      .then((response) => {
+    // Reset filters when range/account changes
+    setSelectedRepo("all");
+    setSelectedLanguage("all");
+
+    Promise.all([
+      fetch(`/api/metrics/contributions?${params.toString()}`).then((response) => {
         if (!response.ok) throw new Error("API error");
-        return response.json();
+        return response.json() as Promise<ContributionResponse>;
+      }),
+      fetch(`/api/metrics/repos?days=${selectedDays}${selectedAccount ? `&accountId=${encodeURIComponent(selectedAccount)}` : ""}`).then((response) => {
+        if (!response.ok) throw new Error("API error");
+        return response.json() as Promise<ReposApiResponse>;
       })
-      .then((result: ContributionResponse) => {
+    ])
+      .then(([contribResult, reposResult]) => {
         if (!active) return;
-        setData(result.data ?? {});
+        setData(contribResult.data ?? {});
+        setCommits(contribResult.commits ?? []);
+        setReposData(reposResult.repos ?? []);
         setLastUpdated(new Date());
         setMinutesAgo(0);
       })
-      .catch(() => {
+      .catch((err) => {
         if (!active) return;
         setError("Failed to load contribution heatmap.");
+        console.error("Error loading heatmap data:", err);
       })
       .finally(() => {
         if (!active) return;
@@ -238,7 +289,7 @@ export default function ContributionHeatmap({
     return () => {
       active = false;
     };
-  }, [currentFrom, currentTo]);
+  }, [currentFrom, currentTo, selectedDays, selectedAccount]);
 
   useEffect(() => {
     if (!lastUpdated) return;
@@ -259,15 +310,71 @@ export default function ContributionHeatmap({
     }
     return selectedDays;
   }, [customLabel, customFrom, customTo, selectedDays]);
+
+  // Extract unique repositories
+  const uniqueRepos = useMemo(() => {
+    const reposSet = new Set<string>();
+    commits.forEach((c) => {
+      if (c.repo) reposSet.add(c.repo);
+    });
+    return Array.from(reposSet).sort();
+  }, [commits]);
+
+  // Extract unique languages
+  const uniqueLanguages = useMemo(() => {
+    const langsSet = new Set<string>();
+    reposData.forEach((repo) => {
+      repo.languages?.forEach((l) => {
+        if (l.name) langsSet.add(l.name);
+      });
+    });
+    return Array.from(langsSet).sort();
+  }, [reposData]);
+
+  // Map each repo to its languages for quick lookup
+  const repoLanguagesMap = useMemo(() => {
+    const map = new Map<string, string[]>();
+    reposData.forEach((repo) => {
+      const langs = repo.languages?.map((l) => l.name) ?? [];
+      map.set(repo.name, langs);
+    });
+    return map;
+  }, [reposData]);
+
+  // Compute filtered dataset
+  const filteredData = useMemo(() => {
+    if (selectedRepo === "all" && selectedLanguage === "all") {
+      return data;
+    }
+
+    const counts: Record<string, number> = {};
+    commits.forEach((commit) => {
+      // 1. Filter by repo
+      if (selectedRepo !== "all" && commit.repo !== selectedRepo) {
+        return;
+      }
+      // 2. Filter by language
+      if (selectedLanguage !== "all") {
+        const repoLangs = repoLanguagesMap.get(commit.repo) ?? [];
+        if (!repoLangs.includes(selectedLanguage)) {
+          return;
+        }
+      }
+
+      counts[commit.date] = (counts[commit.date] ?? 0) + 1;
+    });
+
+    return counts;
+  }, [data, commits, repoLanguagesMap, selectedRepo, selectedLanguage]);
   
   const cells = useMemo(
     () => buildHeatmap(
       displayDays, 
-      data,
+      filteredData,
       customLabel ? customFrom : undefined,
       customLabel ? customTo : undefined
     ),
-    [displayDays, data, customLabel, customFrom, customTo]
+    [displayDays, filteredData, customLabel, customFrom, customTo]
   );
   const weekCount = Math.ceil(cells.length / 7);
   const maxCommits = Math.max(
@@ -458,6 +565,42 @@ export default function ContributionHeatmap({
           >
             Colour-blind
           </button>
+
+          {/* Repository and Language Filters */}
+          <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-2 mt-1 w-full sm:border-t-0 sm:border-l sm:pt-0 sm:mt-0 sm:pl-2 sm:w-auto">
+            <div className="flex items-center gap-1 text-[11px] text-[var(--muted-foreground)] dark:text-gray-300">
+              <Filter className="h-3 w-3" />
+              <span>Filter:</span>
+            </div>
+            
+            <select
+              value={selectedRepo}
+              onChange={(e) => setSelectedRepo(e.target.value)}
+              className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus:ring-1 focus:ring-[var(--accent)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors max-w-[150px] truncate"
+              aria-label="Filter by repository"
+            >
+              <option value="all">All Repositories</option>
+              {uniqueRepos.map((repo) => (
+                <option key={repo} value={repo}>
+                  {repo.split("/")[1] ?? repo}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus:ring-1 focus:ring-[var(--accent)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
+              aria-label="Filter by language"
+            >
+              <option value="all">All Languages</option>
+              {uniqueLanguages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Legend - Less / More */}
@@ -740,7 +883,10 @@ export default function ContributionHeatmap({
       <DailyBreakdownSheet
         date={selectedDate}
         onClose={handleCloseSheet}
-        heatmapData={data}
+        heatmapData={filteredData}
+        selectedRepo={selectedRepo}
+        selectedLanguage={selectedLanguage}
+        reposData={reposData}
       />
     </div>
   );
