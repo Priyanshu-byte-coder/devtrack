@@ -149,7 +149,6 @@ async function fetchContributionsForAccount(
       let allItems: GitHubCommitSearchItem[] = [];
       const commitItems: CommitItem[] = [];
       let totalCount = 0;
-      let page = 1;
 
       let q = `author:${githubLogin} author-date:>=${sinceStr}${repoFilter}`;
       if (orgName) {
@@ -158,69 +157,60 @@ async function fetchContributionsForAccount(
         q += excludedOrgs.map((org) => ` -org:${org}`).join("");
       }
 
-      // Note: this may issue up to 10 sequential GitHub Search API calls (max 1000 results).
-      // Authenticated GitHub Search rate limits are low (~30 req/min). We handle 429/403
-      // responses gracefully by returning partial results rather than failing the endpoint.
-      while (page <= 10) {
+      const fetchPage = async (pageNumber: number) => {
         const searchUrl = new URL(`${GITHUB_API}/search/commits`);
         searchUrl.searchParams.set("q", q);
         searchUrl.searchParams.set("per_page", "100");
-        searchUrl.searchParams.set("page", String(page));
+        searchUrl.searchParams.set("page", String(pageNumber));
         searchUrl.searchParams.set("sort", "author-date");
         searchUrl.searchParams.set("order", "desc");
 
         // The Authorization header upgrades the rate limit from 60 req/hr
         // (unauthenticated, shared per IP) to 5,000 req/hr (per user).
-        // Without it, multiple users on the same server IP would exhaust
-        // the shared quota almost immediately.
-        // Authorization header raises the rate limit from 60 req/hr (unauthenticated,
-        // shared per IP) to 5,000 req/hr per user. Without it, shared server IPs
-        // would exhaust the unauthenticated quota almost immediately.
-        const searchRes = await fetch(
-          searchUrl.toString(),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github+json",
-            },
-            cache: "no-store",
-          }
-        );
+        const searchRes = await fetch(searchUrl.toString(), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json",
+          },
+          cache: "no-store",
+        });
 
         if (!searchRes.ok) {
-  throwIfGitHubRateLimited(searchRes);
-
-  if (searchRes.status === 429 || searchRes.status === 403) {
-    if (allItems.length === 0) {
-      throw new Error(`GitHub API error: ${searchRes.status}`);
-    }
-
-    break;
-  }
-
-  throw new Error(`GitHub API error: ${searchRes.status}`);
-}
+          throwIfGitHubRateLimited(searchRes);
+          if (searchRes.status === 429 || searchRes.status === 403) {
+            return { items: [], total_count: 0, rateLimited: true, status: searchRes.status };
+          }
+          throw new Error(`GitHub API error: ${searchRes.status}`);
+        }
 
         const data = (await searchRes.json()) as {
           total_count: number;
           items: GitHubCommitSearchItem[];
         };
+        return { items: data.items, total_count: data.total_count, rateLimited: false, status: 200 };
+      };
 
-        if (page === 1) {
-          totalCount = data.total_count;
+      // Fetch first page sequentially to get total count
+      const firstPage = await fetchPage(1);
+      totalCount = firstPage.total_count;
+      allItems = allItems.concat(firstPage.items);
+
+      if (firstPage.rateLimited && allItems.length === 0) {
+        throw new Error(`GitHub API error: ${firstPage.status}`);
+      }
+
+      // Fetch remaining pages in parallel to prevent Serverless timeouts
+      if (!firstPage.rateLimited && firstPage.items.length === 100 && totalCount > 100) {
+        const totalNeededPages = Math.min(10, Math.ceil(totalCount / 100));
+        const promises = [];
+        for (let p = 2; p <= totalNeededPages; p++) {
+          promises.push(fetchPage(p));
         }
 
-        allItems = allItems.concat(data.items);
-
-        if (data.items.length < 100) {
-          break;
+        const results = await Promise.all(promises);
+        for (const res of results) {
+          allItems = allItems.concat(res.items);
         }
-
-        if (allItems.length >= 1000 || allItems.length >= totalCount) {
-          break;
-        }
-
-        page += 1;
       }
 
       const commitsByDay: Record<string, number> = {};
