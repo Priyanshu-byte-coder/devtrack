@@ -13,6 +13,7 @@ import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
 import CopyLinkButton from "@/components/CopyLinkButton";
+import PublicContributionHeatmap from "@/components/public/PublicContributionHeatmap";
 import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
@@ -367,7 +368,7 @@ export default async function PublicProfilePage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {showContributions && (
             <div className="lg:col-span-2">
-              <PublicContributionGraph data={profile.contributions} />
+              <PublicContributionHeatmap data={profile.contributions} />
             </div>
           )}
           {showStreak && (
@@ -443,64 +444,6 @@ export default async function PublicProfilePage({
       </div>
     </div>
     </ProfileThemeWrapper>
-  );
-}
-
-function PublicContributionGraph({
-  data: contributionData,
-}: {
-  data: {
-    days: number;
-    total: number;
-    data: Record<string, number>;
-  };
-}) {
-  const data = Object.entries(contributionData.data ?? {})
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, commits]) => ({ day, commits }));
-
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
-            Commit Activity ({contributionData.days} days)
-          </h2>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Total commits: {contributionData.total}
-          </p>
-        </div>
-      </div>
-
-      {data.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          No commit data available.
-        </p>
-      ) : (
-        <div className="space-y-2">
-          <div className="text-sm text-[var(--muted-foreground)]">
-            {data.length} active days
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {data.map((day) => (
-              <div
-                key={day.day}
-                className="aspect-square rounded-sm"
-                style={{
-                  backgroundColor:
-                    day.commits > 0 ? "var(--accent)" : "var(--control)",
-                  opacity:
-                    day.commits > 0
-                      ? Math.max(0.2, Math.min(day.commits / 10, 1))
-                      : 1,
-                }}
-                title={`${day.day}: ${day.commits} commits`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
   );
 }
 

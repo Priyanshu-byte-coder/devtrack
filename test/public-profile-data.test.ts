@@ -84,9 +84,37 @@ describe("public-profile-data", () => {
       vi.stubGlobal("fetch", mockFetch);
 
       const contributions = await fetchPublicContributions("user123");
+      expect(contributions.days).toBe(365);
       expect(contributions.total).toBe(3);
       expect(contributions.data["2026-05-10"]).toBe(2);
       expect(contributions.data["2026-05-11"]).toBe(1);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should paginate through multiple GitHub search pages", async () => {
+      const page1Items = Array.from({ length: 100 }, (_, i) => ({
+        commit: { author: { date: `2026-05-${String((i % 28) + 1).padStart(2, "0")}T12:00:00Z` } },
+      }));
+      const page2Items = [
+        { commit: { author: { date: "2026-05-01T12:00:00Z" } } },
+      ];
+
+      const mockFetch = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ total_count: 101, items: page1Items }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ total_count: 101, items: page2Items }),
+        });
+      vi.stubGlobal("fetch", mockFetch);
+
+      const contributions = await fetchPublicContributions("user123");
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(contributions.total).toBe(101);
+      expect(Object.values(contributions.data).reduce((a, b) => a + b, 0)).toBe(101);
     });
   });
 

@@ -528,6 +528,7 @@ These features are live in the current version.
 | RSS feed | Atom feed at `/u/[username]/feed.xml` |
 | Year Wrapped | Animated annual coding journey recap |
 | Real-time dashboard | Live Supabase Realtime sync with polling fallback |
+| Contribution heatmap calendar | GitHub-style 365-day grid on dashboard and public profiles ([#18](https://github.com/Priyanshu-byte-coder/devtrack/issues/18)) |
 
 ### In Progress / Planned
 
@@ -535,7 +536,6 @@ Want to contribute? Pick an item below and open an issue or start a PR.
 
 | Feature | Difficulty | Issue |
 |---|---|---|
-| Contribution heatmap calendar | Intermediate | [#18](https://github.com/Priyanshu-byte-coder/devtrack/issues/18) |
 | Chart type toggle (bar / line) | Intermediate | [#17](https://github.com/Priyanshu-byte-coder/devtrack/issues/17) |
 | Language breakdown widget | Intermediate | [#32](https://github.com/Priyanshu-byte-coder/devtrack/issues/32) |
 | Activity feed | Intermediate | [#33](https://github.com/Priyanshu-byte-coder/devtrack/issues/33) |

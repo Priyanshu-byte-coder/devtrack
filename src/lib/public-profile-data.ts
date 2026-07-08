@@ -129,37 +129,69 @@ export async function fetchPublicTopRepos(
  * Fetches the user's public contribution data over a specified number of days.
  * @param username - The GitHub username.
  * @param token - Optional GitHub personal access token.
- * @param days - The number of days to look back for activity (default: 30).
+ * @param days - The number of days to look back for activity (default: 365).
  * @returns Contribution data including daily counts and total.
  */
 export async function fetchPublicContributions(
   username: string,
   token?: string,
-  days = 30
+  days = 365
 ): Promise<ContributionData> {
   const since = new Date();
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString().slice(0, 10);
 
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
-    token
-  );
+  const q = `author:${username}+author-date:>=${sinceStr}`;
+  let allItems: Array<{ commit: { author: { date: string } } }> = [];
+  let totalCount = 0;
+  let page = 1;
 
-  if (!res.ok) return { days, total: 0, data: {} };
+  while (page <= 10) {
+    const url = new URL(`${GITHUB_API}/search/commits`);
+    url.searchParams.set("q", q);
+    url.searchParams.set("per_page", "100");
+    url.searchParams.set("page", String(page));
+    url.searchParams.set("sort", "author-date");
+    url.searchParams.set("order", "desc");
 
-  const data = (await res.json()) as {
-    total_count: number;
-    items: Array<{ commit: { author: { date: string } } }>;
-  };
+    const res = await ghFetch(url.toString(), token);
+
+    if (!res.ok) {
+      if (allItems.length === 0) {
+        return { days, total: 0, data: {} };
+      }
+      break;
+    }
+
+    const data = (await res.json()) as {
+      total_count: number;
+      items: Array<{ commit: { author: { date: string } } }>;
+    };
+
+    if (page === 1) {
+      totalCount = data.total_count;
+    }
+
+    allItems = allItems.concat(data.items);
+
+    if (data.items.length < 100) {
+      break;
+    }
+
+    if (allItems.length >= 1000 || allItems.length >= totalCount) {
+      break;
+    }
+
+    page += 1;
+  }
 
   const commitsByDay: Record<string, number> = {};
-  for (const item of data.items) {
+  for (const item of allItems) {
     const date = item.commit.author.date.slice(0, 10);
     commitsByDay[date] = (commitsByDay[date] ?? 0) + 1;
   }
 
-  return { days, total: data.total_count, data: commitsByDay };
+  return { days, total: totalCount, data: commitsByDay };
 }
 
 /**
@@ -387,7 +419,7 @@ export async function fetchPublicProfile(
   ] = await Promise.all([
     fetchPublicGists(user.github_login, githubToken),
     fetchPublicTopRepos(user.github_login, githubToken, 30),
-    fetchPublicContributions(user.github_login, githubToken, 30),
+    fetchPublicContributions(user.github_login, githubToken, 365),
     fetchPublicStreak(user.github_login, githubToken, user.timezone),
     fetchPublicTopLanguages(user.github_login, githubToken),
     fetchPublicPullRequests(user.github_login, githubToken),
