@@ -345,6 +345,50 @@ export default function GoalTracker() {
     getCompletionLabel,
   } = useGoalTracker();
 
+  interface GoalSuggestion {
+    title: string;
+    target: number;
+    unit: string;
+    recurrence: Recurrence;
+    reasoning: string;
+  }
+
+  const [aiSuggestions, setAiSuggestions] = useState<GoalSuggestion[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
+  const [suggestionsSource, setSuggestionsSource] = useState<string | null>(null);
+
+  const fetchSuggestions = useCallback(async (refresh = false) => {
+    setSuggestionsLoading(true);
+    setSuggestionsError(null);
+    try {
+      const res = await fetch(`/api/goals/mentor-suggestions${refresh ? "?refresh=true" : ""}`);
+      if (!res.ok) {
+        if (res.status === 429) {
+          setSuggestionsError("Rate limit exceeded. Try again in an hour.");
+        } else {
+          setSuggestionsError("Failed to fetch suggestions from AI mentor.");
+        }
+        return;
+      }
+      const json = await res.json();
+      if (json.data?.suggestions) {
+        setAiSuggestions(json.data.suggestions);
+        setSuggestionsSource(json.source || (json.cached ? "cached" : null));
+      } else {
+        setSuggestionsError("No suggestions received.");
+      }
+    } catch (err) {
+      setSuggestionsError("Failed to fetch suggestions.");
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSuggestions();
+  }, [fetchSuggestions]);
+
   const { setSummary, setIsUpdating } = useDashboardWidgetA11y("goal-tracker");
 
   useEffect(() => {
@@ -758,6 +802,136 @@ export default function GoalTracker() {
           {minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}
         </p>
       )}
+
+      {/* ── AI Goal Mentor Suggestions ── */}
+      <div className="mt-8 border-t border-[var(--border)] pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-[var(--card-foreground)] flex items-center gap-1.5">
+              <span>🎯</span> AI Goal Mentor
+            </span>
+            {suggestionsSource && (
+              <span className="inline-flex items-center rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--accent)] border border-[var(--accent)]/20">
+                {suggestionsSource === "cached" ? "cached" : suggestionsSource}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => fetchSuggestions(true)}
+            disabled={suggestionsLoading}
+            className="text-xs text-[var(--accent)] hover:text-[var(--accent)]/80 disabled:opacity-50 flex items-center gap-1 transition-all"
+            title="Ask AI to regenerate customized goals based on your latest activity"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className={`w-3.5 h-3.5 ${suggestionsLoading ? "animate-spin" : ""}`}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+            Regenerate suggestions
+          </button>
+        </div>
+
+        {suggestionsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 flex flex-col justify-between h-36">
+                <div className="space-y-2">
+                  <div className="h-4 bg-[var(--card-muted)] rounded w-3/4" />
+                  <div className="h-3 bg-[var(--card-muted)] rounded w-full" />
+                  <div className="h-3 bg-[var(--card-muted)] rounded w-5/6" />
+                </div>
+                <div className="h-6 bg-[var(--card-muted)] rounded w-24 mt-4" />
+              </div>
+            ))}
+          </div>
+        ) : suggestionsError ? (
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--control)]/40 p-4 text-center">
+            <p className="text-xs text-[var(--muted-foreground)]">
+              {suggestionsError}
+            </p>
+            <button
+              type="button"
+              onClick={() => fetchSuggestions(false)}
+              className="mt-2 text-xs font-semibold text-[var(--accent)] hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        ) : aiSuggestions.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {aiSuggestions.map((suggestion, idx) => {
+              const unitIcon =
+                suggestion.unit === "commits" ? "⚡" :
+                suggestion.unit === "prs" ? "🔀" :
+                suggestion.unit === "hours" ? "⏱️" :
+                suggestion.unit === "streak" ? "🔥" : "📝";
+              return (
+                <div
+                  key={idx}
+                  className="group relative flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 transition-all duration-300 hover:scale-[1.02] hover:border-[var(--accent)] hover:shadow-lg hover:shadow-[var(--accent)]/5 cursor-pointer"
+                  onClick={() => {
+                    setTitle(suggestion.title);
+                    setTarget(suggestion.target);
+                    setUnit(suggestion.unit);
+                    setRecurrence(suggestion.recurrence);
+                    // Scroll to create goal form and highlight
+                    const formElement = document.getElementById("create-goal-form");
+                    if (formElement) {
+                      formElement.scrollIntoView({ behavior: "smooth" });
+                      formElement.classList.add("ring-2", "ring-[var(--accent)]");
+                      setTimeout(() => {
+                        formElement.classList.remove("ring-2", "ring-[var(--accent)]");
+                      }, 2000);
+                    }
+                  }}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--accent)]">
+                        {unitIcon} {suggestion.unit}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--muted-foreground)]">
+                        {suggestion.recurrence}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-[var(--card-foreground)] group-hover:text-[var(--accent)] transition-colors">
+                      {suggestion.title} ({suggestion.target} {suggestion.unit})
+                    </h4>
+                    <p className="text-xs text-[var(--muted-foreground)] leading-relaxed italic">
+                      "{suggestion.reasoning}"
+                    </p>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-[10px] text-[var(--muted-foreground)] group-hover:text-[var(--accent)] font-medium transition-colors">
+                      Click to use suggestion
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-3.5 h-3.5 text-[var(--muted-foreground)] group-hover:text-[var(--accent)] group-hover:translate-x-0.5 transition-all"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--muted-foreground)] italic text-center">
+            No suggestions available.
+          </p>
+        )}
+      </div>
 
       {/* Goal Creation Form */}
       <form

@@ -159,7 +159,7 @@ create index if not exists local_coding_api_keys_key on local_coding_api_keys(ap
 create table if not exists ai_insights (
   id           text primary key default gen_random_uuid()::text,
   user_id      text not null,
-  insight_type text not null check (insight_type in ('weekly_summary', 'pattern', 'recommendation')),
+  insight_type text not null check (insight_type in ('weekly_summary', 'pattern', 'recommendation', 'personality', 'goal_suggestions')),
   content      jsonb not null,
   generated_at timestamptz default now(),
   expires_at   timestamptz default now() + interval '24 hours'

@@ -19,6 +19,7 @@ interface WebhookDelivery {
   success: boolean;
   error_message: string | null;
   delivered_at: string;
+  payload?: Record<string, unknown>;
 }
 
 const AVAILABLE_EVENTS = [
@@ -54,6 +55,52 @@ export default function WebhookManager() {
     success: boolean;
     message: string;
   } | null>(null);
+
+  const [expandedDeliveryId, setExpandedDeliveryId] = useState<string | null>(null);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+  const [retryResult, setRetryResult] = useState<{
+    id: string;
+    success: boolean;
+    message: string;
+  } | null>(null);
+
+  async function handleRetry(webhookId: string, deliveryId: string) {
+    setRetryingId(deliveryId);
+    setRetryResult(null);
+
+    try {
+      const res = await fetch(
+        `/api/webhooks/custom/${webhookId}/deliveries/${deliveryId}/retry`,
+        { method: "POST" }
+      );
+      const data = await res.json();
+      setRetryResult({
+        id: deliveryId,
+        success: data.success,
+        message: data.success
+          ? "Re-delivery successful"
+          : data.error || `Failed (HTTP ${data.statusCode})`,
+      });
+
+      // Refresh deliveries history
+      const detailsRes = await fetch(`/api/webhooks/custom/${webhookId}`);
+      if (detailsRes.ok) {
+        const detailsData = await detailsRes.json();
+        setWebhookDetails({
+          config: detailsData.webhook,
+          deliveries: detailsData.recentDeliveries || [],
+        });
+      }
+    } catch {
+      setRetryResult({
+        id: deliveryId,
+        success: false,
+        message: "Failed to retry delivery",
+      });
+    } finally {
+      setRetryingId(null);
+    }
+  }
 
   const loadWebhooks = useCallback(async () => {
     try {
@@ -150,12 +197,17 @@ export default function WebhookManager() {
     setSelectedWebhook(id);
     setDetailsLoading(true);
     setTestResult(null);
+    setExpandedDeliveryId(null);
+    setRetryResult(null);
 
     try {
       const res = await fetch(`/api/webhooks/custom/${id}`);
       if (res.ok) {
         const data = await res.json();
-        setWebhookDetails(data);
+        setWebhookDetails({
+          config: data.webhook,
+          deliveries: data.recentDeliveries || [],
+        });
       }
     } catch {
       setWebhookDetails(null);
@@ -511,28 +563,115 @@ export default function WebhookManager() {
               <h4 className="text-sm font-medium text-[var(--muted-foreground)] mb-2">
                 Recent Deliveries
               </h4>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {webhookDetails.deliveries.map((delivery) => (
-                  <div
-                    key={delivery.id}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-[var(--control)] text-sm"
-                  >
-                    <span
-                      className={`h-2 w-2 rounded-full ${
-                        delivery.success ? "bg-[var(--success)]" : "bg-[var(--destructive)]"
-                      }`}
-                    />
-                    <span className="flex-1 text-[var(--foreground)]">
-                      {getEventLabel(delivery.event)}
-                    </span>
-                    <span className="text-[var(--muted-foreground)] text-xs">
-                      {delivery.status_code || "Error"}
-                    </span>
-                    <span className="text-[var(--muted-foreground)] text-xs">
-                      {formatDate(delivery.delivered_at)}
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                {webhookDetails.deliveries.map((delivery) => {
+                  const isExpanded = expandedDeliveryId === delivery.id;
+                  return (
+                    <div
+                      key={delivery.id}
+                      onClick={() => setExpandedDeliveryId(isExpanded ? null : delivery.id)}
+                      className="group flex flex-col rounded-lg border border-[var(--border)] bg-[var(--control)] hover:border-[var(--accent)]/50 transition-colors cursor-pointer overflow-hidden"
+                    >
+                      {/* Summary Row */}
+                      <div className="flex items-center gap-3 p-3 text-sm">
+                        <span
+                          className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${
+                            delivery.success ? "bg-emerald-500" : "bg-red-500"
+                          }`}
+                        />
+                        <span className="flex-1 font-medium text-[var(--foreground)] truncate">
+                          {getEventLabel(delivery.event)}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                            delivery.success
+                              ? "bg-emerald-500/10 text-emerald-500"
+                              : "bg-red-500/10 text-red-500"
+                          }`}
+                        >
+                          {delivery.status_code || "Fail"}
+                        </span>
+                        <span className="text-[var(--muted-foreground)] text-xs hidden sm:inline">
+                          {formatDate(delivery.delivered_at)}
+                        </span>
+                        <svg
+                          className={`h-4 w-4 text-[var(--muted-foreground)] transition-transform duration-200 ${
+                            isExpanded ? "rotate-90" : ""
+                          }`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+
+                      {/* Expandable Details Container */}
+                      {isExpanded && (
+                        <div
+                          className="border-t border-[var(--border)] bg-[var(--background)]/30 p-3 space-y-3"
+                          onClick={(e) => e.stopPropagation()} // Prevent collapse when clicking inside details
+                        >
+                          {delivery.error_message && (
+                            <div>
+                              <span className="text-xs font-semibold text-red-500 block mb-1">
+                                Delivery Error
+                              </span>
+                              <div className="rounded bg-red-500/10 p-2 text-xs font-mono text-red-500 border border-red-500/20">
+                                {delivery.error_message}
+                              </div>
+                            </div>
+                          )}
+
+                          {delivery.payload && (
+                            <div>
+                              <span className="text-xs font-semibold text-[var(--muted-foreground)] block mb-1">
+                                Request Payload
+                              </span>
+                              <pre className="rounded border border-[var(--border)] bg-[var(--control)] p-3 text-xs font-mono overflow-x-auto text-[var(--foreground)] max-h-48">
+                                {JSON.stringify(delivery.payload, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-3 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => handleRetry(selectedWebhook, delivery.id)}
+                              disabled={retryingId === delivery.id || !webhookDetails.config.is_enabled}
+                              className="px-2.5 py-1 text-xs font-medium bg-[var(--accent)] text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed rounded flex items-center gap-1.5 transition-opacity"
+                            >
+                              {retryingId === delivery.id ? (
+                                <>
+                                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                  Retrying...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 6.571M12 18.25V21" />
+                                  </svg>
+                                  Retry Delivery
+                                </>
+                              )}
+                            </button>
+
+                            {retryResult && retryResult.id === delivery.id && (
+                              <span
+                                className={`text-xs font-semibold ${
+                                  retryResult.success ? "text-emerald-500" : "text-red-500"
+                                }`}
+                              >
+                                {retryResult.success ? "✓ " : "✗ "}
+                                {retryResult.message}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (
