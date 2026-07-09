@@ -8,6 +8,7 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
 import EmptyState from "@/components/EmptyState";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 
 type Recurrence = "none" | "weekly" | "monthly";
@@ -429,21 +430,18 @@ export default function GoalTracker() {
 
   if (loading) {
     return (
-      <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
-        <div role="status" aria-live="polite" aria-busy="true">
-          <span className="sr-only">Loading weekly goals</span>
-          <div
-            aria-hidden="true"
-            className="mb-4 h-5 w-32 rounded bg-[var(--card-muted)] animate-pulse"
-          />
-          {[1, 2, 3].map((i) => (
-            <div key={i} aria-hidden="true" className="mb-4">
-              <div className="h-4 bg-[var(--card-muted)] rounded animate-pulse mb-2" />
-              <div className="h-2 bg-[var(--card-muted)] rounded animate-pulse" />
-            </div>
-          ))}
+      <WidgetSkeleton title="weekly goals" className="h-full">
+        <div className="flex justify-between items-center mb-4">
+          <SkeletonBlock className="h-6 w-16" />
+          <SkeletonBlock className="h-6 w-20" />
         </div>
-      </div>
+        {[1, 2, 3].map((i) => (
+          <div key={i} aria-hidden="true" className="mb-4">
+            <SkeletonBlock className="h-4 w-full mb-2" />
+            <SkeletonBlock className="h-2 w-full" />
+          </div>
+        ))}
+      </WidgetSkeleton>
     );
   }
 

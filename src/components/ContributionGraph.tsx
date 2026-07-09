@@ -6,6 +6,7 @@ import { useAccount } from "@/components/AccountContext";
 import CommitSearchPanel from "@/components/CommitSearchPanel";
 import type { CommitItem } from "@/lib/github";
 import { get, set } from "idb-keyval";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 import {
   BarChart,
   Bar,
@@ -470,10 +471,22 @@ export default function ContributionGraph() {
     ? getTotalCommits(data)
     : getTotalCommits(displayData as DayData[]);
 
+  if (loading) {
+    return (
+      <WidgetSkeleton title="Your Commits" className="transition-all duration-300 fade-in-up">
+        <div className="flex justify-between items-center mb-4">
+          <SkeletonBlock className="h-6 w-32" />
+          <SkeletonBlock className="h-8 w-64" />
+        </div>
+        <SkeletonBlock className="h-[220px] w-full" />
+      </WidgetSkeleton>
+    );
+  }
+
   return (
     <div
       id="contribution-activity"
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 fade-in-up"
     >
       <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
         <div className="min-w-0">
@@ -643,19 +656,7 @@ export default function ContributionGraph() {
         </div>
       </div>
 
-      {loading ? (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-        >
-          <span className="sr-only">Loading contribution graph</span>
-          <div
-            aria-hidden="true"
-            className="h-[220px] rounded border border-[var(--border)] bg-[var(--background)] animate-pulse"
-          />
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="flex h-[220px] items-center rounded-lg border border-[var(--border)] bg-[var(--background)] px-4">
           <p className="text-sm text-[var(--muted-foreground)]">
             {error} Please try refreshing.
