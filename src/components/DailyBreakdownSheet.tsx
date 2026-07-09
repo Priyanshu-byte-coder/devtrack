@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface DailyBreakdownSheetProps {
   date: string | null;
   onClose: () => void;
   heatmapData?: Record<string, number>;
+  selectedRepo?: string;
+  selectedLanguage?: string;
+  reposData?: any[];
 }
 
 interface RepoCommit {
@@ -18,8 +21,11 @@ export default function DailyBreakdownSheet({
   date,
   onClose,
   heatmapData,
+  selectedRepo = "all",
+  selectedLanguage = "all",
+  reposData = [],
 }: DailyBreakdownSheetProps) {
-  const [commits, setCommits] = useState<RepoCommit[]>([]);
+  const [rawCommits, setRawCommits] = useState<RepoCommit[]>([]);
   const [loading, setLoading] = useState(false);
   const isOpen = date !== null;
 
@@ -27,7 +33,7 @@ export default function DailyBreakdownSheet({
     if (!date) return;
     const totalForDay = heatmapData?.[date] ?? 0;
     if (totalForDay === 0) {
-      setCommits([]);
+      setRawCommits([]);
       setLoading(false);
       return;
     }
@@ -35,11 +41,32 @@ export default function DailyBreakdownSheet({
     fetch(`/api/metrics/contributions/daily?date=${date}`)
     .then((res) => res.json())
     .then((result) => {
-        setCommits(result.repos ?? []);
+        setRawCommits(result.repos ?? []);
     })
-      .catch(() => setCommits([]))
+      .catch(() => setRawCommits([]))
       .finally(() => setLoading(false));
   }, [date, heatmapData]);
+
+  const commits = useMemo(() => {
+    const repoLangsMap = new Map<string, string[]>();
+    reposData.forEach(repo => {
+      const langs = repo.languages?.map((l: any) => l.name) ?? [];
+      repoLangsMap.set(repo.name, langs);
+    });
+
+    return rawCommits.filter(item => {
+      if (selectedRepo !== "all" && item.repo !== selectedRepo) {
+        return false;
+      }
+      if (selectedLanguage !== "all") {
+        const repoLangs = repoLangsMap.get(item.repo) ?? [];
+        if (!repoLangs.includes(selectedLanguage)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [rawCommits, selectedRepo, selectedLanguage, reposData]);
 
   const onCloseRef = useRef(onClose);
   useEffect(() => {

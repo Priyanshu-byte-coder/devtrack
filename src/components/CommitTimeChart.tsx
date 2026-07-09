@@ -13,7 +13,8 @@ import {
 } from "recharts";
 import { Sun, Cloud, Sunset, Moon } from "lucide-react";
 import { toast } from "sonner";
-  
+import { SkeletonBlock } from "./WidgetSkeleton";
+
 interface TimeBlocks {
   morning: number;
   afternoon: number;
@@ -129,11 +130,7 @@ export default function CommitTimeChart() {
           >
             <span className="sr-only">Loading commit time chart</span>
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                aria-hidden="true"
-                className="h-10 rounded skeleton-shimmer"
-              />
+              <SkeletonBlock key={i} className="h-10 w-full" />
             ))}
           </div>
         ) : error ? (
