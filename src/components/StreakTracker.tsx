@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { toPng } from "html-to-image";
 import { Flame, Trophy, Calendar, Zap, Copy, CheckCircle, Medal, Star, Sparkles } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 const DATA_WINDOW_DAYS = 90;
 const dataWindowLabel = `Last ${DATA_WINDOW_DAYS} days`;
@@ -448,13 +449,10 @@ export default function StreakTracker() {
       <div className="bg-[var(--card)] rounded-xl p-6 min-h-[700px]">
         <div role="status" aria-live="polite" aria-busy="true">
           <span className="sr-only">Loading streak tracker</span>
-          <div
-            aria-hidden="true"
-            className="h-6 w-36 bg-[var(--card-muted)] rounded animate-pulse mb-4"
-          />
+          <SkeletonBlock className="h-6 w-36 mb-4" />
           <div aria-hidden="true" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-[var(--card-muted)] rounded-lg h-28 animate-pulse" />
+              <SkeletonBlock key={i} className="h-28 rounded-lg" />
             ))}
           </div>
         </div>
