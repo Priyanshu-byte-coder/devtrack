@@ -6,6 +6,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { DashboardWidgetId } from "@/lib/dashboard-layout";
 import DashboardWidgetShell from "@/components/dashboard/DashboardWidgetShell";
+import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 
 interface SortableDashboardWidgetProps {
   id: DashboardWidgetId;
@@ -88,7 +89,11 @@ export default function SortableDashboardWidget({
           title={title}
           isEditing={isEditing}
         >
-          {children}
+          <WidgetErrorBoundary
+            fallbackMessage={`Could not load ${title}.`}
+          >
+            {children}
+          </WidgetErrorBoundary>
         </DashboardWidgetShell>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, memo, useMemo } from "react";
 import { Star, GitFork } from "lucide-react";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 interface PinnedRepo {
   name: string;
@@ -98,28 +99,24 @@ export default function PinnedRepos() {
     return [...pinnedRepos].sort((a, b) => b.stargazerCount - a.stargazerCount);
   }, [pinnedRepos]);
 
+  if (loading) {
+    return (
+      <WidgetSkeleton title="Pinned Repositories" className="transition-all duration-300">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <SkeletonBlock key={i} className="h-24" />
+          ))}
+        </div>
+      </WidgetSkeleton>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
         Pinned Repositories
       </h2>
-      {loading ? (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-          className="space-y-3"
-        >
-          <span className="sr-only">Loading pinned repositories</span>
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              aria-hidden="true"
-              className="h-24 rounded-lg skeleton-shimmer"
-            />
-          ))}
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="rounded-lg border border-[var(--destructive-muted-border)] bg-[var(--destructive-muted)] p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
