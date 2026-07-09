@@ -4,6 +4,7 @@ import { Check, ChevronDown, Copy, Download, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { signOut } from "next-auth/react";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface WeeklySummaryData {
   commits: {
@@ -287,11 +288,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
           >
             <span className="sr-only">Loading weekly summary</span>
             {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                aria-hidden="true"
-                className="h-20 rounded-lg bg-[var(--card-muted)] animate-pulse"
-              />
+              <SkeletonBlock key={i} className="h-20 rounded-lg" />
             ))}
           </div>
         ) : githubAuthInvalid ? (

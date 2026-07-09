@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { Trophy, Zap, Flame, Calendar, Star } from "lucide-react";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 interface StreakData {
   current: number;
@@ -260,29 +261,24 @@ export default function PersonalRecords() {
       repoUrl: busiestRepo.repoUrl ?? null,
     },
   ];
+  if (loading) {
+    return (
+      <WidgetSkeleton title="Personal Records" className="transition-all duration-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <SkeletonBlock key={i} className="h-32 p-4" />
+          ))}
+        </div>
+      </WidgetSkeleton>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
         Personal Records
       </h2>
-      {loading ? (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch"
-        >
-          <span className="sr-only">Loading personal records</span>
-
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              aria-hidden="true"
-              className="h-32 rounded-lg skeleton-shimmer p-4"
-            />
-          ))}
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
