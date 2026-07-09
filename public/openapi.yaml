@@ -865,8 +865,10 @@ paths:
                 type: object
         '401':
           description: Unauthorized
+        '429':
+          description: Rate limit exceeded
         '500':
-          description: AI service unavailable (GROQ_API_KEY not configured)
+          description: AI service unavailable (GEMINI_API_KEY not configured)
 
   /api/ai/weekly-summary:
     post:
