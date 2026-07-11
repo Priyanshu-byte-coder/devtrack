@@ -86,9 +86,10 @@ export default function MembersPanel({ roomId, members, isOwner, onMemberAdded, 
         <InviteModal
           roomId={roomId}
           onClose={() => setShowInvite(false)}
-          onInvited={(username) => {
-            onMemberAdded(username);
-            setShowInvite(false);
+          onInvited={() => {
+            // Do NOT call onMemberAdded here — the invited user is not a
+            // member yet, only pending. They'll appear in the member list
+            // once they accept via /api/rooms/invites/[inviteId]/accept.
           }}
         />
       )}

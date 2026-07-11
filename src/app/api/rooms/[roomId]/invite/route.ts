@@ -1,6 +1,13 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getRoomById, getRoomMembers, addRoomMember } from '@/lib/supabase-rooms';
+import {
+  getRoomById,
+  getRoomMembers,
+  getPendingInvite,
+  createRoomInvite,
+  getUserIdByGithubUsername,
+} from '@/lib/supabase-rooms';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import { NextResponse } from 'next/server';
 
 export async function POST(
@@ -33,9 +40,31 @@ export async function POST(
     return NextResponse.json({ error: `GitHub user "${github_username}" does not exist` }, { status: 404 });
   if (!ghRes.ok)
     return NextResponse.json({ error: 'Could not verify GitHub user' }, { status: 502 });
+  
   const members = await getRoomMembers(roomId);
   if (members.some((m) => m.github_username === github_username))
     return NextResponse.json({ error: 'User is already a member' }, { status: 409 });
-  await addRoomMember(roomId, github_username);
-  return NextResponse.json({ success: true });
+
+  const existingInvite = await getPendingInvite(roomId, github_username);
+  if (existingInvite)
+    return NextResponse.json({ error: 'An invite is already pending for this user' }, { status: 409 });
+
+  await createRoomInvite(roomId, github_username, session.user.name);
+
+  // Best-effort notification — the invite still exists even if this fails
+  // (e.g. the invited user has never logged into DevTrack, so has no user row yet).
+  try {
+    const invitedUserId = await getUserIdByGithubUsername(github_username);
+    if (invitedUserId) {
+      await supabaseAdmin.from('notifications').insert({
+        user_id: invitedUserId,
+        type: 'room_invite',
+        message: `${session.user.name} invited you to join the room "${room.name}"`,
+      });
+    }
+  } catch (err) {
+    console.error('Failed to create room invite notification:', err);
+  }
+
+  return NextResponse.json({ success: true, status: 'pending' });
 }

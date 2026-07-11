@@ -47,3 +47,15 @@ export interface SendMessagePayload {
   room_id: string;
   content: string;
 }
+
+export interface RoomInvite {
+  id: string;
+  room_id: string;
+  invited_username: string;
+  invited_by: string;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+  created_at: string;
+  responded_at: string | null;
+  // Joined fields (from API responses)
+  room_name?: string;
+}

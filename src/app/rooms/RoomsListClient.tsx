@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { CollaborationRoom } from '@/types/rooms';
 import CreateRoomModal from '@/components/rooms/CreateRoomModal';
+import PendingInvites from '@/components/rooms/PendingInvites';
 
 interface Props {
   initialRooms: CollaborationRoom[];
@@ -16,6 +17,7 @@ export default function RoomsListClient({ initialRooms, currentUser }: Props) {
 
   return (
     <div className="max-w-3xl mx-auto">
+      <PendingInvites />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
