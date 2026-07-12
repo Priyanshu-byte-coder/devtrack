@@ -52,6 +52,11 @@ function isPrivateIP(ip: string): boolean {
   return PRIVATE_RANGES.some(({ start, end }) => num >= start && num <= end);
 }
 
+/**
+ * @deprecated for outbound requests — DNS is re-resolved by the caller's
+ * fetch(), reopening the TOCTOU gap. Use resolveAndValidateUrl + pinnedFetch
+ * from ./pinned-fetch for any code path that also performs the network request.
+ */
 export async function isSafeUrl(url: string): Promise<boolean> {
   try {
     const parsed = new URL(url);
@@ -108,4 +113,55 @@ export function validateUrlBasic(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+export interface PinnedUrlResult {
+  safe: boolean;
+  pinnedIp?: string;
+  hostname?: string;
+  protocol?: string;
+  reason?: string;
+}
+
+/**
+ * Resolves DNS ONCE, validates every returned IP, returns the pinned IP.
+ * Callers must use pinnedIp for the actual request — never re-resolve.
+ */
+export async function resolveAndValidateUrl(url: string): Promise<PinnedUrlResult> {
+  let parsed: URL;
+  try { parsed = new URL(url); } catch { return { safe: false, reason: "Invalid URL" }; }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return { safe: false, reason: "Unsupported protocol" };
+  }
+
+  const hostname = parsed.hostname;
+  let ipToCheck = hostname.startsWith("[") && hostname.endsWith("]")
+    ? hostname.slice(1, -1) : hostname;
+
+  if (hostname === "localhost" || ipToCheck === "0.0.0.0" || ipToCheck === "::1") {
+    return { safe: false, reason: "Blocked hostname" };
+  }
+
+  // Literal IP — validate directly, no DNS needed
+  if (net.isIP(ipToCheck)) {
+    return isPrivateIP(ipToCheck)
+      ? { safe: false, reason: "Private IP literal" }
+      : { safe: true, pinnedIp: ipToCheck, hostname, protocol: parsed.protocol };
+  }
+
+  let addresses: string[] = [];
+  try {
+    const results = await dns.lookup(hostname, { all: true });
+    addresses = results.map((r) => r.address);
+  } catch { return { safe: false, reason: "DNS resolution failed" }; }
+
+  if (!addresses.length) return { safe: false, reason: "No addresses resolved" };
+
+  // Reject if ANY address is private (mixed public+private = rebinding red flag)
+  for (const addr of addresses) {
+    if (isPrivateIP(addr)) return { safe: false, reason: "Resolved to private address" };
+  }
+
+  return { safe: true, pinnedIp: addresses[0], hostname, protocol: parsed.protocol };
 }

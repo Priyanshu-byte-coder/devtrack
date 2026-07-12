@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser, AppUser } from "@/lib/resolve-user";
 import { decryptSecretKey, signPayload } from "@/lib/webhooks";
-import { isSafeUrl } from "@/lib/ssrf-protection";
+import { pinnedFetch } from "@/lib/pinned-fetch";
 
 export const dynamic = "force-dynamic";
 
@@ -49,70 +49,45 @@ export async function POST(
     return Response.json({ error: "Failed to decrypt webhook secret" }, { status: 500 });
   }
 
-  const safe = await isSafeUrl(webhook.url);
-  if (!safe) {
-    return Response.json(
-      { error: "Webhook URL is not allowed. Private, loopback, and internal addresses are blocked." },
-      { status: 400 }
-    );
-  }
+ const testPayload = {
+  event: "test",
+  timestamp: new Date().toISOString(),
+  data: {
+    message: "This is a test webhook delivery from DevTrack",
+    webhookId: webhook.id,
+    userId: result.user.id,
+    test: true,
+  },
+};
 
-  const testPayload = {
-    event: "test",
-    timestamp: new Date().toISOString(),
-    data: {
-      message: "This is a test webhook delivery from DevTrack",
-      webhookId: webhook.id,
-      userId: result.user.id,
-      test: true,
-    },
-  };
+const payloadString = JSON.stringify(testPayload);
+const signature = signPayload(payloadString, secret);
 
-  const payloadString = JSON.stringify(testPayload);
-  const signature = signPayload(payloadString, secret);
+const result2 = await pinnedFetch(webhook.url, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Webhook-Signature": `sha256=${signature}`,
+    "X-Webhook-Event": "test",
+    "X-Webhook-Delivery-Id": webhook.id,
+  },
+  body: payloadString,
+  timeoutMs: 15000,
+});
 
-  let statusCode: number | undefined;
-  let success: boolean;
-  let errorMessage: string | undefined;
-  let responseBody: string | undefined;
+const statusCode = result2.status;
+const success = result2.ok;
+const errorMessage = result2.error;
+const responseBody = result2.body;
 
-  try {
-    const response = await fetch(webhook.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Webhook-Signature": `sha256=${signature}`,
-        "X-Webhook-Event": "test",
-        "X-Webhook-Delivery-Id": webhook.id,
-      },
-      body: payloadString,
-      signal: AbortSignal.timeout(15000),
-    });
-
-    statusCode = response.status;
-    success = response.ok;
-    responseBody = await response.text().catch(() => undefined);
-
-    await supabaseAdmin.from("webhook_deliveries").insert({
-      webhook_id: id,
-      event: "test",
-      payload: testPayload,
-      status_code: statusCode,
-      success,
-      error_message: success ? null : `HTTP ${statusCode}`,
-    });
-  } catch (err) {
-    success = false;
-    errorMessage = err instanceof Error ? err.message : "Unknown error";
-
-    await supabaseAdmin.from("webhook_deliveries").insert({
-      webhook_id: id,
-      event: "test",
-      payload: testPayload,
-      success: false,
-      error_message: errorMessage,
-    });
-  }
+await supabaseAdmin.from("webhook_deliveries").insert({
+  webhook_id: id,
+  event: "test",
+  payload: testPayload,
+  status_code: statusCode,
+  success,
+  error_message: success ? null : (errorMessage ?? `HTTP ${statusCode}`),
+});
 
   return Response.json({
     success,

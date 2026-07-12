@@ -1,6 +1,7 @@
 import { createHmac, randomBytes } from "crypto";
 import { supabaseAdmin } from "./supabase";
 import { encryptToken, decryptToken } from "./crypto";
+import { pinnedFetch } from "./pinned-fetch";  // ← naya import
 
 export interface WebhookPayload {
   event: string;
@@ -79,79 +80,45 @@ export async function dispatchWebhook(
   const payloadString = JSON.stringify(payload);
   const signature = signPayload(payloadString, secret);
 
-  const { isSafeUrl } = await import("./ssrf-protection");
-  const safe = await isSafeUrl(webhook.url);
-  if (!safe) {
-    const errorMessage = "SSRF protection: blocked request to private/internal address";
+  // ✅ FIX: pinnedFetch ek hi baar DNS resolve karta hai aur us pinned IP
+  // pe directly connect karta hai — TOCTOU gap khatam
+  const result = await pinnedFetch(webhook.url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Webhook-Signature": `sha256=${signature}`,
+      "X-Webhook-Event": event,
+      "X-Webhook-Delivery-Id": webhookId,
+    },
+    body: payloadString,
+    timeoutMs: 10000,
+  });
+
+  // SSRF block ya network failure — koi HTTP request gayi hi nahi
+  if (!result.status) {
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
       payload,
       success: false,
-      error_message: errorMessage,
+      error_message: result.error,
     });
-    return { success: false, error: errorMessage };
+    return { success: false, error: result.error };
   }
 
-  let statusCode: number | undefined;
-  let errorMessage: string | undefined;
+  const statusCode = result.status;
+  const success = result.ok;
 
-  try {
-    const response = await fetch(webhook.url, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Webhook-Signature": `sha256=${signature}`,
-    "X-Webhook-Event": event,
-    "X-Webhook-Delivery-Id": webhookId,
-  },
-  body: payloadString,
-  signal: AbortSignal.timeout(10000),
-  redirect: "manual",
-});
+  await supabaseAdmin.from("webhook_deliveries").insert({
+    webhook_id: webhookId,
+    event,
+    payload,
+    status_code: statusCode,
+    success,
+    error_message: success ? null : `HTTP ${statusCode}`,
+  });
 
-if ([301, 302, 303, 307, 308].includes(response.status)) {
-  const location = response.headers.get("location");
-
-  if (!location) {
-    throw new Error("Redirect response missing location header");
-  }
-
-  const redirectSafe = await isSafeUrl(location);
-
-  if (!redirectSafe) {
-    throw new Error(
-      "SSRF protection: blocked redirect to private/internal address"
-    );
-  }
-}
-
-    statusCode = response.status;
-    const success = response.ok;
-
-    await supabaseAdmin.from("webhook_deliveries").insert({
-      webhook_id: webhookId,
-      event,
-      payload,
-      status_code: statusCode,
-      success,
-      error_message: success ? null : `HTTP ${statusCode}`,
-    });
-
-    return { success, statusCode };
-  } catch (err) {
-    errorMessage = err instanceof Error ? err.message : "Unknown error";
-
-    await supabaseAdmin.from("webhook_deliveries").insert({
-      webhook_id: webhookId,
-      event,
-      payload,
-      success: false,
-      error_message: errorMessage,
-    });
-
-    return { success: false, error: errorMessage };
-  }
+  return { success, statusCode };
 }
 
 export async function dispatchToAllWebhooks(

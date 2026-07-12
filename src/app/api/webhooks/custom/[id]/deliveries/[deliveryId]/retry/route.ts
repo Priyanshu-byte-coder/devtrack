@@ -60,20 +60,6 @@ export async function POST(
 
   const payloadData = delivery.payload as Record<string, unknown>;
 
-  const { isSafeUrl } = await import("@/lib/ssrf-protection");
-  const { data: webhookUrl } = await supabaseAdmin
-    .from("webhook_configs")
-    .select("url")
-    .eq("id", id)
-    .single();
-
-  if (!webhookUrl || !(await isSafeUrl(webhookUrl.url))) {
-    return Response.json(
-      { error: "Webhook URL is not allowed. Private, loopback, and internal addresses are blocked." },
-      { status: 400 }
-    );
-  }
-
   const result2 = await dispatchWebhook(id, delivery.event, payloadData);
 
   return Response.json({
