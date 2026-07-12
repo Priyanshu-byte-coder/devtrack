@@ -746,12 +746,20 @@ body {
 
 @keyframes shimmer {
   100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Sliding-sheen variant used by overlay skeletons (see Skeleton.tsx),
+   where a translated gradient child sweeps across the placeholder. */
+@keyframes shimmer-slide {
+  100% {
     transform: translateX(100%);
   }
 }
 
 .animate-shimmer {
-  animation: shimmer 1.5s infinite;
+  animation: shimmer-slide 1.5s infinite;
 }
 /* Mouse spotlight enhancement for visibility on all backgrounds */
 .lnd-root .mouse-spotlight {

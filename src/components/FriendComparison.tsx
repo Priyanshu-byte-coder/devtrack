@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 const ComparisonChart = dynamic(() => import("./ComparisonChart"), { ssr: false });
 
@@ -256,9 +257,15 @@ function FriendComparison() {
 
       {/* LOADING */}
       {loading && (
-        <div className="space-y-2 animate-pulse">
-          <div className="h-20 bg-[var(--control)] rounded" />
-          <div className="h-20 bg-[var(--control)] rounded" />
+        <div
+          className="space-y-2 mt-2"
+          aria-busy="true"
+          aria-label="Loading comparison"
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <SkeletonBlock key={i} className="h-12 w-full rounded-lg" />
+          ))}
+          <SkeletonBlock className="h-48 rounded-xl mt-4" />
         </div>
       )}
 
