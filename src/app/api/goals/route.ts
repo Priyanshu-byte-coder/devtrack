@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { dispatchToAllWebhooks } from "@/lib/webhooks";
 import { stripHtml } from "@/lib/sanitize";
+import { createGoalSchema } from "@/lib/validations/goals";
 
 export const dynamic = "force-dynamic";
 
@@ -201,37 +202,26 @@ try {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { title, target, unit, recurrence, deadline } = body as Record<string, unknown>;
-
-  if (typeof title !== "string" || title.trim().length === 0) {
-    return Response.json({ error: "title must be a non-empty string" }, { status: 400 });
+  const validationResult = createGoalSchema.safeParse(body);
+  if (!validationResult.success) {
+    const firstError = validationResult.error.issues[0]?.message || "Invalid request body";
+    return Response.json({ error: firstError }, { status: 400 });
   }
-  const sanitizedTitle = stripHtml(title);
+
+  const { title, target, unit, recurrence, deadline } = validationResult.data;
+
+  const sanitizedTitle = stripHtml(title).trim();
+  // Additional check after sanitization because HTML-only
+  // strings like "<script></script>" pass min(1) but become empty.
   if (sanitizedTitle.length === 0) {
     return Response.json({ error: "title must not be empty" }, { status: 400 });
   }
-  if (sanitizedTitle.length > MAX_TITLE_LEN) {
-    return Response.json({ error: `title must be ${MAX_TITLE_LEN} characters or fewer` }, { status: 400 });
-  }
-  if (
-    typeof target !== "number" ||
-    !Number.isInteger(target) ||
-    target < MIN_TARGET ||
-    target > MAX_TARGET
-  ) {
-    return Response.json(
-      { error: `target must be an integer between ${MIN_TARGET} and ${MAX_TARGET}` },
-      { status: 400 }
-    );
-  }
 
-  const safeUnit = typeof unit === "string" ? unit.slice(0, MAX_UNIT_LEN) : "commits";
-  const safeRecurrence: Recurrence = VALID_RECURRENCES.includes(recurrence as Recurrence)
-    ? (recurrence as Recurrence)
-    : "none";
+  const safeUnit = unit;
+  const safeRecurrence = recurrence;
 
   let safeDeadline: string | null = null;
-  if (typeof deadline === "string") {
+  if (deadline) {
     const d = new Date(deadline);
     if (!isNaN(d.getTime())) {
       d.setUTCHours(23, 59, 59, 999);

@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { dispatchToAllWebhooks } from "@/lib/webhooks";
+import { patchGoalSchema } from "@/lib/validations/goals";
 
 export const dynamic = "force-dynamic";
 
@@ -42,71 +43,37 @@ export async function PATCH(
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
+  const validationResult = patchGoalSchema.safeParse(body);
+  if (!validationResult.success) {
+    const firstError = validationResult.error.issues[0]?.message || "Invalid request body";
+    return Response.json({ error: firstError }, { status: 400 });
+  }
+
+  const { title, target, unit, recurrence, current, is_public } = validationResult.data;
+
   const updates: Record<string, unknown> = {};
 
-  const { title, target, unit, recurrence, current, is_public } =
-    body as Record<string, unknown>;
-
   if (title !== undefined) {
-    if (typeof title !== "string" || title.trim().length === 0) {
-      return Response.json({ error: "title must be a non-empty string" }, { status: 400 });
-    }
-    if (title.length > 100) {
-      return Response.json({ error: "title must be 100 characters or fewer" }, { status: 400 });
-    }
     updates.title = title.trim();
   }
 
   if (target !== undefined) {
-    if (
-      typeof target !== "number" ||
-      !Number.isInteger(target) ||
-      target < 1 ||
-      target > 10_000
-    ) {
-      return Response.json(
-        { error: "target must be an integer between 1 and 10000" },
-        { status: 400 }
-      );
-    }
     updates.target = target;
   }
 
   if (unit !== undefined) {
-    if (typeof unit !== "string" || unit.trim().length === 0) {
-      return Response.json({ error: "unit must be a non-empty string" }, { status: 400 });
-    }
-    updates.unit = unit.trim();
+    updates.unit = unit;
   }
 
   if (recurrence !== undefined) {
-    if (!VALID_RECURRENCES.includes(recurrence as Recurrence)) {
-      return Response.json(
-        { error: "recurrence must be 'none', 'weekly', or 'monthly'" },
-        { status: 400 }
-      );
-    }
     updates.recurrence = recurrence;
   }
 
   if (current !== undefined) {
-    if (typeof current !== "number" || !Number.isInteger(current) || current < 0) {
-      return Response.json(
-        { error: "current must be a non-negative integer" },
-        { status: 400 }
-      );
-    }
     updates.current = current;
   }
   
   if (is_public !== undefined) {
-    if (typeof is_public !== "boolean") {
-      return Response.json(
-        { error: "is_public must be a boolean" },
-        { status: 400 }
-      );
-    }
-
     updates.is_public = is_public;
   } 
 
@@ -138,7 +105,10 @@ export async function PATCH(
     );
   }
 
-  if (typeof current === "number" && current > existingGoal.target) {
+  const finalTarget = target !== undefined ? target : existingGoal.target;
+  const finalCurrent = current !== undefined ? current : existingGoal.current;
+
+  if (finalCurrent > finalTarget) {
     return Response.json(
       { error: "current cannot exceed target" },
       { status: 400 }

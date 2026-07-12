@@ -163,12 +163,26 @@ paths:
           application/json:
             schema:
               type: object
-              required: [title, target]
+              required: [title, target, unit]
               properties:
                 title:
                   type: string
+                  maxLength: 100
                 target:
-                  type: number
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                unit:
+                  type: string
+                  enum: [commits, prs, hours, streak, language]
+                recurrence:
+                  type: string
+                  enum: [none, weekly, monthly]
+                  default: none
+                deadline:
+                  type: string
+                  format: date-time
+                  nullable: true
       responses:
         '201':
           description: Goal created
@@ -180,7 +194,7 @@ paths:
           description: Unauthorized
 
   /api/goals/{id}:
-    put:
+    patch:
       tags: [Goals]
       summary: Update a goal
       security:
@@ -200,10 +214,22 @@ paths:
               properties:
                 title:
                   type: string
+                  maxLength: 100
                 target:
-                  type: number
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                unit:
+                  type: string
+                  enum: [commits, prs, hours, streak, language]
+                recurrence:
+                  type: string
+                  enum: [none, weekly, monthly]
                 current:
-                  type: number
+                  type: integer
+                  minimum: 0
+                is_public:
+                  type: boolean
       responses:
         '200':
           description: Goal updated

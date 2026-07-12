@@ -61,6 +61,23 @@ with HTTP status `401`.
 | GET | `/api/goals/history` | Weekly goal completion history |
 | POST | `/api/goals/sync` | Sync goal progress against live GitHub metrics |
 
+#### Request Fields
+
+##### POST `/api/goals` (Create)
+- `title` (string, required): The title of the task/goal (1 to 100 characters). Automatically stripped of HTML.
+- `target` (integer, required): The target count (between 1 and 10000).
+- `unit` (string, required): The task type. Must be one of: `commits`, `prs`, `hours`, `streak`, `language`.
+- `recurrence` (string, optional): Reset interval. Must be one of: `none`, `weekly`, `monthly` (defaults to `none`).
+- `deadline` (string, optional): A valid date/datetime string (only allowed if recurrence is `none`).
+
+##### PATCH `/api/goals/{id}` (Update)
+- `title` (string, optional): New title (1 to 100 characters).
+- `target` (integer, optional): New target count (between 1 and 10000).
+- `unit` (string, optional): New unit. Must be one of: `commits`, `prs`, `hours`, `streak`, `language`.
+- `recurrence` (string, optional): New recurrence. Must be one of: `none`, `weekly`, `monthly`.
+- `current` (integer, optional): New progress value (non-negative integer, cannot exceed target). Cannot be updated manually for activity-derived goals (`commits`, `prs`).
+- `is_public` (boolean, optional): Whether to make the goal visible publicly.
+
 #### Example: Create a goal
 
 ```json
@@ -68,7 +85,8 @@ POST /api/goals
 {
   "title": "Weekly Commits",
   "target": 20,
-  "unit": "commits"
+  "unit": "commits",
+  "recurrence": "weekly"
 }
 ```
 
