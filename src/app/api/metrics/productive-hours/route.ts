@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -195,10 +196,11 @@ function toLocalDateStr(d: Date): string {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.error === "TokenRevoked") {
+  if (session?.error === "TokenRevoked") {
     return githubAuthErrorResponse();
   }
 
@@ -232,11 +234,11 @@ export async function GET(req: NextRequest) {
   if (!accountId) {
     try {
       const result = await fetchProductiveHoursForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        session?.githubLogin,
         days,
         timezone,
-        { bypass, userId: session.githubId ?? session.githubLogin },
+        { bypass, userId: session?.githubId ?? session?.githubLogin },
         fromDate,
         repoParam
       );
@@ -247,11 +249,11 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (!session.githubId) {
+  if (!session?.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
 
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -260,9 +262,9 @@ export async function GET(req: NextRequest) {
   if (accountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        token: accessToken,
+        githubId: session?.githubId,
+        githubLogin: session?.githubLogin,
       },
       userRow.id
     );
@@ -290,14 +292,14 @@ export async function GET(req: NextRequest) {
     return Response.json(merged);
   }
 
-  if (accountId === session.githubId) {
+  if (accountId === session?.githubId) {
     try {
       const result = await fetchProductiveHoursForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        session?.githubLogin,
         days,
         timezone,
-        { bypass, userId: session.githubId },
+        { bypass, userId: session?.githubId },
         fromDate,
         repoParam
       );

@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { toDateStr } from "@/lib/date-utils";
@@ -18,7 +19,8 @@ const GITHUB_API = "https://api.github.com";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -33,7 +35,7 @@ export async function GET(req: NextRequest) {
   }
 
   if (username === "me") {
-    username = session.githubLogin as string;
+    username = session?.githubLogin as string;
   }
 
   const normalizedUsername = normalizeGitHubUsername(username);
@@ -52,7 +54,7 @@ export async function GET(req: NextRequest) {
     const encodedUsername = encodeURIComponent(normalizedUsername);
 
     const userRes = await fetch(`${GITHUB_API}/users/${encodedUsername}`, {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store",
     });
 
@@ -83,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     const commitsRes = await fetch(commitsUrl.toString(), {
       headers: {
-        Authorization: `Bearer ${session.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         Accept: "application/vnd.github+json",
       },
       cache: "no-store",
@@ -133,7 +135,7 @@ export async function GET(req: NextRequest) {
     reposUrl.searchParams.set("sort", "pushed");
 
     const reposRes = await fetch(reposUrl.toString(), {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store",
     });
 
@@ -157,7 +159,7 @@ export async function GET(req: NextRequest) {
     prsUrl.searchParams.set("per_page", "1");
 
     const prsRes = await fetch(prsUrl.toString(), {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store",
     });
     let prs = 0;

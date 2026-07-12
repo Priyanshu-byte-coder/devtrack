@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import type { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -58,17 +59,17 @@ const PINNED_REPOS_QUERY = `
 
 export async function GET(req?: NextRequest) {
   const session = await getServerSession(authOptions);
+  const accessToken = await getAccessToken();
 
-  if (!session?.accessToken) {
+  if (!accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (session.error === "TokenRevoked") {
+  if (session?.error === "TokenRevoked") {
     return githubAuthErrorResponse();
   }
 
-  const accessToken = session.accessToken;
-  const cacheUserId = session.githubId ?? session.githubLogin;
+  const cacheUserId = session?.githubId ?? session?.githubLogin;
 
   if (!cacheUserId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });

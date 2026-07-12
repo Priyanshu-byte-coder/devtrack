@@ -24,6 +24,14 @@ vi.mock("@/lib/auth", () => ({
   authOptions: {},
 }));
 
+vi.mock("@/lib/get-session-token", () => ({
+  getAccessToken: vi.fn(async () => {
+    const { getServerSession } = await import("next-auth");
+    const session = await (getServerSession as any)();
+    return session?.accessToken ?? null;
+  }),
+}));
+
 vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: {
     from: vi.fn(),

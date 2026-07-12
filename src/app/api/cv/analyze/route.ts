@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAccessToken } from "@/lib/get-session-token";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -25,6 +26,7 @@ export async function POST() {
   try {
     /* ── 1. Auth ─────────────────────────────────────────────── */
     const session = await getServerSession(authOptions);
+  const accessToken = await getAccessToken();
 
     if (!session?.githubId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -83,7 +85,7 @@ export async function POST() {
     );
 
     const contributionData = await fetchContributionData(
-      session.accessToken as string,
+      accessToken as string,
       session.githubId
     );
 

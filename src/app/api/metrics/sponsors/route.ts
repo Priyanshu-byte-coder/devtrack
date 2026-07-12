@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -10,15 +11,16 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.error === "TokenRevoked") {
+  if (session?.error === "TokenRevoked") {
     return githubAuthErrorResponse();
   }
 
-  const githubId = session.githubId;
-  const githubLogin = session.githubLogin;
+  const githubId = session?.githubId;
+  const githubLogin = session?.githubLogin;
   if (!githubId || !githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -36,7 +38,7 @@ export async function GET(req: NextRequest) {
   try {
     const data = await syncSponsorMetricsForUser({
       userId,
-      token: session.accessToken,
+      token: accessToken,
       force,
     });
     return Response.json(data);

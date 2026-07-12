@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
@@ -13,20 +14,21 @@ interface PRItem { state: string; draft?: boolean; pull_request?: { merged_at: s
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  if (session.error === "TokenRevoked") return githubAuthErrorResponse();
+  const accessToken = await getAccessToken();
+  if (!accessToken) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (session?.error === "TokenRevoked") return githubAuthErrorResponse();
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
-  let token = session.accessToken;
-  let userId = session.githubId ?? "unknown";
+  let token = accessToken;
+  let userId = session?.githubId ?? "unknown";
 
-  if (accountId && accountId !== session.githubId) {
-    if (!session.githubId) {
+  if (accountId && accountId !== session?.githubId) {
+    if (!session?.githubId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+    const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
     if (!userRow) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }

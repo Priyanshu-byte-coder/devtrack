@@ -10,6 +10,14 @@ vi.mock('next-auth', () => ({
   getServerSession: vi.fn(),
 }));
 
+vi.mock('@/lib/get-session-token', () => ({
+  getAccessToken: vi.fn(async () => {
+    const { getServerSession } = await import('next-auth');
+    const session = await (getServerSession as any)();
+    return session?.accessToken ?? null;
+  }),
+}));
+
 // Mock resolve-user
 vi.mock('@/lib/resolve-user', () => ({
   resolveAppUser: vi.fn(),

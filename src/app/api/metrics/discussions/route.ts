@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -121,10 +122,11 @@ function formatDiscussionsMetrics(metrics: DiscussionsMetrics) {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (session.error === "TokenRevoked") {
+  if (session?.error === "TokenRevoked") {
     return githubAuthErrorResponse();
   }
 
@@ -134,9 +136,9 @@ export async function GET(req: NextRequest) {
 
   if (!accountId) {
     try {
-      const result = await fetchDiscussionsMetrics(session.accessToken, days, {
+      const result = await fetchDiscussionsMetrics(accessToken, days, {
         bypass,
-        userId: session.githubId ?? session.githubLogin ?? "primary",
+        userId: session?.githubId ?? session?.githubLogin ?? "primary",
       });
       return Response.json(formatDiscussionsMetrics(result));
     } catch (e) {
@@ -151,11 +153,11 @@ export async function GET(req: NextRequest) {
     targetAccountId = parts[1];
   }
 
-  if (!session.githubId || !session.githubLogin) {
+  if (!session?.githubId || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(session?.githubId, session?.githubLogin);
 
   if (targetAccountId === "combined") {
     if (!userRow) {
@@ -163,9 +165,9 @@ export async function GET(req: NextRequest) {
     }
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        token: accessToken,
+        githubId: session?.githubId,
+        githubLogin: session?.githubLogin,
       },
       userRow.id
     );
@@ -190,11 +192,11 @@ export async function GET(req: NextRequest) {
 
   let token: string | null = null;
   if (!userRow) {
-    token = session.accessToken;
+    token = accessToken;
   } else {
     token =
-      targetAccountId === session.githubId
-        ? session.accessToken
+      targetAccountId === session?.githubId
+        ? accessToken
         : await getAccountToken(userRow.id, targetAccountId);
   }
 
@@ -205,7 +207,7 @@ export async function GET(req: NextRequest) {
   try {
     const result = await fetchDiscussionsMetrics(token, days, {
       bypass,
-      userId: targetAccountId === session.githubId ? session.githubId : targetAccountId,
+      userId: targetAccountId === session?.githubId ? session?.githubId : targetAccountId,
     });
     return Response.json(formatDiscussionsMetrics(result));
   } catch (e) {

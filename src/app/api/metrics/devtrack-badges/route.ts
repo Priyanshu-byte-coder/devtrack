@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -33,7 +34,8 @@ function scoreLabel(total: number): CommunityEngagementScore["label"] {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -42,7 +44,7 @@ export async function GET(req: NextRequest) {
   const sinceStr = since.toISOString().slice(0, 10);
 
   const key = metricsCacheKey(
-    session.githubId ?? session.githubLogin,
+    session?.githubId ?? session?.githubLogin,
     "community-engagement" as any,
     { since: sinceStr }
   );
@@ -52,30 +54,30 @@ export async function GET(req: NextRequest) {
     { bypass, key, ttlSeconds: METRICS_CACHE_TTL_SECONDS.contributions },
     async () => {
       const headers = {
-        Authorization: `Bearer ${session.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         Accept: "application/vnd.github+json",
       };
 
       const [reviewsRes, issuesOpenRes, issuesClosedRes, openSourceRes, docsRes] =
         await Promise.allSettled([
           fetch(
-            `${GITHUB_API}/search/issues?q=reviewed-by:${session.githubLogin}+type:pr+updated:>=${sinceStr}&per_page=1`,
+            `${GITHUB_API}/search/issues?q=reviewed-by:${session?.githubLogin}+type:pr+updated:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
           fetch(
-            `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:issue+created:>=${sinceStr}&per_page=1`,
+            `${GITHUB_API}/search/issues?q=author:${session?.githubLogin}+type:issue+created:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
           fetch(
-            `${GITHUB_API}/search/issues?q=assignee:${session.githubLogin}+type:issue+state:closed+closed:>=${sinceStr}&per_page=1`,
+            `${GITHUB_API}/search/issues?q=assignee:${session?.githubLogin}+type:issue+state:closed+closed:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
           fetch(
-            `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:pr+is:merged+-user:${session.githubLogin}+merged:>=${sinceStr}&per_page=1`,
+            `${GITHUB_API}/search/issues?q=author:${session?.githubLogin}+type:pr+is:merged+-user:${session?.githubLogin}+merged:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
           fetch(
-            `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:pr+is:merged+label:documentation+merged:>=${sinceStr}&per_page=1`,
+            `${GITHUB_API}/search/issues?q=author:${session?.githubLogin}+type:pr+is:merged+label:documentation+merged:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
         ]);

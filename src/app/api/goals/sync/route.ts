@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { extractValidRepoFromGoal, type ActivityGoal } from "@/lib/goals-sync-utils";
@@ -36,7 +37,8 @@ const GITHUB_API = "https://api.github.com";
 
 export async function POST() {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubId || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubId || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,7 +46,7 @@ export async function POST() {
   const { data: user } = await supabaseAdmin
     .from("users")
     .select("id")
-    .eq("github_id", session.githubId)
+    .eq("github_id", session?.githubId)
     .single();
 
   if (!user) return Response.json({ error: "User not found" }, { status: 404 });
@@ -97,7 +99,7 @@ export async function POST() {
       // Build the GitHub Search query using URLSearchParams so that the
       // combined qualifier string is URL-encoded as a single atomic value
       // and cannot be split by embedded special characters.
-      const qParts = [`author:${session.githubLogin}`];
+      const qParts = [`author:${session?.githubLogin}`];
       if (repo) qParts.push(`repo:${repo}`);
       qParts.push(`author-date:${weekStart}..${weekEnd}`);
 
@@ -111,7 +113,7 @@ export async function POST() {
         `${GITHUB_API}/search/commits?${commitSearchParams.toString()}`,
         {
           headers: {
-            Authorization: `Bearer ${session.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             Accept: "application/vnd.github+json",
           },
           cache: "no-store",
@@ -169,7 +171,7 @@ export async function POST() {
   // Count PRs for the current week
   if (prGoalsToUpdate.length > 0) {
     const prSearchParams = new URLSearchParams({
-      q: `author:${session.githubLogin} type:pr is:merged merged:${weekStart}..${weekEnd}`,
+      q: `author:${session?.githubLogin} type:pr is:merged merged:${weekStart}..${weekEnd}`,
       per_page: "100",
     });
 
@@ -177,7 +179,7 @@ export async function POST() {
       `${GITHUB_API}/search/issues?${prSearchParams.toString()}`,
       {
         headers: {
-          Authorization: `Bearer ${session.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           Accept: "application/vnd.github+json",
         },
         cache: "no-store",
@@ -216,9 +218,9 @@ export async function POST() {
   // ── Reviews sync ──────────────────────────────────────────────────────────
   if (reviewGoals.length > 0) {
     const reviewRes = await fetch(
-      `${GITHUB_API}/search/issues?q=reviewed-by:${session.githubLogin}+type:pr+updated:${weekStart}..${weekEnd}&per_page=1`,
+      `${GITHUB_API}/search/issues?q=reviewed-by:${session?.githubLogin}+type:pr+updated:${weekStart}..${weekEnd}&per_page=1`,
       {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       }
     );
@@ -232,9 +234,9 @@ export async function POST() {
   // ── Issues closed sync ────────────────────────────────────────────────────
   if (issuesClosedGoals.length > 0) {
     const icRes = await fetch(
-      `${GITHUB_API}/search/issues?q=assignee:${session.githubLogin}+type:issue+state:closed+closed:${weekStart}..${weekEnd}&per_page=1`,
+      `${GITHUB_API}/search/issues?q=assignee:${session?.githubLogin}+type:issue+state:closed+closed:${weekStart}..${weekEnd}&per_page=1`,
       {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       }
     );
@@ -248,9 +250,9 @@ export async function POST() {
   // ── Issues opened sync ────────────────────────────────────────────────────
   if (issuesOpenedGoals.length > 0) {
     const ioRes = await fetch(
-      `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:issue+created:${weekStart}..${weekEnd}&per_page=1`,
+      `${GITHUB_API}/search/issues?q=author:${session?.githubLogin}+type:issue+created:${weekStart}..${weekEnd}&per_page=1`,
       {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       }
     );
@@ -264,9 +266,9 @@ export async function POST() {
   // ── Open source PRs sync (PRs to repos the user doesn't own) ─────────────
   if (openSourcePrGoals.length > 0) {
     const osRes = await fetch(
-      `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:pr+is:merged+merged:${weekStart}..${weekEnd}+-user:${session.githubLogin}&per_page=1`,
+      `${GITHUB_API}/search/issues?q=author:${session?.githubLogin}+type:pr+is:merged+merged:${weekStart}..${weekEnd}+-user:${session?.githubLogin}&per_page=1`,
       {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       }
     );

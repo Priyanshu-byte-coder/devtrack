@@ -16,6 +16,7 @@
  */
 
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { type NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -42,7 +43,8 @@ export interface OrgRecord {
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.githubId || !session.accessToken) {
+  const accessToken = await getAccessToken();
+  if (!session?.githubId || !accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -52,7 +54,7 @@ export async function GET() {
   }
 
   // Fetch live org list from GitHub (graceful on missing read:org scope).
-  const githubOrgs = await fetchUserOrgs(session.accessToken);
+  const githubOrgs = await fetchUserOrgs(accessToken);
 
   // Upsert discovered orgs into the preference table so users can control
   // per-org inclusion.  Existing rows keep their include_in_metrics value.

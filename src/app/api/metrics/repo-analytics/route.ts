@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { isMetricsCacheBypassed, metricsCacheKey, withMetricsCache } from "@/lib/metrics-cache";
@@ -14,7 +15,8 @@ const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -47,7 +49,7 @@ export async function GET(req: NextRequest) {
 
   const bypass = isMetricsCacheBypassed(req);
   const key = metricsCacheKey(
-    session.githubId ?? session.githubLogin,
+    session?.githubId ?? session?.githubLogin,
     `repo-analytics-${owner}/${repo}` as any,
     { days: 30 }
   );
@@ -55,20 +57,20 @@ export async function GET(req: NextRequest) {
   try {
     const data = await withMetricsCache({ bypass, key, ttlSeconds: 60 * 60 }, async () => {
       const repoRes = await fetch(repoUrl, {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
       if (!repoRes.ok) throw new Error("API error fetching repo overview");
       const repoData = await repoRes.json();
 
       const contribRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/contributors?per_page=10`, {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
       const contribData = contribRes.ok ? await contribRes.json() : [];
 
       const langRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/languages`, {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
       const langData = langRes.ok ? await langRes.json() : {};
@@ -85,7 +87,7 @@ export async function GET(req: NextRequest) {
       const primaryStack = languageBreakdown.slice(0, 3).map((l) => l.name);
 
       const activityRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/stats/commit_activity`, {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
 
@@ -136,7 +138,7 @@ export async function GET(req: NextRequest) {
 
       // Fetch PR activity for this repo (Issue 1: top repos by PR activity)
       const prRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/pulls?state=all&per_page=1`, {
-        headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
+        headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
       const prLinkHeader = prRes.headers.get("link") ?? "";

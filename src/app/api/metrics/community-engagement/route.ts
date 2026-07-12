@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -198,11 +199,12 @@ async function fetchUserStats(
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubId || !session.githubLogin) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubId || !session?.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  const user = await resolveAppUser(session?.githubId, session?.githubLogin);
   if (!user) return Response.json({ error: "User not found" }, { status: 404 });
 
   const bypass = isMetricsCacheBypassed(req);
@@ -213,8 +215,8 @@ export async function GET(req: NextRequest) {
     async () => {
       const stats = await fetchUserStats(
         user.id,
-        session.githubLogin!,
-        session.accessToken!
+        session?.githubLogin!,
+        accessToken!
       );
 
       // Fetch previously-earned badge timestamps from DB

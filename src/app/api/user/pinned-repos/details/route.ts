@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { getAccessToken } from "@/lib/get-session-token";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchPinnedRepoDetails } from "@/lib/pinned-repos";
@@ -7,7 +8,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin || !session.githubId) {
+  const accessToken = await getAccessToken();
+  if (!accessToken || !session?.githubLogin || !session?.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -16,7 +18,7 @@ export async function GET() {
     const { data: userRow, error } = await supabaseAdmin
       .from("users")
       .select("pinned_repos")
-      .eq("github_id", session.githubId)
+      .eq("github_id", session?.githubId)
       .single();
 
     if (error) {
@@ -41,9 +43,9 @@ export async function GET() {
 
     // 2. Load fresh repository metadata and 30-day sparkline counts from GitHub API
     const details = await fetchPinnedRepoDetails(
-      session.githubLogin,
+      session?.githubLogin,
       pinnedReposArray,
-      session.accessToken
+      accessToken
     );
 
     return Response.json({ pinnedRepos: details });
