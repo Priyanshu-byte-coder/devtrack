@@ -1,8 +1,67 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { resolveAppUser } from "@/lib/resolve-user";
+import {
+  upstashRateLimitFixedWindow,
+  getUpstashConfig,
+  upstashPipeline,
+} from "@/lib/upstash-rest";
+import { createMemoryFixedWindowRateLimiter } from "@/lib/rate-limit";
+
+export const dynamic = "force-dynamic";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const PROJECT_TUTOR_LIMIT = 10;
+const PROJECT_TUTOR_WINDOW_SECONDS = 60 * 60; // 1 hour
+const CACHE_TTL_SECONDS = 6 * 60 * 60; // 6 hours
+
+// In-memory fallback rate limiter
+const memoryLimiter = createMemoryFixedWindowRateLimiter({
+  windowMs: PROJECT_TUTOR_WINDOW_SECONDS * 1000,
+  pruneIntervalMs: PROJECT_TUTOR_WINDOW_SECONDS * 1000,
+  maxEntries: 10_000,
+});
+
+// In-memory fallback response cache
+type CacheEntry = { value: string; expiresAt: number };
+const localCache = new Map<string, CacheEntry>();
+
+async function getCachedData(key: string): Promise<any | null> {
+  if (getUpstashConfig()) {
+    try {
+      const results = await upstashPipeline([["GET", key]]);
+      const val = results[0]?.result as string;
+      return val ? JSON.parse(val) : null;
+    } catch (err) {
+      console.error("Failed to read from Upstash cache:", err);
+    }
+  } else {
+    const entry = localCache.get(key);
+    if (entry && Date.now() <= entry.expiresAt) {
+      return JSON.parse(entry.value);
+    } else if (entry) {
+      localCache.delete(key);
+    }
+  }
+  return null;
+}
+
+async function setCachedData(key: string, value: any, ttlSeconds: number) {
+  const str = JSON.stringify(value);
+  if (getUpstashConfig()) {
+    try {
+      await upstashPipeline([["SET", key, str, "EX", ttlSeconds]]);
+    } catch (err) {
+      console.error("Failed to write to Upstash cache:", err);
+    }
+  } else {
+    localCache.set(key, {
+      value: str,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+}
 
 async function callGroq(prompt: string): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
@@ -56,12 +115,20 @@ async function fetchRepoData(owner: string, repo: string) {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.githubId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const userId = user.id;
 
   try {
     const { repoUrl, action, question } = await req.json();
 
     if (!repoUrl) return NextResponse.json({ error: "repo URL required" }, { status: 400 });
+
+    if (repoUrl.length > 200) {
+      return NextResponse.json({ error: "Invalid GitHub URL" }, { status: 400 });
+    }
 
     const match = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
     if (!match) return NextResponse.json({ error: "Invalid GitHub URL" }, { status: 400 });
@@ -71,6 +138,54 @@ export async function POST(req: NextRequest) {
     const githubIdentifier = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]{0,97}[a-zA-Z0-9])?$/;
     if (!githubIdentifier.test(owner) || !githubIdentifier.test(repo.replace(/\.git$/, "")))
       return NextResponse.json({ error: "Invalid GitHub URL" }, { status: 400 });
+
+    if (action === "chat") {
+      if (!question || typeof question !== "string" || question.length > 500) {
+        return NextResponse.json({ error: "Invalid or too long question" }, { status: 400 });
+      }
+    }
+
+    // Cache check for "analyze" and "questions" actions
+    const cacheKey = `project-tutor-cache:${owner.toLowerCase()}:${repo.toLowerCase()}:${action}`;
+    if (action === "analyze" || action === "questions") {
+      const cached = await getCachedData(cacheKey);
+      if (cached) {
+        return NextResponse.json({ ...cached, cached: true });
+      }
+    }
+
+    // Rate limit check
+    let rateLimitDenied = false;
+    let retryAfterSeconds = PROJECT_TUTOR_WINDOW_SECONDS;
+
+    if (getUpstashConfig()) {
+      const result = await upstashRateLimitFixedWindow({
+        key: `project-tutor:${userId}`,
+        limit: PROJECT_TUTOR_LIMIT,
+        windowSeconds: PROJECT_TUTOR_WINDOW_SECONDS,
+      });
+      if (!result.allowed) {
+        rateLimitDenied = true;
+        retryAfterSeconds = result.retryAfter ?? PROJECT_TUTOR_WINDOW_SECONDS;
+      }
+    } else {
+      const result = memoryLimiter.check(`project-tutor:${userId}`, PROJECT_TUTOR_LIMIT);
+      if (!result.allowed) {
+        rateLimitDenied = true;
+        retryAfterSeconds = Math.max(result.reset - Math.floor(Date.now() / 1000), 1);
+      }
+    }
+
+    if (rateLimitDenied) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(retryAfterSeconds) },
+        }
+      );
+    }
+
     const { repoData, readmeContent, languages } = await fetchRepoData(owner, repo);
 
     const techStack = Object.keys(languages).join(", ") || "Unknown";
@@ -103,7 +218,9 @@ ${context}
 Format your response with clear headings using markdown.`;
 
       const analysis = await callGroq(prompt);
-      return NextResponse.json({ analysis, techStack, description: repoData.description });
+      const resData = { analysis, techStack, description: repoData.description };
+      await setCachedData(cacheKey, resData, CACHE_TTL_SECONDS);
+      return NextResponse.json(resData);
     }
 
     if (action === "questions") {
@@ -129,19 +246,20 @@ Format as JSON:
 Return ONLY the JSON, no other text.`;
 
       const raw = await callGroq(prompt);
+      let questions;
       try {
         const clean = raw.replace(/```json|```/g, "").trim();
-        const questions = JSON.parse(clean);
-        return NextResponse.json({ questions });
+        questions = JSON.parse(clean);
       } catch {
-        return NextResponse.json({
-          questions: {
-            easy: ["What is the main purpose of this project?", "What technologies did you use?", "How do you run this project locally?"],
-            medium: ["How did you structure your codebase?", "What was the most challenging part?", "How did you handle errors?"],
-            advanced: ["How would you scale this?", "What would you do differently?", "How would you add authentication?"],
-          }
-        });
+        questions = {
+          easy: ["What is the main purpose of this project?", "What technologies did you use?", "How do you run this project locally?"],
+          medium: ["How did you structure your codebase?", "What was the most challenging part?", "How did you handle errors?"],
+          advanced: ["How would you scale this?", "What would you do differently?", "How would you add authentication?"],
+        };
       }
+      const resData = { questions };
+      await setCachedData(cacheKey, resData, CACHE_TTL_SECONDS);
+      return NextResponse.json(resData);
     }
 
     if (action === "chat") {

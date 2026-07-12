@@ -865,8 +865,10 @@ paths:
                 type: object
         '401':
           description: Unauthorized
+        '429':
+          description: Rate limit exceeded
         '500':
-          description: AI service unavailable (GROQ_API_KEY not configured)
+          description: AI service unavailable (GEMINI_API_KEY not configured)
 
   /api/ai/weekly-summary:
     post:
@@ -889,6 +891,47 @@ paths:
                 type: object
         '401':
           description: Unauthorized
+
+  /api/project-tutor:
+    post:
+      tags: [AI]
+      summary: AI Project Tutor powered by Groq
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - repoUrl
+                - action
+              properties:
+                repoUrl:
+                  type: string
+                  maxLength: 200
+                action:
+                  type: string
+                  enum: [analyze, questions, chat]
+                question:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: Tutor response generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request parameters
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+        '500':
+          description: Internal server error / Groq API unavailable
 
   # WAKATIME INTEGRATION
   /api/wakatime:
