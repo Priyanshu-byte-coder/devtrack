@@ -4,6 +4,26 @@ import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
 import { calculateStreakFromDates } from "@/lib/streak";
 import { logError } from "@/lib/error-handler";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import { supabaseAdmin } from "@/lib/supabase";
+
+/**
+ * Resolves the stored IANA timezone for a GitHub user so the badge's streak
+ * calculation agrees with the dashboard's (see /api/metrics/streak). Falls
+ * back to "UTC" if the user has no DevTrack account or no timezone set.
+ */
+async function resolveUserTimeZone(username: string): Promise<string> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("users")
+      .select("timezone")
+      .ilike("github_login", username)
+      .maybeSingle();
+
+    return data?.timezone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +54,8 @@ async function fetchGitHubWithToken(
 
 async function fetchStreak(
   username: string,
-  token?: string
+  token?: string,
+  timeZone = "UTC"
 ): Promise<StreakData> {
   const since = new Date();
   since.setDate(since.getDate() - 90);
@@ -75,7 +96,7 @@ async function fetchStreak(
     activeDates.add(item.commit.author.date.slice(0, 10));
   }
 
-  const result = calculateStreakFromDates(activeDates);
+const result = calculateStreakFromDates(activeDates, new Set(), timeZone);
   return {
     current: result.current,
     longest: result.longest,
@@ -115,7 +136,8 @@ export async function GET(req: NextRequest) {
     }
 
     const githubToken = process.env.GITHUB_TOKEN;
-    const streak = await fetchStreak(username, githubToken);
+    const timeZone = await resolveUserTimeZone(username);
+    const streak = await fetchStreak(username, githubToken, timeZone);
 
     const svg = generateBadgeSVG({
       label: "DevTrack",
