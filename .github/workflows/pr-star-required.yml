@@ -1,0 +1,84 @@
+name: Require star to contribute
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+  watch:
+    types: [started] # fires when someone stars the repo
+
+permissions:
+  pull-requests: write
+  statuses: write
+
+jobs:
+  star-gate:
+    name: Star required
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const CONTEXT = 'star-required';
+            const repoUrl = `https://github.com/${owner}/${repo}`;
+
+            async function hasStarred(username) {
+              const login = username.toLowerCase();
+              const stargazers = await github.paginate(
+                github.rest.activity.listStargazersForRepo,
+                { owner, repo, per_page: 100 },
+              );
+              return stargazers.some(u => u.login.toLowerCase() === login);
+            }
+
+            async function setStatus(sha, state, description) {
+              await github.rest.repos.createCommitStatus({
+                owner, repo, sha, context: CONTEXT, state, description,
+                target_url: repoUrl,
+              });
+            }
+
+            // --- Someone starred: clear the gate on all of their open PRs ---
+            if (context.eventName === 'watch') {
+              const starrer = context.payload.sender.login.toLowerCase();
+              const prs = await github.paginate(github.rest.pulls.list, {
+                owner, repo, state: 'open', per_page: 100,
+              });
+              for (const pr of prs) {
+                if (pr.user.login.toLowerCase() !== starrer) continue;
+                await setStatus(pr.head.sha, 'success', 'Repo starred — thank you!');
+              }
+              return;
+            }
+
+            // --- Pull request opened / reopened / synchronized ---
+            const pr = context.payload.pull_request;
+            const author = pr.user.login;
+            const sha = pr.head.sha;
+
+            // Bots and maintainers bypass the gate.
+            if (pr.user.type === 'Bot') {
+              await setStatus(sha, 'success', 'Bot PR — exempt');
+              return;
+            }
+            if (['OWNER', 'MEMBER', 'COLLABORATOR'].includes(pr.author_association)) {
+              await setStatus(sha, 'success', 'Maintainer — exempt');
+              return;
+            }
+
+            if (await hasStarred(author)) {
+              await setStatus(sha, 'success', 'Repo starred — thank you!');
+              return;
+            }
+
+            // Not starred → block.
+            await setStatus(sha, 'failure', 'Please star the repo to contribute');
+
+            // Comment only on the first open, to avoid spamming on every push.
+            if (context.payload.action === 'opened') {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `Hi @${author} — thanks for the PR! 🙌\n\nDevTrack asks contributors to **[⭐ star the repo](${repoUrl})** before a PR can be merged. It takes two seconds and is the easiest way to support the project.\n\nOnce you've starred, the **\`star-required\`** check turns green automatically (give it a moment). Thanks for contributing!`,
+              });
+            }
