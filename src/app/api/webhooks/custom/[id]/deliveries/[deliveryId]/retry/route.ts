@@ -59,6 +59,9 @@ export async function POST(
   }
 
   const payloadData = delivery.payload as Record<string, unknown>;
+  const originalData = (payloadData && typeof payloadData === "object" && "data" in payloadData)
+    ? (payloadData.data as Record<string, unknown>)
+    : payloadData;
 
   const { isSafeUrl } = await import("@/lib/ssrf-protection");
   const { data: webhookUrl } = await supabaseAdmin
@@ -74,7 +77,7 @@ export async function POST(
     );
   }
 
-  const result2 = await dispatchWebhook(id, delivery.event, payloadData);
+  const result2 = await dispatchWebhook(id, delivery.event, originalData);
 
   return Response.json({
     success: result2.success,
