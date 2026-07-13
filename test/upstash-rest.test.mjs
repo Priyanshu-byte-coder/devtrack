@@ -13,17 +13,39 @@ test("getUpstashConfig returns null when env is missing", () => {
   assert.equal(getUpstashConfig(), null);
 });
 
+test("getUpstashConfig returns { url, token } when both env vars are set", () => {
+  process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+  assert.deepEqual(getUpstashConfig(), {
+    url: "https://example.upstash.io",
+    token: "test-token",
+  });
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+});
+
+test("getUpstashConfig returns null when either env var is an empty string", () => {
+  process.env.UPSTASH_REDIS_REST_URL = "";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+  assert.equal(getUpstashConfig(), null);
+
+  process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+  process.env.UPSTASH_REDIS_REST_TOKEN = "";
+  assert.equal(getUpstashConfig(), null);
+
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+});
+
 test("upstashRateLimitFixedWindow sets expiry for new buckets", async () => {
   process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
   process.env.UPSTASH_REDIS_REST_TOKEN = "token";
-
   const originalFetch = globalThis.fetch;
   let call = 0;
   globalThis.fetch = async (url, init) => {
     call += 1;
     assert.ok(String(url).includes("/pipeline"));
     const body = JSON.parse(init.body);
-
     if (call === 1) {
       assert.deepEqual(body, [["INCR", "k"], ["TTL", "k"]]);
       return {
@@ -33,7 +55,6 @@ test("upstashRateLimitFixedWindow sets expiry for new buckets", async () => {
         },
       };
     }
-
     assert.deepEqual(body, [["EXPIRE", "k", 60]]);
     return {
       ok: true,
@@ -42,7 +63,6 @@ test("upstashRateLimitFixedWindow sets expiry for new buckets", async () => {
       },
     };
   };
-
   try {
     const result = await upstashRateLimitFixedWindow({
       key: "k",
@@ -58,7 +78,6 @@ test("upstashRateLimitFixedWindow sets expiry for new buckets", async () => {
 test("upstashRateLimitFixedWindow returns retryAfter from TTL", async () => {
   process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
   process.env.UPSTASH_REDIS_REST_TOKEN = "token";
-
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => ({
     ok: true,
@@ -66,7 +85,6 @@ test("upstashRateLimitFixedWindow returns retryAfter from TTL", async () => {
       return [{ result: 21 }, { result: 10 }];
     },
   });
-
   try {
     const result = await upstashRateLimitFixedWindow({
       key: "k2",
@@ -82,7 +100,6 @@ test("upstashRateLimitFixedWindow returns retryAfter from TTL", async () => {
 test("upstashTryAcquireLock returns true only when SET succeeds", async () => {
   process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
   process.env.UPSTASH_REDIS_REST_TOKEN = "token";
-
   const originalFetch = globalThis.fetch;
   let returnedOk = false;
   globalThis.fetch = async () => ({
@@ -92,7 +109,6 @@ test("upstashTryAcquireLock returns true only when SET succeeds", async () => {
       return [{ result: returnedOk ? "OK" : null }];
     },
   });
-
   try {
     assert.equal(await upstashTryAcquireLock({ key: "lock", ttlSeconds: 30 }), true);
     assert.equal(await upstashTryAcquireLock({ key: "lock", ttlSeconds: 30 }), false);
@@ -100,4 +116,3 @@ test("upstashTryAcquireLock returns true only when SET succeeds", async () => {
     globalThis.fetch = originalFetch;
   }
 });
-
