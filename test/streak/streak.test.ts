@@ -1,104 +1,145 @@
-import { describe, it, expect } from 'vitest';
-
-// Helper functions (from src/lib/streak-utils.ts)
-function calculateStreak(contributions: Array<{ date: string; count: number }>): number {
-  if (!contributions || contributions.length === 0) return 0;
-  
-  let streak = 0;
-  const sorted = [...contributions].sort((a, b) => 
-    new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-  
-  // Find the last contribution
-  for (let i = sorted.length - 1; i >= 0; i--) {
-    if (sorted[i].count > 0) {
-      streak++;
-    } else {
-      break;
-    }
-  }
-  
-  return streak;
-}
-
-function getLongestStreak(contributions: Array<{ date: string; count: number }>): number {
-  if (!contributions || contributions.length === 0) return 0;
-  
-  let currentStreak = 0;
-  let longestStreak = 0;
-  const sorted = [...contributions].sort((a, b) => 
-    new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-  
-  for (const day of sorted) {
-    if (day.count > 0) {
-      currentStreak++;
-      longestStreak = Math.max(longestStreak, currentStreak);
-    } else {
-      currentStreak = 0;
-    }
-  }
-  
-  return longestStreak;
-}
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { calculateCurrentStreak, calculateLongestStreak } from '@/lib/streak-utils';
 
 describe('Streak Utilities', () => {
-  describe('calculateStreak', () => {
+  describe('calculateCurrentStreak', () => {
     it('returns 0 for empty contributions', () => {
-      expect(calculateStreak([])).toBe(0);
+      expect(calculateCurrentStreak([])).toBe(0);
     });
 
-    it('returns correct streak for consecutive days', () => {
-      const contributions = [
-        { date: '2026-06-28', count: 1 },
-        { date: '2026-06-29', count: 2 },
-        { date: '2026-06-30', count: 1 },
+    it('returns correct streak for consecutive days ending today', () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const twoDaysAgo = new Date(today);
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+      const dates = [
+        twoDaysAgo.toISOString().split('T')[0],
+        yesterday.toISOString().split('T')[0],
+        today.toISOString().split('T')[0],
       ];
-      expect(calculateStreak(contributions)).toBe(3);
+      expect(calculateCurrentStreak(dates)).toBe(3);
     });
 
-    it('resets streak when a day has no contributions', () => {
-      const contributions = [
-        { date: '2026-06-28', count: 1 },
-        { date: '2026-06-29', count: 0 },
-        { date: '2026-06-30', count: 1 },
+    it('returns 0 when last activity was more than 1 day ago', () => {
+      const today = new Date();
+      const threeDaysAgo = new Date(today);
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const dates = [
+        threeDaysAgo.toISOString().split('T')[0],
       ];
-      expect(calculateStreak(contributions)).toBe(1);
+      expect(calculateCurrentStreak(dates)).toBe(0);
     });
 
-    it('handles unsorted contributions', () => {
-      const contributions = [
-        { date: '2026-06-30', count: 1 },
-        { date: '2026-06-28', count: 1 },
-        { date: '2026-06-29', count: 1 },
+    it('handles Date objects', () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const dates = [yesterday, today];
+      expect(calculateCurrentStreak(dates)).toBe(2);
+    });
+
+    it('handles unsorted dates', () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const twoDaysAgo = new Date(today);
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+      const dates = [
+        today.toISOString().split('T')[0],
+        twoDaysAgo.toISOString().split('T')[0],
+        yesterday.toISOString().split('T')[0],
       ];
-      expect(calculateStreak(contributions)).toBe(3);
+      expect(calculateCurrentStreak(dates)).toBe(3);
+    });
+
+    it('handles duplicate dates', () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const dates = [
+        today.toISOString().split('T')[0],
+        today.toISOString().split('T')[0],
+        yesterday.toISOString().split('T')[0],
+      ];
+      expect(calculateCurrentStreak(dates)).toBe(2);
+    });
+
+    it('returns 0 for invalid dates', () => {
+      const dates = ['invalid-date', '2024-01-01'];
+      expect(calculateCurrentStreak(dates)).toBe(0);
     });
   });
 
-  describe('getLongestStreak', () => {
+  describe('calculateLongestStreak', () => {
     it('returns 0 for empty contributions', () => {
-      expect(getLongestStreak([])).toBe(0);
+      expect(calculateLongestStreak([])).toBe(0);
     });
 
     it('returns correct longest streak', () => {
-      const contributions = [
-        { date: '2026-06-28', count: 1 },
-        { date: '2026-06-29', count: 1 },
-        { date: '2026-06-30', count: 0 },
-        { date: '2026-07-01', count: 1 },
-        { date: '2026-07-02', count: 1 },
+      const dates = [
+        '2026-06-28',
+        '2026-06-29',
+        '2026-06-30',
+        '2026-07-02',
+        '2026-07-03',
       ];
-      expect(getLongestStreak(contributions)).toBe(2);
+      expect(calculateLongestStreak(dates)).toBe(3);
+    });
+
+    it('handles single-day streaks', () => {
+      const dates = ['2026-06-28', '2026-06-30', '2026-07-02'];
+      expect(calculateLongestStreak(dates)).toBe(1);
     });
 
     it('handles all days with contributions', () => {
-      const contributions = [
-        { date: '2026-06-28', count: 1 },
-        { date: '2026-06-29', count: 1 },
-        { date: '2026-06-30', count: 1 },
+      const dates = [
+        '2026-06-28',
+        '2026-06-29',
+        '2026-06-30',
+        '2026-07-01',
+        '2026-07-02',
       ];
-      expect(getLongestStreak(contributions)).toBe(3);
+      expect(calculateLongestStreak(dates)).toBe(5);
+    });
+
+    it('handles Date objects', () => {
+      const dates = [
+        new Date('2026-06-28'),
+        new Date('2026-06-29'),
+        new Date('2026-06-30'),
+      ];
+      expect(calculateLongestStreak(dates)).toBe(3);
+    });
+
+    it('handles unsorted dates', () => {
+      const dates = [
+        '2026-06-30',
+        '2026-06-28',
+        '2026-06-29',
+        '2026-07-01',
+      ];
+      expect(calculateLongestStreak(dates)).toBe(4);
+    });
+
+    it('handles duplicate dates', () => {
+      const dates = [
+        '2026-06-28',
+        '2026-06-28',
+        '2026-06-29',
+        '2026-06-30',
+      ];
+      expect(calculateLongestStreak(dates)).toBe(3);
+    });
+
+    it('ignores invalid dates', () => {
+      const dates = ['invalid-date', '2026-06-28', '2026-06-29'];
+      expect(calculateLongestStreak(dates)).toBe(2);
     });
   });
 });
