@@ -40,7 +40,9 @@ export type DashboardWidgetId =
   | "ci-analytics"
   | "language-breakdown"
   | "friend-comparison"
-  | "achievement-progress";
+  | "achievement-progress"
+  | "time-tracker"
+  | "time-tracking-summary";
 
 export interface DashboardLayoutPreference {
   version: 1;
@@ -98,6 +100,8 @@ export const DASHBOARD_WIDGET_LABELS: Record<DashboardWidgetId, string> = {
   "language-breakdown": "Language Breakdown",
   "friend-comparison": "Friend Comparison",
   "achievement-progress": "Achievement Progress",
+  "time-tracker": "Time Tracking",
+  "time-tracking-summary": "Time Logged (Last 7 Days)",
 };
 
 export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
@@ -133,6 +137,8 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
     goals: [
       "issue-metrics",
       "goal-tracker",
+      "time-tracker",
+      "time-tracking-summary",
       "daily-note",
       "recent-activity",
       "ci-analytics",

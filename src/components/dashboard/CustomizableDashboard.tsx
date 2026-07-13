@@ -24,6 +24,7 @@ import LazyWidget from "@/components/LazyWidget";
 import DiscussionsWidget from "@/components/DiscussionsWidget";
 import CommunityMetrics from "@/components/CommunityMetrics";
 import GoalTracker from "@/components/GoalTracker";
+import TaskTimeTracker from "@/components/TaskTimeTracker";
 import StreakTracker from "@/components/StreakTracker";
 import ConsistencyScoreWidget from "@/components/ConsistencyScoreWidget";
 import TopRepos from "@/components/TopRepos";
@@ -198,6 +199,11 @@ const CommitTimeChart = dynamic(() => import("@/components/CommitTimeChart"), {
   loading: () => <ChartSkeleton />,
 });
 
+const DailyTimeWidget = dynamic(() => import("@/components/DailyTimeWidget"), {
+  ssr: false,
+  loading: () => <ChartSkeleton />,
+});
+
 const PRReviewTrendChart = dynamic(
   () => import("@/components/PRReviewTrendChart"),
   { ssr: false, loading: () => <ChartSkeleton /> },
@@ -250,6 +256,7 @@ const WIDGET_SPAN_CLASSES: Partial<Record<DashboardWidgetId, string>> = {
   "repo-analytics": "lg:col-span-2",
   "issue-metrics": "xl:col-span-2",
   "goal-tracker": "xl:col-span-2",
+  "time-tracker": "xl:col-span-2",
   "daily-note": "xl:col-span-2",
   "recent-activity": "xl:col-span-2",
   "sponsor-analytics": "xl:col-span-2",
@@ -423,6 +430,20 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
         <WidgetErrorBoundary>
           <GoalTracker />
         </WidgetErrorBoundary>
+      );
+
+    case "time-tracker":
+      return (
+        <WidgetErrorBoundary>
+          <TaskTimeTracker />
+        </WidgetErrorBoundary>
+      );
+
+    case "time-tracking-summary":
+      return (
+        <LazyWidget fallback={<ChartSkeleton />}>
+          <DailyTimeWidget />
+        </LazyWidget>
       );
 
     case "daily-note":
