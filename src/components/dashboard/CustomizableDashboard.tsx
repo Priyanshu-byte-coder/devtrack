@@ -43,6 +43,8 @@ import DailyNoteWidget from "@/components/DailyNoteWidget";
 import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 import DashboardLayoutToolbar from "@/components/dashboard/DashboardLayoutToolbar";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
+import ConfirmModal from "@/components/ConfirmModal";
+import { toast } from "sonner";
 import SortableDashboardWidget from "@/components/dashboard/SortableDashboardWidget";
 import {
   DASHBOARD_LAYOUT_STORAGE_KEY,
@@ -476,6 +478,7 @@ export default function CustomizableDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasLoadedRemoteLayout, setHasLoadedRemoteLayout] = useState(false);
+  const [isConfirmResetOpen, setIsConfirmResetOpen] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
@@ -622,8 +625,18 @@ export default function CustomizableDashboard() {
     setLayout((currentLayout) => showWidget(currentLayout, widgetId));
   };
 
-  const handleResetLayout = () => {
+  const handleResetClick = () => {
+    setIsConfirmResetOpen(true);
+  };
+
+  const handleResetConfirm = () => {
     setLayout(resetDashboardLayout());
+    setIsConfirmResetOpen(false);
+    toast.success("Dashboard layout has been reset to defaults.");
+  };
+
+  const handleResetCancel = () => {
+    setIsConfirmResetOpen(false);
   };
 
   return (
@@ -632,7 +645,7 @@ export default function CustomizableDashboard() {
         isEditing={isEditing}
         hiddenWidgets={layout.hidden}
         onEditingChange={setIsEditing}
-        onReset={handleResetLayout}
+        onReset={handleResetClick}
         onShowWidget={handleShowWidget}
       />
 
@@ -699,6 +712,16 @@ export default function CustomizableDashboard() {
           })}
         </DndContext>
       </DashboardWidgetA11yProvider>
+
+      <ConfirmModal
+        isOpen={isConfirmResetOpen}
+        title="Reset Dashboard Layout"
+        message="Are you sure you want to reset your dashboard layout? This will restore all default widgets and their original positions."
+        confirmLabel="Reset"
+        cancelLabel="Cancel"
+        onConfirm={handleResetConfirm}
+        onCancel={handleResetCancel}
+      />
     </div>
   );
 }
