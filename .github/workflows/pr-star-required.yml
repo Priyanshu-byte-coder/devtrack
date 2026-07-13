@@ -24,13 +24,22 @@ jobs:
             const repoUrl = `https://github.com/${owner}/${repo}`;
 
             async function hasStarred(username) {
-              const login = username.toLowerCase();
-              const stargazers = await github.paginate(
-                github.rest.activity.listStargazersForRepo,
-                { owner, repo, per_page: 100 },
-              );
-              return stargazers.some(u => u.login.toLowerCase() === login);
+              const targetRepo = `${owner}/${repo}`.toLowerCase();
+              try {
+                for await (const { data: starredRepos } of github.paginate.iterator(
+                  github.rest.activity.listReposStarredByUser,
+                  { username, per_page: 100 }
+                )) {
+                  if (starredRepos.some(r => r.full_name.toLowerCase() === targetRepo)) {
+                    return true;
+                  }
+                }
+              } catch (e) {
+                console.error(`Error checking stars for user ${username}:`, e);
+              }
+              return false;
             }
+
 
             async function setStatus(sha, state, description) {
               await github.rest.repos.createCommitStatus({
