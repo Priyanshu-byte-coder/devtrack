@@ -17,11 +17,11 @@ jobs:
     name: Type check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -36,11 +36,11 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -58,11 +58,11 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -81,7 +81,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: hashFiles('coverage/lcov.info') != ''
-        uses: codecov/codecov-action@v7
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
           flags: unit
@@ -103,11 +103,11 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
       NEXT_PUBLIC_APP_URL: http://localhost:3000
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -122,11 +122,11 @@ jobs:
     name: Dependency audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -141,7 +141,7 @@ jobs:
     name: Environment security check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Check SERVICE_ROLE_KEY exposure
         run: bash scripts/check-env-security.sh

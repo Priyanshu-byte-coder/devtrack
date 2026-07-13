@@ -15,7 +15,7 @@ jobs:
     if: github.event.issue.pull_request == null
     steps:
       - name: Handle assignment request
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

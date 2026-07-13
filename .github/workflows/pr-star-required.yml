@@ -9,13 +9,14 @@ on:
 permissions:
   pull-requests: write
   statuses: write
+  contents: read
 
 jobs:
   star-gate:
     name: Star required
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v9
+      - uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

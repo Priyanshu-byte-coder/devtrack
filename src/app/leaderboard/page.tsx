@@ -92,12 +92,13 @@ async function LeaderboardTable({
 
       <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-soft)]">
         {!leaderboard ? (
-          <div className="px-4 py-12 text-center">
-            <p className="text-sm text-[var(--muted-foreground)]">Leaderboard data is temporarily unavailable.</p>
-            <Link href="/leaderboard" className="mt-4 inline-block text-sm font-medium text-[var(--accent)] hover:underline">
-              Retry
-            </Link>
-          </div>
+          <EmptyState
+            icon="⚠️"
+            title="No leaderboard data available"
+            description="Leaderboard data is temporarily unavailable."
+            actionLabel="Sync Dashboard"
+            actionHref="/dashboard"
+          />
         ) : rows.length === 0 ? (
           <EmptyState
             icon="🏆"

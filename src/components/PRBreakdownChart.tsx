@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useAccount } from "@/components/AccountContext";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
+import EmptyState from "@/components/EmptyState";
 
 interface PRBreakdown {
   draft: number;
@@ -90,9 +91,15 @@ export default function PRBreakdownChart() {
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">PR Breakdown</h2>
       {total === 0 ? (
-        <p className="flex h-[200px] items-center justify-center text-sm text-[var(--muted-foreground)]">
-          No pull requests found.
-        </p>
+        <div className="flex h-[200px] items-center justify-center">
+          <EmptyState
+            icon="📊"
+            title="No pull requests available"
+            description="We couldn't find any pull requests for this time period."
+            actionLabel="View GitHub Profile"
+            actionHref={`https://github.com/${selectedAccount || ""}`}
+          />
+        </div>
       ) : (
         <>
           <ResponsiveContainer width="100%" height={200}>
