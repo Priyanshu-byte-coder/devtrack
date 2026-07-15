@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, Link2 } from "lucide-react";
 import { useState } from "react";
 
 interface Task {
@@ -18,9 +18,19 @@ interface KanbanTaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
+  blockersCount: number;
+  blockingCount: number;
+  onManageDependencies: (task: Task) => void;
 }
 
-export default function KanbanTaskCard({ task, onEdit, onDelete }: KanbanTaskCardProps) {
+export default function KanbanTaskCard({
+  task,
+  onEdit,
+  onDelete,
+  blockersCount,
+  blockingCount,
+  onManageDependencies,
+}: KanbanTaskCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 
@@ -82,6 +92,34 @@ export default function KanbanTaskCard({ task, onEdit, onDelete }: KanbanTaskCar
           {task.description}
         </p>
       )}
+
+      {/* Dependency Badges */}
+      <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[var(--border)]">
+        {blockersCount > 0 && (
+          <button
+            onClick={() => onManageDependencies(task)}
+            className="inline-flex items-center gap-1 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500 hover:bg-red-500/20 transition-colors"
+            title="Click to view blockers"
+          >
+            Blocked By: {blockersCount}
+          </button>
+        )}
+        {blockingCount > 0 && (
+          <button
+            onClick={() => onManageDependencies(task)}
+            className="inline-flex items-center gap-1 rounded bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-bold text-indigo-500 hover:bg-indigo-500/20 transition-colors"
+            title="Click to view blocked tasks"
+          >
+            Blocking: {blockingCount}
+          </button>
+        )}
+        <button
+          onClick={() => onManageDependencies(task)}
+          className="inline-flex items-center gap-1 rounded bg-[var(--control)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] ml-auto transition-colors"
+        >
+          <Link2 size={10} /> Link
+        </button>
+      </div>
     </div>
   );
 }

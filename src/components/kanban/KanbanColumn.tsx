@@ -21,20 +21,31 @@ interface Task {
   position: number;
 }
 
+interface Dependency {
+  id: string;
+  project_id: string;
+  blocked_task_id: string;
+  blocking_task_id: string;
+}
+
 interface KanbanColumnProps {
   stage: Stage;
   tasks: Task[];
+  dependencies: Dependency[];
   onAddTask: (stageId: string) => void;
   onEditTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
+  onManageDependencies: (task: Task) => void;
 }
 
 export default function KanbanColumn({
   stage,
   tasks,
+  dependencies,
   onAddTask,
   onEditTask,
   onDeleteTask,
+  onManageDependencies,
 }: KanbanColumnProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: stage.id, data: { type: "column", stage } });
@@ -74,14 +85,22 @@ export default function KanbanColumn({
       {/* Task List container */}
       <div className="flex-1 p-3 overflow-y-auto space-y-3 min-h-[150px]">
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-          {tasks.map((task) => (
-            <KanbanTaskCard
-              key={task.id}
-              task={task}
-              onEdit={onEditTask}
-              onDelete={onDeleteTask}
-            />
-          ))}
+          {tasks.map((task) => {
+            const blockersCount = dependencies.filter((d) => d.blocked_task_id === task.id).length;
+            const blockingCount = dependencies.filter((d) => d.blocking_task_id === task.id).length;
+
+            return (
+              <KanbanTaskCard
+                key={task.id}
+                task={task}
+                onEdit={onEditTask}
+                onDelete={onDeleteTask}
+                blockersCount={blockersCount}
+                blockingCount={blockingCount}
+                onManageDependencies={onManageDependencies}
+              />
+            );
+          })}
         </SortableContext>
       </div>
 

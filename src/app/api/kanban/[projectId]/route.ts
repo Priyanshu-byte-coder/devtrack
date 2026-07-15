@@ -55,7 +55,17 @@ export async function GET(req: Request, props: RouteParams) {
     return Response.json({ error: tasksError.message }, { status: 500 });
   }
 
-  return Response.json({ project, stages, tasks });
+  // Get dependencies
+  const { data: dependencies, error: depsError } = await supabaseAdmin
+    .from("task_dependencies")
+    .select("*")
+    .eq("project_id", projectId);
+
+  if (depsError) {
+    return Response.json({ error: depsError.message }, { status: 500 });
+  }
+
+  return Response.json({ project, stages, tasks, dependencies });
 }
 
 export async function DELETE(req: Request, props: RouteParams) {

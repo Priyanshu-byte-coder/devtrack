@@ -18,6 +18,7 @@ import KanbanColumn from "./KanbanColumn";
 import StageSettingsModal from "./StageSettingsModal";
 import KanbanTaskCard from "./KanbanTaskCard";
 import ActivityFeed from "./ActivityFeed";
+import DependencyModal from "./DependencyModal";
 
 interface Stage {
   id: string;
@@ -33,6 +34,13 @@ interface Task {
   title: string;
   description: string;
   position: number;
+}
+
+interface Dependency {
+  id: string;
+  project_id: string;
+  blocked_task_id: string;
+  blocking_task_id: string;
 }
 
 interface KanbanBoardProps {
@@ -61,6 +69,10 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
   const [showActivityFeed, setShowActivityFeed] = useState(false);
   const [refreshActivityTrigger, setRefreshActivityTrigger] = useState(0);
 
+  // Task dependencies state
+  const [dependencies, setDependencies] = useState<Dependency[]>([]);
+  const [dependencyModalTask, setDependencyModalTask] = useState<Task | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -76,6 +88,7 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
       const data = await res.json();
       setStages(data.stages || []);
       setTasks(data.tasks || []);
+      setDependencies(data.dependencies || []);
       setRefreshActivityTrigger((prev) => prev + 1);
     } catch (err: any) {
       setError(err.message);
@@ -262,6 +275,27 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
         targetStageId = overTask!.stage_id;
       }
 
+      // Check if moving to the final stage
+      const sortedStages = [...stages].sort((a, b) => a.position - b.position);
+      const finalStage = sortedStages[sortedStages.length - 1];
+
+      if (targetStageId === finalStage?.id) {
+        const blockers = dependencies
+          .filter((d) => d.blocked_task_id === activeId)
+          .map((d) => tasks.find((t) => t.id === d.blocking_task_id))
+          .filter(Boolean);
+
+        const activeBlockers = blockers.filter((b) => b!.stage_id !== finalStage.id);
+
+        if (activeBlockers.length > 0) {
+          alert(
+            `Cannot move task to ${finalStage.name}. It is blocked by unfinished tasks:\n` +
+              activeBlockers.map((b) => `- ${b!.title}`).join("\n")
+          );
+          return;
+        }
+      }
+
       // Re-order active stage tasks
       let updatedTasks = [...tasks];
 
@@ -388,6 +422,7 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
                   tasks={tasks
                     .filter((t) => t.stage_id === stage.id)
                     .sort((a, b) => a.position - b.position)}
+                  dependencies={dependencies}
                   onAddTask={(stageId) => {
                     setTaskFormStageId(stageId);
                     setTaskFormTask(null);
@@ -402,6 +437,7 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
                     setShowTaskForm(true);
                   }}
                   onDeleteTask={handleDeleteTask}
+                  onManageDependencies={(task) => setDependencyModalTask(task)}
                 />
               ))}
             </SortableContext>
@@ -422,13 +458,22 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
                 <KanbanColumn
                   stage={activeColumn}
                   tasks={tasks.filter((t) => t.stage_id === activeColumn.id)}
+                  dependencies={[]}
                   onAddTask={() => {}}
                   onEditTask={() => {}}
                   onDeleteTask={() => {}}
+                  onManageDependencies={() => {}}
                 />
               )}
               {activeTask && (
-                <KanbanTaskCard task={activeTask} onEdit={() => {}} onDelete={() => {}} />
+                <KanbanTaskCard
+                  task={activeTask}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                  blockersCount={0}
+                  blockingCount={0}
+                  onManageDependencies={() => {}}
+                />
               )}
             </DragOverlay>
           </DndContext>
@@ -447,6 +492,18 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
           stages={stages}
           onClose={() => setShowStageSettings(false)}
           onSave={handleSaveStages}
+        />
+      )}
+
+      {/* Dependency Modal */}
+      {dependencyModalTask && (
+        <DependencyModal
+          task={dependencyModalTask}
+          tasks={tasks}
+          dependencies={dependencies}
+          projectId={projectId}
+          onClose={() => setDependencyModalTask(null)}
+          onRefresh={fetchData}
         />
       )}
 
