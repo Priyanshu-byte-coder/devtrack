@@ -2,6 +2,7 @@
 import SectionHeader from "./SectionHeader";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -54,10 +55,10 @@ export default function PRMetrics() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [minutesAgo, setMinutesAgo] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"authored" | "reviews">("authored");
-  const [prFilter, setPrFilter] = useState<"all" | "merged" | "open">("all");
-  const [range, setRange] = useState<"7d" | "30d" | "90d">("30d");
-  const [staleThresholdDays, setStaleThresholdDays] = useState(14);
+  const [activeTab, setActiveTab] = usePersistentState<"authored" | "reviews">("devtrack:pr-metrics:activeTab", "authored");
+  const [prFilter, setPrFilter] = usePersistentState<"all" | "merged" | "open">("devtrack:pr-metrics:prFilter", "all");
+  const [range, setRange] = usePersistentState<"7d" | "30d" | "90d">("devtrack:pr-metrics:range", "30d");
+  const [staleThresholdDays, setStaleThresholdDays] = usePersistentState("devtrack:pr-metrics:staleThreshold", 14);
 
   const fetchMetrics = useCallback(() => {
     setLoading(true);
