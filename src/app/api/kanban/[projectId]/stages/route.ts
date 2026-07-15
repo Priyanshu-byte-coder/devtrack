@@ -63,6 +63,16 @@ export async function POST(req: Request, props: RouteParams) {
     return Response.json({ error: stageError.message }, { status: 500 });
   }
 
+  // Log activity
+  await supabaseAdmin.from("activity_log").insert({
+    project_id: projectId,
+    user_id: user.id,
+    action: "stage_created",
+    entity_type: "stage",
+    entity_id: stage.id,
+    metadata: { name: stage.name },
+  });
+
   return Response.json({ stage }, { status: 201 });
 }
 
@@ -108,6 +118,16 @@ export async function PUT(req: Request, props: RouteParams) {
     if (deleteError) {
       return Response.json({ error: deleteError.message }, { status: 500 });
     }
+
+    // Log activity
+    await supabaseAdmin.from("activity_log").insert({
+      project_id: projectId,
+      user_id: user.id,
+      action: "stage_deleted",
+      entity_type: "stage",
+      entity_id: deleteStageId,
+      metadata: { id: deleteStageId },
+    });
   }
 
   if (stages && Array.isArray(stages)) {
@@ -127,6 +147,16 @@ export async function PUT(req: Request, props: RouteParams) {
     if (upsertError) {
       return Response.json({ error: upsertError.message }, { status: 500 });
     }
+
+    // Log activity
+    await supabaseAdmin.from("activity_log").insert({
+      project_id: projectId,
+      user_id: user.id,
+      action: "stages_reordered",
+      entity_type: "stage",
+      entity_id: projectId,
+      metadata: { count: stages.length },
+    });
   }
 
   return Response.json({ success: true });

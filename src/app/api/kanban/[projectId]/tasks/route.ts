@@ -64,6 +64,16 @@ export async function POST(req: Request, props: RouteParams) {
     return Response.json({ error: taskError.message }, { status: 500 });
   }
 
+  // Log activity
+  await supabaseAdmin.from("activity_log").insert({
+    project_id: projectId,
+    user_id: user.id,
+    action: "task_created",
+    entity_type: "task",
+    entity_id: task.id,
+    metadata: { title: task.title, stage_id: task.stage_id },
+  });
+
   return Response.json({ task }, { status: 201 });
 }
 
@@ -96,9 +106,16 @@ export async function PUT(req: Request, props: RouteParams) {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { tasks, deleteTaskId } = body;
+  const { tasks, deleteTaskId, movedTask, editedTask } = body;
 
   if (deleteTaskId) {
+    // Get task details before deleting for a better log
+    const { data: taskToDelete } = await supabaseAdmin
+      .from("tasks")
+      .select("title")
+      .eq("id", deleteTaskId)
+      .single();
+
     // Delete the task
     const { error: deleteError } = await supabaseAdmin
       .from("tasks")
@@ -109,6 +126,16 @@ export async function PUT(req: Request, props: RouteParams) {
     if (deleteError) {
       return Response.json({ error: deleteError.message }, { status: 500 });
     }
+
+    // Log activity
+    await supabaseAdmin.from("activity_log").insert({
+      project_id: projectId,
+      user_id: user.id,
+      action: "task_deleted",
+      entity_type: "task",
+      entity_id: deleteTaskId,
+      metadata: { title: taskToDelete?.title || "Deleted Task" },
+    });
   }
 
   if (tasks && Array.isArray(tasks)) {
@@ -129,6 +156,34 @@ export async function PUT(req: Request, props: RouteParams) {
 
     if (upsertError) {
       return Response.json({ error: upsertError.message }, { status: 500 });
+    }
+
+    // Log activity if moved or edited specifically
+    if (movedTask) {
+      // Find destination stage name
+      const { data: stage } = await supabaseAdmin
+        .from("workflow_stages")
+        .select("name")
+        .eq("id", movedTask.toStageId)
+        .single();
+
+      await supabaseAdmin.from("activity_log").insert({
+        project_id: projectId,
+        user_id: user.id,
+        action: "task_moved",
+        entity_type: "task",
+        entity_id: movedTask.id,
+        metadata: { title: movedTask.title, stage_name: stage?.name || "new column" },
+      });
+    } else if (editedTask) {
+      await supabaseAdmin.from("activity_log").insert({
+        project_id: projectId,
+        user_id: user.id,
+        action: "task_updated",
+        entity_type: "task",
+        entity_id: editedTask.id,
+        metadata: { title: editedTask.title },
+      });
     }
   }
 

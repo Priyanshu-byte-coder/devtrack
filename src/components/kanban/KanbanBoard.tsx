@@ -13,10 +13,11 @@ import {
   defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
-import { Plus, Settings, Sparkles } from "lucide-react";
+import { Plus, Settings, Sparkles, Clock } from "lucide-react";
 import KanbanColumn from "./KanbanColumn";
 import StageSettingsModal from "./StageSettingsModal";
 import KanbanTaskCard from "./KanbanTaskCard";
+import ActivityFeed from "./ActivityFeed";
 
 interface Stage {
   id: string;
@@ -56,6 +57,10 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
   const [activeColumn, setActiveColumn] = useState<Stage | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
+  // Activity feed state
+  const [showActivityFeed, setShowActivityFeed] = useState(false);
+  const [refreshActivityTrigger, setRefreshActivityTrigger] = useState(0);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -71,6 +76,7 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
       const data = await res.json();
       setStages(data.stages || []);
       setTasks(data.tasks || []);
+      setRefreshActivityTrigger((prev) => prev + 1);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -109,7 +115,10 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
         const res = await fetch(`/api/kanban/${projectId}/tasks`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tasks: updatedTasks }),
+          body: JSON.stringify({
+            tasks: updatedTasks,
+            editedTask: { id: taskFormTask.id, title: taskTitle },
+          }),
         });
         if (!res.ok) throw new Error("Failed to update task");
       } else {
@@ -304,7 +313,10 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
         const res = await fetch(`/api/kanban/${projectId}/tasks`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tasks: finalTasks }),
+          body: JSON.stringify({
+            tasks: finalTasks,
+            movedTask: { id: activeId, title: activeTaskItem.title, toStageId: targetStageId },
+          }),
         });
         if (!res.ok) throw new Error("Failed to save tasks configuration");
         await fetchData();
@@ -338,78 +350,95 @@ export default function KanbanBoard({ projectId }: KanbanBoardProps) {
           <Sparkles className="h-5 w-5 text-[var(--accent)]" />
           <h2 className="text-lg font-semibold text-[var(--foreground)]">Project Kanban Board</h2>
         </div>
-        <button
-          onClick={() => setShowStageSettings(true)}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition-opacity hover:opacity-90 shadow-sm"
-        >
-          <Settings size={16} />
-          Configure Columns
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowActivityFeed(!showActivityFeed)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition-opacity hover:opacity-90 shadow-sm"
+          >
+            <Clock size={16} />
+            {showActivityFeed ? "Hide History" : "Show History"}
+          </button>
+          <button
+            onClick={() => setShowStageSettings(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition-opacity hover:opacity-90 shadow-sm"
+          >
+            <Settings size={16} />
+            Configure Columns
+          </button>
+        </div>
       </div>
 
       {/* Columns Container */}
-      <div className="flex gap-6 overflow-x-auto pb-4 pt-1 items-start min-h-[calc(100vh-250px)]">
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={stages.map((s) => s.id)}
-            strategy={horizontalListSortingStrategy}
+      <div className="flex gap-6 items-start">
+        <div className="flex-1 overflow-x-auto pb-4 pt-1 items-start min-h-[calc(100vh-250px)]">
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
           >
-            {stages.map((stage) => (
-              <KanbanColumn
-                key={stage.id}
-                stage={stage}
-                tasks={tasks
-                  .filter((t) => t.stage_id === stage.id)
-                  .sort((a, b) => a.position - b.position)}
-                onAddTask={(stageId) => {
-                  setTaskFormStageId(stageId);
-                  setTaskFormTask(null);
-                  setTaskTitle("");
-                  setTaskDesc("");
-                  setShowTaskForm(true);
-                }}
-                onEditTask={(task) => {
-                  setTaskFormTask(task);
-                  setTaskTitle(task.title);
-                  setTaskDesc(task.description);
-                  setShowTaskForm(true);
-                }}
-                onDeleteTask={handleDeleteTask}
-              />
-            ))}
-          </SortableContext>
+            <SortableContext
+              items={stages.map((s) => s.id)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {stages.map((stage) => (
+                <KanbanColumn
+                  key={stage.id}
+                  stage={stage}
+                  tasks={tasks
+                    .filter((t) => t.stage_id === stage.id)
+                    .sort((a, b) => a.position - b.position)}
+                  onAddTask={(stageId) => {
+                    setTaskFormStageId(stageId);
+                    setTaskFormTask(null);
+                    setTaskTitle("");
+                    setTaskDesc("");
+                    setShowTaskForm(true);
+                  }}
+                  onEditTask={(task) => {
+                    setTaskFormTask(task);
+                    setTaskTitle(task.title);
+                    setTaskDesc(task.description);
+                    setShowTaskForm(true);
+                  }}
+                  onDeleteTask={handleDeleteTask}
+                />
+              ))}
+            </SortableContext>
 
-          {/* Drag Overlay */}
-          <DragOverlay
-            dropAnimation={{
-              sideEffects: defaultDropAnimationSideEffects({
-                styles: {
-                  active: {
-                    opacity: "0.5",
+            {/* Drag Overlay */}
+            <DragOverlay
+              dropAnimation={{
+                sideEffects: defaultDropAnimationSideEffects({
+                  styles: {
+                    active: {
+                      opacity: "0.5",
+                    },
                   },
-                },
-              }),
-            }}
-          >
-            {activeColumn && (
-              <KanbanColumn
-                stage={activeColumn}
-                tasks={tasks.filter((t) => t.stage_id === activeColumn.id)}
-                onAddTask={() => {}}
-                onEditTask={() => {}}
-                onDeleteTask={() => {}}
-              />
-            )}
-            {activeTask && (
-              <KanbanTaskCard task={activeTask} onEdit={() => {}} onDelete={() => {}} />
-            )}
-          </DragOverlay>
-        </DndContext>
+                }),
+              }}
+            >
+              {activeColumn && (
+                <KanbanColumn
+                  stage={activeColumn}
+                  tasks={tasks.filter((t) => t.stage_id === activeColumn.id)}
+                  onAddTask={() => {}}
+                  onEditTask={() => {}}
+                  onDeleteTask={() => {}}
+                />
+              )}
+              {activeTask && (
+                <KanbanTaskCard task={activeTask} onEdit={() => {}} onDelete={() => {}} />
+              )}
+            </DragOverlay>
+          </DndContext>
+        </div>
+
+        {showActivityFeed && (
+          <div className="w-80 border border-[var(--border)] rounded-xl shadow-sm bg-[var(--card)] self-stretch h-[calc(100vh-280px)] overflow-hidden hidden md:block">
+            <ActivityFeed projectId={projectId} refreshTrigger={refreshActivityTrigger} />
+          </div>
+        )}
       </div>
 
       {/* Configure Columns Settings Modal */}
