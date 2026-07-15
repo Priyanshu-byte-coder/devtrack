@@ -512,6 +512,49 @@ function SettingsPageContent() {
     loadLinkedAccounts();
   }, [session, status]);
 
+  const handleUpdateNotificationPreferences = async (
+    key: "task_assigned" | "blocker_added" | "weekly_summary",
+    channel: "email" | "in_app",
+    value: boolean
+  ) => {
+    if (!settings) return;
+
+    const currentPrefs = settings.notification_preferences || {
+      task_assigned: { email: true, in_app: true },
+      blocker_added: { email: true, in_app: true },
+      weekly_summary: { email: true, in_app: false },
+    };
+
+    const updatedPrefs = {
+      ...currentPrefs,
+      [key]: {
+        ...currentPrefs[key],
+        [channel]: value,
+      },
+    };
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/user/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notification_preferences: updatedPrefs }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setSettings(updated);
+        toast.success("Notification preferences updated");
+      } else {
+        toast.error("Failed to update notification preferences");
+      }
+    } catch (error) {
+      toast.error("Error updating notification preferences");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleTogglePublic = async (value: boolean) => {
     if (!settings) return;
 
@@ -1921,6 +1964,102 @@ function SettingsPageContent() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Notification Preferences */}
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-[var(--card-foreground)] mb-4">
+            Notification Preferences
+          </h2>
+          <p className="text-xs text-[var(--muted-foreground)] mb-6">
+            Configure how you want to receive alerts for project updates.
+          </p>
+
+          <div className="space-y-4">
+            {/* Blocker Added */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--border)] pb-4 gap-4">
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--foreground)]">Blocker Added</h4>
+                <p className="text-xs text-[var(--muted-foreground)]">Alert me when a task blocks or is blocked by another task.</p>
+              </div>
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings?.notification_preferences?.blocker_added?.email ?? true}
+                    onChange={(e) => handleUpdateNotificationPreferences("blocker_added", "email", e.target.checked)}
+                    className="rounded border-[var(--border)] bg-[var(--background)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  Email
+                </label>
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings?.notification_preferences?.blocker_added?.in_app ?? true}
+                    onChange={(e) => handleUpdateNotificationPreferences("blocker_added", "in_app", e.target.checked)}
+                    className="rounded border-[var(--border)] bg-[var(--background)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  In-App
+                </label>
+              </div>
+            </div>
+
+            {/* Task Assigned */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--border)] pb-4 gap-4">
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--foreground)]">Task Assigned</h4>
+                <p className="text-xs text-[var(--muted-foreground)]">Alert me when I am assigned to a task.</p>
+              </div>
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings?.notification_preferences?.task_assigned?.email ?? true}
+                    onChange={(e) => handleUpdateNotificationPreferences("task_assigned", "email", e.target.checked)}
+                    className="rounded border-[var(--border)] bg-[var(--background)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  Email
+                </label>
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings?.notification_preferences?.task_assigned?.in_app ?? true}
+                    onChange={(e) => handleUpdateNotificationPreferences("task_assigned", "in_app", e.target.checked)}
+                    className="rounded border-[var(--border)] bg-[var(--background)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  In-App
+                </label>
+              </div>
+            </div>
+
+            {/* Weekly Digest */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 gap-4">
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--foreground)]">Weekly Summary</h4>
+                <p className="text-xs text-[var(--muted-foreground)]">Receive a summary of project activity and metrics once a week.</p>
+              </div>
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings?.notification_preferences?.weekly_summary?.email ?? true}
+                    onChange={(e) => handleUpdateNotificationPreferences("weekly_summary", "email", e.target.checked)}
+                    className="rounded border-[var(--border)] bg-[var(--background)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  Email
+                </label>
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings?.notification_preferences?.weekly_summary?.in_app ?? false}
+                    onChange={(e) => handleUpdateNotificationPreferences("weekly_summary", "in_app", e.target.checked)}
+                    className="rounded border-[var(--border)] bg-[var(--background)] text-[var(--accent)] focus:ring-[var(--accent)]"
+                  />
+                  In-App
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 

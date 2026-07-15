@@ -45,7 +45,7 @@ function sanitizePublicWidgets(input: unknown): WidgetKey[] {
 async function fetchUserSettings(userId: string) {
   const res1 = await supabaseAdmin
     .from("users")
-    .select("id, github_login, bio, is_public, public_since, show_weekly_goals, leaderboard_opt_in, pinned_repos, wakatime_api_key_encrypted, wakatime_api_key_iv, weekly_digest_opt_in, discord_webhook_url, timezone, webhook_url, discord_muted_until, public_widgets, preferred_locale")
+    .select("id, github_login, bio, is_public, public_since, show_weekly_goals, leaderboard_opt_in, pinned_repos, wakatime_api_key_encrypted, wakatime_api_key_iv, weekly_digest_opt_in, discord_webhook_url, timezone, webhook_url, discord_muted_until, public_widgets, preferred_locale, notification_preferences")
     .eq("id", userId)
     .single();
 
@@ -74,6 +74,7 @@ async function fetchUserSettings(userId: string) {
       discord_muted_until: (res1.data as any).discord_muted_until || null,
       public_widgets: sanitizePublicWidgets((res1.data as any).public_widgets),
       preferred_locale: (res1.data as any).preferred_locale || defaultLocale,
+      notification_preferences: (res1.data as any).notification_preferences || null,
     };
   }
 
@@ -211,6 +212,7 @@ export async function GET(req: NextRequest) {
     discord_muted_until: result.discord_muted_until ?? null,
     public_widgets: result.public_widgets,
     preferred_locale: result.preferred_locale,
+    notification_preferences: result.data?.notification_preferences ?? null,
   };
 
   await cacheSet(cacheKey, responseData, SETTINGS_TTL);
@@ -236,7 +238,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { is_public, show_weekly_goals, leaderboard_opt_in, weekly_digest_opt_in, pinned_repos, wakatime_api_key, discord_webhook_url, timezone, bio, webhook_url, discord_muted_until, public_widgets, seen_onboarding, preferred_locale } = body;
+  const { is_public, show_weekly_goals, leaderboard_opt_in, weekly_digest_opt_in, pinned_repos, wakatime_api_key, discord_webhook_url, timezone, bio, webhook_url, discord_muted_until, public_widgets, seen_onboarding, preferred_locale, notification_preferences } = body;
 
   const settingsResult = await fetchUserSettings(user.id);
   const { hasLeaderboardOptIn, hasPinnedRepos, hasWakatimeKey, hasWeeklyDigestOptIn, hasDiscordSettings, hasBio, hasWebhookUrl, hasDiscordMutedUntil, hasPublicWidgets, hasPreferredLocale } = settingsResult;
@@ -312,6 +314,10 @@ export async function PATCH(req: NextRequest) {
     updates.preferred_locale = preferred_locale;
   }
 
+  if (notification_preferences !== undefined && notification_preferences !== null) {
+    updates.notification_preferences = notification_preferences;
+  }
+
   await supabaseAdmin.from("users").update(updates).eq("id", user.id);
 
   return settingsResponse({
@@ -331,5 +337,6 @@ export async function PATCH(req: NextRequest) {
     discord_muted_until: updates.discord_muted_until ?? settingsResult.discord_muted_until,
     public_widgets: updates.public_widgets ?? settingsResult.public_widgets,
     preferred_locale: updates.preferred_locale ?? settingsResult.preferred_locale,
+    notification_preferences: updates.notification_preferences ?? settingsResult.data?.notification_preferences ?? null,
   });
 }
