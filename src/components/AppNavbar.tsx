@@ -62,6 +62,7 @@ export default function AppNavbar() {
     if (isAuthenticated) {
       return [
         { href: "/dashboard", label: t("overview") },
+        { href: "/dashboard/kanban", label: t("kanban") },
         { href: "/dashboard/career-intelligence", label: t("resume") },
         { href: "/dashboard/personality", label: t("personality") },
         { href: "/leaderboard", label: t("leaderboard") },

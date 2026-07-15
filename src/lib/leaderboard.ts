@@ -159,7 +159,7 @@ export async function clearLeaderboardCache(): Promise<void> {
   await invalidateLeaderboardCache();
 
   // 3. Invalidate Next.js unstable_cache
-  revalidateTag("leaderboard", {});
+  revalidateTag("leaderboard");
 }
 
 async function mapWithConcurrency<T, R>(
@@ -402,7 +402,7 @@ export async function refreshLeaderboardCache(
   const cacheKey = getLeaderboardCacheKey(period);
   await cacheSet(cacheKey, payload, CACHE_STALE_SECONDS);
   setMemoryCachedLeaderboard(payload, period);
-  revalidateTag("leaderboard", {});
+  revalidateTag("leaderboard");
   return payload;
 }
 
