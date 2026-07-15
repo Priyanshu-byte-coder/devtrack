@@ -632,6 +632,21 @@ export default function CustomizableDashboard() {
     setLayout(resetDashboardLayout());
   };
 
+  if (!isHydrated) {
+    return (
+      <div className="mt-10 px-0.5">
+        <div className="h-12 w-full mb-8 bg-[var(--card-muted)] rounded-lg animate-pulse" />
+        <div className="space-y-14">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-10 px-0.5">
       <DashboardLayoutToolbar
