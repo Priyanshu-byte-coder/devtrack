@@ -446,16 +446,16 @@ export default function GoalTracker() {
   }
 
   return (
-    <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
+    <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 sm:p-4 md:p-6 shadow-sm overflow-y-auto">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">Goals</h2>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+        <h2 className="text-base sm:text-lg font-semibold text-[var(--card-foreground)]">Goals</h2>
         <button
           onClick={handleSync}
           disabled={syncing}
           title="Refresh commit-based goals from GitHub"
           aria-label="Refresh commit goals"
-          className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-xs text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-[var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 sm:py-1 text-xs text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -466,13 +466,16 @@ export default function GoalTracker() {
           >
             <path
               fillRule="evenodd"
-              d="M15.312 3.312a.75.75 0 011.06 1.06l-1.43 1.43A8 8 0 1118 10a.75.75 0 01-1.5 0 6.5 6.5 0 10-1.923 4.596l-1.43-1.43a.75.75 0 011.06-1.06l2.75 2.75a.75.75 0 010 1.06l-2.75 2.75a.75.75 0 01-1.06-1.06l1.43-1.43A8 8 0 012 10 8 8 0 0115.312 3.312z"
+              d="M15.312 3.312a.75.75 0 011.06 1.06l-1.43 1.43A8 8 0 1118 10a.75.75 0 01-1.5 0 6.5 6.5 0 10-1.923 4.596l-1.43-1.43a.75.75 0 011.06-1.06l2.75 2.75a.75.75 0 010 1.06l-2.75 2.75a.75.75 0 01-1.06-1.06l1.43-1.43A8 8 0 015.5 10a.75.75 0 01-1.5 0 9.5 9.5 0 0110.312-9.688z"
               clipRule="evenodd"
             />
           </svg>
-          {syncing ? "Syncing…" : "Refresh"}
+          <span className="hidden xs:inline">{syncing ? "Syncing…" : "Refresh"}</span>
+          <span className="inline xs:hidden">{syncing ? "…" : "↻"}</span>
         </button>
       </div>
+      
+      {/* Rest of component... */}
 
       {/* Sync Error */}
       {syncError && (
