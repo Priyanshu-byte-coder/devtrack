@@ -1,4 +1,6 @@
+﻿import BackToTopButton from "@/components/BackToTopButton";
 import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
+import LeaderboardTabs from "@/components/leaderboard/LeaderboardTabs";
 import ThrottleBanner from "@/components/ThrottleBanner";
 import CustomizableDashboard from "@/components/dashboard/CustomizableDashboard";
 import MilestonePlanner from "@/components/MilestonePlanner";
@@ -15,6 +17,7 @@ import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import RoastHypeWidget from "./RoastHypeWidget";
+
 
 export default async function DashboardPage() {
   // In the production standalone Playwright build, getServerSession can fail to
@@ -147,6 +150,7 @@ export default async function DashboardPage() {
           </div>
         </main>
       </DashboardWidgetA11yProvider>
+      <BackToTopButton threshold={400} />
     </DashboardSSEProvider>
   );
 }
