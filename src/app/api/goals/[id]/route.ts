@@ -2,40 +2,27 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
+import { dispatchToAllWebhooks } from "@/lib/webhooks";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
-) {
-  const session = await getServerSession(authOptions);
-  if (!session?.githubId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
+// Goals whose progress is derived from verified GitHub activity.
+// The sync endpoint (/api/goals/sync) is the sole authority for these values;
+// client-supplied progress updates must be rejected to prevent fabrication.
+const ACTIVITY_DERIVED_UNITS = new Set(["commits", "prs"]);
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) return Response.json({ error: "User not found" }, { status: 404 });
+// Canonical recurrence values — must stay in sync with the POST route and
+// the GET period-reset logic, neither of which has a branch for "daily".
+// Accepting "daily" here would write an unrecognised value to the DB that
+// the reset logic silently ignores, leaving the goal stuck forever.
+const VALID_RECURRENCES = ["none", "weekly", "monthly"] as const;
+type Recurrence = (typeof VALID_RECURRENCES)[number];
 
-  // Only delete if the goal belongs to the authenticated user
-  const { error } = await supabaseAdmin
-    .from("goals")
-    .delete()
-    .eq("id", params.id)
-    .eq("user_id", user.id);
-
-  if (error) {
-    return Response.json({ error: "Failed to delete goal" }, { status: 500 });
-  }
-
-  return Response.json({ success: true }, { status: 200 });
-}
-
-// PATCH /api/goals/[id] — update an existing goal
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,18 +30,6 @@ export async function PATCH(
 
   const user = await resolveAppUser(session.githubId, session.githubLogin);
   if (!user) return Response.json({ error: "User not found" }, { status: 404 });
-
-  // Fetch existing goal first to verify ownership
-  const { data: existing, error: fetchError } = await supabaseAdmin
-    .from("goals")
-    .select("*")
-    .eq("id", params.id)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (fetchError || !existing) {
-    return Response.json({ error: "Goal not found" }, { status: 404 });
-  }
 
   let body: unknown;
   try {
@@ -69,8 +44,8 @@ export async function PATCH(
 
   const updates: Record<string, unknown> = {};
 
-  const { title, target, unit, recurrence, current } =
-  body as Record<string, unknown>;
+  const { title, target, unit, recurrence, current, is_public } =
+    body as Record<string, unknown>;
 
   if (title !== undefined) {
     if (typeof title !== "string" || title.trim().length === 0) {
@@ -97,59 +72,145 @@ export async function PATCH(
     updates.target = target;
   }
 
-if (current !== undefined) {
-  if (
-    typeof current !== "number" ||
-    !Number.isInteger(current) ||
-    current < 0
-  ) {
+  if (unit !== undefined) {
+    if (typeof unit !== "string" || unit.trim().length === 0) {
+      return Response.json({ error: "unit must be a non-empty string" }, { status: 400 });
+    }
+    updates.unit = unit.trim();
+  }
+
+  if (recurrence !== undefined) {
+    if (!VALID_RECURRENCES.includes(recurrence as Recurrence)) {
+      return Response.json(
+        { error: "recurrence must be 'none', 'weekly', or 'monthly'" },
+        { status: 400 }
+      );
+    }
+    updates.recurrence = recurrence;
+  }
+
+  if (current !== undefined) {
+    if (typeof current !== "number" || !Number.isInteger(current) || current < 0) {
+      return Response.json(
+        { error: "current must be a non-negative integer" },
+        { status: 400 }
+      );
+    }
+    updates.current = current;
+  }
+  
+  if (is_public !== undefined) {
+    if (typeof is_public !== "boolean") {
+      return Response.json(
+        { error: "is_public must be a boolean" },
+        { status: 400 }
+      );
+    }
+
+    updates.is_public = is_public;
+  } 
+
+  const { data: existingGoal } = await supabaseAdmin
+    .from("goals")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!existingGoal) {
+    return Response.json({ error: "Goal not found" }, { status: 404 });
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return Response.json({ goal: existingGoal });
+  }
+
+  // Block manual progress edits for activity-derived goal types.
+  // These goals are synced from GitHub and setting current directly would
+  // allow goal completion without any corresponding real activity.
+  if (current !== undefined && ACTIVITY_DERIVED_UNITS.has(existingGoal.unit)) {
     return Response.json(
-      { error: "current must be a non-negative integer" },
-      { status: 400 }
+      {
+        error:
+          "Progress for activity-derived goals is updated automatically via GitHub sync.",
+      },
+      { status: 422 }
     );
   }
 
-  const effectiveTarget =
-    typeof target === "number" ? target : existing.target;
-
-  if (current > effectiveTarget) {
+  if (typeof current === "number" && current > existingGoal.target) {
     return Response.json(
       { error: "current cannot exceed target" },
       { status: 400 }
     );
   }
 
-  updates.current = current;
-}
-
-  if (unit !== undefined) {
-    const safeUnit = typeof unit === "string" ? unit.slice(0, 30) : "commits";
-    updates.unit = safeUnit;
-  }
-
-  if (recurrence !== undefined) {
-    const validRecurrences = ["none", "weekly", "monthly"];
-    if (!validRecurrences.includes(recurrence as string)) {
-      return Response.json({ error: "recurrence must be one of: none, weekly, monthly" }, { status: 400 });
-    }
-    updates.recurrence = recurrence;
-  }
-
-  if (Object.keys(updates).length === 0) {
-    return Response.json({ error: "No valid fields to update" }, { status: 400 });
-  }
-
-  const { data: updated, error: updateError } = await supabaseAdmin
+  const wasCompleted = existingGoal.current >= existingGoal.target;
+  const { data: updatedGoal, error } = await supabaseAdmin
     .from("goals")
     .update(updates)
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .select()
     .single();
 
-  if (updateError) {
-    return Response.json({ error: updateError.message }, { status: 500 });
+  if (error) {
+    return Response.json(
+      { error: "Failed to update goal" },
+      { status: 500 }
+    );
   }
 
-  return Response.json({ goal: updated });
+  const isNowCompleted = updatedGoal.current >= updatedGoal.target;
+
+  if (!wasCompleted && isNowCompleted) {
+    dispatchToAllWebhooks(user.id, "goal.completed", {
+      goalId: updatedGoal.id,
+      title: updatedGoal.title,
+      target: updatedGoal.target,
+      unit: updatedGoal.unit,
+      recurrence: updatedGoal.recurrence,
+      completedAt: new Date().toISOString(),
+    }).catch(() => {});
+  }
+
+  return Response.json({ goal: updatedGoal });
+}
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.githubId) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await resolveAppUser(session.githubId, session.githubLogin);
+    if (!user) {
+      console.error("Failed to resolve user for goals DELETE:", {
+        githubId: session.githubId,
+      });
+      return Response.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Only delete if the goal belongs to the authenticated user
+    const { error } = await supabaseAdmin
+      .from("goals")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Error deleting goal:", error);
+      return Response.json({ error: "Failed to delete goal" }, { status: 500 });
+    }
+
+    return Response.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error("Unexpected error in goals DELETE:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

@@ -1,15 +1,12 @@
-name: Type Check
+# NOTE: This workflow is consolidated into ci.yml to avoid duplicate type check runs.
+# Please remove this file and manage type checking only through ci.yml.
+# Keeping this file for reference only - it is disabled.
+name: Type Check (DEPRECATED - see ci.yml)
 on:
   pull_request:
-    branches: [main]
+    branches: []
 jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npx tsc --noEmit
+      - run: echo "Type checking is now handled by ci.yml"

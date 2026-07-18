@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { WrappedStats } from "@/lib/wrapped";
 
 const SLIDE_THEMES = [
@@ -30,7 +31,8 @@ function buildYearOptions() {
 }
 
 function getShareText(stats: WrappedStats) {
-  return `My ${stats.year} Year in Code: ${formatNumber(
+  const persona = stats.personality ? `I'm a ${stats.personality.icon} ${stats.personality.name}! ` : "";
+  return `My ${stats.year} Year in Code: ${persona}${formatNumber(
     stats.totalCommits
   )} commits, ${stats.longestStreak}-day streak, and ${
     stats.topLanguages[0]?.name ?? "code"
@@ -160,8 +162,51 @@ export default function WrappedExperience() {
             : `You coded at ${stats.peakCodingHour.label} most often.`,
         metric: "Peak coding time",
       },
+      ...(stats.personality
+        ? [
+            {
+              eyebrow: "Your Coding Persona",
+              title: `${stats.personality.icon} ${stats.personality.name}`,
+              body: `${stats.personality.description} ${stats.personality.reason}`,
+              metric: "Coding Personality",
+            },
+          ]
+        : []),
     ];
   }, [stats]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!slides.length) return;
+
+      switch (event.key) {
+        case "ArrowLeft":
+          setSlide((value) => Math.max(0, value - 1));
+          break;
+
+        case "ArrowRight":
+          setSlide((value) => Math.min(slides.length - 1, value + 1));
+          break;
+
+        case "Home":
+          setSlide(0);
+          break;
+
+        case "End":
+          setSlide(slides.length - 1);
+          break;
+
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [slides.length]);
 
   const shareUrl = origin
     ? `${origin}/wrapped?year=${selectedYear}`
@@ -177,7 +222,7 @@ export default function WrappedExperience() {
   const currentSlide = slides[slide];
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
+    <main className="wrapped-root min-h-screen bg-slate-950 text-slate-50">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -196,7 +241,7 @@ export default function WrappedExperience() {
               id="wrapped-year"
               value={selectedYear}
               onChange={(event) => setSelectedYear(Number(event.target.value))}
-              className="h-10 rounded-md border border-white/20 bg-slate-900 px-3 text-sm font-semibold text-white outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30"
+              className="h-10 rounded-md border border-white/20 bg-slate-900 px-3 text-sm font-semibold text-white transition focus-visible:border-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-300/30"
             >
               {years.map((year) => (
                 <option key={year} value={year}>
@@ -206,7 +251,7 @@ export default function WrappedExperience() {
             </select>
             <Link
               href="/dashboard"
-              className="inline-flex h-10 items-center rounded-md border border-white/20 px-4 text-sm font-semibold text-slate-100 transition hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+              className="inline-flex h-10 items-center rounded-md border border-white/20 px-4 text-sm font-semibold text-slate-100 transition hover:border-cyan-300"
             >
               Dashboard
             </Link>
@@ -220,7 +265,20 @@ export default function WrappedExperience() {
             aria-busy="true"
             className="grid flex-1 place-items-center py-16"
           >
-            <div className="h-[520px] w-full max-w-4xl animate-pulse rounded-lg border border-white/10 bg-white/5" />
+            <div
+              className="
+              w-full
+              max-w-4xl
+              animate-pulse
+              rounded-lg
+              border
+              border-white/10
+              bg-white/5
+              aspect-[4/3]
+              min-h-[250px]
+              max-h-[520px]
+            "
+            />
             <span className="sr-only">Loading your Year in Code</span>
           </section>
         ) : error ? (
@@ -241,6 +299,9 @@ export default function WrappedExperience() {
           <>
             <section className="grid flex-1 items-center gap-6 py-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
               <div
+                tabIndex={0}
+                role="region"
+                aria-label="Year in Code slides"
                 className={`relative min-h-[520px] overflow-hidden rounded-lg border border-white/10 bg-gradient-to-br ${
                   SLIDE_THEMES[slide % SLIDE_THEMES.length]
                 } p-6 shadow-2xl shadow-cyan-950/30 sm:p-10`}
@@ -260,7 +321,13 @@ export default function WrappedExperience() {
                     <p className="text-sm font-bold uppercase tracking-[0.28em] text-cyan-200">
                       {currentSlide.eyebrow}
                     </p>
-                    <h2 className="mt-6 max-w-3xl break-words text-5xl font-black leading-[0.95] text-white sm:text-7xl">
+                    <h2
+                      className={`mt-6 max-w-3xl overflow-hidden text-ellipsis break-all font-black leading-[0.95] text-white ${
+                        currentSlide.metric === "Most contributed repo"
+                          ? "line-clamp-3 text-3xl sm:text-4xl lg:text-5xl"
+                          : "text-5xl sm:text-7xl"
+                      }`}
+                    >
                       {currentSlide.title}
                     </h2>
                     <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-200">
@@ -306,26 +373,28 @@ export default function WrappedExperience() {
                   <p className="mt-1 text-sm text-slate-300">
                     Generated from your selected year.
                   </p>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={getOgImageUrl(stats)}
                     alt={`${stats.year} Year in Code share card for ${stats.username}`}
+                    width={1200}
+                    height={630}
                     className="mt-4 aspect-[1200/630] w-full rounded-md border border-white/10 object-cover"
+                    unoptimized
                   />
                   <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <a
                       href={twitterUrl}
                       target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-10 items-center justify-center rounded-md bg-white px-3 text-sm font-black text-slate-950 transition hover:bg-cyan-100 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 items-center justify-center rounded-md bg-white px-3 text-sm font-black text-slate-950 transition hover:bg-cyan-100"
                     >
                       Share on X
                     </a>
                     <a
                       href={linkedInUrl}
                       target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-10 items-center justify-center rounded-md border border-white/20 px-3 text-sm font-bold text-white transition hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 items-center justify-center rounded-md border border-white/20 px-3 text-sm font-bold text-white transition hover:border-cyan-300"
                     >
                       LinkedIn
                     </a>
@@ -357,12 +426,11 @@ export default function WrappedExperience() {
                   type="button"
                   onClick={() => setSlide(index)}
                   aria-current={slide === index ? "step" : undefined}
+                  aria-label={`Go to slide ${index + 1}: ${item.metric}`}
                   className={`h-3 w-10 rounded-full transition ${
                     slide === index ? "bg-cyan-300" : "bg-white/20 hover:bg-white/40"
                   }`}
-                >
-                  <span className="sr-only">{item.metric}</span>
-                </button>
+                />
               ))}
             </nav>
           </>

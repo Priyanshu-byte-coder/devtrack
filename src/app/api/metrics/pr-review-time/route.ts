@@ -1,12 +1,12 @@
-import { getServerSession } from "next-auth";
+import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import { authOptions } from "@/lib/auth";
 import {
   getAccountToken,
   getAllAccounts,
   mergeMetrics,
 } from "@/lib/github-accounts";
-import { GITHUB_API } from "@/lib/github";
+import { GITHUB_API, GitHubAuthError } from "@/lib/github";
+import { githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -128,6 +128,7 @@ async function fetchPRReviewTrendForAccount(
       );
 
       if (!mergedRes.ok) {
+        if (mergedRes.status === 401) throw new GitHubAuthError();
         throw new Error("GitHub API error");
       }
 
@@ -228,24 +229,30 @@ function formatTrendWeeks(weeks: TrendWeek[]) {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const sessionData = await getSessionWithToken();
 
-  if (!session?.accessToken) {
+  if (!sessionData) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const session = sessionData.session;
+  const accessToken = sessionData.accessToken;
 
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
+  }
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
   if (!accountId) {
     try {
-      const result = await fetchPRReviewTrendForAccount(session.accessToken, {
+      const result = await fetchPRReviewTrendForAccount(accessToken, {
         bypass,
         userId: session.githubId ?? session.githubLogin ?? "primary",
       });
 
       return Response.json(formatTrendWeeks(result));
-    } catch {
+    } catch (e) {
+      if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
@@ -263,7 +270,7 @@ export async function GET(req: NextRequest) {
   if (accountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
+        token: accessToken,
         githubId: session.githubId,
         githubLogin: session.githubLogin,
       },
@@ -290,7 +297,7 @@ export async function GET(req: NextRequest) {
 
   const token =
     accountId === session.githubId
-      ? session.accessToken
+      ? accessToken
       : await getAccountToken(userRow.id, accountId);
 
   if (!token) {
@@ -304,7 +311,8 @@ export async function GET(req: NextRequest) {
     });
 
     return Response.json(formatTrendWeeks(result));
-  } catch {
+  } catch (e) {
+    if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

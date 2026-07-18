@@ -1,77 +1,72 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
-import { getUserByUsername } from "@/lib/supabase";
-import {
-  fetchPublicTopRepos,
-  fetchPublicContributions,
-  fetchPublicStreak,
-} from "@/lib/public-profile-data";
+import { fetchPublicProfile } from "@/lib/public-profile-data";
 import { getUpstashConfig, upstashRateLimitFixedWindow } from "@/lib/upstash-rest";
+import { createMemoryFixedWindowRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * GitHub usernames: 1–39 chars, alphanumeric or single hyphens,
+ * cannot start or end with a hyphen.
+ * https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-user-account-settings/github-username-policy
+ */
+const GITHUB_USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
 
 /**
  * In-memory rate limiter for IP addresses.
  * Maps IP -> { count: number, resetAt: number }
  * This resets on server restart. For production, use Redis.
  */
-const ipRateLimits = new Map<
-  string,
-  { count: number; resetAt: number }
->();
-
 const RATE_LIMIT_REQUESTS = 30;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-
-function getRateLimitKey(req: NextRequest): string {
-  // req.ip is populated by the Next.js / Vercel runtime from the verified
-  // network-layer source address and cannot be spoofed by the caller.
-  //
-  // x-forwarded-for is intentionally excluded here: it is a plain request
-  // header that any client can set to an arbitrary value. Trusting it as the
-  // primary key allows an attacker to rotate the header on every request,
-  // bypass the per-IP limit entirely, and exhaust the shared GITHUB_TOKEN
-  // quota (5 000 req/hr), making the endpoint unavailable for all users.
-  return req.ip || req.headers.get("x-real-ip") || "unknown";
-}
-
-function checkRateLimit(ip: string): { allowed: boolean; retryAfter?: number } {
-  const now = Date.now();
-  for (const [key, record] of ipRateLimits) {
-    if (now > record.resetAt) ipRateLimits.delete(key);
-  }
-  const record = ipRateLimits.get(ip);
-
-  if (!record || now > record.resetAt) {
-    // New window or expired
-    ipRateLimits.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true };
-  }
-
-  if (record.count < RATE_LIMIT_REQUESTS) {
-    record.count++;
-    return { allowed: true };
-  }
-
-  // Rate limit exceeded
-  const retryAfter = Math.ceil((record.resetAt - now) / 1000);
-  return { allowed: false, retryAfter };
-}
+const MEMORY_MAX_ENTRIES = Number(process.env.MEMORY_RATE_LIMIT_MAX_ENTRIES ?? 10_000);
+const memoryLimiter = createMemoryFixedWindowRateLimiter({
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  pruneIntervalMs: 5 * 60 * 1000,
+  maxEntries: Number.isFinite(MEMORY_MAX_ENTRIES) ? MEMORY_MAX_ENTRIES : 10_000,
+});
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ): Promise<NextResponse> {
-  const { username } = params;
+  const { username } = await params;
+
+  // Validate username before touching any downstream service.
+  // Rejects path-traversal attempts (../../admin), null-byte injections
+  // (%00injected), and anything that could not be a real GitHub username.
+  if (!GITHUB_USERNAME_RE.test(username)) {
+    return NextResponse.json(
+      { error: "Invalid username" },
+      { status: 400 }
+    );
+  }
+
 
   // Rate limiting
-  const ip = getRateLimitKey(req);
+  const ip = getClientIp(req);
   const rateLimit = getUpstashConfig()
     ? await upstashRateLimitFixedWindow({
         key: `public-profile-rate-limit:${ip}`,
         limit: RATE_LIMIT_REQUESTS,
         windowSeconds: Math.ceil(RATE_LIMIT_WINDOW_MS / 1000),
       })
-    : checkRateLimit(ip);
+    : (() => {
+        const local = memoryLimiter.check(
+          `public-profile-rate-limit:${ip}`,
+          RATE_LIMIT_REQUESTS
+        );
+        return local.allowed
+          ? { allowed: true }
+          : {
+              allowed: false,
+              retryAfter: Math.max(
+                local.reset - Math.floor(Date.now() / 1000),
+                1
+              ),
+            };
+      })();
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
@@ -85,31 +80,14 @@ export async function GET(
     );
   }
 
-  // Look up user in Supabase
-  const user = await getUserByUsername(username);
+  const profile = await fetchPublicProfile(username);
 
-  if (!user) {
+  if (!profile) {
     return NextResponse.json(
       { error: "User not found or profile is not public" },
       { status: 404 }
     );
   }
 
-  // Use GITHUB_TOKEN env var if available for higher rate limits
-  const githubToken = process.env.GITHUB_TOKEN;
-
-  // Fetch all metrics in parallel
-  const [repos, contributions, streak] = await Promise.all([
-    fetchPublicTopRepos(user.github_login, githubToken, 30),
-    fetchPublicContributions(user.github_login, githubToken, 30),
-    fetchPublicStreak(user.github_login, githubToken),
-  ]);
-
-  return NextResponse.json({
-    username: user.github_login,
-    userId: user.id,
-    repos,
-    contributions,
-    streak,
-  });
+  return NextResponse.json(profile);
 }

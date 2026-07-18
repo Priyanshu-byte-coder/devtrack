@@ -15,31 +15,50 @@ jobs:
     name: Playwright smoke tests
     runs-on: ubuntu-latest
     env:
-      NEXTAUTH_SECRET: playwright-placeholder-secret-that-is-long-enough
-      NEXTAUTH_URL: http://127.0.0.1:3000
-      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      NEXTAUTH_SECRET: test-nextauth-secret-for-playwright-tests
+      NEXTAUTH_URL: http://127.0.0.1:3002
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3002
       GITHUB_ID: playwright-github-id
       GITHUB_SECRET: playwright-github-secret
-      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
-      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PLAYWRIGHT_SERVER_MODE: start
+      CI: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
-          cache: npm
+          node-version: 22
+          cache: pnpm
 
       - name: Install app dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Next.js app
+        run: |
+          cat <<EOF > .env.production
+          NEXTAUTH_SECRET=test-nextauth-secret-for-playwright-tests
+          NEXTAUTH_URL=http://127.0.0.1:3002
+          NEXT_PUBLIC_APP_URL=http://127.0.0.1:3002
+          GITHUB_ID=playwright-github-id
+          GITHUB_SECRET=playwright-github-secret
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PLAYWRIGHT_SERVER_MODE=start
+          GITHUB_WEBHOOK_SECRET=ci-placeholder-webhook-secret
+          EOF
+          pnpm run build
 
       - name: Install Playwright browsers
-        run: npx -y @playwright/test@1.49.1 install --with-deps chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npx -y @playwright/test@1.49.1 test
-
+        run: npx playwright test
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()

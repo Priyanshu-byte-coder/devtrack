@@ -1,77 +1,75 @@
-import SectionHeader from "./SectionHeader";
 "use client";
+import SectionHeader from "./SectionHeader";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
+import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import PRStatusDonutChart from "./PRStatusDonutChart";
 import MiniPRTrendChart from "./MiniPRTrendChart";
-interface ReviewMetrics {
-  totalReviews: number;
-  approvalRate: string;
-  avgFirstReviewHours: number | null;
-  topRepos: { repo: string; count: number }[];
-}
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface PRMetricsSummary {
   open: number;
   merged: number;
   closed: number;
+  total: number;
+  totalAdditions?: number;
+  totalDeletions?: number;
   avgReviewHours: number;
   avgFirstReviewHours: number | null;
   mergeRate: string;
-  staleCount: number;
-  staleThresholdDays: number;
-  staleSearchUrl: string | null;
+  avgCycleTime?: number;
+  weeklyTrend?: { week: string; avgHours: number }[];
+  slowestRepos?: { repo: string; avgHours: number }[];
+}
+
+interface PRData extends PRMetricsSummary {
+  gitlab?: PRMetricsSummary;
+  reviews?: {
+    totalReviews: number;
+    approvalRate: string;
+    topRepos: { repo: string; count: number }[];
+  };
 }
 
 interface PRStat {
   label: string;
   value: string | number;
-  href?: string | null;
   title?: string;
   warning?: boolean;
-}
-
-interface PRData extends PRMetricsSummary {
-  gitlab?: PRMetricsSummary;
-  reviews?: ReviewMetrics;
+  href?: string;
 }
 
 function formatReviewCycle(hours: number | null): string {
-  if (hours === null) {
-    return "--";
-  }
-
-  if (hours < 24) {
-    return `${hours}h`;
-  }
-
+  if (hours === null) return "—";
+  if (hours < 24) return `${hours}h`;
   return `${Math.round((hours / 24) * 10) / 10}d`;
 }
 
 export default function PRMetrics() {
   const { selectedAccount } = useAccount();
   const [metrics, setMetrics] = useState<PRData | null>(null);
-  const [staleThresholdDays, setStaleThresholdDays] = useState(7);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [minutesAgo, setMinutesAgo] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"authored" | "reviews">("authored");
+  const [activeTab, setActiveTab] = usePersistentState<"authored" | "reviews">("devtrack:pr-metrics:activeTab", "authored");
+  const [prFilter, setPrFilter] = usePersistentState<"all" | "merged" | "open">("devtrack:pr-metrics:prFilter", "all");
+  const [range, setRange] = usePersistentState<"7d" | "30d" | "90d">("devtrack:pr-metrics:range", "30d");
+  const [staleThresholdDays, setStaleThresholdDays] = usePersistentState("devtrack:pr-metrics:staleThreshold", 14);
 
   const fetchMetrics = useCallback(() => {
     setLoading(true);
     setError(null);
 
-    const params = new URLSearchParams({
-      staleThresholdDays: String(staleThresholdDays),
-    });
+    const url =
+      selectedAccount !== null
+        ? `/api/metrics/prs?accountId=${encodeURIComponent(selectedAccount)}&range=${range}`
+        : `/api/metrics/prs?range=${range}`;
 
-    if (selectedAccount !== null) {
-      params.set("accountId", selectedAccount);
-    }
-
-    fetch(`/api/metrics/prs?${params.toString()}`)
+    fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error("API error");
         return r.json();
@@ -83,22 +81,18 @@ export default function PRMetrics() {
       })
       .catch(() => setError("We couldn't load your PR analytics right now. Please try again in a moment."))
       .finally(() => setLoading(false));
-  }, [selectedAccount, staleThresholdDays]);
+  }, [selectedAccount, range]);
 
   useEffect(() => {
     fetchMetrics();
   }, [fetchMetrics]);
 
   useEffect(() => {
-    if (!lastUpdated) {
-      return;
-    }
-
+    if (!lastUpdated) return;
     const interval = setInterval(() => {
       const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
       setMinutesAgo(diff);
     }, 60000);
-
     return () => clearInterval(interval);
   }, [lastUpdated]);
 
@@ -110,84 +104,73 @@ export default function PRMetrics() {
       avgReview: string;
       avgFirstReview: string;
       mergeRate: string;
-      stale?: string;
-    },
-    options: { includeStale?: boolean } = {}
-  ): PRStat[] => [
-    { label: labels.open, value: source.open },
-    ...(options.includeStale
-      ? [
-          {
-            label: labels.stale ?? `Stale > ${source.staleThresholdDays}d`,
-            value: source.staleCount,
-            href: source.staleSearchUrl,
-            title: `${source.staleCount} open PRs are older than ${source.staleThresholdDays} days`,
-            warning: source.staleCount > 0,
-          },
-        ]
-      : []),
-    { label: labels.merged, value: source.merged },
-    { label: labels.avgReview, value: `${source.avgReviewHours}h` },
-    {
-      label: labels.avgFirstReview,
-      value: formatReviewCycle(source.avgFirstReviewHours),
-      title: "Average time from PR open to first review comment or approval",
-    },
-    { label: labels.mergeRate, value: source.mergeRate },
-  ];
+      avgCycleTime?: string;
+    }
+  ) => {
+    const baseStats: PRStat[] = [
+      { label: labels.open, value: source.open },
+      { label: labels.merged, value: source.merged },
+      {
+        label: "Lines Changed",
+        value: `+${(source.totalAdditions ?? 0).toLocaleString()} / -${(source.totalDeletions ?? 0).toLocaleString()}`
+      },
+      {
+        label: `${labels.avgReview} ⓘ`,
+        value: `${source.avgReviewHours}h`,
+        title: "Average time from PR creation to close, based on your last 30 closed PRs",
+      },
+      {
+        label: labels.avgFirstReview,
+        value: formatReviewCycle(source.avgFirstReviewHours),
+        title: "Average time from PR open to first review comment or approval",
+      },
+      { label: labels.mergeRate, value: source.mergeRate },
+    ];
+
+    if (labels.avgCycleTime && source.avgCycleTime !== undefined) {
+      baseStats.push({ label: labels.avgCycleTime, value: `${source.avgCycleTime}h` });
+    }
+    return baseStats;
+  };
 
   const githubStats = metrics
-    ? buildStats(
-        metrics,
-        {
-          open: "Open PRs",
-          merged: "Merged (30d)",
-          avgReview: "Avg Review Time",
-          avgFirstReview: "Avg First Review",
-          mergeRate: "Merge Rate",
-        },
-        { includeStale: true }
-      )
+    ? buildStats(metrics, {
+      open: "Open PRs",
+      merged: `Merged (${range}d)`,
+      avgReview: "Avg Review Time",
+      avgFirstReview: "Avg First Review",
+      mergeRate: "Merge Rate",
+      avgCycleTime: "Avg Cycle Time",
+    })
     : [];
 
   const gitlabStats = metrics?.gitlab
     ? buildStats(metrics.gitlab, {
-        open: "Open MRs",
-        merged: "Merged (30d)",
-        avgReview: "Avg Review Time",
-        avgFirstReview: "Avg First Review",
-        mergeRate: "Merge Rate",
-      })
+      open: "Open MRs",
+      merged: `Merged (${range}d)`,
+      avgReview: "Avg Review Time",
+      avgFirstReview: "Avg First Review",
+      mergeRate: "Merge Rate",
+    })
     : [];
 
   const renderStat = (stat: PRStat) => {
     const content = (
       <>
-        <div
-          className={`truncate text-2xl font-bold ${
-            stat.warning ? "text-orange-300" : "text-[var(--accent)]"
-          }`}
-        >
+        <div className={`truncate text-xl font-bold ${stat.warning ? "text-orange-300" : "text-[var(--accent)]"}`}>
           {stat.value}
         </div>
         <div className="truncate mt-1 text-sm text-[var(--muted-foreground)]">{stat.label}</div>
       </>
     );
-    const className = `rounded-lg p-4 text-center min-w-0 transition-colors ${
-      stat.warning
-        ? "border border-orange-400/30 bg-orange-500/10 hover:bg-orange-500/15"
-        : "bg-[var(--control)]"
-    }`;
+
+    const className = `rounded-lg p-4 text-center min-w-0 border border-transparent transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-md ${stat.warning
+      ? "border-orange-400/30 bg-orange-500/10 hover:bg-orange-500/15 hover:border-orange-400/50"
+      : "bg-[var(--control)] hover:bg-[var(--control-hover)] hover:border-[var(--border)]"
+      }`;
 
     return stat.href ? (
-      <a
-        key={stat.label}
-        href={stat.href}
-        target="_blank"
-        rel="noreferrer"
-        className={className}
-        title={stat.title}
-      >
+      <a key={stat.label} href={stat.href} target="_blank" rel="noopener noreferrer" className={className} title={stat.title}>
         {content}
       </a>
     ) : (
@@ -198,50 +181,67 @@ export default function PRMetrics() {
   };
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm space-y-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4">
         <SectionHeader title="PR Analytics" />
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTab("authored")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                activeTab === "authored"
+            {(["7d", "30d", "90d"] as const).map((option) => (
+              <button
+                key={option}
+                onClick={() => setRange(option)}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${range === option
                   ? "bg-[var(--accent)] text-white"
                   : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
-              }`}
+                  }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab("authored")}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === "authored" ? "bg-[var(--accent)] text-white" : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
+                }`}
             >
               PRs Authored
             </button>
             <button
-              type="button"
               onClick={() => setActiveTab("reviews")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                activeTab === "reviews"
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
-              }`}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === "reviews" ? "bg-[var(--accent)] text-white" : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
+                }`}
             >
               Reviews Given
             </button>
           </div>
           <label className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
+            Range
+            <select
+              value={range}
+              onChange={(event) => setRange(event.target.value as "7d" | "30d" | "90d")}
+              className="rounded-md border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] transition-colors"
+            >
+              <option value="7d">7d</option>
+              <option value="30d">30d</option>
+              <option value="90d">90d</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
             Stale after
             <select
               value={staleThresholdDays}
               onChange={(event) => setStaleThresholdDays(Number(event.target.value))}
-              className="rounded-md border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--accent)]"
+              className="rounded-md border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] transition-colors"
             >
               {[7, 14, 30].map((days) => (
-                <option key={days} value={days}>
-                  {days} days
-                </option>
+                <option key={days} value={days}>{days} days</option>
               ))}
             </select>
           </label>
         </div>
       </div>
+
       {loading ? (
         <div
           role="status"
@@ -250,66 +250,112 @@ export default function PRMetrics() {
           className="space-y-4"
         >
           <span className="sr-only">Loading PR analytics</span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                aria-hidden="true"
-                className="bg-[var(--card-muted)] rounded-lg p-4 h-24 animate-pulse"
-              />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <SkeletonBlock key={i} className="h-24 rounded-lg" />
             ))}
           </div>
-          <div className="h-[270px] rounded-lg bg-[var(--card-muted)] animate-pulse" aria-hidden="true" />
+          <SkeletonBlock className="h-[270px] rounded-lg" />
+          <SkeletonBlock className="h-[220px] rounded-lg" />
         </div>
       ) : error ? (
-        <div className="rounded-lg border border-[var(--destructive-muted-border)] bg-[var(--destructive-muted)] p-4 text-sm text-[var(--destructive)]">
+        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
           <p>{error}</p>
-          <button
-            type="button"
-            onClick={fetchMetrics}
-            className="mt-3 rounded-md border border-[var(--destructive-muted-border)] px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive-muted)]"
-          >
+          <button onClick={fetchMetrics} className="mt-3 rounded-md px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/10 border border-red-500/30">
             Try again
           </button>
         </div>
       ) : activeTab === "authored" ? (
         <div className="space-y-6">
+          {/* GitHub Stats */}
           <div>
-            <p className="text-sm font-medium text-[var(--muted-foreground)]">GitHub PRs</p>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-              {githubStats.map(renderStat)}
+            <div className="flex flex-wrap items-center justify-between mb-4">
+              <p className="text-sm font-medium text-[var(--muted-foreground)]">GitHub PRs</p>
+              <div className="flex items-center gap-2">
+                {(["all", "merged", "open"] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setPrFilter(filter)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-colors ${prFilter === filter ? "bg-[var(--accent)] text-white" : "bg-[var(--control)] text-[var(--muted-foreground)]"
+                      }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
             </div>
-            <MiniPRTrendChart />
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {githubStats
+                .filter((stat) => {
+                  if (prFilter === "all") return true;
+                  const lbl = stat.label.toLowerCase();
+                  if (prFilter === "open") return lbl.includes("open") || lbl.includes("stale");
+                  if (prFilter === "merged") return lbl.includes("merged") || lbl.includes("review") || lbl.includes("merge rate");
+                  return true;
+                })
+                .map(renderStat)}
+            </div>
+            {prFilter !== "open" && <MiniPRTrendChart />}
           </div>
 
+          {/* PR Status Donut Chart */}
           {metrics && (
             <div>
-              <p className="mb-2 text-sm font-medium text-[var(--muted-foreground)]">
-                PR Status Distribution
-              </p>
+              <p className="mb-2 text-sm font-medium text-[var(--muted-foreground)]">PR Status Distribution</p>
               <PRStatusDonutChart
-                open={metrics.open}
-                merged={metrics.merged}
-                closed={metrics.closed}
+                open={prFilter === "merged" ? 0 : (metrics.open || 0)}
+                merged={prFilter === "open" ? 0 : (metrics.merged || 0)}
+                closed={prFilter === "all" ? (metrics.closed || 0) : 0}
               />
             </div>
           )}
 
+          {/* Cycle Time Features */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {metrics?.weeklyTrend && metrics.weeklyTrend.length > 0 && (
+              <div className="rounded-lg bg-[var(--control)] p-4">
+                <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">Review Cycle Trend</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={metrics.weeklyTrend}>
+                    <XAxis dataKey="week" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} unit="h" />
+                    <Tooltip formatter={(val) => [`${val}h`, "Avg Cycle Time"]} />
+                    <Line type="monotone" dataKey="avgHours" stroke="var(--accent)" strokeWidth={2} dot={{ r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {metrics?.slowestRepos && metrics.slowestRepos.length > 0 && (
+              <div className="rounded-lg bg-[var(--control)] p-4">
+                <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">Slowest Review Repos</h3>
+                <div className="space-y-2">
+                  {metrics.slowestRepos.map((r) => (
+                    <div key={r.repo} className="flex justify-between items-center bg-[var(--card)] p-2 rounded">
+                      <span className="text-sm text-[var(--muted-foreground)] truncate">{r.repo}</span>
+                      <span className="text-sm font-bold text-[var(--accent)]">{r.avgHours}h</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* GitLab MRs Section */}
           {metrics?.gitlab && (
             <div className="space-y-4 border-t border-[var(--border)] pt-4">
               <p className="text-sm font-medium text-[var(--muted-foreground)]">GitLab MRs</p>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {gitlabStats.map(renderStat)}
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-[var(--muted-foreground)]">
-                  MR Status Distribution
-                </p>
-                <PRStatusDonutChart
-                  open={metrics.gitlab.open}
-                  merged={metrics.gitlab.merged}
-                  closed={metrics.gitlab.closed}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {gitlabStats
+                  .filter((stat) => {
+                    if (prFilter === "all") return true;
+                    const lbl = stat.label.toLowerCase();
+                    if (prFilter === "open") return lbl.includes("open") || lbl.includes("stale");
+                    if (prFilter === "merged") return lbl.includes("merged") || lbl.includes("review") || lbl.includes("merge rate");
+                    return true;
+                  })
+                  .map(renderStat)}
               </div>
             </div>
           )}
@@ -327,26 +373,9 @@ export default function PRMetrics() {
               </div>
             ))}
           </div>
-          {metrics?.reviews?.topRepos && metrics.reviews.topRepos.length > 0 && (
-            <div>
-              <p className="mb-3 text-sm font-medium text-[var(--muted-foreground)]">Most Reviewed Repos</p>
-              <div className="space-y-2">
-                {metrics.reviews.topRepos.map((item) => (
-                  <div key={item.repo} className="flex items-center justify-between rounded-lg bg-[var(--control)] px-4 py-2">
-                    <span className="truncate text-sm text-[var(--card-foreground)]">{item.repo}</span>
-                    <span className="ml-4 shrink-0 text-sm font-semibold text-[var(--accent)]">
-                      {item.count} review{item.count !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          {(metrics?.reviews?.totalReviews ?? 0) === 0 && (
-            <p className="text-sm text-[var(--muted-foreground)]">No reviews found for this period.</p>
-          )}
         </div>
       )}
+
       {lastUpdated && (
         <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
           {minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}

@@ -7,13 +7,14 @@ import {
   mergeMetrics,
 } from "@/lib/github-accounts";
 import { GITHUB_API } from "@/lib/github";
+import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
   metricsCacheKey,
   withMetricsCache,
 } from "@/lib/metrics-cache";
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin, isSupabaseAdminAvailable } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
 
 export const dynamic = "force-dynamic";
@@ -113,13 +114,17 @@ async function fetchReposForAccount(
   token: string,
   githubLogin: string,
   days: number,
-  cacheContext: { bypass: boolean; userId: string }
+  cacheContext: { bypass: boolean; userId: string },
+  orgName?: string | null,
+  excludedOrgs: string[] = []
 ): Promise<RepoResponse> {
   // Cache key is scoped per user + githubLogin + days so different time range
   // selections and multi-account views don't return each other's cached results.
   const key = metricsCacheKey(cacheContext.userId, "repos", {
     days,
     githubLogin,
+    orgName: orgName || undefined,
+    excludedOrgs: excludedOrgs.length > 0 ? excludedOrgs.join(",") : undefined,
   });
 
   // withMetricsCache returns cached results within the TTL window, skipping all
@@ -136,6 +141,14 @@ async function fetchReposForAccount(
       since.setDate(since.getDate() - days);
       const sinceStr = since.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
+      let q = `author:${githubLogin}`;
+      if (orgName) {
+        q += `+org:${orgName}`;
+      } else if (excludedOrgs.length > 0) {
+        q += excludedOrgs.map((org) => `+-org:${org}`).join("");
+      }
+      q += `+author-date:>=${sinceStr}`;
+
       // GitHub Commit Search API — finds all commits by this user in the date window.
       // Rate limits (separate and stricter than the REST API):
       //   • Authenticated (OAuth token / PAT): 30 requests/minute
@@ -145,7 +158,7 @@ async function fetchReposForAccount(
       // by commit count. The withMetricsCache wrapper above prevents re-fetching
       // within the TTL, so this Search API request is only made on a cache miss.
       const searchRes = await fetch(
-        `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
+        `${GITHUB_API}/search/commits?q=${q}&per_page=100&sort=author-date&order=desc`,
         {
           headers: {
             // OAuth token / PAT: raises the Search API limit from 10 → 30 req/min.
@@ -161,11 +174,11 @@ async function fetchReposForAccount(
         }
       );
 
+      // HTTP 401 = token revoked — throw auth error so caller can surface reconnect.
       // HTTP 403 = Search API rate limit exceeded for this token.
       // HTTP 422 = malformed query (e.g. invalid date format or username characters).
-      // Both throw here so the GET handler returns HTTP 502, and the client
-      // falls back to showing an error state rather than an empty repos list.
       if (!searchRes.ok) {
+        if (searchRes.status === 401) throw new GitHubAuthError();
         throw new Error("GitHub API error");
       }
 
@@ -218,6 +231,9 @@ export async function GET(req: NextRequest) {
   if (!session?.accessToken || !session.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
+  }
 
   const daysParam = req.nextUrl.searchParams.get("days");
   const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
@@ -226,19 +242,48 @@ export async function GET(req: NextRequest) {
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
+  let orgName: string | null = null;
+  let targetAccountId: string | null = accountId;
+
+  if (accountId && accountId.startsWith("org:")) {
+    const parts = accountId.split(":");
+    targetAccountId = parts[1];
+    orgName = parts[2];
+  }
+
+  // Load excluded organizations config
+  let excludedOrgs: string[] = [];
+  if (isSupabaseAdminAvailable && session.githubId) {
+    try {
+      const { data: dbUser } = await supabaseAdmin
+        .from("users")
+        .select("organizations_config")
+        .eq("github_id", session.githubId)
+        .single();
+
+      const orgsConfig = (dbUser?.organizations_config || {}) as Record<string, boolean>;
+      excludedOrgs = Object.entries(orgsConfig)
+        .filter(([_, enabled]) => enabled === false)
+        .map(([org]) => org);
+    } catch (err) {
+      console.error("Failed to load excluded orgs config:", err);
+    }
+  }
+
   // No accountId = use the primary signed-in GitHub account only.
-  if (!accountId) {
+  if (!targetAccountId) {
     try {
       const result = await fetchReposForAccount(
         session.accessToken,
         session.githubLogin,
         days,
-        { bypass, userId: session.githubId ?? session.githubLogin }
+        { bypass, userId: session.githubId ?? session.githubLogin },
+        orgName,
+        excludedOrgs
       );
       return Response.json(result);
-    } catch {
-      // fetchReposForAccount throws on GitHub API errors (rate limit, network failure).
-      // Return 502 so the client shows an error state rather than an empty repos widget.
+    } catch (e) {
+      if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
@@ -253,7 +298,7 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (accountId === "combined") {
+  if (targetAccountId === "combined") {
     const accounts = await getAllAccounts(
       {
         token: session.accessToken,
@@ -268,10 +313,14 @@ export async function GET(req: NextRequest) {
     // account's rate limit error or expired token doesn't block the others.
     const results = await Promise.allSettled(
       accounts.map((account) =>
-        fetchReposForAccount(account.token, account.githubLogin, days, {
-          bypass,
-          userId: account.githubId,
-        })
+        fetchReposForAccount(
+          account.token,
+          account.githubLogin,
+          days,
+          { bypass, userId: account.githubId },
+          orgName,
+          excludedOrgs
+        )
       )
     );
 
@@ -290,47 +339,53 @@ export async function GET(req: NextRequest) {
   }
 
   // accountId matches the primary session account — no extra token lookup needed.
-  if (accountId === session.githubId) {
+  if (targetAccountId === session.githubId) {
     try {
       const result = await fetchReposForAccount(
         session.accessToken,
         session.githubLogin,
         days,
-        { bypass, userId: session.githubId }
+        { bypass, userId: session.githubId },
+        orgName,
+        excludedOrgs
       );
       return Response.json(result);
-    } catch {
+    } catch (e) {
+      if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
 
-  // accountId is a different linked account — look up its token from Supabase.
-  const accountToken = await getAccountToken(userRow.id, accountId);
-
-  if (!accountToken) {
-    return Response.json({ error: "Account not found" }, { status: 404 });
-  }
-
-  const { data: accountRow } = await supabaseAdmin
-    .from("user_github_accounts")
-    .select("github_login")
-    .eq("user_id", userRow.id)
-    .eq("github_id", accountId)
-    .single();
-
-  if (!accountRow?.github_login) {
-    return Response.json({ error: "Account not found" }, { status: 404 });
-  }
-
   try {
+    // accountId is a different linked account — look up its token from Supabase.
+    const accountToken = await getAccountToken(userRow.id, targetAccountId);
+
+    if (!accountToken) {
+      return Response.json({ error: "Account not found" }, { status: 404 });
+    }
+
+    const { data: accountRow } = await supabaseAdmin
+      .from("user_github_accounts")
+      .select("github_login")
+      .eq("user_id", userRow.id)
+      .eq("github_id", targetAccountId)
+      .single();
+
+    if (!accountRow?.github_login) {
+      return Response.json({ error: "Account not found" }, { status: 404 });
+    }
+
     const result = await fetchReposForAccount(
       accountToken,
       accountRow.github_login,
       days,
-      { bypass, userId: accountId }
+      { bypass, userId: targetAccountId },
+      orgName,
+      excludedOrgs
     );
     return Response.json(result);
-  } catch {
+  } catch (e) {
+    if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

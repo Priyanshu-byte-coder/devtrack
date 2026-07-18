@@ -1,0 +1,111 @@
+import dns from "dns/promises";
+import net from "net";
+
+const PRIVATE_RANGES = [
+  { start: 0x0a000000, end: 0x0affffff },
+  { start: 0xac100000, end: 0xac1fffff },
+  { start: 0xc0a80000, end: 0xc0a8ffff },
+  { start: 0x7f000000, end: 0x7fffffff },
+  { start: 0xa9fe0000, end: 0xa9feffff },
+];
+
+function ipToNumber(ip: string): number {
+  const parts = ip.split(".");
+  if (parts.length !== 4) return NaN;
+  const numParts = parts.map(Number);
+  if (numParts.some((n) => isNaN(n) || n < 0 || n > 255 || !Number.isInteger(n))) return NaN;
+  return ((numParts[0] << 24) | (numParts[1] << 16) | (numParts[2] << 8) | numParts[3]) >>> 0;
+}
+
+function isPrivateIP(ip: string): boolean {
+  ip = ip.toLowerCase();
+
+  // Extract IPv4 from IPv6-mapped IPv4 address
+  if (ip.startsWith("::ffff:")) {
+    const ipv4Part = ip.slice(7);
+    if (ipv4Part.includes(".")) {
+      ip = ipv4Part;
+    } else {
+      // Block non-standard encodings of mapped IPv4
+      return true;
+    }
+  }
+
+  // IPv6 private/loopback checks
+  if (
+    ip === "::1" ||
+    ip === "::" ||
+    ip.startsWith("fe80:") ||
+    ip.startsWith("fc00:") ||
+    ip.startsWith("fd00:")
+  ) {
+    return true;
+  }
+
+  if (ip.includes(":")) {
+    return false; // Public IPv6
+  }
+
+  const num = ipToNumber(ip);
+  if (isNaN(num)) return true; // Block invalid formats
+
+  return PRIVATE_RANGES.some(({ start, end }) => num >= start && num <= end);
+}
+
+export async function isSafeUrl(url: string): Promise<boolean> {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+
+    const hostname = parsed.hostname;
+    let ipToCheck = hostname;
+    if (ipToCheck.startsWith("[") && ipToCheck.endsWith("]")) {
+      ipToCheck = ipToCheck.slice(1, -1);
+    }
+
+    // Block localhost/unspecified/loopback hostnames before DNS resolution
+    if (hostname === "localhost" || ipToCheck === "0.0.0.0" || ipToCheck === "::1") {
+      return false;
+    }
+
+    if (net.isIP(ipToCheck)) {
+      return !isPrivateIP(ipToCheck);
+    }
+
+    const addresses: string[] = [];
+
+    try {
+      const lookupResults = await dns.lookup(hostname, { all: true });
+      if (Array.isArray(lookupResults)) {
+        addresses.push(...lookupResults.map((r) => r.address));
+      }
+    } catch {
+      return false;
+    }
+
+    if (addresses.length === 0) {
+      return false;
+    }
+
+    for (const addr of addresses) {
+      if (isPrivateIP(addr)) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function validateUrlBasic(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}

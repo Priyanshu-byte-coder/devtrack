@@ -1,6 +1,5 @@
-﻿import { getServerSession } from "next-auth";
+﻿import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
 import {
   isMetricsCacheBypassed,
@@ -18,10 +17,13 @@ interface RepoCommit {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.accessToken || !session.githubLogin) {
+  const sessionData = await getSessionWithToken();
+  if (!sessionData || !sessionData.session.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const session = sessionData.session;
+  const accessToken = sessionData.accessToken;
 
   const date = req.nextUrl.searchParams.get("date");
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -30,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   const bypass = isMetricsCacheBypassed(req);
   const key = metricsCacheKey(
-    session.githubId ?? session.githubLogin,
+    session.githubId ?? session.githubLogin!,
     "contributions",
     { date }
   );
@@ -47,7 +49,7 @@ export async function GET(req: NextRequest) {
           `${GITHUB_API}/search/commits?q=author:${session.githubLogin}+author-date:${date}&per_page=100`,
           {
             headers: {
-              Authorization: `Bearer ${session.accessToken}`,
+              Authorization: `Bearer ${accessToken}`,
               Accept: "application/vnd.github+json",
             },
             cache: "no-store",
@@ -80,7 +82,7 @@ export async function GET(req: NextRequest) {
     );
 
     return Response.json(result);
-  } catch {
+  } catch (e) {
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

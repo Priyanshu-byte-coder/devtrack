@@ -103,8 +103,17 @@ export default function MiniPRTrendChart() {
   }, [data]);
 
   if (loading) {
-    return <div className="mt-4 h-16 w-full animate-pulse rounded bg-[var(--card-muted)]" />;
-  }
+  return (
+    <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
+      <div className="flex flex-col gap-1 w-24">
+        <div className="h-3 w-16 rounded bg-[var(--card-muted)] animate-pulse" />
+        <div className="h-4 w-20 rounded bg-[var(--card-muted)] animate-pulse" />
+      </div>
+
+      <div className="flex-1 h-full rounded bg-[var(--card-muted)] animate-pulse" />
+    </div>
+  );
+}
 
   if (stats.totalMerged < 5) {
     return (
@@ -117,11 +126,11 @@ export default function MiniPRTrendChart() {
   }
 
   let strokeColor = "var(--accent)";
-  if (stats.trendText === "Improving") strokeColor = "#16a34a";
-  if (stats.trendText === "Degrading") strokeColor = "#dc2626";
+  if (stats.trendText === "Improving") strokeColor = "var(--success)";
+  if (stats.trendText === "Degrading") strokeColor = "var(--destructive)";
 
   return (
-    <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 rounded-lg bg-[var(--control)] p-3 border border-[var(--border)]">
+    <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 rounded-lg bg-[var(--control)] p-3 border border-[var(--border)] transition-colors duration-200 hover:bg-[var(--card-muted)]">
       <div className="flex flex-col gap-1 w-24">
         <span className="text-xs font-medium text-[var(--muted-foreground)]">12w Trend</span>
         <span className={`inline-flex w-fit items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${stats.trendBg} ${stats.trendColor}`}>

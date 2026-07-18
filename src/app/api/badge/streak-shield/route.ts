@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateBadgeSVG } from "../badge-utils";
-import {
-  checkBadgeRateLimit,
-  getBadgeClientIp,
-} from "@/lib/badge-rate-limit";
-import { dateDiffDays, toDateStr } from "@/lib/dateUtils";
+import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
+import { calculateStreakFromDates } from "@/lib/streak";
 import { logError } from "@/lib/error-handler";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import {
+  isValidGitHubUsername,
+  isRegisteredDevTrackUser,
+  invalidUsernameBadgeResponse,
+  userNotFoundBadgeResponse,
+} from "@/lib/badge-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +30,9 @@ async function fetchGitHubWithToken(
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
   };
-
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-
   return fetch(url, { headers, cache: "no-store" });
 }
 
@@ -52,18 +53,15 @@ async function fetchStreak(
   const searchRes = await fetchGitHubWithToken(url.toString(), token);
 
   if (!searchRes.ok) {
-    const errorBody = await searchRes.text();
     const isRateLimited = searchRes.status === 403;
     console.error(`GitHub API error fetching streak for ${username}:`, {
       status: searchRes.status,
-      url: url.toString(),
-      body: errorBody,
       rateLimited: isRateLimited,
     });
-    return { 
-      current: 0, 
-      longest: 0, 
-      lastCommitDate: null, 
+    return {
+      current: 0,
+      longest: 0,
+      lastCommitDate: null,
       totalActiveDays: 0,
       stale: isRateLimited ? true : undefined,
     };
@@ -73,59 +71,22 @@ async function fetchStreak(
     items: Array<{ commit: { author: { date: string } } }>;
   };
 
-  const daySet: Record<string, true> = {};
+  const activeDates = new Set<string>();
   for (const item of data.items) {
-    daySet[item.commit.author.date.slice(0, 10)] = true;
-  }
-  const commitDays = Object.keys(daySet).sort();
-
-  if (commitDays.length === 0) {
-    return { current: 0, longest: 0, lastCommitDate: null, totalActiveDays: 0, stale: undefined };
+    activeDates.add(item.commit.author.date.slice(0, 10));
   }
 
-  let longestStreak = 1;
-  let currentRun = 1;
-  const runs: { start: string; end: string; length: number }[] = [];
-  let runStart = commitDays[0];
-
-  for (let i = 1; i < commitDays.length; i++) {
-    const diff = dateDiffDays(commitDays[i - 1], commitDays[i]);
-    if (diff === 1) {
-      currentRun++;
-      if (currentRun > longestStreak) longestStreak = currentRun;
-    } else {
-      runs.push({
-        start: runStart,
-        end: commitDays[i - 1],
-        length: currentRun,
-      });
-      runStart = commitDays[i];
-      currentRun = 1;
-    }
-  }
-  runs.push({
-    start: runStart,
-    end: commitDays[commitDays.length - 1],
-    length: currentRun,
-  });
-
-  const lastDay = commitDays[commitDays.length - 1];
-  const today = toDateStr(new Date());
-  const yesterday = toDateStr(new Date(Date.now() - 86400000));
-
-  const lastRun = runs[runs.length - 1];
-  const currentStreak =
-    lastRun.end === today || lastRun.end === yesterday ? lastRun.length : 0;
-
+  const result = calculateStreakFromDates(activeDates);
   return {
-    current: currentStreak,
-    longest: longestStreak,
-    lastCommitDate: lastDay,
-    totalActiveDays: commitDays.length,
+    current: result.current,
+    longest: result.longest,
+    lastCommitDate: result.lastCommitDate,
+    totalActiveDays: result.totalActiveDays,
   };
 }
 
 export async function GET(req: NextRequest) {
+  // ── 1. Rate limiting ────────────────────────────────────────────────────────
   const ip = getBadgeClientIp(req);
   const rateLimit = checkBadgeRateLimit(ip);
 
@@ -143,16 +104,22 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // ── 2. Input validation ─────────────────────────────────────────────────────
+  const rawUser = req.nextUrl.searchParams.get("user");
+  const username = normalizeGitHubUsername(rawUser);
+
+  if (!username || !isValidGitHubUsername(username)) {
+    return invalidUsernameBadgeResponse();
+  }
+
+  // ── 3. DevTrack user allowlist check ────────────────────────────────────────
+  const isRegistered = await isRegisteredDevTrackUser(username);
+  if (!isRegistered) {
+    return userNotFoundBadgeResponse();
+  }
+
+  // ── 4. Fetch and render ─────────────────────────────────────────────────────
   try {
-    const username = normalizeGitHubUsername(req.nextUrl.searchParams.get("user"));
-
-    if (!username) {
-      return NextResponse.json(
-        { error: "Invalid GitHub username" },
-        { status: 400 }
-      );
-    }
-
     const githubToken = process.env.GITHUB_TOKEN;
     const streak = await fetchStreak(username, githubToken);
 
@@ -177,9 +144,7 @@ export async function GET(req: NextRequest) {
     logError(error, {
       endpoint: "/api/badge/streak-shield",
       operation: "generate_badge",
-      additionalContext: {
-        username: req.nextUrl.searchParams.get("user"),
-      },
+      additionalContext: { username },
     });
 
     const svg = generateBadgeSVG({

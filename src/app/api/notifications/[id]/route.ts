@@ -9,8 +9,10 @@ export const dynamic = "force-dynamic";
 // PATCH /api/notifications/[id] — mark single notification as read
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
+
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,7 +23,7 @@ export async function PATCH(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const notificationId = params.id;
+  const notificationId = resolvedParams.id;
 
   // Fetch the notification first to verify ownership
   const { data: notification, error: fetchError } = await supabaseAdmin
@@ -59,8 +61,10 @@ export async function PATCH(
 // DELETE /api/notifications/[id] — delete a single notification
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const resolvedParams = await params;
+
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -71,7 +75,7 @@ export async function DELETE(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const notificationId = params.id;
+  const notificationId = resolvedParams.id;
 
   // Verify ownership before deleting
   const { data: notification, error: fetchError } = await supabaseAdmin

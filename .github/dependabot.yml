@@ -1,14 +1,39 @@
 version: 2
+
 updates:
-  - package-ecosystem: npm
-    directory: /
+  - package-ecosystem: "npm"
+    directory: "/"
+
     schedule:
-      interval: weekly
-      day: monday
+      interval: "weekly"
+      day: "monday"
+
     open-pull-requests-limit: 5
+
     labels:
-      - type:devops
-      - level:beginner
+      - "type:devops"
+      - "level:beginner"
+
+    reviewers:
+      - "Priyanshu-byte-coder"
+
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+
+    reviewers:
+      - "Priyanshu-byte-coder"

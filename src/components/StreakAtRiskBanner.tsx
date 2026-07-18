@@ -19,6 +19,7 @@ export default function StreakAtRiskBanner({
   const [dismissed, setDismissed] = useState(false);
   const [lastCommitDate, setLastCommitDate] = useState(propsLastCommitDate);
   const [currentStreak, setCurrentStreak] = useState(propsCurrentStreak);
+  const [hasStreakFreezeState, setHasStreakFreezeState] = useState(hasStreakFreeze);
   const [isAtRisk, setIsAtRisk] = useState(false);
 
   useEffect(() => {
@@ -42,9 +43,22 @@ export default function StreakAtRiskBanner({
   }, [propsLastCommitDate, propsCurrentStreak, selectedAccount]);
 
   useEffect(() => {
+    if (hasStreakFreeze === undefined) {
+      fetch("/api/streak/freeze")
+        .then((r) => r.json())
+        .then((data) => {
+          setHasStreakFreezeState(data.hasFreeze);
+        })
+        .catch(() => {});
+    } else {
+      setHasStreakFreezeState(hasStreakFreeze);
+    }
+  }, [hasStreakFreeze]);
+
+  useEffect(() => {
     if (
       dismissed ||
-      hasStreakFreeze ||
+      hasStreakFreezeState ||
       currentStreak === undefined ||
       currentStreak <= 0 ||
       !lastCommitDate
@@ -70,14 +84,21 @@ export default function StreakAtRiskBanner({
     }
 
     setIsAtRisk(true);
-  }, [lastCommitDate, currentStreak, hasStreakFreeze, dismissed]);
+  }, [lastCommitDate, currentStreak, hasStreakFreezeState, dismissed]);
 
-  if (!isAtRisk || dismissed) return null;
+  // Guard: hide banner when streak freeze is confirmed active (true) or
+  // still loading (undefined). Only render when we know for sure the user
+  // has no freeze (hasStreakFreezeState === false) and the streak is at risk.
+  if (!isAtRisk || dismissed || hasStreakFreezeState !== false) return null;
 
   return (
-    <div className="mb-6 flex items-center justify-between rounded-lg border border-[var(--warning)]/30 bg-[var(--warning)]/10 p-4 text-[var(--warning)] shadow-sm transition-all animate-in fade-in slide-in-from-top-4">
-      <div className="flex items-center gap-3">
-        <AlertTriangle size={20} className="flex-shrink-0" aria-hidden="true" />
+    <div
+      role="status"
+      aria-live="polite"
+      className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-[var(--warning)]/30 bg-[var(--warning)]/10 p-4 text-[var(--warning)] shadow-sm transition-all animate-in fade-in slide-in-from-top-4"
+    >
+      <div className="flex items-start sm:items-center gap-3">
+        <AlertTriangle size={20} className="flex-shrink-0 mt-0.5 sm:mt-0" aria-hidden="true" />
         <div>
           <p className="font-semibold">
             No commit yet today — your streak is at risk!
@@ -87,13 +108,21 @@ export default function StreakAtRiskBanner({
           </p>
         </div>
       </div>
-      <button
-        onClick={() => setDismissed(true)}
-        className="ml-4 rounded-md p-1.5 opacity-70 hover:bg-[var(--warning)]/20 hover:opacity-100 transition-all"
-        aria-label="Dismiss banner"
-      >
-        <X size={18} aria-hidden="true" />
-      </button>
+      <div className="flex items-center gap-3 self-end sm:self-auto">
+        <a
+          href="#streaks"
+          className="inline-flex items-center justify-center rounded-lg bg-[var(--warning)]/20 px-3.5 py-1.5 text-xs font-semibold hover:bg-[var(--warning)]/30 transition-all active:scale-[0.98]"
+        >
+          View Streak Freeze
+        </a>
+        <button
+          onClick={() => setDismissed(true)}
+          className="rounded-lg p-1.5 opacity-70 hover:bg-[var(--warning)]/20 hover:opacity-100 transition-all"
+          aria-label="Dismiss banner"
+        >
+          <X size={18} aria-hidden="true" />
+        </button>
+      </div>
     </div>
   );
 }
