@@ -16,7 +16,7 @@ interface StreakData {
   longest: number;
   lastCommitDate: string | null;
   totalActiveDays: number;
-  freezeDates: string[];
+  Dates: string[];
 }
 
 interface ContributionData {
@@ -27,14 +27,14 @@ interface ContributionData {
 
 interface FreezeData {
   hasFreeze: boolean;
-  freezeDate?: string | null;
+  Date?: string | null;
 }
 
 export default function StreakTracker() {
   const { selectedAccount } = useAccount();
   const [data, setData] = useState<StreakData | null>(null);
   const [contributionData, setContributionData] = useState<ContributionData | null>(null);
-  const [freezeDates, setFreezeDates] = useState<string[]>([]);
+  const [Dates, setFreezeDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [dismissedMilestones, setDismissedMilestones] = useState<number[]>([]);
   const [lastCelebratedMilestone, setLastCelebratedMilestone] = useState<number>(0);
@@ -43,8 +43,8 @@ export default function StreakTracker() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [freeze, setFreeze] = useState<FreezeData | null>(null);
-  const [freezeLoading, setFreezeLoading] = useState(true);
+  const [, setFreeze] = useState<FreezeData | null>(null);
+  const [Loading, setFreezeLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -101,7 +101,7 @@ export default function StreakTracker() {
 
       setData(streakData);
       setContributionData(contribData);
-      setFreezeDates(streakData.freezeDates || []);
+      setFreezeDates(streakData.Dates || []);
     } catch {
       setError("We couldn't load your streak data right now. Please try again in a moment.");
     } finally {
@@ -113,7 +113,7 @@ export default function StreakTracker() {
 
   const fetchFreeze = () => {
     setFreezeLoading(true);
-    fetch("/api/streak/freeze")
+    fetch("/api/streak/")
       .then((r) => r.json())
       .then((d: FreezeData) => setFreeze(d))
       .catch(() => setFreeze(null))
@@ -168,26 +168,26 @@ export default function StreakTracker() {
   async function handleApplyFreeze() {
     setFreezeLoading(true);
     try {
-      const res = await fetch("/api/streak/freeze", { method: "POST" });
-      if (!res.ok) throw new Error("Failed to apply freeze");
+      const res = await fetch("/api/streak/", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to apply ");
 
       const streakUrl =
         selectedAccount !== null
           ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
           : "/api/metrics/streak";
-      const [streakRes, freezeRes] = await Promise.all([
+      const [streakRes, Res] = await Promise.all([
         fetch(streakUrl),
-        fetch("/api/streak/freeze"),
+        fetch("/api/streak/"),
       ]);
-      const [streakData, freezeData] = await Promise.all([
+      const [streakData, Data] = await Promise.all([
         streakRes.json() as Promise<StreakData>,
-        freezeRes.json() as Promise<FreezeData>,
+        Res.json() as Promise<FreezeData>,
       ]);
       setData(streakData);
-      setFreeze(freezeData);
-      toast.success("Streak freeze activated for today!");
+      setFreeze(Data);
+      toast.success("Streak  activated for today!");
     } catch {
-      toast.error("Failed to activate streak freeze.");
+      toast.error("Failed to activate streak .");
       fetchFreeze();
     } finally {
       setFreezeLoading(false);
@@ -202,8 +202,8 @@ export default function StreakTracker() {
 
     setCancelling(true);
     try {
-      const res = await fetch("/api/streak/freeze", { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to cancel freeze");
+      const res = await fetch("/api/streak/", { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to cancel ");
 
       setConfirmCancel(false);
 
@@ -211,16 +211,16 @@ export default function StreakTracker() {
         selectedAccount !== null
           ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
           : "/api/metrics/streak";
-      const [streakRes, freezeRes] = await Promise.all([
+      const [streakRes, Res] = await Promise.all([
         fetch(streakUrl),
-        fetch("/api/streak/freeze"),
+        fetch("/api/streak/"),
       ]);
-      const [streakData, freezeData] = await Promise.all([
+      const [streakData, Data] = await Promise.all([
         streakRes.json() as Promise<StreakData>,
-        freezeRes.json() as Promise<FreezeData>,
+        Res.json() as Promise<FreezeData>,
       ]);
       setData(streakData);
-      setFreeze(freezeData);
+      setFreeze(Data);
     } catch {
       fetchFreeze();
     } finally {
@@ -577,7 +577,7 @@ export default function StreakTracker() {
         </p>
       )}
 
-      {!freezeLoading && freeze?.hasFreeze && (
+      {!Loading && ?.hasFreeze && (
         <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-4 py-3">
           <div className="flex items-center gap-2">
             <CheckCircle size={18} className="text-[var(--accent)]" aria-hidden="true" />
@@ -585,7 +585,7 @@ export default function StreakTracker() {
           </div>
           {confirmCancel ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[var(--muted-foreground)]">Remove freeze?</span>
+              <span className="text-xs text-[var(--muted-foreground)]">Remove ?</span>
               <button
                 type="button"
                 onClick={handleCancelFreeze}
@@ -609,13 +609,13 @@ export default function StreakTracker() {
               onClick={handleCancelFreeze}
               className="rounded-md border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--control)]"
             >
-              Cancel freeze
+              Cancel 
             </button>
           )}
         </div>
       )}
 
-      {!freezeLoading && !freeze?.hasFreeze && (
+      {!Loading && !?.hasFreeze && (
         <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-[var(--foreground)]">Streak Freeze</span>
@@ -623,12 +623,12 @@ export default function StreakTracker() {
               <span 
                 className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--card-muted)] text-[10px] font-bold text-[var(--muted-foreground)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] transition-colors"
                 role="img"
-                aria-label="A streak freeze protects your streak for one missed day. You can only use one freeze at a time."
+                aria-label="A streak  protects your streak for one missed day. You can only use one  at a time."
               >
                 ?
               </span>
               <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 w-64 rounded-lg bg-[var(--foreground)] px-3 py-2 text-xs font-medium leading-relaxed text-[var(--background)] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-20 shadow-lg text-center">
-                A streak freeze protects your streak for one missed day. You can only use one freeze at a time.
+                A streak  protects your streak for one missed day. You can only use one  at a time.
                 <div className="absolute top-full left-1/2 h-1 w-1 -translate-x-1/2 border-4 border-t-[var(--foreground)] border-transparent" />
               </div>
             </div>
@@ -636,9 +636,10 @@ export default function StreakTracker() {
           <button
             type="button"
             onClick={handleApplyFreeze}
-            className="rounded-md bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--accent-foreground)] hover:opacity-90 transition"
+            disabled={Loading}
+            className="rounded-md bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--accent-foreground)] hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Freeze Streak
+            {Loading ? "Freezing..." : "Freeze Streak"}
           </button>
         </div>
       )}
@@ -647,17 +648,17 @@ export default function StreakTracker() {
       {contributionData ? (
         <>
           {/*
-            Freeze dates are managed via the streak freeze API (/api/streak/freeze).
-            Users can activate a freeze from the freeze button in this component.
-            The calendar displays existing freeze dates from the API response.
+            Freeze dates are managed via the streak  API (/api/streak/).
+            Users can activate a  from the  button in this component.
+            The calendar displays existing  dates from the API response.
             Future: add UI to manually mark/unmark past dates as frozen.
           */}
           <StreakCalendar
             contributions={contributionData.data}
-            freezeDates={
-              freeze?.freezeDate
-                ? Array.from(new Set([...freezeDates, freeze.freezeDate]))
-                : freezeDates
+            Dates={
+              ?.Date
+                ? Array.from(new Set([...Dates, .Date]))
+                : Dates
             }
             currentMonth={calendarMonth}
             onMonthChange={setCalendarMonth}
@@ -672,7 +673,7 @@ export default function StreakTracker() {
 
 interface StreakCalendarProps {
   contributions: Record<string, number>;
-  freezeDates: string[];
+  Dates: string[];
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
 }
@@ -683,7 +684,7 @@ function toLocalDateStr(d: Date): string {
 
 function StreakCalendar({
   contributions,
-  freezeDates,
+  Dates,
   currentMonth,
   onMonthChange,
 }: StreakCalendarProps) {
@@ -715,7 +716,7 @@ function StreakCalendar({
 
   const handlePrevMonth = () => onMonthChange(new Date(year, month - 1));
   const handleNextMonth = () => onMonthChange(new Date(year, month + 1));
-  const freezeSet = new Set(freezeDates);
+  const Set = new Set(Dates);
 
   return (
     <div className="mt-6 pt-6 border-t border-[var(--border)]">
@@ -765,7 +766,7 @@ function StreakCalendar({
           const commitCount = contributions[dateStr] ?? 0;
           const isFuture = dayData.date > today;
           const isToday = dayData.date.toDateString() === today.toDateString();
-          const isFrozen = freezeSet.has(dateStr) && commitCount === 0;
+          const isFrozen = Set.has(dateStr) && commitCount === 0;
 
           let bgColor = "bg-transparent";
           let borderColor = "border border-[var(--border)]";
@@ -846,7 +847,7 @@ function StreakCalendar({
         </div>
       </div>
       <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-        Frozen days are set via the streak freeze feature above.
+        Frozen days are set via the streak  feature above.
       </p>
     </div>
   );
