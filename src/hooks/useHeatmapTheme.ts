@@ -27,26 +27,26 @@ const getThemeFromCookie = (): HeatmapTheme | null => {
 
 const themeConfigs: Record<HeatmapTheme, HeatmapThemeConfig> = {
   default: {
-    accent: "rgba(16, 185, 129, 1)",
-    secondary: "rgba(79, 70, 229, 1)",
+    accent: "rgba(33, 110, 57, 1)",
+    secondary: "rgba(48, 161, 78, 1)",
     missed: "rgba(148, 163, 184, 0.15)",
     border: "rgba(148, 163, 184, 0.35)",
     text: "var(--card-foreground)",
-    levelOne: "rgba(16, 185, 129, 0.35)",
-    levelTwo: "rgba(16, 185, 129, 0.55)",
-    levelThree: "rgba(79, 70, 229, 0.75)",
-    levelFour: "rgba(79, 70, 229, 1)",
+    levelOne: "rgba(155, 233, 168, 0.85)",
+    levelTwo: "rgba(64, 196, 99, 0.9)",
+    levelThree: "rgba(48, 161, 78, 0.95)",
+    levelFour: "rgba(33, 110, 57, 1)",
   },
   "colour-blind-friendly": {
-    accent: "rgba(0, 114, 178, 1)",
-    secondary: "rgba(230, 159, 0, 1)",
+    accent: "rgba(8, 81, 156, 1)",
+    secondary: "rgba(33, 113, 181, 1)",
     missed: "rgba(148, 163, 184, 0.15)",
     border: "rgba(148, 163, 184, 0.35)",
     text: "var(--foreground)",
-    levelOne: "rgba(59, 130, 246, 0.35)",
-    levelTwo: "rgba(59, 130, 246, 0.55)",
-    levelThree: "rgba(249, 115, 22, 0.75)",
-    levelFour: "rgba(249, 115, 22, 1)",
+    levelOne: "rgba(207, 232, 255, 0.9)",
+    levelTwo: "rgba(107, 174, 214, 0.95)",
+    levelThree: "rgba(33, 113, 181, 0.98)",
+    levelFour: "rgba(8, 81, 156, 1)",
   },
 };
 
@@ -145,7 +145,7 @@ export function useHeatmapTheme() {
     if (typeof window !== "undefined") {
       try {
         window.localStorage.setItem(STORAGE_KEY, t);
-      } catch {}
+      } catch (e) {}
       window.dispatchEvent(new CustomEvent("heatmap-theme-changed", { detail: t }));
     }
 

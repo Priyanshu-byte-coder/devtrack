@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth";
+import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import { authOptions } from "@/lib/auth";
 import { isMetricsCacheBypassed } from "@/lib/metrics-cache";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { syncGitHubAchievementsForUser } from "@/lib/github-achievements";
@@ -8,13 +7,18 @@ import { syncGitHubAchievementsForUser } from "@/lib/github-achievements";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const sessionData = await getSessionWithToken();
 
-  if (!session?.accessToken || !session.githubId || !session.githubLogin) {
+  if (!sessionData || !sessionData.session.githubId || !sessionData.session.githubLogin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  const session = sessionData.session;
+  const accessToken = sessionData.accessToken;
+  const githubLogin = session.githubLogin as string;
+  const githubId = session.githubId as string;
+
+  const user = await resolveAppUser(githubId, githubLogin);
 
   if (!user) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,8 +26,8 @@ export async function GET(req: NextRequest) {
 
   const result = await syncGitHubAchievementsForUser({
     userId: user.id,
-    githubLogin: session.githubLogin,
-    token: session.accessToken,
+    githubLogin,
+    token: accessToken,
     force: isMetricsCacheBypassed(req),
   });
 

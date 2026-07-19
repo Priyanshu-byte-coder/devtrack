@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DevTrack Offline</title>
+
   <style>
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -46,13 +48,60 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    button:focus-visible {
+      outline: 3px solid #38bdf8;
+      outline-offset: 4px;
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #94a3b8;
+      min-height: 20px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto;
+        transition: none !important;
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
   <main class="card">
     <h1>You are offline</h1>
-    <p>DevTrack is installed, but this page needs internet. Please reconnect and try again.</p>
-    <button onclick="window.location.reload()">Retry</button>
+    <p>
+      DevTrack is installed, but this page needs internet.
+      Please reconnect and try again.
+    </p>
+
+    <button id="retryBtn" type="button">
+      Retry
+    </button>
+
+    <div id="statusMessage" class="status" aria-live="polite"></div>
   </main>
+
+  <script>
+    const retryBtn = document.getElementById("retryBtn");
+    const statusMessage = document.getElementById("statusMessage");
+
+    retryBtn.addEventListener("click", () => {
+      if (navigator.onLine) {
+        window.location.reload();
+      } else {
+        statusMessage.textContent =
+          "Still offline. Please check your internet connection.";
+      }
+    });
+
+    window.addEventListener("online", () => {
+      statusMessage.textContent = "Connection restored. Reloading...";
+      window.location.reload();
+    });
+  </script>
 </body>
 </html>

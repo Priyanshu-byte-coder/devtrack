@@ -9,32 +9,43 @@ export default function PrivacySettings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
 
-  async function handleExport() {
+  /** Download a portable ZIP archive of all user-owned data. */
+  async function handleExportZip() {
     setDownloading(true);
     setMessage(null);
 
     try {
-      const res = await fetch("/api/user/data-export");
-      if (!res.ok) {
-        throw new Error("Failed to export data");
+      const res = await fetch("/api/user/export");
+
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({})) as { retryAfterSeconds?: number };
+        const mins = body.retryAfterSeconds
+          ? Math.ceil(body.retryAfterSeconds / 60)
+          : 60;
+        setMessage({
+          kind: "error",
+          text: `You can export once per hour. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`,
+        });
+        return;
       }
 
-      const data = await res.json();
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: "application/json",
-      });
+      if (!res.ok) {
+        throw new Error("Export failed");
+      }
+
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `devtrack-data-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `devtrack-export-${new Date().toISOString().slice(0, 10)}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      setMessage({ kind: "success", text: "Data exported successfully" });
+      setMessage({ kind: "success", text: "Export downloaded successfully." });
     } catch {
-      setMessage({ kind: "error", text: "Failed to export data" });
+      setMessage({ kind: "error", text: "Failed to generate export. Please try again." });
     } finally {
       setDownloading(false);
     }
@@ -72,9 +83,9 @@ export default function PrivacySettings() {
   }
 
   return (
-    <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-1">
-        Privacy & Data
+        Privacy &amp; Data
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-6">
         Manage your data and privacy settings
@@ -93,23 +104,74 @@ export default function PrivacySettings() {
       )}
 
       <div className="space-y-6">
+        {/* ── Export Data ──────────────────────────────────────────────────── */}
         <div>
           <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-2">
-            Data Export
+            Export Data
           </h3>
-          <p className="text-sm text-[var(--muted-foreground)] mb-4">
-            Download all your data in JSON format. This includes your goals,
-            metrics, settings, and more.
+          <p className="text-sm text-[var(--muted-foreground)] mb-1">
+            Download a portable ZIP archive of all your DevTrack data.
           </p>
+          <p className="text-xs text-[var(--muted-foreground)] mb-4">
+            Includes: profile &amp; settings, goals &amp; goal history, streak
+            data, and contribution metrics. Sensitive credentials are never
+            included. Rate-limited to once per hour.
+          </p>
+
           <button
-            onClick={handleExport}
+            type="button"
+            onClick={handleExportZip}
             disabled={downloading}
-            className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition hover:opacity-90 disabled:opacity-60"
+            aria-label="Download ZIP archive of your data"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-all duration-200 hover:opacity-90 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {downloading ? "Exporting..." : "Export My Data"}
+            {downloading ? (
+              <>
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Preparing export…
+              </>
+            ) : (
+              <>
+                <svg
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Download ZIP Archive
+              </>
+            )}
           </button>
         </div>
 
+        {/* ── Delete Account ───────────────────────────────────────────────── */}
         <div className="border-t border-[var(--border)] pt-6">
           <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-2">
             Delete Account
@@ -121,6 +183,7 @@ export default function PrivacySettings() {
 
           {!showDeleteConfirm ? (
             <button
+              type="button"
               onClick={() => setShowDeleteConfirm(true)}
               className="rounded-lg border border-[var(--destructive)]/30 px-4 py-2 text-sm font-medium text-[var(--destructive)] transition hover:bg-[var(--destructive)]/10"
             >
@@ -140,18 +203,23 @@ export default function PrivacySettings() {
                   <li>• Linked accounts and integrations</li>
                   <li>• Local coding time data</li>
                 </ul>
-                <p className="text-sm text-[var(--destructive)] mb-3">
+                <label
+                  htmlFor="delete-confirm-input"
+                  className="block text-sm text-[var(--destructive)] mb-3"
+                >
                   Type <strong>DELETE</strong> to confirm:
-                </p>
+                </label>
                 <input
+                  id="delete-confirm-input"
                   type="text"
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder="Type DELETE to confirm"
-                  className="w-full rounded-lg border border-[var(--destructive)]/30 bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none mb-3"
+                  className="w-full rounded-lg border border-[var(--destructive)]/30 bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] mb-3"
                 />
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={handleDeleteAccount}
                     disabled={deleting || deleteConfirmText !== "DELETE"}
                     className="rounded-lg bg-[var(--destructive)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition hover:bg-[var(--destructive)]/90 disabled:opacity-60"
@@ -159,6 +227,7 @@ export default function PrivacySettings() {
                     {deleting ? "Deleting..." : "Confirm Delete"}
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       setShowDeleteConfirm(false);
                       setDeleteConfirmText("");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface ConfirmModalProps {
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  disabled?: boolean;
 }
 
 export default function ConfirmModal({
@@ -20,6 +22,7 @@ export default function ConfirmModal({
   cancelLabel = "Cancel",
   onConfirm,
   onCancel,
+  disabled = false,
 }: ConfirmModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +30,7 @@ export default function ConfirmModal({
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !disabled) {
         onCancel();
       }
     };
@@ -40,7 +43,7 @@ export default function ConfirmModal({
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onCancel]);
+  }, [isOpen, onCancel, disabled]);
 
   if (!isOpen) return null;
 
@@ -49,7 +52,8 @@ export default function ConfirmModal({
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
-        onClick={onCancel}
+        onClick={disabled ? undefined : onCancel}
+        aria-hidden="true"
       />
       
       {/* Modal Content */}
@@ -69,20 +73,20 @@ export default function ConfirmModal({
         </div>
 
         <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button
-            type="button"
+          <Button
+            variant="outline"
             onClick={onCancel}
-            className="w-full sm:w-auto rounded-xl border border-[var(--border)] bg-[var(--control)] px-5 py-2.5 text-sm font-semibold text-[var(--card-foreground)] transition-all hover:bg-[var(--card-muted)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            className="w-full sm:w-auto"
           >
             {cancelLabel}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="default"
             onClick={onConfirm}
-            className="w-full sm:w-auto rounded-xl bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-[var(--accent)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            className="w-full sm:w-auto shadow-lg shadow-[var(--accent)]/20"
           >
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

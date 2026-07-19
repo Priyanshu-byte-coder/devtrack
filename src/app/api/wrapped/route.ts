@@ -5,6 +5,7 @@ import { GITHUB_API, GitHubCommitSearchItem } from "@/lib/github";
 import {
   calculateLanguagePercentages,
   calculateLongestStreak,
+  calculatePersonality,
   getMostContributedRepo,
   getMostProductiveMonth,
   getPeakCodingHour,
@@ -67,7 +68,9 @@ async function fetchYearCommits(
     });
 
     if (!res.ok) {
-      if ((res.status === 403 || res.status === 429) && commits.length > 0) {
+      // On rate-limit, use whatever we've collected so far (including zero)
+      // rather than failing the entire request.
+      if (res.status === 403 || res.status === 429) {
         break;
       }
 
@@ -138,8 +141,11 @@ async function fetchTopLanguages(token: string, repos: string[]) {
     Accept: "application/vnd.github+json",
   };
 
-  await Promise.all(
-    repos.slice(0, 30).map(async (repo) => {
+  // Fetch in batches of 5 to avoid GitHub secondary rate limits
+  const repoBatch = repos.slice(0, 10);
+  for (let i = 0; i < repoBatch.length; i += 5) {
+    await Promise.all(
+      repoBatch.slice(i, i + 5).map(async (repo) => {
       try {
         const res = await fetch(`${GITHUB_API}/repos/${repo}/languages`, {
           headers,
@@ -154,12 +160,13 @@ async function fetchTopLanguages(token: string, repos: string[]) {
         for (const [language, bytes] of Object.entries(languages)) {
           langTotals[language] = (langTotals[language] ?? 0) + bytes;
         }
-      } catch {
+      } catch (e) {
         // Language data is nice-to-have for the recap. The rest of the wrapped
         // experience should still render if one repository cannot be read.
       }
     })
-  );
+    );
+  }
 
   return calculateLanguagePercentages(langTotals, 3);
 }
@@ -194,23 +201,37 @@ export async function GET(req: NextRequest) {
       ),
     ]);
 
+    const activeDays = Object.values(contributionsByDate).filter(
+      (count) => count > 0
+    ).length;
+    const longestStreak = calculateLongestStreak(contributionsByDate);
+    const peakCodingHourResult = getPeakCodingHour(hours);
+
+    const personality = calculatePersonality(
+      contributionsByDate,
+      totalCommits,
+      prsMerged,
+      peakCodingHourResult,
+      longestStreak,
+      activeDays
+    );
+
     return Response.json({
       year,
       username: session.githubLogin,
       totalCommits,
-      activeDays: Object.values(contributionsByDate).filter(
-        (count) => count > 0
-      ).length,
-      longestStreak: calculateLongestStreak(contributionsByDate),
+      activeDays,
+      longestStreak,
       mostProductiveMonth: getMostProductiveMonth(contributionsByDate),
       topLanguages,
       prsMerged,
       mostContributedRepo: getMostContributedRepo(commits),
-      peakCodingHour: getPeakCodingHour(hours),
+      peakCodingHour: peakCodingHourResult,
+      personality,
       generatedAt: new Date().toISOString(),
       partial,
     });
-  } catch {
+  } catch (e) {
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
+import { toast } from "sonner";
 
 interface CommunityData {
   discussionsStarted: number;
@@ -32,11 +33,13 @@ export default function CommunityMetrics() {
         return response.json();
       })
       .then((data: CommunityData) => setMetrics(data))
-      .catch(() =>
+      .catch((err) => {
+        console.error("Failed to fetch community metrics:", err);
         setError(
           "We couldn't load your discussion analytics right now. Please try again in a moment."
-        )
-      )
+        );
+        toast.error("Failed to load community metrics");
+      })
       .finally(() => setLoading(false));
   }, [selectedAccount]);
 
@@ -59,7 +62,7 @@ export default function CommunityMetrics() {
     metrics.commentsPosted === 0;
 
   return (
-    <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
+    <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
@@ -73,10 +76,11 @@ export default function CommunityMetrics() {
           type="button"
           onClick={fetchMetrics}
           disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] sm:w-auto disabled:cursor-not-allowed disabled:opacity-60"
+          aria-label="Refresh discussion analytics"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
         >
           {loading ? (
-            <svg className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg aria-hidden="true" className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           ) : null}
           <span>Refresh</span>
         </button>
@@ -95,7 +99,7 @@ export default function CommunityMetrics() {
               <div
                 key={item}
                 aria-hidden="true"
-                className="min-h-20 rounded-lg bg-[var(--card-muted)] animate-pulse"
+                className="min-h-20 rounded-lg skeleton-shimmer"
               />
             ))}
           </div>
@@ -117,7 +121,7 @@ export default function CommunityMetrics() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg bg-[var(--control)] p-4 text-center min-w-0 sm:min-h-24"
+                className="rounded-lg bg-[var(--control)] p-4 text-center min-w-0 sm:min-h-24 stat-cell animate-fade-in-up"
               >
                 <div className="text-[clamp(1.5rem,5vw,1.75rem)] font-bold leading-none text-[var(--accent)]">
                   {stat.value}
@@ -130,7 +134,7 @@ export default function CommunityMetrics() {
           </div>
 
           {isEmpty && (
-            <div className="rounded-lg border border-[var(--border)] bg-[var(--control)]/60 p-4 text-sm text-[var(--muted-foreground)]">
+            <div className="rounded-lg border border-[var(--border)] bg-[var(--control)]/60 p-4 text-sm text-[var(--muted-foreground)] transition-colors duration-200 hover:bg-[var(--card-muted)]">
               No discussion activity yet in this 30-day window.
             </div>
           )}

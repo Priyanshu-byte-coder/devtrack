@@ -1,30 +1,50 @@
-version: '3.8'
+version: "3.8"
 
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
+
+    command: npm run dev
+
     ports:
       - "3000:3000"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+
     environment:
-      - NODE_ENV=production
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: 1
+
       # Supabase
-      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+
       # NextAuth
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+
       # GitHub OAuth
-      - GITHUB_ID=${GITHUB_ID}
-      - GITHUB_SECRET=${GITHUB_SECRET}
+      GITHUB_ID: ${GITHUB_ID}
+      GITHUB_SECRET: ${GITHUB_SECRET}
+
       # Crypto
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+
       # Optional
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
-      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL}
-      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+    stdin_open: true
+    tty: true
+
     restart: unless-stopped

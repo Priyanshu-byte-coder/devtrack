@@ -1,36 +1,6 @@
 import { describe, it, expect } from 'vitest';
-
-function dateDiffDays(a: string, b: string): number {
-  return (new Date(b).getTime() - new Date(a).getTime()) / 86400000;
-}
-
-function toDateStr(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
-function calculateCurrentStreak(commitDates: string[]): number {
-  const days = Array.from(new Set(commitDates.map((date) => date.slice(0, 10)))).sort();
-  if (days.length === 0) {
-    return 0;
-  }
-
-  let runLength = 1;
-  const runs: { end: string; length: number }[] = [];
-  for (let i = 1; i < days.length; i += 1) {
-    if (dateDiffDays(days[i - 1], days[i]) === 1) {
-      runLength += 1;
-    } else {
-      runs.push({ end: days[i - 1], length: runLength });
-      runLength = 1;
-    }
-  }
-  runs.push({ end: days[days.length - 1], length: runLength });
-
-  const today = toDateStr(new Date());
-  const yesterday = toDateStr(new Date(Date.now() - 86400000));
-  const latest = runs[runs.length - 1];
-  return latest.end === today || latest.end === yesterday ? latest.length : 0;
-}
+import { dateDiffDays, toDateStr } from '@/lib/date-utils';
+import { calculateCurrentStreak } from '@/lib/streak';
 
 describe('calculateCurrentStreak', () => {
   it('returns 0 for empty dates array', () => {

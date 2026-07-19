@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RefreshCw, Loader2 } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -11,6 +12,7 @@ import {
   YAxis,
   type TooltipProps,
 } from "recharts";
+import { Skeleton } from "@/components/Skeleton";
 import { useAccount } from "@/components/AccountContext";
 import {
   formatHourRange,
@@ -26,16 +28,21 @@ function formatCommitCount(count: number): string {
 function InsightRow({
   label,
   value,
+  ariaLabel,
 }: {
   label: string;
   value: string;
+  ariaLabel?: string;
 }) {
   return (
     <div className="rounded-lg bg-[var(--control)] px-3 py-2">
       <p className="text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
         {label}
       </p>
-      <p className="mt-1 text-sm font-medium text-[var(--card-foreground)]">
+      <p
+        className="mt-1 text-sm font-medium text-[var(--card-foreground)]"
+        aria-label={ariaLabel}
+      >
         {value}
       </p>
     </div>
@@ -73,7 +80,7 @@ function TrendBadge({
 function HourTooltip({
   active,
   payload,
-}: TooltipProps<number, string>) {
+}: any) {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
@@ -174,7 +181,7 @@ export default function CodingActivityInsightsCard() {
       return [];
     }
 
-    const rows = [
+    const rows: { label: string; value: string; ariaLabel?: string }[] = [
       {
         label: "Most active",
         value: `${data.mostActiveHour.label} with ${formatCommitCount(data.mostActiveHour.count)}`,
@@ -189,18 +196,19 @@ export default function CodingActivityInsightsCard() {
       },
 
       {
-          label: "Productivity",
-          value:
-            data.productivityLevel === "Excellent"
-              ? "🟢 Excellent"
-              : data.productivityLevel === "Very Good"
-                ? "🔵 Very Good"
-                : data.productivityLevel === "Good"
-                  ? "🟡 Good"
-                  : data.productivityLevel === "Moderate"
-                    ? "🟠 Moderate"
-                    : "🔴 Low",
-        },
+        label: "Productivity",
+        value:
+          data.productivityLevel === "Excellent"
+            ? "🟢 Excellent"
+            : data.productivityLevel === "Very Good"
+              ? "🔵 Very Good"
+              : data.productivityLevel === "Good"
+                ? "🟡 Good"
+                : data.productivityLevel === "Moderate"
+                  ? "🟠 Moderate"
+                  : "🔴 Low",
+        ariaLabel: `Productivity level: ${data.productivityLevel ?? "Low"}`,
+      },
 
       {
         label: "Daily Average",
@@ -249,12 +257,17 @@ export default function CodingActivityInsightsCard() {
           type="button"
           onClick={fetchInsights}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60"
+          aria-label="Refresh coding activity insights"
+          className="flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
-            <svg className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-          ) : null}
-          <span>Refresh</span>
+            <>
+              <RefreshCw aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+              Refreshing
+            </>
+          ) : (
+            "Refresh"
+          )}
         </button>
       </div>
 
@@ -266,14 +279,10 @@ export default function CodingActivityInsightsCard() {
           className="space-y-4"
         >
           <span className="sr-only">Loading coding activity insights</span>
-          <div className="h-[260px] rounded-lg bg-[var(--card-muted)] animate-pulse" />
+          <Skeleton className="h-[260px] lg:h-[300px] w-full rounded-lg" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                aria-hidden="true"
-                className="h-16 rounded-lg bg-[var(--card-muted)] animate-pulse"
-              />
+              <Skeleton key={item} className="h-16 w-full rounded-lg" />
             ))}
           </div>
         </div>
@@ -296,7 +305,7 @@ export default function CodingActivityInsightsCard() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="h-[260px] min-h-[260px]">
+          <div className="h-[260px] min-h-[200px] lg:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={chartData}
@@ -346,6 +355,7 @@ export default function CodingActivityInsightsCard() {
           key={row.label}
           label={row.label}
           value={row.value}
+          ariaLabel={row.ariaLabel}
         />
       ))}
     </div>

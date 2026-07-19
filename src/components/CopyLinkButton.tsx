@@ -2,43 +2,55 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Link, CheckCircle } from "lucide-react";
 
-export default function CopyLinkButton() {
+interface CopyLinkButtonProps {
+  url: string;
+}
+
+export default function CopyLinkButton({ url }: CopyLinkButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      toast.success("Link copied successfully!");
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch (error) {
-      console.error("Failed to copy link:", error);
-      toast.error("Failed to copy link");
+    // Fallback strategy for older browsers
+    if (!navigator.clipboard) {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        triggerSuccess();
+      } catch (err) {
+        toast.error("Failed to copy link.");
+      }
+      document.body.removeChild(textArea);
+      return;
     }
+
+    // Modern browser copying execution
+    try {
+      await navigator.clipboard.writeText(url);
+      triggerSuccess();
+    } catch (err) {
+      toast.error("Failed to copy link.");
+    }
+  };
+
+  const triggerSuccess = () => {
+    setCopied(true);
+    toast.success("Link copied!", { duration: 2000 });
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <button
-      type="button"
       onClick={handleCopy}
+      type="button"
       aria-label="Copy profile link"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--control)] border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] rounded-lg text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 active:scale-[0.98]"
+      title="Copy profile link"
+      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700"
     >
-      {copied ? (
-        <>
-          <CheckCircle size={16} className="text-[var(--success)]" aria-hidden="true" />
-          <span>Copied!</span>
-        </>
-      ) : (
-        <>
-          <Link size={16} aria-hidden="true" />
-          <span>Copy link</span>
-        </>
-      )}
+      <span>{copied ? "Copied!" : "Copy link"}</span>
     </button>
   );
 }

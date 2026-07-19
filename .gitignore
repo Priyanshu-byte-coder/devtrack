@@ -12,6 +12,7 @@ out/
 # Environment files — NEVER commit these
 .env
 .env.local
+.env.local*
 .env.production
 .env.*.local
 
@@ -37,3 +38,29 @@ Thumbs.db
 desktop.ini
 
 test-results/
+
+.vercel
+.env*
+
+# PWA artifacts
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
+public/fallback-*.js
+public/worker-*.js
+public/swe-worker-*.js
+worker/
+
+# temp test artifacts
+server-output.txt
+test-ssr.mjs
+
+# dev artifacts — prevent accidental commits of scratch files and patches
+*.patch
+temp.*
+upstream-*.ts
+screenshot.png
+
+# Prevent npm lockfile conflicts
+package-lock.json

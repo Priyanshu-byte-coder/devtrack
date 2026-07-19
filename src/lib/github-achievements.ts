@@ -68,20 +68,36 @@ function logGitHubAchievements(
   }
 }
 
-function decodeHtml(value: string): string {
+/**
+ * Decodes common HTML entities in a given string.
+ * @param value - The string containing HTML entities.
+ * @returns The decoded string.
+ */
+export function decodeHtml(value: string): string {
+  // Decode &amp; last to avoid double-decoding entity sequences like &amp;lt;
   return value
-    .replace(/&amp;/g, "&")
     .replace(/&quot;/g, "\"")
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
 }
 
-function stripTags(value: string): string {
+/**
+ * Removes all HTML tags from a string and normalizes whitespace.
+ * @param value - The HTML string.
+ * @returns The plain text string without tags.
+ */
+export function stripTags(value: string): string {
   return decodeHtml(value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
 }
 
-function titleFromSlug(slug: string): string {
+/**
+ * Converts a hyphenated slug into a capitalized title.
+ * @param slug - The achievement slug (e.g., "pull-shark").
+ * @returns The formatted title (e.g., "Pull Shark").
+ */
+export function titleFromSlug(slug: string): string {
   return slug
     .split("-")
     .filter(Boolean)
@@ -89,7 +105,12 @@ function titleFromSlug(slug: string): string {
     .join(" ");
 }
 
-function slugFromTitle(title: string): string {
+/**
+ * Converts a title into a hyphenated slug suitable for URLs.
+ * @param title - The achievement title.
+ * @returns The generated slug.
+ */
+export function slugFromTitle(title: string): string {
   return title
     .trim()
     .toLowerCase()
@@ -101,7 +122,12 @@ function achievementDescription(slug: string, title: string): string {
   return ACHIEVEMENT_DESCRIPTIONS[slug] ?? `${title} achievement on GitHub.`;
 }
 
-function absoluteGitHubUrl(value: string): string {
+/**
+ * Ensures a given GitHub URL is absolute, prefixing it with the base GitHub URL if necessary.
+ * @param value - The URL to process.
+ * @returns The absolute GitHub URL.
+ */
+export function absoluteGitHubUrl(value: string): string {
   const decoded = decodeHtml(value);
   if (decoded.startsWith("http://") || decoded.startsWith("https://")) {
     return decoded;
@@ -115,19 +141,35 @@ function absoluteGitHubUrl(value: string): string {
   return decoded;
 }
 
-function getHtmlAttribute(tag: string, attribute: string): string | null {
+/**
+ * Extracts the value of a specific HTML attribute from a given HTML tag string.
+ * @param tag - The HTML tag string.
+ * @param attribute - The name of the attribute to extract.
+ * @returns The attribute value, or null if not found.
+ */
+export function getHtmlAttribute(tag: string, attribute: string): string | null {
   const pattern = new RegExp(`${attribute}="([^"]*)"`, "i");
   const match = tag.match(pattern);
   return match?.[1] ? decodeHtml(match[1]) : null;
 }
 
-function slugFromAchievementImage(imageUrl: string): string | null {
+/**
+ * Extracts the achievement slug from its image URL.
+ * @param imageUrl - The URL of the achievement image.
+ * @returns The extracted slug, or null if it cannot be determined.
+ */
+export function slugFromAchievementImage(imageUrl: string): string | null {
   const fileName = imageUrl.split("/").pop()?.split("?")[0] ?? "";
   const match = fileName.match(/^(.+?)(?:-(?:default|badge|dark|light))?-[a-f0-9]{6,}\.png$/i);
   return match?.[1]?.toLowerCase() ?? null;
 }
 
-function sanitizeGitHubLogin(username: string): string {
+/**
+ * Sanitizes a GitHub username by removing leading '@' and whitespace.
+ * @param username - The raw username.
+ * @returns The sanitized username.
+ */
+export function sanitizeGitHubLogin(username: string): string {
   return username.trim().replace(/^@/, "");
 }
 
@@ -211,14 +253,14 @@ function parseAchievementsFromProfileHtml(
     const href = match[1];
     const slug = decodeHtml(match[2]).toLowerCase();
     const anchorHtml = match[3];
-    const imgMatch = anchorHtml.match(/<img\b[^>]*src="([^"]+)"[^>]*>/i);
+    const imgMatch = anchorHtml.match(/<img alt="" aria-hidden="true"\b[^>]*src="([^"]+)"[^>]*>/i);
 
     if (!imgMatch) {
       continue;
     }
 
     const imageUrl = absoluteGitHubUrl(imgMatch[1]);
-    const altMatch = anchorHtml.match(/<img\b[^>]*alt="([^"]*)"[^>]*>/i);
+    const altMatch = anchorHtml.match(/<img alt="" aria-hidden="true"\b[^>]*alt="([^"]*)"[^>]*>/i);
     const ariaMatch = anchorHtml.match(/aria-label="([^"]+)"/i);
     const titleMatch = anchorHtml.match(/title="([^"]+)"/i);
     const rawTitle =
@@ -234,7 +276,7 @@ function parseAchievementsFromProfileHtml(
     });
   }
 
-  const achievementImagePattern = /<img\b[^>]*alt="Achievement:\s*([^"]+)"[^>]*>/gi;
+  const achievementImagePattern = /<img alt="" aria-hidden="true"\b[^>]*alt="Achievement:\s*([^"]+)"[^>]*>/gi;
 
   for (const match of html.matchAll(achievementImagePattern)) {
     const imageTag = match[0];
@@ -261,6 +303,12 @@ function parseAchievementsFromProfileHtml(
   return [...achievements.values()].sort((a, b) => a.title.localeCompare(b.title));
 }
 
+/**
+ * Fetches the GitHub achievements for a specific user from their public profile HTML.
+ * @param username - The GitHub username.
+ * @param token - Optional GitHub personal access token for higher rate limits.
+ * @returns An array of fetched achievements.
+ */
 export async function fetchGitHubAchievements(
   username: string,
   token?: string
@@ -287,6 +335,11 @@ export async function fetchGitHubAchievements(
   return achievements;
 }
 
+/**
+ * Retrieves the cached GitHub achievements for a user from the database.
+ * @param userId - The user's internal ID.
+ * @returns The cached achievements data, or null if not found.
+ */
 export async function getCachedGitHubAchievements(
   userId: string
 ): Promise<GitHubAchievementsCache | null> {
@@ -313,6 +366,11 @@ export async function getCachedGitHubAchievements(
   };
 }
 
+/**
+ * Syncs a user's GitHub achievements, using cached data if fresh, or fetching new data if necessary.
+ * @param options - Configuration options for the sync operation.
+ * @returns The synced achievements cache object.
+ */
 export async function syncGitHubAchievementsForUser(options: {
   userId: string;
   githubLogin: string;

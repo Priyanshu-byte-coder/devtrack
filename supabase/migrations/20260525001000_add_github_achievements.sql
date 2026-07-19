@@ -13,6 +13,8 @@ create index if not exists idx_user_github_achievements_login
 
 alter table user_github_achievements enable row level security;
 
+drop policy if exists "user_github_achievements_select_own" on user_github_achievements;
+
 create policy "user_github_achievements_select_own"
   on user_github_achievements for select
   using (user_id = auth.uid()::text);

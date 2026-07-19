@@ -94,8 +94,9 @@ X-Content-Type-Options: nosniff
 
 ## Rate Limiting
 
-- The DevTrack badge API itself has no rate limits
-- However, it uses GitHub API internally, which may have rate limits
+- Badge endpoints enforce **20 requests per minute per IP**
+- Requests exceeding this limit receive HTTP 429 with a `Retry-After` header
+- Additionally, the GitHub API has its own limits (see below)
 - GitHub API: 60 requests/hour (unauthenticated), 5000/hour (authenticated)
 - Using `GITHUB_TOKEN` environment variable increases rate limits
 
@@ -172,3 +173,8 @@ For issues or feature requests related to badges:
   ![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)
 ](https://devtrack.app/u/octocat)
 ```
+
+
+### GSSoC Badge API Rate Limiting
+- Badge requests are restricted to **20 requests per minute per IP**
+- This is enforced server-side via a sliding window counter per IP address

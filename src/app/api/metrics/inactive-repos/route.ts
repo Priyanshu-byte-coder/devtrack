@@ -1,8 +1,8 @@
-import { getServerSession } from "next-auth";
+import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts, mergeMetrics } from "@/lib/github-accounts";
-import { fetchUserRepos, type GitHubRepo } from "@/lib/github";
+import { fetchUserRepos, GitHubAuthError, type GitHubRepo } from "@/lib/github";
+import { githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -126,10 +126,19 @@ async function fetchInactiveReposForAccount(
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const sessionData = await getSessionWithToken();
 
-  if (!session?.accessToken || !session.githubLogin) {
+  if (!sessionData || !sessionData.session.githubLogin || !sessionData.session.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const session = sessionData.session;
+  const accessToken = sessionData.accessToken;
+  const githubLogin = session.githubLogin as string;
+  const githubId = session.githubId as string;
+
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
   }
 
   const thresholdDays = parseThreshold(req.nextUrl.searchParams.get("days"));
@@ -139,23 +148,20 @@ export async function GET(req: NextRequest) {
   if (!accountId) {
     try {
       const result = await fetchInactiveReposForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        githubLogin,
         thresholdDays,
-        { bypass, userId: session.githubId ?? session.githubLogin }
+        { bypass, userId: githubId }
       );
 
       return Response.json(result);
-    } catch {
+    } catch (e) {
+      if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
 
-  if (!session.githubId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(githubId, githubLogin);
 
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -164,9 +170,9 @@ export async function GET(req: NextRequest) {
   if (accountId === "combined") {
     const accounts = await getAllAccounts(
       {
-        token: session.accessToken,
-        githubId: session.githubId,
-        githubLogin: session.githubLogin,
+        token: accessToken,
+        githubId,
+        githubLogin,
       },
       userRow.id
     );
@@ -192,17 +198,18 @@ export async function GET(req: NextRequest) {
     return Response.json(merged);
   }
 
-  if (accountId === session.githubId) {
+  if (accountId === githubId) {
     try {
       const result = await fetchInactiveReposForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        githubLogin,
         thresholdDays,
-        { bypass, userId: session.githubId }
+        { bypass, userId: githubId }
       );
 
       return Response.json(result);
-    } catch {
+    } catch (e) {
+      if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
@@ -233,7 +240,8 @@ export async function GET(req: NextRequest) {
     );
 
     return Response.json(result);
-  } catch {
+  } catch (e) {
+    if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

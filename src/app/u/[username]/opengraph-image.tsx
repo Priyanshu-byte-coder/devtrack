@@ -6,7 +6,7 @@ import {
   fetchTopLanguage,
 } from "@/lib/public-profile-data";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = "DevTrack Profile";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -16,9 +16,9 @@ export const contentType = "image/png";
 export default async function Image({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const { username } = params;
+  const { username } = await params;
 
   try {
     const user = await getUserByUsername(username);
@@ -55,7 +55,7 @@ export default async function Image({
 
     const [contributions, streak, topLanguage] = await Promise.all([
       fetchPublicContributions(user.github_login, githubToken, 30),
-      fetchPublicStreak(user.github_login, githubToken),
+      fetchPublicStreak(user.github_login, githubToken, user.timezone),
       fetchTopLanguage(user.github_login, githubToken),
     ]);
 
@@ -81,7 +81,7 @@ export default async function Image({
           {/* Header Section */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: 60 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <img loading="lazy"
               src={avatarUrl}
               alt={user.github_login}
               style={{

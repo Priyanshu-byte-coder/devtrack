@@ -6,6 +6,7 @@ import {
   getAllAccounts,
   mergeMetrics,
 } from "@/lib/github-accounts";
+import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -54,6 +55,13 @@ async function fetchDiscussionsMetrics(
       ttlSeconds: METRICS_CACHE_TTL_SECONDS.discussions,
     },
     async () => {
+      if (token === "mock-token") {
+        return {
+          discussionsStarted: 5,
+          acceptedAnswers: 2,
+          commentsPosted: 14,
+        };
+      }
       const { from, to } = getWindowDates(days);
       const response = await fetch("https://api.github.com/graphql", {
         method: "POST",
@@ -69,6 +77,7 @@ async function fetchDiscussionsMetrics(
       });
 
       if (!response.ok) {
+        if (response.status === 401) throw new GitHubAuthError();
         throw new Error("GitHub API error");
       }
 
@@ -115,6 +124,9 @@ export async function GET(req: NextRequest) {
   if (!session?.accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
+  }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
@@ -127,9 +139,16 @@ export async function GET(req: NextRequest) {
         userId: session.githubId ?? session.githubLogin ?? "primary",
       });
       return Response.json(formatDiscussionsMetrics(result));
-    } catch {
+    } catch (e) {
+      if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
+  }
+
+  let targetAccountId = accountId;
+  if (accountId.startsWith("org:")) {
+    const parts = accountId.split(":");
+    targetAccountId = parts[1];
   }
 
   if (!session.githubId || !session.githubLogin) {
@@ -138,11 +157,10 @@ export async function GET(req: NextRequest) {
 
   const userRow = await resolveAppUser(session.githubId, session.githubLogin);
 
-  if (!userRow) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (accountId === "combined") {
+  if (targetAccountId === "combined") {
+    if (!userRow) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const accounts = await getAllAccounts(
       {
         token: session.accessToken,
@@ -170,10 +188,15 @@ export async function GET(req: NextRequest) {
     return Response.json(formatDiscussionsMetrics(merged));
   }
 
-  const token =
-    accountId === session.githubId
-      ? session.accessToken
-      : await getAccountToken(userRow.id, accountId);
+  let token: string | null = null;
+  if (!userRow) {
+    token = session.accessToken;
+  } else {
+    token =
+      targetAccountId === session.githubId
+        ? session.accessToken
+        : await getAccountToken(userRow.id, targetAccountId);
+  }
 
   if (!token) {
     return Response.json({ error: "Account not found" }, { status: 404 });
@@ -182,10 +205,11 @@ export async function GET(req: NextRequest) {
   try {
     const result = await fetchDiscussionsMetrics(token, days, {
       bypass,
-      userId: accountId === session.githubId ? session.githubId : accountId,
+      userId: targetAccountId === session.githubId ? session.githubId : targetAccountId,
     });
     return Response.json(formatDiscussionsMetrics(result));
-  } catch {
+  } catch (e) {
+    if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

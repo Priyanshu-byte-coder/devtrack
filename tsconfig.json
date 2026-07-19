@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "types": [
+      "node",
+      "vitest"
+    ],
     "lib": [
       "dom",
       "dom.iterable",
@@ -15,7 +19,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -27,7 +31,7 @@
         "./src/*"
       ]
     },
-    "target": "ES2017"
+    "target": "ES2022"
   },
   "include": [
     "next-env.d.ts",
@@ -39,6 +43,7 @@
   "exclude": [
     "node_modules",
     "client",
-    "server"
+    "server",
+    "vitest.config.ts"
   ]
 }

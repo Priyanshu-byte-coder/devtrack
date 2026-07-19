@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Help
+    url: https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/q-a
+    about: Ask questions and get help from the community
+  - name: Feature Ideas & Discussion
+    url: https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/ideas
+    about: Share and vote on feature ideas before creating an issue
+  - name: Show & Tell
+    url: https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/show-and-tell
+    about: Share your DevTrack setup, dashboards, or cool things you built

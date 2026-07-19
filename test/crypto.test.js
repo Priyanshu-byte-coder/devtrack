@@ -59,3 +59,60 @@ test("decryptToken still decrypts valid encrypted tokens", () => {
     "github-token-123"
   );
 });
+
+test("safeCompare returns true for identical strings", () => {
+  const { safeCompare } = loadCryptoModule();
+  assert.equal(safeCompare("test", "test"), true);
+});
+
+test("safeCompare returns false for different length strings", () => {
+  const { safeCompare } = loadCryptoModule();
+  assert.equal(safeCompare("short", "longerstring"), false);
+});
+
+test("safeCompare returns false for non-identical strings of same length", () => {
+  const { safeCompare } = loadCryptoModule();
+  assert.equal(safeCompare("aaaa", "bbbb"), false);
+});
+
+test("safeCompare returns true for empty strings", () => {
+  const { safeCompare } = loadCryptoModule();
+  assert.equal(safeCompare("", ""), true);
+});
+
+test("safeCompare returns false for empty vs non-empty", () => {
+  const { safeCompare } = loadCryptoModule();
+  assert.equal(safeCompare("", "a"), false);
+  assert.equal(safeCompare("a", ""), false);
+});
+
+test("verifyGitHubSignature returns true for valid signature", () => {
+  const { verifyGitHubSignature, getExpectedSignature } = loadCryptoModule();
+  const secret = "webhook-secret-123";
+  const body = '{"action":"push"}';
+  const validSignature = getExpectedSignature(secret, body);
+  assert.equal(verifyGitHubSignature(body, validSignature, secret), true);
+});
+
+test("verifyGitHubSignature returns false for invalid signature", () => {
+  const { verifyGitHubSignature } = loadCryptoModule();
+  const secret = "webhook-secret-123";
+  const body = '{"action":"push"}';
+  const invalidSignature = "sha256=0000000000000000000000000000000000000000000000000000000000000000";
+  assert.equal(verifyGitHubSignature(body, invalidSignature, secret), false);
+});
+
+test("verifyGitHubSignature returns false for null signature", () => {
+  const { verifyGitHubSignature } = loadCryptoModule();
+  const secret = "webhook-secret-123";
+  const body = '{"action":"push"}';
+  assert.equal(verifyGitHubSignature(body, null, secret), false);
+});
+
+test("verifyGitHubSignature returns false for signature without sha256 prefix", () => {
+  const { verifyGitHubSignature } = loadCryptoModule();
+  const secret = "webhook-secret-123";
+  const body = '{"action":"push"}';
+  const badSignature = "abc123def456";
+  assert.equal(verifyGitHubSignature(body, badSignature, secret), false);
+});
