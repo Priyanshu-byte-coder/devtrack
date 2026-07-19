@@ -26,7 +26,7 @@ interface Goal {
   period_start: string;
   last_synced_at: string | null;
   week_start: string | null;
-  category: GoalCategory | null;
+  category?: GoalCategory | null;
   last_period: {
     period_start: string;
     period_end: string;
