@@ -1,5 +1,5 @@
-import SectionHeader from "./SectionHeader";
 "use client";
+import SectionHeader from "./SectionHeader";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -43,7 +43,7 @@ export default function StreakTracker() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [, setFreeze] = useState<FreezeData | null>(null);
+  const [freeze, setFreeze] = useState<FreezeData | null>(null);
   const [Loading, setFreezeLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -577,7 +577,7 @@ export default function StreakTracker() {
         </p>
       )}
 
-      {!Loading && ?.hasFreeze && (
+      {!Loading && freeze?.hasFreeze && (
         <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-4 py-3">
           <div className="flex items-center gap-2">
             <CheckCircle size={18} className="text-[var(--accent)]" aria-hidden="true" />
@@ -615,7 +615,7 @@ export default function StreakTracker() {
         </div>
       )}
 
-      {!Loading && !?.hasFreeze && (
+      {!Loading && !freeze?.hasFreeze && (
         <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-[var(--foreground)]">Streak Freeze</span>
@@ -655,11 +655,11 @@ export default function StreakTracker() {
           */}
           <StreakCalendar
             contributions={contributionData.data}
-            Dates={
-              ?.Date
-                ? Array.from(new Set([...Dates, .Date]))
-                : Dates
-            }
+              Dates={
+                  freeze?.Date
+                    ? Array.from(new Set([...Dates, freeze.Date]))
+                    : Dates
+              }
             currentMonth={calendarMonth}
             onMonthChange={setCalendarMonth}
           />
