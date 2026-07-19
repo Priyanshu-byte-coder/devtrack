@@ -144,7 +144,7 @@ export default function StatsCard({
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               {/* Avatar */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <img loading="lazy"
                 src={avatarUrl}
                 alt={username}
                 width={80}
@@ -320,7 +320,7 @@ function StatBox({
           <div
             style={{
               fontSize: 13,
-              color: "#6b7280",
+              color: "#4b5563",
               marginTop: 4,
             }}
           >

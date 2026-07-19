@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { signOut } from "next-auth/react";
 import { useAccount } from "@/components/AccountContext";
 import {
   CartesianGrid,
@@ -76,10 +77,12 @@ export default function PRReviewTrendChart() {
   const [data, setData] = useState<PRReviewTrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [githubAuthInvalid, setGithubAuthInvalid] = useState(false);
 
   const fetchTrend = useCallback(() => {
     setLoading(true);
     setError(null);
+    setGithubAuthInvalid(false);
 
     const url =
       selectedAccount !== null
@@ -89,11 +92,17 @@ export default function PRReviewTrendChart() {
         : "/api/metrics/pr-review-time";
 
     fetch(url)
-      .then((r) => {
+      .then(async (r) => {
+        const body = await r.json();
+        if (body?.error === "token_expired") {
+          setGithubAuthInvalid(true);
+          return null;
+        }
         if (!r.ok) throw new Error("API error");
-        return r.json();
+        return body as PRReviewTrendResponse;
       })
-      .then((res: PRReviewTrendResponse) => {
+      .then((res) => {
+        if (!res) return;
         setData(res.weeks ?? []);
       })
       .catch(() => {
@@ -153,7 +162,7 @@ export default function PRReviewTrendChart() {
   const hasData = data.some((week) => week.avgReviewDays !== null);
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="flex h-full flex-col rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
@@ -175,7 +184,35 @@ export default function PRReviewTrendChart() {
               />
             ))}
           </div>
-          <div className="h-[280px] animate-pulse rounded-lg bg-[var(--card-muted)]" />
+          <div className="h-[300px] animate-pulse rounded-lg bg-[var(--card-muted)]" />
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-4">
+  {[1,2,3,4,5,6,7,8].map((i) => (
+    <div
+      key={i}
+      className="h-14 rounded-md bg-[var(--card-muted)] animate-pulse"
+    />
+  ))}
+</div>
+        </div>
+      ) : githubAuthInvalid ? (
+        <div className="flex h-[360px] items-center justify-center">
+          <div className="max-w-sm rounded-lg border border-[var(--border)] bg-[var(--background)] p-6 text-center space-y-3">
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Your GitHub connection is no longer valid. Reconnect your GitHub
+              account to continue syncing data.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                void signOut({ redirect: false }).then(() => {
+                  window.location.href = "/api/auth/signin/github?callbackUrl=/dashboard";
+                });
+              }}
+              className="inline-flex items-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Reconnect GitHub
+            </button>
+          </div>
         </div>
       ) : error ? (
         <div className="flex h-[360px] items-center justify-center">
@@ -248,16 +285,13 @@ export default function PRReviewTrendChart() {
                 />
 
                 <XAxis
-                  dataKey="label"
-                  axisLine={false}
-                  tickLine={false}
-                  tickMargin={12}
-                  interval={0}
-                  style={{
-                    fill: "var(--muted-foreground)",
-                    fontSize: "0.8rem",
-                  }}
-                />
+  dataKey="label"
+  axisLine={false}
+  tickLine={false}
+  tickMargin={12}
+  interval="preserveStartEnd"
+  tick={{ fill: "var(--muted-foreground)", fontSize: "0.7rem" }}
+/>
 
                 <YAxis
                   axisLine={false}
@@ -287,6 +321,7 @@ export default function PRReviewTrendChart() {
                     if (point.avgReviewDays === null) {
                       return (
                         <circle
+                          key={`dot-null-${props.index}`}
                           cx={props.cx}
                           cy={props.cy}
                           r={4}
@@ -298,6 +333,7 @@ export default function PRReviewTrendChart() {
 
                     return (
                       <circle
+                        key={`dot-${props.index}`}
                         cx={props.cx}
                         cy={props.cy}
                         r={5}

@@ -1,0 +1,74 @@
+name: Visual Regression
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - "src/components/**"
+      - "src/app/**"
+      - "src/app/globals.css"
+      - "app/globals.css"
+      - "globals.css"
+      - "tests/visual/**"
+      - "tests/snapshots/**"
+      - "playwright.visual.config.mjs"
+      - ".github/workflows/visual-regression.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: visual-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual-regression:
+    name: Playwright visual regression
+    runs-on: ubuntu-latest
+
+    env:
+      NEXTAUTH_SECRET: test-nextauth-secret-for-playwright-tests
+      NEXTAUTH_URL: http://127.0.0.1:3002
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3002
+      GITHUB_ID: playwright-github-id
+      GITHUB_SECRET: playwright-github-secret
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+      PLAYWRIGHT_TEST: "true"
+      PLAYWRIGHT_SERVER_MODE: start
+      CI: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build app
+        run: pnpm run build
+
+      - name: Run visual regression tests
+        run: npx playwright test -c playwright.visual.config.mjs
+
+      - name: Upload visual regression artifacts
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: visual-regression-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

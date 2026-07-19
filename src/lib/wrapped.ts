@@ -1,3 +1,5 @@
+import { calculateStreak } from "@/lib/streak";
+
 export interface WrappedCommit {
   date: string;
   repo: string;
@@ -7,6 +9,14 @@ export interface WrappedLanguage {
   name: string;
   bytes: number;
   percentage: number;
+}
+
+export interface WrappedPersonality {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  reason: string;
 }
 
 export interface WrappedStats {
@@ -30,6 +40,7 @@ export interface WrappedStats {
     label: string;
     commits: number;
   };
+  personality: WrappedPersonality;
   generatedAt: string;
   partial: boolean;
 }
@@ -70,25 +81,10 @@ export function calculateLongestStreak(contributionsByDate: Record<string, numbe
       .map(([date]) => date)
   );
   const dates = Array.from(activeDates).sort();
-  let longest = 0;
-  let current = 0;
-  let previous: Date | null = null;
-
-  for (const date of dates) {
-    const currentDate = new Date(`${date}T00:00:00Z`);
-    const dayDiff =
-      previous === null
-        ? 1
-        : Math.round(
-            (currentDate.getTime() - previous.getTime()) / 86400000
-          );
-
-    current = dayDiff === 1 ? current + 1 : 1;
-    longest = Math.max(longest, current);
-    previous = currentDate;
-  }
-
-  return longest;
+  const { longestStreak } = calculateStreak(
+    dates.map((day) => new Date(`${day}T00:00:00Z`))
+  );
+  return longestStreak;
 }
 
 export function getMostProductiveMonth(contributionsByDate: Record<string, number>) {
@@ -176,4 +172,81 @@ function formatHour(hour: number) {
   const suffix = normalized >= 12 ? "pm" : "am";
   const display = normalized % 12 === 0 ? 12 : normalized % 12;
   return `${display}${suffix}`;
+}
+
+export function calculatePersonality(
+  contributionsByDate: Record<string, number>,
+  totalCommits: number,
+  prsMerged: number,
+  peakCodingHour: { hour: number | null },
+  longestStreak: number,
+  activeDays: number
+): WrappedPersonality {
+  // Weekend Warrior
+  let weekendCommits = 0;
+  for (const [dateStr, count] of Object.entries(contributionsByDate)) {
+    const date = new Date(`${dateStr}T00:00:00Z`);
+    const day = date.getUTCDay();
+    if (day === 0 || day === 6) {
+      weekendCommits += count;
+    }
+  }
+
+  const weekendRatio = totalCommits > 0 ? weekendCommits / totalCommits : 0;
+  if (weekendRatio > 0.4) {
+    return {
+      id: "weekend_warrior",
+      name: "Weekend Warrior",
+      icon: "🔥",
+      description: "You save your best work for the weekend.",
+      reason: `${Math.round(weekendRatio * 100)}% of your commits happened on Saturdays and Sundays.`,
+    };
+  }
+
+  // Night Architect
+  if (peakCodingHour.hour !== null && (peakCodingHour.hour >= 22 || peakCodingHour.hour <= 4)) {
+    return {
+      id: "night_architect",
+      name: "Night Architect",
+      icon: "🌙",
+      description: "You find clarity when the rest of the world sleeps.",
+      reason: "Your peak productivity hour falls deep into the night.",
+    };
+  }
+
+  // Sprint Builder
+  const commitsPerActiveDay = activeDays > 0 ? totalCommits / activeDays : 0;
+  if (commitsPerActiveDay > 8) {
+    return {
+      id: "sprint_builder",
+      name: "Sprint Builder",
+      icon: "⚡",
+      description: "When you code, you code with intense momentum.",
+      reason: `You average an impressive ${Math.round(commitsPerActiveDay)} commits per active day.`,
+    };
+  }
+
+  // Silent Architect
+  if (totalCommits > 500 && prsMerged < 5) {
+    return {
+      id: "silent_architect",
+      name: "Silent Architect",
+      icon: "🏗️",
+      description: "You quietly build massive foundations without making a fuss.",
+      reason: "You have massive commit volume but rarely open pull requests.",
+    };
+  }
+
+  // Consistency Monk (Fallback or earned)
+  return {
+    id: "consistency_monk",
+    name: "Consistency Monk",
+    icon: "🧘",
+    description: "You understand that great software is built one day at a time.",
+    reason: longestStreak > 21 
+      ? `You achieved an amazing ${longestStreak}-day streak.`
+      : activeDays > 100 
+      ? `You showed up to code on ${activeDays} different days.`
+      : "You maintain steady, reliable habits across your projects.",
+  };
 }

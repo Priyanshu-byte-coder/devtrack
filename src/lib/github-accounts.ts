@@ -73,7 +73,7 @@ export async function getRateLimitRemaining(token: string): Promise<number> {
     const remaining = data.resources?.core?.remaining;
 
     return typeof remaining === "number" ? remaining : 0;
-  } catch {
+  } catch (e) {
     return 0;
   }
 }

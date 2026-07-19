@@ -32,12 +32,28 @@ export async function GET(req: NextRequest) {
   fromDate.setDate(fromDate.getDate() - days);
   const fromDateStr = fromDate.toISOString().slice(0, 10);
 
-  const { data: sessions } = await supabaseAdmin
+  const { data: sessions, error } = await supabaseAdmin
     .from("local_coding_sessions")
     .select("*")
     .eq("user_id", user.id)
     .gte("date", fromDateStr)
     .order("date", { ascending: false });
+
+  if (error) {
+    if (error.code === "42P01") {
+      // Table may not exist in all deployments — degrade gracefully
+      return Response.json({
+        dailyData: [],
+        totals: { totalSeconds: 0, totalDays: 0, avgSecondsPerDay: 0 },
+        hasData: false,
+      });
+    }
+    console.error("Failed to fetch local coding stats:", error);
+    return Response.json(
+      { error: "Failed to fetch local coding stats" },
+      { status: 500 }
+    );
+  }
 
   if (!sessions || sessions.length === 0) {
     return Response.json({

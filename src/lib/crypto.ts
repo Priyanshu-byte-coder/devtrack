@@ -50,6 +50,11 @@ function validateEncryptedTokenPayload(encrypted: string, iv: string) {
   }
 }
 
+/**
+ * Encrypts a plaintext string using AES-256-GCM.
+ * @param plaintext - The string to encrypt.
+ * @returns An object containing the hex-encoded encrypted string and the initialization vector (IV).
+ */
 export function encryptToken(plaintext: string): {
   encrypted: string;
   iv: string;
@@ -70,6 +75,12 @@ export function encryptToken(plaintext: string): {
   };
 }
 
+/**
+ * Decrypts a hex-encoded string using AES-256-GCM.
+ * @param encrypted - The encrypted token string.
+ * @param iv - The initialization vector used during encryption.
+ * @returns The decrypted plaintext string, or null if decryption fails.
+ */
 export function decryptToken(
   encrypted: string,
   iv: string
@@ -111,6 +122,12 @@ export function decryptToken(
   }
 }
 
+/**
+ * Safely compares two strings to prevent timing attacks.
+ * @param a - The first string.
+ * @param b - The second string.
+ * @returns True if the strings are strictly equal.
+ */
 export function safeCompare(a: string, b: string): boolean {
   const left = Buffer.from(a, "utf8");
   const right = Buffer.from(b, "utf8");
@@ -122,10 +139,23 @@ export function safeCompare(a: string, b: string): boolean {
   return timingSafeEqual(left, right);
 }
 
+/**
+ * Generates an HMAC SHA-256 signature for a given payload body.
+ * @param secret - The secret key for HMAC.
+ * @param body - The payload body string.
+ * @returns The generated signature prefixed with 'sha256='.
+ */
 export function getExpectedSignature(secret: string, body: string): string {
   return `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
 }
 
+/**
+ * Verifies if a provided GitHub webhook signature matches the expected signature for a payload.
+ * @param body - The raw payload body.
+ * @param signature - The signature provided in the webhook headers.
+ * @param secret - The expected webhook secret.
+ * @returns True if the signature is valid.
+ */
 export function verifyGitHubSignature(
   body: string,
   signature: string | null,
@@ -137,5 +167,6 @@ export function verifyGitHubSignature(
 
   return safeCompare(signature, getExpectedSignature(secret, body));
 }
+
 
 

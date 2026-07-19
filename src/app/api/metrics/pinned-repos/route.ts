@@ -1,5 +1,19 @@
 import { getServerSession } from "next-auth";
+import type { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
+import {
+  GitHubApiError,
+  GitHubAuthError,
+  GitHubRateLimitError,
+  githubAuthErrorResponse,
+  githubGraphQL,
+} from "@/lib/github-fetch";
+import {
+  isMetricsCacheBypassed,
+  METRICS_CACHE_TTL_SECONDS,
+  metricsCacheKey,
+  withMetricsCache,
+} from "@/lib/metrics-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +24,14 @@ interface PinnedRepo {
   stargazerCount: number;
   forkCount: number;
   primaryLanguage: { name: string; color: string } | null;
+}
+
+interface PinnedReposQueryResult {
+  viewer?: {
+    pinnedItems?: {
+      nodes?: Array<PinnedRepo | null | undefined>;
+    };
+  };
 }
 
 const PINNED_REPOS_QUERY = `
@@ -34,43 +56,59 @@ const PINNED_REPOS_QUERY = `
   }
 `;
 
-export async function GET() {
+export async function GET(req?: NextRequest) {
   const session = await getServerSession(authOptions);
+
   if (!session?.accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
+  }
+
+  const accessToken = session.accessToken;
+  const cacheUserId = session.githubId ?? session.githubLogin;
+
+  if (!cacheUserId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const bypass = req ? isMetricsCacheBypassed(req) : false;
+  const key = metricsCacheKey(cacheUserId, "pinned-repos");
+
   try {
-    const response = await fetch("https://api.github.com/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.accessToken}`,
+    const result = await withMetricsCache(
+      {
+        bypass,
+        key,
+        ttlSeconds: METRICS_CACHE_TTL_SECONDS["pinned-repos"],
+        fallbackToStaleOnError: (error) =>
+          error instanceof GitHubRateLimitError,
       },
-      body: JSON.stringify({ query: PINNED_REPOS_QUERY }),
-      cache: "no-store",
-    });
+      async () => {
+        const data = await githubGraphQL<PinnedReposQueryResult>(
+          PINNED_REPOS_QUERY,
+          accessToken
+        );
 
-    if (!response.ok) {
-      return Response.json({ error: "GitHub API error" }, { status: 502 });
-    }
+        const nodes = (data.viewer?.pinnedItems?.nodes ?? []).filter(
+          (node): node is PinnedRepo => node != null
+        );
 
-    const data = (await response.json()) as {
-      data?: {
-        viewer?: {
-          pinnedItems?: {
-            nodes?: Array<PinnedRepo | null | undefined>;
-          };
-        };
-      };
-    };
-
-    const nodes = (data.data?.viewer?.pinnedItems?.nodes ?? []).filter(
-      (node): node is PinnedRepo => node != null
+        return { pinnedRepos: nodes };
+      }
     );
 
-    return Response.json({ pinnedRepos: nodes });
-  } catch {
+    return Response.json(result);
+  } catch (error) {
+    if (
+      error instanceof GitHubAuthError ||
+      (error instanceof GitHubApiError && error.status === 401)
+    ) {
+      return githubAuthErrorResponse();
+    }
+
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

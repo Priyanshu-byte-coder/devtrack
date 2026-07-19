@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 interface BadgeSectionProps {
   username: string;
@@ -32,9 +33,33 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
   const streakMarkdown = `![DevTrack Streak](${streakBadgeUrl})`;
   const commitsMarkdown = `![DevTrack Commits](${commitsBadgeUrl})`;
   const combinedMarkdown = `${streakMarkdown} ${commitsMarkdown}`;
+  const [toastVisible, setToastVisible] = useState(false);
+  const toastTimerRef = useRef<number | null>(null);
+
+  const showToast = () => {
+    setToastVisible(true);
+
+    if (toastTimerRef.current) {
+      window.clearTimeout(toastTimerRef.current);
+    }
+
+    toastTimerRef.current = window.setTimeout(() => {
+      setToastVisible(false);
+      toastTimerRef.current = null;
+    }, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
         📌 Get Your Badge
       </h2>
@@ -49,10 +74,9 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
             Streak Badge
           </h3>
           <div className="mb-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={streakBadgePreviewUrl} alt="DevTrack Streak" />
+            <Image src={streakBadgePreviewUrl} alt="DevTrack Streak" width={150} height={20} className="w-auto h-auto" unoptimized />
           </div>
-          <CopyableCodeBlock code={streakMarkdown} />
+          <CopyableCodeBlock code={streakMarkdown} onCopySuccess={showToast} />
         </div>
 
         {/* Commits Badge */}
@@ -61,10 +85,9 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
             Commits Badge
           </h3>
           <div className="mb-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={commitsBadgePreviewUrl} alt="DevTrack Commits" />
+            <Image src={commitsBadgePreviewUrl} alt="DevTrack Commits" width={150} height={20} className="w-auto h-auto" unoptimized />
           </div>
-          <CopyableCodeBlock code={commitsMarkdown} />
+          <CopyableCodeBlock code={commitsMarkdown} onCopySuccess={showToast} />
         </div>
 
         {/* Combined */}
@@ -73,12 +96,10 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
             Combined (Both Badges)
           </h3>
           <div className="mb-2 flex gap-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={streakBadgePreviewUrl} alt="DevTrack Streak" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={commitsBadgePreviewUrl} alt="DevTrack Commits" />
+            <Image src={streakBadgePreviewUrl} alt="DevTrack Streak" width={150} height={20} className="w-auto h-auto" unoptimized />
+            <Image src={commitsBadgePreviewUrl} alt="DevTrack Commits" width={150} height={20} className="w-auto h-auto" unoptimized />
           </div>
-          <CopyableCodeBlock code={combinedMarkdown} />
+          <CopyableCodeBlock code={combinedMarkdown} onCopySuccess={showToast} />
         </div>
       </div>
 
@@ -88,19 +109,41 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
         </p>
       </div>
     </div>
+
+      <Toast visible={toastVisible} />
+    </>
+  );
+}
+
+function Toast({ visible }: { visible: boolean }) {
+  return (
+    <div
+      aria-live="polite"
+      role="status"
+      className="pointer-events-none fixed inset-x-0 bottom-6 flex justify-center px-4 z-50"
+    >
+      <div
+        className={`max-w-md rounded-full bg-[var(--foreground)] text-[var(--background)] px-4 py-2 text-sm shadow-lg shadow-black/10 transition-all duration-200 ease-out ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+        }`}
+      >
+        Badge markdown copied to clipboard
+      </div>
+    </div>
   );
 }
 
 /**
  * Copyable code block component
  */
-function CopyableCodeBlock({ code }: { code: string }) {
+function CopyableCodeBlock({ code, onCopySuccess }: { code: string; onCopySuccess?: () => void }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
+      onCopySuccess?.();
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);

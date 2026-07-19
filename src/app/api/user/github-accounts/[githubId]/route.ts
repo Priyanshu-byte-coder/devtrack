@@ -8,15 +8,17 @@ export const dynamic = "force-dynamic";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { githubId: string } }
+  { params }: { params: Promise<{ githubId: string }> }
 ) {
+  const resolvedParams = await params;
+
   const session = await getServerSession(authOptions);
 
   if (!session?.githubId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!params.githubId || typeof params.githubId !== "string" || !/^\d+$/.test(params.githubId)) {
+  if (!resolvedParams.githubId || typeof resolvedParams.githubId !== "string" || !/^\d+$/.test(resolvedParams.githubId)) {
     return NextResponse.json({ error: "Invalid githubId parameter" }, { status: 400 });
   }
 
@@ -26,7 +28,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (params.githubId === session.githubId) {
+  if (resolvedParams.githubId === session.githubId) {
     return NextResponse.json(
       { error: "Cannot remove primary account" },
       { status: 400 }
@@ -37,7 +39,7 @@ export async function DELETE(
     .from("user_github_accounts")
     .delete()
     .eq("user_id", userRow.id)
-    .eq("github_id", params.githubId)
+    .eq("github_id", resolvedParams.githubId)
     .select("github_id");
 
   if (error) {

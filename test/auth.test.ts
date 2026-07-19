@@ -3,12 +3,24 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock supabaseAdmin
 const mockUpsert = vi.fn();
+const mockSingle = vi.fn();
 vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
     from: vi.fn().mockReturnValue({
-      upsert: (...args: any[]) => mockUpsert(...args),
+      upsert: (...args: any[]) => {
+        mockUpsert(...args);
+        return {
+          select: vi.fn().mockReturnValue({
+            single: () => mockSingle(),
+          }),
+        };
+      },
     }),
   },
+}));
+
+vi.mock('@/lib/github-achievements', () => ({
+  syncGitHubAchievementsForUser: vi.fn(),
 }));
 
 import { beforeAll } from 'vitest';
@@ -24,7 +36,7 @@ beforeAll(async () => {
 describe('auth.ts NextAuth callbacks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUpsert.mockResolvedValue({ data: null, error: null });
+    mockSingle.mockResolvedValue({ data: { id: "user-id-123" }, error: null });
   });
 
   describe('signIn callback', () => {
@@ -222,7 +234,7 @@ describe('auth.ts NextAuth callbacks', () => {
     it('has GitHub provider configured with correct scope', () => {
       const githubProvider = authOptions.providers?.[0] as any;
       expect(githubProvider?.id).toBe('github');
-      expect(githubProvider?.options?.authorization?.params?.scope).toBe('read:user user:email repo read:discussion');
+      expect(githubProvider?.options?.authorization?.params?.scope).toBe('read:user user:email repo read:discussion read:org');
     });
 
     it('has NEXTAUTH_SECRET set', () => {

@@ -2,14 +2,38 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { resolveAppUser } from "@/lib/resolve-user";
 import { weeklyProductivityPrompt } from "@/lib/ai-prompts";
 import {
   analyzePatterns,
   computeTrends,
   DeveloperMetrics,
 } from "@/lib/ai-mentor";
+import {
+  upstashRateLimitFixedWindow,
+  getUpstashConfig,
+} from "@/lib/upstash-rest";
+import { createMemoryFixedWindowRateLimiter } from "@/lib/rate-limit";
+
+const AI_INSIGHTS_LIMIT = 5;
+const AI_INSIGHTS_WINDOW_SECONDS = 60 * 60; // 1 hour
+
+// In-memory fallback used only when Upstash Redis is not configured.
+const memoryLimiter = createMemoryFixedWindowRateLimiter({
+  windowMs: AI_INSIGHTS_WINDOW_SECONDS * 1000,
+  pruneIntervalMs: AI_INSIGHTS_WINDOW_SECONDS * 1000,
+  maxEntries: 10_000,
+});
 
 export const dynamic = "force-dynamic";
+
+const VALID_INSIGHT_TYPES = new Set([
+  "weekly_summary",
+  "pattern",
+  "recommendation",
+] as const);
+
+type InsightType = "weekly_summary" | "pattern" | "recommendation";
 
 interface ContributionsApiResponse {
   data?: Record<string, number>;
@@ -38,6 +62,29 @@ interface ReposApiResponse {
   repos?: RepoSummary[];
 }
 
+async function fetchJsonOrEmpty<T>(
+  url: string,
+  headers: HeadersInit
+): Promise<T> {
+  try {
+    const res = await fetch(url, {
+      headers,
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!res.ok) {
+      console.error(`Metrics fetch failed: ${url}`, res.status, await res.text());
+      return {} as T;
+    }
+
+    return (await res.json()) as T;
+  } catch (err) {
+    console.error(`Metrics fetch error: ${url}`, err);
+    return {} as T;
+  }
+}
+
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
@@ -45,10 +92,38 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = session.githubId;
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get("type") ?? "weekly_summary";
+  // Resolve the application user so that ai_insights rows are keyed on
+  // users.id (a stable UUID with a foreign-key constraint) rather than on
+  // session.githubId (a mutable external identifier with no FK). Using
+  // users.id ensures rows are removed via ON DELETE CASCADE when the account
+  // is deleted and prevents the orphaned-record scenario described in #1750.
+  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
 
+  const userId = user.id;
+
+  const { searchParams } = new URL(request.url);
+  const rawType = searchParams.get("type") ?? "weekly_summary";
+
+  // Validate against the DB CHECK constraint allowlist so that an unrecognised
+  // type fails with a clear 400 instead of a Supabase constraint-violation 500.
+  if (!VALID_INSIGHT_TYPES.has(rawType as InsightType)) {
+    return NextResponse.json(
+      {
+        error: `Invalid insight type. Must be one of: ${[
+          ...VALID_INSIGHT_TYPES,
+        ].join(", ")}`,
+      },
+      { status: 400 }
+    );
+  }
+
+  const type = rawType as InsightType;
+
+  // Check the cache before touching the rate-limit counter so that repeated
+  // reads of already-generated insights never consume quota.
   const { data: cached } = await supabaseAdmin
     .from("ai_insights")
     .select("*")
@@ -63,22 +138,51 @@ export async function GET(request: Request) {
     return NextResponse.json({ data: cached.content, cached: true });
   }
 
+  // No valid cache — enforce the rate limit only when a fresh generation is needed.
+  // Use Upstash Redis when configured (durable across serverless cold starts);
+  // fall back to an in-memory limiter for local development without Redis.
+  let rateLimitDenied = false;
+  let retryAfterSeconds = AI_INSIGHTS_WINDOW_SECONDS;
+
+  if (getUpstashConfig()) {
+    const result = await upstashRateLimitFixedWindow({
+      key: `ai-insights:${userId}`,
+      limit: AI_INSIGHTS_LIMIT,
+      windowSeconds: AI_INSIGHTS_WINDOW_SECONDS,
+    });
+
+    if (!result.allowed) {
+      rateLimitDenied = true;
+      retryAfterSeconds = result.retryAfter ?? AI_INSIGHTS_WINDOW_SECONDS;
+    }
+  } else {
+    const result = memoryLimiter.check(
+      `ai-insights:${userId}`,
+      AI_INSIGHTS_LIMIT
+    );
+
+    if (!result.allowed) {
+      rateLimitDenied = true;
+      retryAfterSeconds = Math.max(
+        result.reset - Math.floor(Date.now() / 1000),
+        1
+      );
+    }
+  }
+
+  if (rateLimitDenied) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(retryAfterSeconds) },
+      }
+    );
+  }
+
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const cookie = request.headers.get("cookie") ?? "";
   const headers = { Cookie: cookie };
-
-  const [contributionsRes, prsRes, streakRes, reposRes] = await Promise.all([
-    fetch(`${baseUrl}/api/metrics/contributions?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-    fetch(`${baseUrl}/api/metrics/prs`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/streak`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/repos?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-  ]);
 
   const [contributionsRaw, prsRaw, streakRaw, reposRaw]: [
     ContributionsApiResponse,
@@ -86,10 +190,22 @@ export async function GET(request: Request) {
     StreakApiResponse,
     ReposApiResponse,
   ] = await Promise.all([
-    contributionsRes.ok ? contributionsRes.json() : {},
-    prsRes.ok ? prsRes.json() : {},
-    streakRes.ok ? streakRes.json() : {},
-    reposRes.ok ? reposRes.json() : {},
+    fetchJsonOrEmpty<ContributionsApiResponse>(
+      `${baseUrl}/api/metrics/contributions?days=90`,
+      headers
+    ),
+    fetchJsonOrEmpty<PRsApiResponse>(
+      `${baseUrl}/api/metrics/prs`,
+      headers
+    ),
+    fetchJsonOrEmpty<StreakApiResponse>(
+      `${baseUrl}/api/metrics/streak`,
+      headers
+    ),
+    fetchJsonOrEmpty<ReposApiResponse>(
+      `${baseUrl}/api/metrics/repos?days=90`,
+      headers
+    ),
   ]);
 
   const commitsByDay: Record<string, number> = contributionsRaw.data ?? {};

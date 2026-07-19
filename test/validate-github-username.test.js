@@ -56,3 +56,84 @@ test("normalizeGitHubUsername trims and validates input", () => {
   assert.equal(normalizeGitHubUsername(null), null);
   assert.equal(normalizeGitHubUsername("bad/user"), null);
 });
+
+test("normalizeGitHubUsername rejects unicode characters", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername("user name"), null);
+  assert.equal(normalizeGitHubUsername("user@name"), null);
+  assert.equal(normalizeGitHubUsername("user#name"), null);
+  assert.equal(normalizeGitHubUsername("user$name"), null);
+  assert.equal(normalizeGitHubUsername("user%name"), null);
+});
+
+test("normalizeGitHubUsername rejects very long strings", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername("a".repeat(50)), null);
+  assert.equal(normalizeGitHubUsername("a".repeat(100)), null);
+});
+
+test("normalizeGitHubUsername handles single character", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername("a"), "a");
+  assert.equal(normalizeGitHubUsername("x"), "x");
+});
+
+test("normalizeGitHubUsername rejects names with spaces", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername("user name"), null);
+  assert.equal(normalizeGitHubUsername("user name"), null);
+});
+
+test("normalizeGitHubUsername rejects special characters", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername("user!name"), null);
+  assert.equal(normalizeGitHubUsername("user&name"), null);
+  assert.equal(normalizeGitHubUsername("user*name"), null);
+  assert.equal(normalizeGitHubUsername("user/name"), null);
+  assert.equal(normalizeGitHubUsername("user_name"), null);
+});
+
+test("isValidGitHubUsername rejects underscores and special chars", () => {
+  const { isValidGitHubUsername } = loadValidatorModule();
+
+  assert.equal(isValidGitHubUsername("user_name"), false);
+  assert.equal(isValidGitHubUsername("user.name"), false);
+  assert.equal(isValidGitHubUsername("user@name"), false);
+  assert.equal(isValidGitHubUsername("user name"), false);
+});
+
+test("isValidGitHubUsername accepts hyphens in middle", () => {
+  const { isValidGitHubUsername, normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(isValidGitHubUsername("user-name"), true);
+  assert.equal(normalizeGitHubUsername("user-name"), "user-name");
+});
+
+test("isValidGitHubUsername rejects underscores and special chars", () => {
+  const { isValidGitHubUsername } = loadValidatorModule();
+
+  assert.equal(isValidGitHubUsername("user_name"), false);
+  assert.equal(isValidGitHubUsername("user.name"), false);
+  assert.equal(isValidGitHubUsername("user@name"), false);
+  assert.equal(isValidGitHubUsername("user name"), false);
+});
+
+test("normalizeGitHubUsername handles undefined input", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername(undefined), null);
+  assert.equal(normalizeGitHubUsername(), null);
+});
+
+test("normalizeGitHubUsername trims leading and trailing whitespace", () => {
+  const { normalizeGitHubUsername } = loadValidatorModule();
+
+  assert.equal(normalizeGitHubUsername("  octocat"), "octocat");
+  assert.equal(normalizeGitHubUsername("octocat  "), "octocat");
+  assert.equal(normalizeGitHubUsername("  octocat  "), "octocat");
+});

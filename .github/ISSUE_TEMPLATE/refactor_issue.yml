@@ -1,0 +1,56 @@
+name: Refactor / Code Quality
+description: Propose a refactor, performance fix, or code quality improvement
+title: "refactor: "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening this issue, **search existing issues** (open AND closed) to make sure this improvement has not already been proposed. Duplicate issues will be closed immediately.
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: Duplicate Check
+      description: Confirm you searched for existing issues.
+      options:
+        - label: I have searched open and closed issues and confirmed this is not a duplicate.
+          required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type of Improvement
+      options:
+        - Refactor / Simplification
+        - Performance
+        - Bug Fix
+        - Documentation
+        - DevOps / CI
+        - Accessibility
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to change and why?
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files Affected
+      description: Which files will this change touch?
+      placeholder: "src/lib/example.ts, src/components/Example.tsx"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+    validations:
+      required: false

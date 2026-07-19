@@ -40,6 +40,7 @@ export interface CodingActivityInsight {
   };
 
   summary?: string[];
+  suggestedWeeklyTarget?: number;
 }
 
 const DAY_NAMES = [
@@ -105,7 +106,7 @@ export function formatTimeZoneLabel(timeZone: string): string {
     if (offset) {
       return normalizeOffsetLabel(offset);
     }
-  } catch {
+  } catch (e) {
     // Fallback to the raw zone name below.
   }
 
@@ -228,13 +229,13 @@ function calculateWeeklyTrend(
   direction: "up" | "down" | "stable";
   percentage: number;
 } {
-  const firstHalf = dayCounts
-    .slice(0, 3)
-    .reduce((sum, day) => sum + day.count, 0);
+  const firstHalfDays = dayCounts.slice(0, 3);
+  const firstHalfSum = firstHalfDays.reduce((sum, day) => sum + day.count, 0);
+  const firstHalf = firstHalfSum / firstHalfDays.length;
 
-  const secondHalf = dayCounts
-    .slice(3)
-    .reduce((sum, day) => sum + day.count, 0);
+  const secondHalfDays = dayCounts.slice(3);
+  const secondHalfSum = secondHalfDays.reduce((sum, day) => sum + day.count, 0);
+  const secondHalf = secondHalfSum / secondHalfDays.length;
 
   if (firstHalf === secondHalf) {
     return {
@@ -330,6 +331,12 @@ export function summarizeCodingActivity(
     productivityLevel
   );
 
+  // Suggested weekly target: slightly above recent average, capped at a reasonable level
+  const suggestedWeeklyTarget = Math.min(
+    Math.max(Math.round((averageDailyCommits ?? 1) * 7 * 1.2), 5),
+    50
+  );
+
   return {
     timezone: formatTimeZoneLabel(timeZone),
     hourlyCounts,
@@ -360,6 +367,6 @@ export function summarizeCodingActivity(
      weeklyTrend,
 
     summary,
+    suggestedWeeklyTarget,
   };
 }
-
