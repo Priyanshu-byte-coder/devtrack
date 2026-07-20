@@ -21,7 +21,7 @@ jobs:
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -40,7 +40,7 @@ jobs:
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -62,7 +62,7 @@ jobs:
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -107,7 +107,7 @@ jobs:
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -126,7 +126,7 @@ jobs:
 
       - name: Setup pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
