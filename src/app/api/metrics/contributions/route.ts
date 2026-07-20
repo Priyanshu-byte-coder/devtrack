@@ -38,6 +38,12 @@ import { logError } from "@/lib/error-handler";
 // ──────────────────────────────────────────────────────────────────────────────
 export const dynamic = "force-dynamic";
 
+// GitHub's guidance is to make requests for a single user serially rather
+// than concurrently, since Search has a low secondary rate limit. We fetch
+// remaining pages in small batches instead of fully in parallel, trading a
+// bit of latency for a much lower chance of tripping that limit.
+const PAGE_FETCH_CONCURRENCY = 3;
+
 interface TimeBlocks {
   morning: number;
   afternoon: number;
@@ -199,17 +205,28 @@ async function fetchContributionsForAccount(
         throw new Error(`GitHub API error: ${firstPage.status}`);
       }
 
-      // Fetch remaining pages in parallel to prevent Serverless timeouts
+      // Fetch remaining pages with a small bounded concurrency pool to
+      // reduce latency vs. sequential fetching, without fanning out enough
+      // requests at once to trip GitHub Search's secondary rate limit.
+      // GitHub recommends against firing concurrent requests for a single
+      // user token; capping to a small pool keeps us within that guidance
+      // while still avoiding serverless timeouts on highly active users.
       if (!firstPage.rateLimited && firstPage.items.length === 100 && totalCount > 100) {
         const totalNeededPages = Math.min(10, Math.ceil(totalCount / 100));
-        const promises: ReturnType<typeof fetchPage>[] = [];
+        const remainingPages: number[] = [];
         for (let p = 2; p <= totalNeededPages; p++) {
-          promises.push(fetchPage(p));
+          remainingPages.push(p);
         }
 
-        const results = await Promise.all(promises);
-        for (const res of results) {
-          allItems = allItems.concat(res.items);
+        for (let i = 0; i < remainingPages.length; i += PAGE_FETCH_CONCURRENCY) {
+          const batch = remainingPages.slice(i, i + PAGE_FETCH_CONCURRENCY);
+          const batchResults = await Promise.all(batch.map((p) => fetchPage(p)));
+          for (const res of batchResults) {
+            // Rate-limited pages intentionally contribute no items; the
+            // response falls back to whatever pages were fetched before
+            // the limit was hit, rather than failing the whole request.
+            allItems = allItems.concat(res.items);
+          }
         }
       }
 
