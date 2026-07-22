@@ -31,6 +31,7 @@ export default function AppNavbar() {
   const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const hashIndex = href.indexOf("#");
@@ -46,7 +47,12 @@ export default function AppNavbar() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20);
+    const fn = () => {
+      setScrolled(window.scrollY > 20);
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
+    };
     fn();
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
@@ -98,7 +104,7 @@ export default function AppNavbar() {
           className="group inline-flex items-center gap-2.5 select-none transition-transform duration-300 hover:scale-[1.02]"
           style={{ fontFamily: MONO }}
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-base font-bold text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)]/20">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-base font-bold text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)]/20 translate-y-[1px]">
             ▲
           </span>
           <span className="text-sm font-bold tracking-[0.2em] text-[var(--foreground)]">
@@ -115,7 +121,7 @@ export default function AppNavbar() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => handleAnchorClick(e, item.href)}
-                className="relative px-3 py-2 text-[12px] font-medium transition-colors duration-150"
+                className="relative px-3 py-2 text-[12px] font-medium tracking-[0.08em] transition-colors duration-150"
                 style={{
                   fontFamily: MONO,
                   color: active ? "var(--accent)" : "var(--muted-foreground)",
@@ -190,6 +196,17 @@ export default function AppNavbar() {
         >
           {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
+      </div>
+
+      {/* Scroll progress bar */}
+      <div
+        className="scroll-progress-track"
+        aria-hidden="true"
+      >
+        <div
+          className="scroll-progress-bar"
+          style={{ transform: `scaleX(${scrollProgress})` }}
+        />
       </div>
 
       {/* Mobile menu */}
