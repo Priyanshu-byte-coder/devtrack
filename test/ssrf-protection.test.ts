@@ -108,5 +108,26 @@ describe("ssrf-protection", () => {
       mockLookup.mockResolvedValue([{ address: "2001:4860:4860::8888", family: 6 }]);
       expect(await isSafeUrl("http://example.com")).toBe(true);
     });
+
+    it("should block 192.168.x.x as direct IP literal (regression: signed overflow #3118)", async () => {
+      expect(await isSafeUrl("http://192.168.1.1")).toBe(false);
+      expect(await isSafeUrl("http://192.168.0.1")).toBe(false);
+      expect(await isSafeUrl("http://192.168.255.255")).toBe(false);
+    });
+
+    it("should block 172.16.x.x as direct IP literal (regression: signed overflow #3118)", async () => {
+      expect(await isSafeUrl("http://172.16.0.1")).toBe(false);
+      expect(await isSafeUrl("http://172.31.255.255")).toBe(false);
+    });
+
+    it("should block 10.x.x.x as direct IP literal", async () => {
+      expect(await isSafeUrl("http://10.0.0.1")).toBe(false);
+      expect(await isSafeUrl("http://10.255.255.255")).toBe(false);
+    });
+
+    it("should block 127.x.x.x as direct IP literal", async () => {
+      expect(await isSafeUrl("http://127.0.0.1")).toBe(false);
+      expect(await isSafeUrl("http://127.255.255.255")).toBe(false);
+    });
   });
 });
