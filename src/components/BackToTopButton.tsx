@@ -17,11 +17,21 @@ export default function BackToTopButton() {
     }
   };
 
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   const scrollToTop = () => {
     if (typeof window !== "undefined") {
       window.scrollTo({
         top: 0,
-        behavior: "smooth",
+        behavior: prefersReducedMotion ? "auto" : "smooth",
       });
     }
   };
@@ -70,7 +80,7 @@ export default function BackToTopButton() {
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
                 style={{ filter: "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent))" }}
-                className="transition-[stroke-dashoffset] duration-100"
+                className={`transition-[stroke-dashoffset] duration-100 ${prefersReducedMotion ? "!transition-none" : ""}`}
               />
             </svg>
             <button
