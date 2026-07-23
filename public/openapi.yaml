@@ -19,6 +19,10 @@ components:
       type: apiKey
       in: cookie
       name: next-auth.session-token
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
   schemas:
     Error:
@@ -533,7 +537,7 @@ paths:
   /api/notifications:
     get:
       tags: [Notifications]
-      summary: Get recent notifications
+      summary: Get user notifications
       security:
         - cookieAuth: []
       responses:
@@ -542,26 +546,21 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  notifications:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        type:
-                          type: string
-                        message:
-                          type: string
-                        read:
-                          type: boolean
-                        created_at:
-                          type: string
-                          format: date-time
-                  unreadCount:
-                    type: number
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    title:
+                      type: string
+                    message:
+                      type: string
+                    read:
+                      type: boolean
+                    created_at:
+                      type: string
+                      format: date-time
         '401':
           description: Unauthorized
     patch:
@@ -595,6 +594,45 @@ paths:
         '404':
           description: Notification not found
 
+  /api/notifications/weekly:
+    get:
+      tags: [Notifications]
+      summary: Get weekly notification digest
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Weekly digest
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+
+  /api/notifications/discord-sync:
+    post:
+      tags: [Notifications]
+      summary: Send notification to Discord webhook
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        '200':
+          description: Notification sent
+        '401':
+          description: Unauthorized
+        '400':
+          description: Discord webhook not configured
+
   # LEADERBOARD ROUTES
   /api/leaderboard:
     get:
@@ -620,108 +658,420 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-        '429':
-          description: Rate limit exceeded
+                type: array
+                items:
+                  type: object
+                  properties:
+                    rank:
+                      type: number
+                    username:
+                      type: string
+                    commits:
+                      type: number
+                    streak:
+                      type: number
+                    prs:
+                      type: number
 
   /api/leaderboard/refresh:
     post:
       tags: [Leaderboard]
       summary: Trigger leaderboard refresh
+      security:
+        - cookieAuth: []
       responses:
         '200':
           description: Leaderboard refresh triggered
+        '401':
+          description: Unauthorized
 
   /api/leaderboard/rebuild:
     post:
       tags: [Leaderboard]
-      summary: Full leaderboard rebuild
+      summary: Full leaderboard rebuild (requires auth token)
       security:
         - bearerAuth: []
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Bearer token with LEADERBOARD_REBUILD_TOKEN
       responses:
         '200':
-          description: Leaderboard rebuild started
+          description: Leaderboard rebuilt
         '401':
-          description: Invalid or missing rebuild token
+          description: Unauthorized
+        '403':
+          description: Invalid token
 
-  # PUBLIC PROFILE ROUTES
-  /api/public/{username}:
+  # AI FEATURES ROUTES
+  /api/personality:
+    post:
+      tags: [AI]
+      summary: Generate AI Code Personality Report
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Personality report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archetype:
+                    type: string
+                  tagline:
+                    type: string
+                  dimensions:
+                    type: object
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable
+
+  /api/ai/roast:
+    post:
+      tags: [AI]
+      summary: AI roast or hype of coding style
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [roast, hype]
+      responses:
+        '200':
+          description: AI-generated content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable
+
+  /api/ai/weekly-summary:
+    post:
+      tags: [AI]
+      summary: AI-generated weekly summary
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Weekly summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  summary:
+                    type: string
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable
+
+  /api/project-tutor:
+    post:
+      tags: [AI]
+      summary: AI Project Tutor
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [repoUrl]
+              properties:
+                repoUrl:
+                  type: string
+                  format: uri
+                question:
+                  type: string
+      responses:
+        '200':
+          description: AI tutor response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer:
+                    type: string
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable
+
+  # CV/CAREER INTELLIGENCE ROUTES
+  /api/cv/analyze:
+    post:
+      tags: [CV]
+      summary: Analyze GitHub activity for CV bullet points
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: CV analysis results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bulletPoints:
+                    type: array
+                    items:
+                      type: string
+        '401':
+          description: Unauthorized
+
+  /api/cv/generate:
+    post:
+      tags: [CV]
+      summary: AI-generate a full CV from GitHub data
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Generated CV
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable
+
+  /api/cv/export:
+    post:
+      tags: [CV]
+      summary: Export CV in a specified format
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                format:
+                  type: string
+                  enum: [pdf, docx]
+      responses:
+        '200':
+          description: CV file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+
+  # ROOMS ROUTES
+  /api/rooms:
     get:
-      tags: [Public]
-      summary: Get public profile data for a user
+      tags: [Rooms]
+      summary: List rooms the user belongs to
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+    post:
+      tags: [Rooms]
+      summary: Create a new room
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Room created
+        '401':
+          description: Unauthorized
+
+  /api/rooms/{roomId}:
+    get:
+      tags: [Rooms]
+      summary: Get room details
+      security:
+        - cookieAuth: []
       parameters:
-        - name: username
+        - name: roomId
           in: path
           required: true
           schema:
             type: string
       responses:
         '200':
+          description: Room details
+        '401':
+          description: Unauthorized
+        '404':
+          description: Room not found
+    patch:
+      tags: [Rooms]
+      summary: Update room settings
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Room updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Room not found
+    delete:
+      tags: [Rooms]
+      summary: Delete a room
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Room not found
+
+  /api/rooms/{roomId}/invite:
+    post:
+      tags: [Rooms]
+      summary: Generate or refresh an invite link
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invite link generated
           description: Public profile data
           content:
             application/json:
               schema:
                 type: object
-        '404':
-          description: User not found or profile is private
+                properties:
+                  inviteCode:
+                    type: string
+        '401':
+          description: Unauthorized
 
-  /api/public/privacy:
+  # WAKATIME ROUTES
+  /api/wakatime:
     get:
-      tags: [Public]
-      summary: Get current user's privacy settings
+      tags: [WakaTime]
+      summary: Get WakaTime connection status
       security:
         - cookieAuth: []
       responses:
         '200':
+          description: WakaTime status
           description: Privacy settings
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  connected:
+                    type: boolean
+                  lastSync:
+                    type: string
+                    format: date-time
         '401':
           description: Unauthorized
-    patch:
-      tags: [Public]
-      summary: Update privacy settings
+    delete:
+      tags: [WakaTime]
+      summary: Disconnect WakaTime
       security:
         - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
       responses:
         '200':
-          description: Privacy settings updated
+          description: WakaTime disconnected
         '401':
           description: Unauthorized
 
-  # WEBHOOK ROUTES
+  /api/wakatime/sync:
+    post:
+      tags: [WakaTime]
+      summary: Trigger a WakaTime data sync
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Sync triggered
+        '401':
+          description: Unauthorized
+        '400':
+          description: WakaTime not connected
+
+  # WEBHOOKS ROUTES
   /api/webhooks/github:
     post:
       tags: [Webhooks]
       summary: Receive GitHub push events
-      parameters:
-        - name: x-hub-signature-256
-          in: header
-          required: true
-          schema:
-            type: string
-          description: GitHub webhook signature
-        - name: x-github-event
-          in: header
-          required: true
-          schema:
-            type: string
-          description: GitHub event type
       requestBody:
         required: true
         content:
@@ -730,16 +1080,14 @@ paths:
               type: object
       responses:
         '200':
-          description: Webhook processed successfully
+          description: Webhook processed
         '401':
           description: Invalid signature
-        '400':
-          description: Bad request
 
   /api/webhooks/custom:
     get:
       tags: [Webhooks]
-      summary: List user's configured webhooks
+      summary: List the user's configured webhooks
       security:
         - cookieAuth: []
       responses:
@@ -764,7 +1112,7 @@ paths:
           application/json:
             schema:
               type: object
-              required: [url]
+              required: [url, events]
               properties:
                 url:
                   type: string
@@ -779,7 +1127,7 @@ paths:
         '401':
           description: Unauthorized
         '400':
-          description: Invalid URL or configuration
+          description: Invalid URL
 
   /api/webhooks/custom/{id}:
     get:
@@ -843,109 +1191,90 @@ paths:
         '404':
           description: Webhook not found
 
-  # AI FEATURES
-  /api/ai/roast:
-    post:
-      tags: [AI]
-      summary: Generate AI roast or hype of coding style
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        '200':
-          description: AI-generated content
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-        '500':
-          description: AI service unavailable (GROQ_API_KEY not configured)
-
-  /api/ai/weekly-summary:
-    post:
-      tags: [AI]
-      summary: Generate AI weekly summary
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        '200':
-          description: AI-generated weekly summary
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  # WAKATIME INTEGRATION
-  /api/wakatime:
+  # MILESTONES ROUTES
+  /api/milestones:
     get:
-      tags: [Integrations]
-      summary: Get WakaTime connection status
+      tags: [Milestones]
+      summary: List milestones for the authenticated user
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: WakaTime connection status
+          description: List of milestones
           content:
             application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  type: object
         '401':
           description: Unauthorized
+    post:
+      tags: [Milestones]
+      summary: Create a new milestone
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, target]
+              properties:
+                title:
+                  type: string
+                target:
+                  type: number
+                deadline:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: Milestone created
+        '401':
+          description: Unauthorized
+
+  /api/milestones/{id}:
+    patch:
+      tags: [Milestones]
+      summary: Update a milestone
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Milestone updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Milestone not found
     delete:
-      tags: [Integrations]
-      summary: Disconnect WakaTime
+      tags: [Milestones]
+      summary: Delete a milestone
       security:
         - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: WakaTime disconnected
+          description: Milestone deleted
         '401':
           description: Unauthorized
-
-  /api/wakatime/sync:
-    post:
-      tags: [Integrations]
-      summary: Trigger WakaTime data sync
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: WakaTime sync triggered
-        '401':
-          description: Unauthorized
-        '429':
-          description: Rate limit exceeded
-
-  # STREAK FREEZE
-  /api/streak/freeze:
-    post:
-      tags: [Streak]
-      summary: Use a streak freeze to protect current streak
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Streak freeze applied
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-        '400':
-          description: No streak freezes available
+        '404':
+          description: Milestone not found
