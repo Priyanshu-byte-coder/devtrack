@@ -20,21 +20,23 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const comment = context.payload.comment.body.toLowerCase().trim();
-            const KEYWORDS = [
-              "i'd like to work on this",
-              "i would like to work on this",
-              "i want to work on this",
-              "i'll work on this",
-              "i'll take this",
-              "i can work on this",
-              "i will work on this",
-              "assign me",
-              "please assign me",
-              "can i work on this",
-              "can i take this",
+
+            // Broad intent matching. The old exact-string list missed common
+            // phrasings — e.g. "I'd love to work on this feature", "please
+            // assign it to me", "/assign" — leaving contributors unassigned
+            // even though the bot ran. These regexes tolerate those variants.
+            const PATTERNS = [
+              /(^|\s)\/assign\b/,                                          // slash command: /assign, /assign me
+              /\bassign(ed|ing)?\b[\s\S]{0,40}\b(me|this|it|myself|to me)\b/, // "assign me", "assign this to me", "assign it to me"
+              /\b(me|this|it|myself)\b[\s\S]{0,25}\bassign(ed)?\b/,          // "can this be assigned to me"
+              /\bwork(ing)?\s+on\s+(this|it)\b/,                            // "work on this", "working on it"
+              /\b(want|like|love|willing|happy|keen|glad|wish|hoping)\s+to\s+(work|take|tackle|contribute|help|solve|fix|do)\b/,
+              /\b(let me|i can|i'?ll|i will|i'?d|i would|i want|can i|may i|could i)\b[\s\S]{0,30}\b(work|take|tackle|handle|pick|solve|fix|contribute|do this)\b/,
+              /\binterested\s+in\s+(work|contribut|solv|this|tak|fix)/,     // "interested in working/contributing"
+              /\b(take|tackle|handle|pick)\s+(this|it|up)\b/,               // "take this", "pick it up"
             ];
 
-            if (!KEYWORDS.some(kw => comment.includes(kw))) return;
+            if (!PATTERNS.some(re => re.test(comment))) return;
 
             // Skip bots
             if (context.payload.comment.user.type === 'Bot') return;

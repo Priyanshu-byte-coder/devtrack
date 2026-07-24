@@ -18,7 +18,7 @@ const generateRateLimit = new Map<
 >();
 
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS = 5;
+const MAX_REQUESTS = process.env.NODE_ENV === "development" ? 100 : 5;
 
 /**
  * POST /api/cv/generate

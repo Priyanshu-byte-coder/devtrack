@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS cv_analyses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL,
   analysis_data JSONB NOT NULL,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   expires_at TIMESTAMPTZ NOT NULL,
   CONSTRAINT cv_analyses_user_id_unique UNIQUE (user_id)
@@ -52,7 +53,9 @@ CREATE TABLE IF NOT EXISTS cv_generated_content (
   user_id TEXT NOT NULL,
   role TEXT NOT NULL,
   content JSONB NOT NULL,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '24 hours'),
   CONSTRAINT cv_generated_content_user_role_unique UNIQUE (user_id, role)
 );
 

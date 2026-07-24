@@ -9,6 +9,7 @@ export function useCountUp(target: number, duration?: number): number {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
     if (mediaQuery.matches) {
       setCount(target);
       return;
@@ -17,14 +18,10 @@ export function useCountUp(target: number, duration?: number): number {
     if (prevTargetRef.current !== target) {
       hasAnimated.current = false;
       prevTargetRef.current = target;
-    }
-
-    if (target === 0) {
       setCount(0);
-      return;
     }
 
-    if (target < 0) {
+    if (target <= 0) {
       setCount(0);
       return;
     }
@@ -34,10 +31,14 @@ export function useCountUp(target: number, duration?: number): number {
       return;
     }
 
-    hasAnimated.current = true;
+    const actualDuration =
+      duration ?? (target <= 10 ? 500 : target <= 50 ? 650 : 800);
 
-    // Adaptive duration: smaller numbers animate slightly faster (500ms), larger numbers take up to 800ms
-    const actualDuration = duration ?? (target <= 10 ? 500 : target <= 50 ? 650 : 800);
+    if (actualDuration <= 0) {
+      setCount(target);
+      hasAnimated.current = true;
+      return;
+    }
 
     let startTime: number | null = null;
     let animationFrameId: number;
@@ -50,24 +51,20 @@ export function useCountUp(target: number, duration?: number): number {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / actualDuration, 1);
 
-      // Quintic ease-out (1 - (1 - t)^5) provides an incredibly smooth, premium, soft settling effect
       const easeOutQuint = 1 - Math.pow(1 - progress, 5);
       const currentCount = Math.round(easeOutQuint * target);
 
       setCount(currentCount);
 
       if (progress < 1) {
-        animationFrame(animate);
+        animationFrameId = requestAnimationFrame(animate);
       } else {
         setCount(target);
+        hasAnimated.current = true;
       }
     };
 
-    function animationFrame(callback: FrameRequestCallback) {
-      animationFrameId = requestAnimationFrame(callback);
-    }
-
-    animationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(animationFrameId);

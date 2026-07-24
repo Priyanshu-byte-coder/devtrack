@@ -13,7 +13,35 @@ const analyzeRateLimit = new Map<
 >();
 
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS = 3;
+const MAX_REQUESTS = process.env.NODE_ENV === "development" ? 100 : 3;
+
+/**
+ * Resolves the GitHub login string for the current session.
+ * Falls back to calling GET /user if the session's githubLogin is absent
+ * or looks like a stale/numeric value (e.g. "219068160").
+ */
+async function resolveGitHubLogin(
+  sessionLogin: string | undefined | null,
+  accessToken: string
+): Promise<string> {
+  // Valid login: non-empty and not purely numeric
+  if (sessionLogin && !/^\d+$/.test(sessionLogin)) {
+    return sessionLogin;
+  }
+  // Fallback: resolve via GitHub REST API
+  const res = await fetch("https://api.github.com/user", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      Accept: "application/vnd.github+json",
+    },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to resolve GitHub login: ${res.status}`);
+  }
+  const data = (await res.json()) as { login: string };
+  return data.login;
+}
 
 /**
  * POST /api/cv/analyze
@@ -74,7 +102,13 @@ export async function POST() {
       return NextResponse.json(response);
     }
 
-    /* ── 4. Fetch & classify ─────────────────────────────────── */
+    /* ── 4. Resolve login & fetch contributions ───────────────── */
+    const accessToken = session.accessToken as string;
+    const githubLogin = await resolveGitHubLogin(
+      session.githubLogin as string | undefined,
+      accessToken
+    );
+
     const { fetchContributionData } = await import(
       "@/lib/cv/cv-github-fetcher"
     );
@@ -82,18 +116,14 @@ export async function POST() {
       "@/lib/cv/cv-classifier"
     );
 
-    const contributionData = await fetchContributionData(
-      session.accessToken as string,
-      session.githubId
-    );
-
+    const contributionData = await fetchContributionData(accessToken, githubLogin);
     const analysis = classifyContributions(contributionData);
 
-    /* ── 5. Cache in Supabase (24 h TTL) ─────────────────────── */
+    /* ── 5. Cache in Supabase (24 h TTL) — non-fatal ─────────── */
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-    await supabaseAdmin.from("cv_analyses").upsert(
+    const { error: upsertError } = await supabaseAdmin.from("cv_analyses").upsert(
       {
         user_id: userId,
         analysis_data: analysis,
@@ -102,6 +132,14 @@ export async function POST() {
       },
       { onConflict: "user_id" }
     );
+
+    if (upsertError) {
+      // Log but don't fail — analysis is computed, just not cached.
+      console.warn(
+        "CV analyze: Supabase cache upsert failed (non-fatal):",
+        upsertError.message
+      );
+    }
 
     /* ── 6. Respond ──────────────────────────────────────────── */
     const response: CVAnalyzeResponse = { analysis, cached: false };

@@ -59,6 +59,21 @@ export interface PublicProfileData {
   publicWidgets: PublicWidgetKey[];
 }
 
+/** Remove disabled widget data before a public profile leaves the server. */
+export function filterPublicProfileData(
+  profile: PublicProfileData
+): Partial<PublicProfileData> {
+  const visibleProfile: Partial<PublicProfileData> = { ...profile };
+  const publicWidgets = profile.publicWidgets ?? ["streak", "contributions"];
+
+  if (!publicWidgets.includes("streak")) delete visibleProfile.streak;
+  if (!publicWidgets.includes("contributions")) delete visibleProfile.contributions;
+  if (!publicWidgets.includes("languages")) delete visibleProfile.topLanguages;
+  if (!publicWidgets.includes("prs")) delete visibleProfile.pullRequests;
+
+  return visibleProfile;
+}
+
 async function ghFetch(url: string, token?: string): Promise<Response> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",

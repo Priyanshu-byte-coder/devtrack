@@ -4,6 +4,12 @@ import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
 import { calculateStreakFromDates } from "@/lib/streak";
 import { logError } from "@/lib/error-handler";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import {
+  isValidGitHubUsername,
+  isRegisteredDevTrackUser,
+  invalidUsernameBadgeResponse,
+  userNotFoundBadgeResponse,
+} from "@/lib/badge-validation";
 
 export const dynamic = "force-dynamic";
 
@@ -24,11 +30,9 @@ async function fetchGitHubWithToken(
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
   };
-
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-
   return fetch(url, { headers, cache: "no-store" });
 }
 
@@ -49,12 +53,9 @@ async function fetchStreak(
   const searchRes = await fetchGitHubWithToken(url.toString(), token);
 
   if (!searchRes.ok) {
-    const errorBody = await searchRes.text();
     const isRateLimited = searchRes.status === 403;
     console.error(`GitHub API error fetching streak for ${username}:`, {
       status: searchRes.status,
-      url: url.toString(),
-      body: errorBody,
       rateLimited: isRateLimited,
     });
     return {
@@ -85,6 +86,7 @@ async function fetchStreak(
 }
 
 export async function GET(req: NextRequest) {
+  // ── 1. Rate limiting ────────────────────────────────────────────────────────
   const ip = getBadgeClientIp(req);
   const rateLimit = checkBadgeRateLimit(ip);
 
@@ -102,18 +104,22 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // ── 2. Input validation ─────────────────────────────────────────────────────
+  const rawUser = req.nextUrl.searchParams.get("user");
+  const username = normalizeGitHubUsername(rawUser);
+
+  if (!username || !isValidGitHubUsername(username)) {
+    return invalidUsernameBadgeResponse();
+  }
+
+  // ── 3. DevTrack user allowlist check ────────────────────────────────────────
+  const isRegistered = await isRegisteredDevTrackUser(username);
+  if (!isRegistered) {
+    return userNotFoundBadgeResponse();
+  }
+
+  // ── 4. Fetch and render ─────────────────────────────────────────────────────
   try {
-    const username = normalizeGitHubUsername(
-      req.nextUrl.searchParams.get("user")
-    );
-
-    if (!username) {
-      return NextResponse.json(
-        { error: "Invalid GitHub username" },
-        { status: 400 }
-      );
-    }
-
     const githubToken = process.env.GITHUB_TOKEN;
     const streak = await fetchStreak(username, githubToken);
 
@@ -138,9 +144,7 @@ export async function GET(req: NextRequest) {
     logError(error, {
       endpoint: "/api/badge/streak-shield",
       operation: "generate_badge",
-      additionalContext: {
-        username: req.nextUrl.searchParams.get("user"),
-      },
+      additionalContext: { username },
     });
 
     const svg = generateBadgeSVG({
