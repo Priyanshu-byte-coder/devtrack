@@ -52,6 +52,7 @@ export async function POST(req: Request) {
     const priority = stripHtml(body.priority || "medium").trim();
     const due_date = body.dueDate || null;
     const tags = Array.isArray(body.tags) ? body.tags.map((t: string) => stripHtml(t).trim()) : [];
+    const recurrence_config = body.recurrence_config || null;
 
     if (!title) {
       return new Response("Title is required", { status: 400 });
@@ -67,7 +68,9 @@ export async function POST(req: Request) {
         status,
         priority,
         due_date,
-        tags
+        tags,
+        recurrence_config,
+        recurrence_count: 0
       })
       .select()
       .single();

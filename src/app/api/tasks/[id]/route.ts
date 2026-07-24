@@ -45,18 +45,61 @@ export async function PUT(
     if (body.milestoneId !== undefined) {
       updates.milestone_id = body.milestoneId;
     }
+    if (body.recurrence_config !== undefined) {
+      updates.recurrence_config = body.recurrence_config;
+    }
 
     updates.updated_at = new Date().toISOString();
 
     const { data: existing } = await supabaseAdmin
       .from("tasks")
-      .select("id")
+      .select("*")
       .eq("id", id)
       .eq("user_id", appUser.id)
       .single();
 
     if (!existing) {
       return new Response("Task not found", { status: 404 });
+    }
+
+    const isBeingCompleted = (updates.completed === true || updates.status === 'done') && 
+                             (existing.completed === false && existing.status !== 'done');
+    
+    // Auto-create recurrence if applicable
+    if (isBeingCompleted && existing.recurrence_config) {
+      const config = existing.recurrence_config;
+      const count = existing.recurrence_count || 0;
+      
+      if (!config.endsAfter || count < config.endsAfter) {
+        let nextDueDate = existing.due_date ? new Date(existing.due_date) : new Date();
+        
+        if (config.type === 'daily') {
+          nextDueDate.setDate(nextDueDate.getDate() + 1);
+        } else if (config.type === 'weekly') {
+          nextDueDate.setDate(nextDueDate.getDate() + 7);
+        } else if (config.type === 'monthly') {
+          nextDueDate.setMonth(nextDueDate.getMonth() + 1);
+        } else if (config.type === 'custom' && config.intervalDays) {
+          nextDueDate.setDate(nextDueDate.getDate() + config.intervalDays);
+        }
+
+        // Insert new task
+        await supabaseAdmin.from("tasks").insert({
+          user_id: appUser.id,
+          title: existing.title,
+          milestone_id: existing.milestone_id,
+          completed: false,
+          status: 'todo',
+          priority: existing.priority,
+          due_date: nextDueDate.toISOString(),
+          tags: existing.tags,
+          recurrence_config: config,
+          recurrence_count: count + 1
+        });
+        
+        // Remove recurrence config from this completed task so it doesn't trigger again
+        updates.recurrence_config = null;
+      }
     }
 
     const { data: task, error } = await supabaseAdmin

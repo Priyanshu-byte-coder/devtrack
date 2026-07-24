@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, Plus, Trash2, CheckCircle2, Circle } from 'lucide-react';
+import { Target, Plus, Trash2, CheckCircle2, Circle, Repeat } from 'lucide-react';
 import { Milestone, Task } from '@/types/project-milestone';
 
 export default function ProjectMilestones() {
@@ -14,6 +14,9 @@ export default function ProjectMilestones() {
   const [milestoneForm, setMilestoneForm] = useState({ name: '', description: '', dueDate: '' });
   
   const [taskInputs, setTaskInputs] = useState<Record<string, string>>({});
+  const [taskRecurrenceInputs, setTaskRecurrenceInputs] = useState<Record<string, 'none' | 'daily' | 'weekly' | 'monthly' | 'custom'>>({});
+  const [taskRecurrenceIntervals, setTaskRecurrenceIntervals] = useState<Record<string, number>>({});
+  const [taskRecurrenceEnds, setTaskRecurrenceEnds] = useState<Record<string, number>>({});
 
   useEffect(() => {
     setIsClient(true);
@@ -65,10 +68,17 @@ export default function ProjectMilestones() {
     const title = taskInputs[milestoneId]?.trim();
     if (!title) return;
 
+    const recType = taskRecurrenceInputs[milestoneId];
+    const recurrence_config = (recType && recType !== 'none') ? {
+      type: recType,
+      intervalDays: recType === 'custom' ? (taskRecurrenceIntervals[milestoneId] || 1) : undefined,
+      endsAfter: taskRecurrenceEnds[milestoneId] || undefined
+    } : null;
+
     const res = await fetch('/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, milestoneId })
+      body: JSON.stringify({ title, milestoneId, recurrence_config })
     });
 
     if (res.ok) {
@@ -81,6 +91,9 @@ export default function ProjectMilestones() {
         return m;
       }));
       setTaskInputs(prev => ({ ...prev, [milestoneId]: '' }));
+      setTaskRecurrenceInputs(prev => ({ ...prev, [milestoneId]: 'none' }));
+      setTaskRecurrenceIntervals(prev => ({ ...prev, [milestoneId]: 1 }));
+      setTaskRecurrenceEnds(prev => ({ ...prev, [milestoneId]: 0 }));
     }
   };
 
@@ -229,7 +242,10 @@ export default function ProjectMilestones() {
                         <li key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', fontSize: '0.85rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => handleToggleTask(task.id, task.completed)}>
                             {task.completed ? <CheckCircle2 size={16} color="#10b981" /> : <Circle size={16} color="var(--muted-foreground)" />}
-                            <span style={{ textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? 'var(--muted-foreground)' : 'var(--foreground)' }}>{task.title}</span>
+                            <span style={{ textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? 'var(--muted-foreground)' : 'var(--foreground)' }}>
+                              {task.title}
+                              {task.recurrence_config && <Repeat size={12} style={{ display: 'inline', marginLeft: '4px', opacity: 0.5 }} />}
+                            </span>
                           </div>
                           <button onClick={() => handleDeleteTask(m.id, task.id)} style={{ padding: '2px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', opacity: 0.7 }}>
                             <Trash2 size={12} />
@@ -239,24 +255,65 @@ export default function ProjectMilestones() {
                     </ul>
                   )}
 
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                      type="text"
-                      placeholder="New task title..."
-                      value={taskInputs[m.id] || ''}
-                      onChange={e => setTaskInputs(prev => ({ ...prev, [m.id]: e.target.value }))}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') handleAddTask(m.id);
-                      }}
-                      style={{ flex: 1, padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: '0.8rem' }}
-                    />
-                    <button
-                      onClick={() => handleAddTask(m.id)}
-                      disabled={!taskInputs[m.id]?.trim()}
-                      style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'rgba(99,102,241,0.1)', color: '#6366f1', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', opacity: !taskInputs[m.id]?.trim() ? 0.5 : 1 }}
-                    >
-                      Add
-                    </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        placeholder="New task title..."
+                        value={taskInputs[m.id] || ''}
+                        onChange={e => setTaskInputs(prev => ({ ...prev, [m.id]: e.target.value }))}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') handleAddTask(m.id);
+                        }}
+                        style={{ flex: 1, padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: '0.8rem' }}
+                      />
+                      <button
+                        onClick={() => handleAddTask(m.id)}
+                        disabled={!taskInputs[m.id]?.trim()}
+                        style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', background: 'rgba(99,102,241,0.1)', color: '#6366f1', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', opacity: !taskInputs[m.id]?.trim() ? 0.5 : 1 }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.75rem', color: 'var(--muted-foreground)' }}>
+                      <select 
+                        value={taskRecurrenceInputs[m.id] || 'none'}
+                        onChange={e => setTaskRecurrenceInputs(prev => ({ ...prev, [m.id]: e.target.value as any }))}
+                        style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                      >
+                        <option value="none">No Recurrence</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                      
+                      {taskRecurrenceInputs[m.id] === 'custom' && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>Every</span>
+                          <input 
+                            type="number" min="1" max="365"
+                            value={taskRecurrenceIntervals[m.id] || 1}
+                            onChange={e => setTaskRecurrenceIntervals(prev => ({ ...prev, [m.id]: parseInt(e.target.value) || 1 }))}
+                            style={{ width: '50px', padding: '2px 4px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                          />
+                          <span>days</span>
+                        </div>
+                      )}
+
+                      {(taskRecurrenceInputs[m.id] && taskRecurrenceInputs[m.id] !== 'none') && (
+                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
+                          <span>Ends after (optional):</span>
+                          <input 
+                            type="number" min="1" max="100" placeholder="∞"
+                            value={taskRecurrenceEnds[m.id] || ''}
+                            onChange={e => setTaskRecurrenceEnds(prev => ({ ...prev, [m.id]: parseInt(e.target.value) || 0 }))}
+                            style={{ width: '50px', padding: '2px 4px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                          />
+                          <span>times</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

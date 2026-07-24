@@ -347,6 +347,8 @@ create table if not exists tasks (
   priority     text not null default 'medium',
   due_date     timestamptz,
   tags         text[] not null default '{}'::text[],
+  recurrence_config jsonb,
+  recurrence_count  integer not null default 0,
   milestone_id text,
   created_at   timestamptz default now(),
   updated_at   timestamptz default now()
