@@ -24,7 +24,7 @@ You also need free accounts on:
 ```bash
 git clone https://github.com/Umbrella-io/devtrack.git
 cd devtrack
-npm install
+pnpm install
 ```
 
 ---
@@ -129,7 +129,7 @@ openssl rand -hex 32      # for ENCRYPTION_KEY and CRON_SECRET
 ## 5. Run the dev server
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Click **Sign in with GitHub**.
@@ -369,19 +369,19 @@ All GitHub API calls use the signed-in user's OAuth token — stored in the sess
 
 | Command                  | What it does                         |
 |--------------------------|--------------------------------------|
-| `npm run dev`            | Start dev server at localhost:3000   |
-| `npm run build`          | Validate env, then production build  |
+| `pnpm run dev`            | Start dev server at localhost:3000   |
+| `pnpm run build`          | Validate env, then production build  |
 | `npm start`              | Start production server              |
-| `npm run lint`           | ESLint across `src/`                 |
-| `npm run type-check`     | TypeScript compiler check (no emit)  |
+| `pnpm run lint`           | ESLint across `src/`                 |
+| `pnpm run type-check`     | TypeScript compiler check (no emit)  |
 | `npm test`               | Run unit tests with Vitest           |
-| `npm run test:coverage`  | Run tests with coverage report       |
-| `npm run test:e2e`       | Run Playwright end-to-end tests      |
+| `pnpm run test:coverage`  | Run tests with coverage report       |
+| `pnpm run test:e2e`       | Run Playwright end-to-end tests      |
 
 Run lint and type-check before pushing:
 
 ```bash
-npm run lint && npm run type-check
+pnpm run lint && pnpm run type-check
 ```
 
 ---
@@ -493,12 +493,12 @@ On Windows PowerShell:
 Next.js reads `.env.local` only at startup. After any change, stop and restart:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 #### 5. Check the server console for the real error
 
-The browser only shows `error=github` — the actual error is printed to the **terminal running `npm run dev`**. Look for lines starting with `[next-auth]` or `signIn:`.
+The browser only shows `error=github` — the actual error is printed to the **terminal running `pnpm run dev`**. Look for lines starting with `[next-auth]` or `signIn:`.
 
 ---
 
@@ -583,7 +583,7 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
 ### 6. Environment variables not loading correctly from `.env.local`
 * **Symptom:** Changes to environment variables in `.env.local` are not recognized, or values behave as if they are missing or outdated.
 * **Likely Cause:** The Next.js development server has not been restarted since the environment variables were modified.
-* **Solution:** Stop the active development server using `Ctrl + C` and start it again using `npm run dev`. Ensure the file is named exactly `.env.local` (not `.env` or `.env.local.txt`) and is in the project root.
+* **Solution:** Stop the active development server using `Ctrl + C` and start it again using `pnpm run dev`. Ensure the file is named exactly `.env.local` (not `.env` or `.env.local.txt`) and is in the project root.
 
 > **Note:** Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Server-only variables like `SUPABASE_SERVICE_ROLE_KEY` must never use this prefix — they should only be accessed in server-side code (API routes, server components). If a client-side feature is not working despite the variable being set, check that it has the `NEXT_PUBLIC_` prefix.
 
@@ -591,7 +591,7 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
 * **Symptom:** Starting the server fails with an `EADDRINUSE: address already in use :::3000` error, or the app is served on a fallback port like `3001`.
 * **Likely Cause:** Another server or process is already listening on port `3000`.
 * **Solution:** Free up port `3000` or run the dev server on a custom port.
-  * To run on a custom port, execute: `npm run dev -- -p 3001`
+  * To run on a custom port, execute: `pnpm run dev -- -p 3001`
   * To kill the existing process on Windows (PowerShell):
     ```powershell
     Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess -Force
@@ -609,14 +609,14 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
 * **Symptom:** Need to confirm that your local environment, database schema, and OAuth are completely and correctly integrated.
 * **Likely Cause:** Verifying the initial setup configuration.
 * **Solution:**
-  1. **Run Dev Server:** Start the server with `npm run dev` and ensure there are no startup errors in the console.
+  1. **Run Dev Server:** Start the server with `pnpm run dev` and ensure there are no startup errors in the console.
   2. **Page Load:** Open `http://localhost:3000` in your browser and verify the landing page displays correctly.
   3. **Sign In Check:** Click **Sign in with GitHub**, authorize the application, and verify that you are successfully redirected to the dashboard (`http://localhost:3000/dashboard`).
   4. **Database Check:** In the Supabase Dashboard, go to **Table Editor** and confirm that the `users` table exists and is populated after sign-in. If it is empty, re-check that `SUPABASE_SERVICE_ROLE_KEY` is correctly set and the schema migration has been applied.
-  5. **Lint and Type-Check:** Run `npm run lint && npm run type-check` in your terminal and verify both commands pass without errors.
+  5. **Lint and Type-Check:** Run `pnpm run lint && pnpm run type-check` in your terminal and verify both commands pass without errors.
 
 ### 9. Node.js version incompatibility
-* **Symptom:** `npm install` throws errors like `engine "node" is incompatible with this module`, unexpected syntax errors during `npm run dev`, or certain packages fail to compile.
+* **Symptom:** `pnpm install` throws errors like `engine "node" is incompatible with this module`, unexpected syntax errors during `pnpm run dev`, or certain packages fail to compile.
 * **Likely Cause:** Your system's Node.js version is below the required `>= 20`. Run `node -v` to check your current version.
 * **Solution:** Install Node.js 20 or higher.
   * **Using nvm (recommended for macOS/Linux):**
@@ -631,36 +631,36 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
     nvm use 20
     node -v
     ```
-  * **Without nvm:** Download the LTS installer directly from [nodejs.org](https://nodejs.org) and re-run `npm install` after upgrading.
+  * **Without nvm:** Download the LTS installer directly from [nodejs.org](https://nodejs.org) and re-run `pnpm install` after upgrading.
 
 ### 10. npm version too old
-* **Symptom:** `npm install` fails with peer dependency errors, lockfile conflicts, or warnings like `npm WARN old lockfile`. Some `npm run` scripts may not work as expected.
+* **Symptom:** `pnpm install` fails with peer dependency errors, lockfile conflicts, or warnings like `npm WARN old lockfile`. Some `pnpm run` scripts may not work as expected.
 * **Likely Cause:** Your npm version is below the required `>= 10`. Run `npm -v` to check.
 * **Solution:** Upgrade npm without changing your Node.js installation:
   ```bash
   # macOS / Linux
-  npm install -g npm@latest
+  pnpm install -g npm@latest
 
   # Windows PowerShell (run as Administrator)
-  npm install -g npm@latest
+  pnpm install -g npm@latest
   ```
-  After upgrading, verify with `npm -v` and re-run `npm install` in the project directory.
+  After upgrading, verify with `npm -v` and re-run `pnpm install` in the project directory.
 
 ### 11. TypeScript and build errors
-* **Symptom:** `npm run build` or `npm run type-check` fails with TypeScript compiler errors. Common messages include `Type 'X' is not assignable to type 'Y'`, `Property 'X' does not exist on type 'Y'`, or `Cannot find module`.
+* **Symptom:** `pnpm run build` or `pnpm run type-check` fails with TypeScript compiler errors. Common messages include `Type 'X' is not assignable to type 'Y'`, `Property 'X' does not exist on type 'Y'`, or `Cannot find module`.
 * **Likely Cause:** Type errors in the source code, a missing or outdated dependency, or a mismatch between a library's types and its runtime version.
 * **Solution:** Work through the following steps in order:
   1. **Run type-check to see all errors at once:**
      ```bash
-     npm run type-check
+     pnpm run type-check
      ```
   2. **Ensure dependencies are fully installed:**
      ```bash
-     npm install
+     pnpm install
      ```
   3. **If the error mentions a missing module or type declaration**, install the relevant `@types` package:
      ```bash
-     npm install --save-dev @types/<package-name>
+     pnpm install --save-dev @types/<package-name>
      ```
   4. **Clear the Next.js build cache** and retry:
      ```bash
@@ -670,12 +670,12 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
      # Windows PowerShell
      Remove-Item -Recurse -Force .next
 
-     npm run build
+     pnpm run build
      ```
   5. **Fix the reported errors** in your source files. If you are unsure about a type, avoid using `any` — check the library's documentation or existing usages in the codebase for the correct type.
   6. **Run lint alongside type-check** before pushing to catch all issues:
      ```bash
-     npm run lint && npm run type-check
+     pnpm run lint && pnpm run type-check
      ```
 
 ---
