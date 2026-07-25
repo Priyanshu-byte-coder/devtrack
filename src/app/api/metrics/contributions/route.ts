@@ -17,10 +17,6 @@ interface ContributionResponse {
   data: Record<string, number>;
 }
 
-function toLocalDateStr(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 function mergeContributionDays(
   a: Record<string, number>,
   b: Record<string, number>
@@ -39,7 +35,7 @@ async function fetchContributionsForAccount(
 ): Promise<ContributionResponse> {
   const since = new Date();
   since.setDate(since.getDate() - days);
-  const sinceStr = toLocalDateStr(since);
+  const sinceStr = since.toISOString().slice(0, 10);
 
   const searchRes = await fetch(
     `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
