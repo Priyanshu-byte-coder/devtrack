@@ -41,7 +41,15 @@ export type DashboardWidgetId =
   | "language-breakdown"
   | "friend-comparison"
   | "achievement-progress"
-  | "project-milestones";
+  | "project-milestones"
+  | "kanban-board";
+
+export interface DashboardWidget {
+  id: DashboardWidgetId;
+  title: string;
+  defaultSize: { w: number; h: number };
+  minSize?: { w: number; h: number };
+}
 
 export interface DashboardLayoutPreference {
   version: 1;
@@ -100,6 +108,7 @@ export const DASHBOARD_WIDGET_LABELS: Record<DashboardWidgetId, string> = {
   "friend-comparison": "Friend Comparison",
   "achievement-progress": "Achievement Progress",
   "project-milestones": "Project Milestones",
+  "kanban-board": "Kanban Board",
 };
 
 export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
@@ -142,6 +151,7 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
       "friend-comparison",
       "achievement-progress",
       "project-milestones",
+      "kanban-board",
     ],
   },
   hidden: [],

@@ -14,6 +14,7 @@ export interface Task {
   tags: string[];
   recurrence_config?: Recurrence;
   recurrence_count?: number;
+  order_index?: number;
 }
 
 export interface Milestone {

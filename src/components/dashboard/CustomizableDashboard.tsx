@@ -224,6 +224,10 @@ const ProjectMilestones = dynamic(
   () => import("@/components/ProjectMilestones"),
   { ssr: false, loading: () => <SkeletonCard /> },
 );
+const KanbanBoard = dynamic(
+  () => import("@/components/KanbanBoard"),
+  { ssr: false, loading: () => <SkeletonCard /> },
+);
 
 const SECTION_ANCHOR_IDS: Record<DashboardSectionId, string> = {
   overview: "overview",
@@ -484,7 +488,12 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
           <ProjectMilestones />
         </WidgetErrorBoundary>
       );
-
+    case "kanban-board":
+      return (
+        <WidgetErrorBoundary>
+          <KanbanBoard />
+        </WidgetErrorBoundary>
+      );
     default:
       return null;
   }
