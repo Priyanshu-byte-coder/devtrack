@@ -6,6 +6,7 @@ interface EmptyStateProps {
   description: string;
   actionLabel?: string;
   actionHref?: string;
+  onAction?: () => void;
 }
 
 export default function EmptyState({
@@ -14,6 +15,7 @@ export default function EmptyState({
   description,
   actionLabel,
   actionHref,
+  onAction,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
@@ -26,13 +28,22 @@ export default function EmptyState({
       <p className="text-[var(--muted-foreground)] max-w-sm mb-8 leading-relaxed">
         {description}
       </p>
-      {actionLabel && actionHref && (
-        <Link
-          href={actionHref}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--foreground)] text-[var(--background)] font-medium text-sm hover:opacity-80 transition-opacity"
-        >
-          {actionLabel} →
-        </Link>
+      {actionLabel && (
+        actionHref ? (
+          <Link
+            href={actionHref}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--foreground)] text-[var(--background)] font-medium text-sm hover:opacity-80 transition-opacity"
+          >
+            {actionLabel} →
+          </Link>
+        ) : onAction ? (
+          <button
+            onClick={onAction}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--foreground)] text-[var(--background)] font-medium text-sm hover:opacity-80 transition-opacity"
+          >
+            {actionLabel} →
+          </button>
+        ) : null
       )}
     </div>
   );
