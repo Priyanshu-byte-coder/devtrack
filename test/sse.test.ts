@@ -15,7 +15,8 @@ describe("sse module", () => {
       const mockController = {
         enqueue: vi.fn(),
       } as any;
-      sseConnections.set("user123", mockController);
+      const connectionsSet = new Set([mockController]);
+      sseConnections.set("user123", connectionsSet);
       expect(sseConnections.size).toBe(1);
     });
   });
@@ -30,7 +31,7 @@ describe("sse module", () => {
       const mockController = {
         enqueue: vi.fn(),
       } as any;
-      sseConnections.set("user123", mockController);
+      sseConnections.set("user123", new Set([mockController]));
 
       sendSSEEvent("user123", "test-event", { message: "hello" });
 
@@ -45,7 +46,7 @@ describe("sse module", () => {
           throw new Error("Connection closed");
         }),
       } as any;
-      sseConnections.set("user123", mockController);
+      sseConnections.set("user123", new Set([mockController]));
 
       sendSSEEvent("user123", "test-event", { data: "test" });
 
@@ -56,7 +57,7 @@ describe("sse module", () => {
       const mockController = {
         enqueue: vi.fn(),
       } as any;
-      sseConnections.set("user123", mockController);
+      sseConnections.set("user123", new Set([mockController]));
 
       sendSSEEvent("user123", "event1", { data: "1" });
       sendSSEEvent("user123", "event2", { data: "2" });
@@ -67,8 +68,8 @@ describe("sse module", () => {
     it("handles different users independently", () => {
       const mockController1 = { enqueue: vi.fn() } as any;
       const mockController2 = { enqueue: vi.fn() } as any;
-      sseConnections.set("user1", mockController1);
-      sseConnections.set("user2", mockController2);
+      sseConnections.set("user1", new Set([mockController1]));
+      sseConnections.set("user2", new Set([mockController2]));
 
       sendSSEEvent("user1", "event", { data: "user1" });
       sendSSEEvent("user2", "event", { data: "user2" });
