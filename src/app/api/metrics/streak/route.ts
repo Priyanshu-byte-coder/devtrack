@@ -49,6 +49,38 @@ async function fetchActiveDates(
     activeDates.add(item.commit.author.date.slice(0, 10));
   }
 
+  const linkHeader = searchRes.headers.get("link");
+  const pagePattern = /<[^>]*[?&]page=(\d+)[^>]*>;\s*rel="last"/;
+  const lastPageMatch = linkHeader?.match(pagePattern);
+  if (lastPageMatch) {
+    const lastPage = parseInt(lastPageMatch[1], 10);
+    const pagePromises: Promise<Response>[] = [];
+    for (let page = 2; page <= Math.min(lastPage, 5); page++) {
+      pagePromises.push(
+        fetch(
+          `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github+json",
+            },
+            cache: "no-store",
+          }
+        )
+      );
+    }
+    const pageResults = await Promise.allSettled(pagePromises);
+    for (const res of pageResults) {
+      if (res.status !== "fulfilled" || !res.value.ok) continue;
+      const pageData = (await res.value.json()) as {
+        items: Array<{ commit: { author: { date: string } } }>;
+      };
+      for (const item of pageData.items) {
+        activeDates.add(item.commit.author.date.slice(0, 10));
+      }
+    }
+  }
+
   return activeDates;
 }
 

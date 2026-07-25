@@ -34,11 +34,11 @@ async function fetchPRMetrics(token: string): Promise<PRMetricsBase> {
 
   const data = (await searchRes.json()) as {
     total_count: number;
-    items: Array<{ state: string; created_at: string; closed_at: string | null }>;
+    items: Array<{ state: string; created_at: string; closed_at: string | null; pull_request?: { merged_at: string | null } }>;
   };
 
   const open = data.items.filter((pr) => pr.state === "open").length;
-  const merged = data.items.filter((pr) => pr.state === "closed").length;
+  const merged = data.items.filter((pr) => pr.pull_request?.merged_at != null).length;
 
   const closedPRs = data.items.filter((pr) => pr.closed_at);
   const avgReviewMs =
