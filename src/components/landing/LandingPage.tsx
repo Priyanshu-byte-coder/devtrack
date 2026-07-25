@@ -236,7 +236,7 @@ function MouseSpotlight() {
    ═══════════════════════════════════════════════════════════ */
 const wLabel: React.CSSProperties = {
   fontFamily: MONO, fontSize: 10, fontWeight: 500,
-  color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em',
+  color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em',
 };
 const wValue: React.CSSProperties = {
   fontFamily: MONO, fontWeight: 600, color: TEXT,
@@ -780,7 +780,7 @@ function AboutSection() {
           transform: vis ? 'translateY(0)' : 'translateY(18px)',
           transition: 'opacity 0.6s ease, transform 0.6s ease',
         }}>
-          <div style={{ fontFamily: MONO, fontSize: 10, color: A, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 22 }}>
+          <div style={{ fontFamily: MONO, fontSize: 10, color: A, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 22 }}>
             ABOUT DEVTRACK
           </div>
           <h2
@@ -1253,7 +1253,7 @@ function ContributeSection({ stats }: { stats: RepoStats }) {
       }}
     >
       {/* Label */}
-      <div style={{ fontFamily: MONO, fontSize: 10, color: A, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 40 }}>
+      <div style={{ fontFamily: MONO, fontSize: 10, color: A, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 40 }}>
         OPEN SOURCE
       </div>
 

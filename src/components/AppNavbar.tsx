@@ -31,6 +31,8 @@ export default function AppNavbar() {
   const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const hashIndex = href.indexOf("#");
@@ -46,7 +48,20 @@ export default function AppNavbar() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20);
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    const fn = () => {
+      setScrolled(window.scrollY > 20);
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
+    };
     fn();
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
@@ -90,6 +105,22 @@ export default function AppNavbar() {
 
   return (
     <header style={headerStyle}>
+      {/* Scroll-progress bar */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-full"
+      >
+        <div
+          className="h-full origin-left"
+          style={{
+            width: "100%",
+            transform: `scaleX(${scrollProgress})`,
+            background: "var(--accent)",
+            boxShadow: scrollProgress > 0 ? "0 0 8px var(--accent), 0 0 2px var(--accent)" : "none",
+            transition: prefersReducedMotion ? "none" : "transform 0.1s linear, box-shadow 0.3s ease",
+          }}
+        />
+      </div>
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
 
         {/* Logo / brand - Links to homepage or dashboard */}
@@ -98,7 +129,7 @@ export default function AppNavbar() {
           className="group inline-flex items-center gap-2.5 select-none transition-transform duration-300 hover:scale-[1.02]"
           style={{ fontFamily: MONO }}
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-base font-bold text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)]/20">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-base font-bold text-[var(--accent)] transition-colors group-hover:bg-[var(--accent)]/20 translate-y-px">
             ▲
           </span>
           <span className="text-sm font-bold tracking-[0.2em] text-[var(--foreground)]">
@@ -115,7 +146,7 @@ export default function AppNavbar() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => handleAnchorClick(e, item.href)}
-                className="relative px-3 py-2 text-[12px] font-medium transition-colors duration-150"
+                className="relative px-3 py-2 text-[12px] font-medium tracking-[0.08em] transition-colors duration-150"
                 style={{
                   fontFamily: MONO,
                   color: active ? "var(--accent)" : "var(--muted-foreground)",
