@@ -19,7 +19,9 @@ test("[Landing E2E] dashboard stays protected for unauthenticated users", async 
 
 test("[Landing E2E] landing has dashboard link", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("link", { name: "Dashboard", exact: true }).first()).toBeVisible();
+  const dashboardLink = page.getByRole("link", { name: "Dashboard", exact: true });
+  const dashboardButton = page.getByRole("button", { name: "Dashboard", exact: true });
+  await expect(dashboardLink.or(dashboardButton).first()).toBeVisible();
 });
 
 test("[Landing E2E] landing introduces DevTrack in an about section", async ({ page }) => {

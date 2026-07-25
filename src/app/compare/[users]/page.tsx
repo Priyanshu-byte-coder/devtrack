@@ -229,6 +229,7 @@ function ProfileHeader({
           alt={`${profile.username} avatar`}
           width={56}
           height={56}
+          unoptimized
           className="h-14 w-14 rounded-full border border-[var(--border)]"
         />
         <div className="min-w-0">

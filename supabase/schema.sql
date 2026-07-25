@@ -52,9 +52,11 @@ create table if not exists goals (
   last_synced_at timestamptz,
   created_at   timestamptz default now(),
   updated_at   timestamptz default now(),
-  week_start   date
+  week_start   date,
+  category     text check (category is null or category in ('side-project', 'work', 'dsa', 'open-source'))
 );
 create index if not exists goals_user_period on goals(user_id, period_start);
+create index if not exists goals_user_category on goals(user_id, category);
 
 create table if not exists goal_history (
   id           text primary key default gen_random_uuid()::text,
@@ -297,7 +299,6 @@ CREATE TABLE IF NOT EXISTS leaderboard_cache (
   building_until timestamptz,
   updated_at timestamptz default now()
 );
-);
 
 -- -------------------------------------------------------
 -- User Sponsor Metrics: cache for user-specific GitHub Sponsors data
@@ -334,3 +335,24 @@ CREATE POLICY "Users can delete own sponsor metrics"
   ON user_sponsor_metrics FOR DELETE
   USING (auth.uid()::text = user_id);
 
+-- -------------------------------------------------------
+-- WakaTime Stats: caches daily WakaTime coding summaries per user
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wakatime_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    total_seconds INTEGER NOT NULL DEFAULT 0,
+    languages JSONB NOT NULL DEFAULT '[]'::jsonb,
+    projects JSONB NOT NULL DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, date)
+);
+
+ALTER TABLE wakatime_stats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own wakatime stats" ON wakatime_stats;
+CREATE POLICY "Users can view their own wakatime stats"
+    ON wakatime_stats FOR SELECT
+    USING (auth.uid()::text = user_id);

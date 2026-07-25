@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
 interface ProfileQrModalProps {
-  /** The full public profile URL to encode, e.g. https://devtrack-delta.vercel.app/u/johndoe */
+  /** The full public profile URL to encode, e.g. https://devtrack-silk-kappa.vercel.app/u/johndoe */
   profileUrl: string;
   /** Display name shown in the modal header */
   username: string;
@@ -27,7 +27,7 @@ interface ProfileQrModalProps {
  *   <button onClick={() => setShowQr(true)}>Show QR Code</button>
  *   {showQr && (
  *     <ProfileQrModal
- *       profileUrl={`https://devtrack-delta.vercel.app/u/${username}`}
+ *       profileUrl={`https://devtrack-silk-kappa.vercel.app/u/${username}`}
  *       username={username}
  *       onClose={() => setShowQr(false)}
  *     />

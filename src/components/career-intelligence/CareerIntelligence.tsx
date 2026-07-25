@@ -136,6 +136,8 @@ export default function CareerIntelligence() {
   const handleExport = async (format: ExportFormat) => {
     if (!resumeContent) return;
 
+    setStep("exporting");
+
     try {
       const res = await fetch("/api/cv/export", {
         method: "POST",
@@ -166,6 +168,8 @@ export default function CareerIntelligence() {
       toast.success(`Downloaded ${format.toUpperCase()} successfully!`);
     } catch (err) {
       toast.error("Failed to download file. Please try again.");
+    } finally {
+      setStep("generated");
     }
   };
 

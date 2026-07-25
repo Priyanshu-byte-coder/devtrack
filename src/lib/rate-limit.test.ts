@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { createMemoryFixedWindowRateLimiter, getClientIp } from "./rate-limit";
 
 describe("getClientIp", () => {
@@ -69,3 +69,49 @@ describe("createMemoryFixedWindowRateLimiter", () => {
   });
 });
 
+describe("getClientIp — trusted proxy behaviour", () => {
+  const originalEnv = process.env;
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  it("trusts x-real-ip when TRUSTED_PROXY=vercel", () => {
+    process.env.TRUSTED_PROXY = "vercel";
+    const req = {
+      headers: new Headers({ "x-real-ip": "1.2.3.4", "cf-connecting-ip": "9.9.9.9" }),
+    };
+    expect(getClientIp(req as any)).toBe("1.2.3.4");
+  });
+
+  it("trusts cf-connecting-ip when TRUSTED_PROXY=cloudflare", () => {
+    process.env.TRUSTED_PROXY = "cloudflare";
+    const req = {
+      headers: new Headers({ "cf-connecting-ip": "5.6.7.8", "x-real-ip": "9.9.9.9" }),
+    };
+    expect(getClientIp(req as any)).toBe("5.6.7.8");
+  });
+
+  it("returns unknown and ignores all headers when TRUSTED_PROXY=none", () => {
+    process.env.TRUSTED_PROXY = "none";
+    process.env.VERCEL = undefined;
+    const req = {
+      headers: new Headers({
+        "x-forwarded-for": "1.1.1.1",
+        "x-real-ip": "2.2.2.2",
+        "cf-connecting-ip": "3.3.3.3",
+      }),
+    };
+    // Spoofed headers must be ignored entirely
+    expect(getClientIp(req as any)).toBe("unknown");
+  });
+
+  it("auto-detects Vercel when VERCEL=1 and no TRUSTED_PROXY set", () => {
+    delete process.env.TRUSTED_PROXY;
+    process.env.VERCEL = "1";
+    const req = {
+      headers: new Headers({ "x-real-ip": "7.7.7.7" }),
+    };
+    expect(getClientIp(req as any)).toBe("7.7.7.7");
+  });
+});

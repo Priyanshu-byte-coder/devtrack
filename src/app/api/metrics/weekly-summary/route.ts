@@ -100,12 +100,19 @@ interface WeeklySummaryData {
     thisWeek: { opened: number; merged: number };
     lastWeek: { opened: number; merged: number };
   };
+  issues: {
+    thisWeek: { opened: number; closed: number };
+    lastWeek: { opened: number; closed: number };
+  };
   activeDays: {
     thisWeek: number;
     lastWeek: number;
   };
   streak: number;
   topRepo: string | null;
+  repoBreakdown: { repoName: string; commits: number }[];
+  dailyCommits: { date: string; commits: number }[];
+  mostActiveDay: string | null;
 }
 
 async function fetchWeeklySummaryForAccount(
@@ -151,20 +158,31 @@ async function fetchWeeklySummaryForAccount(
     const activeDaysThisWeek = new Set<string>();
     const activeDaysLastWeek = new Set<string>();
     const repoCounts = new Map<string, number>();
+    const recent7DaysMap = new Map<string, number>();
+    
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 6);
+    sevenDaysAgo.setUTCHours(0, 0, 0, 0);
 
     // Partition commits into this week vs last week using UTC week boundaries.
     for (const item of commitsData.items) {
       const commitDate = new Date(item.commit.author.date);
+      const dateStr = item.commit.author.date.slice(0, 10);
+
+      if (commitDate >= sevenDaysAgo) {
+        recent7DaysMap.set(dateStr, (recent7DaysMap.get(dateStr) ?? 0) + 1);
+      }
 
       if (commitDate >= currentWeekStart) {
         commitsThisWeek++;
-        activeDaysThisWeek.add(item.commit.author.date.slice(0, 10));
+        activeDaysThisWeek.add(dateStr);
 
         const repoName = item.repository.full_name;
         repoCounts.set(repoName, (repoCounts.get(repoName) ?? 0) + 1);
       } else if (commitDate >= prevWeekStart && commitDate <= prevWeekEnd) {
         commitsPrevWeek++;
-        activeDaysLastWeek.add(item.commit.author.date.slice(0, 10));
+        activeDaysLastWeek.add(dateStr);
       }
     }
 
@@ -229,6 +247,72 @@ async function fetchWeeklySummaryForAccount(
     const streakDates = await fetchActiveDates(githubLogin, token);
     const commitDelta = commitsThisWeek - commitsPrevWeek;
 
+    // Search API call 4 - fetches Issues opened in the past 14 days
+    const issuesRes = await fetch(
+      `${GITHUB_API}/search/issues?q=type:issue+author:@me+created:>=${fourteenDaysAgoStr}&per_page=100`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!issuesRes.ok) {
+      if (issuesRes.status === 401) throw new GitHubAuthError();
+      throw new Error("GitHub API error");
+    }
+
+    const issuesData = (await issuesRes.json()) as {
+      items: Array<{
+        created_at: string;
+        state: string;
+        state_reason?: string | null;
+      }>;
+    };
+
+    let issuesOpenedThisWeek = 0;
+    let issuesClosedThisWeek = 0;
+    let issuesOpenedLastWeek = 0;
+    let issuesClosedLastWeek = 0;
+
+    for (const item of issuesData.items) {
+      const createdAt = new Date(item.created_at);
+      if (Number.isNaN(createdAt.getTime())) continue;
+      
+      const isClosed = item.state === "closed" && item.state_reason === "completed";
+
+      if (createdAt >= currentWeekStart) {
+        issuesOpenedThisWeek++;
+        if (isClosed) issuesClosedThisWeek++;
+      } else if (createdAt >= prevWeekStart && createdAt <= prevWeekEnd) {
+        issuesOpenedLastWeek++;
+        if (isClosed) issuesClosedLastWeek++;
+      }
+    }
+
+    const repoBreakdown = Array.from(repoCounts.entries())
+      .map(([repoName, commits]) => ({ repoName, commits }))
+      .sort((a, b) => b.commits - a.commits);
+
+    const dailyCommits: { date: string; commits: number }[] = [];
+    let mostActiveDay: string | null = null;
+    let maxDailyCommits = -1;
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const commits = recent7DaysMap.get(dateStr) ?? 0;
+      dailyCommits.push({ date: dateStr, commits });
+
+      if (commits > maxDailyCommits) {
+        maxDailyCommits = commits;
+        if (commits > 0) mostActiveDay = dateStr;
+      }
+    }
+
     return {
       commits: {
         current: commitsThisWeek,
@@ -240,12 +324,19 @@ async function fetchWeeklySummaryForAccount(
         thisWeek: { opened: prsOpenedThisWeek, merged: prsMergedThisWeek },
         lastWeek: { opened: prsOpenedLastWeek, merged: prsMergedLastWeek },
       },
+      issues: {
+        thisWeek: { opened: issuesOpenedThisWeek, closed: issuesClosedThisWeek },
+        lastWeek: { opened: issuesOpenedLastWeek, closed: issuesClosedLastWeek },
+      },
       activeDays: {
         thisWeek: activeDaysThisWeek.size,
         lastWeek: activeDaysLastWeek.size,
       },
       streak: calculateCurrentStreak(streakDates),
       topRepo,
+      repoBreakdown,
+      dailyCommits,
+      mostActiveDay,
     };
   });
 }
@@ -314,6 +405,11 @@ export async function GET(req: NextRequest) {
         const prsLastWeekOpened = results.reduce((sum, r) => sum + r.prs.lastWeek.opened, 0);
         const prsLastWeekMerged = results.reduce((sum, r) => sum + r.prs.lastWeek.merged, 0);
 
+        const issuesThisWeekOpened = results.reduce((sum, r) => sum + r.issues.thisWeek.opened, 0);
+        const issuesThisWeekClosed = results.reduce((sum, r) => sum + r.issues.thisWeek.closed, 0);
+        const issuesLastWeekOpened = results.reduce((sum, r) => sum + r.issues.lastWeek.opened, 0);
+        const issuesLastWeekClosed = results.reduce((sum, r) => sum + r.issues.lastWeek.closed, 0);
+
         const activeDaysThisWeek = Math.min(7, results.reduce((sum, r) => sum + r.activeDays.thisWeek, 0));
         const activeDaysLastWeek = Math.min(7, results.reduce((sum, r) => sum + r.activeDays.lastWeek, 0));
 
@@ -329,6 +425,38 @@ export async function GET(req: NextRequest) {
           }
         }
 
+        const repoBreakdownMap = new Map<string, number>();
+        for (const res of results) {
+          for (const repo of res.repoBreakdown) {
+            repoBreakdownMap.set(repo.repoName, (repoBreakdownMap.get(repo.repoName) ?? 0) + repo.commits);
+          }
+        }
+        const combinedRepoBreakdown = Array.from(repoBreakdownMap.entries())
+          .map(([repoName, commits]) => ({ repoName, commits }))
+          .sort((a, b) => b.commits - a.commits);
+        
+        const dailyCommitsMap = new Map<string, number>();
+        for (const res of results) {
+          for (const day of res.dailyCommits) {
+            dailyCommitsMap.set(day.date, (dailyCommitsMap.get(day.date) ?? 0) + day.commits);
+          }
+        }
+        
+        const combinedDailyCommits: { date: string; commits: number }[] = [];
+        let mostActiveDay: string | null = null;
+        let maxCommitsForDay = -1;
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setUTCDate(d.getUTCDate() - i);
+          const dateStr = d.toISOString().slice(0, 10);
+          const commits = dailyCommitsMap.get(dateStr) ?? 0;
+          combinedDailyCommits.push({ date: dateStr, commits });
+          if (commits > maxCommitsForDay) {
+            maxCommitsForDay = commits;
+            if (commits > 0) mostActiveDay = dateStr;
+          }
+        }
+
         return {
           commits: {
             current: commitsCurrent,
@@ -340,12 +468,19 @@ export async function GET(req: NextRequest) {
             thisWeek: { opened: prsThisWeekOpened, merged: prsThisWeekMerged },
             lastWeek: { opened: prsLastWeekOpened, merged: prsLastWeekMerged },
           },
+          issues: {
+            thisWeek: { opened: issuesThisWeekOpened, closed: issuesThisWeekClosed },
+            lastWeek: { opened: issuesLastWeekOpened, closed: issuesLastWeekClosed },
+          },
           activeDays: {
             thisWeek: activeDaysThisWeek,
             lastWeek: activeDaysLastWeek,
           },
           streak: maxStreak,
           topRepo,
+          repoBreakdown: combinedRepoBreakdown,
+          dailyCommits: combinedDailyCommits,
+          mostActiveDay,
         };
       });
 

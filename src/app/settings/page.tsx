@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { redirect, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -66,13 +67,12 @@ function GitHubAvatar({
   size?: number;
 }) {
   return (
-    <img
+    <Image
       src={`https://github.com/${login}.png?size=${size * 2}`}
       alt={`${login} avatar`}
       width={size}
       height={size}
       className="rounded-full border border-[var(--border)]"
-      loading="lazy"
     />
   );
 }

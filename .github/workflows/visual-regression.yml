@@ -42,20 +42,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
+
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
-          cache: npm
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci || (npm cache clean --force && npm ci)
+        run: pnpm install --frozen-lockfile
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Build app
-        run: npm run build
+        run: pnpm run build
 
       - name: Run visual regression tests
         run: npx playwright test -c playwright.visual.config.mjs
