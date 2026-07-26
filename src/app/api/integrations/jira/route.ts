@@ -1,3 +1,5 @@
+import { isSafeUrl } from "@/lib/ssrf-protection";
+
 import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -60,6 +62,10 @@ async function fetchJiraIssues(
   const searchUrl = `https://${domain}/rest/api/3/search?jql=${encodeURIComponent(
     jql
   )}&maxResults=50&fields=summary,status,created,updated,resolutiondate,assignee,priority`;
+
+  if (!(await isSafeUrl(searchUrl))) {
+    throw new Error("Invalid or unsafe Jira domain.");
+  }
 
   const response = await fetch(searchUrl, {
     headers,

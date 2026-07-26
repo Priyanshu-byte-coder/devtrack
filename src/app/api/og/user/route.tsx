@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
           
           <div style={{ display: "flex", alignItems: "center", gap: "28px" }}>
             {avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element 
               <img src={avatar} alt={`${username} avatar`} width={100} height={100} style={{ borderRadius: "50%", border: "3px solid rgba(99,102,241,0.7)", objectFit: "cover" }} />
             ) : (
               <div style={{ width: "100px", height: "100px", borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#10b981)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "44px", fontWeight: 700, color: "#fff" }}>

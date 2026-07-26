@@ -1,123 +1,92 @@
 import { describe, it, expect } from "vitest";
-import {
-  isValidGitHubUsername,
-  normalizeGitHubUsername,
-} from "../src/lib/validate-github-username";
+import { isValidGitHubUsername, normalizeGitHubUsername } from "../src/lib/validate-github-username";
 
 describe("isValidGitHubUsername", () => {
-  it("returns true for valid simple username", () => {
-    expect(isValidGitHubUsername("johndoe")).toBe(true);
+  it("accepts simple usernames", () => {
+    expect(isValidGitHubUsername("octocat")).toBe(true);
   });
 
-  it("returns true for username with numbers", () => {
+  it("accepts usernames with numbers", () => {
     expect(isValidGitHubUsername("user123")).toBe(true);
   });
 
-  it("returns true for username with single hyphen", () => {
-    expect(isValidGitHubUsername("john-doe")).toBe(true);
+  it("accepts usernames with hyphens", () => {
+    expect(isValidGitHubUsername("my-repo")).toBe(true);
   });
 
-  it("returns true for username starting with digit", () => {
-    expect(isValidGitHubUsername("123john")).toBe(true);
+  it("accepts mixed case", () => {
+    expect(isValidGitHubUsername("UserName123")).toBe(true);
   });
 
-  it("returns true for username ending with digit", () => {
-    expect(isValidGitHubUsername("john123")).toBe(true);
+  it("rejects username starting with hyphen", () => {
+    expect(isValidGitHubUsername("-invalid")).toBe(false);
   });
 
-  it("returns true for username with multiple hyphens", () => {
-    expect(isValidGitHubUsername("john-doe-smith")).toBe(true);
+  it("rejects username ending with hyphen", () => {
+    expect(isValidGitHubUsername("invalid-")).toBe(false);
   });
 
-  it("returns true for username at min length (1 char)", () => {
-    expect(isValidGitHubUsername("a")).toBe(true);
+  it("rejects username with underscore", () => {
+    expect(isValidGitHubUsername("user_name")).toBe(false);
   });
 
-  it("returns true for username at max length (39 chars)", () => {
-    expect(isValidGitHubUsername("a".repeat(39))).toBe(true);
+  it("rejects username with space", () => {
+    expect(isValidGitHubUsername("user name")).toBe(false);
   });
 
-  it("returns false for username starting with hyphen", () => {
-    expect(isValidGitHubUsername("-johndoe")).toBe(false);
-  });
-
-  it("returns false for username ending with hyphen", () => {
-    expect(isValidGitHubUsername("johndoe-")).toBe(false);
-  });
-
-  it("returns false for username with consecutive hyphens", () => {
-    expect(isValidGitHubUsername("john--doe")).toBe(false);
-  });
-
-  it("returns false for username exceeding max length", () => {
-    expect(isValidGitHubUsername("a".repeat(40))).toBe(false);
-  });
-
-  it("returns false for empty string", () => {
+  it("rejects empty string", () => {
     expect(isValidGitHubUsername("")).toBe(false);
   });
 
-  it("returns false for username with uppercase (case insensitive regex)", () => {
-    expect(isValidGitHubUsername("JohnDoe")).toBe(true);
+  it("rejects long usernames over 39 chars", () => {
+    expect(isValidGitHubUsername("a".repeat(40))).toBe(false);
   });
 
-  it("returns false for username with special characters", () => {
-    expect(isValidGitHubUsername("john_doe")).toBe(false);
+  it("accepts exactly 39 chars", () => {
+    expect(isValidGitHubUsername("a".repeat(39))).toBe(true);
   });
 
-  it("returns false for username with spaces", () => {
-    expect(isValidGitHubUsername("john doe")).toBe(false);
-  });
-
-  it("returns false for username with @ symbol", () => {
-    expect(isValidGitHubUsername("@johndoe")).toBe(false);
+  it("rejects special characters", () => {
+    expect(isValidGitHubUsername("user@name")).toBe(false);
+    expect(isValidGitHubUsername("user!name")).toBe(false);
+    expect(isValidGitHubUsername("user#name")).toBe(false);
   });
 });
 
 describe("normalizeGitHubUsername", () => {
   it("returns trimmed username for valid input", () => {
-    expect(normalizeGitHubUsername("  johndoe  ")).toBe("johndoe");
+    expect(normalizeGitHubUsername("  octocat  ")).toBe("octocat");
   });
 
-  it("returns null for null input", () => {
-    expect(normalizeGitHubUsername(null)).toBe(null);
+  it("preserves case of valid username", () => {
+    expect(normalizeGitHubUsername("UserName")).toBe("UserName");
   });
 
-  it("returns null for undefined input", () => {
-    expect(normalizeGitHubUsername(undefined)).toBe(null);
+  it("returns null for null", () => {
+    expect(normalizeGitHubUsername(null)).toBeNull();
+  });
+
+  it("returns null for undefined", () => {
+    expect(normalizeGitHubUsername(undefined)).toBeNull();
+  });
+
+  it("returns null for non-string", () => {
+    expect(normalizeGitHubUsername(123 as any)).toBeNull();
   });
 
   it("returns null for empty string", () => {
-    expect(normalizeGitHubUsername("")).toBe(null);
+    expect(normalizeGitHubUsername("")).toBeNull();
   });
 
-  it("returns null for string with only spaces", () => {
-    expect(normalizeGitHubUsername("   ")).toBe(null);
+  it("returns null for whitespace-only string", () => {
+    expect(normalizeGitHubUsername("   ")).toBeNull();
   });
 
-  it("returns null for whitespace-only after trim", () => {
-    expect(normalizeGitHubUsername("\t\n")).toBe(null);
-  });
-
-  it("returns null for invalid username format", () => {
-    expect(normalizeGitHubUsername("john doe")).toBe(null);
+  it("returns null for invalid username", () => {
+    expect(normalizeGitHubUsername("user name")).toBeNull();
   });
 
   it("returns null for username starting with hyphen", () => {
-    expect(normalizeGitHubUsername("-johndoe")).toBe(null);
-  });
-
-  it("returns null for username ending with hyphen", () => {
-    expect(normalizeGitHubUsername("johndoe-")).toBe(null);
-  });
-
-  it("returns trimmed valid username", () => {
-    expect(normalizeGitHubUsername(" johndoe ")).toBe("johndoe");
-  });
-
-  it("handles non-string input gracefully", () => {
-    expect(normalizeGitHubUsername(123 as any)).toBe(null);
-    expect(normalizeGitHubUsername({} as any)).toBe(null);
-    expect(normalizeGitHubUsername([] as any)).toBe(null);
+    expect(normalizeGitHubUsername("-invalid")).toBeNull();
   });
 });

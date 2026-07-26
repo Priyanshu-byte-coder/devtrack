@@ -62,6 +62,29 @@ interface ReposApiResponse {
   repos?: RepoSummary[];
 }
 
+async function fetchJsonOrEmpty<T>(
+  url: string,
+  headers: HeadersInit
+): Promise<T> {
+  try {
+    const res = await fetch(url, {
+      headers,
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+
+    if (!res.ok) {
+      console.error(`Metrics fetch failed: ${url}`, res.status, await res.text());
+      return {} as T;
+    }
+
+    return (await res.json()) as T;
+  } catch (err) {
+    console.error(`Metrics fetch error: ${url}`, err);
+    return {} as T;
+  }
+}
+
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
@@ -88,10 +111,15 @@ export async function GET(request: Request) {
   // type fails with a clear 400 instead of a Supabase constraint-violation 500.
   if (!VALID_INSIGHT_TYPES.has(rawType as InsightType)) {
     return NextResponse.json(
-      { error: `Invalid insight type. Must be one of: ${[...VALID_INSIGHT_TYPES].join(", ")}` },
+      {
+        error: `Invalid insight type. Must be one of: ${[
+          ...VALID_INSIGHT_TYPES,
+        ].join(", ")}`,
+      },
       { status: 400 }
     );
   }
+
   const type = rawType as InsightType;
 
   // Check the cache before touching the rate-limit counter so that repeated
@@ -122,15 +150,23 @@ export async function GET(request: Request) {
       limit: AI_INSIGHTS_LIMIT,
       windowSeconds: AI_INSIGHTS_WINDOW_SECONDS,
     });
+
     if (!result.allowed) {
       rateLimitDenied = true;
       retryAfterSeconds = result.retryAfter ?? AI_INSIGHTS_WINDOW_SECONDS;
     }
   } else {
-    const result = memoryLimiter.check(`ai-insights:${userId}`, AI_INSIGHTS_LIMIT);
+    const result = memoryLimiter.check(
+      `ai-insights:${userId}`,
+      AI_INSIGHTS_LIMIT
+    );
+
     if (!result.allowed) {
       rateLimitDenied = true;
-      retryAfterSeconds = Math.max(result.reset - Math.floor(Date.now() / 1000), 1);
+      retryAfterSeconds = Math.max(
+        result.reset - Math.floor(Date.now() / 1000),
+        1
+      );
     }
   }
 
@@ -148,29 +184,28 @@ export async function GET(request: Request) {
   const cookie = request.headers.get("cookie") ?? "";
   const headers = { Cookie: cookie };
 
-  const [contributionsRes, prsRes, streakRes, reposRes] = await Promise.all([
-    fetch(`${baseUrl}/api/metrics/contributions?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-    fetch(`${baseUrl}/api/metrics/prs`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/streak`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/repos?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-  ]);
-
   const [contributionsRaw, prsRaw, streakRaw, reposRaw]: [
     ContributionsApiResponse,
     PRsApiResponse,
     StreakApiResponse,
     ReposApiResponse,
   ] = await Promise.all([
-    contributionsRes.ok ? contributionsRes.json() : {},
-    prsRes.ok ? prsRes.json() : {},
-    streakRes.ok ? streakRes.json() : {},
-    reposRes.ok ? reposRes.json() : {},
+    fetchJsonOrEmpty<ContributionsApiResponse>(
+      `${baseUrl}/api/metrics/contributions?days=90`,
+      headers
+    ),
+    fetchJsonOrEmpty<PRsApiResponse>(
+      `${baseUrl}/api/metrics/prs`,
+      headers
+    ),
+    fetchJsonOrEmpty<StreakApiResponse>(
+      `${baseUrl}/api/metrics/streak`,
+      headers
+    ),
+    fetchJsonOrEmpty<ReposApiResponse>(
+      `${baseUrl}/api/metrics/repos?days=90`,
+      headers
+    ),
   ]);
 
   const commitsByDay: Record<string, number> = contributionsRaw.data ?? {};

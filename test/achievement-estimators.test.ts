@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from "vitest";
 import {
   calculateNextTier,
@@ -9,12 +10,11 @@ describe("calculateNextTier", () => {
 
   it("returns the first tier when current is below all tiers", () => {
     expect(calculateNextTier(0, tiers)).toBe(1);
-    expect(calculateNextTier(0, tiers)).toBe(1);
   });
 
   it("returns the next tier when current is below a tier", () => {
     expect(calculateNextTier(5, tiers)).toBe(16);
-    expect(calculateNextTier(15, tiers)).toBe(128);
+    expect(calculateNextTier(15, tiers)).toBe(16); // 15 < 16, so next is 16
   });
 
   it("returns the next tier when current equals a tier", () => {
@@ -38,7 +38,7 @@ describe("calculateNextTier", () => {
 });
 
 describe("calculatePercentage", () => {
-  it("returns 0 when nextTier is null (maxed)", () => {
+  it("returns 100 when nextTier is null (maxed out)", () => {
     expect(calculatePercentage(100, null)).toBe(100);
   });
 

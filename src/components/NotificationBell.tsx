@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-
 import { useNotifications } from "@/hooks/useNotifications";
+import { toast } from "sonner";
 
 const EMPTY_NOTIFICATIONS: any[] = [];
 
@@ -16,7 +16,6 @@ export default function NotificationBell() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
-
 
   const notifications = data?.notifications ?? EMPTY_NOTIFICATIONS;
   const unreadCountFromApi = data?.unreadCount ?? 0;
@@ -98,7 +97,6 @@ export default function NotificationBell() {
       window.removeEventListener("devtrack:notifications", handleNotifications);
   }, [refetch]);
 
-
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -117,41 +115,40 @@ export default function NotificationBell() {
   }, []);
 
   const handleOpen = useCallback(async () => {
-
     setOpen((prev) => {
       const next = !prev;
 
       if (!prev && unreadCount > 0) {
         const previousUnreadCount = unreadCount;
-        const previousNotifications = notifications;
 
         setUnreadCount(0);
         if (typeof window !== "undefined") {
           localStorage.setItem("devtrack:unread-notification-count", "0");
         }
-        fetch("/api/notifications", { method: "PATCH" }).catch(() => {
-          setUnreadCount(previousUnreadCount);
-          // data will be revalidated by the hook
-          if (typeof window !== "undefined") {
-            localStorage.setItem(
-              "devtrack:unread-notification-count",
-              previousUnreadCount.toString()
-            );
-          }
-        }).finally(() => {
-          void refetch();
-        });
+        fetch("/api/notifications", { method: "PATCH" })
+          .catch(() => {
+            setUnreadCount(previousUnreadCount);
 
+            if (typeof window !== "undefined") {
+              localStorage.setItem(
+                "devtrack:unread-notification-count",
+                previousUnreadCount.toString()
+              );
+            }
+
+            toast.error("Failed to mark notifications as read");
+          })
+          .finally(() => {
+            void refetch();
+          });
       }
 
       return next;
     });
-  }, [notifications, unreadCount, refetch]);
+  }, [unreadCount, refetch]);
 
   function timeAgo(iso: string): string {
-    const mins = Math.floor(
-      (Date.now() - new Date(iso).getTime()) / 60000
-    );
+    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
 
     if (mins < 1) return "just now";
     if (mins < 60) return `${mins}m ago`;
@@ -187,8 +184,15 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Dynamic announcement live region */}
-      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-        {unreadCount > 0 ? `${unreadCount} unread notifications` : "No unread notifications"}
+      <div
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {unreadCount > 0
+          ? `${unreadCount} unread notifications`
+          : "No unread notifications"}
       </div>
 
       {/* Bell button */}
@@ -310,8 +314,22 @@ export default function NotificationBell() {
                 Loading notifications…
               </li>
             ) : error ? (
-              <li className="px-4 py-6 text-center text-sm text-[var(--destructive)]">
-                {error.message}
+              <li className="px-4 py-6 text-center">
+                <p className="text-sm text-[var(--destructive)]">
+                  Failed to load notifications
+                </p>
+
+                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                  {error.message}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => void refetch()}
+                  className="mt-2 text-xs underline"
+                >
+                  Retry
+                </button>
               </li>
             ) : filteredNotifications.length === 0 ? (
               <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">

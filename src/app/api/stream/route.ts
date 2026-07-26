@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
-import { activeStreamConnections } from "@/lib/sse";
+import { activeStreamConnections, sseConnections } from "@/lib/sse";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +82,13 @@ export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     start(controller) {
       let isClosed = false;
+
+      let connectionsSet = sseConnections.get(userId);
+      if (!connectionsSet) {
+        connectionsSet = new Set();
+        sseConnections.set(userId, connectionsSet);
+      }
+      connectionsSet.add(controller);
       let interval: ReturnType<typeof setInterval>;
       let maxDurationTimeout: ReturnType<typeof setTimeout>;
 
@@ -102,6 +109,14 @@ export async function GET(req: NextRequest) {
         isClosed = true;
         clearInterval(interval);
         clearTimeout(maxDurationTimeout);
+
+        const connectionsSet = sseConnections.get(userId);
+        if (connectionsSet) {
+          connectionsSet.delete(controller);
+          if (connectionsSet.size === 0) {
+            sseConnections.delete(userId);
+          }
+        }
 
         try {
           controller.close();
