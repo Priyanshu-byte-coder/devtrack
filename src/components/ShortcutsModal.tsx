@@ -14,13 +14,14 @@ interface ShortcutItem {
 }
 
 const SHORTCUTS: ShortcutItem[] = [
+  { key: "1", action: "Switch to 7d range" },
+  { key: "2", action: "Switch to 14d range" },
+  { key: "3", action: "Switch to 30d range" },
+  { key: "4", action: "Switch to 90d range" },
+  { key: "R", action: "Refresh data" },
   { key: "Alt + T", action: "Toggle theme" },
-  { key: "B", action: "Toggle chart" },
-  { key: "R", action: "Reload data" },
-  { key: "G + D", action: "Go to Dashboard" },
-  { key: "G + P", action: "Go to Goals" },
-  { key: "Esc", action: "Close modal/dialog" },
-  { key: "?", action: "Show shortcuts" },
+  { key: "Esc", action: "Close modal / dialog" },
+  { key: "? or Cmd+/", action: "Show shortcuts help" },
 ];
 export default function ShortcutsModal({
   isOpen,

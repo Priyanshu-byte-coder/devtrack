@@ -38,9 +38,31 @@ export default function GlobalKeyboardShortcuts() {
         if (activeElement.getAttribute("contenteditable") === "true") return;
       }
 
-      // Show shortcuts modal
-      if (e.key === "?") {
-        setIsOpen(true);
+      // Show shortcuts modal: ? or Cmd+/ / Ctrl+/
+      if (e.key === "?" || ((e.metaKey || e.ctrlKey) && e.key === "/")) {
+        setIsOpen((prev) => !prev);
+        e.preventDefault();
+        return;
+      }
+
+      // Time range shortcuts: 1 -> 7d, 2 -> 14d, 3 -> 30d, 4 -> 90d
+      const rangeMap: Record<string, number> = {
+        "1": 7,
+        "2": 14,
+        "3": 30,
+        "4": 90,
+      };
+      if (rangeMap[e.key]) {
+        const days = rangeMap[e.key];
+        try {
+          localStorage.setItem("devtrack_dashboard_range", String(days));
+        } catch {
+          // localStorage access failed
+        }
+        window.dispatchEvent(
+          new CustomEvent("timeRangeChange", { detail: days })
+        );
+        setAnnouncement(`Switched time range to ${days} days`);
         e.preventDefault();
         return;
       }
@@ -53,40 +75,6 @@ export default function GlobalKeyboardShortcuts() {
         return;
       }
 
-      // Toggle chart
-      if (e.key.toLowerCase() === "b") {
-        window.dispatchEvent(new Event("toggleChart"));
-        e.preventDefault();
-        return;
-      }
-
-      // G key handling (chord detection)
-      if (e.key.toLowerCase() === "g") {
-        gPressed = true;
-        setTimeout(() => {
-          gPressed = false;
-        }, 1000);
-        e.preventDefault();
-        return;
-      }
-
-      // G + D -> Dashboard
-      if (gPressed && e.key.toLowerCase() === "d") {
-        window.location.href = "/dashboard";
-        e.preventDefault();
-        return;
-      }
-
-      // G + P -> Goals (scroll to goals section)
-      if (gPressed && e.key.toLowerCase() === "p") {
-        const goalSection = document.getElementById("goals-section");
-        if (goalSection) {
-          goalSection.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-        e.preventDefault();
-        return;
-      }
-
       // ESC -> close modal
       if (e.key === "Escape") {
         setIsOpen(false);
@@ -95,8 +83,8 @@ export default function GlobalKeyboardShortcuts() {
         return;
       }
 
-      // Reload page
-      if (e.key.toLowerCase() === "r") {
+      // Reload page / refresh data
+      if (e.key.toLowerCase() === "r" && !e.metaKey && !e.ctrlKey) {
         window.location.reload();
         e.preventDefault();
         return;
