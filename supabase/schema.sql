@@ -52,9 +52,11 @@ create table if not exists goals (
   last_synced_at timestamptz,
   created_at   timestamptz default now(),
   updated_at   timestamptz default now(),
-  week_start   date
+  week_start   date,
+  category     text check (category is null or category in ('side-project', 'work', 'dsa', 'open-source'))
 );
 create index if not exists goals_user_period on goals(user_id, period_start);
+create index if not exists goals_user_category on goals(user_id, category);
 
 create table if not exists goal_history (
   id           text primary key default gen_random_uuid()::text,
