@@ -5,10 +5,19 @@ import { useCallback, useEffect, useState } from "react";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import PRStatusDonutChart from "./PRStatusDonutChart";
 import MiniPRTrendChart from "./MiniPRTrendChart";
 import { SkeletonBlock } from "./WidgetSkeleton";
+
+const BUCKET_COLORS: Record<string, string> = {
+  "<1h": "#10b981",
+  "1–4h": "#10b981",
+  "4–24h": "#f59e0b",
+  "1–3d": "#f59e0b",
+  "3–7d": "#ef4444",
+  "7d+": "#ef4444",
+};
 
 interface PRMetricsSummary {
   open: number;
@@ -23,6 +32,7 @@ interface PRMetricsSummary {
   avgCycleTime?: number;
   weeklyTrend?: { week: string; avgHours: number }[];
   slowestRepos?: { repo: string; avgHours: number }[];
+  reviewTimeBuckets?: { range: string; count: number }[];
 }
 
 interface PRData extends PRMetricsSummary {
@@ -308,6 +318,59 @@ export default function PRMetrics() {
                 merged={prFilter === "open" ? 0 : (metrics.merged || 0)}
                 closed={prFilter === "all" ? (metrics.closed || 0) : 0}
               />
+            </div>
+          )}
+
+          {/* Review Time Histogram */}
+          {metrics?.reviewTimeBuckets && metrics.reviewTimeBuckets.length > 0 && (
+            <div className="rounded-lg bg-[var(--control)] p-4 border border-[var(--border)]">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
+                    Review Time Distribution
+                  </h3>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                    Histogram of PR review turnaround time buckets
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]" /> Fast (&lt;4h)
+                  </span>
+                  <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" /> Moderate (4h–3d)
+                  </span>
+                  <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" /> Slow (3d+)
+                  </span>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={metrics.reviewTimeBuckets} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="range" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+                  <Tooltip
+                    formatter={(value: any) => [`${value} PRs`, "Reviewed"]}
+                    labelFormatter={(label) => `Turnaround: ${label}`}
+                    contentStyle={{
+                      backgroundColor: "var(--card)",
+                      borderColor: "var(--border)",
+                      borderRadius: "8px",
+                      color: "var(--card-foreground)",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                    {metrics.reviewTimeBuckets.map((entry) => (
+                      <Cell
+                        key={entry.range}
+                        fill={BUCKET_COLORS[entry.range] || "var(--accent)"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           )}
 

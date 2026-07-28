@@ -28,6 +28,36 @@ interface PRMetricsBase {
   avgCycleTime: number;
   weeklyTrend: { week: string; avgHours: number }[];
   slowestRepos: { repo: string; avgHours: number }[];
+  reviewTimeBuckets: { range: string; count: number }[];
+}
+
+function computeReviewTimeBuckets(durationsHours: number[]): { range: string; count: number }[] {
+  const buckets = {
+    "<1h": 0,
+    "1–4h": 0,
+    "4–24h": 0,
+    "1–3d": 0,
+    "3–7d": 0,
+    "7d+": 0,
+  };
+
+  for (const h of durationsHours) {
+    if (h < 1) buckets["<1h"]++;
+    else if (h < 4) buckets["1–4h"]++;
+    else if (h < 24) buckets["4–24h"]++;
+    else if (h < 72) buckets["1–3d"]++;
+    else if (h < 168) buckets["3–7d"]++;
+    else buckets["7d+"]++;
+  }
+
+  return [
+    { range: "<1h", count: buckets["<1h"] },
+    { range: "1–4h", count: buckets["1–4h"] },
+    { range: "4–24h", count: buckets["4–24h"] },
+    { range: "1–3d", count: buckets["1–3d"] },
+    { range: "3–7d", count: buckets["3–7d"] },
+    { range: "7d+", count: buckets["7d+"] },
+  ];
 }
 
 interface ReviewMetrics {
@@ -297,7 +327,14 @@ async function fetchPRMetrics(
   const slowestRepos = Object.entries(repoMap)
     .map(([repo, times]) => ({ repo, avgHours: Math.round(times.reduce((a, b) => a + b, 0) / times.length) }))
     .sort((a, b) => b.avgHours - a.avgHours)
-    .slice(0, 3);
+  const prReviewDurations = mergedPRs
+    .map((pr) => {
+      if (!pr.closed_at || !pr.created_at) return null;
+      return (new Date(pr.closed_at).getTime() - new Date(pr.created_at).getTime()) / 3600000;
+    })
+    .filter((h): h is number => typeof h === "number" && !Number.isNaN(h) && h >= 0);
+
+  const reviewTimeBuckets = computeReviewTimeBuckets(prReviewDurations);
 
   return {
     open,
@@ -312,6 +349,7 @@ async function fetchPRMetrics(
     avgCycleTime,
     weeklyTrend,
     slowestRepos,
+    reviewTimeBuckets,
   };
 }
 
@@ -392,6 +430,9 @@ async function fetchGitLabMRMetrics(token: string): Promise<PRMetricsBase> {
 
   const sampleTotal = items.length;
 
+  const gitlabHours = reviewDurations.map((d) => d / 3600000);
+  const reviewTimeBuckets = computeReviewTimeBuckets(gitlabHours);
+
   return {
     open,
     merged,
@@ -405,6 +446,7 @@ async function fetchGitLabMRMetrics(token: string): Promise<PRMetricsBase> {
     avgCycleTime: 0,
     weeklyTrend: [],
     slowestRepos: [],
+    reviewTimeBuckets,
   };
 }
 
@@ -456,6 +498,7 @@ function formatPRMetrics(metrics: PRMetricsBase) {
     slowestRepos: metrics.slowestRepos,
     totalAdditions: metrics.totalAdditions,
     totalDeletions: metrics.totalDeletions,
+    reviewTimeBuckets: metrics.reviewTimeBuckets,
   };
 }
 
@@ -678,6 +721,28 @@ export async function GET(req: NextRequest) {
         .sort((a, b) => b.avgHours - a.avgHours)
         .slice(0, 3);
 
+      const combinedBucketsMap: Record<string, number> = {
+        "<1h": 0,
+        "1–4h": 0,
+        "4–24h": 0,
+        "1–3d": 0,
+        "3–7d": 0,
+        "7d+": 0,
+      };
+      results.forEach(r => {
+        r.reviewTimeBuckets?.forEach(b => {
+          combinedBucketsMap[b.range] = (combinedBucketsMap[b.range] ?? 0) + b.count;
+        });
+      });
+      const combinedReviewTimeBuckets = [
+        { range: "<1h", count: combinedBucketsMap["<1h"] },
+        { range: "1–4h", count: combinedBucketsMap["1–4h"] },
+        { range: "4–24h", count: combinedBucketsMap["4–24h"] },
+        { range: "1–3d", count: combinedBucketsMap["1–3d"] },
+        { range: "3–7d", count: combinedBucketsMap["3–7d"] },
+        { range: "7d+", count: combinedBucketsMap["7d+"] },
+      ];
+
       const combinedMetrics: PRMetricsBase = {
         totalAdditions: results.reduce(
           (sum, r) => sum + r.totalAdditions,
@@ -697,7 +762,8 @@ export async function GET(req: NextRequest) {
         mergeRate: combinedTotal > 0 ? combinedMerged / combinedTotal : 0,
         avgCycleTime: combinedCycleTime,
         weeklyTrend: combinedWeeklyTrend,
-        slowestRepos: combinedSlowest
+        slowestRepos: combinedSlowest,
+        reviewTimeBuckets: combinedReviewTimeBuckets,
       };
 
       const [gitlab, reviews] = await Promise.all([
