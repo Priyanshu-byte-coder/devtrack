@@ -1,3 +1,9 @@
+/**
+ * Top Repositories API (/api/metrics/repos)
+ * Ranks user repositories by commit count within the selected time window (days).
+ * Uses GitHub Commit Search API (author:login author-date:>=sinceStr) to tally
+ * user commits per repository and sorts by commit count descending.
+ */
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
