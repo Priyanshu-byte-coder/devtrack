@@ -1,3 +1,8 @@
+/**
+ * Public profile page (/u/[username])
+ * Display-only route allowing developers to showcase their coding consistency,
+ * streak metrics, top repos, and achievements. Opt-in via user settings.
+ */
 export const dynamic = "force-dynamic";
 import QrCodeButton from "@/components/QrCodeButton";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
