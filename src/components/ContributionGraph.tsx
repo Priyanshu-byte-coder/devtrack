@@ -149,6 +149,7 @@ export default function ContributionGraph() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [minutesAgo, setMinutesAgo] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [commits, setCommits] = useState<CommitItem[]>([]);
   const [usesTouchTooltip, setUsesTouchTooltip] = useState(false);
   const [repo, setRepo] = useState<string>("all");
@@ -264,7 +265,26 @@ export default function ContributionGraph() {
       // 2. Perform background sync / standard fetch
       try {
         const r = await fetch(url);
-        if (!r.ok) throw new Error("API error");
+        if (!r.ok) {
+          if (r.status === 401) {
+            const errData = await r.json().catch(() => ({}));
+            if (
+              errData.error === "token_expired" ||
+              errData.error === "session_expired" ||
+              errData.error === "Unauthorized"
+            ) {
+              if (active) {
+                setSessionExpired(true);
+                setError("Your session expired — please sign in again");
+                setTimeout(() => {
+                  window.location.href = "/api/auth/signin";
+                }, 3000);
+              }
+              return;
+            }
+          }
+          throw new Error("API error");
+        }
         const res: ContributionResponse = await r.json();
         
         if (!active) return;
@@ -488,6 +508,24 @@ export default function ContributionGraph() {
       id="contribution-activity"
       className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 fade-in-up"
     >
+      {sessionExpired && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-300 shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🔒</span>
+            <div>
+              <p className="font-semibold">Your session expired — please sign in again</p>
+              <p className="text-xs opacity-90">Auto-redirecting to sign in page in 3 seconds…</p>
+            </div>
+          </div>
+          <a
+            href="/api/auth/signin"
+            className="rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-black hover:opacity-90 transition-opacity"
+          >
+            Sign in now
+          </a>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
         <div className="min-w-0">
           <h2 className="text-sm md:text-base lg:text-lg font-semibold text-[var(--foreground)]">

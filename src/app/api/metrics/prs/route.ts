@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
 import { GITHUB_API } from "@/lib/github";
+import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -538,7 +539,7 @@ async function fetchReviewMetrics(token: string): Promise<ReviewMetrics> {
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return githubAuthErrorResponse();
   }
 
   const gitlabToken = typeof session.gitlabToken === "string" ? session.gitlabToken : undefined;
@@ -603,9 +604,10 @@ export async function GET(req: NextRequest) {
       ]);
 
       return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });
-    } catch {
-      // Catches errors from fetchCachedPRMetrics (GitHub Search API failures).
-      // Returns 502 so the client knows the data is unavailable, not just empty.
+    } catch (e: any) {
+      if (e instanceof GitHubAuthError || e?.status === 401) {
+        return githubAuthErrorResponse();
+      }
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }

@@ -78,7 +78,11 @@ function isSecondaryRateLimitBody(body: unknown): boolean {
 
 async function buildGitHubError(
   res: Response,
-): Promise<GitHubRateLimitError | GitHubApiError> {
+): Promise<GitHubRateLimitError | GitHubAuthError | GitHubApiError> {
+  if (res.status === 401) {
+    return new GitHubAuthError();
+  }
+
   const { resetAt, retryAfter, remaining } = extractRateLimitInfo(res.headers);
 
   // 429: always a rate limit
