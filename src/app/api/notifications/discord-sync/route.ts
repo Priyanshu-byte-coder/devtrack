@@ -18,112 +18,136 @@ export async function GET(req: Request) {
   const authError = validateCronRequest(req);
   if (authError) return authError;
 
-  const { data: users, error } = await supabaseAdmin
-    .from("users")
-    .select("id, github_login, discord_webhook_url, timezone, last_discord_notification_at, discord_muted_until")
-    .not("discord_webhook_url", "is", null);
-
-  if (error || !users) {
-    return NextResponse.json({ error: "Database error" }, { status: 500 });
-  }
-
   const token = process.env.GITHUB_TOKEN;
   const now = new Date();
 
   let processed = 0;
   let notificationsSent = 0;
 
-  for (const user of users) {
-    if (!user.discord_webhook_url) continue;
-    if (!isValidDiscordWebhookUrl(user.discord_webhook_url)) continue;
+  // Paginate the users query. The old implementation did one unbounded
+  // `.select()` and pulled every discord user (webhook URL, mute status,
+  // etc.) into serverless memory in a single response, then serially
+  // walked each one through 2-3 GitHub API roundtrips. Both scaled with
+  // total user count, so once discord users cross a few hundred the outer
+  // loop couldn't finish within the Vercel function timeout and users at
+  // the tail were silently skipped. Mirror the pattern used by
+  // /api/cron/sync — 50-user pages, deterministic ordering by id — and
+  // push the "20+ hours since last notification" + "not muted" filters
+  // into the SQL WHERE clause so we don't fetch rows we'll just skip.
+  // See issue #3163.
+  const PAGE_SIZE = 50;
+  const twentyHoursAgo = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString();
+  const nowIso = now.toISOString();
+  let page = 0;
+  let hasMore = true;
 
-    const tz = user.timezone || "UTC";
-    let localHour: number;
-    let isSunday = false;
+  while (hasMore) {
+    // `.or()` for "not-notified-recently" — either the column is NULL or its
+    // timestamp is >20h old. Same idea for the mute check: NULL or already
+    // in the past.
+    const { data: users, error } = await supabaseAdmin
+      .from("users")
+      .select("id, github_login, discord_webhook_url, timezone, last_discord_notification_at, discord_muted_until")
+      .not("discord_webhook_url", "is", null)
+      .or(`last_discord_notification_at.is.null,last_discord_notification_at.lt.${twentyHoursAgo}`)
+      .or(`discord_muted_until.is.null,discord_muted_until.lt.${nowIso}`)
+      .order("id")
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-    try {
-      const formatter = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "numeric", hour12: false, weekday: "short" });
-      const parts = formatter.formatToParts(now);
-      const hourPart = parts.find(p => p.type === "hour")?.value;
-      const weekdayPart = parts.find(p => p.type === "weekday")?.value;
-      localHour = parseInt(hourPart || "0", 10);
-
-      // Handle "24" meaning midnight in some Intl implementations
-      if (localHour === 24) localHour = 0;
-
-      isSunday = weekdayPart === "Sun";
-    } catch (e) {
-      localHour = now.getUTCHours();
-      isSunday = now.getUTCDay() === 0;
+    if (error) {
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
 
-    if (localHour !== 20) {
-      continue;
+    if (!users || users.length === 0) {
+      hasMore = false;
+      break;
     }
 
-    if (user.last_discord_notification_at) {
-      const lastNotified = new Date(user.last_discord_notification_at);
-      if (now.getTime() - lastNotified.getTime() < 20 * 60 * 60 * 1000) {
-        continue;
-      }
-    }
+    for (const user of users) {
+      if (!user.discord_webhook_url) continue;
+      if (!isValidDiscordWebhookUrl(user.discord_webhook_url)) continue;
 
-    if (user.discord_muted_until) {
-      const mutedUntil = new Date(user.discord_muted_until);
-      if (mutedUntil.getTime() > now.getTime()) {
-        continue;
-      }
-    }
+      const tz = user.timezone || "UTC";
+      let localHour: number;
+      let isSunday = false;
 
-    processed++;
-
-    try {
-      const streakData = await fetchPublicStreak(user.github_login, token);
-      let sentSomething = false;
-
-      // Determine "today" in the user`s timezone, or UTC if fallback
-      let todayStr: string;
       try {
-        const dFmt = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" });
-        const [{value: mo},,{value: da},,{value: ye}] = dFmt.formatToParts(now);
-        todayStr = `${ye}-${mo}-${da}`;
+        const formatter = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "numeric", hour12: false, weekday: "short" });
+        const parts = formatter.formatToParts(now);
+        const hourPart = parts.find(p => p.type === "hour")?.value;
+        const weekdayPart = parts.find(p => p.type === "weekday")?.value;
+        localHour = parseInt(hourPart || "0", 10);
+
+        // Handle "24" meaning midnight in some Intl implementations
+        if (localHour === 24) localHour = 0;
+
+        isSunday = weekdayPart === "Sun";
       } catch (e) {
-        todayStr = toDateStr(now);
+        localHour = now.getUTCHours();
+        isSunday = now.getUTCDay() === 0;
       }
 
-      if (streakData.lastCommitDate !== todayStr && streakData.current > 0) {
-        await sendStreakAtRisk(user.discord_webhook_url, user.github_login, streakData.current);
-        sentSomething = true;
+      if (localHour !== 20) {
+        continue;
       }
 
-      if (streakData.lastCommitDate === todayStr) {
-        const milestones = [7, 14, 30, 100];
-        if (milestones.includes(streakData.current)) {
-          await sendMilestoneReached(user.discord_webhook_url, user.github_login, streakData.current);
+      processed++;
+
+      try {
+        const streakData = await fetchPublicStreak(user.github_login, token);
+        let sentSomething = false;
+
+        // Determine "today" in the user`s timezone, or UTC if fallback
+        let todayStr: string;
+        try {
+          const dFmt = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" });
+          const [{value: mo},,{value: da},,{value: ye}] = dFmt.formatToParts(now);
+          todayStr = `${ye}-${mo}-${da}`;
+        } catch (e) {
+          todayStr = toDateStr(now);
+        }
+
+        if (streakData.lastCommitDate !== todayStr && streakData.current > 0) {
+          await sendStreakAtRisk(user.discord_webhook_url, user.github_login, streakData.current);
           sentSomething = true;
         }
-      }
 
-      if (isSunday) {
-        const contribData = await fetchPublicContributions(user.github_login, token, 7);
-        const stats = {
-          commits: contribData.total,
-          prs: 0,
-          activeDays: Object.keys(contribData.data).length,
-        };
-        await sendWeeklySummary(user.discord_webhook_url, user.github_login, stats);
-        sentSomething = true;
-      }
+        if (streakData.lastCommitDate === todayStr) {
+          const milestones = [7, 14, 30, 100];
+          if (milestones.includes(streakData.current)) {
+            await sendMilestoneReached(user.discord_webhook_url, user.github_login, streakData.current);
+            sentSomething = true;
+          }
+        }
 
-      if (sentSomething) {
-        await supabaseAdmin
-          .from("users")
-          .update({ last_discord_notification_at: now.toISOString() })
-          .eq("id", user.id);
-        notificationsSent++;
+        if (isSunday) {
+          const contribData = await fetchPublicContributions(user.github_login, token, 7);
+          const stats = {
+            commits: contribData.total,
+            prs: 0,
+            activeDays: Object.keys(contribData.data).length,
+          };
+          await sendWeeklySummary(user.discord_webhook_url, user.github_login, stats);
+          sentSomething = true;
+        }
+
+        if (sentSomething) {
+          await supabaseAdmin
+            .from("users")
+            .update({ last_discord_notification_at: now.toISOString() })
+            .eq("id", user.id);
+          notificationsSent++;
+        }
+      } catch (err) {
+        console.error(`Failed to process discord notifications for user ${user.github_login}`, err);
       }
-    } catch (err) {
-      console.error(`Failed to process discord notifications for user ${user.github_login}`, err);
+    }
+
+    // Short page means we've reached the tail — stop paging.
+    if (users.length < PAGE_SIZE) {
+      hasMore = false;
+    } else {
+      page += 1;
     }
   }
 

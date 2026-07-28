@@ -12,6 +12,7 @@ import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 
 type Recurrence = "none" | "weekly" | "monthly";
+type GoalCategory = "side-project" | "work" | "dsa" | "open-source";
 
 interface Goal {
   id: string;
@@ -25,6 +26,7 @@ interface Goal {
   period_start: string;
   last_synced_at: string | null;
   week_start: string | null;
+  category?: GoalCategory | null;
   last_period: {
     period_start: string;
     period_end: string;
@@ -40,6 +42,22 @@ const RECURRENCE_LABELS: Record<Recurrence, string> = {
   monthly: "Monthly",
 };
 
+const CATEGORY_LABELS: Record<GoalCategory, string> = {
+  "side-project": "Side Project",
+  work: "Work",
+  dsa: "DSA",
+  "open-source": "Open Source",
+};
+
+const CATEGORY_BADGE_CLASSES: Record<GoalCategory, string> = {
+  "side-project": "bg-purple-500/10 text-purple-400 border-purple-500/30",
+  work: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+  dsa: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  "open-source": "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+};
+
+const CATEGORY_OPTIONS: GoalCategory[] = ["side-project", "work", "dsa", "open-source"];
+
 export function useGoalTracker() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +70,8 @@ export function useGoalTracker() {
   const [unit, setUnit] = useState("commits");
   const [recurrence, setRecurrence] = useState<Recurrence>("none");
   const [deadline, setDeadline] = useState("");
+  const [category, setCategory] = useState<GoalCategory | "">("");
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<GoalCategory | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
@@ -162,7 +182,14 @@ export function useGoalTracker() {
 
     try {
       const result = await submitGoalWithRefresh({
-        payload: { title, target, unit, recurrence, deadline: deadline || null },
+        payload: {
+          title,
+          target,
+          unit,
+          recurrence,
+          deadline: deadline || null,
+          category: category || null,
+        },
         handleSync,
         loadGoals,
       });
@@ -177,6 +204,7 @@ export function useGoalTracker() {
       setUnit("commits");
       setRecurrence("none");
       setDeadline("");
+      setCategory("");
 
       if (unit === "commits" || unit === "prs") {
         await handleSync();
@@ -294,6 +322,10 @@ export function useGoalTracker() {
     setRecurrence,
     deadline,
     setDeadline,
+    category,
+    setCategory,
+    activeCategoryFilter,
+    setActiveCategoryFilter,
     creating,
     createError,
     confirmingId,
@@ -332,6 +364,10 @@ export default function GoalTracker() {
     setRecurrence,
     deadline,
     setDeadline,
+    category,
+    setCategory,
+    activeCategoryFilter,
+    setActiveCategoryFilter,
     creating,
     createError,
     confirmingId,
@@ -530,9 +566,50 @@ export default function GoalTracker() {
 
         </div>
       ) : (
+        <>
+          {goals.some((g) => g.category) && (
+            <div
+              role="group"
+              aria-label="Filter goals by category"
+              className="mb-3 flex flex-wrap gap-1.5"
+            >
+              <button
+                type="button"
+                onClick={() => setActiveCategoryFilter(null)}
+                aria-pressed={activeCategoryFilter === null}
+                className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                  activeCategoryFilter === null
+                    ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
+                    : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
+                }`}
+              >
+                All
+              </button>
+              {CATEGORY_OPTIONS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() =>
+                    setActiveCategoryFilter((curr) => (curr === c ? null : c))
+                  }
+                  aria-pressed={activeCategoryFilter === c}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                    activeCategoryFilter === c
+                      ? CATEGORY_BADGE_CLASSES[c].replace("/10", "/20")
+                      : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
+                  }`}
+                >
+                  {CATEGORY_LABELS[c]}
+                </button>
+              ))}
+            </div>
+          )}
+
         <ul className="space-y-4">
 
-          {goals.map((goal) => {
+          {goals
+            .filter((goal) => !activeCategoryFilter || goal.category === activeCategoryFilter)
+            .map((goal) => {
             const pct = 
               goal.current > 0 && goal.target > 0 
                 ? Math.max(
@@ -567,6 +644,13 @@ export default function GoalTracker() {
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[var(--card-foreground)]">{goal.title}</span>
+                      {goal.category && (
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full border ${CATEGORY_BADGE_CLASSES[goal.category]}`}
+                        >
+                          {CATEGORY_LABELS[goal.category]}
+                        </span>
+                      )}
                       {goal.recurrence !== "none" && (
                         <span
                           className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
@@ -749,6 +833,7 @@ export default function GoalTracker() {
             );
           })}
         </ul>
+        </>
       )}
 
       {lastUpdated && (
@@ -823,6 +908,29 @@ export default function GoalTracker() {
               <option value="language">Lines of Code</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="goal-category"
+            className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+          >
+            Category (Optional)
+          </label>
+          <select
+            id="goal-category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value as GoalCategory | "")}
+            disabled={creating}
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
+          >
+            <option value="">No category</option>
+            {CATEGORY_OPTIONS.map((c) => (
+              <option key={c} value={c}>
+                {CATEGORY_LABELS[c]}
+              </option>
+            ))}
+          </select>
         </div>
 
         {recurrence === "none" && (
