@@ -5,6 +5,8 @@ import {
   fetchPublicStreak,
   fetchTopLanguage,
   fetchPublicGists,
+  filterPublicProfileData,
+  type PublicProfileData,
 } from "../src/lib/public-profile-data";
 
 describe("public-profile-data", () => {
@@ -44,6 +46,25 @@ describe("public-profile-data", () => {
 
       const repos = await fetchPublicTopRepos("user123");
       expect(repos).toEqual([]);
+    });
+  });
+
+  describe("filterPublicProfileData", () => {
+    it("removes disabled widget data from the public response", () => {
+      const profile = {
+        publicWidgets: ["contributions"],
+        streak: { current: 4 },
+        contributions: { days: 30, total: 12, data: {} },
+        topLanguages: [{ name: "TypeScript", count: 1, percentage: 100 }],
+        pullRequests: 8,
+      } as unknown as PublicProfileData;
+
+      const filtered = filterPublicProfileData(profile);
+
+      expect(filtered.contributions).toEqual(profile.contributions);
+      expect(filtered).not.toHaveProperty("streak");
+      expect(filtered).not.toHaveProperty("topLanguages");
+      expect(filtered).not.toHaveProperty("pullRequests");
     });
   });
 
