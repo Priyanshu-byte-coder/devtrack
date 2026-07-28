@@ -17,10 +17,19 @@ import { resolveAppUser } from "@/lib/resolve-user";
 
 export const dynamic = "force-dynamic";
 
-interface DiscussionsMetrics {
+export interface CategoryCount {
+  category: string;
+  count: number;
+}
+
+export interface DiscussionsMetrics {
   discussionsStarted: number;
+  commentsLeft: number;
+  commentsGiven: number;
   acceptedAnswers: number;
-  commentsPosted: number;
+  markedAsAnswer: number;
+  answeredRate: number;
+  topCategories: CategoryCount[];
 }
 
 const DISCUSSIONS_QUERY = `
@@ -30,6 +39,14 @@ const DISCUSSIONS_QUERY = `
         totalDiscussionContributions
         totalDiscussionCommentContributions
         totalDiscussionAnswerContributions
+      }
+      repositoryDiscussions(first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+        nodes {
+          createdAt
+          category {
+            name
+          }
+        }
       }
     }
   }
@@ -57,9 +74,17 @@ async function fetchDiscussionsMetrics(
     async () => {
       if (token === "mock-token") {
         return {
-          discussionsStarted: 5,
-          acceptedAnswers: 2,
-          commentsPosted: 14,
+          discussionsStarted: 12,
+          commentsLeft: 28,
+          commentsGiven: 28,
+          acceptedAnswers: 5,
+          markedAsAnswer: 5,
+          answeredRate: 41.7,
+          topCategories: [
+            { category: "Q&A", count: 6 },
+            { category: "Ideas", count: 4 },
+            { category: "General", count: 2 },
+          ],
         };
       }
       const { from, to } = getWindowDates(days);
@@ -89,16 +114,53 @@ async function fetchDiscussionsMetrics(
               totalDiscussionCommentContributions?: number | null;
               totalDiscussionAnswerContributions?: number | null;
             } | null;
+            repositoryDiscussions?: {
+              nodes?: Array<{
+                createdAt?: string | null;
+                category?: {
+                  name?: string | null;
+                } | null;
+              } | null> | null;
+            } | null;
           } | null;
         };
       };
 
       const collection = data.data?.viewer?.contributionsCollection;
+      const discussionsStarted = collection?.totalDiscussionContributions ?? 0;
+      const acceptedAnswers = collection?.totalDiscussionAnswerContributions ?? 0;
+      const commentsLeft = collection?.totalDiscussionCommentContributions ?? 0;
+
+      const answeredRate =
+        discussionsStarted > 0
+          ? Math.round((acceptedAnswers / discussionsStarted) * 1000) / 10
+          : 0;
+
+      const categoryMap: Record<string, number> = {};
+      const nodes = data.data?.viewer?.repositoryDiscussions?.nodes ?? [];
+      const fromDate = new Date(from);
+
+      for (const node of nodes) {
+        if (!node) continue;
+        const createdAt = node.createdAt ? new Date(node.createdAt) : null;
+        if (!createdAt || createdAt < fromDate) continue;
+        const catName = node.category?.name || "General";
+        categoryMap[catName] = (categoryMap[catName] || 0) + 1;
+      }
+
+      const topCategories: CategoryCount[] = Object.entries(categoryMap)
+        .map(([category, count]) => ({ category, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3);
 
       return {
-        discussionsStarted: collection?.totalDiscussionContributions ?? 0,
-        acceptedAnswers: collection?.totalDiscussionAnswerContributions ?? 0,
-        commentsPosted: collection?.totalDiscussionCommentContributions ?? 0,
+        discussionsStarted,
+        commentsLeft,
+        commentsGiven: commentsLeft,
+        acceptedAnswers,
+        markedAsAnswer: acceptedAnswers,
+        answeredRate,
+        topCategories,
       };
     }
   );
@@ -108,10 +170,31 @@ function mergeDiscussionMetrics(
   a: DiscussionsMetrics,
   b: DiscussionsMetrics
 ): DiscussionsMetrics {
+  const discussionsStarted = a.discussionsStarted + b.discussionsStarted;
+  const acceptedAnswers = a.acceptedAnswers + b.acceptedAnswers;
+  const commentsLeft = a.commentsLeft + b.commentsLeft;
+  const answeredRate =
+    discussionsStarted > 0
+      ? Math.round((acceptedAnswers / discussionsStarted) * 1000) / 10
+      : 0;
+
+  const categoryMap: Record<string, number> = {};
+  for (const item of [...(a.topCategories || []), ...(b.topCategories || [])]) {
+    categoryMap[item.category] = (categoryMap[item.category] || 0) + item.count;
+  }
+  const topCategories = Object.entries(categoryMap)
+    .map(([category, count]) => ({ category, count }))
+    .sort((x, y) => y.count - x.count)
+    .slice(0, 3);
+
   return {
-    discussionsStarted: a.discussionsStarted + b.discussionsStarted,
-    acceptedAnswers: a.acceptedAnswers + b.acceptedAnswers,
-    commentsPosted: a.commentsPosted + b.commentsPosted,
+    discussionsStarted,
+    commentsLeft,
+    commentsGiven: commentsLeft,
+    acceptedAnswers,
+    markedAsAnswer: acceptedAnswers,
+    answeredRate,
+    topCategories,
   };
 }
 
@@ -130,7 +213,18 @@ export async function GET(req: NextRequest) {
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
-  const days = 30;
+
+  const daysParam =
+    req.nextUrl.searchParams.get("days") ||
+    req.nextUrl.searchParams.get("range") ||
+    req.nextUrl.searchParams.get("timeRange");
+  let days = 30;
+  if (daysParam) {
+    const parsed = parseInt(daysParam.replace(/d$/, ""), 10);
+    if (!isNaN(parsed) && [7, 30, 90].includes(parsed)) {
+      days = parsed;
+    }
+  }
 
   if (!accountId) {
     try {
