@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { RoomMember } from '@/types/rooms';
-import InviteModal from './InviteModal';
+import { useState } from "react";
+import type { RoomMember } from "@/types/rooms";
+import InviteModal from "./InviteModal";
 
 interface Props {
   roomId: string;
@@ -12,7 +12,13 @@ interface Props {
   onMemberRemoved: (username: string) => void;
 }
 
-export default function MembersPanel({ roomId, members, isOwner, onMemberAdded, onMemberRemoved }: Props) {
+export default function MembersPanel({
+  roomId,
+  members,
+  isOwner,
+  onMemberAdded,
+  onMemberRemoved,
+}: Props) {
   const [showInvite, setShowInvite] = useState(false);
   const [removingUsername, setRemovingUsername] = useState<string | null>(null);
 
@@ -22,16 +28,16 @@ export default function MembersPanel({ roomId, members, isOwner, onMemberAdded, 
     try {
       const res = await fetch(
         `/api/rooms/${roomId}/members/${encodeURIComponent(username)}`,
-        { method: 'DELETE' }
+        { method: "DELETE" }
       );
       if (res.ok) {
         onMemberRemoved(username);
       } else {
         const data = await res.json().catch(() => ({}));
-        alert((data as { error?: string }).error ?? 'Failed to remove member');
+        alert((data as { error?: string }).error ?? "Failed to remove member");
       }
     } catch {
-      alert('Network error. Please try again.');
+      alert("Network error. Please try again.");
     } finally {
       setRemovingUsername(null);
     }
@@ -64,18 +70,20 @@ export default function MembersPanel({ roomId, members, isOwner, onMemberAdded, 
             />
             <div className="min-w-0 flex-1">
               <p className="text-sm truncate">{m.github_username}</p>
-              {m.role === 'owner' && (
-                <span className="text-[10px] text-yellow-600 dark:text-yellow-400">owner</span>
+              {m.role === "owner" && (
+                <span className="text-[10px] text-yellow-600 dark:text-yellow-400">
+                  owner
+                </span>
               )}
             </div>
-            {isOwner && m.role !== 'owner' && (
+            {isOwner && m.role !== "owner" && (
               <button
                 onClick={() => handleRemove(m.github_username)}
                 disabled={removingUsername === m.github_username}
                 aria-label={`Remove ${m.github_username}`}
                 className="shrink-0 text-[10px] text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-40"
               >
-                {removingUsername === m.github_username ? '…' : '✕'}
+                {removingUsername === m.github_username ? "…" : "✕"}
               </button>
             )}
           </div>
@@ -86,9 +94,9 @@ export default function MembersPanel({ roomId, members, isOwner, onMemberAdded, 
         <InviteModal
           roomId={roomId}
           onClose={() => setShowInvite(false)}
-          onInvited={(username) => {
-            onMemberAdded(username);
-            setShowInvite(false);
+          onInvited={() => {
+            // Invitation is pending, not an actual membership — don't add to
+            // the members list until the invitee accepts.
           }}
         />
       )}

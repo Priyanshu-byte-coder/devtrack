@@ -260,9 +260,22 @@ CREATE TABLE IF NOT EXISTS room_messages (
   content TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS room_invitations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id UUID REFERENCES collaboration_rooms(id) ON DELETE CASCADE,
+  github_username TEXT NOT NULL,
+  invited_by TEXT NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  responded_at TIMESTAMPTZ,
+  UNIQUE(room_id, github_username, status)
+);
+CREATE INDEX IF NOT EXISTS room_invitations_invitee_idx
+  ON room_invitations(github_username, status);
 ALTER TABLE collaboration_rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE room_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE room_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE room_invitations ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "room_select" ON collaboration_rooms;
 CREATE POLICY "room_select" ON collaboration_rooms
   FOR SELECT USING (
@@ -287,6 +300,17 @@ CREATE POLICY "message_insert" ON room_messages
       SELECT 1 FROM room_members
       WHERE room_id = room_messages.room_id
         AND github_username = current_setting('request.jwt.claims', true)::json->>'login'
+    )
+  );
+DROP POLICY IF EXISTS "invitation_select" ON room_invitations;
+CREATE POLICY "invitation_select" ON room_invitations
+  FOR SELECT USING (
+    github_username = current_setting('request.jwt.claims', true)::json->>'login'
+    OR EXISTS (
+      SELECT 1 FROM room_members
+      WHERE room_id = room_invitations.room_id
+        AND github_username = current_setting('request.jwt.claims', true)::json->>'login'
+        AND role = 'owner'
     )
   );
 CREATE TABLE IF NOT EXISTS leaderboard_cache (
