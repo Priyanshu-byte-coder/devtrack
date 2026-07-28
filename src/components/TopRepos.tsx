@@ -351,39 +351,41 @@ export default function TopRepos() {
     );
   }, []);
 
-  const togglePin = async (repoFullName: string) => {
-    const isPinned = pinnedRepos.includes(repoFullName);
-    let newPinsArray: string[];
-    
-    if (isPinned) {
-      newPinsArray = pinnedRepos.filter(name => name !== repoFullName);
-    } else {
-      if (pinnedRepos.length >= 3) {
-        setPinError("Maximum 3 pins allowed");
-        return;
-      }
-      newPinsArray = [...pinnedRepos, repoFullName];
-    }
-    
+const togglePin = useCallback((repoFullName: string) => {
     setPinError(null);
 
-    const prevPins = [...pinnedRepos];
-    setPinnedRepos(newPinsArray);
+    setPinnedRepos((prevPins) => {
+      const isPinned = prevPins.includes(repoFullName);
+      let newPinsArray: string[];
 
-    try {
-      const res = await fetch("/api/user/settings", {
+      if (isPinned) {
+        newPinsArray = prevPins.filter((name) => name !== repoFullName);
+      } else {
+        if (prevPins.length >= 3) {
+          setPinError("Maximum 3 pins allowed");
+          return prevPins;
+        }
+        newPinsArray = [...prevPins, repoFullName];
+      }
+
+      fetch("/api/user/settings", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ pinned_repos: newPinsArray }),
-      });
-      if (!res.ok) throw new Error("Failed to update pins");
-    } catch (err) {
-      console.error(err);
-      setPinnedRepos(prevPins);
-    }
-  };
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to update pins");
+        })
+        .catch((err) => {
+          console.error(err);
+          setPinnedRepos(prevPins);
+        });
+
+      return newPinsArray;
+    });
+  }, []);
 
   const fetchRepos = useCallback(() => {
     setLoading(true);

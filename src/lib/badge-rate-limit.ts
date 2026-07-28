@@ -18,8 +18,12 @@ export type BadgeRateLimitResult = {
   reset: number;
 };
 
+let lastPrune = Date.now();
+
 function pruneStore(now: number): void {
   if (store.size < 500) return;
+  if (now - lastPrune < 60000) return; // Only prune once per minute
+  lastPrune = now;
   const cutoff = now - WINDOW_MS;
   for (const [key, entry] of store) {
     if (entry.windowStart < cutoff) store.delete(key);
@@ -61,10 +65,12 @@ export function checkBadgeRateLimit(ip: string): BadgeRateLimitResult {
 }
 
 export function getBadgeClientIp(req: NextRequest): string {
+  // Use Vercel's trusted IP header or fallback to connection IP
+  // Do NOT blindly trust x-forwarded-for as it can be easily spoofed
   return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    (req as NextRequest & { ip?: string }).ip ??
+    req.headers.get("x-vercel-forwarded-for") ||
+    req.headers.get("x-real-ip") ||
+    (req as NextRequest & { ip?: string }).ip ||
     "unknown"
   );
 }

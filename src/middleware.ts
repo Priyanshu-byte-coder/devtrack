@@ -245,10 +245,9 @@ export async function middleware(req: NextRequest) {
       : "next-auth.session-token",
   });
 
-  if (!token) {
+  if (!token && (!isProduction || process.env.CI === "true")) {
     // Fallback: try the opposite cookie name to handle edge cases such as
-    // a production build served over HTTP (e.g. a staging environment without TLS)
-    // or a dev build that somehow received a Secure cookie.
+    // a dev build or CI environment that somehow received a Secure cookie.
     token = await getToken({
       req,
       secret: process.env.NEXTAUTH_SECRET,

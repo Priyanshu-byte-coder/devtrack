@@ -3,6 +3,29 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
+import { stripHtml } from "@/lib/sanitize";
+
+const MAX_GOAL_LEN = 280;
+const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+function isValidDate(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+
+  const match = value.match(DATE_PATTERN);
+  if (!match) return false;
+
+  const [, year, month, day] = match;
+  const date = new Date(`${value}T00:00:00Z`);
+  return (
+    date.getUTCFullYear() === Number(year) &&
+    date.getUTCMonth() + 1 === Number(month) &&
+    date.getUTCDate() === Number(day)
+  );
+}
+
+function validateDate(value: unknown): string | null {
+  return isValidDate(value) ? null : "Date must be a valid YYYY-MM-DD value";
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,6 +43,9 @@ export async function GET(req: NextRequest) {
     if (!date) {
       date = new Date().toISOString().split("T")[0];
     }
+
+    const dateError = validateDate(date);
+    if (dateError) return NextResponse.json({ error: dateError }, { status: 400 });
 
     const { data } = await supabaseAdmin
       .from("daily_focus")
@@ -49,16 +75,29 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { goal_text, date } = body;
 
-    if (!goal_text || !goal_text.trim()) {
+    if (typeof goal_text !== "string" || !goal_text.trim()) {
       return NextResponse.json({ error: "Goal cannot be empty" }, { status: 400 });
     }
 
+    const sanitizedGoal = stripHtml(goal_text);
+    if (!sanitizedGoal) {
+      return NextResponse.json({ error: "Goal cannot be empty" }, { status: 400 });
+    }
+    if (sanitizedGoal.length > MAX_GOAL_LEN) {
+      return NextResponse.json(
+        { error: `Goal must be ${MAX_GOAL_LEN} characters or fewer` },
+        { status: 400 }
+      );
+    }
+
     const targetDate = date || new Date().toISOString().split("T")[0];
+    const dateError = validateDate(targetDate);
+    if (dateError) return NextResponse.json({ error: dateError }, { status: 400 });
 
     const { data, error } = await supabaseAdmin
       .from("daily_focus")
       .upsert(
-        { user_id: user.id, date: targetDate, goal_text: goal_text.trim() },
+        { user_id: user.id, date: targetDate, goal_text: sanitizedGoal },
         { onConflict: "user_id,date" }
       )
       .select()
@@ -90,6 +129,9 @@ export async function DELETE(req: NextRequest) {
     if (!date) {
       return NextResponse.json({ error: "Date is required" }, { status: 400 });
     }
+
+    const dateError = validateDate(date);
+    if (dateError) return NextResponse.json({ error: dateError }, { status: 400 });
 
     const { error } = await supabaseAdmin
       .from("daily_focus")

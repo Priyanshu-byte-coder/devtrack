@@ -2,6 +2,8 @@
 import React from "react";
 import Link from "next/link";
 import "./ProfileCard.css";
+import Image from "next/image";
+
 
 export type SocialLink = {
   href: string;
@@ -35,10 +37,13 @@ export default function ProfileCard({
     <article className={`profile-card ${className}`.trim()} aria-label={`Profile card: ${name}`}>
       <div className="profile-card__left">
         <div className="profile-card__leftHeader">
-          <img
+          <Image
             src={avatarUrl || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=512&q=80&auto=format&fit=crop"}
             alt={`Avatar of ${name}`}
+            width={128}
+            height={128}
             className="profile-card__avatar profile-card__avatar--large"
+            unoptimized
           />
 
           <div className="profile-card__meta">

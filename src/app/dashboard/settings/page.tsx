@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLocale, useTranslations } from "next-intl";
 import { localeMetadata, locales, type AppLocale } from "@/i18n/config";
+import Image from "next/image";
 
 // ── Max length for the profile bio ──────────────────────────────────────────
 const BIO_MAX = 160;
@@ -1697,10 +1698,13 @@ function SettingsPageContent() {
                               className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] p-3"
                             >
                               <div className="flex items-center gap-3">
-                                <img
+                                <Image
                                   src={org.avatarUrl}
                                   alt={org.login}
+                                  width={32}
+                                  height={32}
                                   className="w-8 h-8 rounded"
+                                  unoptimized
                                 />
                                 <span className="text-sm font-semibold text-[var(--card-foreground)]">
                                   {org.login}
