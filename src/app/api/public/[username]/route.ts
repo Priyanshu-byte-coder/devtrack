@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
-import { fetchPublicProfile } from "@/lib/public-profile-data";
+import { fetchPublicProfile, filterPublicProfileData } from "@/lib/public-profile-data";
 import { getUpstashConfig, upstashRateLimitFixedWindow } from "@/lib/upstash-rest";
 import { createMemoryFixedWindowRateLimiter, getClientIp } from "@/lib/rate-limit";
 
@@ -89,5 +89,5 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(profile);
+  return NextResponse.json(filterPublicProfileData(profile));
 }
