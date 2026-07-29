@@ -32,7 +32,13 @@ export async function GET() {
 
     const existingUnits = new Set((existingGoals ?? []).map((g) => g.unit));
 
-    const suggestions = [];
+    const suggestions: Array<{
+  title: string;
+  target: number;
+  unit: string;
+  recurrence: string;
+  reason: string;
+}> = [];
 
     if (!existingUnits.has("commits")) {
       suggestions.push({
