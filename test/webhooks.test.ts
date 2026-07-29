@@ -100,9 +100,9 @@ describe("Webhooks Module", () => {
       expect(events).toContain("metrics.updated");
     });
 
-    it("should return exactly 6 events", () => {
+    it("should return exactly 8 events (5 legacy-only + 2 new activity-alert + goal.completed shared)", () => {
       const events = getAvailableEvents();
-      expect(events.length).toBe(6);
+      expect(events.length).toBe(8);
     });
 
     it("should return immutable list", () => {
@@ -114,7 +114,7 @@ describe("Webhooks Module", () => {
     it("should not contain duplicates", () => {
       const events = getAvailableEvents();
       const uniqueEvents = new Set(events);
-      expect(uniqueEvents.size).toBe(6);
+      expect(uniqueEvents.size).toBe(8);
     });
   });
 
