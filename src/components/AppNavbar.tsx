@@ -107,7 +107,7 @@ export default function AppNavbar() {
         </Link>
 
         {/* Desktop nav - Includes links to Dashboard, Streaks, Pull Requests, Goals, etc. */}
-        <nav className="hidden items-center gap-1 md:flex rounded-full border border-white/5 bg-white/[0.02] px-2 py-1.5 shadow-sm" aria-label={t("main")}>
+        <nav className="hidden items-center gap-1 md:flex rounded-full border border-[var(--border)] bg-[var(--card)]/90 px-2 py-1.5 shadow-xs backdrop-blur-md" aria-label={t("main")}>
           {navItems.map((item) => {
             const active = isActivePath(pathname, item.href);
             return (
@@ -115,16 +115,13 @@ export default function AppNavbar() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => handleAnchorClick(e, item.href)}
-                className="relative px-3 py-2 text-[12px] font-medium transition-colors duration-150"
+                className={`relative px-3.5 py-1.5 text-[12px] font-medium transition-all duration-150 rounded-full ${
+                  active
+                    ? "bg-[var(--accent-soft)] text-[var(--accent)] font-semibold"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--control-hover)]/60"
+                }`}
                 style={{
                   fontFamily: MONO,
-                  color: active ? "var(--accent)" : "var(--muted-foreground)",
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) (e.currentTarget as HTMLAnchorElement).style.color = "var(--foreground)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) (e.currentTarget as HTMLAnchorElement).style.color = "var(--muted-foreground)";
                 }}
               >
                 {item.label}
@@ -140,7 +137,7 @@ export default function AppNavbar() {
           {/* Auth state - Shows user identity and settings when logged in, or generic sign-in when logged out */}
           {isAuthenticated ? (
             !isDashboardRoute && (
-              <div className="flex items-center gap-4 border-l border-white/10 pl-4">
+              <div className="flex items-center gap-4 border-l border-[var(--border)] pl-4">
                 <Link
                   href="/dashboard/settings"
                   className="text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
@@ -158,7 +155,7 @@ export default function AppNavbar() {
                   <button
                     type="button"
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="rounded-lg bg-red-500/10 px-3 py-1.5 text-[12px] font-medium text-red-400 transition-all hover:bg-red-500/20 hover:text-red-300"
+                    className="rounded-lg bg-[var(--destructive-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--destructive)] transition-all hover:bg-[var(--destructive)] hover:text-white"
                     style={{ fontFamily: MONO }}
                   >
                     {t("signOutCta")}
@@ -170,8 +167,8 @@ export default function AppNavbar() {
             !isPublicProfileRoute && (
               <Link
                 href="/api/auth/signin/github?callbackUrl=/dashboard"
-                className="shrink-0 rounded-full px-5 py-2 text-[13px] font-semibold text-[var(--accent-foreground)] shadow-[0_0_20px_rgba(129,140,248,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(129,140,248,0.5)]"
-                style={{ fontFamily: MONO, background: "var(--accent)" }}
+                className="shrink-0 rounded-full px-5 py-2 text-[13px] font-semibold text-[var(--accent-foreground)] bg-[var(--accent)] shadow-xs transition-all hover:scale-[1.02] hover:shadow-sm"
+                style={{ fontFamily: MONO }}
               >
                 {t("signInCta")} →
               </Link>
@@ -183,7 +180,7 @@ export default function AppNavbar() {
         <button
           type="button"
           onClick={() => setMobileOpen((o) => !o)}
-          className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 p-2.5 text-[var(--foreground)] transition-colors hover:bg-white/10 md:hidden"
+          className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] p-2.5 text-[var(--foreground)] transition-colors hover:bg-[var(--control-hover)] md:hidden shadow-xs"
           aria-expanded={mobileOpen}
           aria-controls="app-mobile-nav"
           aria-label={mobileOpen ? t("closeMenu") : t("openMenu")}
@@ -196,8 +193,8 @@ export default function AppNavbar() {
       {mobileOpen && (
         <div
           id="app-mobile-nav"
-          className="border-t border-[var(--border)] md:hidden"
-          style={{ background: "color-mix(in srgb, var(--background) 98%, transparent)", backdropFilter: "blur(24px)" }}
+          className="border-t border-[var(--border)] md:hidden shadow-md"
+          style={{ background: "color-mix(in srgb, var(--card) 98%, transparent)", backdropFilter: "blur(24px)" }}
         >
           <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-5 sm:px-6">
             {navItems.map((item) => {
@@ -222,14 +219,14 @@ export default function AppNavbar() {
             {isAuthenticated && (
               <Link
                 href="/dashboard/settings"
-                className="rounded-xl px-4 py-3.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-white/5 transition-colors"
+                className="rounded-xl px-4 py-3.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--control-hover)] transition-colors"
                 style={{ fontFamily: MONO }}
               >
                 {t("settings")}
               </Link>
             )}
 
-            <div className="mt-4 border-t border-white/10 pt-4">
+            <div className="mt-4 border-t border-[var(--border)] pt-4">
               {!isDashboardRoute && (
                 <div className="flex items-center justify-between px-4 py-2">
                   <span className="text-sm font-medium text-[var(--muted-foreground)]" style={{ fontFamily: MONO }}>

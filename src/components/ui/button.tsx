@@ -8,14 +8,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--accent)] text-[var(--accent-foreground)] shadow hover:opacity-90",
+          "bg-[var(--accent)] text-[var(--accent-foreground)] shadow-xs hover:bg-[var(--accent)]/95 hover:shadow-sm hover:-translate-y-[0.5px] transition-all",
         destructive:
-          "border border-[var(--destructive)]/50 bg-[var(--destructive)]/80 text-white shadow hover:bg-[var(--destructive)]",
+          "bg-[var(--destructive)] text-white shadow-xs hover:bg-[var(--destructive)]/90 hover:shadow-sm transition-all",
         outline:
-          "border border-[var(--border)] bg-[var(--background)] shadow-sm hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--card-muted)]/50",
+          "border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] shadow-xs hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]/20 transition-all",
         secondary:
-          "bg-[var(--card-muted)] text-[var(--foreground)] border border-[var(--border)] shadow-sm hover:opacity-80",
-        ghost: "hover:text-[var(--destructive)] transition-colors",
+          "bg-[var(--control)] text-[var(--foreground)] border border-[var(--border)] shadow-xs hover:bg-[var(--control-hover)] hover:border-[var(--border)] transition-all",
+        ghost: "hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] transition-colors text-[var(--foreground)]",
         link: "text-[var(--accent)] underline-offset-4 hover:underline",
       },
       size: {

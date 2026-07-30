@@ -36,9 +36,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
           return;
         }
 
-        // Respect prefers-color-scheme on first load
-        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        updateTheme(systemPrefersDark ? "classic-dark" : "modern-light-blue");
+        updateTheme(DEFAULT_THEME);
       } catch (e) {
         updateTheme(DEFAULT_THEME);
       }

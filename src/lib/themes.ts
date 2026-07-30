@@ -42,7 +42,7 @@ export const THEME_OPTIONS: ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "classic-dark";
+export const DEFAULT_THEME: ThemeId = "modern-light-blue";
 
 export function isThemeId(value: string | null | undefined): value is ThemeId {
   return Boolean(value) && THEME_OPTIONS.some((theme) => theme.id === value);

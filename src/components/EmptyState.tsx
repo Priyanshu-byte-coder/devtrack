@@ -16,20 +16,20 @@ export default function EmptyState({
   actionHref,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-      <div className="text-6xl mb-6 select-none" role="img" aria-label={title}>
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/50 backdrop-blur-xs shadow-xs my-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-3xl mb-5 select-none shadow-xs border border-[var(--accent)]/20" role="img" aria-label={title}>
         {icon}
       </div>
-      <h2 className="text-xl font-semibold text-[var(--foreground)] mb-3">
+      <h2 className="text-lg font-bold tracking-tight text-[var(--foreground)] mb-2">
         {title}
       </h2>
-      <p className="text-[var(--muted-foreground)] max-w-sm mb-8 leading-relaxed">
+      <p className="text-sm text-[var(--muted-foreground)] max-w-sm mb-6 leading-relaxed">
         {description}
       </p>
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--foreground)] text-[var(--background)] font-medium text-sm hover:opacity-80 transition-opacity"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--accent-foreground)] font-semibold text-sm shadow-xs hover:bg-[var(--accent)]/90 hover:shadow-sm transition-all active:scale-[0.98]"
         >
           {actionLabel} →
         </Link>

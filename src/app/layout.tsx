@@ -79,8 +79,7 @@ export default async function RootLayout({
                   let theme = validThemes.includes(stored || '') ? stored : null;
 
                   if (!theme) {
-                    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    theme = systemPrefersDark ? 'classic-dark' : 'modern-light-blue';
+                    theme = 'modern-light-blue';
                   }
 
                   const isDark = theme !== 'modern-light-blue';

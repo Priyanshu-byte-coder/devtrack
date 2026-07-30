@@ -31,8 +31,8 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     <select
       ref={ref}
       className={cn(
-        "flex h-9 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-sm text-[var(--foreground)] shadow-sm transition-colors",
-        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]",
+        "flex h-10 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-sm text-[var(--foreground)] shadow-xs transition-all duration-150 cursor-pointer",
+        "focus-visible:outline-none focus-visible:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]/30 hover:border-[var(--accent)]/50",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}

@@ -54,49 +54,50 @@ export default function DashboardSidebar() {
 
   return (
     <>
-      <aside className="hidden lg:flex flex-col sticky top-8 ml-5 rounded-xl h-full gap-1 bg-[var(--control)] border-r border-[var(--border)] p-3 min-w-[48px] xl:min-w-[200px]">
+      <aside className="hidden lg:flex flex-col sticky top-8 ml-2 rounded-2xl gap-1 bg-[var(--card)] border border-[var(--border)] p-3 shadow-xs min-w-[48px] xl:min-w-[210px] backdrop-blur-md">
         <div
-          className="text-lg flex items-center font-bold text-[var(--foreground)] mb-4 px-3">
-          Devtrack
+          className="text-sm font-extrabold tracking-wider uppercase text-[var(--accent)] mb-3 px-3 py-1 flex items-center gap-2">
+          <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[var(--accent)]/10 text-xs font-bold">▲</span>
+          <span className="hidden xl:inline">DevTrack</span>
         </div>
         {sections.map(({ id, label, icon: Icon }) => (
           <a
             key={id}
             href={`#${id}`}
             title={label}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:bg-[var(--background)] ${
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-all duration-150 ${
               activeId === id
-                ? "bg-[var(--background)] text-[var(--foreground)] font-semibold"
-                : "text-[var(--foreground)] opacity-60"
+                ? "bg-[var(--accent-soft)] text-[var(--accent)] font-semibold shadow-xs"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--control-hover)]"
             }`}
           >
-            <Icon size={18} />
+            <Icon size={18} className={activeId === id ? "text-[var(--accent)]" : "text-[var(--muted-foreground)]"} />
             <span className="hidden xl:inline">{label}</span>
           </a>
         ))}
       </aside>
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-[var(--control)]/80 backdrop-blur-sm border border-[var(--border)] shadow-md"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[var(--card)]/90 backdrop-blur-md border border-[var(--border)] shadow-sm text-[var(--foreground)]"
       >
         <Menu size={20} />
       </button>
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+          className="lg:hidden fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-xs"
           onClick={() => setMobileOpen(false)}
         />
       )}
       <div
-        className={`lg:hidden fixed top-0 left-0 h-full z-50 w-64 bg-[var(--control)]/90 backdrop-blur-md border-r border-[var(--border)] p-4 shadow-xl transition-transform duration-300 ${
+        className={`lg:hidden fixed top-0 left-0 h-full z-50 w-64 bg-[var(--card)] border-r border-[var(--border)] p-5 shadow-2xl transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-sm font-semibold text-[var(--foreground)]">
-            Navigate
+        <div className="flex justify-between items-center mb-6 border-b border-[var(--border)] pb-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+            Navigation
           </span>
-          <button onClick={() => setMobileOpen(false)}>
+          <button onClick={() => setMobileOpen(false)} className="p-1 rounded-lg hover:bg-[var(--control-hover)] text-[var(--foreground)]">
             <X size={20} />
           </button>
         </div>
@@ -106,10 +107,10 @@ export default function DashboardSidebar() {
             key={id}
             href={`#${id}`}
             onClick={handleNavClick}
-            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all hover:bg-[var(--background)] mb-1 ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all mb-1 ${
               activeId === id
-                ? "bg-[var(--background)] text-[var(--foreground)] font-semibold"
-                : "text-[var(--foreground)] opacity-60"
+                ? "bg-[var(--accent-soft)] text-[var(--accent)] font-semibold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--control-hover)]"
             }`}
           >
             <Icon size={18} />

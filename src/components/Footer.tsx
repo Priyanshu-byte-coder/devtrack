@@ -110,10 +110,11 @@ export default function Footer() {
 
   return (
     <footer
-      className={`mt-auto border-t relative overflow-hidden ${isLanding
-        ? "bg-transparent border-slate-900/40"
-        : "border-[var(--border)] bg-[var(--background)]"
-        }`}
+      className={`mt-auto border-t relative overflow-hidden ${
+        isLanding
+          ? "bg-transparent border-[var(--border)]"
+          : "border-[var(--border)] bg-[var(--background)]"
+      }`}
       aria-label="Site footer"
     >
       {/* Top gradient accent */}
