@@ -249,7 +249,7 @@ export function calculateStreak(
     return `${yyyy}-${mm}-${dd}`;
   })();
 
-  const uniqueDates = [...new Set(dates)].sort().reverse();
+  const uniqueDates = [...new Set(dates)].sort((a, b) => a - b).reverse();
 
   if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) {
     return 0;

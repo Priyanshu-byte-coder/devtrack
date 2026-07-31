@@ -62,7 +62,7 @@ export function calculateStreakFromDates(
     ...Array.from(activeDates),
     ...Array.from(freezeDates),
   ]);
-  const commitDays = Array.from(combinedDates).sort();
+  const commitDays = Array.from(combinedDates).sort((a, b) => a - b);
 
   if (commitDays.length === 0) {
     return {
