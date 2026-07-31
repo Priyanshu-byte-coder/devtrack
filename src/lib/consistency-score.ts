@@ -133,7 +133,7 @@ export function calculateConsistencyScore(
   activeDates: Set<string>,
   timeZone = "UTC",
 ): ConsistencyScoreResult {
-  const sortedDates = Array.from(activeDates).sort();
+  const sortedDates = Array.from(activeDates).sort((a, b) => a - b);
   const today = todayInTimezone(timeZone);
 
   const weeklyConsistency = computeWeeklyConsistency(activeDates);

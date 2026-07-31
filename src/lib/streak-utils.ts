@@ -20,7 +20,7 @@ function getSortedUniqueDays(dates: StreakDate[]): string[] {
     if (key) dayKeys.add(key);
   }
 
-  return Array.from(dayKeys).sort();
+  return Array.from(dayKeys).sort((a, b) => a - b);
 }
 
 function getRuns(dates: StreakDate[]): { end: string; length: number }[] {
