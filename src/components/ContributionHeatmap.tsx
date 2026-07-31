@@ -318,7 +318,7 @@ export default function ContributionHeatmap({
     commits.forEach((c) => {
       if (c.repo) reposSet.add(c.repo);
     });
-    return Array.from(reposSet).sort();
+    return Array.from(reposSet).sort((a, b) => a - b);
   }, [commits]);
 
   // Extract unique languages
@@ -329,7 +329,7 @@ export default function ContributionHeatmap({
         if (l.name) langsSet.add(l.name);
       });
     });
-    return Array.from(langsSet).sort();
+    return Array.from(langsSet).sort((a, b) => a - b);
   }, [reposData]);
 
   // Map each repo to its languages for quick lookup
