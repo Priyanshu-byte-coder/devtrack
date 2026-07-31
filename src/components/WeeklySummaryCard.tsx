@@ -1,8 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, Copy, Download, Sparkles } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "@/components/AccountContext";
+import { useCallback, useState } from "react";
 import { signOut } from "next-auth/react";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
@@ -38,12 +37,11 @@ interface AiSummaryState {
   copied: boolean;
 }
 
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
+
 export default function WeeklySummaryCard() {
-  const { selectedAccount } = useAccount();
-  const [summary, setSummary] = useState<WeeklySummaryData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [githubAuthInvalid, setGithubAuthInvalid] = useState(false);
+  const { metrics, loading: metricsLoading, error: metricsError, refetch } = useDashboardMetrics();
+  const summary = metrics?.weeklySummary ?? null;
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [ai, setAi] = useState<AiSummaryState>({
@@ -79,41 +77,8 @@ export default function WeeklySummaryCard() {
     ? Math.max(issuesThisWeek, issuesLastWeek, 1)
     : 1;
 
-  const fetchSummary = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    setGithubAuthInvalid(false);
-
-    const url =
-      selectedAccount !== null
-        ? `/api/metrics/weekly-summary?accountId=${encodeURIComponent(selectedAccount)}`
-        : "/api/metrics/weekly-summary";
-
-    fetch(url)
-      .then(async (r) => {
-        const data = await r.json();
-        if (data?.error === "token_expired") {
-          setGithubAuthInvalid(true);
-          return null;
-        }
-        if (!r.ok) throw new Error("API error");
-        return data as WeeklySummaryData;
-      })
-      .then((data) => {
-        if (!data) return;
-        setSummary(data);
-      })
-      .catch(() =>
-        setError(
-          "We couldn't load your weekly summary right now. Please try again in a moment."
-        )
-      )
-      .finally(() => setLoading(false));
-  }, [selectedAccount]);
-
-  useEffect(() => {
-    fetchSummary();
-  }, [fetchSummary]);
+  const isLoading = metricsLoading;
+  const error = metricsError ? metricsError.message : null;
 
   const handleDownload = () => {
     if (!summary) return;
@@ -240,7 +205,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
           This Week
         </h2>
         <div className="flex items-center gap-2">
-          {summary && !loading && !ai.text && !ai.loading && !rateLimitMessage && (
+          {summary && !isLoading && !ai.text && !ai.loading && !rateLimitMessage && (
             <button
               type="button"
               onClick={handleGenerateSummary}
@@ -279,7 +244,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
       </div>
 
       {!isCollapsed &&
-        (loading ? (
+        (isLoading ? (
           <div
             role="status"
             aria-live="polite"
@@ -291,27 +256,20 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               <SkeletonBlock key={i} className="h-20 rounded-lg" />
             ))}
           </div>
-        ) : githubAuthInvalid ? (
-          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-6 text-center space-y-3">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Your GitHub connection is no longer valid. Reconnect your GitHub
-              account to continue syncing data.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                void signOut({ redirect: false }).then(() => {
-                  window.location.href = "/api/auth/signin/github?callbackUrl=/dashboard";
-                });
-              }}
-              className="inline-flex items-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-            >
-              Reconnect GitHub
-            </button>
-          </div>
         ) : error ? (
           <div className="mt-4 rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
-            {error}
+            <p>{error}</p>
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="mt-3 rounded-md border border-[var(--border)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            >
+              Try again
+            </button>
+          </div>
+        ) : !summary ? (
+          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-6 text-center text-sm text-[var(--muted-foreground)]">
+            No weekly summary available at the moment.
           </div>
         ) : summary &&
           summary.commits &&

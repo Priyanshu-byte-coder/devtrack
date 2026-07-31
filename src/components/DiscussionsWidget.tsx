@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 
 interface DiscussionData {
   discussionsStarted: number;
@@ -9,48 +10,32 @@ interface DiscussionData {
 }
 
 export default function DiscussionsWidget() {
-  const [data, setData] = useState<DiscussionData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, loading, error, refetch } = useDashboardMetrics();
+  const data = metrics?.discussions ?? null;
 
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    fetch("/api/metrics/discussions")
-      .then((r) => {
-        if (!r.ok) throw new Error("API error");
-        return r.json();
-      })
-      .then((d: DiscussionData) => setData(d))
-      .catch(() =>
-        setError("We couldn't load your discussion metrics right now.")
-      )
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const stats = data
-    ? [
-        {
-          label: "Discussions Started",
-          value: data.discussionsStarted,
-          title: "Total discussions you have opened",
-        },
-        {
-          label: "Comments Given",
-          value: data.commentsGiven,
-          title: "Discussions you have commented on",
-        },
-        {
-          label: "Marked as Answer",
-          value: data.markedAsAnswer,
-          title: "Your replies marked as the accepted answer",
-        },
-      ]
-    : [];
+  const stats = useMemo(
+    () =>
+      data
+        ? [
+            {
+              label: "Discussions Started",
+              value: data.discussionsStarted,
+              title: "Total discussions you have opened",
+            },
+            {
+              label: "Comments Given",
+              value: data.commentsGiven,
+              title: "Discussions you have commented on",
+            },
+            {
+              label: "Marked as Answer",
+              value: data.markedAsAnswer,
+              title: "Your replies marked as the accepted answer",
+            },
+          ]
+        : [],
+    [data],
+  );
 
   const hasNoDiscussionData =
     !!data &&
@@ -75,10 +60,10 @@ export default function DiscussionsWidget() {
         </div>
       ) : error ? (
         <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
-          <p>{error}</p>
+          <p>{error.message ?? String(error)}</p>
           <button
             type="button"
-            onClick={fetchData}
+            onClick={() => void refetch()}
             className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
           >
             Try again
@@ -87,15 +72,15 @@ export default function DiscussionsWidget() {
       ) : hasNoDiscussionData ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <div className="mb-3 text-4xl">💬</div>
-      
+
           <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
             No discussion activity yet
           </h3>
-      
+
           <p className="mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
             Participate in GitHub Discussions to see your activity metrics here.
           </p>
-      
+
           <a
             href="https://github.com/discussions"
             target="_blank"

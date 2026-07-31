@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "@/components/AccountContext";
+import { useMemo } from "react";
 import { SkeletonBlock } from "./WidgetSkeleton";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 
 interface IssueData {
   opened: number;
@@ -14,63 +14,42 @@ interface IssueData {
 }
 
 export default function IssueMetrics() {
-  const { selectedAccount } = useAccount();
-  const [metrics, setMetrics] = useState<IssueData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, loading, error, refetch } = useDashboardMetrics();
+  const issueData = metrics?.issues ?? null;
 
-  const fetchMetrics = useCallback(() => {
-    setLoading(true);
-    setError(null);
-
-    const url = selectedAccount !== null
-      ? `/api/metrics/issues?accountId=${encodeURIComponent(selectedAccount)}`
-      : "/api/metrics/issues";
-
-    fetch(url)
-      .then((r) => r.json())
-      .then((data: IssueData) => setMetrics(data))
-      .catch(() =>
-        setError(
-          "We couldn't load your Issues analytics right now. Please try again in a moment."
-        )
-      )
-      .finally(() => setLoading(false));
-  }, [selectedAccount]);
-
-  useEffect(() => {
-    fetchMetrics();
-  }, [fetchMetrics]);
-
-  const stats = metrics
-    ? [
-        { label: "Issues Opened (30d)", value: metrics.opened },
-        { label: "Issues Closed (30d)", value: metrics.closed },
-        { label: "Currently Open", value: metrics.currentlyOpen },
-        { label: "Avg Close Time", value: `${metrics.avgCloseTimeDays}d` },
-        { label: "Most Active Repo", value: metrics.mostActiveRepo ?? "—" },
-      ]
-    : [];
+  const stats = useMemo(
+    () =>
+      issueData
+        ? [
+            { label: "Issues Opened (30d)", value: issueData.opened },
+            { label: "Issues Closed (30d)", value: issueData.closed },
+            { label: "Currently Open", value: issueData.currentlyOpen },
+            { label: "Avg Close Time", value: `${issueData.avgCloseTimeDays}d` },
+            { label: "Most Active Repo", value: issueData.mostActiveRepo ?? "—" },
+          ]
+        : [],
+    [issueData],
+  );
 
   const trendLabel =
-    metrics && metrics.trend !== 0
-      ? metrics.trend > 0
-        ? `↑ ${metrics.trend} more than last month`
-        : `↓ ${Math.abs(metrics.trend)} fewer than last month`
+    issueData && issueData.trend !== 0
+      ? issueData.trend > 0
+        ? `↑ ${issueData.trend} more than last month`
+        : `↓ ${Math.abs(issueData.trend)} fewer than last month`
       : null;
 
   const trendColor =
-    metrics && metrics.trend > 0 ? "text-green-400" : "text-[var(--destructive)]";
+    issueData && issueData.trend > 0 ? "text-green-400" : "text-[var(--destructive)]";
 
-   const hasNoIssueData =
-  !!metrics &&
-  metrics.opened === 0 &&
-  metrics.closed === 0 &&
-  metrics.currentlyOpen === 0 &&
-  metrics.avgCloseTimeDays === 0 &&
-  metrics.mostActiveRepo === null;
+  const hasNoIssueData =
+    !!issueData &&
+    issueData.opened === 0 &&
+    issueData.closed === 0 &&
+    issueData.currentlyOpen === 0 &&
+    issueData.avgCloseTimeDays === 0 &&
+    issueData.mostActiveRepo === null;
 
-return (
+  return (
   <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
     <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
       Issue Analytics
@@ -90,10 +69,10 @@ return (
       </div>
     ) : error ? (
       <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
-        <p>{error}</p>
+        <p>{error.message ?? String(error)}</p>
         <button
           type="button"
-          onClick={fetchMetrics}
+          onClick={() => void refetch()}
           className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
         >
           Try again

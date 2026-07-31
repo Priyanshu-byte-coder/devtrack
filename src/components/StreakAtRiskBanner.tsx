@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 import { AlertTriangle, X } from "lucide-react";
 
 interface StreakAtRiskBannerProps {
@@ -17,30 +18,24 @@ export default function StreakAtRiskBanner({
 }: StreakAtRiskBannerProps) {
   const { selectedAccount } = useAccount();
   const [dismissed, setDismissed] = useState(false);
-  const [lastCommitDate, setLastCommitDate] = useState(propsLastCommitDate);
-  const [currentStreak, setCurrentStreak] = useState(propsCurrentStreak);
+  const { metrics } = useDashboardMetrics();
+  const [lastCommitDate, setLastCommitDate] = useState(propsLastCommitDate ?? metrics?.streak?.lastCommitDate);
+  const [currentStreak, setCurrentStreak] = useState(propsCurrentStreak ?? metrics?.streak?.current);
   const [hasStreakFreezeState, setHasStreakFreezeState] = useState(hasStreakFreeze);
   const [isAtRisk, setIsAtRisk] = useState(false);
 
   useEffect(() => {
-    // If props weren't passed (e.g. from a Server Component), fetch them
-    if (propsLastCommitDate === undefined || propsCurrentStreak === undefined) {
-      const url =
-        selectedAccount !== null
-          ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
-          : "/api/metrics/streak";
-      fetch(url)
-        .then((r) => r.json())
-        .then((data) => {
-          setLastCommitDate(data.lastCommitDate);
-          setCurrentStreak(data.current);
-        })
-        .catch(() => {});
-    } else {
-      setLastCommitDate(propsLastCommitDate);
-      setCurrentStreak(propsCurrentStreak);
+    if (propsLastCommitDate !== undefined || propsCurrentStreak !== undefined) {
+      setLastCommitDate(propsLastCommitDate ?? metrics?.streak?.lastCommitDate);
+      setCurrentStreak(propsCurrentStreak ?? metrics?.streak?.current);
+      return;
     }
-  }, [propsLastCommitDate, propsCurrentStreak, selectedAccount]);
+
+    if (metrics?.streak) {
+      setLastCommitDate(metrics.streak.lastCommitDate);
+      setCurrentStreak(metrics.streak.current);
+    }
+  }, [propsLastCommitDate, propsCurrentStreak, metrics]);
 
   useEffect(() => {
     if (hasStreakFreeze === undefined) {

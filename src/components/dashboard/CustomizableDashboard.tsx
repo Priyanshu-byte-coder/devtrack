@@ -42,7 +42,6 @@ import RecentActivity from "@/components/RecentActivity";
 import DailyNoteWidget from "@/components/DailyNoteWidget";
 import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 import DashboardLayoutToolbar from "@/components/dashboard/DashboardLayoutToolbar";
-import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import ConfirmModal from "@/components/ConfirmModal";
 import { toast } from "sonner";
 import SortableDashboardWidget from "@/components/dashboard/SortableDashboardWidget";
@@ -676,12 +675,11 @@ export default function CustomizableDashboard() {
           : "Layout editing disabled."}
       </p>
 
-      <DashboardWidgetA11yProvider>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
           {layout.sections.map((sectionId) => {
             const sectionWidgets = layout.widgets[sectionId];
 
@@ -732,7 +730,6 @@ export default function CustomizableDashboard() {
             );
           })}
         </DndContext>
-      </DashboardWidgetA11yProvider>
 
       <ConfirmModal
         isOpen={isConfirmResetOpen}

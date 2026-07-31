@@ -22,8 +22,8 @@ function buildUrl(url: string, params?: Record<string, string | undefined>) {
   return qs ? `${url}?${qs}` : url;
 }
 
-export function useMetrics(): UseMetricsResult {
-  const [data, setData] = useState<Metrics | null>(null);
+export function useMetrics<TData extends Metrics = Metrics>(params?: Record<string, string | undefined>): UseMetricsResult<TData> {
+  const [data, setData] = useState<TData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -32,24 +32,21 @@ export function useMetrics(): UseMetricsResult {
     setError(null);
 
     try {
-      // NOTE: This hook intentionally targets the base `/api/metrics` endpoint.
-      // Specific widgets may have their own endpoints; those should remain
-      // component-specific unless explicitly migrated.
-      const url = buildUrl("/api/metrics");
+      const url = buildUrl("/api/metrics", params);
 
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error(`Failed to fetch metrics (${res.status})`);
       }
 
-      const json = (await res.json()) as Metrics;
+      const json = (await res.json()) as TData;
       setData(json);
     } catch (e) {
       setError(e instanceof Error ? e : new Error("Failed to fetch metrics"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [params]);
 
   useEffect(() => {
     void refetch();

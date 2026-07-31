@@ -2,6 +2,7 @@
 import SectionHeader from "./SectionHeader";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -40,10 +41,8 @@ interface FreezeData {
 
 export function useStreakTracker() {
   const { selectedAccount } = useAccount();
-  const [data, setData] = useState<StreakData | null>(null);
-  const [contributionData, setContributionData] = useState<ContributionData | null>(null);
+  const { metrics, loading: metricsLoading, error: metricsError, refetch } = useDashboardMetrics();
   const [freezeDates, setFreezeDates] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dismissedMilestones, setDismissedMilestones] = useState<number[]>([]);
   const [lastCelebratedMilestone, setLastCelebratedMilestone] = useState<number>(0);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -59,6 +58,11 @@ export function useStreakTracker() {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const loading = metricsLoading;
+  const displayError = metricsError?.message ?? error;
+  const data = metrics?.streak ?? null;
+  const contributionData = metrics?.contributions365 ?? null;
 
   const animatedCurrent = useCountUp(data?.current ?? 0);
   const animatedLongest = useCountUp(data?.longest ?? 0);
@@ -84,43 +88,11 @@ export function useStreakTracker() {
   }, []);
 
   const fetchStreak = useCallback(async () => {
-    setLoading(true);
     setError(null);
-
-    try {
-      const streakUrl =
-        selectedAccount !== null
-          ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
-          : "/api/metrics/streak";
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const contributionUrl =
-        selectedAccount !== null
-          ? `/api/metrics/contributions?days=365&accountId=${encodeURIComponent(selectedAccount)}&timezone=${encodeURIComponent(timezone)}`
-          : `/api/metrics/contributions?days=365&timezone=${encodeURIComponent(timezone)}`;
-      const [streakRes, contributionRes] = await Promise.all([
-        fetch(streakUrl),
-        fetch(contributionUrl),
-      ]);
-
-      if (!streakRes.ok || !contributionRes.ok) {
-        throw new Error("Failed to fetch data");
-      }
-
-      const streakData = (await streakRes.json()) as StreakData;
-      const contribData = (await contributionRes.json()) as ContributionData;
-
-      setData(streakData);
-      setContributionData(contribData);
-      setFreezeDates(streakData.freezeDates || []);
-    } catch (err) {
-      console.error("Failed to fetch streak data:", err);
-      setError("We couldn't load your streak data right now. Please try again in a moment.");
-    } finally {
-      setLoading(false);
-      setLastUpdated(new Date());
-      setMinutesAgo(0);
-    }
-  }, [selectedAccount]);
+    await refetch();
+    setLastUpdated(new Date());
+    setMinutesAgo(0);
+  }, [refetch]);
 
   const fetchFreeze = useCallback(() => {
     setFreezeLoading(true);
@@ -187,19 +159,9 @@ export function useStreakTracker() {
       const res = await fetch("/api/streak/freeze", { method: "POST" });
       if (!res.ok) throw new Error("Failed to apply freeze");
 
-      const streakUrl =
-        selectedAccount !== null
-          ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
-          : "/api/metrics/streak";
-      const [streakRes, freezeRes] = await Promise.all([
-        fetch(streakUrl),
-        fetch("/api/streak/freeze"),
-      ]);
-      const [streakData, freezeData] = await Promise.all([
-        streakRes.json() as Promise<StreakData>,
-        freezeRes.json() as Promise<FreezeData>,
-      ]);
-      setData(streakData);
+      await refetch();
+      const freezeRes = await fetch("/api/streak/freeze");
+      const freezeData = (await freezeRes.json()) as FreezeData;
       setFreeze(freezeData);
       toast.success("Streak freeze activated for today!");
     } catch (err) {
@@ -224,19 +186,9 @@ export function useStreakTracker() {
 
       setConfirmCancel(false);
 
-      const streakUrl =
-        selectedAccount !== null
-          ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
-          : "/api/metrics/streak";
-      const [streakRes, freezeRes] = await Promise.all([
-        fetch(streakUrl),
-        fetch("/api/streak/freeze"),
-      ]);
-      const [streakData, freezeData] = await Promise.all([
-        streakRes.json() as Promise<StreakData>,
-        freezeRes.json() as Promise<FreezeData>,
-      ]);
-      setData(streakData);
+      await refetch();
+      const freezeRes = await fetch("/api/streak/freeze");
+      const freezeData = (await freezeRes.json()) as FreezeData;
       setFreeze(freezeData);
     } catch (err) {
       console.error("Failed to cancel streak freeze:", err);
@@ -460,12 +412,12 @@ export default function StreakTracker() {
     );
   }
 
-  if (error) {
+  if (displayError) {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
         <SectionHeader title="Commit Streaks" />
         <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
-          <p>{error}</p>
+          <p>{displayError}</p>
           <button
             type="button"
             onClick={fetchStreak}

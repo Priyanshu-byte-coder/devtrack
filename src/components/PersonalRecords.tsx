@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 import { Trophy, Zap, Flame, Calendar, Star } from "lucide-react";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
@@ -128,49 +129,45 @@ function getBusiestRepo(repos: Repo[]): { count: number; repoLabel: string | nul
 }
 export default function PersonalRecords() {
   const { selectedAccount } = useAccount();
-  const [streak, setStreak] = useState<StreakData | null>(null);
-  const [contributions, setContributions] = useState<ContributionData | null>(null);
+  const { metrics, loading, error: metricsError } = useDashboardMetrics();
   const [repos, setRepos] = useState<Repo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const fetchRecords = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const [reposLoading, setReposLoading] = useState(true);
+  const [reposError, setReposError] = useState<string | null>(null);
+
+  const streak = metrics?.streak ?? null;
+  const contributions = metrics?.contributions365 ?? null;
+  const isLoading = loading || reposLoading;
+  const error = metricsError?.message ? metricsError.message : reposError;
+
+  const fetchRepos = useCallback(async () => {
+    setReposLoading(true);
+    setReposError(null);
+
     try {
-      const paramStreak =
-        selectedAccount !== null
-          ? `?accountId=${encodeURIComponent(selectedAccount)}`
-          : "";
-      const paramContrib =
-        selectedAccount !== null
-          ? `&accountId=${encodeURIComponent(selectedAccount)}`
-          : "";
-      const [streakRes, contribRes, reposRes] = await Promise.all([
-        fetch(`/api/metrics/streak${paramStreak}`),
-        fetch(`/api/metrics/contributions?days=365${paramContrib}`),
-        fetch(`/api/metrics/repos?days=365${paramContrib}`),
-      ]);
-      if (!streakRes.ok || !contribRes.ok || !reposRes.ok) {
-        throw new Error("Failed to fetch personal records data");
+      const url = selectedAccount
+        ? `/api/metrics/repos?days=365&accountId=${encodeURIComponent(selectedAccount)}`
+        : "/api/metrics/repos?days=365";
+      const reposRes = await fetch(url);
+
+      if (!reposRes.ok) {
+        throw new Error("Failed to fetch repository data");
       }
-      const streakData = (await streakRes.json()) as StreakData;
-      const contribData = (await contribRes.json()) as ContributionData;
+
       const reposData = (await reposRes.json()) as { repos: Repo[] };
-      setStreak(streakData);
-      setContributions(contribData);
       setRepos(reposData.repos ?? []);
-    } catch (e) {
-      setError("We couldn't load your personal records right now. Please try again in a moment.");
+    } catch {
+      setReposError("We couldn't load your repository summary right now. Please try again in a moment.");
     } finally {
-      setLoading(false);
+      setReposLoading(false);
     }
   }, [selectedAccount]);
-  useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
 
   useEffect(() => {
-    if (loading || error || !streak || !contributions) return;
+    fetchRepos();
+  }, [fetchRepos]);
+
+  useEffect(() => {
+    if (isLoading || error || !streak || !contributions) return;
 
     const currentRecords = {
       longest_streak: streak.longest ?? 0,
@@ -261,7 +258,7 @@ export default function PersonalRecords() {
       repoUrl: busiestRepo.repoUrl ?? null,
     },
   ];
-  if (loading) {
+  if (isLoading) {
     return (
       <WidgetSkeleton title="Personal Records" className="transition-all duration-300">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch">
@@ -283,7 +280,7 @@ export default function PersonalRecords() {
           <p>{error}</p>
           <button
             type="button"
-            onClick={fetchRecords}
+            onClick={fetchRepos}
             className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
           >
             Try again

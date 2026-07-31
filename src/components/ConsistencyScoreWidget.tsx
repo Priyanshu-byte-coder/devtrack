@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { BarChart3 } from "lucide-react";
 import SectionHeader from "@/components/SectionHeader";
-import { useAccount } from "@/components/AccountContext";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 import {
   isRecentlyActiveFromScore,
   type ConsistencyScoreResult,
@@ -101,49 +101,25 @@ function ConsistencyScoreSkeleton() {
 }
 
 export default function ConsistencyScoreWidget() {
-  const { selectedAccount } = useAccount();
-  const [data, setData] = useState<ConsistencyScoreResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, loading, error, refetch } = useDashboardMetrics();
+  const data = metrics?.consistencyScore ?? null;
 
-  const fetchScore = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const stats = useMemo(
+    () =>
+      data
+        ? [
+            { label: "Weekly Consistency", value: `${data.weeklyConsistency}%` },
+            { label: "Streak Quality", value: `${Math.round(data.streakQuality * 100)}%` },
+            { label: "Longest Gap", value: `${data.longestGap} days` },
+            { label: "Recent Activity", value: isRecentlyActiveFromScore(data) ? "Active" : "Inactive" },
+          ]
+        : [],
+    [data],
+  );
 
-    try {
-      const url =
-        selectedAccount !== null
-          ? `/api/metrics/consistency-score?accountId=${encodeURIComponent(selectedAccount)}`
-          : "/api/metrics/consistency-score";
-      const res = await fetch(url);
+  const isLoading = loading && data === null;
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch consistency score");
-      }
-
-      const json = (await res.json()) as ConsistencyScoreResult;
-      setData(json);
-    } catch (err) {
-      console.error("Failed to fetch consistency score:", err);
-      setError("We couldn't load your consistency score right now. Please try again in a moment.");
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedAccount]);
-
-  useEffect(() => {
-    fetchScore();
-  }, [fetchScore]);
-
-  useEffect(() => {
-    const handleSync = () => {
-      fetchScore();
-    };
-    window.addEventListener("devtrack:sync", handleSync);
-    return () => window.removeEventListener("devtrack:sync", handleSync);
-  }, [fetchScore]);
-
-  if (loading) {
+  if (isLoading) {
     return <ConsistencyScoreSkeleton />;
   }
 
@@ -152,10 +128,10 @@ export default function ConsistencyScoreWidget() {
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
         <SectionHeader title="Consistency Score" />
         <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
-          <p>{error}</p>
+          <p>{error.message ?? String(error)}</p>
           <button
             type="button"
-            onClick={fetchScore}
+            onClick={() => void refetch()}
             className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
           >
             Try again

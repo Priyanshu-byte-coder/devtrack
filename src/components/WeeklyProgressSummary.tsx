@@ -40,32 +40,9 @@ function formatDateLabel(dateStr: string): string {
 }
 
 export default function WeeklyProgressSummary() {
-  const { selectedAccount } = useAccount();
-  const [data, setData] = useState<WeeklySummaryData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, loading, error, refetch } = useDashboardMetrics();
+  const data = metrics?.weeklySummary ?? null;
   const [isExporting, setIsExporting] = useState(false);
-
-  const fetchMetrics = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    const url = selectedAccount !== null
-      ? `/api/metrics/weekly-summary?accountId=${encodeURIComponent(selectedAccount)}`
-      : `/api/metrics/weekly-summary`;
-
-    fetch(url)
-      .then((r) => {
-        if (!r.ok) throw new Error("API error");
-        return r.json();
-      })
-      .then((data: WeeklySummaryData) => setData(data))
-      .catch(() => setError("We couldn't load your weekly summary right now."))
-      .finally(() => setLoading(false));
-  }, [selectedAccount]);
-
-  useEffect(() => {
-    fetchMetrics();
-  }, [fetchMetrics]);
 
   const exportToPDF = () => {
     if (!data) return;
@@ -139,7 +116,7 @@ export default function WeeklyProgressSummary() {
     return (
       <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
         <p>{error || "Failed to load"}</p>
-        <button onClick={fetchMetrics} className="mt-3 rounded-md px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/10 border border-red-500/30">
+        <button onClick={() => void refetch()} className="mt-3 rounded-md px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/10 border border-red-500/30">
           Try again
         </button>
       </div>

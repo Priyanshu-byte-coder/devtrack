@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "@/components/AccountContext";
-import { toast } from "sonner";
+import { useMemo } from "react";
+import { useDashboardMetrics } from "@/components/dashboard/DashboardMetricsContext";
 
 interface CommunityData {
   discussionsStarted: number;
@@ -11,55 +10,26 @@ interface CommunityData {
 }
 
 export default function CommunityMetrics() {
-  const { selectedAccount } = useAccount();
-  const [metrics, setMetrics] = useState<CommunityData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { metrics, loading, error, refetch } = useDashboardMetrics();
+  const data = metrics?.discussions ?? null;
 
-  const fetchMetrics = useCallback(() => {
-    setLoading(true);
-    setError(null);
-
-    const url =
-      selectedAccount !== null
-        ? `/api/metrics/discussions?accountId=${encodeURIComponent(selectedAccount)}`
-        : "/api/metrics/discussions";
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("API error");
-        }
-        return response.json();
-      })
-      .then((data: CommunityData) => setMetrics(data))
-      .catch((err) => {
-        console.error("Failed to fetch community metrics:", err);
-        setError(
-          "We couldn't load your discussion analytics right now. Please try again in a moment."
-        );
-        toast.error("Failed to load community metrics");
-      })
-      .finally(() => setLoading(false));
-  }, [selectedAccount]);
-
-  useEffect(() => {
-    fetchMetrics();
-  }, [fetchMetrics]);
-
-  const stats = metrics
-    ? [
-        { label: "Discussions Started (30d)", value: metrics.discussionsStarted },
-        { label: "Accepted Answers", value: metrics.acceptedAnswers },
-        { label: "Discussion Comments", value: metrics.commentsPosted },
-      ]
-    : [];
+  const stats = useMemo(
+    () =>
+      data
+        ? [
+            { label: "Discussions Started (30d)", value: data.discussionsStarted },
+            { label: "Accepted Answers", value: data.acceptedAnswers },
+            { label: "Discussion Comments", value: data.commentsPosted },
+          ]
+        : [],
+    [data],
+  );
 
   const isEmpty =
-    metrics != null &&
-    metrics.discussionsStarted === 0 &&
-    metrics.acceptedAnswers === 0 &&
-    metrics.commentsPosted === 0;
+    data != null &&
+    data.discussionsStarted === 0 &&
+    data.acceptedAnswers === 0 &&
+    data.commentsPosted === 0;
 
   return (
     <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
@@ -74,7 +44,7 @@ export default function CommunityMetrics() {
         </div>
         <button
           type="button"
-          onClick={fetchMetrics}
+          onClick={() => void refetch()}
           disabled={loading}
           aria-label="Refresh discussion analytics"
           className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
@@ -106,16 +76,16 @@ export default function CommunityMetrics() {
         </div>
       ) : error ? (
         <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
-          <p>{error}</p>
+          <p>{error.message ?? String(error)}</p>
           <button
             type="button"
-            onClick={fetchMetrics}
+            onClick={() => void refetch()}
             className="mt-3 rounded-md border border-[var(--border)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)]/90 transition-colors hover:bg-[var(--destructive)]/10"
           >
             Try again
           </button>
         </div>
-      ) : metrics ? (
+      ) : data ? (
         <div className="space-y-4">
           <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))]">
             {stats.map((stat) => (

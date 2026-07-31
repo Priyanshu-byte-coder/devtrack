@@ -13,6 +13,7 @@ import { decode } from "next-auth/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
+import DashboardMetricsLoader from "@/components/dashboard/DashboardMetricsLoader";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import RoastHypeWidget from "./RoastHypeWidget";
 
@@ -49,11 +50,12 @@ export default async function DashboardPage() {
 
   return (
     <DashboardSSEProvider>
-      <DashboardWidgetA11yProvider>
-        <main className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
-          <DashboardHeader />
+      <DashboardMetricsLoader>
+        <DashboardWidgetA11yProvider>
+          <main className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
+            <DashboardHeader />
 
-          <div className="mt-6 space-y-8">
+            <div className="mt-6 space-y-8">
             {/* Quick actions */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Link
@@ -148,6 +150,7 @@ export default async function DashboardPage() {
           </div>
         </main>
       </DashboardWidgetA11yProvider>
-    </DashboardSSEProvider>
+    </DashboardMetricsLoader>
+  </DashboardSSEProvider>
   );
 }
