@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { CopyButton } from "@/components/ui/CopyButton";
 
 interface BadgeSectionProps {
   username: string;
@@ -137,30 +138,19 @@ function Toast({ visible }: { visible: boolean }) {
  * Copyable code block component
  */
 function CopyableCodeBlock({ code, onCopySuccess }: { code: string; onCopySuccess?: () => void }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      onCopySuccess?.();
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  };
-
   return (
-    <div className="flex items-center justify-between rounded-lg bg-[var(--control)] p-3 border border-[var(--border)]">
+    <div className="flex items-center justify-between rounded-lg bg-[var(--control)] p-3 border border-[var(--border)] gap-2">
       <code className="flex-1 text-xs text-[var(--card-foreground)] overflow-auto scrollbar-thin">
         {code}
       </code>
-      <button
-        onClick={handleCopy}
-        className="ml-2 shrink-0 px-2 py-1 text-xs font-medium rounded bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90 transition-opacity"
-      >
-        {copied ? "✓ Copied!" : "Copy"}
-      </button>
+      <CopyButton
+        value={code}
+        copyLabel="Copy"
+        copiedLabel="Copied!"
+        showToast={false}
+        onCopySuccess={onCopySuccess}
+        className="shrink-0 bg-[var(--accent)] text-[var(--accent-foreground)] border-none hover:opacity-90 transition-opacity"
+      />
     </div>
   );
 }

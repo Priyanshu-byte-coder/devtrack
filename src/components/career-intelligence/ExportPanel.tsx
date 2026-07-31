@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { FileText, FileCode, Braces, Copy, Check, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ResumeContent, ExportFormat } from "@/types/cv-types";
+import { CopyButton } from "@/components/ui/CopyButton";
 
 interface ExportPanelProps {
   content: ResumeContent;
@@ -138,23 +139,28 @@ ${skillText}
       </div>
 
       <div className="flex justify-center">
-        <button
-          type="button"
-          onClick={copyToClipboard}
+        <CopyButton
+          value={`
+# Resume: ${content.role}
+
+## Professional Summary
+${content.professionalSummary}
+
+## Experience Highlights
+${content.bulletPoints.map((bp) => `- ${bp.text}`).join("\n")}
+
+## Projects
+${content.projectDescriptions.map((p) => `### ${p.name}\n${p.description}\n${p.highlights.map((h) => `- ${h}`).join("\n")}`).join("\n\n")}
+
+## Skills Summary
+${content.skillSummary}
+${content.skills.map((c) => `**${c.category}**: ${c.skills.join(", ")}`).join("\n")}
+          `.trim()}
+          copyLabel="Copy Full Resume Text"
+          copiedLabel="Copied to Clipboard!"
+          toastMessage="Resume text copied to clipboard!"
           className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-colors border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--card-muted)] text-[var(--foreground)] h-9 px-5 py-2"
-        >
-          {copied ? (
-            <>
-              <Check className="h-4 w-4 text-emerald-500" />
-              Copied to Clipboard!
-            </>
-          ) : (
-            <>
-              <Copy className="h-4 w-4" />
-              Copy Full Resume Text
-            </>
-          )}
-        </button>
+        />
       </div>
     </div>
   );
