@@ -26,6 +26,7 @@ async function buildSessionCookie(): Promise<string> {
       accessToken: "mock-access-token",
     },
     maxAge: 60 * 60,
+    salt: "next-auth.session-token",
   });
 }
 
