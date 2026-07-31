@@ -64,8 +64,18 @@ function extractImports(src) {
 
   return imports;
 }
+
+// Helper to parse JSON files with comments and trailing commas (JSONC) commonly found in tsconfig.json
+function parseJsonc(content) {
+  const clean = content
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1")
+    .replace(/,\s*([\]}])/g, "$1");
+  return JSON.parse(clean);
+}
+
 function loadConfigWithExtends(configPath) {
-  const config = JSON.parse(
+  const config = parseJsonc(
     fs.readFileSync(configPath, "utf8")
   );
 
@@ -98,6 +108,7 @@ function loadConfigWithExtends(configPath) {
     },
   };
 }
+
 function loadInternalAliases(rootDir) {
   const aliases = ["@/", "~/", "src/"];
 
@@ -128,6 +139,7 @@ function loadInternalAliases(rootDir) {
 
   return aliases;
 }
+
 function isValidPackageSubpath(pkgName, mod, cwd) {
   try {
     let pkgJson;
@@ -158,18 +170,38 @@ function isValidPackageSubpath(pkgName, mod, cwd) {
     const exportKey =
       "." + (subpath.startsWith("/") ? subpath : "/" + subpath);
 
-    if (typeof exportsField === "string") {
+    if (typeof exportsField === "string" || Array.isArray(exportsField)) {
       return exportKey === ".";
     }
 
-    return (
-      exportKey in exportsField ||
-      "./*" in exportsField
-    );
+    const keys = Object.keys(exportsField);
+    
+    // Check if it's a root conditional export mapping (no keys start with ".")
+    const isRootConditional = keys.length > 0 && keys.every(k => !k.startsWith("."));
+    if (isRootConditional) {
+      return exportKey === ".";
+    }
+
+    if (exportKey in exportsField || "./*" in exportsField) {
+      return true;
+    }
+
+    // Resolve advanced wildcard exports (e.g., "./features/*")
+    for (const key of keys) {
+      if (key.endsWith("/*")) {
+        const prefix = key.slice(0, -2);
+        if (exportKey.startsWith(prefix + "/")) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   } catch {
     return true;
   }
 }
+
 function collectMissingDeps(files, allDeps, cwd = process.cwd()) {
   const missing = new Map(); // pkgName → Set of files
   // Load Aliases 
@@ -212,7 +244,7 @@ function collectMissingDeps(files, allDeps, cwd = process.cwd()) {
       }
 
        continue;
-     }
+      }
 
       if (!missing.has(pkgName)) missing.set(pkgName, new Set());
       missing.get(pkgName).add(rel);
