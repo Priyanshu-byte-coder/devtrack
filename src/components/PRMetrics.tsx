@@ -2,11 +2,13 @@
 import SectionHeader from "./SectionHeader";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import PRStatusDonutChart from "./PRStatusDonutChart";
 import MiniPRTrendChart from "./MiniPRTrendChart";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface PRMetricsSummary {
   open: number;
@@ -53,10 +55,10 @@ export default function PRMetrics() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [minutesAgo, setMinutesAgo] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"authored" | "reviews">("authored");
-  const [prFilter, setPrFilter] = useState<"all" | "merged" | "open">("all");
-  const [range, setRange] = useState<"7d" | "30d" | "90d">("30d");
-  const [staleThresholdDays, setStaleThresholdDays] = useState(14);
+  const [activeTab, setActiveTab] = usePersistentState<"authored" | "reviews">("devtrack:pr-metrics:activeTab", "authored");
+  const [prFilter, setPrFilter] = usePersistentState<"all" | "merged" | "open">("devtrack:pr-metrics:prFilter", "all");
+  const [range, setRange] = usePersistentState<"7d" | "30d" | "90d">("devtrack:pr-metrics:range", "30d");
+  const [staleThresholdDays, setStaleThresholdDays] = usePersistentState("devtrack:pr-metrics:staleThreshold", 14);
 
   const fetchMetrics = useCallback(() => {
     setLoading(true);
@@ -112,7 +114,11 @@ export default function PRMetrics() {
         label: "Lines Changed",
         value: `+${(source.totalAdditions ?? 0).toLocaleString()} / -${(source.totalDeletions ?? 0).toLocaleString()}`
       },
-      { label: labels.avgReview, value: `${source.avgReviewHours}h` },
+      {
+        label: `${labels.avgReview} ⓘ`,
+        value: `${source.avgReviewHours}h`,
+        title: "Average time from PR creation to close, based on your last 30 closed PRs",
+      },
       {
         label: labels.avgFirstReview,
         value: formatReviewCycle(source.avgFirstReviewHours),
@@ -247,18 +253,11 @@ export default function PRMetrics() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <div
-                key={i}
-                aria-hidden="true"
-                className="bg-[var(--card-muted)] rounded-lg p-4 h-24 animate-pulse"
-              />
+              <SkeletonBlock key={i} className="h-24 rounded-lg" />
             ))}
           </div>
-          <div className="h-[270px] rounded-lg bg-[var(--card-muted)] animate-pulse" aria-hidden="true" />
-          <div
-            className="h-[220px] rounded-lg bg-[var(--card-muted)] animate-pulse"
-            aria-hidden="true"
-          />
+          <SkeletonBlock className="h-[270px] rounded-lg" />
+          <SkeletonBlock className="h-[220px] rounded-lg" />
         </div>
       ) : error ? (
         <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">

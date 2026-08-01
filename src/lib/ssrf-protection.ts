@@ -2,11 +2,12 @@ import dns from "dns/promises";
 import net from "net";
 
 const PRIVATE_RANGES = [
-  { start: 0x0a000000, end: 0x0affffff },
-  { start: 0xac100000, end: 0xac1fffff },
-  { start: 0xc0a80000, end: 0xc0a8ffff },
-  { start: 0x7f000000, end: 0x7fffffff },
-  { start: 0xa9fe0000, end: 0xa9feffff },
+  { start: 0x00000000, end: 0x00ffffff }, // 0.0.0.0/8 ("this network" — often routes to localhost)
+  { start: 0x0a000000, end: 0x0affffff }, // 10.0.0.0/8
+  { start: 0xac100000, end: 0xac1fffff }, // 172.16.0.0/12
+  { start: 0xc0a80000, end: 0xc0a8ffff }, // 192.168.0.0/16
+  { start: 0x7f000000, end: 0x7fffffff }, // 127.0.0.0/8
+  { start: 0xa9fe0000, end: 0xa9feffff }, // 169.254.0.0/16 (link-local)
 ];
 
 function ipToNumber(ip: string): number {

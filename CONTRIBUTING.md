@@ -159,21 +159,16 @@ Project Settings → API
 
 ### Environment Variables
 
-Ensure you have copied `.env.example` to `.env.local` and filled in all required fields.
-
-### Run Development Commands
-
-Install all project dependencies:
-
-```bash
-pnpm install
-```
-
-Run the Next.js development server:
-
-```bash
-pnpm dev
-```
+1. [Prerequisites](#1-prerequisites)
+2. [Local Development Setup](#2-local-development-setup)
+3. [Environment Variables Guide](#3-environment-variables-guide)
+4. [Code Style & Standards](#4-code-style--standards)
+5. [Branch Naming Conventions](#5-branch-naming-conventions)
+6. [Commit Guidelines](#6-commit-guidelines)
+7. [Issue Labels & GSSoC Levels](#7-issue-labels--gssoc-levels)
+8. [Pull Request (PR) Checklist](#8-pull-request-pr-checklist)
+9. [Self-Hosting & Deployment](#9-self-hosting--deployment)
+10. [Frequently Asked Questions (FAQ)](#10-frequently-asked-questions-faq)
 
 ---
 
@@ -563,15 +558,11 @@ For contributors joining through GirlScript Summer of Code (GSSoC), we map issue
 
 ### Guidelines
 
-- One Issue at a Time
-- Auto-unassignment after 3 days of inactivity
-- Link the issue in your PR description
-
-Example:
-
-```text
-Closes #45
-```
+### Guidelines:
+* **One Issue at a Time**: Prefer working on one issue at a time so reviews stay focused.
+* **Auto-unassignment**: If you are assigned but do not open a PR within **7 days**, the issue-assignment bot will unassign you so others can pick it up. Still working on it? Comment on the issue and request re-assignment.
+* **Link Issue to PR**: Ensure your pull request description explicitly links to your assigned issue (e.g. `Closes #45`).
+* **GSSoC scoring labels**: Maintainers apply `level:*` difficulty labels and `gssoc:approved` on your PR at merge time so it counts toward GSSoC scoring. See [FAQ — GSSoC 2026](#gssoc-2026) for details.
 
 ---
 
@@ -620,54 +611,222 @@ Happy coding! 🚀
 
 ---
 
-# GSSoC Git Commit & Branching Conventions
+## 10. Frequently Asked Questions (FAQ)
 
-To maintain a clean and consistent Git history, contributors must follow these standards.
+Answers to the most common questions from new contributors and GSSoC participants. If your question is not covered here, ask in [GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions) or on the GSSoC Discord.
 
-## 🧾 Commit Message Convention
+### Getting Started
 
-Use the following prefixes:
+<details>
+<summary><strong>Do I need to be assigned to an issue before I start coding?</strong></summary>
 
-- `feat` – New feature
-- `fix` – Bug fix
-- `chore` – Maintenance tasks
-- `docs` – Documentation updates
-- `refactor` – Code restructuring
-- `test` – Adding or updating tests
+Yes. Comment on the issue you want to work on and wait for the assignment bot to confirm. The bot assigns you when your comment includes phrases such as:
 
-### Examples
+- `I'd like to work on this`
+- `assign me`
+- `I can work on this`
 
-```text
-feat(auth): add GitHub OAuth login
+Do not open a PR for an issue that is already assigned to someone else.
+</details>
 
-fix(ui): resolve navbar alignment issue
+<details>
+<summary><strong>Can I work on multiple issues at the same time?</strong></summary>
 
-docs(contributing): update branching guide
+Prefer one issue at a time so reviews stay manageable. The per-contributor assignment limit is temporarily disabled, but maintainers may still ask you to finish an in-progress issue before picking up another.
+</details>
 
-chore: update dependencies
+<details>
+<summary><strong>Should I use npm or pnpm?</strong></summary>
+
+CI runs `npm ci` against `package-lock.json`, and [DEVELOPMENT.md](./DEVELOPMENT.md) uses `npm` commands. For the closest match with CI, use **npm**:
+
+```bash
+npm install
+npm run dev
 ```
+
+Some sections of this guide reference `pnpm`; either package manager works locally, but **do not commit conflicting lockfile changes**. Do not mix `package-lock.json` and `pnpm-lock.yaml` updates in the same PR.
+</details>
+
+<details>
+<summary><strong>Which environment variables are required?</strong></summary>
+
+At minimum you need Supabase credentials, NextAuth settings, GitHub OAuth keys, and `ENCRYPTION_KEY` to sign in and load the dashboard. See the full table in [Section 3 — Environment Variables Guide](#3-environment-variables-guide).
+
+Optional variables (`GROQ_API_KEY`, Upstash Redis, `GITHUB_TOKEN`, etc.) enable extra features but are not required for basic local development.
+</details>
+
+<details>
+<summary><strong>Where is the full local setup guide?</strong></summary>
+
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** — step-by-step setup from clone to running app
+- **[docs/architecture.md](./docs/architecture.md)** — how pages, API routes, and Supabase fit together
+- **[docs/self-hosting.md](./docs/self-hosting.md)** — deployment and production env vars
+</details>
+
+<details>
+<summary><strong>I'm new to open source — where should I start?</strong></summary>
+
+Browse [good first issues](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=label%3A%22good+first+issue%22), read [docs/architecture.md](./docs/architecture.md), and pick a `gssoc:level1` or documentation issue if you are participating in GSSoC.
+</details>
+
+### Issues and PRs
+
+<details>
+<summary><strong>How do I claim an issue?</strong></summary>
+
+1. Find an open, unassigned issue.
+2. Comment with your intent (e.g. `I'd like to work on this issue. I'm a GSSoC'26 contributor.`).
+3. Wait for the bot to assign you and add the `gssoc:assigned` label.
+4. Create a branch, implement the change, and open a PR linking the issue (`Closes #123`).
+</details>
+
+<details>
+<summary><strong>How long do I have before I lose my assignment?</strong></summary>
+
+You have **7 days** from assignment to open a PR. If no PR is linked within that window, the auto-unassign bot removes your assignment so another contributor can take the issue. If you need more time, comment on the issue before the deadline.
+</details>
+
+<details>
+<summary><strong>Which branch should my PR target?</strong></summary>
+
+Always open PRs against **`main`** on the upstream repository (`Priyanshu-byte-coder/devtrack`). Never push directly to `main` on upstream — work on a feature branch in your fork instead.
+</details>
+
+<details>
+<summary><strong>Should I use <code>feat/</code> or <code>feature/</code> for branch names?</strong></summary>
+
+Prefer the prefixes in [Section 5](#5-branch-naming-conventions): `feat/`, `fix/`, `docs/`, `test/`, `refactor/`. Example: `docs/contributing-faq`.
+</details>
+
+<details>
+<summary><strong>What must my pull request include?</strong></summary>
+
+- A clear title and description
+- `Closes #<issue-number>` in the PR body
+- Passing CI checks (lint, type-check, tests, build)
+- Screenshots or a short GIF for UI changes
+- Conventional commit messages on your branch
+</details>
+
+<details>
+<summary><strong>How do I keep my fork up to date with upstream?</strong></summary>
+
+```bash
+git fetch upstream
+git checkout main
+git rebase upstream/main
+git push origin main
+```
+
+Before opening or updating a PR, rebase your feature branch onto the latest `upstream/main`.
+</details>
+
+### GSSoC 2026
+
+<details>
+<summary><strong>How do GSSoC points work for DevTrack?</strong></summary>
+
+Points depend on issue difficulty and PR quality labels applied by maintainers at merge time. The assignment bot and GSSoC label automation help track your work, but **maintainers must add `level:*` and `gssoc:approved` labels before your PR counts toward scoring**.
+</details>
+
+<details>
+<summary><strong>What labels matter for GSSoC scoring?</strong></summary>
+
+| Label | Purpose |
+| :--- | :--- |
+| `level:beginner` | 20 pts |
+| `level:intermediate` | 35 pts |
+| `level:advanced` | 55 pts |
+| `level:critical` | 80 pts |
+| `quality:clean` | ×1.2 multiplier (optional) |
+| `quality:exceptional` | ×1.5 multiplier (optional) |
+| `gssoc:approved` | **Required** for the PR to score |
+| `gssoc:invalid` / `gssoc:spam` / `gssoc:ai-slop` | Does not score |
+
+Issue labels such as `gssoc:level1` indicate estimated difficulty; final scoring labels are applied on the merged PR.
+</details>
+
+<details>
+<summary><strong>Is documentation-only work valid for GSSoC?</strong></summary>
+
+Yes. Documentation improvements are valuable contributions. Use a `docs/` branch prefix, and your PR will receive a `type:docs` label when merged.
+</details>
+
+<details>
+<summary><strong>Should I mention GSSoC in my issue comment or PR?</strong></summary>
+
+Yes — mention that you are a GSSoC'26 contributor when requesting assignment (e.g. `I'm a GSSoC'26 contributor and I would like to work on this issue.`). Always link the issue in your PR with `Closes #<number>`.
+</details>
+
+<details>
+<summary><strong>What happens after my PR is approved?</strong></summary>
+
+A maintainer merges your PR and applies the appropriate `level:*` and `gssoc:approved` labels. If those labels are missing after approval, the GSSoC bot will remind maintainers so your contribution counts.
+</details>
+
+### Troubleshooting
+
+<details>
+<summary><strong>My pre-commit or Husky hook failed — what do I do?</strong></summary>
+
+DevTrack runs ESLint and formatting checks before commits. See **[docs/HUSKY_TROUBLESHOOTING.md](./docs/HUSKY_TROUBLESHOOTING.md)** for step-by-step fixes, including permission errors on Linux/macOS and Windows-specific issues.
+</details>
+
+<details>
+<summary><strong>CI is failing on lint or type-check — how do I fix it locally?</strong></summary>
+
+Run the same checks CI uses:
+
+```bash
+npm run lint
+npm run type-check
+npm run test
+npm run build
+```
+
+Fix all reported errors before pushing again.
+</details>
+
+<details>
+<summary><strong>GitHub OAuth login is not working locally — what should I check?</strong></summary>
+
+Verify the following in [Section 1 — Prerequisites](#1-prerequisites):
+
+- GitHub OAuth **callback URL** is exactly `http://localhost:3000/api/auth/callback/github`
+- `NEXTAUTH_URL` is `http://localhost:3000`
+- `GITHUB_ID` and `GITHUB_SECRET` match your OAuth app
+- `.env.local` exists and the dev server was restarted after editing env vars
+</details>
+
+<details>
+<summary><strong>Where can I ask for help if I'm stuck?</strong></summary>
+
+- **[GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** — questions, ideas, and community help
+- **Comment on your assigned issue** — maintainers and other contributors can guide you
+- **GSSoC Discord** — see [docs/HUSKY_TROUBLESHOOTING.md](./docs/HUSKY_TROUBLESHOOTING.md) for community links
+- **[Open an issue](https://github.com/Priyanshu-byte-coder/devtrack/issues/new/choose)** — for bugs or unclear documentation
+</details>
+
+<details>
+<summary><strong>My PR has merge conflicts — how do I resolve them?</strong></summary>
+
+Sync with upstream and rebase your branch:
+
+```bash
+git fetch upstream
+git rebase upstream/main
+# resolve conflicts in your editor, then:
+git add .
+git rebase --continue
+git push --force-with-lease origin your-branch-name
+```
+
+If you are unsure how to resolve a conflict, ask in your PR or issue before force-pushing.
+</details>
 
 ---
 
-## 🌿 Branch Naming Convention
-
-### Format
-
-```text
-feature/<name>
-fix/<name>
-docs/<name>
-```
-
-### Examples
-
-```text
-feature/login-system
-
-fix/header-alignment
-
-docs/readme-update
-```
 Thank you for helping make DevTrack better! Happy coding! 🚀
 
 

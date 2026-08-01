@@ -20,6 +20,7 @@ interface Goal {
   created_at: string;
   goal_reset_version: number;
   is_public: boolean;
+  category: GoalCategory | null;
 }
 
 interface GoalHistory {
@@ -32,8 +33,10 @@ interface GoalHistory {
 }
 
 type Recurrence = "none" | "weekly" | "monthly";
+type GoalCategory = "side-project" | "work" | "dsa" | "open-source";
 
 const VALID_RECURRENCES = ["none", "weekly", "monthly"] as const;
+const VALID_CATEGORIES = ["side-project", "work", "dsa", "open-source"] as const;
 const MAX_TITLE_LEN = 100;
 const MAX_UNIT_LEN = 30;
 const MIN_TARGET = 1;
@@ -201,7 +204,7 @@ try {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { title, target, unit, recurrence, deadline } = body as Record<string, unknown>;
+  const { title, target, unit, recurrence, deadline, category } = body as Record<string, unknown>;
 
   if (typeof title !== "string" || title.trim().length === 0) {
     return Response.json({ error: "title must be a non-empty string" }, { status: 400 });
@@ -229,6 +232,9 @@ try {
   const safeRecurrence: Recurrence = VALID_RECURRENCES.includes(recurrence as Recurrence)
     ? (recurrence as Recurrence)
     : "none";
+  const safeCategory: GoalCategory | null = VALID_CATEGORIES.includes(category as GoalCategory)
+    ? (category as GoalCategory)
+    : null;
 
   let safeDeadline: string | null = null;
   if (typeof deadline === "string") {
@@ -285,6 +291,7 @@ try {
       recurrence: safeRecurrence,
       period_start: getPeriodStart(safeRecurrence),
       deadline: safeDeadline,
+      category: safeCategory,
       current: 0,
       goal_reset_version: 0,
     })
@@ -300,6 +307,7 @@ try {
     target: goal.target,
     unit: goal.unit,
     recurrence: goal.recurrence,
+    category: goal.category,
   }).catch(() => {});
 
   return Response.json({ goal }, { status: 201 });

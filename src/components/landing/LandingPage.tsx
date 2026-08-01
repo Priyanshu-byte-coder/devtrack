@@ -235,11 +235,11 @@ function MouseSpotlight() {
    BENTO WIDGETS
    ═══════════════════════════════════════════════════════════ */
 const wLabel: React.CSSProperties = {
-  fontFamily: MONO, fontSize: 10, fontWeight: 500,
+  fontFamily: MONO, fontSize: 11, fontWeight: 600,
   color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em',
 };
 const wValue: React.CSSProperties = {
-  fontFamily: MONO, fontWeight: 600, color: TEXT,
+  fontFamily: MONO, fontWeight: 700, color: TEXT,
 };
 
 function Cell({
@@ -259,9 +259,9 @@ function Cell({
       style={{ 
         gridColumn: spanCols > 1 ? `span ${spanCols}` : undefined, 
         transformStyle: 'preserve-3d',
-        background: 'rgba(255, 255, 255, 0.02)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        background: 'color-mix(in srgb, var(--card) 80%, transparent)',
+        border: '1px solid var(--border)',
+        boxShadow: 'var(--shadow-soft)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         ...tiltStyle,
@@ -539,7 +539,7 @@ function HeroSection() {
         {/* Badge */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
+          background: 'color-mix(in srgb, var(--accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)',
           borderRadius: 24, padding: '6px 14px', marginBottom: 28,
           boxShadow: '0 4px 14px rgba(129,140,248,0.1)',
         }}>
@@ -556,10 +556,7 @@ function HeroSection() {
             fontSize: 'clamp(44px,7vw,82px)', lineHeight: 0.95,
             letterSpacing: '-0.04em', margin: '0 0 24px',
             animation: 'lndHeroIn 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s both',
-            background: 'linear-gradient(180deg, var(--foreground) 0%, color-mix(in srgb, var(--foreground) 70%, transparent) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            textShadow: '0 4px 24px rgba(0,0,0,0.8)',
+            color: TEXT,
           }}
         >
           YOUR<br />CODE<br />HAS A<br />
@@ -567,16 +564,16 @@ function HeroSection() {
             background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            textShadow: '0 0 30px rgba(129,140,248,0.4)',
+            textShadow: '0 0 30px rgba(129,140,248,0.3)',
           }}>PULSE</span>
-          <span style={{ color: 'var(--foreground)' }}>.</span>
+          <span style={{ color: TEXT }}>.</span>
         </h1>
 
         {/* Tagline */}
         <p style={{
-          fontSize: 'clamp(16px,2vw,18px)', color: 'var(--foreground)',
-          lineHeight: 1.6, maxWidth: 420, margin: '0 0 40px',
-          fontWeight: 400, letterSpacing: '0.01em', opacity: 0.85,
+          fontSize: 'clamp(16px,2vw,18px)', color: MUTED,
+          lineHeight: 1.6, maxWidth: 450, margin: '0 0 40px',
+          fontWeight: 500, letterSpacing: '0.01em',
         }}>
           Open-source developer productivity dashboard. Track GitHub streaks,
           PR velocity, and coding goals — automatically.
@@ -611,14 +608,6 @@ function HeroSection() {
               transition: 'transform 0.3s, background 0.3s',
               transform: 'translateY(0)',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.background = 'transparent';
-            }}
           >
             ★ Star on GitHub
           </a>
@@ -628,12 +617,12 @@ function HeroSection() {
       {/* Right: bento window frame */}
       <div style={{ flex: '1 1 340px', display: 'flex', flexDirection: 'column',alignItems: 'flex-end', gap: 24, position: 'relative', zIndex: 2 }}>
         <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.05)',
+          background: 'color-mix(in srgb, var(--card) 85%, transparent)',
+          border: '1px solid var(--border)',
           borderRadius: 16,
-          boxShadow: '0 24px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
+          boxShadow: 'var(--shadow-medium)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           overflow: 'hidden',
           width: '100%',
           maxWidth: 420,
@@ -641,8 +630,8 @@ function HeroSection() {
           {/* Traffic Lights */}
           <div style={{
             display: 'flex', gap: 8, padding: '16px 20px',
-            borderBottom: '1px solid rgba(255,255,255,0.03)',
-            background: 'rgba(0,0,0,0.2)',
+            borderBottom: '1px solid var(--border)',
+            background: 'color-mix(in srgb, var(--card) 95%, transparent)',
           }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
@@ -762,7 +751,7 @@ function AboutSection() {
       aria-labelledby="about-heading"
       style={{
         padding: '88px clamp(20px,4vw,48px)',
-        borderTop: '1px solid #1e293b',
+        borderTop: `1px solid ${BORDER}`,
         position: 'relative',
         zIndex: 1,
       }}
@@ -879,9 +868,9 @@ function StatItem({ value, label, delay }: { value: number; label: string; delay
         lineHeight: 1, letterSpacing: '-0.03em',
       }}>
         <Counter end={value} active={vis} />
-        <span style={{ color: 'var(--foreground)', fontSize: 'clamp(18px,3vw,28px)' }}>+</span>
+        <span style={{ color: A, fontSize: 'clamp(18px,3vw,28px)' }}>+</span>
       </div>
-      <div style={{ fontFamily: MONO, fontSize: 10, color: 'var(--muted-foreground)', letterSpacing: '0.12em', marginTop: 8 }}>
+      <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)', letterSpacing: '0.12em', marginTop: 8 }}>
         {label}
       </div>
     </div>
@@ -979,8 +968,8 @@ function FeatureCard({ f, index }: { f: typeof FEATURES[0]; index: number }) {
       className="relative overflow-hidden"
       style={{
         display: 'flex', flexDirection: 'column', gap: 16,
-        padding: '28px 24px', background: 'rgba(10, 10, 12, 0.7)', border: '1px solid #1e293b',
-        borderRadius: 16, boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+        padding: '28px 24px', background: 'color-mix(in srgb, var(--card) 70%, transparent)', border: `1px solid ${BORDER}`,
+        borderRadius: 16, boxShadow: 'var(--shadow-medium)',
         opacity: vis ? 1 : 0,
         transformStyle: 'preserve-3d',
         transform: vis ? 'translateY(0)' : 'translateY(12px)',
@@ -1021,7 +1010,7 @@ function FeaturesSection() {
   return (
     <section style={{
       padding: '80px clamp(20px,4vw,48px)',
-      borderTop: '1px solid #1e293b',
+      borderTop: `1px solid ${BORDER}`,
       maxWidth: 1200, margin: '0 auto',
     }}>
       <div style={{
@@ -1068,7 +1057,7 @@ function WhyDevTrackSection() {
     <section
       style={{
         padding: "80px clamp(20px,4vw,48px)",
-        borderTop: "1px solid #1e293b",
+        borderTop: `1px solid ${BORDER}`,
         maxWidth: 1200,
         margin: "0 auto",
       }}
@@ -1113,9 +1102,10 @@ function WhyDevTrackSection() {
               key={item.title}
               style={{
                 padding: "24px",
-                border: "1px solid #1e293b",
+                border: `1px solid ${BORDER}`,
                 borderRadius: "16px",
-                background: "rgba(10,10,12,0.7)",
+                background: "color-mix(in srgb, var(--card) 70%, transparent)",
+                boxShadow: "var(--shadow-soft)",
               }}
             >
               <Icon
@@ -1173,7 +1163,7 @@ function HowItWorksSection() {
         opacity: vis ? 1 : 0,
         transform: vis ? 'translateY(0)' : 'translateY(20px)',
         transition: 'all 0.8s cubic-bezier(0.16,1,0.3,1)',
-        borderTop: '1px solid #1e293b',
+        borderTop: `1px solid ${BORDER}`,
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -1191,8 +1181,8 @@ function HowItWorksSection() {
         {STEPS.map((step, i) => {
           const Icon = step.icon;
           return (
-          <Link key={i} href={step.href} className="group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/15" style={{ flex: '1 1 300px', background: 'rgba(10, 10, 12, 0.7)', border: '1px solid #1e293b', borderRadius: 16, padding: '32px 24px', textAlign: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'default' }}>
-            <div className="group-hover:border-indigo-500/40 transition-colors duration-300" style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 24, border: '1px solid #1e293b', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(129,140,248,0.05)' }}>
+          <Link key={i} href={step.href} className="group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/15" style={{ flex: '1 1 300px', background: 'color-mix(in srgb, var(--card) 70%, transparent)', border: `1px solid ${BORDER}`, borderRadius: 16, padding: '32px 24px', textAlign: 'center', boxShadow: 'var(--shadow-medium)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'default' }}>
+            <div className="group-hover:border-indigo-500/40 transition-colors duration-300" style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 24, border: `1px solid ${BORDER}`, boxShadow: 'var(--shadow-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(129,140,248,0.05)' }}>
               <Icon size={64} strokeWidth={1} color="#818cf8" className="group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-90" />
             </div>
             <div className="group-hover:bg-indigo-500/20 group-hover:scale-110 transition-all duration-300 group-hover:border-indigo-500/40" style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)', color: A, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontFamily: MONO, fontSize: 18, fontWeight: 700 }}>
@@ -1266,7 +1256,7 @@ function ContributeSection({ stats }: { stats: RepoStats }) {
               borderRadius: 8, padding: '20px 20px 16px',
             }}
           >
-            <div style={{ fontFamily: MONO, fontSize: 10, color: '#94a3b8', letterSpacing: '0.1em', marginBottom: 10 }}>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: MUTED, letterSpacing: '0.1em', marginBottom: 10 }}>
               {s.icon} {s.label}
             </div>
             <div style={{
@@ -1346,10 +1336,10 @@ function ContributeSection({ stats }: { stats: RepoStats }) {
           {stats.contributorCount > stats.contributors.length && (
             <div style={{
               width: 38, height: 38, borderRadius: '50%',
-              border: `2px solid #000000`,
-              background: '#1e293b', marginLeft: -11,
+              border: `2px solid var(--background)`,
+              background: 'var(--control)', marginLeft: -11,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: MONO, fontSize: 10, color: '#cbd5e1', flexShrink: 0,
+              fontFamily: MONO, fontSize: 10, color: 'var(--muted-foreground)', flexShrink: 0,
             }}>
               +{stats.contributorCount - stats.contributors.length}
             </div>

@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   type TooltipProps,
 } from "recharts";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface Language {
   name: string;
@@ -154,16 +155,13 @@ export default function LanguageBreakdown() {
           className="space-y-3"
         >
           <span className="sr-only">Loading language breakdown</span>
-          <div
-            aria-hidden="true"
-            className="mx-auto h-[180px] w-[180px] rounded-full skeleton-shimmer"
-          />
+          <SkeletonBlock className="mx-auto h-[180px] w-[180px] rounded-full" />
           <div
             aria-hidden="true"
             className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"
           >
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-5 rounded skeleton-shimmer" />
+              <SkeletonBlock key={i} className="h-5 rounded" />
             ))}
           </div>
         </div>

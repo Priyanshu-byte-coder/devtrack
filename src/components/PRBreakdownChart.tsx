@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { useAccount } from "@/components/AccountContext";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 interface PRBreakdown {
   draft: number;
@@ -54,19 +55,9 @@ export default function PRBreakdownChart() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-        <div role="status" aria-live="polite" aria-busy="true">
-          <span className="sr-only">Loading PR breakdown</span>
-          <div
-            aria-hidden="true"
-            className="mb-4 h-5 w-40 rounded skeleton-shimmer"
-          />
-          <div
-            aria-hidden="true"
-            className="h-[200px] rounded skeleton-shimmer"
-          />
-        </div>
-      </div>
+      <WidgetSkeleton title="PR Breakdown">
+        <SkeletonBlock className="h-[200px] w-full" />
+      </WidgetSkeleton>
     );
   }
 

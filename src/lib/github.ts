@@ -111,6 +111,8 @@ export interface GitHubRepo {
   stargazers_count: number;
   pushed_at: string | null;
   updated_at: string;
+  created_at: string;
+  language: string | null;
   archived?: boolean;
 }
 

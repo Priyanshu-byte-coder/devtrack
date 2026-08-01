@@ -38,6 +38,11 @@ add column if not exists dashboard_layout jsonb not null default
 CREATE INDEX IF NOT EXISTS users_leaderboard_opt_in_idx
   ON users(leaderboard_opt_in)
   WHERE leaderboard_opt_in = true;
+alter table users enable row level security;
+drop policy if exists "Users can manage own record" on users;
+create policy "Users can manage own record"
+  on users for all
+  using (id = auth.uid()::text);
 
 create table if not exists goals (
   id           text primary key default gen_random_uuid()::text,
@@ -52,9 +57,16 @@ create table if not exists goals (
   last_synced_at timestamptz,
   created_at   timestamptz default now(),
   updated_at   timestamptz default now(),
-  week_start   date
+  week_start   date,
+  category     text check (category is null or category in ('side-project', 'work', 'dsa', 'open-source'))
 );
 create index if not exists goals_user_period on goals(user_id, period_start);
+create index if not exists goals_user_category on goals(user_id, category);
+alter table goals enable row level security;
+drop policy if exists "Users can manage own goals" on goals;
+create policy "Users can manage own goals"
+  on goals for all
+  using (user_id = auth.uid()::text);
 
 create table if not exists goal_history (
   id           text primary key default gen_random_uuid()::text,
@@ -119,6 +131,11 @@ create table if not exists streak_freezes (
 create index if not exists streak_freezes_user on streak_freezes(user_id);
 create unique index if not exists streak_freezes_user_date_uniq
   on streak_freezes(user_id, freeze_date);
+alter table streak_freezes enable row level security;
+drop policy if exists "Users can manage own streak freezes" on streak_freezes;
+create policy "Users can manage own streak freezes"
+  on streak_freezes for all
+  using (user_id = auth.uid()::text);
 
 create table if not exists notifications (
   id         text primary key default gen_random_uuid()::text,
@@ -297,7 +314,6 @@ CREATE TABLE IF NOT EXISTS leaderboard_cache (
   building_until timestamptz,
   updated_at timestamptz default now()
 );
-);
 
 -- -------------------------------------------------------
 -- User Sponsor Metrics: cache for user-specific GitHub Sponsors data
@@ -334,3 +350,24 @@ CREATE POLICY "Users can delete own sponsor metrics"
   ON user_sponsor_metrics FOR DELETE
   USING (auth.uid()::text = user_id);
 
+-- -------------------------------------------------------
+-- WakaTime Stats: caches daily WakaTime coding summaries per user
+-- -------------------------------------------------------
+CREATE TABLE IF NOT EXISTS wakatime_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    total_seconds INTEGER NOT NULL DEFAULT 0,
+    languages JSONB NOT NULL DEFAULT '[]'::jsonb,
+    projects JSONB NOT NULL DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, date)
+);
+
+ALTER TABLE wakatime_stats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view their own wakatime stats" ON wakatime_stats;
+CREATE POLICY "Users can view their own wakatime stats"
+    ON wakatime_stats FOR SELECT
+    USING (auth.uid()::text = user_id);

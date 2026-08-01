@@ -39,7 +39,7 @@ export default function BackToTopButton() {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - scrollProgress);
 
-  const ringColor = "#3b82f6";
+  const ringColor = "var(--accent)";
 
   return (
     <>
@@ -69,7 +69,7 @@ export default function BackToTopButton() {
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
-                style={{ filter: "drop-shadow(0 0 6px rgba(59, 130, 246, 0.6))" }}
+                style={{ filter: "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent))" }}
                 className="transition-[stroke-dashoffset] duration-100"
               />
             </svg>
@@ -83,7 +83,7 @@ export default function BackToTopButton() {
               }}
               type="button"
               aria-label="Back to top"
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 backdrop-blur-md text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 backdrop-blur-md text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
             >
               <ArrowUp size={24} aria-hidden="true" className="text-white/90" />
             </button>

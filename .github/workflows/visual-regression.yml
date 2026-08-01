@@ -42,14 +42,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies

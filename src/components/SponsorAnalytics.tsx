@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState, useMemo } from "react";
 import { Heart, Users, DollarSign, RefreshCw, Trophy, Info, ExternalLink } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, YAxis, Tooltip, XAxis } from "recharts";
 import { toast } from "sonner";
+import Image from "next/image";
+
 
 interface ActiveSponsor {
   login: string;
@@ -361,10 +363,12 @@ function SponsorAvatar({ sponsor, tierType }: { sponsor: ActiveSponsor; tierType
   }[tierType];
 
   const content = sponsor.avatarUrl ? (
-    <img
+    <Image
       src={sponsor.avatarUrl}
       alt={sponsor.name}
-      className="h-full w-full object-cover"
+      fill
+      unoptimized
+      className="object-cover"
     />
   ) : (
     <div className="h-full w-full flex items-center justify-center bg-[var(--border)] text-[var(--muted-foreground)] font-bold text-[10px]">
