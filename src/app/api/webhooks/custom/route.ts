@@ -15,6 +15,8 @@ interface WebhookInput {
   name: string;
   url: string;
   events: string[];
+  content_type?: string;
+  secret_token?: string;
 }
 
 async function requireUser(): Promise<{ user: AppUser } | { error: Response }> {
@@ -65,7 +67,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { name, url, events } = body;
+  const { name, url, events, content_type, secret_token } = body;
 
   const validatedName = validateTextInput(name, "Webhook name", 100);
 
@@ -99,7 +101,9 @@ export async function POST(req: NextRequest) {
   }
 
   const validEvents = [
+    "streak.milestone_reached",
     "goal.completed",
+    "weekly_summary.ready",
     "goal.created",
     "streak.milestone",
     "daily.summary",
@@ -127,7 +131,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const secretKey = generateSecretKey();
+  const rawToken =
+    typeof secret_token === "string" && secret_token.trim()
+      ? secret_token.trim()
+      : generateSecretKey();
+  const secretKey = rawToken;
   const { encrypted, iv } = encryptSecretKey(secretKey);
 
   const { data: webhook, error } = await supabaseAdmin
@@ -139,6 +147,10 @@ export async function POST(req: NextRequest) {
       events,
       secret_key: encrypted,
       secret_iv: iv,
+      content_type:
+        typeof content_type === "string" && content_type.trim()
+          ? content_type.trim()
+          : "application/json",
       is_enabled: true,
     })
     .select("id, name, url, events, is_enabled, created_at")

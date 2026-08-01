@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "supabase:generate-types": "npx supabase@latest gen types typescript --local > src/types/supabase.ts"
+    "supabase:generate-types": "npx supabase@latest gen types typescript --local > src/types/supabase.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.107.0",
@@ -57,6 +58,15 @@
     "swagger-ui-react": "5.32.6",
     "tailwind-merge": "^3.6.0"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@emnapi/core": "^1.11.0",
     "@emnapi/runtime": "^1.11.0",
@@ -77,8 +87,11 @@
     "autoprefixer": "^10.5.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.9",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.2.0",
     "postcss": "^8.5.16",
+    "prettier": "^3.9.6",
     "tailwind-scrollbar": "^3.1.0",
     "tailwindcss": "^3.4.1",
     "tree-sitter": "^0.25.0",

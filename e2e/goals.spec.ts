@@ -263,7 +263,7 @@ test("[Goals E2E] deleting a goal removes it from the list", async ({
     },
   ];
 
-  await page.route("**/api/goals**", async (route) => {
+  await page.route(/\/api\/goals(\?|$)/, async (route) => {
     if (route.request().method() === "POST") {
       return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ ok: true }) });
     }
@@ -291,7 +291,7 @@ test("[Goals E2E] deleting a goal removes it from the list", async ({
         body: JSON.stringify({ goal: goalsStore[0] ?? {} }),
       });
     }
-    return route.fulfill({ status: 204, body: "" });
+    return route.fallback();
   });
 
   await openGoalsWidget(page);

@@ -395,7 +395,7 @@ test("notification search filters and highlights correctly", async ({ page }) =>
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible({ timeout: 30000 });
 
   // Open the notifications drawer
-  const bellButton = page.getByRole("button", { name: /Notifications/ });
+  const bellButton = page.getByRole("button", { name: /Notifications/ }).first();
   await bellButton.click();
 
   // Verify both notifications are visible initially

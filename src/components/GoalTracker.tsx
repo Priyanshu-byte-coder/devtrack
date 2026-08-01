@@ -243,6 +243,7 @@ export function useGoalTracker() {
 
   function getCompletionLabel(goal: Goal): string {
     if (goal.current >= goal.target) {
+      if (goal.current > goal.target) return "Goal surpassed! 🎯";
       if (goal.recurrence === "weekly") return "Completed this week ✓";
       if (goal.recurrence === "monthly") return "Completed this month ✓";
       return "Completed ✓";
@@ -617,8 +618,10 @@ export default function GoalTracker() {
                   Math.min(Math.round((goal.current / goal.target) * 100), 100)
                   )
                 : 0;
+            const progressWidth = Math.min((goal.current / Math.max(goal.target, 1)) * 100, 100);
             const isDeleting = deletingId === goal.id;
             const completed = goal.current >= goal.target;
+            const isSurpassed = goal.current > goal.target;
             const completionLabel = getCompletionLabel(goal);
             const isAutoSynced = goal.unit === "commits" || goal.unit === "prs";
 
@@ -780,12 +783,16 @@ export default function GoalTracker() {
                   </div>
                 </div>
 
-                <div className="h-2 overflow-hidden rounded-full bg-[var(--control)]">
+                <div className={`h-2 overflow-hidden rounded-full bg-[var(--control)] ${isSurpassed ? "ring-1 ring-emerald-500/40" : ""}`}>
                   <div
                     className={`h-full rounded-full transition-all ${
-                      completed ? "bg-emerald-500" : "bg-[var(--accent)]"
+                      isSurpassed
+                        ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                        : completed
+                        ? "bg-emerald-500"
+                        : "bg-[var(--accent)]"
                     }`}
-                    style={{ width: `${Math.max(0, Math.min(pct, 100))}%` }}
+                    style={{ width: `${Math.max(0, Math.min(progressWidth, 100))}%` }}
                     role="progressbar"
                     aria-valuenow={goal.current}
                     aria-valuemin={0}
