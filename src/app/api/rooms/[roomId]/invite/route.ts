@@ -1,6 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getRoomById, getRoomMembers, addRoomMember } from '@/lib/supabase-rooms';
+import {
+  getRoomById,
+  getRoomMembers,
+  createRoomInvitation,
+  getPendingInvitation
+} from '@/lib/supabase-rooms';
 import { NextResponse } from 'next/server';
 
 export async function POST(
@@ -36,6 +41,23 @@ export async function POST(
   const members = await getRoomMembers(roomId);
   if (members.some((m) => m.github_username === github_username))
     return NextResponse.json({ error: 'User is already a member' }, { status: 409 });
-  await addRoomMember(roomId, github_username);
-  return NextResponse.json({ success: true });
+  const existingInvite = await getPendingInvitation(
+  roomId,
+  github_username
+);
+
+if (existingInvite) {
+  return NextResponse.json(
+    { error: "User already has a pending invitation." },
+    { status: 409 }
+  );
 }
+await createRoomInvitation(
+  roomId,
+  github_username,
+  session.user.name
+);
+return NextResponse.json({
+    success: true,
+    message: "Invitation sent."
+});}

@@ -35,9 +35,36 @@ export async function getRoomMembers(roomId: string): Promise<RoomMember[]> {
   if (error) throw error;
   return data ?? [];
 }
+export async function getPendingInvitation(
+  roomId: string,
+  githubUsername: string
+) {
+  const { data, error } = await supabaseAdmin
+    .from("room_invitations")
+    .select("id")
+    .eq("room_id", roomId)
+    .eq("github_username", githubUsername)
+    .eq("status", "pending")
+    .maybeSingle();
 
-export async function addRoomMember(roomId: string, githubUsername: string) {
-  const { error } = await supabaseAdmin.from("room_members").insert({ room_id: roomId, github_username: githubUsername, role: "member" });
+  if (error) throw error;
+  return data;
+}
+
+export async function createRoomInvitation(
+  roomId: string,
+  githubUsername: string,
+  invitedBy: string
+) {
+  const { error } = await supabaseAdmin
+    .from("room_invitations")
+    .insert({
+      room_id: roomId,
+      github_username: githubUsername,
+      invited_by: invitedBy,
+      status: "pending",
+    });
+
   if (error) throw error;
 }
 

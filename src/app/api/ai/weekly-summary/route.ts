@@ -10,7 +10,7 @@
  * Security
  * --------
  * - Session required — unauthenticated requests are rejected with 401.
- * - ANTHROPIC_API_KEY is read only on the server; it never appears in any
+ * - ANTHROPIC_API_KEY isa read only on the server; it never appears in any
  *   response or client-accessible bundle.
  * - Metrics are validated server-side before the prompt is built.
  * - String fields (topRepo) are truncated to prevent over-long inputs.
