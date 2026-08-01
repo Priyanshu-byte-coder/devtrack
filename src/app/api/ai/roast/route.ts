@@ -1,11 +1,51 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { resolveAppUser } from "@/lib/resolve-user";
+
+import {
+  upstashRateLimitFixedWindow,
+  getUpstashConfig,
+} from "@/lib/upstash-rest";
+
+import { createMemoryFixedWindowRateLimiter } from "@/lib/rate-limit";
 
 // Initialize the Google Generative AI SDK
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const AI_ROAST_LIMIT = 5;
+const AI_ROAST_WINDOW_SECONDS = 60 * 60;
+
+const memoryLimiter = createMemoryFixedWindowRateLimiter({
+  windowMs: AI_ROAST_WINDOW_SECONDS * 1000,
+  pruneIntervalMs: AI_ROAST_WINDOW_SECONDS * 1000,
+  maxEntries: 10_000,
+});
 
 export async function POST(req: Request) {
-  try {
+  const session = await getServerSession(authOptions);
+const user = await resolveAppUser(
+  session.githubId,
+  session.githubLogin
+);
+
+if (!user) {
+  return NextResponse.json(
+    { error: "User not found" },
+    { status: 404 }
+  );
+}
+
+const userId = user.id;
+
+if (!session?.githubId) {
+  return NextResponse.json(
+    { error: "Unauthorized" },
+    { status: 401 }
+  );
+}
+
+  try { 
     const body = await req.json();
     const { mode, stats } = body;
 
