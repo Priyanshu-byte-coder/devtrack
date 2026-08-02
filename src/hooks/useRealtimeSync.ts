@@ -97,7 +97,7 @@ export function useRealtimeSync(
 
     // Stabilise `events` so an inline array definition (e.g. `["INSERT", "DELETE"]`)
     // doesn't cause the effect to re-run on every render.
-    const eventsKey = [...events].sort().join(",");
+    const eventsKey = [...events].sort((a, b) => a - b).join(",");
 
     useEffect(() => {
         const supabase = getSupabaseClient();
