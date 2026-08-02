@@ -586,7 +586,7 @@ export default function GoalTracker() {
               >
                 All
               </button>
-              {CATEGORY_OPTIONS.map((c) => (
+              {(CATEGORY_OPTIONS ?? []).map((c) => (
                 <button
                   key={c}
                   type="button"
