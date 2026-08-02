@@ -398,7 +398,7 @@ export function buildDigestText(data: DigestEmailData): string {
     if (m.topLanguages.length > 0) {
       lines.push(`Top languages:`);
       m.topLanguages.forEach((l) => {
-        lines.push(`  ${l.name.padEnd(14)} ${l.percentage.toFixed(1)}%`);
+        lines.push(`  ${l.name.padEnd(14, " ")} ${l.percentage.toFixed(1)}%`);
       });
       lines.push(``);
     }
