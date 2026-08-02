@@ -103,7 +103,8 @@ test("[API E2E] /api/auth/session returns a JSON object", async ({
 }) => {
   const res = await request.get("/api/auth/session");
   expect(res.status()).toBe(200);
-  const body = await res.json();
+  if (!res.ok) throw new Error("Request failed");
+const body = await res.json();
   // An unauthenticated session is an empty object {}, never null/undefined.
   expect(typeof body).toBe("object");
 });
