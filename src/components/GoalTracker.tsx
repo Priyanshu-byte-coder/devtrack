@@ -9,6 +9,7 @@ import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
 import EmptyState from "@/components/EmptyState";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
+import { saveSnapshot, getSnapshot } from "@/lib/localCache";
 
 
 type Recurrence = "none" | "weekly" | "monthly";
@@ -90,9 +91,12 @@ export function useGoalTracker() {
     const data: { goals: Goal[] } = await response.json();
     const fetchedGoals = data.goals ?? [];
     setGoals(fetchedGoals);
+
+    // SWR: persist fresh snapshot for offline / instant-hydration use
+    saveSnapshot("goals", fetchedGoals);
+
     return fetchedGoals;
   }, []);
-
   const handleSync = useCallback(async () => {
     setSyncing(true);
     setSyncError(null);
@@ -131,6 +135,15 @@ export function useGoalTracker() {
     }
   }, [loadGoals]);
 
+ // SWR Step 1: instant hydration from localStorage before network resolves
+  useEffect(() => {
+    const cached = getSnapshot<Goal[]>("goals");
+    if (cached) {
+      setGoals(cached.data);
+      setLoading(false); // show stale goals immediately, no spinner
+    }
+  }, []);
+
   useEffect(() => {
     loadGoals()
       .then(async (fetchedGoals) => {
@@ -145,7 +158,14 @@ export function useGoalTracker() {
         }
       })
       .catch(() => {
-        setSyncError("Failed to load goals. Please try again.");
+        // SWR fallback: agar live fetch fail ho, cached snapshot dikhta rahe
+        const cached = getSnapshot<Goal[]>("goals");
+        if (cached) {
+          setGoals(cached.data);
+          setSyncError(null);
+        } else {
+          setSyncError("Failed to load goals. Please try again.");
+        }
       })
       .finally(() => {
         setLoading(false);

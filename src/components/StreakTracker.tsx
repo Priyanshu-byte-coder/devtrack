@@ -135,7 +135,7 @@ export function useStreakTracker() {
       setLastUpdated(new Date());
       setMinutesAgo(0);
     }
-  }, [selectedAccount]);
+  }, [selectedAccount, cacheKey]);
 
   const fetchFreeze = useCallback(() => {
     setFreezeLoading(true);
