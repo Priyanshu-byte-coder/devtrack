@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const incomingDates = [...new Set(newSessions.map((session) => session.date))];
+  const incomingDates = [...new Set((newSessions ?? []).map((session) => session.date))];
   const { data: existingSessionsForDates } = await supabaseAdmin
     .from("local_coding_sessions")
     .select("date")

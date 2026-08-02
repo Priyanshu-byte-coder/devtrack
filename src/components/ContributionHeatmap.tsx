@@ -379,7 +379,7 @@ export default function ContributionHeatmap({
   );
   const weekCount = Math.ceil(cells.length / 7);
   const maxCommits = Math.max(
-    ...cells.map((cell) => cell.count),
+    ...(cells ?? []).map((cell) => cell.count),
     1
   );
   // 100% MATHEMATICALLY PRECISE MONTH TRACKING SYSTEM
