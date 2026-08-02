@@ -1064,7 +1064,7 @@ function ConfettiBurst() {
         id: i,
         x: Math.cos(angle) * distance,
         y: Math.sin(angle) * distance - 20,
-        color: colors[Math.random() * colors.length | 0],
+        color: colors[Math.floor(Math.random() * colors.length) | 0],
         rot: Math.random() * 360 + 180,
         scale: 0.5 + Math.random() * 0.7,
         speed: 0.8 + Math.random() * 0.6,
