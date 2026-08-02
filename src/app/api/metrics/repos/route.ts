@@ -145,7 +145,7 @@ async function fetchReposForAccount(
       if (orgName) {
         q += `+org:${orgName}`;
       } else if (excludedOrgs.length > 0) {
-        q += excludedOrgs.map((org) => `+-org:${org}`).join("");
+        q += (excludedOrgs ?? []).map((org) => `+-org:${org}`).join("");
       }
       q += `+author-date:>=${sinceStr}`;
 

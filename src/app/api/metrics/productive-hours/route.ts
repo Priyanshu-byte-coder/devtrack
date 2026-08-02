@@ -268,7 +268,7 @@ export async function GET(req: NextRequest) {
     );
 
     const results = await Promise.allSettled(
-      accounts.map((account) =>
+      (accounts ?? []).map((account) =>
         fetchProductiveHoursForAccount(
           account.token,
           account.githubLogin,
