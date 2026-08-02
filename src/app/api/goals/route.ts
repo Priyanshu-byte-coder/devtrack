@@ -177,7 +177,7 @@ export async function GET() {
     }
   }
 
-  const goalsWithHistory = processedGoals.map((goal) => ({
+  const goalsWithHistory = (processedGoals ?? []).map((goal) => ({
     ...goal,
     last_period: latestHistoryByGoal.get(goal.id) ?? null,
   }));

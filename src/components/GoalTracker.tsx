@@ -429,7 +429,7 @@ export default function GoalTracker() {
       const data: { goal: Goal } = await response.json();
 
       setGoals((currentGoals) =>
-        currentGoals.map((goal) => (goal.id === data.goal.id ? data.goal : goal))
+        (currentGoals ?? []).map((goal) => (goal.id === data.goal.id ? data.goal : goal))
       );
     } catch {
       setShareError("Failed to update goal sharing. Please check your connection.");
