@@ -238,7 +238,7 @@ export async function GET(req: NextRequest) {
   const daysParam = req.nextUrl.searchParams.get("days");
   const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
   // Clamp days between 1 and 365 — GitHub Commit Search supports up to ~1 year lookback.
-  const days = isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+  const days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
