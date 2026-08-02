@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
       if (!searchRes.ok) throw new Error("API Error");
 
       const raw = await searchRes.json();
-      const repoNames = Array.from(new Set<string>(raw.items.map((i: any) => i.repository.full_name)));
+      const repoNames = Array.from(new Set<string>(raw.(items ?? []).map((i: any) => i.repository.full_name)));
       const topRepoNames = repoNames.slice(0, 20);
       const langTotals: Record<string, number> = {};
       const failedRepos: Array<{ name: string; statusCode?: number; error: string }> = [];
