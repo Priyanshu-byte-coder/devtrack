@@ -74,7 +74,7 @@ async function fetchDiscussionItemsViaGraphQL(
       token
     );
     const nodes = data?.viewer?.repositoryDiscussionComments?.nodes ?? [];
-    return nodes.map(formatGraphQLDiscussionComment);
+    return (nodes ?? []).map(formatGraphQLDiscussionComment);
   } catch {
     // Discussions may be disabled, rate-limited, or the token may lack the
     // required scope — never allow this to block the main activity feed.

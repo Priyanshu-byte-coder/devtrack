@@ -155,7 +155,7 @@ async function fetchContributionsForAccount(
       if (orgName) {
         q += ` org:${orgName}`;
       } else if (excludedOrgs.length > 0) {
-        q += excludedOrgs.map((org) => ` -org:${org}`).join("");
+        q += (excludedOrgs ?? []).map((org) => ` -org:${org}`).join("");
       }
 
       // Note: this may issue up to 10 sequential GitHub Search API calls (max 1000 results).
