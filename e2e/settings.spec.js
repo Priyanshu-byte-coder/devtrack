@@ -17,7 +17,6 @@ test.beforeEach(async ({ page }) => {
       accessToken: "test-token",
     },
     maxAge: 60 * 60,
-    cookieName: "next-auth.session-token",
   });
 
   await page.context().addCookies([
@@ -46,31 +45,28 @@ test.beforeEach(async ({ page }) => {
     });
   });
 
-  await page.route("**/api/user/settings", async (route) => {
+  let mockSettings = {
+    id: "1",
+    github_login: "playwright-user",
+    is_public: false,
+    leaderboard_opt_in: false,
+    has_wakatime_key: false,
+  };
+
+  await page.route("**/api/user/settings**", async (route) => {
     if (route.request().method() === "PATCH") {
       const data = JSON.parse(route.request().postData() || "{}");
+      mockSettings = { ...mockSettings, ...data };
       await route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify({
-          id: "1",
-          github_login: "playwright-user",
-          is_public: data.is_public ?? false,
-          leaderboard_opt_in: data.leaderboard_opt_in ?? false,
-          has_wakatime_key: false,
-        }),
+        body: JSON.stringify(mockSettings),
       });
       return;
     }
     
     await route.fulfill({
       contentType: "application/json",
-      body: JSON.stringify({
-        id: "1",
-        github_login: "playwright-user",
-        is_public: false,
-        leaderboard_opt_in: false,
-        has_wakatime_key: false,
-      }),
+      body: JSON.stringify(mockSettings),
     });
   });
 

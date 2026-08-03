@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { encode } from "next-auth/jwt";
-import { mockMetricResponse } from "./helpers/dashboard-mocks";
+import { mockMetricResponse } from "./helpers/dashboard-mocks.js";
 
 const authSecret =
   process.env.NEXTAUTH_SECRET || "test-nextauth-secret-for-playwright-tests";
@@ -180,9 +180,9 @@ test.describe("[Streak E2E]", () => {
 
     // Now scope to the nearest rounded-xl ancestor — the containerRef div
     // that wraps both the heading and the stats grid.
-    const section = streakHeading.locator(
-      'xpath=ancestor::div[contains(@class,"rounded-xl")][1]'
-    );
+    const section = page.locator('div.rounded-xl').filter({
+      has: page.getByRole("heading", { name: "Commit Streaks" })
+    }).first();
 
     // The "Longest Streak" stat card contains the number as a raw text node
     // inside a div whose full text content is "21 days" (number + unit span).
