@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
     const data = await withMetricsCache({ bypass, key, ttlSeconds: METRICS_CACHE_TTL_SECONDS.languages }, async () => {
       const headers = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
       const since = new Date();
-      const rawDays = parseInt(req.nextUrl.searchParams.get("days") ?? "90", 10);    const days = Number.isFinite(rawDays) && rawDays > 0 ? Math.min(rawDays, 365) : 90;
+      const rawDays = parseInt(req.nextUrl.searchParams.get("days", 10) ?? "90", 10);    const days = Number.isFinite(rawDays) && rawDays > 0 ? Math.min(rawDays, 365) : 90;
 
       const searchRes = await fetch(
         `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${since.toISOString().slice(0, 10)}&per_page=100&sort=author-date&order=desc`,

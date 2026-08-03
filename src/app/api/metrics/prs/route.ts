@@ -204,7 +204,7 @@ async function fetchPRMetrics(
   const open = data.items.filter((pr) => pr.state === "open").length;
   const mergedPRs = data.items.filter((pr) => pr.pull_request?.merged_at != null);
   const merged = mergedPRs.length;
-  const closed = data.items.filter((pr) => pr.state === "closed" && pr.pull_request?.merged_at == null).length;
+  const closed = data.items.filter((pr) => pr.state === "closed" && pr.pull_request?.merged_at === null).length;
 
   const avgReviewMs = mergedPRs.length > 0
     ? mergedPRs.reduce((sum, pr) => sum + (new Date(pr.closed_at!).getTime() - new Date(pr.created_at).getTime()), 0) / mergedPRs.length
