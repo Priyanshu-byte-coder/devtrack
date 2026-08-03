@@ -18,8 +18,8 @@ import SignOutButton from "@/components/SignOutButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import UserAvatar from "@/components/UserAvatar";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
-import OnboardingTour from "@/components/OnboardingTour";
-import { Moon, Sun } from "lucide-react";
+import OnboardingTour, { REPLAY_TOUR_EVENT } from "@/components/OnboardingTour";
+import { CircleHelp, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -51,7 +51,7 @@ const STALE_TIMES: Record<string, number> = {
   "/api/metrics/repos": 5 * 60 * 1000,
   "/api/metrics/languages": 5 * 60 * 1000,
   "/api/notifications": 1 * 60 * 1000,
-  "default": 2 * 60 * 1000,
+  default: 2 * 60 * 1000,
 };
 
 function getStaleTime(url: string): number {
@@ -101,7 +101,9 @@ export function DashboardSyncProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (process.env.NODE_ENV === "test") return;
     const handleSync = () => {
-      console.log("[Client Cache] Invalidating dashboard metrics cache due to sync event.");
+      console.log(
+        "[Client Cache] Invalidating dashboard metrics cache due to sync event."
+      );
       clientCache.clear();
     };
 
@@ -116,13 +118,22 @@ export function DashboardSyncProvider({ children }: { children: ReactNode }) {
     const originalFetch = window.fetch;
 
     window.fetch = async (input, init) => {
-      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-      const isGet = !init || !init.method || init.method.toUpperCase() === "GET";
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+      const isGet =
+        !init || !init.method || init.method.toUpperCase() === "GET";
 
       if (isDashboardDataRequest(input)) {
         if (!isGet) {
           // Clear cache on write requests (POST, PUT, DELETE, PATCH)
-          console.log("[Client Cache] Invalidate cache due to mutation request:", url);
+          console.log(
+            "[Client Cache] Invalidate cache due to mutation request:",
+            url
+          );
           clientCache.clear();
           return originalFetch(input, init);
         }
@@ -150,7 +161,10 @@ export function DashboardSyncProvider({ children }: { children: ReactNode }) {
 
               const nowTime = new Date();
               setLastSynced(nowTime);
-              localStorage.setItem("devtrack-last-synced", nowTime.toISOString());
+              localStorage.setItem(
+                "devtrack-last-synced",
+                nowTime.toISOString()
+              );
             }
             return response;
           } catch (error) {
@@ -258,7 +272,7 @@ export default function DashboardHeader() {
   const { isLive: isHeaderLive } = useRealtimeSync(
     "users",
     ["UPDATE"],
-    loadSettings,
+    loadSettings
   );
   useEffect(() => {
     if (!session?.githubLogin) return;
@@ -285,20 +299,30 @@ export default function DashboardHeader() {
         if (nightOwlCommitsCount >= 1) setIsNightOwl(true);
         if (earlyBirdCommitsCount >= 1) setIsEarlyBird(true);
       } catch (err) {
-        console.error("Failed to compile milestone hour distribution profiles:", err);
+        console.error(
+          "Failed to compile milestone hour distribution profiles:",
+          err
+        );
       }
     }
 
     evaluateCodingDistributionMilestones();
+    const handleReplayTour = () => {
+      window.dispatchEvent(new Event(REPLAY_TOUR_EVENT));
+    };
   }, [session]);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const handleReplayTour = () => {
+    window.dispatchEvent(new Event(REPLAY_TOUR_EVENT));
+  };
 
   const { lastSynced } = useDashboardSync();
   const [now, setNow] = useState(() => Date.now());
 
   // Extract a fallback username parameter from active session data strings
-  const displayName = session?.user?.name || session?.githubLogin || "Developer";
+  const displayName =
+    session?.user?.name || session?.githubLogin || "Developer";
   useEffect(() => {
     if (!lastSynced) return;
 
@@ -318,7 +342,6 @@ export default function DashboardHeader() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/40 to-transparent" />
       <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-[var(--accent)]/10 blur-3xl" />
       <div className="relative z-10 flex min-w-0 flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-
         {/* Left Section */}
         <div className="min-w-0 pr-0">
           <div className="mb-1 flex min-w-0 flex-wrap items-center gap-2">
@@ -327,7 +350,9 @@ export default function DashboardHeader() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--accent)] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--accent)]"></span>
               </span>
-              <span className="truncate">{greeting}, {displayName}!</span>
+              <span className="truncate">
+                {greeting}, {displayName}!
+              </span>
             </div>
             {isNightOwl && (
               <div
@@ -351,7 +376,9 @@ export default function DashboardHeader() {
           <div className="min-w-0">
             <p
               className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted-foreground)]"
-              style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+              style={{
+                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+              }}
             >
               Dashboard overview
             </p>
@@ -360,7 +387,10 @@ export default function DashboardHeader() {
             </h1>
             <p
               className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]"
-              style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)", letterSpacing: "0.06em" }}
+              style={{
+                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+                letterSpacing: "0.06em",
+              }}
             >
               coding activity at a glance
             </p>
@@ -370,7 +400,9 @@ export default function DashboardHeader() {
                 aria-atomic="true"
                 className="mt-1 flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]"
               >
-                {minutesAgo <= 0 ? "Synced just now" : `Synced ${minutesAgo} min ago`}
+                {minutesAgo <= 0
+                  ? "Synced just now"
+                  : `Synced ${minutesAgo} min ago`}
                 {isHeaderLive && (
                   <span
                     title="Live — connected to Supabase Realtime"
@@ -397,10 +429,21 @@ export default function DashboardHeader() {
             )}
 
             <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/50 p-2 shadow-sm backdrop-blur-sm">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleReplayTour}
+                aria-label="Replay dashboard onboarding tour"
+                title="Replay dashboard tour"
+                className="shrink-0"
+              >
+                <CircleHelp className="h-4 w-4" aria-hidden="true" />
+              </Button>
+
               <div className="transition-transform duration-200 hover:scale-[1.05]">
                 <KeyboardShortcuts />
               </div>
-
               <div className="transition-transform duration-200 hover:scale-[1.05]">
                 <NotificationBell />
               </div>
@@ -500,7 +543,7 @@ export default function DashboardHeader() {
         <AccountToggle />
       </div>
 
-      {!seenOnboarding && <OnboardingTour />}
+      <OnboardingTour autoStart={!seenOnboarding} />
     </header>
   );
 }

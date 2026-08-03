@@ -43,6 +43,7 @@ export default function DashboardWidgetShell({
 
   return (
     <div
+      id={`widget-${widgetId}`}
       ref={shellRef}
       role="region"
       tabIndex={isEditing ? -1 : 0}
