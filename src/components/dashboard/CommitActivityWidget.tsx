@@ -1,6 +1,6 @@
 "use client";
-import { Activity } from "lucide-react";
-import React, { useState } from "react";
+import { Activity, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import {
     ComposedChart,
     Bar,
@@ -28,56 +28,6 @@ interface CommitDataNode {
  * Union type restricted to valid dashboard chart views.
  */
 type ChartType = "bar" | "line";
-
-/**
- * Comprehensive Dataset Representation
- * Maps standard tracking intervals across a trailing week timeline cycle.
- * Augmented with addition/deletion metadata to satisfy corporate telemetry metrics.
- */
-const MOCK_TELEMETRY_DATA: CommitDataNode[] = [
-    { 
-        day: "Mon", 
-        commits: 5, 
-        additions: 140, 
-        deletions: 45 
-    },
-    { 
-        day: "Tue", 
-        commits: 12, 
-        additions: 340, 
-        deletions: 110 
-    },
-    { 
-        day: "Wed", 
-        commits: 8, 
-        additions: 210, 
-        deletions: 95 
-    },
-    { 
-        day: "Thu", 
-        commits: 15, 
-        additions: 520, 
-        deletions: 180 
-    },
-    { 
-        day: "Fri", 
-        commits: 9, 
-        additions: 290, 
-        deletions: 60 
-    },
-    { 
-        day: "Sat", 
-        commits: 3, 
-        additions: 80, 
-        deletions: 15 
-    },
-    { 
-        day: "Sun", 
-        commits: 6, 
-        additions: 190, 
-        deletions: 40 
-    },
-];
 
 /**
  * CustomTooltip Component
@@ -120,18 +70,71 @@ function CustomTooltip({ active, payload }: any) {
     );
 }
 
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 /**
  * CommitActivityWidget Primary React Component
  * Renders an analytical graphing dashboard component for tracking git interactions.
- * * Features Implemented (Issue #1482):
- * - Segmented operational toggle selection handles chart context switches cleanly.
- * - ComposedChart optimization blocks layout pop anomalies during layout rerenders.
- * - Conforms thoroughly to continuous integration file layout regulations.
+ * Fetches real commit activity from the weekly-summary API for the signed-in user.
  */
 export default function CommitActivityWidget() {
     // Component Context Tracking Variable States
     const [chartType, setChartType] = useState<ChartType>("bar");
-    const hasData = MOCK_TELEMETRY_DATA.length > 0;
+    const [chartData, setChartData] = useState<CommitDataNode[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function fetchActivity() {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const res = await fetch("/api/metrics/weekly-summary");
+                if (!res.ok) {
+                    throw new Error(`Failed to load activity (${res.status})`);
+                }
+
+                const data = await res.json();
+                if (cancelled) return;
+
+                const dailyCommits: { date: string; commits: number }[] =
+                    data.dailyCommits ?? [];
+
+                const mapped: CommitDataNode[] = dailyCommits.map((entry) => {
+                    const d = new Date(entry.date + "T00:00:00Z");
+                    return {
+                        day: DAY_LABELS[d.getUTCDay()],
+                        commits: entry.commits,
+                        // The weekly-summary API does not return per-day additions/deletions,
+                        // so we report zero rather than fabricating numbers.
+                        additions: 0,
+                        deletions: 0,
+                    };
+                });
+
+                setChartData(mapped);
+            } catch (err: any) {
+                if (!cancelled) {
+                    setError(err.message ?? "Failed to load commit activity");
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false);
+                }
+            }
+        }
+
+        fetchActivity();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const hasData = chartData.length > 0 && chartData.some((d) => d.commits > 0);
 
     /**
      * Contextual State Mutation Handlers
@@ -189,7 +192,24 @@ export default function CommitActivityWidget() {
             </div>
 
             {/* Graphical Chart Visualization Rendering Canvas Viewport */}
-{!hasData ? (
+{isLoading ? (
+    <div className="flex h-64 flex-col items-center justify-center text-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-3" />
+        <p className="text-sm text-muted-foreground">
+            Loading commit activity&hellip;
+        </p>
+    </div>
+) : error ? (
+    <div className="flex h-64 flex-col items-center justify-center text-center">
+        <Activity className="h-10 w-10 text-muted-foreground mb-3" />
+        <h4 className="font-semibold">
+            Unable to load activity
+        </h4>
+        <p className="text-sm text-muted-foreground max-w-xs">
+            {error}
+        </p>
+    </div>
+) : !hasData ? (
     <div className="flex h-64 flex-col items-center justify-center text-center">
         <Activity className="h-10 w-10 text-muted-foreground mb-3" />
         <h4 className="font-semibold">
@@ -208,7 +228,7 @@ export default function CommitActivityWidget() {
                     height="100%"
                 >
                     <ComposedChart
-                        data={MOCK_TELEMETRY_DATA}
+                        data={chartData}
                         margin={{ 
                             top: 10, 
                             right: 10, 
