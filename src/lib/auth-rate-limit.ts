@@ -32,9 +32,11 @@ export const AUTH_WINDOW_MS = 15 * 60 * 1000;
 
 // Maximum requests per IP per window in production.
 // A full GitHub OAuth sign-in consumes 2 requests (initiation + callback),
-// so 5 allows two complete sign-in attempts plus one spare before throttling.
-export const AUTH_LIMIT = 5;
-
+// so 8 allows up to four complete sign-in attempts before throttling —
+// enough headroom for a user who interrupts and retries the flow
+// (e.g. hitting Back mid-authorization) without hitting the limit
+// prematurely, while still guarding against brute-force attempts.
+export const AUTH_LIMIT = 8;
 /**
  * Path prefixes whose requests count toward the authentication rate limit.
  * Only the OAuth initiation and callback routes are included; session and
