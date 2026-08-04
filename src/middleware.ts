@@ -333,7 +333,7 @@ export async function middleware(req: NextRequest) {
         { error: "RateLimitError", url: signinUrl.toString() },
         { status: 429, headers }
       );
-
+    }
     return NextResponse.next();
   }
 
