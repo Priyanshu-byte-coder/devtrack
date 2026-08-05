@@ -158,7 +158,7 @@ async function getAverageFirstReviewHours(
   if (validDurations.length === 0) return null;
 
   const average = validDurations.reduce((sum, value) => sum + value, 0) / validDurations.length;
-  return Math.round(average * 10) / 10;
+  return Math.round(average * 10 + Number.EPSILON) / 10;
 }
 
 async function fetchPRMetrics(
