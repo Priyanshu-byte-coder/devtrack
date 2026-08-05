@@ -164,3 +164,4 @@ Give a clear, concise answer focused on interview preparation. Keep it under 200
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
+.catch(err => console.error("Promise.all failed:", err));
