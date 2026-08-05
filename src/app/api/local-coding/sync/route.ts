@@ -278,7 +278,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const rawDays = parseInt(searchParams.get("days") || "30", 10);
+  const rawDays = parseInt(searchParams.get("days", 10) || "30", 10);
   const days = validateDays(isNaN(rawDays) ? DEFAULT_DAYS : rawDays);
   const fromDate = new Date();
   fromDate.setDate(fromDate.getDate() - days);
