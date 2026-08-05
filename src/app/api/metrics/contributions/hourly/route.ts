@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
   const daysParam = req.nextUrl.searchParams.get("days");
   const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
-  const days = isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+  const days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
   const bypass = isMetricsCacheBypassed(req);
   const key = metricsCacheKey(
     session.githubId ?? session.githubLogin,
