@@ -75,3 +75,4 @@ test("[Auth E2E] landing page shows DevTrack feature section", async ({
   const features = page.locator("#features");
   await expect(features).toBeVisible();
 });
+.catch(err => console.error("Promise.all failed:", err));
