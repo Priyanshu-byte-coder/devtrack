@@ -268,3 +268,4 @@ export async function GET(req: NextRequest) {
 
   return Response.json({ badges });
 }
+.catch(err => console.error("Promise.all failed:", err));
