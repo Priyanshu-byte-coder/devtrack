@@ -171,7 +171,7 @@ export async function PATCH(
       unit: updatedGoal.unit,
       recurrence: updatedGoal.recurrence,
       completedAt: new Date().toISOString(),
-    }).catch(() => {});
+    }).catch( => console.error());
   }
 
   return Response.json({ goal: updatedGoal });
