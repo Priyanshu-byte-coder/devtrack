@@ -137,7 +137,7 @@ async function checkAndRecordMilestone(
     dispatchToAllWebhooks(userId, "streak.milestone", {
       streakCount: currentStreak,
       achievedAt: new Date().toISOString(),
-    }).catch(() => {});
+    }).catch( => console.error());
   }
 }
 
