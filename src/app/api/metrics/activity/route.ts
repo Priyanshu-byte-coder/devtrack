@@ -305,3 +305,4 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }
+.catch(err => console.error("Promise.all failed:", err));
