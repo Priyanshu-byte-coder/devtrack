@@ -204,3 +204,4 @@ export default function RepoComparisonPage() {
     </div>
   );
 }
+.catch(err => console.error("Promise.all failed:", err));
