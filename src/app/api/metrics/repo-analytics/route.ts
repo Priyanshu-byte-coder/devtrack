@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
       } else if (activityRes.ok) {
         const activityData = await activityRes.json();
         if (Array.isArray(activityData) && activityData.length > 0) {
-          const lastWeek = activityData[activityData.length - 1];
+          const lastWeek = activityData.at(-1);
           const days: number[] = lastWeek.days || [];
           // `lastWeek.week` is a Unix timestamp (seconds) for the Sunday that starts the bucket.
           // Derive labels from it so they always match the actual calendar days GitHub recorded.
