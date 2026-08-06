@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       ? unit.trim().slice(0, MAX_UNIT_LEN)
       : "units";
 
-  if (typeof targetDate !== "string" || isNaN(new Date(targetDate).getTime())) {
+  if (typeof targetDate !== "string" || Number.isNaN(new Date(targetDate).getTime())) {
     return NextResponse.json({ error: "targetDate must be a valid date string" }, { status: 400 });
   }
 
