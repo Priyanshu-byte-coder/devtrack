@@ -308,7 +308,7 @@ try {
     unit: goal.unit,
     recurrence: goal.recurrence,
     category: goal.category,
-  }).catch(() => {});
+  }).catch( => console.error());
 
   return Response.json({ goal }, { status: 201 });
 }
