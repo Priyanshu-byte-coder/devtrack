@@ -158,7 +158,7 @@ export function useGoalTracker() {
         }
       })
       .catch(() => {
-        // SWR fallback: agar live fetch fail ho, cached snapshot dikhta rahe
+        // SWR fallback: if the live fetch fails, keep showing the cached snapshot
         const cached = getSnapshot<Goal[]>("goals");
         if (cached) {
           setGoals(cached.data);
