@@ -422,7 +422,7 @@ export async function GET(req: NextRequest) {
 
       const orgsConfig = (dbUser?.organizations_config || {}) as Record<string, boolean>;
       excludedOrgs = Object.entries(orgsConfig)
-        .filter(([_, enabled]) => enabled === false)
+        .filter(([_, enabled]) => enabled !)
         .map(([org]) => org);
     } catch (error) {
       logError(error, {
