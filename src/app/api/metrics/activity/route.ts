@@ -167,7 +167,7 @@ export async function GET(req: NextRequest) {
   let limit = limitParam ? parseInt(limitParam, 10) : 10;
   let offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-  if (isNaN(limit) || limit < 1) limit = 10;
+  if (Number.isNaN(limit) || limit < 1) limit = 10;
   if (limit > 100) limit = 100;
   if (isNaN(offset) || offset < 0) offset = 0;
 
