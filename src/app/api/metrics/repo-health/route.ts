@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const requestedDays = parseInt(req.nextUrl.searchParams.get("days") ?? "30", 10);
+  const requestedDays = parseInt(req.nextUrl.searchParams.get("days", 10) ?? "30", 10);
   // Only allow 7, 30, or 90 day windows — other values default to 30.
   const days = requestedDays === 7 || requestedDays === 30 || requestedDays === 90 ? requestedDays : 30;
 
