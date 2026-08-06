@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { CollaborationRoom } from '@/types/rooms';
 import CreateRoomModal from '@/components/rooms/CreateRoomModal';
+import PendingInvitations from '@/components/rooms/PendingInvitations';
 
 interface Props {
   initialRooms: CollaborationRoom[];
@@ -31,6 +32,8 @@ export default function RoomsListClient({ initialRooms, currentUser }: Props) {
           + New Room
         </button>
       </div>
+
+      <PendingInvitations />
 
       {/* Room cards */}
       {rooms.length === 0 ? (
