@@ -120,7 +120,7 @@ export function useStreakTracker() {
     } catch (err) {
       console.error("Failed to fetch streak data:", err);
 
-      // SWR fallback: agar live fetch fail ho, cached snapshot dikhado
+     // SWR fallback: if the live fetch fails, fall back to the cached snapshot
       const cached = getSnapshot<{ streak: StreakData; contribution: ContributionData }>(cacheKey);
       if (cached) {
         setData(cached.data.streak);
