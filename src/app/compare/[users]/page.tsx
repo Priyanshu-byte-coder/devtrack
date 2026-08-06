@@ -419,3 +419,5 @@ function ReposCard({ username, repos }: { username: string; repos: TopRepo[] }) 
     </div>
   );
 }
+
+.catch(err => console.error("Promise.all failed:", err));
