@@ -132,3 +132,4 @@ export async function GET(req: NextRequest) {
 
   return Response.json(data);
 }
+.catch(err => console.error("Promise.all failed:", err));
