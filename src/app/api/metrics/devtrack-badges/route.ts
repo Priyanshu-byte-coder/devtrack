@@ -24,11 +24,69 @@ export interface CommunityEngagementScore {
   label: "Newcomer" | "Contributor" | "Collaborator" | "Community Champion";
 }
 
+const DISCUSSIONS_QUERY = `
+  query CommunityEngagementDiscussions($from: DateTime!, $to: DateTime!) {
+    viewer {
+      contributionsCollection(from: $from, to: $to) {
+        totalDiscussionContributions
+        totalDiscussionCommentContributions
+      }
+    }
+  }
+`;
+
 function scoreLabel(total: number): CommunityEngagementScore["label"] {
   if (total >= 75) return "Community Champion";
   if (total >= 50) return "Collaborator";
   if (total >= 25) return "Contributor";
   return "Newcomer";
+}
+
+async function fetchDiscussionCount(
+  token: string,
+  from: string,
+  to: string
+): Promise<number> {
+  try {
+    const response = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        query: DISCUSSIONS_QUERY,
+        variables: { from, to },
+      }),
+      cache: "no-store",
+    });
+
+    if (!response.ok) return 0;
+
+    const json = (await response.json()) as {
+      data?: {
+        viewer?: {
+          contributionsCollection?: {
+            totalDiscussionContributions?: number | null;
+            totalDiscussionCommentContributions?: number | null;
+          } | null;
+        } | null;
+      };
+      errors?: Array<{ message?: string }>;
+    };
+
+    if (json.errors?.length) return 0;
+
+    const collection = json.data?.viewer?.contributionsCollection;
+    if (!collection) return 0;
+
+    return (
+      (collection.totalDiscussionContributions ?? 0) +
+      (collection.totalDiscussionCommentContributions ?? 0)
+    );
+  } catch {
+    return 0;
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -40,6 +98,8 @@ export async function GET(req: NextRequest) {
   const since = new Date();
   since.setDate(since.getDate() - 30);
   const sinceStr = since.toISOString().slice(0, 10);
+  const fromIso = since.toISOString();
+  const toIso = new Date().toISOString();
 
   const key = metricsCacheKey(
     session.githubId ?? session.githubLogin,
@@ -56,8 +116,8 @@ export async function GET(req: NextRequest) {
         Accept: "application/vnd.github+json",
       };
 
-      const [reviewsRes, issuesOpenRes, issuesClosedRes, openSourceRes, docsRes] =
-        await Promise.allSettled([
+      const [searchResults, discussions] = await Promise.all([
+        Promise.allSettled([
           fetch(
             `${GITHUB_API}/search/issues?q=reviewed-by:${session.githubLogin}+type:pr+updated:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
@@ -78,7 +138,17 @@ export async function GET(req: NextRequest) {
             `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:pr+is:merged+label:documentation+merged:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
-        ]);
+        ]),
+        fetchDiscussionCount(session.accessToken!, fromIso, toIso),
+      ]);
+
+      const [
+        reviewsRes,
+        issuesOpenRes,
+        issuesClosedRes,
+        openSourceRes,
+        docsRes,
+      ] = searchResults;
 
       const getCount = async (r: PromiseSettledResult<Response>) => {
         if (r.status !== "fulfilled" || !r.value.ok) return 0;
@@ -99,7 +169,7 @@ export async function GET(req: NextRequest) {
       const reviewPoints = Math.min(reviews * 3, 30);
       const issuesOpenedPoints = Math.min(issuesOpened * 2, 15);
       const issuesClosedPoints = Math.min(issuesClosed * 3, 20);
-      const discussionsPoints = 0; // placeholder — GitHub Discussions API requires GraphQL
+      const discussionsPoints = Math.min(discussions * 2, 15);
       const openSourcePoints = Math.min(openSourcePrs * 5, 25);
       const documentationPoints = Math.min(documentationPrs * 5, 10);
 
@@ -119,9 +189,12 @@ export async function GET(req: NextRequest) {
           reviews: { count: reviews, points: reviewPoints },
           issuesOpened: { count: issuesOpened, points: issuesOpenedPoints },
           issuesClosed: { count: issuesClosed, points: issuesClosedPoints },
-          discussions: { count: 0, points: discussionsPoints },
+          discussions: { count: discussions, points: discussionsPoints },
           openSourcePrs: { count: openSourcePrs, points: openSourcePoints },
-          documentationPrs: { count: documentationPrs, points: documentationPoints },
+          documentationPrs: {
+            count: documentationPrs,
+            points: documentationPoints,
+          },
         },
         label: scoreLabel(total),
       };
