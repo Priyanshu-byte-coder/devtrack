@@ -7,7 +7,7 @@
   --background: #050816;
   --foreground: #f5f7fb;
   --muted: #121a2b;
-  --muted-foreground: #91a0b7;
+  --muted-foreground: #94a3b8;
   --card: #0b1220;
   --card-foreground: #f5f7fb;
   --card-muted: #111b2f;
@@ -52,7 +52,7 @@ html[data-theme="modern-light-blue"] {
   --background: #f6f8fc;
   --foreground: #0f172a;
   --muted: #e9eef7;
-  --muted-foreground: #516079;
+  --muted-foreground: #475569;
   --card: #ffffff;
   --card-foreground: #0f172a;
   --card-muted: #eff4fb;
@@ -89,7 +89,7 @@ html[data-theme="nordic-frost"] {
   --background: #07131f;
   --foreground: #eaf4ff;
   --muted: #111f31;
-  --muted-foreground: #8fa6be;
+  --muted-foreground: #9eb6ce;
   --card: #0c1a2a;
   --card-foreground: #eaf4ff;
   --card-muted: #122436;
@@ -126,7 +126,7 @@ html[data-theme="cyberpunk-matrix"] {
   --background: #050608;
   --foreground: #e8ffe8;
   --muted: #0d140d;
-  --muted-foreground: #88a388;
+  --muted-foreground: #98b698;
   --card: #0a100a;
   --card-foreground: #e8ffe8;
   --card-muted: #101810;
@@ -639,12 +639,14 @@ body {
 
 .lnd-about-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--card) 80%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 22px;
   min-height: 210px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .lnd-about-card::before {
@@ -670,12 +672,10 @@ body {
 }
 
 .lnd-about-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(129, 140, 248, 0.25);
+  background: color-mix(in srgb, var(--card) 95%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
   transform: translateY(-3px) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 14px 34px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--shadow-medium);
 }
 
 .lnd-about-card:hover::before {

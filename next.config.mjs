@@ -111,7 +111,7 @@ const withPWA = withPWAInit({
         return (
           url.pathname.startsWith("/_next/static/") ||
           /\.(?:js|css|woff2?|png|jpg|jpeg|gif|svg|ico|webp|json)$/.test(
-            url.pathname,
+            url.pathname
           )
         );
       },
@@ -148,6 +148,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "via.placeholder.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },
@@ -187,7 +191,7 @@ const nextConfig = {
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://avatars.githubusercontent.com https://github.githubassets.com",
+              "img-src 'self' data: blob: https://avatars.githubusercontent.com https://github.githubassets.com https://images.unsplash.com",
               "connect-src 'self' https://api.github.com https://groq.com https://api.groq.com https://*.supabase.co wss://*.supabase.co https://*.upstash.io",
               "frame-ancestors 'none'",
               "base-uri 'none'",

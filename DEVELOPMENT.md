@@ -53,6 +53,21 @@ The `service_role` key is a **database superkey** — it completely bypasses all
 
 DevTrack uses this key only in server-side API routes. See `.env.example` for detailed security requirements.
 
+### 🔒 Database Security: Row Level Security (RLS) & Verification
+
+All user-owned database tables in DevTrack (`users`, `goals`, `goal_history`, `streak_freezes`, `user_github_achievements`, `user_sponsor_metrics`, `wakatime_stats`, `collaboration_rooms`, etc.) have Row Level Security (RLS) enabled in `supabase/schema.sql`.
+
+#### Why RLS Matters
+Although DevTrack primarily performs server-side database operations using `SUPABASE_SERVICE_ROLE_KEY`, explicit RLS policies provide critical defense-in-depth:
+- If client-side queries or the public `NEXT_PUBLIC_SUPABASE_ANON_KEY` are used directly, users are strictly restricted to reading and writing their own data (`user_id = auth.uid()`).
+- Prevents cross-tenant data leaks and unauthorized modifications.
+
+#### Verifying RLS in the Supabase Dashboard
+1. Log in to your project on [supabase.com](https://supabase.com).
+2. Go to **Authentication** → **Policies** (or **Table Editor**).
+3. Confirm that **RLS Enabled** (green lock badge) is present on all user tables (`users`, `goals`, `streak_freezes`, etc.).
+4. Verify that each table has explicit policies configured (e.g., `"Users can manage own goals"` with expression `user_id = auth.uid()::text`).
+
 ---
 
 ## 3. Create a GitHub OAuth App
