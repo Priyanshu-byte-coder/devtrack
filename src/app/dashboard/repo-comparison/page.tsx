@@ -99,7 +99,7 @@ export default function RepoComparisonPage() {
             name: data.full_name,
             stars: data.stargazers_count,
             forks: data.forks_count,
-            watchers: data.watchers_count,
+            watchers: data.subscribers_count,
             issues: data.open_issues_count,
           };
         })

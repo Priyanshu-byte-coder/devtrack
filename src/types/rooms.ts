@@ -42,6 +42,18 @@ export interface InvitePayload {
   room_id: string;
   github_username: string;
 }
+export interface RoomInvitation {
+  id: string;
+  room_id: string;
+  invited_by: string;
+  created_at: string;
+  collaboration_rooms: {
+    id: string;
+    name: string;
+    repo_owner: string;
+    repo_name: string;
+  };
+}
 
 export interface SendMessagePayload {
   room_id: string;
