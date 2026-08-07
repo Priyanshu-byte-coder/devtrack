@@ -1,5 +1,5 @@
 export function stripHtml(value: string): string {
-  let text = value.normalize("NFKC");
+let text = value.normalize("NFKC");
   // Decode entities first so entity-encoded tags are also stripped below
   text = text.replace(/&(?:lt|gt|amp|quot|#x27|#39);/gi, (m) => {
     const map: Record<string, string> = {
