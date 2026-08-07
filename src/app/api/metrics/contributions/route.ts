@@ -390,7 +390,7 @@ export async function GET(req: NextRequest) {
   } else {
     const daysParam = req.nextUrl.searchParams.get("days");
     const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
-    days = isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+    days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
   }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
