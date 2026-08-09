@@ -1,4 +1,5 @@
 import {
+  GitHubRateLimitError,
   githubRateLimitResponse,
   throwIfGitHubRateLimited,
 } from "@/lib/github-rate-limit";
@@ -182,10 +183,20 @@ async function fetchContributionsForAccount(
         });
 
         if (!searchRes.ok) {
-          throwIfGitHubRateLimited(searchRes);
-          if (searchRes.status === 429 || searchRes.status === 403) {
-            return { items: [], total_count: 0, rateLimited: true, status: searchRes.status };
+          try {
+            throwIfGitHubRateLimited(searchRes);
+          } catch (error) {
+            if (error instanceof GitHubRateLimitError) {
+              return {
+                items: [],
+                total_count: 0,
+                rateLimited: true,
+                status: searchRes.status,
+              };
+            }
+            throw error;
           }
+
           throw new Error(`GitHub API error: ${searchRes.status}`);
         }
 
@@ -193,7 +204,12 @@ async function fetchContributionsForAccount(
           total_count: number;
           items: GitHubCommitSearchItem[];
         };
-        return { items: data.items, total_count: data.total_count, rateLimited: false, status: 200 };
+        return {
+          items: data.items,
+          total_count: data.total_count,
+          rateLimited: false,
+          status: 200,
+        };
       };
 
       // Fetch first page sequentially to get total count
@@ -211,29 +227,52 @@ async function fetchContributionsForAccount(
       // GitHub recommends against firing concurrent requests for a single
       // user token; capping to a small pool keeps us within that guidance
       // while still avoiding serverless timeouts on highly active users.
-      if (!firstPage.rateLimited && firstPage.items.length === 100 && totalCount > 100) {
+      if (
+        !firstPage.rateLimited &&
+        firstPage.items.length === 100 &&
+        totalCount > 100
+      ) {
         const totalNeededPages = Math.min(10, Math.ceil(totalCount / 100));
         const remainingPages: number[] = [];
         for (let p = 2; p <= totalNeededPages; p++) {
           remainingPages.push(p);
         }
 
-        for (let i = 0; i < remainingPages.length; i += PAGE_FETCH_CONCURRENCY) {
+        for (
+          let i = 0;
+          i < remainingPages.length;
+          i += PAGE_FETCH_CONCURRENCY
+        ) {
           const batch = remainingPages.slice(i, i + PAGE_FETCH_CONCURRENCY);
-          const batchResults = await Promise.all(batch.map((p) => fetchPage(p)));
+          const batchResults = await Promise.all(
+            batch.map((p) => fetchPage(p))
+          );
+          let shouldStopPaging = false;
+
           for (const res of batchResults) {
             // Rate-limited pages intentionally contribute no items; the
             // response falls back to whatever pages were fetched before
             // the limit was hit, rather than failing the whole request.
             allItems = allItems.concat(res.items);
+            if (res.rateLimited || res.items.length < 100) {
+              shouldStopPaging = true;
+            }
+          }
+
+          if (shouldStopPaging) {
+            break;
           }
         }
       }
 
       const commitsByDay: Record<string, number> = {};
-      const timeBlocks: TimeBlocks = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+      const timeBlocks: TimeBlocks = {
+        morning: 0,
+        afternoon: 0,
+        evening: 0,
+        night: 0,
+      };
       for (const item of allItems) {
-
         const date = getDateInTimezone(item.commit.author.date, timezone);
         commitsByDay[date] = (commitsByDay[date] ?? 0) + 1;
         commitItems.push({
@@ -251,7 +290,13 @@ async function fetchContributionsForAccount(
         else timeBlocks.night++;
       }
 
-      return { days, total: totalCount, data: commitsByDay, commits: commitItems, timeBlocks };
+      return {
+        days,
+        total: totalCount,
+        data: commitsByDay,
+        commits: commitItems,
+        timeBlocks,
+      };
     }
   );
 }
@@ -384,18 +429,23 @@ export async function GET(req: NextRequest) {
   if (fromParam && toParam) {
     fromDate = fromParam;
     const msPerDay = 1000 * 60 * 60 * 24;
-    days = Math.ceil(
-      (new Date(toParam).getTime() - new Date(fromParam).getTime()) / msPerDay
-    ) + 1;
+    days =
+      Math.ceil(
+        (new Date(toParam).getTime() - new Date(fromParam).getTime()) / msPerDay
+      ) + 1;
   } else {
     const daysParam = req.nextUrl.searchParams.get("days");
     const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
-    days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+    days = Number.isNaN(parsedDays)
+      ? 30
+      : Math.max(1, Math.min(365, parsedDays));
   }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const usernameParam = req.nextUrl.searchParams.get("username");
-  const username = usernameParam ? normalizeGitHubUsername(usernameParam) : null;
+  const username = usernameParam
+    ? normalizeGitHubUsername(usernameParam)
+    : null;
   const bypass = isMetricsCacheBypassed(req);
   const gitlabToken =
     typeof session.gitlabToken === "string" ? session.gitlabToken : undefined;
@@ -413,7 +463,10 @@ export async function GET(req: NextRequest) {
     targetAccountId = parts[1];
     orgName = parts[2];
     if (!targetAccountId || !orgName) {
-      return Response.json({ error: "Invalid organization account ID" }, { status: 400 });
+      return Response.json(
+        { error: "Invalid organization account ID" },
+        { status: 400 }
+      );
     }
   }
 
@@ -427,7 +480,10 @@ export async function GET(req: NextRequest) {
         .eq("github_id", session.githubId)
         .single();
 
-      const orgsConfig = (dbUser?.organizations_config || {}) as Record<string, boolean>;
+      const orgsConfig = (dbUser?.organizations_config || {}) as Record<
+        string,
+        boolean
+      >;
       excludedOrgs = Object.entries(orgsConfig)
         .filter(([_, enabled]) => enabled === false)
         .map(([org]) => org);
@@ -454,9 +510,9 @@ export async function GET(req: NextRequest) {
         excludedOrgs
       );
       return Response.json(result);
-  } catch (error) {
-    return githubApiErrorResponse(error);
-  }
+    } catch (error) {
+      return githubApiErrorResponse(error);
+    }
   }
 
   if (!targetAccountId) {
@@ -524,16 +580,15 @@ export async function GET(req: NextRequest) {
       )
     );
 
-
     const rateLimitedResult = results.find(
-  (result): result is PromiseRejectedResult =>
-    result.status === "rejected" &&
-    githubRateLimitResponse(result.reason) !== null
-);
+      (result): result is PromiseRejectedResult =>
+        result.status === "rejected" &&
+        githubRateLimitResponse(result.reason) !== null
+    );
 
-if (rateLimitedResult) {
-  return githubApiErrorResponse(rateLimitedResult.reason);
-}
+    if (rateLimitedResult) {
+      return githubApiErrorResponse(rateLimitedResult.reason);
+    }
 
     const merged = mergeMetrics(results, (a, b) => ({
       days: a.days,
