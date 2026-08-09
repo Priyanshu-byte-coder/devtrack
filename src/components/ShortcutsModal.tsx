@@ -31,7 +31,10 @@ export default function ShortcutsModal({
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [isMac, setIsMac] = useState(false);
-  const [position, setPosition] = useState<{ top: number; right: number } | null>(null);
+  const [position, setPosition] = useState<{
+    top: number;
+    right: number;
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -63,6 +66,8 @@ export default function ShortcutsModal({
   }, [isOpen, anchorRef]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     if (!isOpen) {
       // Restore focus on close
       if (previousFocusRef.current) {
@@ -93,9 +98,10 @@ export default function ShortcutsModal({
       if (e.key === "Tab") {
         if (!modalRef.current) return;
 
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+        const focusableElements =
+          modalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
 
         if (focusableElements.length === 0) return;
 
@@ -130,7 +136,7 @@ export default function ShortcutsModal({
       document.removeEventListener("touchstart", handleClickOutside);
       document.removeEventListener("focusin", handleFocusIn);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, mounted]);
 
   if (!isOpen || !mounted) return null;
 

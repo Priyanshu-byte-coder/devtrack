@@ -23,7 +23,9 @@ describe("ProfileQrModal", () => {
   });
 
   it("does not render when isOpen is false", () => {
-    const { container } = render(<ProfileQrModal {...defaultProps}/>);
+    const { container } = render(
+      <ProfileQrModal {...defaultProps} isOpen={false} />
+    );
     expect(container.firstChild).toBeNull();
   });
 
@@ -31,15 +33,21 @@ describe("ProfileQrModal", () => {
     const { container } = render(<ProfileQrModal {...defaultProps} />);
 
     // Check heading
-    expect(screen.getByRole("heading", { name: /Share Profile QR/i })).toBeInTheDocument();
-    
+    expect(
+      screen.getByRole("heading", { name: /Share Profile QR/i })
+    ).toBeInTheDocument();
+
     // Check helper description
     expect(
-      screen.getByText(/Scan with a phone camera to quickly view @john_doe's profile on DevTrack/i)
+      screen.getByText(
+        /Scan with a phone camera to quickly view @john_doe's profile on DevTrack/i
+      )
     ).toBeInTheDocument();
 
     // Check close button
-    expect(screen.getByRole("button", { name: /Close modal/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Close modal/i })
+    ).toBeInTheDocument();
 
     // Check QR code canvas is rendered
     const canvas = container.querySelector("canvas");
@@ -89,7 +97,8 @@ describe("ProfileQrModal", () => {
     render(<ProfileQrModal {...defaultProps} />);
 
     // Mock HTMLCanvasElement.prototype.toDataURL cleanly via spyOn
-    const toDataURLSpy = vi.spyOn(HTMLCanvasElement.prototype, "toDataURL")
+    const toDataURLSpy = vi
+      .spyOn(HTMLCanvasElement.prototype, "toDataURL")
       .mockReturnValue("data:image/png;base64,mocked_image_data");
 
     // Spy on document.createElement capturing original implementation to avoid infinite recursion
@@ -100,17 +109,25 @@ describe("ProfileQrModal", () => {
       download: "",
       click: linkClickSpy,
     };
-    const createElementSpy = vi.spyOn(document, "createElement").mockImplementation((tagName) => {
-      if (tagName === "a") {
-        return linkMock as any;
-      }
-      return originalCreateElement(tagName);
+    const createElementSpy = vi
+      .spyOn(document, "createElement")
+      .mockImplementation((tagName) => {
+        if (tagName === "a") {
+          return linkMock as any;
+        }
+        return originalCreateElement(tagName);
+      });
+
+    const appendChildSpy = vi
+      .spyOn(document.body, "appendChild")
+      .mockImplementation(() => ({}) as any);
+    const removeChildSpy = vi
+      .spyOn(document.body, "removeChild")
+      .mockImplementation(() => ({}) as any);
+
+    const downloadButton = screen.getByRole("button", {
+      name: /Download QR Code/i,
     });
-
-    const appendChildSpy = vi.spyOn(document.body, "appendChild").mockImplementation(() => ({} as any));
-    const removeChildSpy = vi.spyOn(document.body, "removeChild").mockImplementation(() => ({} as any));
-
-    const downloadButton = screen.getByRole("button", { name: /Download QR Code/i });
     fireEvent.click(downloadButton);
 
     // Verify canvas toDataURL was called
