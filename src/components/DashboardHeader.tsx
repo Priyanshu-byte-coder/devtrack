@@ -40,6 +40,11 @@ interface CacheEntry {
   statusText: string;
 }
 
+interface ShareStats {
+streak: number | null;
+mergeRate: number | null;
+goalPercent: number | null;
+}
 const clientCache = new Map<string, CacheEntry>();
 const pendingRequests = new Map<string, Promise<Response>>();
 
@@ -212,6 +217,12 @@ export default function DashboardHeader() {
   const [isNightOwl, setIsNightOwl] = useState<boolean>(false);
   const [isEarlyBird, setIsEarlyBird] = useState<boolean>(false);
 
+const [shareStats, setShareStats] = useState<ShareStats>({
+  streak: null,
+  mergeRate: null,
+  goalPercent: null,
+});
+
   useEffect(() => {
     const computeCurrentGreeting = () => {
       const currentHour = new Date().getHours();
@@ -290,6 +301,33 @@ export default function DashboardHeader() {
     }
 
     evaluateCodingDistributionMilestones();
+  }, [session]);
+  useEffect(() => {
+    if (!session?.githubLogin) return;
+
+    async function loadShareStats() {
+      try {
+        const [streakRes, prsRes, goalsRes] = await Promise.all([
+          fetch("/api/metrics/streak"),
+          fetch("/api/metrics/prs"),
+          fetch("/api/goals"),
+        ]);
+
+        const streakData = streakRes.ok ? await streakRes.json() : null;
+        const prsData = prsRes.ok ? await prsRes.json() : null;
+        const goalsData = goalsRes.ok ? await goalsRes.json() : null;
+
+        setShareStats({
+          streak: streakData?.current_streak ?? null,
+          mergeRate: prsData?.merge_rate ?? null,
+          goalPercent: goalsData?.[0]?.progress_percent ?? null,
+        });
+      } catch (err) {
+        console.error("Failed to load share stats:", err);
+      }
+    }
+
+    loadShareStats();
   }, [session]);
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -393,8 +431,8 @@ export default function DashboardHeader() {
         <div className="w-full min-w-0 lg:w-auto">
           <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 lg:w-auto lg:justify-end lg:overflow-visible lg:pb-0">
             {isPublic === true && session?.githubLogin && (
-              <ShareProfileButton githubLogin={session.githubLogin} />
-            )}
+                <ShareProfileButton githubLogin={session.githubLogin} stats={shareStats} />
+              )}
 
             <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/50 p-2 shadow-sm backdrop-blur-sm">
               <div className="transition-transform duration-200 hover:scale-[1.05]">
@@ -490,7 +528,7 @@ export default function DashboardHeader() {
           </div>
 
           {isPublic === true && session?.githubLogin && (
-            <ShareProfileButton githubLogin={session.githubLogin} />
+            <ShareProfileButton githubLogin={session.githubLogin} stats={shareStats} />
           )}
         </div>
       )}
