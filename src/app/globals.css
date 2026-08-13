@@ -290,17 +290,31 @@ body:has(.wrapped-root) {
 
 body {
   background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 34%),
-    radial-gradient(circle at 100% 18%, color-mix(in srgb, var(--accent-secondary) 14%, transparent), transparent 30%),
+    radial-gradient(
+      circle at 0% 0%,
+      color-mix(in srgb, var(--accent) 20%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 100% 18%,
+      color-mix(in srgb, var(--accent-secondary) 14%, transparent),
+      transparent 30%
+    ),
     var(--background);
   color: var(--foreground);
-  transition: background-color 200ms ease, color 200ms ease;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
   overscroll-behavior: none;
 }
 
 .surface-card {
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, #ffffff 8%), var(--card));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card) 92%, #ffffff 8%),
+    var(--card)
+  );
   box-shadow: var(--shadow-soft);
 }
 
@@ -308,7 +322,10 @@ body {
   border: 1px solid color-mix(in srgb, var(--accent) 86%, white 14%);
   background: linear-gradient(140deg, var(--accent), var(--accent-secondary));
   color: var(--accent-foreground);
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
 }
 
 .primary-button:hover {
@@ -321,7 +338,10 @@ body {
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--card) 88%, white 12%);
   color: var(--card-foreground);
-  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
 }
 
 .secondary-button:hover {
@@ -383,59 +403,65 @@ body {
    ───────────────────────────────────────── */
 
 /* Staggered animation delays for child elements */
-.stagger-children>*:nth-child(1) {
+.stagger-children > *:nth-child(1) {
   animation-delay: 0ms;
 }
 
-.stagger-children>*:nth-child(2) {
+.stagger-children > *:nth-child(2) {
   animation-delay: 50ms;
 }
 
-.stagger-children>*:nth-child(3) {
+.stagger-children > *:nth-child(3) {
   animation-delay: 100ms;
 }
 
-.stagger-children>*:nth-child(4) {
+.stagger-children > *:nth-child(4) {
   animation-delay: 150ms;
 }
 
-.stagger-children>*:nth-child(5) {
+.stagger-children > *:nth-child(5) {
   animation-delay: 200ms;
 }
 
-.stagger-children>*:nth-child(6) {
+.stagger-children > *:nth-child(6) {
   animation-delay: 250ms;
 }
 
-.stagger-children>*:nth-child(7) {
+.stagger-children > *:nth-child(7) {
   animation-delay: 300ms;
 }
 
-.stagger-children>*:nth-child(8) {
+.stagger-children > *:nth-child(8) {
   animation-delay: 350ms;
 }
 
-.stagger-children>*:nth-child(9) {
+.stagger-children > *:nth-child(9) {
   animation-delay: 400ms;
 }
 
-.stagger-children>*:nth-child(10) {
+.stagger-children > *:nth-child(10) {
   animation-delay: 450ms;
 }
 
 /* Shimmer skeleton loading effect */
 .skeleton-shimmer {
-  background: linear-gradient(90deg,
-      var(--card-muted) 0%,
-      color-mix(in srgb, var(--card-muted) 60%, var(--border) 40%) 50%,
-      var(--card-muted) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--card-muted) 0%,
+    color-mix(in srgb, var(--card-muted) 60%, var(--border) 40%) 50%,
+    var(--card-muted) 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
 }
 
 /* Interactive stat cell — hover lift + glow */
 .stat-cell {
-  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease;
 }
 
 .stat-cell:hover {
@@ -445,7 +471,11 @@ body {
 
 /* Interactive list item — subtle left-border reveal + slide */
 .list-item-hover {
-  transition: transform 200ms ease, background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
   border-left: 3px solid transparent;
 }
 
@@ -555,7 +585,9 @@ body {
   padding: 12px 24px;
   border-radius: 6px;
   text-decoration: none;
-  transition: background 0.2s, transform 0.1s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 
 .lnd-cta-primary {
@@ -660,8 +692,8 @@ body {
     rgba(129, 140, 248, 0.5) 0%,
     transparent 80%
   );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -689,7 +721,6 @@ body {
   position: relative;
 }
 
-
 @media (max-width: 640px) {
   .lnd-ticker {
     animation-duration: 20s !important;
@@ -698,7 +729,6 @@ body {
 
 /* --- Accessibility Fix: Respect prefers-reduced-motion (WCAG 2.3.3) --- */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -774,4 +804,19 @@ body {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
+}
+/* Print styles for public profile export */
+@media print {
+  body {
+    background: white !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  .surface-card,
+  [class*="rounded-2xl"] {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid;
+  }
 }
