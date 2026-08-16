@@ -1,5 +1,5 @@
 import "./setup";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -46,6 +46,16 @@ describe("GET /api/metrics/weekly-summary?accountId=combined", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetch.mockReset();
+
+    // The fixtures below are pinned to the week of Monday 2026-06-15, and the
+    // route buckets commits into "this week" / "last week" relative to now.
+    // Without a fixed clock this suite passes only during that one week.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-06-17T12:00:00Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("successfully fetches and merges weekly summaries across all linked accounts", async () => {

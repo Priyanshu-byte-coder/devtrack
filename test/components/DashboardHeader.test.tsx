@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom/vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import DashboardHeader from "../../src/components/DashboardHeader";
 import { useSession } from "next-auth/react";
@@ -198,16 +198,25 @@ describe("DashboardHeader", () => {
       }),
     });
 
-    renderDashboardHeader();
-
-    const link = await screen.findByRole("link", {
-      name: /share profile/i,
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
     });
 
-    expect(link).toHaveAttribute(
-      "href",
-      "/u/testuser"
-    );
+    renderDashboardHeader();
+
+    // Share Profile is a copy-to-clipboard button, not an anchor: it puts the
+    // absolute profile URL on the clipboard so it can be pasted anywhere.
+    const shareButton = await screen.findByRole("button", {
+      name: /share profile/i,
+    });
+    fireEvent.click(shareButton);
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledTimes(1);
+    });
+    expect(writeText.mock.calls[0][0]).toMatch(/\/u\/testuser$/);
   });
 
   it("handles fetch failure gracefully", async () => {
