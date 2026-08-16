@@ -155,6 +155,32 @@ describe("validateCronRequest", () => {
 
 // ─── discord-sync route — auth regression tests (#1657) ──────────────────────
 
+/**
+ * A stand-in for a PostgREST query builder.
+ *
+ * Every filter method returns the same object, and the object is thenable, so
+ * `await`ing it anywhere in the chain resolves to `result`. This means a route
+ * can add, drop or reorder `.not()` / `.or()` / `.order()` / `.range()` calls
+ * without the test having to mirror the exact chain — which is what broke this
+ * mock when discord-sync gained pagination.
+ */
+function supabaseQueryStub<T>(result: T) {
+  const stub: Record<string, unknown> = {
+    then: (resolve: (value: T) => unknown, reject?: (reason: unknown) => unknown) =>
+      Promise.resolve(result).then(resolve, reject),
+  };
+  for (const method of [
+    "select", "insert", "update", "upsert", "delete",
+    "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "is", "in",
+    "not", "or", "filter", "match", "order", "range", "limit",
+  ]) {
+    stub[method] = vi.fn(() => stub);
+  }
+  stub.single = vi.fn(() => Promise.resolve(result));
+  stub.maybeSingle = vi.fn(() => Promise.resolve(result));
+  return stub;
+}
+
 const discordMocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
   fetchPublicStreak: vi.fn(),
@@ -254,12 +280,12 @@ describe("GET /api/notifications/discord-sync — authentication (#1657)", () =>
   it("proceeds past auth when the correct Bearer token is supplied", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
 
-    // Supabase returns no users — the job completes immediately
-    discordMocks.supabaseFrom.mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        not: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    });
+    // Supabase returns no users — the job completes immediately.
+    // The query builder is chainable and thenable, so the route can add or
+    // reorder filters without this mock needing to mirror the exact chain.
+    discordMocks.supabaseFrom.mockReturnValue(
+      supabaseQueryStub({ data: [], error: null })
+    );
 
     const { GET } = await import("@/app/api/notifications/discord-sync/route");
     const res = await GET(makeDiscordRequest("Bearer s3cr3t"));
