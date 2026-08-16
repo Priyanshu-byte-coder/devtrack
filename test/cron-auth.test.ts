@@ -21,6 +21,7 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { validateCronRequest } from "@/lib/cron-auth";
+import { supabaseQueryStub } from "./supabase-query-stub";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -154,32 +155,6 @@ describe("validateCronRequest", () => {
 });
 
 // ─── discord-sync route — auth regression tests (#1657) ──────────────────────
-
-/**
- * A stand-in for a PostgREST query builder.
- *
- * Every filter method returns the same object, and the object is thenable, so
- * `await`ing it anywhere in the chain resolves to `result`. This means a route
- * can add, drop or reorder `.not()` / `.or()` / `.order()` / `.range()` calls
- * without the test having to mirror the exact chain — which is what broke this
- * mock when discord-sync gained pagination.
- */
-function supabaseQueryStub<T>(result: T) {
-  const stub: Record<string, unknown> = {
-    then: (resolve: (value: T) => unknown, reject?: (reason: unknown) => unknown) =>
-      Promise.resolve(result).then(resolve, reject),
-  };
-  for (const method of [
-    "select", "insert", "update", "upsert", "delete",
-    "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "is", "in",
-    "not", "or", "filter", "match", "order", "range", "limit",
-  ]) {
-    stub[method] = vi.fn(() => stub);
-  }
-  stub.single = vi.fn(() => Promise.resolve(result));
-  stub.maybeSingle = vi.fn(() => Promise.resolve(result));
-  return stub;
-}
 
 const discordMocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
