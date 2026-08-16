@@ -7,6 +7,10 @@ on:
     branches: [main]
     types: [opened, synchronize, reopened]
 
+# Default to read-only; jobs that need more raise it themselves.
+permissions:
+  contents: read
+
 # Cancel outdated runs on the same PR/branch to save CI minutes.
 concurrency:
   group: ci-${{ github.ref }}
