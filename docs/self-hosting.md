@@ -140,4 +140,4 @@ DevTrack includes a `render.yaml` Blueprint for easy deployment on Render's free
 - **AI features not available**:
   AI routes (personality, project tutor, roast, weekly summary) require `GROQ_API_KEY` or `ANTHROPIC_API_KEY`. Without them, AI buttons are hidden or the endpoints return a graceful error. The rest of the app functions normally.
 - **Leaderboard rebuild endpoint returns 401**:
-  Set `LEADERBOARD_REBUILD_TOKEN` in your environment and pass it as `Authorization: Bearer <token>` when calling `/api/leaderboard/rebuild`.
+  Set `LEADERBOARD_REBUILD_TOKEN` in your environment and pass it in the `x-devtrack-rebuild-token` header when calling `/api/leaderboard/rebuild`. The token is only read from that header — passing it as a `?token=` query parameter is not supported, because query strings end up in access and proxy logs.

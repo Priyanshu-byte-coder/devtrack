@@ -1,6 +1,12 @@
 name: PR Labeler
 on:
   pull_request_target:
+
+# pull_request_target runs with a privileged token, so default it to read-only
+# and let the label job raise only what it needs.
+permissions:
+  contents: read
+
 jobs:
   label:
     permissions:
@@ -10,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/labeler@v6
+      - uses: actions/labeler@v7
         continue-on-error: true
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"

@@ -68,39 +68,29 @@ export function ProfileQrModal({
   );
 
   const handleDownload = useCallback(() => {
-    const svg = qrContainerRef.current?.querySelector("svg");
-    if (!svg) return;
+    // QRCodeCanvas renders a <canvas>, so the pixels are already there — read
+    // them straight off it. A previous version looked for a <svg> here, which
+    // this component has never rendered, so the button silently did nothing.
+    const source = qrContainerRef.current?.querySelector("canvas");
+    if (!source) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
     const padding = 24; // px of white border around the QR code
-    const qrSize = 256;
-    canvas.width = qrSize + padding * 2;
-    canvas.height = qrSize + padding * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = source.width + padding * 2;
+    canvas.height = source.height + padding * 2;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // White background
+    // White background so the code still scans when saved on a dark theme.
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, padding, padding);
 
-    const img = new Image();
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    img.onload = () => {
-      ctx.drawImage(img, padding, padding, qrSize, qrSize);
-      URL.revokeObjectURL(url);
-
-      const pngUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = pngUrl;
-      link.download = `devtrack-${username}-qr.png`;
-      link.click();
-    };
-
-    img.src = url;
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = `devtrack-${username}-qr.png`;
+    link.click();
   }, [username]);
 
   return (

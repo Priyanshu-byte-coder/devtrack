@@ -72,6 +72,11 @@ export default function ShortcutsModal({
       return;
     }
 
+    // The modal renders null until `mounted` flips true, so on the first pass
+    // closeBtnRef is still empty. Wait for the DOM to exist, otherwise focus
+    // never enters the dialog and a keyboard user is left outside it.
+    if (!mounted) return;
+
     // Save previous active element to restore later, only on initial open
     if (!previousFocusRef.current) {
       previousFocusRef.current = document.activeElement as HTMLElement | null;
@@ -130,7 +135,7 @@ export default function ShortcutsModal({
       document.removeEventListener("touchstart", handleClickOutside);
       document.removeEventListener("focusin", handleFocusIn);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, mounted]);
 
   if (!isOpen || !mounted) return null;
 

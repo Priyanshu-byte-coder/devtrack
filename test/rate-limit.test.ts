@@ -1,72 +1,115 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { getClientIp, createMemoryFixedWindowRateLimiter } from '../src/lib/rate-limit';
 
+/**
+ * getClientIp only reads forwarding headers when the deployment declares which
+ * proxy sits in front of it. Any client can set x-forwarded-for, x-real-ip or
+ * cf-connecting-ip on a direct request, so trusting them unconditionally would
+ * let an attacker pick their own rate-limit bucket. These tests therefore pin
+ * behaviour per TRUSTED_PROXY mode rather than asserting a single header order.
+ */
 describe('getClientIp', () => {
-  it('gives priority to cf-connecting-ip', () => {
-    const req = {
-      headers: new Headers({
+  const ORIGINAL_TRUSTED_PROXY = process.env.TRUSTED_PROXY;
+  const ORIGINAL_VERCEL = process.env.VERCEL;
+
+  afterEach(() => {
+    process.env.TRUSTED_PROXY = ORIGINAL_TRUSTED_PROXY;
+    process.env.VERCEL = ORIGINAL_VERCEL;
+    if (ORIGINAL_TRUSTED_PROXY === undefined) delete process.env.TRUSTED_PROXY;
+    if (ORIGINAL_VERCEL === undefined) delete process.env.VERCEL;
+  });
+
+  const reqWith = (headers: Record<string, string>) => ({ headers: new Headers(headers) });
+
+  describe('TRUSTED_PROXY=vercel', () => {
+    beforeEach(() => {
+      process.env.TRUSTED_PROXY = 'vercel';
+    });
+
+    it('prefers x-real-ip, which Vercel sets at the edge', () => {
+      const req = reqWith({ 'x-real-ip': '2.2.2.2', 'x-forwarded-for': '3.3.3.3' });
+      expect(getClientIp(req as any)).toBe('2.2.2.2');
+    });
+
+    it('falls back to the first hop of x-forwarded-for', () => {
+      const req = reqWith({ 'x-forwarded-for': '3.3.3.3, 4.4.4.4' });
+      expect(getClientIp(req as any)).toBe('3.3.3.3');
+    });
+
+    it('ignores cf-connecting-ip, which no Vercel proxy sets', () => {
+      const req = reqWith({ 'cf-connecting-ip': '1.1.1.1' });
+      expect(getClientIp(req as any)).toBe('unknown');
+    });
+
+    it('trims whitespace and skips blank header values', () => {
+      const req = reqWith({ 'x-real-ip': '   ', 'x-forwarded-for': '  6.6.6.6  ' });
+      expect(getClientIp(req as any)).toBe('6.6.6.6');
+    });
+
+    it('returns unknown when no forwarding header is present', () => {
+      expect(getClientIp(reqWith({ host: 'example.com' }) as any)).toBe('unknown');
+    });
+  });
+
+  describe('TRUSTED_PROXY=cloudflare', () => {
+    beforeEach(() => {
+      process.env.TRUSTED_PROXY = 'cloudflare';
+    });
+
+    it('prefers cf-connecting-ip', () => {
+      const req = reqWith({ 'cf-connecting-ip': '1.1.1.1', 'x-real-ip': '2.2.2.2' });
+      expect(getClientIp(req as any)).toBe('1.1.1.1');
+    });
+
+    it('falls back to x-real-ip when cf-connecting-ip is blank', () => {
+      const req = reqWith({ 'cf-connecting-ip': '   ', 'x-real-ip': '2.2.2.2' });
+      expect(getClientIp(req as any)).toBe('2.2.2.2');
+    });
+
+    it('ignores x-forwarded-for, which Cloudflare does not vouch for', () => {
+      const req = reqWith({ 'x-forwarded-for': '3.3.3.3' });
+      expect(getClientIp(req as any)).toBe('unknown');
+    });
+  });
+
+  describe('TRUSTED_PROXY=none', () => {
+    beforeEach(() => {
+      process.env.TRUSTED_PROXY = 'none';
+    });
+
+    it('ignores every forwarding header, because a client can forge them all', () => {
+      const req = reqWith({
         'cf-connecting-ip': '1.1.1.1',
         'x-real-ip': '2.2.2.2',
         'x-forwarded-for': '3.3.3.3',
-      }),
-    };
-    expect(getClientIp(req as any)).toBe('1.1.1.1');
+      });
+      expect(getClientIp(req as any)).toBe('unknown');
+    });
   });
 
-  it('falls back to x-real-ip if cf-connecting-ip is missing', () => {
-    const req = {
-      headers: new Headers({
-        'x-real-ip': '2.2.2.2',
-        'x-forwarded-for': '3.3.3.3',
-      }),
-    };
-    expect(getClientIp(req as any)).toBe('2.2.2.2');
+  describe('auto-detection', () => {
+    it('trusts Vercel headers when VERCEL=1 and TRUSTED_PROXY is unset', () => {
+      delete process.env.TRUSTED_PROXY;
+      process.env.VERCEL = '1';
+      expect(getClientIp(reqWith({ 'x-real-ip': '2.2.2.2' }) as any)).toBe('2.2.2.2');
+    });
+
+    it('trusts nothing when neither TRUSTED_PROXY nor VERCEL is set', () => {
+      delete process.env.TRUSTED_PROXY;
+      delete process.env.VERCEL;
+      expect(getClientIp(reqWith({ 'x-real-ip': '2.2.2.2' }) as any)).toBe('unknown');
+    });
+
+    it('falls back to no-trust for an unrecognised TRUSTED_PROXY value', () => {
+      process.env.TRUSTED_PROXY = 'nginx';
+      delete process.env.VERCEL;
+      expect(getClientIp(reqWith({ 'x-real-ip': '2.2.2.2' }) as any)).toBe('unknown');
+    });
   });
 
-  it('falls back to x-forwarded-for (first IP) if others are missing', () => {
-    const req = {
-      headers: new Headers({
-        'x-forwarded-for': '3.3.3.3, 4.4.4.4',
-      }),
-    };
-    expect(getClientIp(req as any)).toBe('3.3.3.3');
-  });
-
-  it('returns unknown when no relevant headers exist', () => {
-    const req = {
-      headers: new Headers({
-        'host': 'example.com',
-      }),
-    };
-    expect(getClientIp(req as any)).toBe('unknown');
-  });
-
-  it('trims whitespace from header values', () => {
-    const req = {
-      headers: new Headers({
-        'cf-connecting-ip': '  5.5.5.5  ',
-      }),
-    };
-    expect(getClientIp(req as any)).toBe('5.5.5.5');
-  });
-
-  it('handles empty string headers gracefully', () => {
-    const req = {
-      headers: new Headers({
-        'cf-connecting-ip': '   ',
-        'x-real-ip': '',
-        'x-forwarded-for': '6.6.6.6',
-      }),
-    };
-    expect(getClientIp(req as any)).toBe('6.6.6.6');
-  });
-
-  it('handles missing headers map completely', () => {
-    const req = {
-      headers: {
-        get: () => null,
-      },
-    };
+  it('handles a request whose headers map returns null for everything', () => {
+    process.env.TRUSTED_PROXY = 'vercel';
+    const req = { headers: { get: () => null } };
     expect(getClientIp(req as any)).toBe('unknown');
   });
 });

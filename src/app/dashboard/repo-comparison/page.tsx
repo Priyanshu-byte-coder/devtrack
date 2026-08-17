@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -29,26 +30,26 @@ export default function RepoComparisonPage() {
     const parts = trimmed.split("/");
 
     if (parts.length !== 2) {
-      alert("Invalid format! Use owner/repo (e.g. facebook/react)");
+      toast.error("Use the owner/repo format, for example facebook/react.");
       return;
     }
 
     const [owner, repo] = parts;
 
     if (!owner || !repo) {
-      alert("Invalid repository");
+      toast.error("Enter both an owner and a repository name.");
       return;
     }
 
     if (trimmed.includes(" ")) {
-      alert("No spaces allowed in repository name");
+      toast.error("Repository names cannot contain spaces.");
       return;
     }
 
     if (repos.includes(trimmed)) return;
 
     if (repos.length >= 5) {
-      alert("You can compare max 5 repositories only");
+      toast.error("You can compare up to 5 repositories at a time.");
       return;
     }
 
@@ -58,7 +59,7 @@ export default function RepoComparisonPage() {
       );
 
       if (!res.ok) {
-        alert("Repository does not exist on GitHub");
+        toast.error("That repository does not exist on GitHub.");
         return;
       }
 
@@ -67,7 +68,7 @@ export default function RepoComparisonPage() {
       setRepos([...repos, data.full_name]);
       setInput("");
     } catch {
-      alert("Error validating repository");
+      toast.error("Could not reach GitHub to check that repository. Try again.");
     }
   };
 
@@ -77,7 +78,7 @@ export default function RepoComparisonPage() {
 
   const fetchRepoData = async () => {
     if (repos.length < 2) {
-      alert("Add at least 2 repositories to compare");
+      toast.error("Add at least 2 repositories to compare.");
       return;
     }
 
@@ -99,7 +100,7 @@ export default function RepoComparisonPage() {
             name: data.full_name,
             stars: data.stargazers_count,
             forks: data.forks_count,
-            watchers: data.watchers_count,
+            watchers: data.subscribers_count,
             issues: data.open_issues_count,
           };
         })
@@ -107,7 +108,7 @@ export default function RepoComparisonPage() {
 
       setRepoData(results.filter((r): r is NonNullable<typeof r> => r !== null));
     } catch {
-      alert("Failed to fetch repo data");
+      toast.error("Could not load repository data. Try again.");
     }
 
     setLoading(false);

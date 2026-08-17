@@ -235,11 +235,11 @@ function MouseSpotlight() {
    BENTO WIDGETS
    ═══════════════════════════════════════════════════════════ */
 const wLabel: React.CSSProperties = {
-  fontFamily: MONO, fontSize: 10, fontWeight: 500,
+  fontFamily: MONO, fontSize: 11, fontWeight: 600,
   color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em',
 };
 const wValue: React.CSSProperties = {
-  fontFamily: MONO, fontWeight: 600, color: TEXT,
+  fontFamily: MONO, fontWeight: 700, color: TEXT,
 };
 
 function Cell({
@@ -259,9 +259,9 @@ function Cell({
       style={{ 
         gridColumn: spanCols > 1 ? `span ${spanCols}` : undefined, 
         transformStyle: 'preserve-3d',
-        background: 'rgba(255, 255, 255, 0.02)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        background: 'color-mix(in srgb, var(--card) 80%, transparent)',
+        border: '1px solid var(--border)',
+        boxShadow: 'var(--shadow-soft)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         ...tiltStyle,
@@ -539,7 +539,7 @@ function HeroSection() {
         {/* Badge */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
-          background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
+          background: 'color-mix(in srgb, var(--accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)',
           borderRadius: 24, padding: '6px 14px', marginBottom: 28,
           boxShadow: '0 4px 14px rgba(129,140,248,0.1)',
         }}>
@@ -556,10 +556,7 @@ function HeroSection() {
             fontSize: 'clamp(44px,7vw,82px)', lineHeight: 0.95,
             letterSpacing: '-0.04em', margin: '0 0 24px',
             animation: 'lndHeroIn 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s both',
-            background: 'linear-gradient(180deg, var(--foreground) 0%, color-mix(in srgb, var(--foreground) 70%, transparent) 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            textShadow: '0 4px 24px rgba(0,0,0,0.8)',
+            color: TEXT,
           }}
         >
           YOUR<br />CODE<br />HAS A<br />
@@ -567,16 +564,16 @@ function HeroSection() {
             background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            textShadow: '0 0 30px rgba(129,140,248,0.4)',
+            textShadow: '0 0 30px rgba(129,140,248,0.3)',
           }}>PULSE</span>
-          <span style={{ color: 'var(--foreground)' }}>.</span>
+          <span style={{ color: TEXT }}>.</span>
         </h1>
 
         {/* Tagline */}
         <p style={{
-          fontSize: 'clamp(16px,2vw,18px)', color: 'var(--foreground)',
-          lineHeight: 1.6, maxWidth: 420, margin: '0 0 40px',
-          fontWeight: 400, letterSpacing: '0.01em', opacity: 0.85,
+          fontSize: 'clamp(16px,2vw,18px)', color: MUTED,
+          lineHeight: 1.6, maxWidth: 450, margin: '0 0 40px',
+          fontWeight: 500, letterSpacing: '0.01em',
         }}>
           Open-source developer productivity dashboard. Track GitHub streaks,
           PR velocity, and coding goals — automatically.
@@ -611,14 +608,6 @@ function HeroSection() {
               transition: 'transform 0.3s, background 0.3s',
               transform: 'translateY(0)',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.background = 'transparent';
-            }}
           >
             ★ Star on GitHub
           </a>
@@ -628,12 +617,12 @@ function HeroSection() {
       {/* Right: bento window frame */}
       <div style={{ flex: '1 1 340px', display: 'flex', flexDirection: 'column',alignItems: 'flex-end', gap: 24, position: 'relative', zIndex: 2 }}>
         <div style={{
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid rgba(255,255,255,0.05)',
+          background: 'color-mix(in srgb, var(--card) 85%, transparent)',
+          border: '1px solid var(--border)',
           borderRadius: 16,
-          boxShadow: '0 24px 64px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
+          boxShadow: 'var(--shadow-medium)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           overflow: 'hidden',
           width: '100%',
           maxWidth: 420,
@@ -641,8 +630,8 @@ function HeroSection() {
           {/* Traffic Lights */}
           <div style={{
             display: 'flex', gap: 8, padding: '16px 20px',
-            borderBottom: '1px solid rgba(255,255,255,0.03)',
-            background: 'rgba(0,0,0,0.2)',
+            borderBottom: '1px solid var(--border)',
+            background: 'color-mix(in srgb, var(--card) 95%, transparent)',
           }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
@@ -744,7 +733,7 @@ function AboutHighlightCard({
         }}>
           {item.title}
         </h3>
-        <p style={{ color: 'var(--foreground)', opacity: 0.85, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
+        <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
           {item.desc}
         </p>
       </div>
@@ -879,9 +868,9 @@ function StatItem({ value, label, delay }: { value: number; label: string; delay
         lineHeight: 1, letterSpacing: '-0.03em',
       }}>
         <Counter end={value} active={vis} />
-        <span style={{ color: 'var(--foreground)', fontSize: 'clamp(18px,3vw,28px)' }}>+</span>
+        <span style={{ color: A, fontSize: 'clamp(18px,3vw,28px)' }}>+</span>
       </div>
-      <div style={{ fontFamily: MONO, fontSize: 10, color: 'var(--muted-foreground)', letterSpacing: '0.12em', marginTop: 8 }}>
+      <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)', letterSpacing: '0.12em', marginTop: 8 }}>
         {label}
       </div>
     </div>
@@ -1267,7 +1256,7 @@ function ContributeSection({ stats }: { stats: RepoStats }) {
               borderRadius: 8, padding: '20px 20px 16px',
             }}
           >
-            <div style={{ fontFamily: MONO, fontSize: 10, color: '#94a3b8', letterSpacing: '0.1em', marginBottom: 10 }}>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, color: MUTED, letterSpacing: '0.1em', marginBottom: 10 }}>
               {s.icon} {s.label}
             </div>
             <div style={{

@@ -131,7 +131,9 @@ export async function PATCH(
       );
     }
     const validEvents = [
+      "streak.milestone_reached",
       "goal.completed",
+      "weekly_summary.ready",
       "goal.created",
       "streak.milestone",
       "daily.summary",

@@ -419,45 +419,7 @@ paths:
           description: Unauthorized
 
   # PUBLIC ROUTES
-  /api/public/{username}:
-    get:
-      tags: [Public]
-      summary: Get public profile data for a user
-      parameters:
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Public profile data
-          content:
-            application/json:
-              schema:
-                type: object
-        '404':
-          description: User not found
-
   # STREAK ROUTES
-  /api/streak/freeze:
-    post:
-      tags: [Streak]
-      summary: Use a streak freeze to protect current streak
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Streak freeze applied
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-        '400':
-          description: No streak freezes available
-
   # USER ROUTES
   /api/user/settings:
     get:

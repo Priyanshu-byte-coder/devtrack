@@ -76,4 +76,9 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
+# Probe with node rather than curl/wget - neither ships in node:20-alpine, and
+# /api/debug/health is auth-gated, so hit the landing page instead.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD node -e "require('http').get({host:'127.0.0.1',port:process.env.PORT||3000,path:'/'},r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
+
 CMD ["node", "server.js"]
