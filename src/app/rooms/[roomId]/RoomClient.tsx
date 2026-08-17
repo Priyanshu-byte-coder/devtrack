@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import type { CollaborationRoom, RoomMember, RoomMessage } from '@/types/rooms';
 import MessageFeed from '@/components/rooms/MessageFeed';
 import MessageInput from '@/components/rooms/MessageInput';
@@ -69,11 +70,11 @@ export default function RoomClient({
         router.push('/rooms');
       } else {
         const data = await res.json();
-        alert(data.error ?? 'Failed to delete room');
+        toast.error(data.error ?? 'Could not delete this room. Try again.');
       }
     } catch (e) {
       console.error(e);
-      alert('Failed to delete room. Please check your connection.');
+      toast.error('Could not reach the server. Check your connection and try again.');
     } finally {
       setDeleting(false);
     }
@@ -88,7 +89,7 @@ export default function RoomClient({
       router.push('/rooms');
     } else {
       const data = await res.json();
-      alert(data.error ?? 'Failed to leave room');
+      toast.error(data.error ?? 'Could not leave this room. Try again.');
     }
   }
 

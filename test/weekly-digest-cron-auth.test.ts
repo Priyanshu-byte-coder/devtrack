@@ -27,6 +27,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/cron/weekly-digest/route";
+import { supabaseQueryStub } from "./supabase-query-stub";
 
 // ─── hoisted mocks ──────────────────────────────────────────────────────────
 
@@ -51,10 +52,9 @@ function makeRequest(authHeader?: string): Request {
 
 /** Configure Supabase to return the given opted-in users. */
 function stubUsers(users: Array<{ github_login: string; email: string }>) {
-  const notChain = vi.fn().mockResolvedValue({ data: users, error: null });
-  const eqChain  = vi.fn().mockReturnValue({ not: notChain });
-  const selChain = vi.fn().mockReturnValue({ eq: eqChain });
-  mocks.supabaseFrom.mockReturnValue({ select: selChain });
+  mocks.supabaseFrom.mockReturnValue(
+    supabaseQueryStub({ data: users, error: null })
+  );
 }
 
 /** Configure Supabase to return no opted-in users. */
@@ -156,12 +156,12 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
 
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.sentCount).toBe(2);
+    expect(body.emailsSent).toBe(2);
     // One POST to Resend for each user
     expect(mocks.resendFetch).toHaveBeenCalledTimes(2);
   });
 
-  it("counts sent emails even when RESEND_API_KEY is absent (no network call made)", async () => {
+  it("reports users as skippedUnconfigured when RESEND_API_KEY is absent", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
     vi.stubEnv("RESEND_API_KEY", "");
     stubUsers([{ github_login: "charlie", email: "charlie@example.com" }]);
@@ -170,9 +170,11 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
 
     expect(res.status).toBe(200);
     const body = await res.json();
-    // sentCount still increments so the response reflects how many users were
-    // eligible, but no external call is made
-    expect(body.sentCount).toBe(1);
+    // Nothing was sent and nothing failed — a self-hosted deployment using an
+    // external mailer is not an error, but the outcome still has to be visible.
+    expect(body.skippedUnconfigured).toBe(1);
+    expect(body.emailsSent).toBe(0);
+    expect(body.emailsFailed).toBe(0);
     expect(mocks.resendFetch).not.toHaveBeenCalled();
   });
 

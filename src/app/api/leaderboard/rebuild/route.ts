@@ -5,7 +5,9 @@ import { cacheSet } from "@/lib/metrics-cache";
 import { supabaseAdmin, isSupabaseAdminAvailable } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
-  const token = req.headers.get("x-devtrack-rebuild-token") ?? req.nextUrl.searchParams.get("token");
+  // Header only. A `?token=` fallback would write the secret into access logs,
+  // proxy logs and Referer headers.
+  const token = req.headers.get("x-devtrack-rebuild-token");
   const expected = process.env.LEADERBOARD_REBUILD_TOKEN;
   if (!expected || token !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

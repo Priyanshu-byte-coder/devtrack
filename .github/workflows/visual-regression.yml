@@ -16,6 +16,9 @@ on:
       - ".github/workflows/visual-regression.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: visual-regression-${{ github.ref }}
   cancel-in-progress: true

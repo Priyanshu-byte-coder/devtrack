@@ -14,6 +14,13 @@ vi.mock("../src/lib/auth-rate-limit", () => ({
   AUTH_SENSITIVE_PREFIXES: ["/api/auth/signin"],
 }));
 
+/**
+ * The middleware raises its own auth limit under NODE_ENV=test so unrelated
+ * suites are not throttled by it, and reports that effective limit in the
+ * X-RateLimit-Limit header. Assert against it rather than the production 5.
+ */
+const EFFECTIVE_AUTH_LIMIT = "1000";
+
 describe("Middleware - Auth Rate Limiting Redirection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +50,7 @@ describe("Middleware - Auth Rate Limiting Redirection", () => {
     // Redirect location points to the signin page with error=RateLimit
     expect(res?.headers.get("Location")).toContain("/auth/signin?error=RateLimit");
     // Rate limit headers are present
-    expect(res?.headers.get("X-RateLimit-Limit")).toBe("5");
+    expect(res?.headers.get("X-RateLimit-Limit")).toBe(EFFECTIVE_AUTH_LIMIT);
     expect(res?.headers.get("X-RateLimit-Remaining")).toBe("0");
     expect(res?.headers.get("X-RateLimit-Reset")).toBe("1234567890");
   });
@@ -75,7 +82,7 @@ describe("Middleware - Auth Rate Limiting Redirection", () => {
       error: "Too many authentication attempts. Please try again later.",
     });
     // Rate limit headers are present
-    expect(res?.headers.get("X-RateLimit-Limit")).toBe("5");
+    expect(res?.headers.get("X-RateLimit-Limit")).toBe(EFFECTIVE_AUTH_LIMIT);
     expect(res?.headers.get("X-RateLimit-Remaining")).toBe("0");
     expect(res?.headers.get("X-RateLimit-Reset")).toBe("1234567890");
   });

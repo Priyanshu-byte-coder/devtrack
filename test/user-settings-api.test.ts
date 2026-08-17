@@ -3,6 +3,7 @@ import { GET, PATCH } from "@/app/api/user/settings/route";
 import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { resolveAppUser } from "@/lib/resolve-user";
+import { encryptToken } from "@/lib/crypto";
 
 // Mock next-auth
 vi.mock("next-auth", () => ({
@@ -37,9 +38,34 @@ vi.mock("@/lib/supabase", () => ({
   },
 }));
 
+// GET caches its response for 5 minutes in a module-level store. Left real, the
+// first test to run would populate it and every later test would be served that
+// payload instead of hitting the mocked database.
+const mockCacheGet = vi.fn();
+const mockCacheSet = vi.fn();
+const mockCacheDelete = vi.fn();
+vi.mock("@/lib/metrics-cache", () => ({
+  cacheGet: (...args: unknown[]) => mockCacheGet(...args),
+  cacheSet: (...args: unknown[]) => mockCacheSet(...args),
+  cacheDelete: (...args: unknown[]) => mockCacheDelete(...args),
+}));
+
 describe("User Settings API Endpoints", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    // resetAllMocks, not clearAllMocks: clearAllMocks only wipes call history,
+    // so a mockResolvedValue set inside one test leaks into the next and the
+    // defaults configured below never take effect. Every mock therefore has to
+    // be (re)wired here rather than once at module scope.
+    vi.resetAllMocks();
+
+    mockFrom.mockImplementation(() => ({
+      select: mockSelect,
+      update: mockUpdate,
+    }));
+    mockCacheGet.mockResolvedValue(null);
+    mockCacheSet.mockResolvedValue(undefined);
+    mockCacheDelete.mockResolvedValue(undefined);
+    (encryptToken as any).mockReturnValue({ encrypted: "encrypted-val", iv: "iv-val" });
 
     // Default mock data returned from database select
     mockSingle.mockResolvedValue({
@@ -128,13 +154,26 @@ describe("User Settings API Endpoints", () => {
       expect(await res.json()).toEqual({ error: "Failed to fetch user settings" });
     });
 
-    it("returns 500 when fetching user settings from database fails", async () => {
-      mockSingle.mockResolvedValue({ data: null, error: { message: "DB Error" } });
+    it("degrades to safe defaults when every settings column query fails", async () => {
+      // fetchUserSettings tries three progressively smaller column sets so a
+      // self-hosted deployment on an older migration still works. When all
+      // three fail it returns defaults rather than an error.
+      // Once per column-set attempt, so the override cannot leak into the next
+      // test the way a plain mockResolvedValue would.
+      const dbError = { data: null, error: { message: "DB Error" } };
+      mockSingle
+        .mockResolvedValueOnce(dbError)
+        .mockResolvedValueOnce(dbError)
+        .mockResolvedValueOnce(dbError);
 
       const req = new NextRequest("http://localhost/api/user/settings");
       const res = await GET(req);
-      expect(res.status).toBe(500);
-      expect(await res.json()).toEqual({ error: "Failed to fetch user settings" });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.is_public).toBe(false);
+      expect(body.leaderboard_opt_in).toBe(false);
+      expect(body.pinned_repos).toEqual([]);
     });
 
     it("successfully retrieves user settings", async () => {
@@ -197,14 +236,17 @@ describe("User Settings API Endpoints", () => {
       expect(await res.json()).toEqual({ error: "Invalid request body" });
     });
 
-    it("returns 500 when fetching user settings fails before update", async () => {
-      mockSingle.mockResolvedValue({ data: null, error: { message: "DB Error" } });
+    it("returns 500 when persisting the settings update fails", async () => {
+      mockUpdate.mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: { message: "DB Error" } }),
+      });
 
       const req = new NextRequest("http://localhost/api/user/settings", {
         method: "PATCH",
         body: JSON.stringify({ is_public: false }),
       });
       const res = await PATCH(req);
+
       expect(res.status).toBe(500);
       expect(await res.json()).toEqual({ error: "Failed to update settings" });
     });
