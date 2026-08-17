@@ -33,6 +33,22 @@ vi.mock("@/components/KeyboardShortcuts", () => ({
   default: () => <div>KeyboardShortcuts</div>,
 }));
 
+// SyncDataButton calls useRouter(), which throws "invariant expected app router
+// to be mounted" outside a Next app-router tree. Render the real button so its
+// markup stays covered, but give it a router to hold on to.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: vi.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/dashboard",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/hooks/useRealtimeSync", () => ({
   useRealtimeSync: () => ({
     isLive: false,
