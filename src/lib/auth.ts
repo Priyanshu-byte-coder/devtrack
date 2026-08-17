@@ -1,23 +1,55 @@
-import { type NextAuthOptions } from "next-auth";
+import { type NextAuthOptions, type DefaultSession, type Account, type Profile, type User } from "next-auth";
+import { type JWT } from "next-auth/jwt";
 import GitHubProvider from "next-auth/providers/github";
-import { syncGitHubAchievementsForUser } from "./github-achievements";
-import { supabaseAdmin } from "./supabase";
+import { syncGitHubAchievementsForUser } from "@/lib/github-achievements";
+import { supabaseAdmin } from "@/lib/supabase";
+
+// --- Interfaces & Types ---
+
+/**
+ * Explicitly typed GitHub profile to replace implicit any access.
+ */
+interface GitHubProfile extends Profile {
+  id: number;
+  login: string;
+  email?: string;
+  avatar_url?: string;
+}
+
+/**
+ * Extend NextAuth modules to include our custom session/token properties.
+ */
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    accessToken?: string;
+    githubId?: string;
+    githubLogin?: string;
+    error?: "TokenRevoked";
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string;
+    accessTokenValidatedAt?: number;
+    githubId?: string;
+    githubLogin?: string;
+    error?: "TokenRevoked";
+  }
+}
+
+// --- Configuration ---
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 const SESSION_UPDATE_AGE = 24 * 60 * 60;
+const TOKEN_VALIDATION_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const GITHUB_API = "https://api.github.com";
 const isPlaywrightServer = process.env.PLAYWRIGHT_SERVER_MODE === "start";
 
-const GITHUB_API = "https://api.github.com";
-// Re-validate the stored GitHub token at most once every 24 hours per session.
-// Catches revocations within a reasonable window without adding per-request latency.
-// Without this check a revoked token silently continues for up to 30 days (JWT lifetime).
-const TOKEN_VALIDATION_INTERVAL_MS = 24 * 60 * 60 * 1000;
-
 export const authOptions: NextAuthOptions = {
-  // Playwright runs on plain HTTP (127.0.0.1) and relies on the default
-  // `next-auth.session-token` cookie name. If NextAuth infers HTTPS via
-  // forwarded headers, it may switch to secure cookie prefixes and the E2E
-  // session cookie won't be read. Force non-secure cookies in this mode.
+  // Playwright runs on plain HTTP (127.0.0.1); secure cookie prefixes break E2E session reads.
+  // NextAuth infers HTTPS via forwarded headers, switching to secure cookie prefixes which prevents
+  // the session cookie from being read on local HTTP setups. Force non-secure cookies in this mode.
   ...(isPlaywrightServer ? { useSecureCookies: false } : {}),
   providers: [
     GitHubProvider({
@@ -31,9 +63,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
-  // Use NextAuth's default cookie behavior (secure cookies on HTTPS deployments),
-  // which keeps Playwright E2E (http://127.0.0.1) aligned with the default
-  // `next-auth.session-token` cookie name.
   session: {
     strategy: "jwt",
     maxAge: SESSION_MAX_AGE,
@@ -43,20 +72,16 @@ export const authOptions: NextAuthOptions = {
     maxAge: SESSION_MAX_AGE,
   },
   callbacks: {
-    async signIn({ account, profile }) {
+    /**
+     * signIn: Validates user identity and performs best-effort DB synchronization.
+     * Uses explicit type assertions and defensive checks for Supabase connectivity.
+     */
+    async signIn({ account, profile }): Promise<boolean> {
       if (account?.provider === "github" && profile) {
-        const p = profile as { id: number; login: string; email?: string };
+        const githubProfile = profile as GitHubProfile;
 
-        // Guard: supabaseAdmin is null when Supabase env vars are missing or
-        // contain placeholder values (see src/lib/supabase.ts). Calling .from()
-        // on null throws a TypeError which NextAuth silently converts to
-        // return false → error=github redirect. Skip the upsert gracefully
-        // so authentication can still succeed with degraded functionality.
         if (!supabaseAdmin) {
-          console.warn(
-            "signIn: supabaseAdmin is not configured; skipping DB upsert. " +
-            "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local."
-          );
+          console.warn("[auth] supabaseAdmin not configured; skipping DB upsert.");
           return true;
         }
 
@@ -65,9 +90,9 @@ export const authOptions: NextAuthOptions = {
             .from("users")
             .upsert(
               {
-                github_id: String(p.id),
-                github_login: p.login,
-                email: p.email || null,
+                github_id: String(githubProfile.id),
+                github_login: githubProfile.login,
+                email: githubProfile.email ?? null,
                 updated_at: new Date().toISOString(),
               },
               { onConflict: "github_id" }
@@ -75,115 +100,114 @@ export const authOptions: NextAuthOptions = {
             .select("id")
             .single();
 
-          // If the email column does not exist yet (migration pending),
-          // PostgREST returns a 42703 error. Fallback to upsert without email.
-          if (upsertError && (upsertError as { code?: string }).code === "42703") {
-            const fallback = await supabaseAdmin
+         // Resilience: handle schema-mismatched errors (42703) during migrations.
+          // 42703 = column does not exist - email column migration may still be pending
+          if (upsertError && upsertError.code === "42703") {
+            const { data: fallbackUser, error: fallbackError } = await supabaseAdmin
               .from("users")
-              .upsert(
-                {
-                  github_id: String(p.id),
-                  github_login: p.login,
-                  updated_at: new Date().toISOString(),
-                },
-                { onConflict: "github_id" }
-              )
+              .upsert({
+                github_id: String(githubProfile.id),
+                github_login: githubProfile.login,
+                updated_at: new Date().toISOString(),
+              }, { onConflict: "github_id" })
               .select("id")
               .single();
-            user = fallback.data;
-            upsertError = fallback.error;
-          }
 
-          if (upsertError) {
-            console.error("[auth] Supabase upsert error:", upsertError);
+            if (fallbackError) {
+              console.error("[auth] Supabase fallback upsert error:", fallbackError);
+            } else {
+              user = fallbackUser; // Re-assign pointer to prevent skipping synchronization loop
+            }
+          } else if (upsertError) {
+            console.error("[auth] Supabase primary upsert error:", upsertError);
           }
 
           if (user?.id && account.access_token) {
-            try {
-              await syncGitHubAchievementsForUser({
-                userId: user.id,
-                githubLogin: p.login,
-                token: account.access_token,
-                force: true,
-              });
-            } catch (error) {
-              console.error("[auth] GitHub achievements sync failed:", error);
-            }
+            await syncGitHubAchievementsForUser({
+              userId: user.id as string,
+              githubLogin: githubProfile.login,
+              token: account.access_token,
+              force: true,
+            }).catch((err: unknown) => console.error("[auth] Sync failed:", err));
           }
         } catch (error) {
-          // Database failures must not block sign-in — the user is authenticated
-          // by GitHub; local sync is best-effort.
-          console.error("[auth] signIn callback error (non-fatal):", error);
+          console.error("[auth] Non-fatal signIn callback error:", error);
         }
       }
       return true;
     },
+
+    /**
+     * jwt: Handles persistent token management and liveness verification.
+     */
     async jwt({ token, account, profile, user }) {
-      // account is only populated on the initial sign-in; all subsequent JWT
-      // refreshes arrive here with account === undefined.
+      const jwtToken = token as JWT;
+
       if (account?.access_token) {
-        token.accessToken = account.access_token;
-        // Record when we first obtained and validated this token so we know
-        // when the next liveness check is due.
-        token.accessTokenValidatedAt = Date.now();
+        jwtToken.accessToken = account.access_token;
+        jwtToken.accessTokenValidatedAt = Date.now();
       } else if (user && (user as any).accessToken) {
-        token.accessToken = (user as any).accessToken;
-        token.accessTokenValidatedAt = Date.now();
-      }
-      if (profile) {
-        const p = profile as { id: number; login: string };
-        token.githubId = String(p.id);
-        token.githubLogin = p.login;
-      } else if (user) {
-        token.githubId = user.id;
-        token.githubLogin = (user as any).login || "mock-user";
+        // Reinstate critical regression fallback: propagate token from custom user sign-in paths
+        jwtToken.accessToken = (user as any).accessToken;
+        jwtToken.accessTokenValidatedAt = Date.now();
       }
 
-      // Periodic token liveness check: if more than TOKEN_VALIDATION_INTERVAL_MS
-      // has elapsed since the last successful validation, hit GET /user with the
-      // stored token. A 401 response means the user has revoked access via GitHub
-      // Settings — flag the token so the dashboard can force re-authentication.
+      if (profile) {
+        const p = profile as GitHubProfile;
+        jwtToken.githubId = String(p.id);
+        jwtToken.githubLogin = p.login;
+      } else if (user && !jwtToken.githubId) {
+        jwtToken.githubId = user.id;
+
+        const u = user as unknown as Record<string, unknown>;
+        const loginCandidate =
+          typeof u.login === "string" ? u.login :
+          typeof u.github_login === "string" ? u.github_login :
+          typeof u.name === "string" ? u.name :
+          undefined;
+
+        // Secure Production Guard: do not assign fallback 'mock-user' sentinels.
+        // Leave undefined so upstream callers can detect and handle the missing value properly.
+        jwtToken.githubLogin = loginCandidate;
+      }
+
+      // Perform periodic liveness checks for token revocation
       if (
         !account &&
-        typeof token.accessToken === "string" &&
-        typeof token.accessTokenValidatedAt === "number" &&
-        !token.error &&
-        Date.now() - token.accessTokenValidatedAt > TOKEN_VALIDATION_INTERVAL_MS
+        jwtToken.accessToken &&
+        typeof jwtToken.accessTokenValidatedAt === "number" &&
+        !jwtToken.error &&
+        Date.now() - jwtToken.accessTokenValidatedAt > TOKEN_VALIDATION_INTERVAL_MS
       ) {
         try {
           const res = await fetch(`${GITHUB_API}/user`, {
-            headers: { Authorization: `Bearer ${token.accessToken}` },
+            headers: { Authorization: `Bearer ${jwtToken.accessToken}` },
             cache: "no-store",
           });
           if (res.status === 401) {
-            // Explicit revocation: mark the session for forced sign-out.
-            token.error = "TokenRevoked";
+            jwtToken.error = "TokenRevoked";
           } else if (res.ok) {
-            // Only advance the timestamp on a confirmed-good response; transient
-            // errors (429, 5xx) should be retried on the next request, not cached
-            // as a successful validation.
-            token.accessTokenValidatedAt = Date.now();
+            jwtToken.accessTokenValidatedAt = Date.now();
           }
-          // Non-401 non-ok responses (rate limit, server error) are intentionally
-          // left without updating accessTokenValidatedAt so the next request retries.
-        } catch (e) {
-          // Network failures during validation are not treated as revocation.
-          // The check will be retried on the next request.
+          // Note: Network timeouts or transient GitHub API downtime will not advance 
+          // accessTokenValidatedAt. This guarantees a retry on the next route hit.
+        } catch {
+          // Failure to reach GitHub does not invalidate session; retry on next hit
         }
       }
 
-      return token;
+      return jwtToken;
     },
+
+    /**
+     * session: Exposes validated token/profile data to the client.
+     */
     async session({ session, token }) {
-      if (typeof token.accessToken === "string")
-        session.accessToken = token.accessToken;
-      if (typeof token.githubId === "string")
-        session.githubId = token.githubId;
-      if (typeof token.githubLogin === "string")
-        session.githubLogin = token.githubLogin;
-      // Surface the revocation flag so pages can redirect to re-authentication.
-      if (token.error === "TokenRevoked")
-        session.error = "TokenRevoked";
+      const jwtToken = token as JWT;
+      session.accessToken = jwtToken.accessToken;
+      session.githubId = jwtToken.githubId;
+      session.githubLogin = jwtToken.githubLogin;
+      session.error = jwtToken.error;
       return session;
     },
   },
