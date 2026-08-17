@@ -6,7 +6,10 @@ import {
   GitHubRateLimitError,
 } from "../src/lib/github-rate-limit";
 
-function makeResponse(status: number, headers: Record<string, string | null>): Response {
+function makeResponse(
+  status: number,
+  headers: Record<string, string | null>
+): Response {
   return new Response(null, {
     status,
     headers: new Headers(
@@ -28,9 +31,14 @@ describe("getGitHubRateLimitDetails", () => {
     expect(getGitHubRateLimitDetails(res)).toBeNull();
   });
 
-  it("returns null for 429 with remaining > 0", () => {
+  it("treats 429 as a rate limit even when remaining > 0", () => {
+    // GitHub returns 429 for *secondary* rate limits (too many concurrent or
+    // rapid requests), where the primary quota in x-ratelimit-remaining has
+    // not been spent. The status is authoritative, the header is not.
     const res = makeResponse(429, { "x-ratelimit-remaining": "5" });
-    expect(getGitHubRateLimitDetails(res)).toBeNull();
+    expect(getGitHubRateLimitDetails(res)).toMatchObject({
+      code: "GITHUB_RATE_LIMITED",
+    });
   });
 
   it("returns null for 403 when remaining header is missing", () => {
@@ -119,7 +127,9 @@ describe("throwIfGitHubRateLimited", () => {
       throwIfGitHubRateLimited(res);
     } catch (e) {
       expect(e).toBeInstanceOf(GitHubRateLimitError);
-      expect((e as GitHubRateLimitError).details.code).toBe("GITHUB_RATE_LIMITED");
+      expect((e as GitHubRateLimitError).details.code).toBe(
+        "GITHUB_RATE_LIMITED"
+      );
       expect((e as GitHubRateLimitError).details.resetAtEpoch).toBe(1730000000);
     }
   });

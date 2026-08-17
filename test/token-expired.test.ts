@@ -37,7 +37,9 @@ vi.mock("@/lib/metrics-cache", () => ({
     streak: 300,
   },
   metricsCacheKey: vi.fn().mockReturnValue("test-cache-key"),
-  withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
+  withMetricsCache: vi
+    .fn()
+    .mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
 vi.mock("@/lib/resolve-user", () => ({
@@ -286,8 +288,11 @@ describe("/api/metrics/pinned-repos — token expiry handling", () => {
   });
 
   it("returns token_expired when GitHub GraphQL returns 401", async () => {
+    // githubId is required: the route derives its cache key from it and 401s
+    // with a plain "Unauthorized" before reaching GitHub when it is missing.
     mockGetServerSession.mockResolvedValueOnce({
       accessToken: "revoked-token",
+      githubId: "123",
     } as any);
 
     mockFetch.mockResolvedValueOnce({

@@ -36,11 +36,16 @@ vi.mock("@/lib/metrics-cache", () => ({
     "inactive-repos": 300,
   },
   metricsCacheKey: vi.fn().mockReturnValue("test-cache-key"),
-  withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
+  withMetricsCache: vi
+    .fn()
+    .mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
+// Routes that go through getSessionWithToken() require a resolved app row;
+// returning null here would 401 before the request ever reaches GitHub, which
+// is not the code path these tests are exercising.
 vi.mock("@/lib/resolve-user", () => ({
-  resolveAppUser: vi.fn().mockResolvedValue(null),
+  resolveAppUser: vi.fn().mockResolvedValue({ id: "user-uuid-1" }),
 }));
 
 vi.mock("@/lib/github-accounts", () => ({
@@ -86,7 +91,9 @@ function mockGitHub403RateLimit() {
   mockFetch.mockResolvedValue({
     ok: false,
     status: 403,
-    headers: { get: (k: string) => (k === "X-RateLimit-Remaining" ? "0" : null) },
+    headers: {
+      get: (k: string) => (k === "X-RateLimit-Remaining" ? "0" : null),
+    },
     json: async () => ({ message: "API rate limit exceeded" }),
   });
 }
@@ -196,7 +203,9 @@ describe("GET /api/metrics/productive-hours — token expiry handling", () => {
     mockGetServerSession.mockResolvedValueOnce(revokedSession());
 
     const { GET } = await import("@/app/api/metrics/productive-hours/route");
-    const req = new NextRequest("http://localhost/api/metrics/productive-hours");
+    const req = new NextRequest(
+      "http://localhost/api/metrics/productive-hours"
+    );
     const res = await GET(req);
 
     expect(res.status).toBe(401);
@@ -208,7 +217,9 @@ describe("GET /api/metrics/productive-hours — token expiry handling", () => {
     mockGitHub401();
 
     const { GET } = await import("@/app/api/metrics/productive-hours/route");
-    const req = new NextRequest("http://localhost/api/metrics/productive-hours");
+    const req = new NextRequest(
+      "http://localhost/api/metrics/productive-hours"
+    );
     const res = await GET(req);
 
     expect(res.status).toBe(401);
@@ -225,7 +236,9 @@ describe("GET /api/metrics/productive-hours — token expiry handling", () => {
     });
 
     const { GET } = await import("@/app/api/metrics/productive-hours/route");
-    const req = new NextRequest("http://localhost/api/metrics/productive-hours");
+    const req = new NextRequest(
+      "http://localhost/api/metrics/productive-hours"
+    );
     const res = await GET(req);
 
     expect(res.status).toBe(502);

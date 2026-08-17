@@ -66,8 +66,6 @@ export default function ShortcutsModal({
   }, [isOpen, anchorRef]);
 
   useEffect(() => {
-    if (!mounted) return;
-
     if (!isOpen) {
       // Restore focus on close
       if (previousFocusRef.current) {
@@ -76,6 +74,11 @@ export default function ShortcutsModal({
       }
       return;
     }
+
+    // The modal renders null until `mounted` flips true, so on the first pass
+    // closeBtnRef is still empty. Wait for the DOM to exist, otherwise focus
+    // never enters the dialog and a keyboard user is left outside it.
+    if (!mounted) return;
 
     // Save previous active element to restore later, only on initial open
     if (!previousFocusRef.current) {

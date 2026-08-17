@@ -1,11 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { Heart, Users, DollarSign, RefreshCw, Trophy, Info, ExternalLink } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, YAxis, Tooltip, XAxis } from "recharts";
+import {
+  Heart,
+  Users,
+  DollarSign,
+  RefreshCw,
+  Trophy,
+  Info,
+  ExternalLink,
+} from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  YAxis,
+  Tooltip,
+  XAxis,
+} from "recharts";
 import { toast } from "sonner";
 import Image from "next/image";
-
+import { safeExternalHref } from "@/lib/safe-url";
 
 interface ActiveSponsor {
   login: string;
@@ -65,7 +80,9 @@ export default function SponsorAnalytics() {
     setError(null);
     setGithubAuthInvalid(false);
 
-    const url = force ? "/api/metrics/sponsors?force=true" : "/api/metrics/sponsors";
+    const url = force
+      ? "/api/metrics/sponsors?force=true"
+      : "/api/metrics/sponsors";
 
     fetch(url)
       .then(async (r) => {
@@ -151,9 +168,13 @@ export default function SponsorAnalytics() {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm text-center space-y-4">
         <Heart className="mx-auto h-12 w-12 text-[var(--muted-foreground)] opacity-50" />
-        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">GitHub Sponsor Analytics</h3>
+        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
+          GitHub Sponsor Analytics
+        </h3>
         <p className="text-sm text-[var(--muted-foreground)] max-w-md mx-auto">
-          Your GitHub authorization has expired or was revoked. Please sign in again to re-connect your GitHub account and view your sponsor dashboard.
+          Your GitHub authorization has expired or was revoked. Please sign in
+          again to re-connect your GitHub account and view your sponsor
+          dashboard.
         </p>
       </div>
     );
@@ -163,7 +184,9 @@ export default function SponsorAnalytics() {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm text-center space-y-4">
         <Heart className="mx-auto h-12 w-12 text-red-500/50" />
-        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">GitHub Sponsor Analytics</h3>
+        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
+          GitHub Sponsor Analytics
+        </h3>
         <p className="text-sm text-red-500/80 max-w-md mx-auto">{error}</p>
         <button
           onClick={() => fetchSponsors(false)}
@@ -190,7 +213,9 @@ export default function SponsorAnalytics() {
           disabled={syncing}
           className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-1.5 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--card-muted)] disabled:opacity-50"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`}
+          />
           {syncing ? "Syncing..." : "Sync Sponsors"}
         </button>
       </div>
@@ -231,7 +256,9 @@ export default function SponsorAnalytics() {
           <div className="mt-2">
             <span className="text-2xl font-bold text-[var(--card-foreground)]">
               ${data.mrr}
-              <span className="text-xs font-normal text-[var(--muted-foreground)]">/mo</span>
+              <span className="text-xs font-normal text-[var(--muted-foreground)]">
+                /mo
+              </span>
             </span>
           </div>
         </div>
@@ -267,10 +294,32 @@ export default function SponsorAnalytics() {
         </h3>
         <div className="h-28 w-full bg-[var(--control)] rounded-lg p-3 border border-[var(--border)]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.sparklineData} margin={{ top: 5, right: 10, left: -25, bottom: -5 }}>
-              <XAxis dataKey="month" stroke="var(--muted-foreground)" fontSize={9} tickLine={false} axisLine={false} />
-              <YAxis stroke="var(--muted-foreground)" fontSize={9} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "4 4" }} />
+            <LineChart
+              data={data.sparklineData}
+              margin={{ top: 5, right: 10, left: -25, bottom: -5 }}
+            >
+              <XAxis
+                dataKey="month"
+                stroke="var(--muted-foreground)"
+                fontSize={9}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="var(--muted-foreground)"
+                fontSize={9}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  stroke: "var(--border)",
+                  strokeWidth: 1,
+                  strokeDasharray: "4 4",
+                }}
+              />
               <Line
                 type="monotone"
                 dataKey="count"
@@ -293,7 +342,9 @@ export default function SponsorAnalytics() {
         {data.sponsors.length === 0 ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-center space-y-2">
             <Heart className="mx-auto h-8 w-8 text-[var(--muted-foreground)] opacity-40" />
-            <p className="text-xs text-[var(--muted-foreground)]">No active sponsors found.</p>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              No active sponsors found.
+            </p>
             <a
               href="https://github.com/sponsors"
               target="_blank"
@@ -314,7 +365,11 @@ export default function SponsorAnalytics() {
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {categorizedSponsors.gold.map((sponsor) => (
-                    <SponsorAvatar key={sponsor.login} sponsor={sponsor} tierType="gold" />
+                    <SponsorAvatar
+                      key={sponsor.login}
+                      sponsor={sponsor}
+                      tierType="gold"
+                    />
                   ))}
                 </div>
               </div>
@@ -328,7 +383,11 @@ export default function SponsorAnalytics() {
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {categorizedSponsors.silver.map((sponsor) => (
-                    <SponsorAvatar key={sponsor.login} sponsor={sponsor} tierType="silver" />
+                    <SponsorAvatar
+                      key={sponsor.login}
+                      sponsor={sponsor}
+                      tierType="silver"
+                    />
                   ))}
                 </div>
               </div>
@@ -342,12 +401,15 @@ export default function SponsorAnalytics() {
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {categorizedSponsors.bronze.map((sponsor) => (
-                    <SponsorAvatar key={sponsor.login} sponsor={sponsor} tierType="bronze" />
+                    <SponsorAvatar
+                      key={sponsor.login}
+                      sponsor={sponsor}
+                      tierType="bronze"
+                    />
                   ))}
                 </div>
               </div>
             )}
-
           </div>
         )}
       </div>
@@ -355,11 +417,19 @@ export default function SponsorAnalytics() {
   );
 }
 
-function SponsorAvatar({ sponsor, tierType }: { sponsor: ActiveSponsor; tierType: "gold" | "silver" | "bronze" }) {
+function SponsorAvatar({
+  sponsor,
+  tierType,
+}: {
+  sponsor: ActiveSponsor;
+  tierType: "gold" | "silver" | "bronze";
+}) {
   const borderClass = {
     gold: "border-2 border-yellow-500/50 shadow-[0_0_8px_rgba(234,179,8,0.15)] hover:scale-110",
-    silver: "border-2 border-slate-400/50 shadow-[0_0_8px_rgba(148,163,184,0.15)] hover:scale-110",
-    bronze: "border-2 border-amber-700/50 shadow-[0_0_8px_rgba(180,83,9,0.15)] hover:scale-110",
+    silver:
+      "border-2 border-slate-400/50 shadow-[0_0_8px_rgba(148,163,184,0.15)] hover:scale-110",
+    bronze:
+      "border-2 border-amber-700/50 shadow-[0_0_8px_rgba(180,83,9,0.15)] hover:scale-110",
   }[tierType];
 
   const content = sponsor.avatarUrl ? (
@@ -378,7 +448,7 @@ function SponsorAvatar({ sponsor, tierType }: { sponsor: ActiveSponsor; tierType
 
   const innerElement = sponsor.url ? (
     <a
-      href={sponsor.url}
+      href={safeExternalHref(sponsor.url)}
       target="_blank"
       rel="noopener noreferrer"
       className={`relative h-10 w-10 overflow-hidden rounded-full block cursor-pointer transition-transform duration-200 ${borderClass}`}

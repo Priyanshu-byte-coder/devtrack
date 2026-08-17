@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom/vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import DashboardHeader from "../../src/components/DashboardHeader";
 import { useSession } from "next-auth/react";
@@ -31,6 +31,22 @@ vi.mock("@/components/UserAvatar", () => ({
 
 vi.mock("@/components/KeyboardShortcuts", () => ({
   default: () => <div>KeyboardShortcuts</div>,
+}));
+
+// SyncDataButton calls useRouter(), which throws "invariant expected app router
+// to be mounted" outside a Next app-router tree. Render the real button so its
+// markup stays covered, but give it a router to hold on to.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: vi.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/dashboard",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/useRealtimeSync", () => ({
@@ -86,9 +102,7 @@ describe("DashboardHeader", () => {
 
     renderDashboardHeader();
 
-    expect(
-      screen.getByText(/dashboard overview/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/dashboard overview/i)).toBeInTheDocument();
   });
 
   it("renders subtitle text", () => {
@@ -154,9 +168,7 @@ describe("DashboardHeader", () => {
 
     renderDashboardHeader();
 
-    expect(
-      await screen.findByText(/share profile/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/share profile/i)).toBeInTheDocument();
   });
 
   it("hides share profile button when profile is private", async () => {
@@ -177,9 +189,7 @@ describe("DashboardHeader", () => {
     renderDashboardHeader();
 
     await waitFor(() => {
-      expect(
-        screen.queryByText(/share profile/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/share profile/i)).not.toBeInTheDocument();
     });
   });
 
@@ -198,16 +208,25 @@ describe("DashboardHeader", () => {
       }),
     });
 
-    renderDashboardHeader();
-
-    const link = await screen.findByRole("link", {
-      name: /share profile/i,
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
     });
 
-    expect(link).toHaveAttribute(
-      "href",
-      "/u/testuser"
-    );
+    renderDashboardHeader();
+
+    // Share Profile is a copy-to-clipboard button, not an anchor: it puts the
+    // absolute profile URL on the clipboard so it can be pasted anywhere.
+    const shareButton = await screen.findByRole("button", {
+      name: /share profile/i,
+    });
+    fireEvent.click(shareButton);
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledTimes(1);
+    });
+    expect(writeText.mock.calls[0][0]).toMatch(/\/u\/testuser$/);
   });
 
   it("handles fetch failure gracefully", async () => {
@@ -218,9 +237,7 @@ describe("DashboardHeader", () => {
       status: "authenticated",
     });
 
-    (fetch as any).mockRejectedValue(
-      new Error("Network Error")
-    );
+    (fetch as any).mockRejectedValue(new Error("Network Error"));
 
     renderDashboardHeader();
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -15,13 +16,13 @@ export default function RepoComparisonPage() {
   const [repos, setRepos] = useState<string[]>([]);
   const [repoData, setRepoData] = useState<any[]>([]);
   const chartData = repoData?.length
-  ? repoData.map((repo) => ({
-      name: repo.name.split("/")[1],
-      stars: repo.stars,
-      forks: repo.forks,
-      watchers: repo.watchers,
-    }))
-  : [];
+    ? repoData.map((repo) => ({
+        name: repo.name.split("/")[1],
+        stars: repo.stars,
+        forks: repo.forks,
+        watchers: repo.watchers,
+      }))
+    : [];
   const [loading, setLoading] = useState(false);
 
   const addRepo = async () => {
@@ -29,36 +30,34 @@ export default function RepoComparisonPage() {
     const parts = trimmed.split("/");
 
     if (parts.length !== 2) {
-      alert("Invalid format! Use owner/repo (e.g. facebook/react)");
+      toast.error("Use the owner/repo format, for example facebook/react.");
       return;
     }
 
     const [owner, repo] = parts;
 
     if (!owner || !repo) {
-      alert("Invalid repository");
+      toast.error("Enter both an owner and a repository name.");
       return;
     }
 
     if (trimmed.includes(" ")) {
-      alert("No spaces allowed in repository name");
+      toast.error("Repository names cannot contain spaces.");
       return;
     }
 
     if (repos.includes(trimmed)) return;
 
     if (repos.length >= 5) {
-      alert("You can compare max 5 repositories only");
+      toast.error("You can compare up to 5 repositories at a time.");
       return;
     }
 
     try {
-      const res = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}`
-      );
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
 
       if (!res.ok) {
-        alert("Repository does not exist on GitHub");
+        toast.error("That repository does not exist on GitHub.");
         return;
       }
 
@@ -67,7 +66,9 @@ export default function RepoComparisonPage() {
       setRepos([...repos, data.full_name]);
       setInput("");
     } catch {
-      alert("Error validating repository");
+      toast.error(
+        "Could not reach GitHub to check that repository. Try again."
+      );
     }
   };
 
@@ -77,7 +78,7 @@ export default function RepoComparisonPage() {
 
   const fetchRepoData = async () => {
     if (repos.length < 2) {
-      alert("Add at least 2 repositories to compare");
+      toast.error("Add at least 2 repositories to compare.");
       return;
     }
 
@@ -87,9 +88,7 @@ export default function RepoComparisonPage() {
     try {
       const results = await Promise.all(
         repos.map(async (fullName) => {
-          const res = await fetch(
-            `https://api.github.com/repos/${fullName}`
-          );
+          const res = await fetch(`https://api.github.com/repos/${fullName}`);
 
           if (!res.ok) return null;
 
@@ -105,9 +104,11 @@ export default function RepoComparisonPage() {
         })
       );
 
-      setRepoData(results.filter((r): r is NonNullable<typeof r> => r !== null));
+      setRepoData(
+        results.filter((r): r is NonNullable<typeof r> => r !== null)
+      );
     } catch {
-      alert("Failed to fetch repo data");
+      toast.error("Could not load repository data. Try again.");
     }
 
     setLoading(false);
@@ -115,9 +116,7 @@ export default function RepoComparisonPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">
-        Repository Comparison Analytics
-      </h1>
+      <h1 className="text-2xl font-bold">Repository Comparison Analytics</h1>
 
       {/* INPUT */}
       <div className="flex gap-2">
@@ -160,9 +159,7 @@ export default function RepoComparisonPage() {
 
       {/* EMPTY STATE */}
       {repos.length === 0 && (
-        <div className="text-gray-500">
-          Add 2–5 repositories to compare
-        </div>
+        <div className="text-gray-500">Add 2–5 repositories to compare</div>
       )}
 
       {/* RESULTS */}
@@ -187,17 +184,14 @@ export default function RepoComparisonPage() {
           <h2 className="font-bold mb-3">📊 Comparison Chart</h2>
 
           <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData}>
-          <XAxis
-            dataKey="name"
-            tick={{ fill: "#7698fe", fontSize: 12 }}
-          />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="stars" fill="#3b82f6" />
-          <Bar dataKey="forks" fill="#10b981" />
-          <Bar dataKey="watchers" fill="#f59e0b" />
-          </BarChart>
+            <BarChart data={chartData}>
+              <XAxis dataKey="name" tick={{ fill: "#7698fe", fontSize: 12 }} />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="stars" fill="#3b82f6" />
+              <Bar dataKey="forks" fill="#10b981" />
+              <Bar dataKey="watchers" fill="#f59e0b" />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}

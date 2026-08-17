@@ -10,11 +10,12 @@
  *     • cooldown / duplicate-send prevention
  *     • partial failure handling (one bad user does not stop the batch)
  *     • metrics fetched only when GITHUB_TOKEN is configured
- *     • response shape: sentCount / failedCount / skippedCount / errors
+ *     • response shape: emailsSent / emailsFailed / skippedCount / errors
  *     • opted-in filter delegated to the DB query
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { supabaseQueryStub } from "./supabase-query-stub";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -63,10 +64,9 @@ function stubCronUsers(
     last_digest_sent_at?: string | null;
   }>
 ) {
-  const notChain = vi.fn().mockResolvedValue({ data: users, error: null });
-  const eqChain = vi.fn().mockReturnValue({ not: notChain });
-  const selChain = vi.fn().mockReturnValue({ eq: eqChain });
-  mocks.supabaseFrom.mockReturnValue({ select: selChain });
+  mocks.supabaseFrom.mockReturnValue(
+    supabaseQueryStub({ data: users, error: null })
+  );
 }
 
 /** Configure supabase unsubscribe update to succeed. */
@@ -115,18 +115,16 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   });
 
   it("verifies a correct token", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-verify-test";
     const token = generateUnsubscribeToken(uid);
     expect(verifyUnsubscribeToken(uid, token)).toBe(true);
   });
 
   it("rejects a tampered token", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-tamper-test";
     const token = generateUnsubscribeToken(uid);
     const tampered = token.slice(0, -2) + "00";
@@ -134,9 +132,8 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   });
 
   it("rejects a token issued for a different user", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const tokenForA = generateUnsubscribeToken("user-a");
     expect(verifyUnsubscribeToken("user-b", tokenForA)).toBe(false);
   });
@@ -149,9 +146,8 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   it("prefers DIGEST_UNSUBSCRIBE_SECRET over NEXTAUTH_SECRET", async () => {
     vi.stubEnv("DIGEST_UNSUBSCRIBE_SECRET", "dedicated-secret");
     vi.resetModules();
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-dedicated";
     const token = generateUnsubscribeToken(uid);
     expect(verifyUnsubscribeToken(uid, token)).toBe(true);
@@ -188,14 +184,18 @@ describe("GET /api/unsubscribe", () => {
 
   it("returns 400 when uid is not a valid UUID", async () => {
     const { GET } = await import("@/app/api/unsubscribe/route");
-    const res = await GET(makeUnsubRequest({ uid: "not-a-uuid", token: "abc" }));
+    const res = await GET(
+      makeUnsubRequest({ uid: "not-a-uuid", token: "abc" })
+    );
     expect(res.status).toBe(400);
   });
 
   it("returns 403 when token does not match uid", async () => {
     const { generateUnsubscribeToken } = await import("@/lib/weekly-digest");
     const { GET } = await import("@/app/api/unsubscribe/route");
-    const tokenForA = generateUnsubscribeToken("00000000-0000-0000-0000-000000000001");
+    const tokenForA = generateUnsubscribeToken(
+      "00000000-0000-0000-0000-000000000001"
+    );
     const res = await GET(
       makeUnsubRequest({
         uid: "00000000-0000-0000-0000-000000000002",
@@ -465,15 +465,15 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
 
   // ── Response shape ──────────────────────────────────────────────────────────
 
-  it("response includes sentCount, failedCount, skippedCount, errors", async () => {
+  it("response includes emailsSent, emailsFailed, skippedCount, errors", async () => {
     stubCronUsers([{ github_login: "alice", email: "alice@example.com" }]);
     vi.stubEnv("GITHUB_TOKEN", "gh-token");
     const { GET } = await import("@/app/api/cron/weekly-digest/route");
     const res = await GET(makeCronRequest("Bearer secret"));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body).toHaveProperty("sentCount");
-    expect(body).toHaveProperty("failedCount");
+    expect(body).toHaveProperty("emailsSent");
+    expect(body).toHaveProperty("emailsFailed");
     expect(body).toHaveProperty("skippedCount");
     expect(body).toHaveProperty("errors");
   });
@@ -497,7 +497,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.skippedCount).toBe(1);
-    expect(body.sentCount).toBe(0);
+    expect(body.emailsSent).toBe(0);
     expect(mocks.fetchGlobal).not.toHaveBeenCalled();
   });
 
@@ -564,7 +564,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const res = await GET(makeCronRequest("Bearer secret"));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.sentCount).toBeGreaterThanOrEqual(1);
+    expect(body.emailsSent).toBeGreaterThanOrEqual(1);
     expect(mocks.fetchGlobal).toHaveBeenCalledOnce();
   });
 
@@ -589,8 +589,8 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const res = await GET(makeCronRequest("Bearer secret"));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.failedCount).toBe(1);
-    expect(body.sentCount).toBeGreaterThanOrEqual(2);
+    expect(body.emailsFailed).toBe(1);
+    expect(body.emailsSent).toBeGreaterThanOrEqual(2);
     expect(body.errors).toHaveLength(1);
     expect(mocks.fetchGlobal).toHaveBeenCalledTimes(3);
   });
@@ -613,9 +613,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
   // ── Mixed eligible / cooldown ────────────────────────────────────────────────
 
   it("counts sent and skipped correctly for mixed user states", async () => {
-    const recentSend = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
-    ).toISOString();
+    const recentSend = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     stubCronUsers([
       {
         github_login: "eligible",
@@ -632,7 +630,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const res = await GET(makeCronRequest("Bearer secret"));
     const body = await res.json();
     expect(body.skippedCount).toBe(1);
-    expect(body.sentCount).toBe(1);
+    expect(body.emailsSent).toBe(1);
     expect(mocks.fetchGlobal).toHaveBeenCalledTimes(1);
   });
 

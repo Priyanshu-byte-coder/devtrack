@@ -55,7 +55,7 @@ describe("toCsv", () => {
   });
 
   it("returns header and data row for single row", () => {
-  expect(toCsv([{ name: "Alice", age: 30 }])).toBe("name,age\nAlice,30");
+    expect(toCsv([{ name: "Alice", age: 30 }])).toBe("name,age\nAlice,30");
   });
 
   it("serialises multiple rows with correct values", () => {
@@ -76,10 +76,7 @@ describe("toCsv", () => {
   });
 
   it("fills empty cells for keys missing in later rows", () => {
-    const rows = [
-      { name: "Alice", age: 30, city: "NYC" },
-      { name: "Bob" },
-    ];
+    const rows = [{ name: "Alice", age: 30, city: "NYC" }, { name: "Bob" }];
     expect(toCsv(rows)).toBe("name,age,city\nAlice,30,NYC\nBob,,");
   });
 
@@ -91,11 +88,19 @@ describe("toCsv", () => {
       { value: "multi\nline" },
     ];
     const result = toCsv(rows);
-    const lines = result.split("\n");
-    expect(lines[1]).toBe("simple");
-    expect(lines[2]).toBe('"has, comma"');
-    expect(lines[3]).toBe('"has ""quote"""');
-    expect(lines[4]).toBe('"multi\nline"');
+
+    // A quoted cell may itself contain a newline, so splitting the whole
+    // document on "\n" would break that cell in two. Compare the serialised
+    // output as a whole instead.
+    expect(result).toBe(
+      [
+        "value",
+        "simple",
+        '"has, comma"',
+        '"has ""quote"""',
+        '"multi\nline"',
+      ].join("\n")
+    );
   });
 
   it("handles null and undefined in cells", () => {

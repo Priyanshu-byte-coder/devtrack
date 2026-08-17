@@ -1,5 +1,6 @@
 ﻿import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/api/wakatime/sync/route";
+import { supabaseQueryStub } from "./supabase-query-stub";
 
 // --- hoisted mocks ---
 
@@ -29,13 +30,9 @@ function makeRequest(authHeader?: string): Request {
 
 /** Sets up Supabase to return zero users (no-op sync). */
 function stubEmptySync() {
-  mocks.supabaseFrom.mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      not: vi.fn().mockReturnValue({
-        not: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    }),
-  });
+  mocks.supabaseFrom.mockReturnValue(
+    supabaseQueryStub({ data: [], error: null })
+  );
 }
 
 // --- tests ---
@@ -163,7 +160,9 @@ describe("GET /api/wakatime/sync - authentication hardening (#1746 #1657)", () =
           {
             range: { date: "2026-05-01" },
             grand_total: { total_seconds: 3600 },
-            languages: [{ name: "TypeScript", total_seconds: 1800, percent: 50 }],
+            languages: [
+              { name: "TypeScript", total_seconds: 1800, percent: 50 },
+            ],
             projects: [{ name: "devtrack", total_seconds: 3600, percent: 100 }],
           },
         ],
@@ -173,18 +172,16 @@ describe("GET /api/wakatime/sync - authentication hardening (#1746 #1657)", () =
     const upsertMock = vi.fn().mockResolvedValue({ error: null });
     mocks.supabaseFrom.mockImplementation((table: string) => {
       if (table === "users") {
-        return {
-          select: vi.fn().mockReturnValue({
-            not: vi.fn().mockReturnValue({
-              not: vi.fn().mockResolvedValue({
-                data: [
-                  { id: "user-1", wakatime_api_key_encrypted: "enc", wakatime_api_key_iv: "iv" },
-                ],
-                error: null,
-              }),
-            }),
-          }),
-        };
+        return supabaseQueryStub({
+          data: [
+            {
+              id: "user-1",
+              wakatime_api_key_encrypted: "enc",
+              wakatime_api_key_iv: "iv",
+            },
+          ],
+          error: null,
+        });
       }
       if (table === "wakatime_stats") {
         return { upsert: upsertMock };
@@ -213,16 +210,16 @@ describe("GET /api/wakatime/sync - authentication hardening (#1746 #1657)", () =
 
     mocks.supabaseFrom.mockImplementation((table: string) => {
       if (table === "users") {
-        return {
-          select: vi.fn().mockReturnValue({
-            not: vi.fn().mockReturnValue({
-              not: vi.fn().mockResolvedValue({
-                data: [{ id: "user-1", wakatime_api_key_encrypted: "enc", wakatime_api_key_iv: "iv" }],
-                error: null,
-              }),
-            }),
-          }),
-        };
+        return supabaseQueryStub({
+          data: [
+            {
+              id: "user-1",
+              wakatime_api_key_encrypted: "enc",
+              wakatime_api_key_iv: "iv",
+            },
+          ],
+          error: null,
+        });
       }
       return {};
     });

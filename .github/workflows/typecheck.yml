@@ -5,6 +5,8 @@ name: Type Check (DEPRECATED - see ci.yml)
 on:
   pull_request:
     branches: []
+permissions:
+  contents: read
 jobs:
   typecheck:
     runs-on: ubuntu-latest

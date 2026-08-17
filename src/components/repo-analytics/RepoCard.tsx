@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 import { ExplorerRepoCardData } from "@/lib/repo-analytics-types";
-import {
-  formatRelativeDate,
-  formatDate,
-} from "@/lib/date-utils";
+import { formatRelativeDate, formatDate } from "@/lib/date-utils";
+import { safeExternalHref } from "@/lib/safe-url";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 interface RepoCardProps {
@@ -20,10 +12,7 @@ interface RepoCardProps {
   onViewAnalytics: (repo: ExplorerRepoCardData) => void;
 }
 
-export default function RepoCard({
-  repo,
-  onViewAnalytics,
-}: RepoCardProps) {
+export default function RepoCard({ repo, onViewAnalytics }: RepoCardProps) {
   const activityData = Array.isArray(repo.activity7d) ? repo.activity7d : [];
   const activeDays = activityData.filter((day) => day.commits > 0).length;
   const consistency = activityData.length
@@ -31,9 +20,7 @@ export default function RepoCard({
     : 0;
 
   return (
-    <article
-      className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm backdrop-blur-xl animate-slide-up transition-all duration-300 hover:shadow-md hover:-translate-y-1"
-    >
+    <article className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm backdrop-blur-xl animate-slide-up transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       {/* Border Glow */}
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-[var(--border)]" />
 
@@ -126,19 +113,15 @@ export default function RepoCard({
 
         {/* Footer */}
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
-          <span>
-            Updated {formatRelativeDate(repo.updatedAt)}
-          </span>
+          <span>Updated {formatRelativeDate(repo.updatedAt)}</span>
 
-          <span>
-            {repo.primaryLanguage ?? "Unknown"}
-          </span>
+          <span>{repo.primaryLanguage ?? "Unknown"}</span>
         </div>
 
         {/* Buttons */}
         <div className="grid grid-cols-2 gap-3">
           <a
-            href={repo.htmlUrl}
+            href={safeExternalHref(repo.htmlUrl)}
             target="_blank"
             rel="noopener noreferrer"
             className={buttonVariants({ variant: "outline" })}
@@ -146,10 +129,7 @@ export default function RepoCard({
             Repo
           </a>
 
-          <Button
-            variant="outline"
-            onClick={() => onViewAnalytics(repo)}
-          >
+          <Button variant="outline" onClick={() => onViewAnalytics(repo)}>
             View
           </Button>
         </div>

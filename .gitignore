@@ -64,3 +64,6 @@ screenshot.png
 
 # Prevent npm lockfile conflicts
 package-lock.json
+
+# code-analysis output
+.jscpd-report/
