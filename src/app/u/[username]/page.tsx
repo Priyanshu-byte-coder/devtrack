@@ -13,6 +13,7 @@ import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
 import CopyLinkButton from "@/components/CopyLinkButton";
+import ExportPdfButton from "@/components/ExportPdfButton";
 import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
@@ -38,7 +39,10 @@ async function fetchPublicProfile(
   options: { includeAchievements?: boolean } = {}
 ): Promise<ExtendedPublicProfileData | null> {
   try {
-    const url = new URL(`/api/public/${encodeURIComponent(username)}`, getBaseUrl());
+    const url = new URL(
+      `/api/public/${encodeURIComponent(username)}`,
+      getBaseUrl()
+    );
     if (options.includeAchievements) url.searchParams.set("achievements", "1");
 
     const res = await fetch(url.toString(), { cache: "no-store" });
@@ -57,7 +61,9 @@ async function fetchPublicProfile(
 
     (base.repos || []).forEach((repo: any) => {
       if (repo.last_commit_date || repo.updatedAt) {
-        const commitHour = new Date(repo.last_commit_date || repo.updatedAt).getHours();
+        const commitHour = new Date(
+          repo.last_commit_date || repo.updatedAt
+        ).getHours();
         if (commitHour >= 0 && commitHour <= 4) nightOwlCount++;
         if (commitHour >= 5 && commitHour <= 8) earlyBirdCount++;
       }
@@ -104,7 +110,10 @@ export async function generateMetadata({
   let userExists = false;
   try {
     const res = await fetch(
-      new URL(`/api/public/${encodeURIComponent(username)}`, getBaseUrl()).toString(),
+      new URL(
+        `/api/public/${encodeURIComponent(username)}`,
+        getBaseUrl()
+      ).toString(),
       { cache: "no-store" }
     );
     userExists = res.ok;
@@ -124,7 +133,10 @@ export async function generateMetadata({
   const ogImageUrl = new URL(`${baseUrl}/api/og/user`);
   ogImageUrl.searchParams.set("username", username);
   ogImageUrl.searchParams.set("name", username);
-  ogImageUrl.searchParams.set("avatar", `https://avatars.githubusercontent.com/${username}`);
+  ogImageUrl.searchParams.set(
+    "avatar",
+    `https://avatars.githubusercontent.com/${username}`
+  );
   ogImageUrl.searchParams.set("topLang", "Code");
   ogImageUrl.searchParams.set("streak", "0");
   ogImageUrl.searchParams.set("commits", "0");
@@ -173,32 +185,32 @@ export default async function PublicProfilePage({
   if (!profile) {
     return (
       <ProfileThemeWrapper>
-      <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors flex items-center justify-center">
-        <div className="surface-card max-w-md rounded-2xl p-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Profile Not Found
-          </h1>
-          <p className="text-[var(--muted-foreground)] mb-2">
-            This profile is not available or has not been made public.
-          </p>
-          <p className="text-sm text-[var(--muted-foreground)] mb-6">
-            If this is your profile, go to{" "}
+        <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors flex items-center justify-center">
+          <div className="surface-card max-w-md rounded-2xl p-8 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+              Profile Not Found
+            </h1>
+            <p className="text-[var(--muted-foreground)] mb-2">
+              This profile is not available or has not been made public.
+            </p>
+            <p className="text-sm text-[var(--muted-foreground)] mb-6">
+              If this is your profile, go to{" "}
+              <Link
+                href="/dashboard/settings"
+                className="text-[var(--accent)] underline hover:opacity-80"
+              >
+                Settings
+              </Link>{" "}
+              and enable <strong>Public Profile</strong>.
+            </p>
             <Link
-              href="/dashboard/settings"
-              className="text-[var(--accent)] underline hover:opacity-80"
+              href="/"
+              className="primary-button inline-block rounded-lg px-6 py-2"
             >
-              Settings
-            </Link>{" "}
-            and enable <strong>Public Profile</strong>.
-          </p>
-          <Link
-            href="/"
-            className="primary-button inline-block rounded-lg px-6 py-2"
-          >
-            Back to Home
-          </Link>
+              Back to Home
+            </Link>
+          </div>
         </div>
-      </div>
       </ProfileThemeWrapper>
     );
   }
@@ -237,211 +249,220 @@ export default async function PublicProfilePage({
 
   return (
     <ProfileThemeWrapper>
-    <div className="min-h-screen bg-[var(--background)] p-4 text-[var(--foreground)] transition-colors md:p-8">
-
-      {/* ── Header: Avatar + Identity ── */}
-      <div className="mb-8 flex flex-wrap items-start gap-5">
-        {/* GitHub avatar */}
-        <div className="shrink-0">
-          <Image
-            src={avatarUrl}
-            alt={`${profile.username}'s GitHub avatar`}
-            width={80}
-            height={80}
-            className="rounded-full border-2 border-[var(--border)] shadow-md"
-            unoptimized
-          />
-        </div>
-
-        {/* Identity block */}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] flex flex-wrap items-center gap-2">
-              <span>@{profile.username}</span>
-              {profile.isSponsor && <SponsorBadge />}
-
-              {/* Night Owl / Early Bird badges */}
-              {profile.isNightOwl && (
-                <span
-                  title="Night Owl Milestone Badge"
-                  className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-bold text-indigo-400"
-                >
-                  <Moon className="h-3 w-3" />
-                  <span>Night Owl</span>
-                </span>
-              )}
-              {profile.isEarlyBird && (
-                <span
-                  title="Early Bird Milestone Badge"
-                  className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-xs font-bold text-amber-400"
-                >
-                  <Sun className="h-3 w-3" />
-                  <span>Early Bird</span>
-                </span>
-              )}
-            </h1>
-            <CopyLinkButton url={profileUrl} />
+      <div className="min-h-screen bg-[var(--background)] p-4 text-[var(--foreground)] transition-colors md:p-8">
+        {/* ── Header: Avatar + Identity ── */}
+        <div className="mb-8 flex flex-wrap items-start gap-5">
+          {/* GitHub avatar */}
+          <div className="shrink-0">
+            <Image
+              src={avatarUrl}
+              alt={`${profile.username}'s GitHub avatar`}
+              width={80}
+              height={80}
+              className="rounded-full border-2 border-[var(--border)] shadow-md"
+              unoptimized
+            />
           </div>
 
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            GitHub activity and coding stats
-          </p>
+          {/* Identity block */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] flex flex-wrap items-center gap-2">
+                <span>@{profile.username}</span>
+                {profile.isSponsor && <SponsorBadge />}
 
-          {/* Member since + View on GitHub */}
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">
-            {memberSinceFormatted && (
-              <span>Member since {memberSinceFormatted}</span>
-            )}
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)] hover:border-[var(--accent)]"
-            >
-              <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-              </svg>
-              View on GitHub
-            </a>
-            {profile.publicGists > 0 && (
+                {/* Night Owl / Early Bird badges */}
+                {profile.isNightOwl && (
+                  <span
+                    title="Night Owl Milestone Badge"
+                    className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-bold text-indigo-400"
+                  >
+                    <Moon className="h-3 w-3" />
+                    <span>Night Owl</span>
+                  </span>
+                )}
+                {profile.isEarlyBird && (
+                  <span
+                    title="Early Bird Milestone Badge"
+                    className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-xs font-bold text-amber-400"
+                  >
+                    <Sun className="h-3 w-3" />
+                    <span>Early Bird</span>
+                  </span>
+                )}
+              </h1>
+              <CopyLinkButton url={profileUrl} />
+            </div>
+
+            <p className="mt-1 text-[var(--muted-foreground)]">
+              GitHub activity and coding stats
+            </p>
+
+            {/* Member since + View on GitHub */}
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">
+              {memberSinceFormatted && (
+                <span>Member since {memberSinceFormatted}</span>
+              )}
               <a
-                href={gistsUrl}
+                href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)] hover:border-[var(--accent)]"
               >
-                {profile.publicGists} Gists
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="h-3.5 w-3.5"
+                  aria-hidden="true"
+                >
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                </svg>
+                View on GitHub
               </a>
-            )}
+              {profile.publicGists > 0 && (
+                <a
+                  href={gistsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
+                >
+                  {profile.publicGists} Gists
+                </a>
+              )}
+            </div>
+
+            {/* Compare buttons */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <ExportPdfButton />
+              {compareHref && (
+                <Link
+                  href={compareHref}
+                  className="primary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
+                >
+                  Compare with me
+                </Link>
+              )}
+              {!loggedInUsername && (
+                <Link
+                  href={signInToCompareHref}
+                  className="secondary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
+                >
+                  Log in to compare
+                </Link>
+              )}
+            </div>
           </div>
 
-          {/* Compare buttons */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {compareHref && (
-              <Link
-                href={compareHref}
-                className="primary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Compare with me
-              </Link>
-            )}
-            {!loggedInUsername && (
-              <Link
-                href={signInToCompareHref}
-                className="secondary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Log in to compare
-              </Link>
-            )}
+          {/* Stats card download */}
+          <div className="shrink-0">
+            <StatsCard
+              username={profile.username}
+              avatarUrl={avatarUrl}
+              currentStreak={profile.streak.current}
+              longestStreak={profile.streak.longest}
+              totalCommits={profile.contributions.total}
+              topRepo={topRepo}
+            />
           </div>
         </div>
 
-        {/* Stats card download */}
-        <div className="shrink-0">
-          <StatsCard
+        {/* Share section */}
+        <div className="mb-8">
+          <ShareProfileSection
             username={profile.username}
-            avatarUrl={avatarUrl}
-            currentStreak={profile.streak.current}
-            longestStreak={profile.streak.longest}
-            totalCommits={profile.contributions.total}
-            topRepo={topRepo}
+            streak={profile.streak.current}
+            profileUrl={profileUrl}
           />
-        </div>
-      </div>
-
-      {/* Share section */}
-      <div className="mb-8">
-        <ShareProfileSection
-          username={profile.username}
-          streak={profile.streak.current}
-          profileUrl={profileUrl}
-        />
           <div className="mt-3">
             <QrCodeButton profileUrl={profileUrl} username={profile.username} />
           </div>
-
-      </div>
-
-      {/* Row 1: Contribution graph + Streak (gated by public_widgets) */}
-      {(showContributions || showStreak) && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {showContributions && (
-            <div className="lg:col-span-2">
-              <PublicContributionGraph data={profile.contributions} />
-            </div>
-          )}
-          {showStreak && (
-            <div className={showContributions ? "" : "lg:col-span-3"}>
-              <PublicStreakTracker streak={profile.streak} />
-            </div>
-          )}
         </div>
-      )}
 
-      {/* Languages (gated) */}
-      {showLanguages && profile.topLanguages.length > 0 && (
+        {/* Row 1: Contribution graph + Streak (gated by public_widgets) */}
+        {(showContributions || showStreak) && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {showContributions && (
+              <div className="lg:col-span-2">
+                <PublicContributionGraph data={profile.contributions} />
+              </div>
+            )}
+            {showStreak && (
+              <div className={showContributions ? "" : "lg:col-span-3"}>
+                <PublicStreakTracker streak={profile.streak} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Languages (gated) */}
+        {showLanguages && profile.topLanguages.length > 0 && (
+          <div className="mt-6">
+            <PublicLanguageBreakdown languages={profile.topLanguages} />
+          </div>
+        )}
+
+        {/* Pull Requests (gated) */}
+        {showPRs && (
+          <div className="mt-6">
+            <PublicPRCount pullRequests={profile.pullRequests} />
+          </div>
+        )}
+
+        {/* Custom Spotlight Repositories */}
+        {profile.spotlightRepos?.length ? (
+          <div className="mt-6">
+            <PinnedReposWidget
+              initialRepos={profile.spotlightRepos}
+              isPublic={true}
+            />
+          </div>
+        ) : null}
+
+        {/* Weekly Goal Progress */}
+        {profile.weeklyGoalProgress && (
+          <div className="mt-6">
+            <PublicWeeklyGoalProgress progress={profile.weeklyGoalProgress} />
+          </div>
+        )}
+
+        {/* Top repos */}
         <div className="mt-6">
-          <PublicLanguageBreakdown languages={profile.topLanguages} />
+          <PublicTopRepos repos={profile.repos} />
         </div>
-      )}
 
-      {/* Pull Requests (gated) */}
-      {showPRs && (
+        {/* GitHub achievements */}
         <div className="mt-6">
-          <PublicPRCount pullRequests={profile.pullRequests} />
-        </div>
-      )}
-
-      {/* Custom Spotlight Repositories */}
-      {profile.spotlightRepos?.length ? (
-        <div className="mt-6">
-          <PinnedReposWidget
-            initialRepos={profile.spotlightRepos}
-            isPublic={true}
+          <GitHubAchievements
+            achievements={profile.achievements}
+            error={profile.achievementsError}
           />
         </div>
-      ) : null}
 
-      {/* Weekly Goal Progress */}
-      {profile.weeklyGoalProgress && (
+        {/* Get your badge */}
         <div className="mt-6">
-          <PublicWeeklyGoalProgress progress={profile.weeklyGoalProgress} />
+          <BadgeSection username={profile.username} />
         </div>
-      )}
 
-      {/* Top repos */}
-      <div className="mt-6">
-        <PublicTopRepos repos={profile.repos} />
+        {/* Powered by DevTrack footer badge */}
+        <div className="mt-10 flex justify-center print:hidden">
+          <a
+            href="https://devtrack-silk-kappa.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--accent)]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-3.5 w-3.5 text-[var(--accent)]"
+              aria-hidden="true"
+            >
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Powered by DevTrack
+          </a>
+        </div>
       </div>
-
-      {/* GitHub achievements */}
-      <div className="mt-6">
-        <GitHubAchievements
-          achievements={profile.achievements}
-          error={profile.achievementsError}
-        />
-      </div>
-
-      {/* Get your badge */}
-      <div className="mt-6">
-        <BadgeSection username={profile.username} />
-      </div>
-
-      {/* Powered by DevTrack footer badge */}
-      <div className="mt-10 flex justify-center">
-        <a
-          href="https://devtrack-silk-kappa.vercel.app"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--accent)]"
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 text-[var(--accent)]" aria-hidden="true">
-            <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Powered by DevTrack
-        </a>
-      </div>
-    </div>
     </ProfileThemeWrapper>
   );
 }
@@ -588,8 +609,12 @@ function PublicLanguageBreakdown({
         {languages.map((lang) => (
           <div key={lang.name}>
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="font-medium text-[var(--card-foreground)]">{lang.name}</span>
-              <span className="text-[var(--muted-foreground)]">{lang.percentage}%</span>
+              <span className="font-medium text-[var(--card-foreground)]">
+                {lang.name}
+              </span>
+              <span className="text-[var(--muted-foreground)]">
+                {lang.percentage}%
+              </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-[var(--control)]">
               <div
@@ -611,8 +636,12 @@ function PublicPRCount({ pullRequests }: { pullRequests: number }) {
         Pull Requests
       </h2>
       <div className="flex items-end gap-2">
-        <span className="text-4xl font-bold text-[var(--accent)]">{pullRequests.toLocaleString()}</span>
-        <span className="mb-1 text-sm text-[var(--muted-foreground)]">total PRs authored</span>
+        <span className="text-4xl font-bold text-[var(--accent)]">
+          {pullRequests.toLocaleString()}
+        </span>
+        <span className="mb-1 text-sm text-[var(--muted-foreground)]">
+          total PRs authored
+        </span>
       </div>
     </div>
   );
@@ -631,12 +660,25 @@ function PublicWeeklyGoalProgress({
       <div className="flex items-center gap-4">
         <div className="relative h-20 w-20">
           <svg className="h-20 w-20 -rotate-90" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--control)" strokeWidth="6" />
             <circle
-              cx="36" cy="36" r="30"
-              fill="none" stroke="var(--accent)" strokeWidth="6"
+              cx="36"
+              cy="36"
+              r="30"
+              fill="none"
+              stroke="var(--control)"
+              strokeWidth="6"
+            />
+            <circle
+              cx="36"
+              cy="36"
+              r="30"
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth="6"
               strokeDasharray={2 * Math.PI * 30}
-              strokeDashoffset={2 * Math.PI * 30 * (1 - progress.percentage / 100)}
+              strokeDashoffset={
+                2 * Math.PI * 30 * (1 - progress.percentage / 100)
+              }
               strokeLinecap="round"
             />
           </svg>
