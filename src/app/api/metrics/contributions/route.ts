@@ -188,10 +188,10 @@ async function fetchContributionsForAccount(
           } catch (error) {
             if (error instanceof GitHubRateLimitError) {
               return {
-                items: [],
+                items: [] as GitHubCommitSearchItem[],
                 total_count: 0,
                 rateLimited: true,
-                status: searchRes.status,
+                rateLimitError: error,
               };
             }
             throw error;
@@ -208,7 +208,7 @@ async function fetchContributionsForAccount(
           items: data.items,
           total_count: data.total_count,
           rateLimited: false,
-          status: 200,
+          rateLimitError: undefined,
         };
       };
 
@@ -217,8 +217,8 @@ async function fetchContributionsForAccount(
       totalCount = firstPage.total_count;
       allItems = allItems.concat(firstPage.items);
 
-      if (firstPage.rateLimited && allItems.length === 0) {
-        throw new Error(`GitHub API error: ${firstPage.status}`);
+      if (firstPage.rateLimited) {
+        throw firstPage.rateLimitError;
       }
 
       // Fetch remaining pages with a small bounded concurrency pool to
@@ -238,6 +238,8 @@ async function fetchContributionsForAccount(
           remainingPages.push(p);
         }
 
+        let truncatedByRateLimit = false;
+
         for (
           let i = 0;
           i < remainingPages.length;
@@ -254,7 +256,10 @@ async function fetchContributionsForAccount(
             // response falls back to whatever pages were fetched before
             // the limit was hit, rather than failing the whole request.
             allItems = allItems.concat(res.items);
-            if (res.rateLimited || res.items.length < 100) {
+            if (res.rateLimited) {
+              truncatedByRateLimit = true;
+              shouldStopPaging = true;
+            } else if (res.items.length < 100) {
               shouldStopPaging = true;
             }
           }
@@ -262,6 +267,10 @@ async function fetchContributionsForAccount(
           if (shouldStopPaging) {
             break;
           }
+        }
+
+        if (truncatedByRateLimit) {
+          totalCount = allItems.length;
         }
       }
 
