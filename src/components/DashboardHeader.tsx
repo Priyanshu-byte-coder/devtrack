@@ -19,6 +19,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import UserAvatar from "@/components/UserAvatar";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import OnboardingTour from "@/components/OnboardingTour";
+import DownloadPdfReportButton from "@/components/DownloadPdfReportButton";
 import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
@@ -392,6 +393,7 @@ export default function DashboardHeader() {
         {/* Right Section */}
         <div className="w-full min-w-0 lg:w-auto">
           <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 lg:w-auto lg:justify-end lg:overflow-visible lg:pb-0">
+            <DownloadPdfReportButton />
             {isPublic === true && session?.githubLogin && (
               <ShareProfileButton githubLogin={session.githubLogin} />
             )}
