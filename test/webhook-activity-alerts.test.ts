@@ -316,5 +316,8 @@ describe("/api/webhooks/activity-alerts route", () => {
     expect(json.events).toContain("streak.milestone_reached");
     expect(json.events).toContain("goal.completed");
     expect(json.events).toContain("weekly_summary.ready");
-  });
+    // Generous timeout: this is the first import of the route module, and the
+    // cold transform can exceed the 5s default when the full suite runs in
+    // parallel. The assertions themselves are instant.
+  }, 30_000);
 });

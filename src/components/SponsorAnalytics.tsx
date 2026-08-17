@@ -5,6 +5,7 @@ import { Heart, Users, DollarSign, RefreshCw, Trophy, Info, ExternalLink } from 
 import { ResponsiveContainer, LineChart, Line, YAxis, Tooltip, XAxis } from "recharts";
 import { toast } from "sonner";
 import Image from "next/image";
+import { safeExternalHref } from "@/lib/safe-url";
 
 
 interface ActiveSponsor {
@@ -378,7 +379,7 @@ function SponsorAvatar({ sponsor, tierType }: { sponsor: ActiveSponsor; tierType
 
   const innerElement = sponsor.url ? (
     <a
-      href={sponsor.url}
+      href={safeExternalHref(sponsor.url)}
       target="_blank"
       rel="noopener noreferrer"
       className={`relative h-10 w-10 overflow-hidden rounded-full block cursor-pointer transition-transform duration-200 ${borderClass}`}

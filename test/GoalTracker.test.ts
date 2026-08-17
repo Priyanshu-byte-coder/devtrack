@@ -143,7 +143,9 @@ describe('GoalTracker - useGoalTracker Hook', () => {
     });
 
     expect(result.current.syncing).toBe(false);
-    expect(result.current.syncError).toBe('Failed to sync goals. Please try again.');
+    // handleSync's generic non-429/401/502 branch. The "Failed to sync goals"
+    // wording belongs to the devtrack:sync event listener, a different path.
+    expect(result.current.syncError).toBe('Sync failed. Please try again.');
   });
 
   it('handles creating a non-auto-synced goal successfully', async () => {

@@ -13,6 +13,7 @@ import {
   formatRelativeDate,
   formatDate,
 } from "@/lib/date-utils";
+import { safeExternalHref } from "@/lib/safe-url";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 interface RepoCardProps {
@@ -138,7 +139,7 @@ export default function RepoCard({
         {/* Buttons */}
         <div className="grid grid-cols-2 gap-3">
           <a
-            href={repo.htmlUrl}
+            href={safeExternalHref(repo.htmlUrl)}
             target="_blank"
             rel="noopener noreferrer"
             className={buttonVariants({ variant: "outline" })}
