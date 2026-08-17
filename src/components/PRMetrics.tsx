@@ -9,6 +9,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import PRStatusDonutChart from "./PRStatusDonutChart";
 import MiniPRTrendChart from "./MiniPRTrendChart";
 import { SkeletonBlock } from "./WidgetSkeleton";
+import { safeExternalHref } from "@/lib/safe-url";
 
 interface PRMetricsSummary {
   open: number;
@@ -170,7 +171,7 @@ export default function PRMetrics() {
       }`;
 
     return stat.href ? (
-      <a key={stat.label} href={stat.href} target="_blank" rel="noopener noreferrer" className={className} title={stat.title}>
+      <a key={stat.label} href={safeExternalHref(stat.href)} target="_blank" rel="noopener noreferrer" className={className} title={stat.title}>
         {content}
       </a>
     ) : (

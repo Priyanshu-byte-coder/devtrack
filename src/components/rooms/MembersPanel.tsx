@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { RoomMember } from "@/types/rooms";
 import InviteModal from "./InviteModal";
+import { toast } from "sonner";
 
 interface Props {
   roomId: string;
@@ -34,10 +35,10 @@ export default function MembersPanel({
         onMemberRemoved(username);
       } else {
         const data = await res.json().catch(() => ({}));
-        alert((data as { error?: string }).error ?? "Failed to remove member");
+        toast.error((data as { error?: string }).error ?? "Could not remove that member. Try again.");
       }
     } catch {
-      alert("Network error. Please try again.");
+      toast.error("Could not reach the server. Check your connection and try again.");
     } finally {
       setRemovingUsername(null);
     }

@@ -31,10 +31,7 @@ export default function ShortcutsModal({
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [isMac, setIsMac] = useState(false);
-  const [position, setPosition] = useState<{
-    top: number;
-    right: number;
-  } | null>(null);
+  const [position, setPosition] = useState<{ top: number; right: number } | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -66,8 +63,6 @@ export default function ShortcutsModal({
   }, [isOpen, anchorRef]);
 
   useEffect(() => {
-    if (!mounted) return;
-
     if (!isOpen) {
       // Restore focus on close
       if (previousFocusRef.current) {
@@ -76,6 +71,11 @@ export default function ShortcutsModal({
       }
       return;
     }
+
+    // The modal renders null until `mounted` flips true, so on the first pass
+    // closeBtnRef is still empty. Wait for the DOM to exist, otherwise focus
+    // never enters the dialog and a keyboard user is left outside it.
+    if (!mounted) return;
 
     // Save previous active element to restore later, only on initial open
     if (!previousFocusRef.current) {
@@ -98,10 +98,9 @@ export default function ShortcutsModal({
       if (e.key === "Tab") {
         if (!modalRef.current) return;
 
-        const focusableElements =
-          modalRef.current.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          );
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
 
         if (focusableElements.length === 0) return;
 

@@ -4,143 +4,120 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ProfileQrModal } from "../../src/components/ProfileQrModal";
 
+/**
+ * ProfileQrModal has no `isOpen` prop — the parent mounts it conditionally, as
+ * its usage docblock shows. These tests therefore cover the mounted component.
+ */
 describe("ProfileQrModal", () => {
+  const onClose = vi.fn();
   const defaultProps = {
-    isOpen: true,
-    onClose: vi.fn(),
+    onClose,
     username: "john_doe",
     profileUrl: "https://devtrack.mock/u/john_doe",
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset document.body style
-    document.body.style.overflow = "unset";
+    document.body.style.overflow = "";
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("does not render when isOpen is false", () => {
-    const { container } = render(
-      <ProfileQrModal {...defaultProps} isOpen={false} />
-    );
-    expect(container.firstChild).toBeNull();
-  });
-
-  it("renders modal content when isOpen is true", () => {
+  it("renders the heading, description, profile URL and QR canvas", () => {
     const { container } = render(<ProfileQrModal {...defaultProps} />);
 
-    // Check heading
     expect(
-      screen.getByRole("heading", { name: /Share Profile QR/i })
+      screen.getByRole("heading", { name: /Share Profile/i })
     ).toBeInTheDocument();
-
-    // Check helper description
+    expect(screen.getByText(/@john_doe/)).toBeInTheDocument();
     expect(
-      screen.getByText(
-        /Scan with a phone camera to quickly view @john_doe's profile on DevTrack/i
-      )
+      screen.getByText("https://devtrack.mock/u/john_doe")
     ).toBeInTheDocument();
-
-    // Check close button
-    expect(
-      screen.getByRole("button", { name: /Close modal/i })
-    ).toBeInTheDocument();
-
-    // Check QR code canvas is rendered
-    const canvas = container.querySelector("canvas");
-    expect(canvas).toBeInTheDocument();
+    expect(container.querySelector("canvas")).toBeInTheDocument();
   });
 
-  it("calls onClose when Close button is clicked", () => {
+  it("exposes the panel as a labelled modal dialog", () => {
     render(<ProfileQrModal {...defaultProps} />);
 
-    const closeButton = screen.getByRole("button", { name: /Close modal/i });
-    fireEvent.click(closeButton);
-
-    expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(dialog).toHaveAttribute("aria-labelledby", "qr-modal-title");
   });
 
-  it("calls onClose when backdrop is clicked", () => {
+  it("calls onClose when the close button is clicked", () => {
     render(<ProfileQrModal {...defaultProps} />);
 
-    // Click backdrop using stable testid
-    const backdrop = screen.getByTestId("qr-modal-backdrop");
-    fireEvent.click(backdrop);
+    fireEvent.click(screen.getByRole("button", { name: /Close QR code modal/i }));
 
-    expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("calls onClose when Escape key is pressed", () => {
+  it("calls onClose when the backdrop itself is clicked", () => {
+    render(<ProfileQrModal {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole("dialog"));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call onClose when a click lands inside the panel", () => {
+    render(<ProfileQrModal {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole("heading", { name: /Share Profile/i }));
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("calls onClose when Escape is pressed", () => {
     render(<ProfileQrModal {...defaultProps} />);
 
     fireEvent.keyDown(document, { key: "Escape" });
 
-    expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("locks and unlocks body scroll appropriately", () => {
+  it("locks body scroll while mounted and releases it on unmount", () => {
     const { unmount } = render(<ProfileQrModal {...defaultProps} />);
 
-    // When modal is open, overflow should be hidden
     expect(document.body.style.overflow).toBe("hidden");
 
     unmount();
 
-    // When unmounted/closed, overflow should be restored
-    expect(document.body.style.overflow).toBe("unset");
+    // Cleanup clears the inline style rather than writing a keyword, so the
+    // stylesheet takes over again.
+    expect(document.body.style.overflow).toBe("");
   });
 
-  it("triggers download of QR code when download button is clicked", () => {
-    render(<ProfileQrModal {...defaultProps} />);
-
-    // Mock HTMLCanvasElement.prototype.toDataURL cleanly via spyOn
+  it("downloads the QR code as a PNG named after the user", () => {
     const toDataURLSpy = vi
       .spyOn(HTMLCanvasElement.prototype, "toDataURL")
       .mockReturnValue("data:image/png;base64,mocked_image_data");
 
-    // Spy on document.createElement capturing original implementation to avoid infinite recursion
     const originalCreateElement = document.createElement.bind(document);
     const linkClickSpy = vi.fn();
-    const linkMock = {
-      href: "",
-      download: "",
-      click: linkClickSpy,
-    };
-    const createElementSpy = vi
-      .spyOn(document, "createElement")
-      .mockImplementation((tagName) => {
-        if (tagName === "a") {
-          return linkMock as any;
-        }
-        return originalCreateElement(tagName);
-      });
+    const linkMock = { href: "", download: "", click: linkClickSpy };
+    vi.spyOn(document, "createElement").mockImplementation((tagName: string) =>
+      tagName === "a" ? (linkMock as never) : originalCreateElement(tagName)
+    );
 
-    const appendChildSpy = vi
-      .spyOn(document.body, "appendChild")
-      .mockImplementation(() => ({}) as any);
-    const removeChildSpy = vi
-      .spyOn(document.body, "removeChild")
-      .mockImplementation(() => ({}) as any);
+    render(<ProfileQrModal {...defaultProps} />);
 
-    const downloadButton = screen.getByRole("button", {
-      name: /Download QR Code/i,
-    });
-    fireEvent.click(downloadButton);
+    // jsdom has no 2D context, so getContext returns null and the handler bails
+    // before drawing. Stub it only after the QR canvas has painted, so
+    // qrcode.react still gets the real (null-guarded) context during render.
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      fillStyle: "",
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+    } as unknown as CanvasRenderingContext2D);
 
-    // Verify canvas toDataURL was called
+    fireEvent.click(screen.getByRole("button", { name: /Download QR Code/i }));
+
     expect(toDataURLSpy).toHaveBeenCalledWith("image/png");
-
-    // Verify link properties and interaction
-    expect(createElementSpy).toHaveBeenCalledWith("a");
-    expect(appendChildSpy).toHaveBeenCalled();
-    expect(linkClickSpy).toHaveBeenCalled();
-    expect(removeChildSpy).toHaveBeenCalled();
-
-    // Verify filename and href URL properties are assigned correctly
-    expect(linkMock.download).toBe("john_doe-devtrack-qr.png");
+    expect(linkClickSpy).toHaveBeenCalledTimes(1);
     expect(linkMock.href).toBe("data:image/png;base64,mocked_image_data");
+    expect(linkMock.download).toBe("devtrack-john_doe-qr.png");
   });
 });

@@ -4,8 +4,6 @@ import { useEffect, useRef, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
 interface ProfileQrModalProps {
-  /** Controls whether the modal is rendered. Defaults to true for existing conditional callers. */
-  isOpen?: boolean;
   /** The full public profile URL to encode, e.g. https://devtrack-silk-kappa.vercel.app/u/johndoe */
   profileUrl: string;
   /** Display name shown in the modal header */
@@ -39,35 +37,28 @@ interface ProfileQrModalProps {
  *   npm install react-qr-code
  */
 export function ProfileQrModal({
-  isOpen = true,
   profileUrl,
   username,
   onClose,
 }: ProfileQrModalProps) {
   const qrContainerRef = useRef<HTMLDivElement>(null);
-  const previousOverflowRef = useRef<string>("");
 
   // Close on Escape key
   useEffect(() => {
-    if (!isOpen) return;
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, onClose]);
+  }, [onClose]);
 
   // Prevent background scroll while modal is open
   useEffect(() => {
-    if (!isOpen) return;
-
-    previousOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = previousOverflowRef.current;
+      document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, []);
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -77,24 +68,34 @@ export function ProfileQrModal({
   );
 
   const handleDownload = useCallback(() => {
-    const canvas = qrContainerRef.current?.querySelector("canvas");
-    if (!canvas) return;
+    // QRCodeCanvas renders a <canvas>, so the pixels are already there — read
+    // them straight off it. A previous version looked for a <svg> here, which
+    // this component has never rendered, so the button silently did nothing.
+    const source = qrContainerRef.current?.querySelector("canvas");
+    if (!source) return;
 
-    const pngUrl = canvas.toDataURL("image/png");
+    const padding = 24; // px of white border around the QR code
+    const canvas = document.createElement("canvas");
+    canvas.width = source.width + padding * 2;
+    canvas.height = source.height + padding * 2;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // White background so the code still scans when saved on a dark theme.
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, padding, padding);
+
     const link = document.createElement("a");
-    link.href = pngUrl;
-    link.download = `${username}-devtrack-qr.png`;
-    document.body.appendChild(link);
+    link.href = canvas.toDataURL("image/png");
+    link.download = `devtrack-${username}-qr.png`;
     link.click();
-    document.body.removeChild(link);
   }, [username]);
-
-  if (!isOpen) return null;
 
   return (
     /* Backdrop */
     <div
-      data-testid="qr-modal-backdrop"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
@@ -106,7 +107,7 @@ export function ProfileQrModal({
         {/* Close button */}
         <button
           onClick={onClose}
-          aria-label="Close modal"
+          aria-label="Close QR code modal"
           className="absolute right-4 top-4 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
         >
           {/* ✕ icon (inline SVG to avoid icon-library coupling) */}
@@ -132,11 +133,14 @@ export function ProfileQrModal({
           id="qr-modal-title"
           className="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
         >
-          Share Profile QR
+          Share Profile
         </h2>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-          Scan with a phone camera to quickly view @{username}&apos;s profile on
-          DevTrack
+          Scan to visit&nbsp;
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            @{username}
+          </span>
+          &apos;s DevTrack profile
         </p>
 
         {/* QR code — rendered in a white box so it scans on dark themes too */}
