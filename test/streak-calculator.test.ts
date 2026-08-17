@@ -1,8 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  calculateStreakFromDates,
-  calculateStreak,
-} from "@/lib/streak";
+import { calculateStreakFromDates, calculateStreak } from "../src/lib/streak";
 
 describe("Commit Streak Calculator Unit Tests (src/lib/streak.ts)", () => {
   beforeEach(() => {
@@ -58,7 +55,11 @@ describe("Commit Streak Calculator Unit Tests (src/lib/streak.ts)", () => {
     const utcResult = calculateStreakFromDates(activeDates, new Set(), "UTC");
     expect(utcResult.current).toBe(2);
 
-    const istResult = calculateStreakFromDates(activeDates, new Set(), "Asia/Kolkata");
+    const istResult = calculateStreakFromDates(
+      activeDates,
+      new Set(),
+      "Asia/Kolkata"
+    );
     expect(istResult.current).toBe(2);
   });
 
