@@ -220,6 +220,11 @@ const SponsorAnalytics = dynamic(
   { ssr: false, loading: () => <SkeletonCard /> },
 );
 
+const GuidedBreathingTool = dynamic(
+  () => import("@/components/GuidedBreathingTool"),
+  { ssr: false, loading: () => <SkeletonCard /> },
+);
+
 const SECTION_ANCHOR_IDS: Record<DashboardSectionId, string> = {
   overview: "overview",
   activity: "streaks",
@@ -255,6 +260,7 @@ const WIDGET_SPAN_CLASSES: Partial<Record<DashboardWidgetId, string>> = {
   "daily-note": "xl:col-span-2",
   "recent-activity": "xl:col-span-2",
   "sponsor-analytics": "xl:col-span-2",
+  "guided-breathing": "xl:col-span-2",
 };
 
 const isDashboardWidgetId = (
@@ -470,6 +476,13 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
         <WidgetErrorBoundary>
           <SponsorAnalytics />
         </WidgetErrorBoundary>
+      );
+
+    case "guided-breathing":
+      return (
+        <LazyWidget fallback={<SkeletonCard />}>
+          <GuidedBreathingTool />
+        </LazyWidget>
       );
 
     default:

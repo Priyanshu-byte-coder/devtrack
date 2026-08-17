@@ -40,7 +40,8 @@ export type DashboardWidgetId =
   | "ci-analytics"
   | "language-breakdown"
   | "friend-comparison"
-  | "achievement-progress";
+  | "achievement-progress"
+  | "guided-breathing";
 
 export interface DashboardLayoutPreference {
   version: 1;
@@ -98,6 +99,7 @@ export const DASHBOARD_WIDGET_LABELS: Record<DashboardWidgetId, string> = {
   "language-breakdown": "Language Breakdown",
   "friend-comparison": "Friend Comparison",
   "achievement-progress": "Achievement Progress",
+  "guided-breathing": "Guided Breathing Tool",
 };
 
 export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
@@ -118,6 +120,7 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
       "commit-time",
       "commit-heatmap-time",
       "productive-hours",
+      "guided-breathing",
     ],
     analytics: [
       "repo-analytics",
