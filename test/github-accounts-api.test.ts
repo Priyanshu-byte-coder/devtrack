@@ -83,20 +83,22 @@ describe("GitHub Accounts API Endpoints", () => {
       expect(await res.json()).toEqual({ error: "Unauthorized" });
     });
 
-    it("returns 401 when authenticated session user is not found in database", async () => {
+    it("returns an empty account list when the session user has no database row", async () => {
       (resolveAppUser as any).mockResolvedValue(null);
 
+      // Deliberate graceful fallback: the linked-accounts widget renders empty
+      // rather than taking down the settings page.
       const res = await GET();
-      expect(res.status).toBe(401);
-      expect(await res.json()).toEqual({ error: "Unauthorized" });
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({ accounts: [] });
     });
 
-    it("returns 500 when database fetch fails", async () => {
+    it("falls back to an empty account list when the database fetch fails", async () => {
       mockOrder.mockResolvedValue({ data: null, error: { message: "Database Error" } });
 
       const res = await GET();
-      expect(res.status).toBe(500);
-      expect(await res.json()).toEqual({ error: "Failed to fetch accounts" });
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({ accounts: [] });
     });
 
     it("successfully fetches linked accounts", async () => {

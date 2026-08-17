@@ -39,8 +39,11 @@ vi.mock("@/lib/metrics-cache", () => ({
   withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
+// Routes that go through getSessionWithToken() require a resolved app row;
+// returning null here would 401 before the request ever reaches GitHub, which
+// is not the code path these tests are exercising.
 vi.mock("@/lib/resolve-user", () => ({
-  resolveAppUser: vi.fn().mockResolvedValue(null),
+  resolveAppUser: vi.fn().mockResolvedValue({ id: "user-uuid-1" }),
 }));
 
 vi.mock("@/lib/github-accounts", () => ({

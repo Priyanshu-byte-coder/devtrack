@@ -308,11 +308,50 @@ export async function PATCH(req: NextRequest) {
     updates.public_widgets = sanitizePublicWidgets(public_widgets);
   }
 
-  if (hasPreferredLocale && preferred_locale !== undefined) {
+  if (hasPreferredLocale && preferred_locale !== undefined && preferred_locale !== null) {
+    // Reject rather than store: an unsupported value is persisted and then used
+    // to pick a message bundle on every later render.
+    if (!isValidLocale(preferred_locale)) {
+      return NextResponse.json({ error: "Unsupported locale" }, { status: 400 });
+    }
     updates.preferred_locale = preferred_locale;
   }
 
-  await supabaseAdmin.from("users").update(updates).eq("id", user.id);
+  // A PATCH whose fields were all absent, null, or unsupported by this schema
+  // leaves nothing to write; skip the round-trip rather than issuing an empty
+  // UPDATE.
+  const hasUpdates = Object.keys(updates).length > 0;
+
+  const { error: updateError } = hasUpdates
+    ? await supabaseAdmin.from("users").update(updates).eq("id", user.id)
+    : { error: null };
+
+  if (updateError) {
+    console.error("[settings] Failed to persist settings update:", updateError);
+    return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
+  }
+
+  // GET caches the settings payload for 5 minutes, so a write that does not
+  // evict it leaves the settings page showing the old values.
+  if (hasUpdates) {
+    try {
+      await cacheDelete(`settings:${user.id}`);
+    } catch (err) {
+      console.error("[settings] Failed to invalidate settings cache:", err);
+    }
+  }
+
+  // #1779: a change to leaderboard visibility must invalidate the leaderboard
+  // cache, or an opted-out user stays listed for up to an hour (and an opted-in
+  // user stays missing for the same window).
+  if (updates.is_public !== undefined || updates.leaderboard_opt_in !== undefined) {
+    try {
+      await clearLeaderboardCache();
+    } catch (err) {
+      // The settings write already succeeded; a cache miss is not worth a 500.
+      console.error("[settings] Failed to clear leaderboard cache:", err);
+    }
+  }
 
   return settingsResponse({
     id: user.id,

@@ -91,11 +91,19 @@ describe("toCsv", () => {
       { value: "multi\nline" },
     ];
     const result = toCsv(rows);
-    const lines = result.split("\n");
-    expect(lines[1]).toBe("simple");
-    expect(lines[2]).toBe('"has, comma"');
-    expect(lines[3]).toBe('"has ""quote"""');
-    expect(lines[4]).toBe('"multi\nline"');
+
+    // A quoted cell may itself contain a newline, so splitting the whole
+    // document on "\n" would break that cell in two. Compare the serialised
+    // output as a whole instead.
+    expect(result).toBe(
+      [
+        "value",
+        "simple",
+        '"has, comma"',
+        '"has ""quote"""',
+        '"multi\nline"',
+      ].join("\n")
+    );
   });
 
   it("handles null and undefined in cells", () => {
