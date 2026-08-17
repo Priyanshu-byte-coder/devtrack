@@ -27,31 +27,11 @@ export function supabaseQueryStub<T>(result: T) {
   };
 
   const chainable = [
-    "select",
-    "insert",
-    "update",
-    "upsert",
-    "delete",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "is",
-    "in",
-    "contains",
-    "overlaps",
-    "not",
-    "or",
-    "filter",
-    "match",
-    "order",
-    "range",
-    "limit",
-    "abortSignal",
+    "select", "insert", "update", "upsert", "delete",
+    "eq", "neq", "gt", "gte", "lt", "lte",
+    "like", "ilike", "is", "in", "contains", "overlaps",
+    "not", "or", "filter", "match",
+    "order", "range", "limit", "abortSignal",
   ];
 
   for (const method of chainable) {

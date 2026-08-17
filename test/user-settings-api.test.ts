@@ -17,9 +17,7 @@ vi.mock("@/lib/resolve-user", () => ({
 
 // Mock crypto
 vi.mock("@/lib/crypto", () => ({
-  encryptToken: vi
-    .fn()
-    .mockReturnValue({ encrypted: "encrypted-val", iv: "iv-val" }),
+  encryptToken: vi.fn().mockReturnValue({ encrypted: "encrypted-val", iv: "iv-val" }),
 }));
 
 // Mock Supabase admin client methods
@@ -67,10 +65,7 @@ describe("User Settings API Endpoints", () => {
     mockCacheGet.mockResolvedValue(null);
     mockCacheSet.mockResolvedValue(undefined);
     mockCacheDelete.mockResolvedValue(undefined);
-    (encryptToken as any).mockReturnValue({
-      encrypted: "encrypted-val",
-      iv: "iv-val",
-    });
+    (encryptToken as any).mockReturnValue({ encrypted: "encrypted-val", iv: "iv-val" });
 
     // Default mock data returned from database select
     mockSingle.mockResolvedValue({
@@ -108,50 +103,17 @@ describe("User Settings API Endpoints", () => {
               data: {
                 id: "user-uuid-123",
                 github_login: "test-user",
-                is_public:
-                  updatesObj.is_public !== undefined
-                    ? updatesObj.is_public
-                    : true,
-                leaderboard_opt_in:
-                  updatesObj.leaderboard_opt_in !== undefined
-                    ? updatesObj.leaderboard_opt_in
-                    : true,
-                pinned_repos:
-                  updatesObj.pinned_repos !== undefined
-                    ? updatesObj.pinned_repos
-                    : ["repo-1"],
-                wakatime_api_key_encrypted:
-                  updatesObj.wakatime_api_key_encrypted !== undefined
-                    ? updatesObj.wakatime_api_key_encrypted
-                    : "encrypted-key",
-                wakatime_api_key_iv:
-                  updatesObj.wakatime_api_key_iv !== undefined
-                    ? updatesObj.wakatime_api_key_iv
-                    : "iv",
-                weekly_digest_opt_in:
-                  updatesObj.weekly_digest_opt_in !== undefined
-                    ? updatesObj.weekly_digest_opt_in
-                    : false,
-                discord_webhook_url:
-                  updatesObj.discord_webhook_url !== undefined
-                    ? updatesObj.discord_webhook_url
-                    : null,
-                timezone:
-                  updatesObj.timezone !== undefined
-                    ? updatesObj.timezone
-                    : "UTC",
-                public_since:
-                  updatesObj.public_since !== undefined
-                    ? updatesObj.public_since
-                    : null,
-                show_weekly_goals:
-                  updatesObj.show_weekly_goals !== undefined
-                    ? updatesObj.show_weekly_goals
-                    : false,
-                preferred_locale:
-                  updatesObj.preferred_locale !== undefined
-                    ? updatesObj.preferred_locale
-                    : "en",
+                is_public: updatesObj.is_public !== undefined ? updatesObj.is_public : true,
+                leaderboard_opt_in: updatesObj.leaderboard_opt_in !== undefined ? updatesObj.leaderboard_opt_in : true,
+                pinned_repos: updatesObj.pinned_repos !== undefined ? updatesObj.pinned_repos : ["repo-1"],
+                wakatime_api_key_encrypted: updatesObj.wakatime_api_key_encrypted !== undefined ? updatesObj.wakatime_api_key_encrypted : "encrypted-key",
+                wakatime_api_key_iv: updatesObj.wakatime_api_key_iv !== undefined ? updatesObj.wakatime_api_key_iv : "iv",
+                weekly_digest_opt_in: updatesObj.weekly_digest_opt_in !== undefined ? updatesObj.weekly_digest_opt_in : false,
+                discord_webhook_url: updatesObj.discord_webhook_url !== undefined ? updatesObj.discord_webhook_url : null,
+                timezone: updatesObj.timezone !== undefined ? updatesObj.timezone : "UTC",
+                public_since: updatesObj.public_since !== undefined ? updatesObj.public_since : null,
+                show_weekly_goals: updatesObj.show_weekly_goals !== undefined ? updatesObj.show_weekly_goals : false,
+                preferred_locale: updatesObj.preferred_locale !== undefined ? updatesObj.preferred_locale : "en",
               },
               error: null,
             }),
@@ -189,9 +151,7 @@ describe("User Settings API Endpoints", () => {
       const req = new NextRequest("http://localhost/api/user/settings");
       const res = await GET(req);
       expect(res.status).toBe(500);
-      expect(await res.json()).toEqual({
-        error: "Failed to fetch user settings",
-      });
+      expect(await res.json()).toEqual({ error: "Failed to fetch user settings" });
     });
 
     it("degrades to safe defaults when every settings column query fails", async () => {
@@ -294,9 +254,7 @@ describe("User Settings API Endpoints", () => {
     it("returns 400 when pinning more than 3 repositories", async () => {
       const req = new NextRequest("http://localhost/api/user/settings", {
         method: "PATCH",
-        body: JSON.stringify({
-          pinned_repos: ["repo-1", "repo-2", "repo-3", "repo-4"],
-        }),
+        body: JSON.stringify({ pinned_repos: ["repo-1", "repo-2", "repo-3", "repo-4"] }),
       });
       const res = await PATCH(req);
       expect(res.status).toBe(400);
@@ -334,7 +292,7 @@ describe("User Settings API Endpoints", () => {
         preferred_locale: "en",
         public_widgets: ["streak", "contributions"],
       });
-
+      
       // Verify that no database updates were triggered (mockUpdate not called because updates is empty)
       expect(mockUpdate).not.toHaveBeenCalled();
     });
@@ -367,7 +325,7 @@ describe("User Settings API Endpoints", () => {
         preferred_locale: "en",
         public_widgets: ["streak", "contributions"],
       });
-
+      
       expect(mockUpdate).toHaveBeenCalledWith({
         is_public: false,
         public_since: null,

@@ -16,9 +16,7 @@ vi.mock("@/lib/metrics-cache", () => ({
   metricsCacheKey: vi.fn().mockImplementation((userId, endpoint, params) => {
     return `metrics:${userId}:${endpoint}:${JSON.stringify(params || {})}`;
   }),
-  withMetricsCache: vi
-    .fn()
-    .mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
+  withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
 vi.mock("@/lib/resolve-user", () => ({
@@ -85,10 +83,7 @@ describe("GET /api/metrics/weekly-summary?accountId=combined", () => {
     // 4. Mock GitHub API Responses for both accounts
     mockFetch.mockImplementation(async (url: string) => {
       // Commits search for primary-login
-      if (
-        url.includes("search/commits") &&
-        url.includes("author:primary-login")
-      ) {
+      if (url.includes("search/commits") && url.includes("author:primary-login")) {
         if (url.includes("&page=")) {
           // fetchActiveDates (streak) call
           return {
@@ -108,24 +103,15 @@ describe("GET /api/metrics/weekly-summary?accountId=combined", () => {
           status: 200,
           json: async () => ({
             items: [
-              {
-                commit: { author: { date: "2026-06-15T08:00:00Z" } },
-                repository: { full_name: "org/repo-a" },
-              }, // Monday (this week)
-              {
-                commit: { author: { date: "2026-06-13T12:00:00Z" } },
-                repository: { full_name: "org/repo-a" },
-              }, // Saturday (last week)
+              { commit: { author: { date: "2026-06-15T08:00:00Z" } }, repository: { full_name: "org/repo-a" } }, // Monday (this week)
+              { commit: { author: { date: "2026-06-13T12:00:00Z" } }, repository: { full_name: "org/repo-a" } }, // Saturday (last week)
             ],
           }),
         } as any;
       }
 
       // Commits search for linked-login
-      if (
-        url.includes("search/commits") &&
-        url.includes("author:linked-login")
-      ) {
+      if (url.includes("search/commits") && url.includes("author:linked-login")) {
         if (url.includes("&page=")) {
           // fetchActiveDates (streak) call
           return {
@@ -145,14 +131,8 @@ describe("GET /api/metrics/weekly-summary?accountId=combined", () => {
           status: 200,
           json: async () => ({
             items: [
-              {
-                commit: { author: { date: "2026-06-15T09:00:00Z" } },
-                repository: { full_name: "org/repo-b" },
-              }, // Monday (this week)
-              {
-                commit: { author: { date: "2026-06-12T12:00:00Z" } },
-                repository: { full_name: "org/repo-b" },
-              }, // Friday (last week)
+              { commit: { author: { date: "2026-06-15T09:00:00Z" } }, repository: { full_name: "org/repo-b" } }, // Monday (this week)
+              { commit: { author: { date: "2026-06-12T12:00:00Z" } }, repository: { full_name: "org/repo-b" } }, // Friday (last week)
             ],
           }),
         } as any;
@@ -165,11 +145,7 @@ describe("GET /api/metrics/weekly-summary?accountId=combined", () => {
           status: 200,
           json: async () => ({
             items: [
-              {
-                created_at: "2026-06-15T10:00:00Z",
-                state: "closed",
-                pull_request: { merged_at: "2026-06-15T11:00:00Z" },
-              },
+              { created_at: "2026-06-15T10:00:00Z", state: "closed", pull_request: { merged_at: "2026-06-15T11:00:00Z" } },
             ],
           }),
         } as any;
@@ -183,14 +159,12 @@ describe("GET /api/metrics/weekly-summary?accountId=combined", () => {
     });
 
     const { GET } = await import("@/app/api/metrics/weekly-summary/route");
-    const req = new NextRequest(
-      "http://localhost/api/metrics/weekly-summary?accountId=combined"
-    );
+    const req = new NextRequest("http://localhost/api/metrics/weekly-summary?accountId=combined");
     const res = await GET(req);
 
     expect(res.status).toBe(200);
     const data = await res.json();
-
+    
     expect(data.commits.current).toBe(2);
     expect(data.commits.previous).toBe(2);
     expect(data.commits.delta).toBe(0);

@@ -22,9 +22,7 @@ const ALLOWED_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
  * Relative and protocol-relative URLs resolve against the current page and are
  * allowed; they cannot carry a scheme of their own.
  */
-export function safeExternalHref(
-  url: string | null | undefined
-): string | undefined {
+export function safeExternalHref(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
 
   const trimmed = url.trim();

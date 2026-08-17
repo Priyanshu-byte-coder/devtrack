@@ -160,9 +160,7 @@ describe("GET /api/wakatime/sync - authentication hardening (#1746 #1657)", () =
           {
             range: { date: "2026-05-01" },
             grand_total: { total_seconds: 3600 },
-            languages: [
-              { name: "TypeScript", total_seconds: 1800, percent: 50 },
-            ],
+            languages: [{ name: "TypeScript", total_seconds: 1800, percent: 50 }],
             projects: [{ name: "devtrack", total_seconds: 3600, percent: 100 }],
           },
         ],
@@ -174,11 +172,7 @@ describe("GET /api/wakatime/sync - authentication hardening (#1746 #1657)", () =
       if (table === "users") {
         return supabaseQueryStub({
           data: [
-            {
-              id: "user-1",
-              wakatime_api_key_encrypted: "enc",
-              wakatime_api_key_iv: "iv",
-            },
+            { id: "user-1", wakatime_api_key_encrypted: "enc", wakatime_api_key_iv: "iv" },
           ],
           error: null,
         });
@@ -211,13 +205,7 @@ describe("GET /api/wakatime/sync - authentication hardening (#1746 #1657)", () =
     mocks.supabaseFrom.mockImplementation((table: string) => {
       if (table === "users") {
         return supabaseQueryStub({
-          data: [
-            {
-              id: "user-1",
-              wakatime_api_key_encrypted: "enc",
-              wakatime_api_key_iv: "iv",
-            },
-          ],
+          data: [{ id: "user-1", wakatime_api_key_encrypted: "enc", wakatime_api_key_iv: "iv" }],
           error: null,
         });
       }

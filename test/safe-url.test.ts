@@ -10,9 +10,7 @@ describe("safeExternalHref", () => {
   });
 
   it("allows mailto links", () => {
-    expect(safeExternalHref("mailto:hello@example.com")).toBe(
-      "mailto:hello@example.com"
-    );
+    expect(safeExternalHref("mailto:hello@example.com")).toBe("mailto:hello@example.com");
   });
 
   it("rejects javascript: URIs", () => {
@@ -25,17 +23,13 @@ describe("safeExternalHref", () => {
   });
 
   it("rejects data: and vbscript: URIs", () => {
-    expect(
-      safeExternalHref("data:text/html,<script>alert(1)</script>")
-    ).toBeUndefined();
+    expect(safeExternalHref("data:text/html,<script>alert(1)</script>")).toBeUndefined();
     expect(safeExternalHref("vbscript:msgbox(1)")).toBeUndefined();
   });
 
   it("allows relative and protocol-relative URLs", () => {
     expect(safeExternalHref("/dashboard")).toBe("/dashboard");
-    expect(safeExternalHref("//cdn.example.com/a.png")).toBe(
-      "//cdn.example.com/a.png"
-    );
+    expect(safeExternalHref("//cdn.example.com/a.png")).toBe("//cdn.example.com/a.png");
   });
 
   it("returns undefined for empty, blank and nullish input", () => {

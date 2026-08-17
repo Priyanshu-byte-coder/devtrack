@@ -6,10 +6,7 @@ import {
   GitHubRateLimitError,
 } from "../src/lib/github-rate-limit";
 
-function makeResponse(
-  status: number,
-  headers: Record<string, string | null>
-): Response {
+function makeResponse(status: number, headers: Record<string, string | null>): Response {
   return new Response(null, {
     status,
     headers: new Headers(
@@ -127,9 +124,7 @@ describe("throwIfGitHubRateLimited", () => {
       throwIfGitHubRateLimited(res);
     } catch (e) {
       expect(e).toBeInstanceOf(GitHubRateLimitError);
-      expect((e as GitHubRateLimitError).details.code).toBe(
-        "GITHUB_RATE_LIMITED"
-      );
+      expect((e as GitHubRateLimitError).details.code).toBe("GITHUB_RATE_LIMITED");
       expect((e as GitHubRateLimitError).details.resetAtEpoch).toBe(1730000000);
     }
   });

@@ -102,7 +102,9 @@ describe("DashboardHeader", () => {
 
     renderDashboardHeader();
 
-    expect(screen.getByText(/dashboard overview/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/dashboard overview/i)
+    ).toBeInTheDocument();
   });
 
   it("renders subtitle text", () => {
@@ -168,7 +170,9 @@ describe("DashboardHeader", () => {
 
     renderDashboardHeader();
 
-    expect(await screen.findByText(/share profile/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/share profile/i)
+    ).toBeInTheDocument();
   });
 
   it("hides share profile button when profile is private", async () => {
@@ -189,7 +193,9 @@ describe("DashboardHeader", () => {
     renderDashboardHeader();
 
     await waitFor(() => {
-      expect(screen.queryByText(/share profile/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/share profile/i)
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -237,7 +243,9 @@ describe("DashboardHeader", () => {
       status: "authenticated",
     });
 
-    (fetch as any).mockRejectedValue(new Error("Network Error"));
+    (fetch as any).mockRejectedValue(
+      new Error("Network Error")
+    );
 
     renderDashboardHeader();
 

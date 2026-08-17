@@ -49,9 +49,7 @@ describe("ProfileQrModal", () => {
   it("calls onClose when the close button is clicked", () => {
     render(<ProfileQrModal {...defaultProps} />);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: /Close QR code modal/i })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /Close QR code modal/i }));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

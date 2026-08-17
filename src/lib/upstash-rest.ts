@@ -80,8 +80,7 @@ export async function upstashTryAcquireLock(options: {
   // The lock value is an ownership token — whoever holds it may release the
   // lock, so it must not be guessable from the clock. Math.random() is not.
   // Web Crypto rather than node:crypto so this stays usable from the edge runtime.
-  const value =
-    options.value ?? `${Date.now()}:${globalThis.crypto.randomUUID()}`;
+  const value = options.value ?? `${Date.now()}:${globalThis.crypto.randomUUID()}`;
   const results = await upstashPipeline([
     ["SET", options.key, value, "NX", "EX", options.ttlSeconds],
   ]);
@@ -89,3 +88,4 @@ export async function upstashTryAcquireLock(options: {
   // Upstash returns "OK" when set, null when not set.
   return results[0]?.result === "OK";
 }
+

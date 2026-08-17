@@ -42,12 +42,7 @@ describe("GitHub Accounts API Endpoints", () => {
       eq: mockEq.mockReturnValue({
         order: mockOrder.mockResolvedValue({
           data: [
-            {
-              id: "account-1",
-              github_id: "999",
-              github_login: "linked-user",
-              added_at: "2026-05-28T00:00:00Z",
-            },
+            { id: "account-1", github_id: "999", github_login: "linked-user", added_at: "2026-05-28T00:00:00Z" }
           ],
           error: null,
         }),
@@ -99,10 +94,7 @@ describe("GitHub Accounts API Endpoints", () => {
     });
 
     it("falls back to an empty account list when the database fetch fails", async () => {
-      mockOrder.mockResolvedValue({
-        data: null,
-        error: { message: "Database Error" },
-      });
+      mockOrder.mockResolvedValue({ data: null, error: { message: "Database Error" } });
 
       const res = await GET();
       expect(res.status).toBe(200);
@@ -119,8 +111,8 @@ describe("GitHub Accounts API Endpoints", () => {
             githubId: "999",
             githubLogin: "linked-user",
             addedAt: "2026-05-28T00:00:00Z",
-          },
-        ],
+          }
+        ]
       });
     });
   });
@@ -129,49 +121,29 @@ describe("GitHub Accounts API Endpoints", () => {
     it("returns 401 when user is not authenticated", async () => {
       (getServerSession as any).mockResolvedValue(null);
 
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/999",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "999" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/999", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "999"  }) });
       expect(res.status).toBe(401);
       expect(await res.json()).toEqual({ error: "Unauthorized" });
     });
 
     it("returns 400 when githubId parameter is empty", async () => {
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/ ",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/ ", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: ""  }) });
       expect(res.status).toBe(400);
       expect(await res.json()).toEqual({ error: "Invalid githubId parameter" });
     });
 
     it("returns 400 when githubId parameter is non-numeric", async () => {
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/abc",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "abc" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/abc", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "abc"  }) });
       expect(res.status).toBe(400);
       expect(await res.json()).toEqual({ error: "Invalid githubId parameter" });
     });
 
     it("returns 400 when githubId parameter has spaces or special characters", async () => {
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/ 123",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: " 123 " }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/ 123", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: " 123 "  }) });
       expect(res.status).toBe(400);
       expect(await res.json()).toEqual({ error: "Invalid githubId parameter" });
     });
@@ -179,29 +151,17 @@ describe("GitHub Accounts API Endpoints", () => {
     it("returns 401 when authenticated session user is not found in database", async () => {
       (resolveAppUser as any).mockResolvedValue(null);
 
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/999",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "999" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/999", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "999"  }) });
       expect(res.status).toBe(401);
       expect(await res.json()).toEqual({ error: "Unauthorized" });
     });
 
     it("returns 400 when trying to remove the primary account", async () => {
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/12345",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "12345" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/12345", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "12345"  }) });
       expect(res.status).toBe(400);
-      expect(await res.json()).toEqual({
-        error: "Cannot remove primary account",
-      });
+      expect(await res.json()).toEqual({ error: "Cannot remove primary account" });
     });
 
     it("returns 500 when database deletion query fails", async () => {
@@ -216,13 +176,8 @@ describe("GitHub Accounts API Endpoints", () => {
         }),
       });
 
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/999",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "999" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/999", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "999"  }) });
       expect(res.status).toBe(500);
       expect(await res.json()).toEqual({ error: "Delete failed" });
     });
@@ -239,25 +194,15 @@ describe("GitHub Accounts API Endpoints", () => {
         }),
       });
 
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/999",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "999" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/999", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "999"  }) });
       expect(res.status).toBe(404);
       expect(await res.json()).toEqual({ error: "Account not found" });
     });
 
     it("successfully deletes the secondary linked account", async () => {
-      const req = new NextRequest(
-        "http://localhost/api/user/github-accounts/999",
-        { method: "DELETE" }
-      );
-      const res = await DELETE(req, {
-        params: Promise.resolve({ githubId: "999" }),
-      });
+      const req = new NextRequest("http://localhost/api/user/github-accounts/999", { method: "DELETE" });
+      const res = await DELETE(req, { params: Promise.resolve({ githubId: "999"  }) });
       expect(res.status).toBe(200);
       expect(await res.json()).toEqual({ success: true });
     });

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { toast } from "sonner";
-import type { CollaborationRoom, RoomMember, RoomMessage } from "@/types/rooms";
-import MessageFeed from "@/components/rooms/MessageFeed";
-import MessageInput from "@/components/rooms/MessageInput";
-import MembersPanel from "@/components/rooms/MembersPanel";
+import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { toast } from 'sonner';
+import type { CollaborationRoom, RoomMember, RoomMessage } from '@/types/rooms';
+import MessageFeed from '@/components/rooms/MessageFeed';
+import MessageInput from '@/components/rooms/MessageInput';
+import MembersPanel from '@/components/rooms/MembersPanel';
 
 interface Props {
   room: CollaborationRoom & { is_owner: boolean };
@@ -18,10 +18,7 @@ interface Props {
 }
 
 export default function RoomClient({
-  room,
-  initialMembers,
-  initialMessages,
-  currentUser,
+  room, initialMembers, initialMessages, currentUser,
 }: Props) {
   const router = useRouter();
   const [messages, setMessages] = useState<RoomMessage[]>(initialMessages);
@@ -54,7 +51,7 @@ export default function RoomClient({
         id: crypto.randomUUID(),
         room_id: room.id,
         github_username: username,
-        role: "member",
+        role: 'member',
         joined_at: new Date().toISOString(),
       },
     ]);
@@ -65,44 +62,34 @@ export default function RoomClient({
   }
 
   async function handleDeleteRoom() {
-    if (
-      !confirm(
-        "Are you sure you want to delete this room? This cannot be undone."
-      )
-    )
-      return;
+    if (!confirm('Are you sure you want to delete this room? This cannot be undone.')) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/rooms/${room.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/rooms/${room.id}`, { method: 'DELETE' });
       if (res.ok) {
-        router.push("/rooms");
+        router.push('/rooms');
       } else {
         const data = await res.json();
-        toast.error(data.error ?? "Could not delete this room. Try again.");
+        toast.error(data.error ?? 'Could not delete this room. Try again.');
       }
     } catch (e) {
       console.error(e);
-      toast.error(
-        "Could not reach the server. Check your connection and try again."
-      );
+      toast.error('Could not reach the server. Check your connection and try again.');
     } finally {
       setDeleting(false);
     }
   }
 
   async function handleLeaveRoom() {
-    if (!confirm("Are you sure you want to leave this room?")) return;
-    const res = await fetch(
-      `/api/rooms/${room.id}/members/${encodeURIComponent(currentUser)}`,
-      {
-        method: "DELETE",
-      }
-    );
+    if (!confirm('Are you sure you want to leave this room?')) return;
+    const res = await fetch(`/api/rooms/${room.id}/members/${encodeURIComponent(currentUser)}`, {
+      method: 'DELETE',
+    });
     if (res.ok) {
-      router.push("/rooms");
+      router.push('/rooms');
     } else {
       const data = await res.json();
-      toast.error(data.error ?? "Could not leave this room. Try again.");
+      toast.error(data.error ?? 'Could not leave this room. Try again.');
     }
   }
 
@@ -110,17 +97,12 @@ export default function RoomClient({
     <div className="flex flex-col h-screen bg-[var(--background)] text-[var(--foreground)]">
       <header className="border-b border-[var(--border)] px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <Link
-            href="/rooms"
-            className="text-sm text-gray-400 hover:text-gray-600"
-          >
+          <Link href="/rooms" className="text-sm text-gray-400 hover:text-gray-600">
             ← Rooms
           </Link>
           <div className="h-4 w-px bg-gray-200 dark:bg-gray-700" />
           <div>
-            <h1 className="font-semibold text-base leading-tight">
-              {room.name}
-            </h1>
+            <h1 className="font-semibold text-base leading-tight">{room.name}</h1>
             <a
               href={`https://github.com/${room.repo_owner}/${room.repo_name}`}
               target="_blank"
@@ -135,7 +117,7 @@ export default function RoomClient({
           onClick={() => setShowMembers(true)}
           className="md:hidden text-xs px-3 py-1.5 border border-[var(--border)] rounded-lg"
         >
-          Members
+        Members
         </button>
         {room.is_owner ? (
           <button
@@ -143,7 +125,7 @@ export default function RoomClient({
             disabled={deleting}
             className="text-xs px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {deleting ? "Deleting..." : "Delete Room"}
+            {deleting ? 'Deleting...' : 'Delete Room'}
           </button>
         ) : (
           <button
@@ -175,33 +157,33 @@ export default function RoomClient({
           />
         </div>
         {showMembers && (
-          <div className="fixed inset-0 z-50 md:hidden">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setShowMembers(false)}
-            />
+  <div className="fixed inset-0 z-50 md:hidden">
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setShowMembers(false)}
+    />
 
-            <div className="absolute right-0 top-0 h-full w-72 bg-[var(--background)]">
-              <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
-                <h2 className="font-semibold">Members</h2>
+    <div className="absolute right-0 top-0 h-full w-72 bg-[var(--background)]">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+        <h2 className="font-semibold">Members</h2>
 
-                <button
-                  onClick={() => setShowMembers(false)}
-                  className="text-sm px-2 py-1 border rounded"
-                >
-                  Close
-                </button>
-              </div>
+        <button
+          onClick={() => setShowMembers(false)}
+          className="text-sm px-2 py-1 border rounded"
+        >
+          Close
+        </button>
+      </div>
 
-              <MembersPanel
-                roomId={room.id}
-                members={members}
-                isOwner={room.is_owner}
-                onMemberAdded={handleMemberAdded}
-                onMemberRemoved={handleMemberRemoved}
-              />
-            </div>
-          </div>
+      <MembersPanel
+        roomId={room.id}
+        members={members}
+        isOwner={room.is_owner}
+        onMemberAdded={handleMemberAdded}
+        onMemberRemoved={handleMemberRemoved}
+      />
+    </div>
+  </div>
         )}
       </div>
     </div>

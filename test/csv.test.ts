@@ -55,7 +55,7 @@ describe("toCsv", () => {
   });
 
   it("returns header and data row for single row", () => {
-    expect(toCsv([{ name: "Alice", age: 30 }])).toBe("name,age\nAlice,30");
+  expect(toCsv([{ name: "Alice", age: 30 }])).toBe("name,age\nAlice,30");
   });
 
   it("serialises multiple rows with correct values", () => {
@@ -76,7 +76,10 @@ describe("toCsv", () => {
   });
 
   it("fills empty cells for keys missing in later rows", () => {
-    const rows = [{ name: "Alice", age: 30, city: "NYC" }, { name: "Bob" }];
+    const rows = [
+      { name: "Alice", age: 30, city: "NYC" },
+      { name: "Bob" },
+    ];
     expect(toCsv(rows)).toBe("name,age,city\nAlice,30,NYC\nBob,,");
   });
 

@@ -37,9 +37,7 @@ vi.mock("@/lib/metrics-cache", () => ({
     streak: 300,
   },
   metricsCacheKey: vi.fn().mockReturnValue("test-cache-key"),
-  withMetricsCache: vi
-    .fn()
-    .mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
+  withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
 vi.mock("@/lib/resolve-user", () => ({

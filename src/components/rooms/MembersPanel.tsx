@@ -35,15 +35,10 @@ export default function MembersPanel({
         onMemberRemoved(username);
       } else {
         const data = await res.json().catch(() => ({}));
-        toast.error(
-          (data as { error?: string }).error ??
-            "Could not remove that member. Try again."
-        );
+        toast.error((data as { error?: string }).error ?? "Could not remove that member. Try again.");
       }
     } catch {
-      toast.error(
-        "Could not reach the server. Check your connection and try again."
-      );
+      toast.error("Could not reach the server. Check your connection and try again.");
     } finally {
       setRemovingUsername(null);
     }

@@ -298,8 +298,7 @@ describe("dispatchActivityAlert", () => {
 
     await dispatchActivityAlert("user-1", "goal.completed", { goalId: "g-99" });
 
-    const fetchCalls = vi.mocked(global.fetch as ReturnType<typeof vi.fn>).mock
-      .calls;
+    const fetchCalls = vi.mocked(global.fetch as ReturnType<typeof vi.fn>).mock.calls;
     if (fetchCalls.length > 0) {
       const body = JSON.parse(fetchCalls[0][1]?.body as string);
       expect(body.data).toMatchObject({ devtrack_event: "goal.completed" });
@@ -309,8 +308,9 @@ describe("dispatchActivityAlert", () => {
 
 describe("/api/webhooks/activity-alerts route", () => {
   it("exports a GET handler that returns the event list", async () => {
-    const { GET } =
-      await import("../src/app/api/webhooks/activity-alerts/route");
+    const { GET } = await import(
+      "../src/app/api/webhooks/activity-alerts/route"
+    );
     const res = await GET();
     const json = await res.json();
     expect(json.events).toContain("streak.milestone_reached");

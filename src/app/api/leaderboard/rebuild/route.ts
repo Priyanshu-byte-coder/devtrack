@@ -1,11 +1,6 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
-import {
-  buildLeaderboard,
-  setMemoryCachedLeaderboard,
-  CACHE_STALE_SECONDS,
-  LEADERBOARD_CACHE_KEY,
-} from "@/lib/leaderboard";
+import { buildLeaderboard, setMemoryCachedLeaderboard, CACHE_STALE_SECONDS, LEADERBOARD_CACHE_KEY } from "@/lib/leaderboard";
 import { cacheSet } from "@/lib/metrics-cache";
 import { supabaseAdmin, isSupabaseAdminAvailable } from "@/lib/supabase";
 
@@ -26,9 +21,7 @@ export async function POST(req: NextRequest) {
     if (isSupabaseAdminAvailable) {
       try {
         const now = new Date().toISOString();
-        const expiresAt = new Date(
-          Date.now() + CACHE_STALE_SECONDS * 1000
-        ).toISOString();
+        const expiresAt = new Date(Date.now() + CACHE_STALE_SECONDS * 1000).toISOString();
         await supabaseAdmin.from("leaderboard_cache").upsert(
           {
             key: LEADERBOARD_CACHE_KEY,
@@ -41,10 +34,7 @@ export async function POST(req: NextRequest) {
           { onConflict: "key" }
         );
       } catch (err) {
-        console.warn(
-          "[Leaderboard] Failed to persist cache to Supabase during rebuild:",
-          err
-        );
+        console.warn("[Leaderboard] Failed to persist cache to Supabase during rebuild:", err);
       }
     }
 
