@@ -2,6 +2,7 @@
 
 import { type ReactNode, useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
+import EmptyState from "./EmptyState";
 
 type ActivityType =
   | "push"
@@ -241,29 +242,14 @@ export default function RecentActivity() {
           </button>
         </div>
       ) : items.length === 0 ? (
-  <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card-muted)] p-6 text-center">
-    <div className="mb-3 text-3xl">📈</div>
-
-    <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-      No Recent Activity
-    </h3>
-
-    <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-      We haven&apos;t found any recent GitHub activity for this account yet.
-      Push commits, open pull requests, or contribute to repositories to
-      see activity appear here.
-    </p>
-
-    <button
-      type="button"
-      onClick={() => fetchActivity(false)}
-      className="mt-4 rounded-md border border-[var(--border)] px-4 py-2 text-xs font-medium hover:bg-[var(--control)]"
-    >
-      Refresh Activity
-    </button>
-  </div>
-) 
-       : ( 
+        <EmptyState
+          icon="📈"
+          title="No Recent Activity"
+          description="We haven't found any recent GitHub activity for this account yet. Push commits, open pull requests, or contribute to repositories to see activity appear here."
+          actionLabel="Refresh Activity"
+          onAction={() => fetchActivity(false)}
+        />
+      ) : ( 
         <div className="max-h-[320px] overflow-y-auto pr-1 flex flex-col space-y-3">
           <ul className="space-y-3 border-l border-[var(--border)] pl-4">
             {items.map((item) => (

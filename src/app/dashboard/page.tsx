@@ -5,6 +5,7 @@ import MilestonePlanner from "@/components/MilestonePlanner";
 import TodayFocusHero from "@/components/TodayFocusHero";
 import DashboardHeader from "@/components/DashboardHeader";
 import ExportButton from "@/components/ExportButton";
+import TaskExportButton from "@/components/TaskExportButton";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { authOptions } from "@/lib/auth";
@@ -77,8 +78,9 @@ export default async function DashboardPage() {
               >
                 Settings
               </Link>
-              <div className="sm:ml-auto">
+              <div className="sm:ml-auto flex gap-2">
                 <ExportButton />
+                <TaskExportButton />
               </div>
             </div>
 

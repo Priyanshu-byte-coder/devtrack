@@ -2,73 +2,85 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
-import { NextResponse } from "next/server";
+import { stripHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(
+export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const appUser = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!appUser) return new Response("User not found", { status: 404 });
 
-  let body: unknown;
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    const body = await req.json();
+    const name = stripHtml(body.name || "").trim();
+    const description = stripHtml(body.description || "").trim();
+    const dueDate = body.dueDate || null;
+    const taskIds = body.taskIds || [];
+
+    if (!name) {
+      return new Response("Name is required", { status: 400 });
+    }
+
+    const { data: existing } = await supabaseAdmin
+      .from("milestones")
+      .select("id")
+      .eq("id", id)
+      .eq("user_id", appUser.id)
+      .single();
+
+    if (!existing) {
+      return new Response("Milestone not found", { status: 404 });
+    }
+
+    const { data: milestone, error } = await supabaseAdmin
+      .from("milestones")
+      .update({
+        name,
+        description,
+        due_date: dueDate,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("user_id", appUser.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // First unlink any tasks currently linked to this milestone
+    const { error: unlinkError } = await supabaseAdmin
+      .from("tasks")
+      .update({ milestone_id: null })
+      .eq("milestone_id", id)
+      .eq("user_id", appUser.id);
+    if (unlinkError) throw unlinkError;
+
+    // Link the new tasks
+    if (taskIds.length > 0) {
+      const { error: linkError } = await supabaseAdmin
+        .from("tasks")
+        .update({ milestone_id: id })
+        .in("id", taskIds)
+        .eq("user_id", appUser.id);
+      if (linkError) throw linkError;
+    }
+
+    return new Response(JSON.stringify(milestone), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: any) {
+    return new Response(err.message, { status: 500 });
   }
-
-  if (typeof body !== "object" || body === null) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
-  }
-
-  const { currentValue } = body as Record<string, unknown>;
-
-  if (
-    typeof currentValue !== "number" ||
-    !Number.isInteger(currentValue) ||
-    currentValue < 0
-  ) {
-    return NextResponse.json(
-      { error: "currentValue must be a non-negative integer" },
-      { status: 400 }
-    );
-  }
-
-  const { data: existing } = await supabaseAdmin
-    .from("milestones")
-    .select("target_value")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (!existing) {
-    return NextResponse.json({ error: "Milestone not found" }, { status: 404 });
-  }
-
-  const safeCurrentValue = Math.min(currentValue, existing.target_value);
-
-  const { data, error } = await supabaseAdmin
-    .from("milestones")
-    .update({ current_value: safeCurrentValue })
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: "Failed to update milestone" }, { status: 500 });
-  }
-
-  return NextResponse.json({ milestone: data });
 }
 
 export async function DELETE(
@@ -78,21 +90,24 @@ export async function DELETE(
   const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const appUser = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!appUser) return new Response("User not found", { status: 404 });
 
   const { error } = await supabaseAdmin
     .from("milestones")
     .delete()
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", appUser.id);
 
   if (error) {
-    return NextResponse.json({ error: "Failed to delete milestone" }, { status: 500 });
+    return new Response(error.message, { status: 500 });
   }
 
-  return NextResponse.json({ success: true });
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }

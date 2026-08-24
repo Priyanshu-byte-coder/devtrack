@@ -3,136 +3,111 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { stripHtml } from "@/lib/sanitize";
-import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-
-const MAX_MILESTONES_PER_USER = 20;
-const MAX_TITLE_LEN = 100;
-const MAX_DESCRIPTION_LEN = 300;
-const MAX_UNIT_LEN = 30;
-const VALID_CATEGORIES = ["commits", "streak", "projects", "custom"] as const;
-type Category = (typeof VALID_CATEGORIES)[number];
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const appUser = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!appUser) {
+    return new Response("User not found", { status: 404 });
+  }
 
-  const { data, error } = await supabaseAdmin
+  const { data: milestones, error } = await supabaseAdmin
     .from("milestones")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(MAX_MILESTONES_PER_USER);
+    .select("id, name, description, due_date")
+    .eq("user_id", appUser.id)
+    .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: "Failed to fetch milestones" }, { status: 500 });
+    return new Response(error.message, { status: 500 });
   }
 
-  return NextResponse.json({ milestones: data ?? [] });
+  // Fetch tasks to calculate taskIds and completion status per milestone
+  const { data: tasks, error: taskError } = await supabaseAdmin
+    .from("tasks")
+    .select("id, milestone_id, completed")
+    .eq("user_id", appUser.id)
+    .not("milestone_id", "is", null);
+
+  if (taskError) {
+    return new Response(taskError.message, { status: 500 });
+  }
+
+  const result = milestones.map((m) => {
+    const mTasks = tasks.filter((t) => t.milestone_id === m.id);
+    return {
+      id: m.id,
+      name: m.name,
+      description: m.description,
+      dueDate: m.due_date,
+      taskIds: mTasks.map((t) => t.id),
+      totalTasks: mTasks.length,
+      completedTasks: mTasks.filter((t) => t.completed).length,
+    };
+  });
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.githubId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  let body: unknown;
+  const appUser = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!appUser) {
+    return new Response("User not found", { status: 404 });
+  }
+
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    const body = await req.json();
+    const name = stripHtml(body.name || "").trim();
+    const description = stripHtml(body.description || "").trim();
+    const dueDate = body.dueDate || null;
+    const taskIds = body.taskIds || [];
+
+    if (!name) {
+      return new Response("Name is required", { status: 400 });
+    }
+
+    const { data: milestone, error } = await supabaseAdmin
+      .from("milestones")
+      .insert({
+        user_id: appUser.id,
+        name,
+        description,
+        due_date: dueDate,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Link tasks if any
+    if (taskIds.length > 0) {
+      const { error: updateError } = await supabaseAdmin
+        .from("tasks")
+        .update({ milestone_id: milestone.id })
+        .in("id", taskIds)
+        .eq("user_id", appUser.id);
+      
+      if (updateError) throw updateError;
+    }
+
+    return new Response(JSON.stringify(milestone), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err: any) {
+    return new Response(err.message, { status: 500 });
   }
-
-  if (typeof body !== "object" || body === null) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
-  }
-
-  const { title, description, targetValue, currentValue, unit, targetDate, category } =
-    body as Record<string, unknown>;
-
-  if (typeof title !== "string" || title.trim().length === 0) {
-    return NextResponse.json({ error: "title must be a non-empty string" }, { status: 400 });
-  }
-  const safeTitle = stripHtml(title).slice(0, MAX_TITLE_LEN);
-  if (safeTitle.length === 0) {
-    return NextResponse.json({ error: "title must not be empty" }, { status: 400 });
-  }
-
-  const safeDescription =
-    typeof description === "string"
-      ? stripHtml(description).slice(0, MAX_DESCRIPTION_LEN)
-      : "";
-
-  if (
-    typeof targetValue !== "number" ||
-    !Number.isInteger(targetValue) ||
-    targetValue < 1 ||
-    targetValue > 1_000_000
-  ) {
-    return NextResponse.json(
-      { error: "targetValue must be an integer between 1 and 1,000,000" },
-      { status: 400 }
-    );
-  }
-
-  const safeCurrentValue =
-    typeof currentValue === "number" && Number.isInteger(currentValue) && currentValue >= 0
-      ? Math.min(currentValue, targetValue)
-      : 0;
-
-  const safeUnit =
-    typeof unit === "string" && unit.trim().length > 0
-      ? unit.trim().slice(0, MAX_UNIT_LEN)
-      : "units";
-
-  if (typeof targetDate !== "string" || isNaN(new Date(targetDate).getTime())) {
-    return NextResponse.json({ error: "targetDate must be a valid date string" }, { status: 400 });
-  }
-
-  const safeCategory: Category = VALID_CATEGORIES.includes(category as Category)
-    ? (category as Category)
-    : "custom";
-
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-
-  const { count } = await supabaseAdmin
-    .from("milestones")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id);
-
-  if ((count ?? 0) >= MAX_MILESTONES_PER_USER) {
-    return NextResponse.json(
-      { error: `You can have at most ${MAX_MILESTONES_PER_USER} milestones.` },
-      { status: 400 }
-    );
-  }
-
-  const { data, error } = await supabaseAdmin
-    .from("milestones")
-    .insert({
-      user_id: user.id,
-      title: safeTitle,
-      description: safeDescription,
-      target_value: targetValue,
-      current_value: safeCurrentValue,
-      unit: safeUnit,
-      target_date: targetDate,
-      category: safeCategory,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: "Failed to create milestone" }, { status: 500 });
-  }
-
-  return NextResponse.json({ milestone: data }, { status: 201 });
 }
