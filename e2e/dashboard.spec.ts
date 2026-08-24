@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { encode } from "next-auth/jwt";
-import { scrollToWidget } from "./helpers/dashboard-mocks";
+import { scrollToWidget } from "./helpers/dashboard-mocks.js";
 
 /**
  * dashboard.spec.ts
@@ -113,7 +113,7 @@ async function injectMockSession(page: import("@playwright/test").Page) {
     })
   );
 
-  await page.route("**/api/goals**", (route) => {
+  await page.route(/\/api\/goals(\?|$)/, (route) => {
     if (route.request().method() === "POST") {
       return route.fulfill({
         contentType: "application/json",
@@ -556,12 +556,14 @@ test("[Dashboard E2E] analytics widgets render once without duplicate metric req
     const { min, max } = METRICS_REQUEST_BOUNDS[endpoint];
     await expect
       .poll(
-        () => {
-          const count = countMetricRequests(requestUrls, endpoint);
-          return count >= min && count <= max;
-        },
-        { timeout: 15_000 },
+        () => countMetricRequests(requestUrls, endpoint),
+        { timeout: 15_000 }
       )
-      .toBe(true);
+      .toBeGreaterThanOrEqual(min);
+      
+    expect(
+      countMetricRequests(requestUrls, endpoint),
+      `Endpoint ${endpoint} should not exceed ${max} duplicate requests`
+    ).toBeLessThanOrEqual(max);
   }
 });
