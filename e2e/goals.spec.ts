@@ -274,7 +274,7 @@ test("[Goals E2E] deleting a goal removes it from the list", async ({
   });
 
   // DELETE /api/goals/:id
-  await page.route("**/api/goals/**", async (route) => {
+  await page.route(/\/api\/goals\/(?!sync).*/, async (route) => {
     if (route.request().method() === "DELETE") {
       const url = route.request().url();
       const id = url.split("/api/goals/")[1]?.split("?")[0];
