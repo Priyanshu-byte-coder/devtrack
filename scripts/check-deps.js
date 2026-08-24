@@ -241,7 +241,7 @@ function main() {
       console.error(`  ${pkg}`);
       for (const f of usedIn) console.error(`    └─ ${f}`);
     }
-    console.error("\nFix: npm install <package-name>  then commit package.json + package-lock.json\n");
+    console.error("\nFix: pnpm install <package-name>  then commit package.json + pnpm-lock.yaml\n");
     process.exit(1);
   }
 

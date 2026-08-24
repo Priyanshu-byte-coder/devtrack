@@ -10,7 +10,7 @@ const PRIVATE_RANGES = [
   { start: 0xa9fe0000, end: 0xa9feffff }, // 169.254.0.0/16 (link-local)
 ];
 
-function ipToNumber(ip: string): number {
+export function ipToNumber(ip: string): number {
   const parts = ip.split(".");
   if (parts.length !== 4) return NaN;
   const numParts = parts.map(Number);
@@ -18,7 +18,7 @@ function ipToNumber(ip: string): number {
   return ((numParts[0] << 24) | (numParts[1] << 16) | (numParts[2] << 8) | numParts[3]) >>> 0;
 }
 
-function isPrivateIP(ip: string): boolean {
+export function isPrivateIP(ip: string): boolean {
   ip = ip.toLowerCase();
 
   // Extract IPv4 from IPv6-mapped IPv4 address

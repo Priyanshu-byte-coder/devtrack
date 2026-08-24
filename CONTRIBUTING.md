@@ -30,7 +30,7 @@ git remote add upstream https://github.com/Umbrella-io/devtrack.git
 We use **pnpm** for this project. If you don't have it installed:
 
 ```bash
-npm install -g pnpm
+pnpm install -g pnpm
 ```
 
 ### 5. Install Dependencies
@@ -641,7 +641,7 @@ Prefer one issue at a time so reviews stay manageable. The per-contributor assig
 CI runs `npm ci` against `package-lock.json`, and [DEVELOPMENT.md](./DEVELOPMENT.md) uses `npm` commands. For the closest match with CI, use **npm**:
 
 ```bash
-npm install
+pnpm install
 npm run dev
 ```
 

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { signOut } from "next-auth/react";
 import { useAccount } from "@/components/AccountContext";
+import EmptyState from "./EmptyState";
 import {
   CartesianGrid,
   Line,
@@ -228,16 +229,13 @@ export default function PRReviewTrendChart() {
           </div>
         </div>
       ) : !hasData ? (
-        <div className="flex h-[360px] items-center justify-center rounded-lg border border-dashed border-[var(--border)]">
-          <div className="text-center">
-            <p className="text-sm font-medium text-[var(--card-foreground)]">
-              No merged PRs found
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-              Merged PRs are required to calculate review time.
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon="📊"
+          title="No merged PRs found"
+          description="Merged PRs are required to calculate review time."
+          actionLabel="View GitHub Profile"
+          actionHref={`https://github.com/${selectedAccount || ""}`}
+        />
       ) : (
         <>
           <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -2,7 +2,7 @@ services:
   - type: web
     name: devtrack
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: pnpm install && pnpm run build
     startCommand: npm start
     envVars:
       - key: NEXT_PUBLIC_SUPABASE_URL
