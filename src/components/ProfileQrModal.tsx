@@ -52,11 +52,14 @@ export function ProfileQrModal({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  // Prevent background scroll while modal is open
+  // Prevent background scroll while modal is open. Restore the previous
+  // inline overflow instead of hardcoding "" so we don't clobber a value
+  // that was already set before this modal mounted.
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
     };
   }, []);
 

@@ -49,7 +49,9 @@ describe("ProfileQrModal", () => {
   it("calls onClose when the close button is clicked", () => {
     render(<ProfileQrModal {...defaultProps} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Close QR code modal/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Close QR code modal/i })
+    );
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -78,16 +80,16 @@ describe("ProfileQrModal", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("locks body scroll while mounted and releases it on unmount", () => {
+  it("locks body scroll while mounted and restores the previous overflow on unmount", () => {
+    document.body.style.overflow = "scroll";
+
     const { unmount } = render(<ProfileQrModal {...defaultProps} />);
 
     expect(document.body.style.overflow).toBe("hidden");
 
     unmount();
 
-    // Cleanup clears the inline style rather than writing a keyword, so the
-    // stylesheet takes over again.
-    expect(document.body.style.overflow).toBe("");
+    expect(document.body.style.overflow).toBe("scroll");
   });
 
   it("downloads the QR code as a PNG named after the user", () => {
