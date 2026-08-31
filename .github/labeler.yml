@@ -1,0 +1,49 @@
+type:feature:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/components/**'
+      - 'src/app/**'
+      - 'src/lib/**'
+
+type:bug:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/**'
+
+type:docs:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**'
+
+type:testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'test/**'
+      - 'e2e/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/*.spec.ts'
+      - '**/*.spec.js'
+
+type:devops:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+      - 'Dockerfile*'
+      - 'docker-compose*'
+      - '.eslintrc*'
+      - 'eslint.config*'
+
+type:performance:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/**'
+
+type:design:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/components/**'
+      - 'src/app/**/*.css'
+      - 'src/app/globals.css'
+      - 'tailwind.config*'

@@ -1,0 +1,4 @@
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS discord_webhook_url TEXT,
+ADD COLUMN IF NOT EXISTS timezone TEXT DEFAULT 'UTC',
+ADD COLUMN IF NOT EXISTS last_discord_notification_at TIMESTAMPTZ;

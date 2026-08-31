@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: devtrack
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: GITHUB_ID
+        sync: false
+      - key: GITHUB_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: NODE_ENV
+        value: production

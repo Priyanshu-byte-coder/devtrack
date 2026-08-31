@@ -1,11 +1,11 @@
-import { getServerSession } from "next-auth";
+import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import { authOptions } from "@/lib/auth";
 import {
   getAccountToken,
   getAllAccounts,
 } from "@/lib/github-accounts";
 import { GITHUB_API } from "@/lib/github";
+import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -40,7 +40,7 @@ function getRequestedTimeZone(req: NextRequest): string {
   try {
     new Intl.DateTimeFormat("en-US", { timeZone: raw }).format(new Date());
     return raw;
-  } catch {
+  } catch (e) {
     return "UTC";
   }
 }
@@ -83,6 +83,7 @@ async function fetchCommitTimestampsForAccount(
         );
 
         if (!response.ok) {
+          if (response.status === 401) throw new GitHubAuthError();
           if ((response.status === 403 || response.status === 429) && timestamps.length > 0) {
             break;
           }
@@ -137,37 +138,41 @@ async function buildInsightsForAccount(
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const sessionData = await getSessionWithToken();
 
-  if (!session?.accessToken || !session.githubLogin) {
+  if (!sessionData || !sessionData.session.githubLogin || !sessionData.session.githubId) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const session = sessionData.session;
+  const accessToken = sessionData.accessToken;
+  const githubLogin = session.githubLogin as string;
+  const githubId = session.githubId as string;
+
+  if (session.error === "TokenRevoked") {
+    return githubAuthErrorResponse();
   }
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const timeZone = getRequestedTimeZone(req);
   const bypass = isMetricsCacheBypassed(req);
-  const cacheUserId = session.githubId ?? session.githubLogin;
 
   if (!accountId) {
     try {
       const data = await buildInsightsForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        githubLogin,
         timeZone,
-        { bypass, userId: cacheUserId }
+        { bypass, userId: githubId }
       );
 
       return Response.json(data);
-    } catch {
+    } catch (e) {
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
 
-  if (!session.githubId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const userRow = await resolveAppUser(session.githubId, session.githubLogin);
+  const userRow = await resolveAppUser(githubId, githubLogin);
   if (!userRow) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -176,9 +181,9 @@ export async function GET(req: NextRequest) {
     if (accountId === "combined") {
       const accounts = await getAllAccounts(
         {
-          token: session.accessToken,
-          githubId: session.githubId,
-          githubLogin: session.githubLogin,
+          token: accessToken,
+          githubId,
+          githubLogin,
         },
         userRow.id
       );
@@ -208,12 +213,12 @@ export async function GET(req: NextRequest) {
       return Response.json(data);
     }
 
-    if (accountId === session.githubId) {
+    if (accountId === githubId) {
       const data = await buildInsightsForAccount(
-        session.accessToken,
-        session.githubLogin,
+        accessToken,
+        githubLogin,
         timeZone,
-        { bypass, userId: session.githubId }
+        { bypass, userId: githubId }
       );
 
       return Response.json(data);
@@ -241,7 +246,7 @@ export async function GET(req: NextRequest) {
     });
 
     return Response.json(data);
-  } catch {
+  } catch (e) {
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

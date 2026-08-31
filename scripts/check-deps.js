@@ -17,6 +17,7 @@ const FRAMEWORK_ALIASES = new Set([
   "next", "react", "react-dom",
   "server-only", "client-only",
 ]);
+const packageMetadataCache = new Map();
 
 function collectFiles(dir) {
   const out = [];
@@ -51,7 +52,7 @@ function extractImports(src) {
   // Strip single-line and multi-line comments to prevent quotes inside comments from throwing off the regex
   const cleanSrc = src
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/.*/g, "");
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
 
   for (const re of [IMPORT_RE, SIDE_EFFECT_IMPORT_RE, DYNAMIC_RE]) {
     re.lastIndex = 0;
@@ -62,6 +63,40 @@ function extractImports(src) {
   }
 
   return imports;
+}
+function loadConfigWithExtends(configPath) {
+  const config = JSON.parse(
+    fs.readFileSync(configPath, "utf8")
+  );
+
+  if (!config.extends) {
+    return config;
+  }
+
+  const parentPath = path.resolve(
+    path.dirname(configPath),
+    config.extends
+  );
+
+  if (!fs.existsSync(parentPath)) {
+    return config;
+  }
+
+  const parentConfig =
+    loadConfigWithExtends(parentPath);
+
+  return {
+    ...parentConfig,
+    ...config,
+    compilerOptions: {
+      ...(parentConfig.compilerOptions || {}),
+      ...(config.compilerOptions || {}),
+      paths: {
+        ...(parentConfig.compilerOptions?.paths || {}),
+        ...(config.compilerOptions?.paths || {}),
+      },
+    },
+  };
 }
 function loadInternalAliases(rootDir) {
   const aliases = ["@/", "~/", "src/"];
@@ -74,9 +109,8 @@ function loadInternalAliases(rootDir) {
     if (!fs.existsSync(configPath)) continue;
 
     try {
-      const config = JSON.parse(
-        fs.readFileSync(configPath, "utf8")
-      );
+      const config =
+        loadConfigWithExtends(configPath);
 
       const paths = config.compilerOptions?.paths || {};
 
@@ -94,16 +128,58 @@ function loadInternalAliases(rootDir) {
 
   return aliases;
 }
+function isValidPackageSubpath(pkgName, mod, cwd) {
+  try {
+    let pkgJson;
+
+    if (packageMetadataCache.has(pkgName)) {
+      pkgJson = packageMetadataCache.get(pkgName);
+    } else {
+      const pkgJsonPath = require.resolve(
+        `${pkgName}/package.json`,
+        { paths: [cwd] }
+      );
+
+      pkgJson = JSON.parse(
+        fs.readFileSync(pkgJsonPath, "utf8")
+      );
+
+      packageMetadataCache.set(pkgName, pkgJson);
+    }
+
+    const exportsField = pkgJson.exports;
+
+    if (!exportsField) return true;
+
+    const subpath = mod.slice(pkgName.length);
+
+    if (!subpath) return true;
+
+    const exportKey =
+      "." + (subpath.startsWith("/") ? subpath : "/" + subpath);
+
+    if (typeof exportsField === "string") {
+      return exportKey === ".";
+    }
+
+    return (
+      exportKey in exportsField ||
+      "./*" in exportsField
+    );
+  } catch {
+    return true;
+  }
+}
 function collectMissingDeps(files, allDeps, cwd = process.cwd()) {
   const missing = new Map(); // pkgName → Set of files
+  // Load Aliases 
+  const INTERNAL_ALIASES = loadInternalAliases(cwd);
 
   for (const file of files) {
     const src = fs.readFileSync(file, "utf8");
     const rel = path.relative(cwd, file).replace(/\\/g, "/");
 
     for (const mod of extractImports(src)) {
-      // Skip relative imports, path aliases (@/ is the src alias — not a pkg)
-      const INTERNAL_ALIASES = loadInternalAliases(cwd);
       if (
         mod.startsWith(".") || 
         mod.startsWith("/") || 
@@ -123,7 +199,20 @@ function collectMissingDeps(files, allDeps, cwd = process.cwd()) {
       ) {
         continue;
       }
-      if (allDeps.has(pkgName)) continue;
+      if (allDeps.has(pkgName)) {
+        if (
+          mod !== pkgName &&
+          !isValidPackageSubpath(pkgName, mod, cwd)
+      ) {
+        if (!missing.has(mod)) {
+          missing.set(mod, new Set());
+        }
+
+        missing.get(mod).add(rel);
+      }
+
+       continue;
+     }
 
       if (!missing.has(pkgName)) missing.set(pkgName, new Set());
       missing.get(pkgName).add(rel);

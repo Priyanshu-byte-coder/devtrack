@@ -1,0 +1,85 @@
+name: Bug Report
+description: Report a bug to help us improve DevTrack
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill out the details below so we can investigate.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened? What did you expect instead?
+      placeholder: "When I click X, Y happens instead of Z"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      value: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      description: Which part of DevTrack is affected?
+      options:
+        - Dashboard
+        - Landing Page
+        - Authentication / Sign-in
+        - API Routes
+        - Public Profile
+        - Leaderboard
+        - Collaboration Rooms
+        - Goal Tracker
+        - Streak System
+        - Settings
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain the issue.
+    validations:
+      required: false
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & OS
+      placeholder: "Chrome 126 on Windows 11"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Local Development
+        - Production (devtrack.site)
+        - Both
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information (error logs, console output, etc.)
+    validations:
+      required: false

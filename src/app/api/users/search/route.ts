@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth";
+import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,10 +7,12 @@ const GITHUB_API = "https://api.github.com";
 const MAX_RESULTS = 6;
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.accessToken) {
+  const sessionData = await getSessionWithToken();
+  if (!sessionData) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const accessToken = sessionData.accessToken;
 
   const qRaw = req.nextUrl.searchParams.get("q") ?? "";
   const q = qRaw.trim();
@@ -20,7 +21,6 @@ export async function GET(req: NextRequest) {
     return Response.json({ users: [] });
   }
 
-  // GitHub usernames can be up to 39 chars; keep query small to reduce load.
   if (q.length > 39) {
     return Response.json({ users: [] });
   }
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
   const searchRes = await fetch(
     `${GITHUB_API}/search/users?q=${encodeURIComponent(`${q} in:login`)}&per_page=${MAX_RESULTS}`,
     {
-      headers: { Authorization: `Bearer ${session.accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
       cache: "no-store",
     }
   );
@@ -45,4 +45,3 @@ export async function GET(req: NextRequest) {
 
   return Response.json({ users });
 }
-

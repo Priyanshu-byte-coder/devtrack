@@ -1,0 +1,28 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/weekly-digest",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/wakatime/sync",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/goals/sync",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/sponsors/sync",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/notifications/discord-sync",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/notifications/weekly",
+      "schedule": "0 9 * * 1"
+    }
+  ]
+}

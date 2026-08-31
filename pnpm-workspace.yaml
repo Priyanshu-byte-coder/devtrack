@@ -1,3 +1,38 @@
-onlyBuiltDependencies:
-  - esbuild
-  - unrs-resolver
+packages:
+  - '.'
+# pnpm >=10 reads overrides from this file, not from package.json.
+# Keep every override here — a duplicate block in package.json is silently ignored.
+overrides:
+  serialize-javascript: ">=7.0.3"
+  uuid: ">=9.0.1"
+  esbuild: ">=0.25.0"
+  form-data: ">=4.0.6"
+  # Transitive advisories (see `pnpm audit --prod`). Ranges are caret-bounded on
+  # purpose: an open ">=" here drags every dependent onto the newest major
+  # (js-yaml 5, nanoid 6, undici 8), which is a far bigger change than the fix.
+  postcss: "^8.5.23"
+  js-yaml: "^4.3.1"
+  fast-uri: "^3.1.5"
+  nanoid: "^3.3.18"
+  sharp: "^0.35.0"
+  undici: "^7.29.0"
+  # immutable 3.8.3 has no patched 3.x line; the advisory's fix is 4.3.9.
+  immutable: "^4.3.9"
+  # brace-expansion ships three parallel majors; a single range would let the
+  # vulnerable 2.x satisfy a "^1.1.18" constraint, so bound each line separately.
+  brace-expansion@1: "^1.1.18"
+  brace-expansion@2: "^2.1.4"
+  brace-expansion@5: "^5.0.9"
+allowBuilds:
+  '@parcel/watcher': true
+  '@scarf/scarf': true
+  '@sentry/cli': true
+  '@swc/core': true
+  '@tree-sitter-grammars/tree-sitter-yaml': true
+  core-js: true
+  core-js-pure: true
+  esbuild: true
+  sharp: true
+  tree-sitter: true
+  tree-sitter-json: true
+  unrs-resolver: true

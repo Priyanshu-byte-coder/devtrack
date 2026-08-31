@@ -1,0 +1,73 @@
+name: Feature Request
+description: Suggest a new feature or improvement for DevTrack
+title: "[FEAT] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Help us understand what you need.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? Why is it needed?
+      placeholder: "As a user, I want to ... so that ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this feature work? Be as specific as possible.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature Area
+      description: Which part of DevTrack would this affect?
+      options:
+        - Dashboard
+        - Landing Page
+        - Authentication
+        - API / Backend
+        - Public Profile
+        - Leaderboard
+        - Collaboration Rooms
+        - Goal Tracker
+        - Streak System
+        - Settings
+        - New Feature Area
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches did you consider?
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this feature is complete?
+      value: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Screenshots, mockups, or links to similar implementations.
+    validations:
+      required: false

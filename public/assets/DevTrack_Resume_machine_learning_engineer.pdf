@@ -1,0 +1,611 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 4743
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F2 18 Tf
+20.6999999999999993 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(Resume — Machine Learning Engineer) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0 g
+42.5196850393700814 756.8506299212598378 Td
+(Professional Summary) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 731.3388188976377933 Td
+(As a highly skilled developer with a strong foundation in machine learning, the candidate brings expertise in) Tj
+T* (languages such as Python, R, and C, with a proficiency in frameworks like PyTorch. With a track record of) Tj
+T* (contributing to 20 repositories, merging 22 pull requests, and making 271 commits, they have consistently) Tj
+T* (demonstrated their ability to collaborate and drive projects forward. The candidate's experience in conducting 302) Tj
+T* (code reviews has also honed their skill in ensuring high-quality code. By leveraging their technical expertise and) Tj
+T* (collaborative mindset, they are well-positioned to excel as a Machine Learning Engineer, driving innovative solutions) Tj
+T* (with PyTorch and other cutting-edge technologies.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0 g
+42.5196850393700814 620.7876377952754865 Td
+(Experience Highlights) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 595.2758267716535556 Td
+(• Developed and implemented code in Python, TypeScript, and JavaScript, adding 38238 lines and removing 7461) Tj
+T* (lines across multiple files in the Fantastic4 repository.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 561.2600787401574962 Td
+(• Engineered and optimized components using TypeScript, JavaScript, and CSS, merging 10 pull requests and) Tj
+T* (adding 3553 lines of code in the devtrack repository.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 527.2443307086614368 Td
+(• Implemented Python code, adding 46212 lines and removing 21 lines in the GeoPulse repository.) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0 g
+42.5196850393700814 501.7325196850393354 Td
+(Projects) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0 g
+42.5196850393700814 476.2207086614172908 Td
+(Fantastic4) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 453.5435433070865656 Td
+(A high-complexity project with significant code contributions, totaling over 38,000 lines of code added and 7,000) Tj
+T* (lines removed.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 419.5277952755905062 Td
+(• Developed and merged 2 pull requests, adding 38,238 lines of code and removing 7,461 lines) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 399.6852755905511003 Td
+(• Scaled the project with substantial codebase changes) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0 g
+42.5196850393700814 379.8427559055117513 Td
+(Technologies: TypeScript, Python, JavaScript, HTML, PowerShell, Shell, CSS, Batchfile) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0 g
+42.5196850393700814 355.7482677165353948 Td
+(devtrack) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 333.0711023622046696 Td
+(An open-source developer productivity dashboard tracking GitHub stats, PR metrics, streaks, and goals, with a) Tj
+T* (medium level of complexity.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 299.0553543307086102 Td
+(• Engineered and merged 10 pull requests, adding 3,553 lines of code and removing 576 lines) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 279.2128346456692043 Td
+(• Integrated multiple technologies to create a comprehensive dashboard) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0 g
+42.5196850393700814 259.3703149606297984 Td
+(Technologies: TypeScript, JavaScript, CSS, PLpgSQL, Dockerfile, HTML, Shell) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0 g
+42.5196850393700814 235.2758267716534419 Td
+(ray) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 212.5986614173227736 Td
+(An AI compute engine consisting of a core distributed runtime and AI libraries for accelerating ML workloads, with a) Tj
+T* (medium level of complexity.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 178.5829133858267141 Td
+(• Added 1,252 lines of code and removed 272 lines, contributing to the project's growth) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0 g
+42.5196850393700814 158.7403937007873083 Td
+(Technologies: Python, C++, Java, Starlark, TypeScript, Cython, Shell, Dockerfile, C, Objective-C) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0 g
+42.5196850393700814 134.6459055118109518 Td
+(GeoPulse) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 111.9687401574801697 Td
+(A high-complexity project with significant Python code contributions, totaling over 46,000 lines of code added and) Tj
+T* (21 lines removed.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 77.9529921259841103 Td
+(• Developed and added 46,212 lines of code, with only 21 lines removed) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 3004
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F1 10 Tf
+11.5 TL
+0 g
+42.5196850393700814 799.3703149606299121 Td
+(• Implemented substantial codebase changes) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0 g
+42.5196850393700814 779.5277952755905062 Td
+(Technologies: Python) Tj
+ET
+BT
+/F2 14 Tf
+16.0999999999999979 TL
+0 g
+42.5196850393700814 755.4333070866141497 Td
+(Skills) Tj
+ET
+0. G
+0.5670000000000001 w
+0. G
+0.5670000000000001 w
+0.16 0.5 0.73 rg
+0.78 G
+0. w
+0.16 0.5 0.73 rg
+42.5196850393700814 729.9214960629921052 274.2476208188061833 -20.3499999999999979 re
+f
+BT
+/F2 9 Tf
+10.3499999999999996 TL
+1. g
+47.5196850393700814 717.2714960629921279 Td
+(Category) Tj
+ET
+0.16 0.5 0.73 rg
+0.78 G
+0. w
+0.16 0.5 0.73 rg
+316.7673058581762575 729.9214960629921052 235.9930091024535557 -20.3499999999999979 re
+f
+BT
+/F2 9 Tf
+10.3499999999999996 TL
+1. g
+321.7673058581762575 717.2714960629921279 Td
+(Skills) Tj
+ET
+0. G
+0.5670000000000001 w
+0.96 g
+0.78 G
+0. w
+0.96 g
+42.5196850393700814 709.5714960629920824 274.2476208188061833 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+47.5196850393700814 696.9214960629921052 Td
+(Programming Languages) Tj
+ET
+0.96 g
+0.78 G
+0. w
+0.96 g
+316.7673058581762575 709.5714960629920824 235.9930091024535557 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+321.7673058581762575 696.9214960629921052 Td
+(R, C, Python, Go, TypeScript) Tj
+ET
+1. g
+0.78 G
+0. w
+1. g
+42.5196850393700814 689.2214960629920597 274.2476208188061833 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+47.5196850393700814 676.5714960629920824 Td
+(Frameworks & Libraries) Tj
+ET
+1. g
+0.78 G
+0. w
+1. g
+316.7673058581762575 689.2214960629920597 235.9930091024535557 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+321.7673058581762575 676.5714960629920824 Td
+(PyTorch, Express, React, FastAPI) Tj
+ET
+0.96 g
+0.78 G
+0. w
+0.96 g
+42.5196850393700814 668.8714960629921507 274.2476208188061833 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+47.5196850393700814 656.2214960629921734 Td
+(Data Science & Machine Learning Tools) Tj
+ET
+0.96 g
+0.78 G
+0. w
+0.96 g
+316.7673058581762575 668.8714960629921507 235.9930091024535557 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+321.7673058581762575 656.2214960629921734 Td
+(MLflow, NumPy, ONNX, Pandas) Tj
+ET
+1. g
+0.78 G
+0. w
+1. g
+42.5196850393700814 648.5214960629921279 274.2476208188061833 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+47.5196850393700814 635.8714960629921507 Td
+(Cloud & DevOps) Tj
+ET
+1. g
+0.78 G
+0. w
+1. g
+316.7673058581762575 648.5214960629921279 235.9930091024535557 -20.3499999999999979 re
+f
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.314 g
+321.7673058581762575 635.8714960629921507 Td
+(AWS, Docker, GitHub Actions) Tj
+ET
+0. G
+0.5670000000000001 w
+0.78 G
+0. w
+0. G
+0.5670000000000001 w
+0. G
+0.5670000000000001 w
+BT
+/F2 8 Tf
+9.1999999999999993 TL
+0.588 g
+42.5196850393700814 19.8427559055116944 Td
+(Generated at 2026-06-04T12:14:51.564Z) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R ]
+/Count 2
+>>
+endobj
+7 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 7 0 R
+/F2 8 0 R
+/F3 9 0 R
+/F4 10 0 R
+/F5 11 0 R
+/F6 12 0 R
+/F7 13 0 R
+/F8 14 0 R
+/F9 15 0 R
+/F10 16 0 R
+/F11 17 0 R
+/F12 18 0 R
+/F13 19 0 R
+/F14 20 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+21 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260604121459-00'00')
+>>
+endobj
+22 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000008140 00000 n 
+0000009965 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000004947 00000 n 
+0000005084 00000 n 
+0000008203 00000 n 
+0000008328 00000 n 
+0000008458 00000 n 
+0000008591 00000 n 
+0000008729 00000 n 
+0000008853 00000 n 
+0000008982 00000 n 
+0000009114 00000 n 
+0000009250 00000 n 
+0000009378 00000 n 
+0000009505 00000 n 
+0000009634 00000 n 
+0000009767 00000 n 
+0000009869 00000 n 
+0000010215 00000 n 
+0000010301 00000 n 
+trailer
+<<
+/Size 23
+/Root 22 0 R
+/Info 21 0 R
+/ID [ <96D10AFCEFEAD252141111891ECBC5D4> <96D10AFCEFEAD252141111891ECBC5D4> ]
+>>
+startxref
+10405
+%%EOF

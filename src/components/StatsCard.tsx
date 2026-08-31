@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
+import type { LucideIcon } from "lucide-react";
+import { Flame, Trophy, Zap, Package, Download } from "lucide-react";
 
 interface StatsCardProps {
   username: string;
@@ -58,7 +60,7 @@ export default function StatsCard({
         disabled={generating}
         id="download-stats-card-btn"
         aria-label="Download stats card as PNG"
-        className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] shadow-sm transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+        className="secondary-button inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
       >
         {generating ? (
           <>
@@ -67,17 +69,7 @@ export default function StatsCard({
           </>
         ) : (
           <>
-            {/* Download icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-4 h-4"
-              aria-hidden="true"
-            >
-              <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
-              <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
-            </svg>
+            <Download size={16} />
             Download stats card
           </>
         )}
@@ -104,7 +96,7 @@ export default function StatsCard({
           style={{
             width: 1200,
             height: 630,
-            background: "linear-gradient(135deg, #0f1117 0%, #1a1d2e 50%, #0f1117 100%)",
+            background: "linear-gradient(135deg, #ffffff 0%, #eff6ff 50%, #f8fafc 100%)",
             fontFamily: "'Inter', 'Segoe UI', sans-serif",
             display: "flex",
             flexDirection: "column",
@@ -123,7 +115,7 @@ export default function StatsCard({
               width: 480,
               height: 480,
               borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)",
+              background: "radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%)",
               pointerEvents: "none",
             }}
           />
@@ -135,7 +127,7 @@ export default function StatsCard({
               width: 320,
               height: 320,
               borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 70%)",
+              background: "radial-gradient(circle, rgba(96,165,250,0.16) 0%, transparent 70%)",
               pointerEvents: "none",
             }}
           />
@@ -152,14 +144,14 @@ export default function StatsCard({
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               {/* Avatar */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <img loading="lazy"
                 src={avatarUrl}
                 alt={username}
                 width={80}
                 height={80}
                 style={{
                   borderRadius: "50%",
-                  border: "3px solid rgba(99,102,241,0.6)",
+                  border: "3px solid rgba(59,130,246,0.45)",
                   display: "block",
                 }}
               />
@@ -168,7 +160,7 @@ export default function StatsCard({
                   style={{
                     fontSize: 36,
                     fontWeight: 800,
-                    color: "#f1f5f9",
+                    color: "#111827",
                     lineHeight: 1.1,
                     letterSpacing: "-0.5px",
                   }}
@@ -178,7 +170,7 @@ export default function StatsCard({
                 <div
                   style={{
                     fontSize: 16,
-                    color: "#94a3b8",
+                    color: "#4b5563",
                     marginTop: 4,
                   }}
                 >
@@ -192,7 +184,7 @@ export default function StatsCard({
               style={{
                 fontSize: 15,
                 fontWeight: 600,
-                color: "#6366f1",
+                color: "#3b82f6",
                 letterSpacing: "0.5px",
                 opacity: 0.9,
               }}
@@ -212,7 +204,7 @@ export default function StatsCard({
           >
             {/* Current Streak */}
             <StatBox
-              icon="🔥"
+              icon={Flame}
               label="Current Streak"
               value={String(currentStreak)}
               unit="days"
@@ -220,21 +212,21 @@ export default function StatsCard({
             />
             {/* Longest Streak */}
             <StatBox
-              icon="🏆"
+              icon={Trophy}
               label="Longest Streak"
               value={String(longestStreak)}
               unit="days"
             />
             {/* Total Commits */}
             <StatBox
-              icon="⚡"
+              icon={Zap}
               label="Total Commits"
               value={totalCommits >= 1000 ? `${(totalCommits / 1000).toFixed(1)}k` : String(totalCommits)}
               unit="commits"
             />
             {/* Top Repo */}
             <StatBox
-              icon="📦"
+              icon={Package}
               label="Top Repository"
               value={topRepo.split("/")[1] ?? topRepo}
               unit=""
@@ -247,21 +239,21 @@ export default function StatsCard({
             style={{
               marginTop: 32,
               paddingTop: 20,
-              borderTop: "1px solid rgba(255,255,255,0.08)",
+              borderTop: "1px solid rgba(148,163,184,0.28)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
             }}
           >
-            <div style={{ fontSize: 13, color: "#475569" }}>
+            <div style={{ fontSize: 13, color: "#4b5563" }}>
               Generated by DevTrack · devtrack.app/u/{username}
             </div>
             <div
               style={{
                 fontSize: 12,
-                color: "#334155",
-                background: "rgba(99,102,241,0.12)",
-                border: "1px solid rgba(99,102,241,0.2)",
+                color: "#1d4ed8",
+                background: "rgba(96,165,250,0.2)",
+                border: "1px solid rgba(59,130,246,0.28)",
                 borderRadius: 6,
                 padding: "4px 12px",
               }}
@@ -277,14 +269,14 @@ export default function StatsCard({
 
 /** Individual stat box inside the card */
 function StatBox({
-  icon,
+  icon: Icon,
   label,
   value,
   unit,
   accent = false,
   small = false,
 }: {
-  icon: string;
+  icon: LucideIcon;
   label: string;
   value: string;
   unit: string;
@@ -295,11 +287,11 @@ function StatBox({
     <div
       style={{
         background: accent
-          ? "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(99,102,241,0.10) 100%)"
-          : "rgba(255,255,255,0.04)",
+          ? "linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(96,165,250,0.09) 100%)"
+          : "rgba(255,255,255,0.72)",
         border: accent
-          ? "1px solid rgba(99,102,241,0.45)"
-          : "1px solid rgba(255,255,255,0.08)",
+          ? "1px solid rgba(59,130,246,0.4)"
+          : "1px solid rgba(203,213,225,0.8)",
         borderRadius: 16,
         padding: "24px 20px",
         display: "flex",
@@ -308,13 +300,15 @@ function StatBox({
         backdropFilter: "blur(8px)",
       }}
     >
-      <div style={{ fontSize: 28, lineHeight: 1 }}>{icon}</div>
+      <div style={{ lineHeight: 1 }}>
+        <Icon size={28} strokeWidth={1.5} className={accent ? "text-[var(--accent)]" : "text-[var(--muted-foreground)]"} />
+      </div>
       <div>
         <div
           style={{
             fontSize: small ? 22 : 40,
             fontWeight: 800,
-            color: accent ? "#a5b4fc" : "#f1f5f9",
+            color: accent ? "#1d4ed8" : "#111827",
             lineHeight: 1.1,
             marginTop: 12,
             wordBreak: "break-word",
@@ -326,7 +320,7 @@ function StatBox({
           <div
             style={{
               fontSize: 13,
-              color: "#64748b",
+              color: "#4b5563",
               marginTop: 4,
             }}
           >
@@ -336,7 +330,7 @@ function StatBox({
         <div
           style={{
             fontSize: 13,
-            color: "#94a3b8",
+            color: "#4b5563",
             marginTop: 8,
             fontWeight: 500,
           }}

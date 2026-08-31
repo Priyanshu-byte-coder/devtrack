@@ -71,7 +71,7 @@ export default function InactiveRepositoriesCard() {
   }, [fetchInactiveRepos]);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
@@ -86,7 +86,7 @@ export default function InactiveRepositoriesCard() {
             value={thresholdDays}
             onChange={(event) => setThresholdDays(Number(event.target.value) as ThresholdDays)}
             aria-label="Select inactivity threshold"
-            className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--card-foreground)] focus:border-[var(--accent)] focus:outline-none"
+            className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--card-foreground)]"
           >
             {THRESHOLDS.map((days) => (
               <option key={days} value={days}>
@@ -98,10 +98,11 @@ export default function InactiveRepositoriesCard() {
             type="button"
             onClick={fetchInactiveRepos}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label="Refresh inactive repositories"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
           >
             {loading ? (
-              <svg className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <svg aria-hidden="true" className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             ) : null}
             <span>Refresh</span>
           </button>
@@ -116,7 +117,7 @@ export default function InactiveRepositoriesCard() {
               <div
                 key={i}
                 aria-hidden="true"
-                className="h-20 rounded-lg bg-[var(--card-muted)] animate-pulse"
+                className="h-20 rounded-lg skeleton-shimmer"
               />
             ))}
           </div>
@@ -136,14 +137,14 @@ export default function InactiveRepositoriesCard() {
             Nice! No inactive repositories for this period.
           </p>
         ) : (
-          <ul className="space-y-3">
+          <ul className="space-y-3 stagger-children">
             {repos.map((repo) => (
-              <li key={repo.name}>
+              <li key={repo.name} className="animate-fade-in-up">
                 <a
                   href={repo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 transition-colors hover:border-[var(--accent)]"
+                  className="block rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 transition-all duration-200 hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">

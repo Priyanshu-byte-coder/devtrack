@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import type { CommitItem } from "@/lib/github";
 
 const PAGE_SIZE = 50;
@@ -127,7 +127,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search commits..."
             aria-label="Search commits by message or repository"
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-10 pr-10 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-colors"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-10 pr-10 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus:border-transparent transition-colors"
           />
           {searchQuery && (
             <button
@@ -151,7 +151,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
           onClick={handleToggle}
           aria-label={isOpen ? "Collapse commit list" : "Expand commit list"}
           aria-expanded={isOpen}
-          className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-colors"
+          className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-all hover:opacity-90 active:scale-95"
         >
           <svg
             className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -208,7 +208,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
                       </span>
 
                       {/* Repo badge */}
-                      <span className="shrink-0 rounded-md bg-[var(--control)] px-2 py-0.5 text-xs font-medium text-[var(--foreground)] max-w-[12rem] truncate">
+                      <span className="shrink-0 rounded-md bg-[var(--control)] px-2 py-0.5 text-xs font-medium text-[var(--foreground)] max-w-[6rem] sm:max-w-[12rem] truncate">
                         <HighlightMatch text={commit.repo} query={debouncedQuery} />
                       </span>
 
@@ -243,7 +243,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
                 <div className="mt-2 flex justify-center">
                   <button
                     onClick={handleLoadMore}
-                    className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-1.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-colors"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-1.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-all hover:opacity-90 active:scale-95"
                   >
                     Load more ({filteredCommits.length - visibleCount} remaining)
                   </button>
