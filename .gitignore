@@ -67,3 +67,4 @@ package-lock.json
 
 # code-analysis output
 .jscpd-report/
+.scannerwork/
