@@ -1,5 +1,6 @@
 "use client";
 import SectionHeader from "./SectionHeader";
+import { saveSnapshot, getSnapshot } from "@/lib/localCache";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
@@ -40,6 +41,7 @@ interface FreezeData {
 
 export function useStreakTracker() {
   const { selectedAccount } = useAccount();
+  const cacheKey = selectedAccount ? `streak-${selectedAccount}` : "streak-default";
   const [data, setData] = useState<StreakData | null>(null);
   const [contributionData, setContributionData] = useState<ContributionData | null>(null);
   const [freezeDates, setFreezeDates] = useState<string[]>([]);
@@ -112,15 +114,28 @@ export function useStreakTracker() {
       setData(streakData);
       setContributionData(contribData);
       setFreezeDates(streakData.freezeDates || []);
+
+      // SWR: persist fresh snapshot for offline / instant-hydration use
+      saveSnapshot(cacheKey, { streak: streakData, contribution: contribData });
     } catch (err) {
       console.error("Failed to fetch streak data:", err);
-      setError("We couldn't load your streak data right now. Please try again in a moment.");
+
+     // SWR fallback: if the live fetch fails, fall back to the cached snapshot
+      const cached = getSnapshot<{ streak: StreakData; contribution: ContributionData }>(cacheKey);
+      if (cached) {
+        setData(cached.data.streak);
+        setContributionData(cached.data.contribution);
+        setFreezeDates(cached.data.streak.freezeDates || []);
+        setError(null);
+      } else {
+        setError("We couldn't load your streak data right now. Please try again in a moment.");
+      }
     } finally {
       setLoading(false);
       setLastUpdated(new Date());
       setMinutesAgo(0);
     }
-  }, [selectedAccount]);
+  }, [selectedAccount, cacheKey]);
 
   const fetchFreeze = useCallback(() => {
     setFreezeLoading(true);
@@ -133,6 +148,17 @@ export function useStreakTracker() {
       })
       .finally(() => setFreezeLoading(false));
   }, []);
+
+  // SWR Step 1: instant hydration from localStorage before network resolves
+  useEffect(() => {
+    const cached = getSnapshot<{ streak: StreakData; contribution: ContributionData }>(cacheKey);
+    if (cached) {
+      setData(cached.data.streak);
+      setContributionData(cached.data.contribution);
+      setFreezeDates(cached.data.streak.freezeDates || []);
+      setLoading(false); // show stale data immediately, no spinner
+    }
+  }, [cacheKey]);
 
   useEffect(() => {
     fetchStreak();
