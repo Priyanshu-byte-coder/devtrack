@@ -47,7 +47,7 @@ describe("Middleware - Auth Rate Limiting Redirection", () => {
     expect(res).toBeDefined();
     // Redirect status code is 307
     expect(res?.status).toBe(307);
-    // Redirect location points to the signin page with error=RateLimit
+    // Redirect location points to the signin page with error=RateLimitError
     expect(res?.headers.get("Location")).toContain("/auth/signin?error=RateLimit");
     // Rate limit headers are present
     expect(res?.headers.get("X-RateLimit-Limit")).toBe(EFFECTIVE_AUTH_LIMIT);
@@ -55,7 +55,7 @@ describe("Middleware - Auth Rate Limiting Redirection", () => {
     expect(res?.headers.get("X-RateLimit-Reset")).toBe("1234567890");
   });
 
-  it("should return JSON error response for non-html requests when auth rate limit is hit", async () => {
+  it("should return a valid redirect url in the JSON error response for non-html requests when auth rate limit is hit", async () => {
     vi.mocked(isAuthSensitivePath).mockReturnValue(true);
     vi.mocked(checkAuthRateLimit).mockReturnValue({
       allowed: false,
@@ -76,15 +76,48 @@ describe("Middleware - Auth Rate Limiting Redirection", () => {
     expect(res).toBeDefined();
     // HTTP status code 429 Too Many Requests
     expect(res?.status).toBe(429);
-    // Body contains the rate limit error message
+
     const body = await res?.json();
-    expect(body).toEqual({
-      error: "Too many authentication attempts. Please try again later.",
-    });
+    // Uses a code that maps to AUTH_ERROR_MESSAGES on the client, not a raw sentence
+    expect(body.error).toBe("RateLimitError");
+    // A valid, absolute url must always be present so next-auth's client-side
+    // signIn({ redirect: false }) fetcher — which parses `data.url` internally
+    // — never throws and never lets raw JSON reach the screen (issue #2267).
+    expect(() => new URL(body.url)).not.toThrow();
+    expect(body.url).toContain("/auth/signin?error=RateLimitError");
+
     // Rate limit headers are present
     expect(res?.headers.get("X-RateLimit-Limit")).toBe(EFFECTIVE_AUTH_LIMIT);
     expect(res?.headers.get("X-RateLimit-Remaining")).toBe("0");
     expect(res?.headers.get("X-RateLimit-Reset")).toBe("1234567890");
+  });
+
+  it("should never omit the url field from the rate-limit JSON body, regardless of Accept header (regression #2267)", async () => {
+    vi.mocked(isAuthSensitivePath).mockReturnValue(true);
+    vi.mocked(checkAuthRateLimit).mockReturnValue({
+      allowed: false,
+      remaining: 0,
+      reset: 1234567890,
+    });
+
+    // Simulates an interrupted-then-retried OAuth flow: the browser's
+    // fetch() call (from next-auth's client redirect:false path) typically
+    // sends Accept: */* rather than text/html.
+    const req = new NextRequest("http://localhost/api/auth/signin/github", {
+      headers: {
+        accept: "*/*",
+        "x-forwarded-for": "5.6.7.8",
+      },
+      method: "POST",
+    });
+
+    const res = await middleware(req);
+    const body = await res?.json();
+
+    expect(res?.status).toBe(429);
+    expect(body).toHaveProperty("url");
+    expect(typeof body.url).toBe("string");
+    expect(body.url.length).toBeGreaterThan(0);
   });
 
   it("should allow request to proceed (NextResponse.next) if rate limit is not hit", async () => {

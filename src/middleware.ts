@@ -308,23 +308,32 @@ export async function middleware(req: NextRequest) {
       console.warn("auth_rate_limit_hit", { ip, path: pathname });
       const headers = buildHeaders({ ...authResult, limit: authLimit });
 
-      const acceptHeader = req.headers.get("accept") ?? "";
+     const acceptHeader = req.headers.get("accept") ?? "";
       if (acceptHeader.includes("text/html")) {
         const url = req.nextUrl.clone();
         url.pathname = "/auth/signin";
-        url.search = "?error=RateLimit";
+        url.search = "?error=RateLimitError";
         return NextResponse.redirect(url, {
           status: 307,
           headers,
         });
       }
 
+      // Non-HTML (fetch/XHR) requests come from next-auth's client-side
+      // signIn({ redirect: false }) call. NextAuth's internal fetcher parses
+      // `data.url` out of the response — if it's missing, that parsing
+      // throws and the raw JSON ends up surfacing to the user instead of a
+      // friendly toast. Always include a valid `url` here, and use the
+      // "RateLimitError" code so it maps to AUTH_ERROR_MESSAGES on the client.
+      const signinUrl = req.nextUrl.clone();
+      signinUrl.pathname = "/auth/signin";
+      signinUrl.search = "?error=RateLimitError";
+
       return NextResponse.json(
-        { error: "Too many authentication attempts. Please try again later." },
+        { error: "RateLimitError", url: signinUrl.toString() },
         { status: 429, headers }
       );
     }
-
     return NextResponse.next();
   }
 
