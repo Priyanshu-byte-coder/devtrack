@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useLocale, useTranslations } from "next-intl";
 import { localeMetadata, locales, type AppLocale } from "@/i18n/config";
 import Image from "next/image";
+import { FolderGit, Plus, Trash2, Link2, Unlink, Settings2, HelpCircle } from "lucide-react";
 
 // ── Max length for the profile bio ──────────────────────────────────────────
 const BIO_MAX = 160;
@@ -204,6 +205,21 @@ function SettingsPageContent() {
   const [orgAccounts, setOrgAccounts] = useState<any[]>([]);
   const [orgsConfig, setOrgsConfig] = useState<Record<string, boolean>>({});
   const [loadingOrgs, setLoadingOrgs] = useState(true);
+
+  // DevTrack Projects States
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [creatingProject, setCreatingProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectKey, setNewProjectKey] = useState("");
+  const [newProjectDesc, setNewProjectDesc] = useState("");
+  const [newProjectTriggers, setNewProjectTriggers] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<any | null>(null);
+  const [newRepoUrl, setNewRepoUrl] = useState("");
+  const [submittingProject, setSubmittingProject] = useState(false);
+  const [submittingRepo, setSubmittingRepo] = useState(false);
+  const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
+  const [unlinkingRepoId, setUnlinkingRepoId] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [publicWidgets, setPublicWidgets] = useState<string[]>(["streak", "contributions"]);
   const [savingWidgets, setSavingWidgets] = useState(false);
@@ -403,6 +419,220 @@ function SettingsPageContent() {
     } catch (err) {
       console.error(err);
       toast.error("Error updating organization settings.");
+    }
+  };
+
+  // Load projects on mount
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    async function loadProjects() {
+      try {
+        setLoadingProjects(true);
+        const res = await fetch("/api/projects");
+        if (res.ok) {
+          const data = await res.json();
+          setProjects(data.projects || []);
+        }
+      } catch (err) {
+        console.error("Failed to load projects:", err);
+      } finally {
+        setLoadingProjects(false);
+      }
+    }
+    loadProjects();
+  }, [status]);
+
+  const handleSelectProject = async (proj: any) => {
+    if (selectedProject?.id === proj.id) {
+      setSelectedProject(null);
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/projects/${proj.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedProject({
+          ...proj,
+          repositories: data.repositories || []
+        });
+      } else {
+        setSelectedProject({
+          ...proj,
+          repositories: []
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load project details:", err);
+      setSelectedProject({
+        ...proj,
+        repositories: []
+      });
+    }
+  };
+
+  const handleCreateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProjectName.trim() || !newProjectKey.trim()) {
+      toast.error("Project name and key are required.");
+      return;
+    }
+
+    setSubmittingProject(true);
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newProjectName.trim(),
+          key: newProjectKey.trim(),
+          description: newProjectDesc.trim(),
+          enable_keyword_triggers: newProjectTriggers,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setProjects((prev) => [data, ...prev]);
+        setNewProjectName("");
+        setNewProjectKey("");
+        setNewProjectDesc("");
+        setNewProjectTriggers(true);
+        setCreatingProject(false);
+        toast.success("Project created successfully!");
+      } else {
+        toast.error(data.error || "Failed to create project.");
+      }
+    } catch (err) {
+      console.error("Error creating project:", err);
+      toast.error("Failed to create project.");
+    } finally {
+      setSubmittingProject(false);
+    }
+  };
+
+  const handleDeleteProject = async (projId: string) => {
+    if (!window.confirm("Are you sure you want to delete this project? This will also remove all repository associations and issue tracking data.")) {
+      return;
+    }
+
+    setDeletingProjectId(projId);
+    try {
+      const res = await fetch(`/api/projects/${projId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setProjects((prev) => prev.filter((p) => p.id !== projId));
+        if (selectedProject?.id === projId) {
+          setSelectedProject(null);
+        }
+        toast.success("Project deleted successfully.");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to delete project.");
+      }
+    } catch (err) {
+      console.error("Error deleting project:", err);
+      toast.error("Failed to delete project.");
+    } finally {
+      setDeletingProjectId(null);
+    }
+  };
+
+  const handleToggleProjectTriggers = async (projId: string, enabled: boolean) => {
+    try {
+      const res = await fetch(`/api/projects/${projId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enable_keyword_triggers: enabled }),
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setProjects((prev) => prev.map((p) => (p.id === projId ? updated : p)));
+        if (selectedProject?.id === projId) {
+          setSelectedProject((prev: any) => prev ? { ...prev, enable_keyword_triggers: updated.enable_keyword_triggers } : null);
+        }
+        toast.success("Project triggers updated.");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to update project triggers.");
+      }
+    } catch (err) {
+      console.error("Error toggling project triggers:", err);
+      toast.error("Failed to update project triggers.");
+    }
+  };
+
+  const handleLinkRepo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProject) return;
+    if (!newRepoUrl.trim()) {
+      toast.error("Repository URL is required.");
+      return;
+    }
+
+    setSubmittingRepo(true);
+    try {
+      const res = await fetch(`/api/projects/${selectedProject.id}/repos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repo_url: newRepoUrl.trim() }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setSelectedProject((prev: any) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            repositories: [...(prev.repositories || []), data],
+          };
+        });
+        setNewRepoUrl("");
+        toast.success("Repository linked successfully!");
+      } else {
+        toast.error(data.error || "Failed to link repository.");
+      }
+    } catch (err) {
+      console.error("Error linking repository:", err);
+      toast.error("Failed to link repository.");
+    } finally {
+      setSubmittingRepo(false);
+    }
+  };
+
+  const handleUnlinkRepo = async (repoId: string) => {
+    if (!selectedProject) return;
+    if (!window.confirm("Are you sure you want to unlink this repository? New commits to it will no longer update this project's issues.")) {
+      return;
+    }
+
+    setUnlinkingRepoId(repoId);
+    try {
+      const res = await fetch(`/api/projects/${selectedProject.id}/repos/${repoId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setSelectedProject((prev: any) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            repositories: (prev.repositories || []).filter((r: any) => r.id !== repoId),
+          };
+        });
+        toast.success("Repository unlinked successfully.");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to unlink repository.");
+      }
+    } catch (err) {
+      console.error("Error unlinking repository:", err);
+      toast.error("Failed to unlink repository.");
+    } finally {
+      setUnlinkingRepoId(null);
     }
   };
 
@@ -1566,6 +1796,281 @@ function SettingsPageContent() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* DevTrack Projects Section */}
+        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-[var(--card-foreground)] flex items-center gap-2">
+                <FolderGit className="h-5 w-5 text-[var(--accent)]" />
+                DevTrack Projects
+              </h2>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                Link Git repositories (GitHub/GitLab) to automatically map commits to issues.
+              </p>
+            </div>
+            
+            <button
+              type="button"
+              onClick={() => setCreatingProject(!creatingProject)}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] hover:opacity-90 transition-opacity"
+            >
+              <Plus className="h-4 w-4" />
+              New Project
+            </button>
+          </div>
+
+          {creatingProject && (
+            <form onSubmit={handleCreateProject} className="mb-6 p-4 rounded-lg border border-[var(--border)] bg-[var(--control)]/40 space-y-4 animate-fade-in-up">
+              <h3 className="text-sm font-semibold text-[var(--card-foreground)]">Create New Project</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="proj-name" className="block text-xs font-semibold text-[var(--muted-foreground)] uppercase mb-1">
+                    Project Name
+                  </label>
+                  <input
+                    type="text"
+                    id="proj-name"
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    placeholder="e.g. My Cool App"
+                    required
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--card-foreground)] focus:border-[var(--accent)] outline-none"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="proj-key" className="block text-xs font-semibold text-[var(--muted-foreground)] uppercase mb-1 flex items-center gap-1">
+                    Project Key
+                    <span className="text-[10px] text-[var(--muted-foreground)] lowercase">(2-10 chars, letters/numbers)</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="proj-key"
+                    value={newProjectKey}
+                    onChange={(e) => setNewProjectKey(e.target.value.toUpperCase())}
+                    placeholder="e.g. PROJ"
+                    required
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--card-foreground)] focus:border-[var(--accent)] outline-none font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="proj-desc" className="block text-xs font-semibold text-[var(--muted-foreground)] uppercase mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="proj-desc"
+                  value={newProjectDesc}
+                  onChange={(e) => setNewProjectDesc(e.target.value)}
+                  placeholder="Optional description of the project"
+                  rows={2}
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--card-foreground)] focus:border-[var(--accent)] outline-none resize-y"
+                />
+              </div>
+              <label className="flex items-start gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={newProjectTriggers}
+                  onChange={(e) => setNewProjectTriggers(e.target.checked)}
+                  className="mt-0.5 accent-[var(--accent)]"
+                />
+                <div>
+                  <div className="text-sm font-medium text-[var(--card-foreground)]">Enable status-change keyword triggers</div>
+                  <div className="text-xs text-[var(--muted-foreground)]">Automatically update issue status when commits contain closing keywords (e.g. Fixes DT-123).</div>
+                </div>
+              </label>
+              <div className="flex gap-2 justify-end">
+                <button
+                  type="submit"
+                  disabled={submittingProject}
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-foreground)] hover:opacity-90 disabled:opacity-60 transition-opacity"
+                >
+                  {submittingProject ? "Creating..." : "Create"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCreatingProject(false)}
+                  className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] hover:bg-[var(--control)] transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
+          {loadingProjects ? (
+            <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] py-4">
+              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Loading projects...
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-center bg-[var(--control)]/10">
+              <p className="text-sm text-[var(--muted-foreground)] mb-1">No projects created yet.</p>
+              <p className="text-xs text-[var(--muted-foreground)]">Create a project and link repositories to enable Git integration.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {projects.map((proj) => {
+                const isSelected = selectedProject?.id === proj.id;
+                return (
+                  <div
+                    key={proj.id}
+                    className={`rounded-lg border transition-all duration-300 ${
+                      isSelected 
+                        ? "border-[var(--accent)] bg-[var(--control)]/10" 
+                        : "border-[var(--border)] hover:border-[var(--border-hover)]"
+                    }`}
+                  >
+                    {/* Project Header summary */}
+                    <div 
+                      onClick={() => handleSelectProject(proj)}
+                      className="p-4 flex items-center justify-between cursor-pointer select-none"
+                    >
+                      <div className="min-w-0 flex-1 pr-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-sm text-[var(--card-foreground)] truncate">
+                            {proj.name}
+                          </span>
+                          <span className="rounded bg-[var(--accent-soft)] border border-[var(--accent)]/20 px-1.5 py-0.5 text-xs font-mono font-semibold text-[var(--accent)]">
+                            {proj.key}
+                          </span>
+                        </div>
+                        {proj.description && (
+                          <p className="text-xs text-[var(--muted-foreground)] mt-1 truncate">
+                            {proj.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-4 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        {/* Keyword triggers toggle */}
+                        <div className="flex items-center gap-2">
+                          <span className="hidden sm:inline text-xs text-[var(--muted-foreground)]">Triggers:</span>
+                          <label className="flex items-center cursor-pointer select-none">
+                            <span className="sr-only">Toggle triggers for {proj.name}</span>
+                            <div className="relative">
+                              <input
+                                type="checkbox"
+                                checked={proj.enable_keyword_triggers}
+                                onChange={(e) => handleToggleProjectTriggers(proj.id, e.target.checked)}
+                                className="sr-only"
+                              />
+                              <div
+                                className={`block h-5 w-8 rounded-full transition-colors ${
+                                  proj.enable_keyword_triggers ? "bg-[var(--accent)]" : "bg-[var(--control)]"
+                                }`}
+                              />
+                              <div
+                                className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                                  proj.enable_keyword_triggers ? "translate-x-3" : ""
+                                }`}
+                              />
+                            </div>
+                          </label>
+                        </div>
+
+                        {/* Delete project button */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProject(proj.id)}
+                          disabled={deletingProjectId === proj.id}
+                          className="p-1.5 text-[var(--muted-foreground)] hover:text-red-500 rounded transition-colors disabled:opacity-50"
+                          title="Delete Project"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Project Expanded: repositories listing */}
+                    {isSelected && (
+                      <div className="px-4 pb-4 border-t border-[var(--border)] pt-4 space-y-4 bg-[var(--control)]/5">
+                        <div>
+                          <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+                            Linked Repositories
+                          </h4>
+                          
+                          {(!selectedProject.repositories || selectedProject.repositories.length === 0) ? (
+                            <p className="text-xs text-[var(--muted-foreground)] py-2">
+                              No repositories linked. Link a repository below to auto-process push events.
+                            </p>
+                          ) : (
+                            <div className="space-y-2 mb-3">
+                              {selectedProject.repositories.map((repo: any) => (
+                                <div 
+                                  key={repo.id}
+                                  className="flex items-center justify-between rounded-md bg-[var(--control)] border border-[var(--border)] px-3 py-2 text-xs"
+                                >
+                                  <span className="font-mono truncate text-[var(--card-foreground)] max-w-xs sm:max-w-md">
+                                    {repo.repo_url}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUnlinkRepo(repo.id)}
+                                    disabled={unlinkingRepoId === repo.id}
+                                    className="text-[var(--destructive)] hover:underline flex items-center gap-1 transition-all"
+                                  >
+                                    <Unlink className="h-3.5 w-3.5" />
+                                    Unlink
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Link Repository Form */}
+                          <form onSubmit={handleLinkRepo} className="flex gap-2 mt-3">
+                            <input
+                              type="url"
+                              value={newRepoUrl}
+                              onChange={(e) => setNewRepoUrl(e.target.value)}
+                              placeholder="https://github.com/owner/repo or https://gitlab.com/owner/repo"
+                              required
+                              className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-1.5 text-xs text-[var(--card-foreground)] outline-none focus:border-[var(--accent)]"
+                            />
+                            <button
+                              type="submit"
+                              disabled={submittingRepo}
+                              className="rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] px-4 py-1.5 text-xs font-semibold hover:opacity-90 disabled:opacity-60 flex items-center gap-1 transition-opacity shrink-0"
+                            >
+                              <Link2 className="h-3 w-3" />
+                              Link
+                            </button>
+                          </form>
+                        </div>
+
+                        {/* Webhook integration instructions */}
+                        <div className="rounded-lg border border-[var(--border)] bg-[var(--control)]/40 p-3 text-xs text-[var(--muted-foreground)] space-y-1.5">
+                          <p className="font-semibold text-[var(--card-foreground)] flex items-center gap-1">
+                            <Settings2 className="h-3.5 w-3.5 text-[var(--accent)]" />
+                            Webhook Setup Instructions
+                          </p>
+                          <p>
+                            To process commits, configure a webhook in your repository settings:
+                          </p>
+                          <ul className="list-disc pl-4 space-y-1 mt-1 font-mono text-[11px]">
+                            <li>GitHub: Settings → Webhooks → Add Webhook
+                              <br />URL: <span className="text-[var(--accent)]">{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/github</span>
+                            </li>
+                            <li>GitLab: Settings → Webhooks → Add Webhook
+                              <br />URL: <span className="text-[var(--accent)]">{typeof window !== "undefined" ? window.location.origin : ""}/api/webhooks/gitlab</span>
+                            </li>
+                          </ul>
+                          <p className="text-[10px] mt-1 italic">
+                            * Secret token configuration matches GITHUB_WEBHOOK_SECRET (optional).
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">

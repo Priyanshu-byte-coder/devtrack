@@ -6,6 +6,7 @@ import { verifyGitHubSignature } from "@/lib/crypto";
 import { logError } from "@/lib/error-handler";
 import { sendSSEEvent } from "@/lib/sse";
 import { invalidateUserMetricsCache } from "@/lib/metrics-cache";
+import { processCommits } from "@/lib/git-commit-linking";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +19,22 @@ const recentDeliveries = new Map<string, number>();
 
 interface GitHubPushPayload {
   after?: string;
-  commits?: Array<unknown>;
+  commits?: Array<{
+    id: string;
+    message: string;
+    url: string;
+    author: {
+      name: string;
+      email: string;
+      username?: string;
+    };
+  }>;
   pusher?: {
     name?: string;
   };
   repository?: {
     full_name?: string;
+    html_url?: string;
   };
   sender?: {
     login?: string;
@@ -131,6 +142,17 @@ export async function POST(req: NextRequest) {
   const githubLogin = getPushActor(payload);
   if (!githubLogin) {
     return NextResponse.json({ received: true }, { status: 200 });
+  }
+
+  // Process commit linking to DevTrack issues
+  const repoUrl = payload.repository?.html_url;
+  const commits = payload.commits;
+  if (repoUrl && commits && Array.isArray(commits)) {
+    try {
+      await processCommits(repoUrl, commits);
+    } catch (e) {
+      console.error("Error processing commits for GitHub webhook:", e);
+    }
   }
 
   let staleResult: Awaited<ReturnType<typeof markUserMetricsStale>>;

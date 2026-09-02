@@ -395,3 +395,168 @@ DROP POLICY IF EXISTS "Users can view their own wakatime stats" ON wakatime_stat
 CREATE POLICY "Users can view their own wakatime stats"
     ON wakatime_stats FOR SELECT
     USING (auth.uid()::text = user_id);
+
+-- -------------------------------------------------------
+-- DevTrack Projects and Issues Tracking Tables
+-- -------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS devtrack_projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  key TEXT NOT NULL CHECK (char_length(key) >= 2 AND char_length(key) <= 10),
+  description TEXT DEFAULT '',
+  enable_keyword_triggers BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (user_id, key)
+);
+
+ALTER TABLE devtrack_projects ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "devtrack_projects_select_own"
+  ON devtrack_projects FOR SELECT
+  USING (user_id = auth.uid()::text);
+
+CREATE POLICY "devtrack_projects_insert_own"
+  ON devtrack_projects FOR INSERT
+  WITH CHECK (user_id = auth.uid()::text);
+
+CREATE POLICY "devtrack_projects_update_own"
+  ON devtrack_projects FOR UPDATE
+  USING (user_id = auth.uid()::text);
+
+CREATE POLICY "devtrack_projects_delete_own"
+  ON devtrack_projects FOR DELETE
+  USING (user_id = auth.uid()::text);
+
+
+CREATE TABLE IF NOT EXISTS devtrack_repositories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID NOT NULL REFERENCES devtrack_projects(id) ON DELETE CASCADE,
+  repo_url TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (project_id, repo_url)
+);
+
+ALTER TABLE devtrack_repositories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "devtrack_repositories_select_own"
+  ON devtrack_repositories FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_repositories_insert_own"
+  ON devtrack_repositories FOR INSERT
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_repositories_delete_own"
+  ON devtrack_repositories FOR DELETE
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+
+CREATE TABLE IF NOT EXISTS devtrack_issues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID NOT NULL REFERENCES devtrack_projects(id) ON DELETE CASCADE,
+  issue_number INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Todo' CHECK (status IN ('Backlog', 'Todo', 'In Progress', 'In Review', 'Done')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (project_id, issue_number)
+);
+
+ALTER TABLE devtrack_issues ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "devtrack_issues_select_own"
+  ON devtrack_issues FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_issues_insert_own"
+  ON devtrack_issues FOR INSERT
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_issues_update_own"
+  ON devtrack_issues FOR UPDATE
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_issues_delete_own"
+  ON devtrack_issues FOR DELETE
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_projects p
+    WHERE p.id = project_id AND p.user_id = auth.uid()::text
+  ));
+
+
+CREATE TABLE IF NOT EXISTS devtrack_issue_activities (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  issue_id UUID NOT NULL REFERENCES devtrack_issues(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('comment', 'commit_link', 'status_change')),
+  content TEXT NOT NULL,
+  commit_hash TEXT,
+  commit_url TEXT,
+  author_name TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE devtrack_issue_activities ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "devtrack_issue_activities_select_own"
+  ON devtrack_issue_activities FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_issues i
+    JOIN devtrack_projects p ON i.project_id = p.id
+    WHERE i.id = issue_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_issue_activities_insert_own"
+  ON devtrack_issue_activities FOR INSERT
+  WITH CHECK (EXISTS (
+    SELECT 1 FROM devtrack_issues i
+    JOIN devtrack_projects p ON i.project_id = p.id
+    WHERE i.id = issue_id AND p.user_id = auth.uid()::text
+  ));
+
+CREATE POLICY "devtrack_issue_activities_delete_own"
+  ON devtrack_issue_activities FOR DELETE
+  USING (EXISTS (
+    SELECT 1 FROM devtrack_issues i
+    JOIN devtrack_projects p ON i.project_id = p.id
+    WHERE i.id = issue_id AND p.user_id = auth.uid()::text
+  ));
+
+
+-- Trigger function to auto-assign issue_number per project
+CREATE OR REPLACE FUNCTION set_devtrack_issue_number()
+RETURNS TRIGGER AS $$
+BEGIN
+  SELECT COALESCE(MAX(issue_number), 0) + 1
+  INTO NEW.issue_number
+  FROM devtrack_issues
+  WHERE project_id = NEW.project_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_set_devtrack_issue_number
+BEFORE INSERT ON devtrack_issues
+FOR EACH ROW
+EXECUTE FUNCTION set_devtrack_issue_number();
