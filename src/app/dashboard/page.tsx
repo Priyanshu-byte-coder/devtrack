@@ -15,6 +15,7 @@ import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import RoastHypeWidget from "./RoastHypeWidget";
+import { FreezeStatusWidget } from '@/components/streak/FreezeStatusWidget';
 
 
 export default async function DashboardPage() {
@@ -140,6 +141,17 @@ export default async function DashboardPage() {
                 Build Resume
                 <ChevronRight className="h-5 w-5" />
               </Link>
+            </section>
+
+            {/* Streak Freeze Section - NEW */}
+            <section className="mt-6">
+              <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-6">
+                <div className="h-8 w-1.5 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+                <h2 className="text-2xl font-bold tracking-tight">❄️ Streak Protection</h2>
+              </div>
+              <div className="max-w-md">
+                <FreezeStatusWidget />
+              </div>
             </section>
 
             <section>
