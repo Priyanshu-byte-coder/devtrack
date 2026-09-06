@@ -1,3 +1,5 @@
+"use client";
+
 export default function SponsorBadge({ className = "" }: { className?: string }) {
   return (
     <span

@@ -3,8 +3,6 @@
 import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-type Period = "week" | "month" | "all";
-
 const STORAGE_KEY = "leaderboard-filters";
 
 const languages = [
@@ -25,35 +23,21 @@ const languages = [
   { label: "Shell", value: "shell" },
 ];
 
-const periods: Array<{ label: string; value: Period }> = [
-  { label: "This Week", value: "week" },
-  { label: "This Month", value: "month" },
-  { label: "All Time", value: "all" },
-];
-
-function isPeriod(value: string | null): value is Period {
-  return value === "week" || value === "month" || value === "all";
-}
-
 export default function LeaderboardFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const language = searchParams.get("lang") ?? "";
-  const rawPeriod = searchParams.get("period");
-  const period: Period = isPeriod(rawPeriod) ? rawPeriod : "all";
-
-  const hasFilters = searchParams.has("lang") || searchParams.has("period");
+  const hasFilters = searchParams.has("lang");
 
   const currentFilters = useMemo(
-    () => ({ lang: language, period }),
-    [language, period]
+    () => ({ lang: language }),
+    [language]
   );
 
   useEffect(() => {
-    const hasUrlFilters =
-      searchParams.has("lang") || searchParams.has("period");
+    const hasUrlFilters = searchParams.has("lang");
 
     if (!hasUrlFilters) {
       const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -62,19 +46,11 @@ export default function LeaderboardFilters() {
       }
 
       try {
-        const parsed = JSON.parse(stored) as {
-          lang?: string;
-          period?: string;
-        };
+        const parsed = JSON.parse(stored) as { lang?: string };
         const nextParams = new URLSearchParams(searchParams.toString());
 
         if (parsed.lang) {
           nextParams.set("lang", parsed.lang);
-        }
-
-        const storedPeriod = parsed.period ?? null;
-        if (isPeriod(storedPeriod) && storedPeriod !== "all") {
-          nextParams.set("period", storedPeriod);
         }
 
         const query = nextParams.toString();
@@ -90,7 +66,7 @@ export default function LeaderboardFilters() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentFilters));
   }, [currentFilters, pathname, router, searchParams]);
 
-  function updateFilters(next: Partial<{ lang: string; period: Period }>) {
+  function updateFilters(next: Partial<{ lang: string }>) {
     const params = new URLSearchParams(searchParams.toString());
 
     if (next.lang !== undefined) {
@@ -101,14 +77,6 @@ export default function LeaderboardFilters() {
       }
     }
 
-    if (next.period !== undefined) {
-      if (next.period === "all") {
-        params.delete("period");
-      } else {
-        params.set("period", next.period);
-      }
-    }
-
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
@@ -116,7 +84,6 @@ export default function LeaderboardFilters() {
   function clearFilters() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("lang");
-    params.delete("period");
     window.localStorage.removeItem(STORAGE_KEY);
 
     const query = params.toString();
@@ -141,30 +108,6 @@ export default function LeaderboardFilters() {
             ))}
           </select>
         </label>
-
-        <div className="flex flex-col gap-2 text-sm font-medium text-[var(--card-foreground)]">
-          Time range
-          <div className="grid grid-cols-3 gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] p-1">
-            {periods.map((item) => {
-              const active = item.value === period;
-
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => updateFilters({ period: item.value })}
-                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-                    active
-                      ? "bg-[var(--accent)] text-[var(--accent-foreground)] shadow-sm"
-                      : "text-[var(--muted-foreground)] hover:bg-[var(--card)] hover:text-[var(--card-foreground)]"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         <button
           type="button"

@@ -5,6 +5,7 @@ import {
   LEADERBOARD_CACHE_KEY,
   LEADERBOARD_BUILD_LOCK_KEY,
   type LeaderboardMetric,
+  type LeaderboardTimeframe,
   type LeaderboardPeriod,
 } from "@/lib/leaderboard";
 
@@ -44,6 +45,13 @@ describe("exported types", () => {
     expect(metrics).toContain("streak");
     expect(metrics).toContain("commits");
     expect(metrics).toContain("prs");
+  });
+
+  it("LeaderboardTimeframe includes weekly, monthly, all_time", () => {
+    const timeframes: LeaderboardTimeframe[] = ["weekly", "monthly", "all_time"];
+    expect(timeframes).toContain("weekly");
+    expect(timeframes).toContain("monthly");
+    expect(timeframes).toContain("all_time");
   });
 
   it("LeaderboardPeriod includes week, month, all", () => {

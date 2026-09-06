@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { refreshLeaderboardCache } from "@/lib/leaderboard";
+import { refreshAllLeaderboardCaches } from "@/lib/leaderboard";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +16,12 @@ export async function GET(req: Request) {
   }
 
   try {
-    const payload = await refreshLeaderboardCache();
-    return NextResponse.json({ success: true, generatedAt: payload.generatedAt });
+    const payloads = await refreshAllLeaderboardCaches();
+    return NextResponse.json({
+      success: true,
+      generatedAt: payloads.weekly.generatedAt,
+      timeframes: Object.keys(payloads),
+    });
   } catch (err) {
     return NextResponse.json({ error: "Failed to refresh leaderboard cache" }, { status: 500 });
   }

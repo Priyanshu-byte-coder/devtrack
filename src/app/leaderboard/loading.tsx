@@ -17,7 +17,7 @@ export default function Loading() {
           </div>
         </div>
 
-        {/* Tabs Skeleton */}
+        {/* Metric Tabs Skeleton */}
         <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 p-2 shadow-[var(--shadow-soft)]">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-10 w-24 rounded-lg bg-[var(--card-muted)] animate-pulse" />
@@ -25,9 +25,9 @@ export default function Loading() {
         </div>
 
         {/* Filters Skeleton */}
-        <div className="mb-6 flex gap-3">
-          <div className="h-10 w-32 rounded-lg bg-[var(--card-muted)] animate-pulse" />
-          <div className="h-10 w-32 rounded-lg bg-[var(--card-muted)] animate-pulse" />
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 p-3 shadow-[var(--shadow-soft)]">
+          <div className="h-10 w-40 rounded-lg bg-[var(--card-muted)] animate-pulse" />
+          <div className="h-10 w-28 rounded-lg bg-[var(--card-muted)] animate-pulse" />
         </div>
 
         {/* Table Skeleton */}

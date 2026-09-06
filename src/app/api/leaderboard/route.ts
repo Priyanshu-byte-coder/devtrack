@@ -6,9 +6,10 @@ import {
   getLeaderboardData,
   isFresh,
   LEADERBOARD_BUILD_LOCK_KEY,
+  normalizeLeaderboardTimeframe,
   type LeaderboardPayload,
-  type LeaderboardPeriod,
   filterLeaderboardByLanguage,
+  type LeaderboardTimeframe,
 } from "@/lib/leaderboard";
 import {
   pruneExpiredRateLimits,
@@ -75,19 +76,32 @@ function normalizeLanguage(value: string | null): string | undefined {
   return normalized || undefined;
 }
 
-function normalizePeriod(value: string | null): LeaderboardPeriod {
-  if (value === "week" || value === "month" || value === "all") {
-    return value;
+function normalizeTimeframe(
+  timeframe: string | null,
+  period: string | null
+): LeaderboardTimeframe | null {
+  const normalizedTimeframe = normalizeLeaderboardTimeframe(timeframe);
+  if (timeframe !== null && normalizedTimeframe === null) {
+    return null;
   }
 
-  return "all";
+  if (normalizedTimeframe) {
+    return normalizedTimeframe;
+  }
+
+  const normalizedPeriod = normalizeLeaderboardTimeframe(period);
+  if (period !== null && normalizedPeriod === null) {
+    return null;
+  }
+
+  return normalizedPeriod ?? "weekly";
 }
 
 function getLanguageCacheKey(filters: {
   language: string;
-  period: LeaderboardPeriod;
+  timeframe: LeaderboardTimeframe;
 }): string {
-  return `${getBaseLeaderboardCacheKey(filters.period)}:${filters.language}`;
+  return `${getBaseLeaderboardCacheKey(filters.timeframe)}:${filters.language}`;
 }
 
 function getLeaderboardBuildLockCacheKey(cacheKey: string): string {
@@ -98,10 +112,21 @@ export async function GET(req: NextRequest) {
   const ip = getRateLimitKey(req);
   const rateLimit = await checkRateLimit(ip);
   const language = normalizeLanguage(req.nextUrl.searchParams.get("lang"));
-  const period = normalizePeriod(req.nextUrl.searchParams.get("period"));
+  const timeframe = normalizeTimeframe(
+    req.nextUrl.searchParams.get("timeframe"),
+    req.nextUrl.searchParams.get("period")
+  );
+
+  if (!timeframe) {
+    return NextResponse.json(
+      { error: "Invalid timeframe. Supported values are weekly, monthly, and all_time." },
+      { status: 400 }
+    );
+  }
+
   const cacheKey = language
-    ? getLanguageCacheKey({ language, period })
-    : getBaseLeaderboardCacheKey(period);
+    ? getLanguageCacheKey({ language, timeframe })
+    : getBaseLeaderboardCacheKey(timeframe);
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
@@ -145,7 +170,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const baseLeaderboard = await getLeaderboardData(bypass, { period });
+    const baseLeaderboard = await getLeaderboardData(bypass, { timeframe });
 
     if (!baseLeaderboard) {
       const stale = await cacheGet<LeaderboardPayload>(cacheKey);
