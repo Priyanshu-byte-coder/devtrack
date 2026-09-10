@@ -97,7 +97,7 @@
     "tree-sitter": "^0.25.0",
     "ts-jest": "^29.4.11",
     "typescript": "^6",
-    "vitest": "^4.1.8",
+    "vitest": "^4.1.11",
     "web-tree-sitter": "^0.26.10"
   },
   "engines": {
