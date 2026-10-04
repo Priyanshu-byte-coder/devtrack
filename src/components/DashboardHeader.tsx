@@ -21,7 +21,6 @@ import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import SyncDataButton from "@/components/SyncDataButton";
 import OnboardingTour from "@/components/OnboardingTour";
 import { Moon, Sun } from "lucide-react";
-import { toast } from "sonner";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { Button, buttonVariants } from "@/components/ui/button";
 
@@ -309,7 +308,6 @@ export default function DashboardHeader() {
 
     evaluateCodingDistributionMilestones();
   }, [session]);
-
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { lastSynced } = useDashboardSync();

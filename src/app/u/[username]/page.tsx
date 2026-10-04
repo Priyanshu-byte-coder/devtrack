@@ -17,6 +17,7 @@ import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
+import { getAppBaseUrl, getProfileUrl } from "@/lib/profile-url";
 
 // Extend tracking structures to forward gamification flags seamlessly downstream
 interface ExtendedPublicProfileData extends PublicProfileData {
@@ -25,20 +26,12 @@ interface ExtendedPublicProfileData extends PublicProfileData {
   isEarlyBird: boolean;
 }
 
-function getBaseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXTAUTH_URL ||
-    "http://localhost:3000"
-  );
-}
-
 async function fetchPublicProfile(
   username: string,
   options: { includeAchievements?: boolean } = {}
 ): Promise<ExtendedPublicProfileData | null> {
   try {
-    const url = new URL(`/api/public/${encodeURIComponent(username)}`, getBaseUrl());
+    const url = new URL(`/api/public/${encodeURIComponent(username)}`, getAppBaseUrl());
     if (options.includeAchievements) url.searchParams.set("achievements", "1");
 
     const res = await fetch(url.toString(), { cache: "no-store" });
@@ -89,10 +82,6 @@ async function getLoggedInGitHubUsername() {
   return null;
 }
 
-function getProfileUrl(username: string) {
-  return `${getBaseUrl()}/u/${username}`;
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -104,7 +93,7 @@ export async function generateMetadata({
   let userExists = false;
   try {
     const res = await fetch(
-      new URL(`/api/public/${encodeURIComponent(username)}`, getBaseUrl()).toString(),
+      new URL(`/api/public/${encodeURIComponent(username)}`, getAppBaseUrl()).toString(),
       { cache: "no-store" }
     );
     userExists = res.ok;
@@ -119,7 +108,7 @@ export async function generateMetadata({
     };
   }
 
-  const baseUrl = getBaseUrl();
+  const baseUrl = getAppBaseUrl();
 
   const ogImageUrl = new URL(`${baseUrl}/api/og/user`);
   ogImageUrl.searchParams.set("username", username);
