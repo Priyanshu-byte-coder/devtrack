@@ -1,3 +1,4 @@
+import WeeklyProductivitySummary from "@/components/dashboard/WeeklyProductivitySummary";
 import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
 import ThrottleBanner from "@/components/ThrottleBanner";
 import CustomizableDashboard from "@/components/dashboard/CustomizableDashboard";
@@ -92,6 +93,8 @@ export default async function DashboardPage() {
             <section>
               <TodayFocusHero userName={session.user?.name ?? null} />
             </section>
+
+            <WeeklyProductivitySummary />
 
             {/* Featured Section */}
             <section>
