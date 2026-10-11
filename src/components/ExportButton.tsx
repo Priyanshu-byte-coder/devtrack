@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import ExportModal from "./ExportModal";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
 
 interface PRData {
@@ -271,6 +273,7 @@ export default function ExportButton() {
   const [isExportingCSV, setIsExportingCSV] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [isExportingJSON, setIsExportingJSON] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const reportName = useMemo(
     () => session?.githubLogin ?? session?.user?.name ?? "",
@@ -717,68 +720,26 @@ export default function ExportButton() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+    <>
       <button
         type="button"
-        onClick={exportCSV}
-        disabled={isExportingCSV}
-        aria-label="Export dashboard metrics as CSV"
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-all hover:border-[var(--accent)] disabled:opacity-50 sm:w-auto sm:min-w-[140px] hover:opacity-90 active:scale-95"
+        onClick={() => setIsModalOpen(true)}
+        className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-all hover:opacity-90 sm:min-w-[140px] sm:flex-none active:scale-95"
       >
-        {isExportingCSV ? (
-  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4z" />
-  </svg>
-) : (
-  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-  </svg>
-)}
-{isExportingCSV ? "Exporting..." : "Export CSV"}
+        <Download className="w-4 h-4" />
+        Export Analytics
       </button>
 
-      <button
-        type="button"
-        onClick={exportPDF}
-        disabled={isExportingPDF}
-        aria-label="Export dashboard metrics as PDF"
-        className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-all hover:opacity-90 disabled:opacity-50 sm:min-w-[140px] sm:flex-none active:scale-95"
-        suppressHydrationWarning
-      >
-        {isExportingPDF ? (
-  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4z" />
-  </svg>
-) : (
-  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-  </svg>
-)}
-{isExportingPDF ? "Exporting..." : "Export PDF"}
-      </button>
-
-      <button
-        type="button"
-        onClick={exportJSON}
-        disabled={isExportingJSON}
-        aria-label="Export dashboard metrics as JSON"
-        className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] disabled:opacity-50 sm:min-w-[140px] sm:flex-none"
-        suppressHydrationWarning
-      >
-        {isExportingJSON ? (
-  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4z" />
-  </svg>
-) : (
-  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-  </svg>
-)}
-{isExportingJSON ? "Exporting..." : "Export JSON"}
-      </button>
-    </div>
+      <ExportModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        reportName={reportName}
+        onLegacyExport={async (type) => {
+          if (type === "csv") await exportCSV();
+          if (type === "pdf") await exportPDF();
+          if (type === "json") await exportJSON();
+        }}
+      />
+    </>
   );
 }
