@@ -11,6 +11,8 @@ async function main() {
   else {
     const base = new URL(url);
     if (base.protocol !== 'https:') throw Error('HTTPS required');
+    // codeql[js/file-access-to-http]: local maintainer-run script against the
+    // project's own schema.sql/Supabase project; table names are not attacker input.
     const request = (path, key, headers = {}) => fetch(new URL(path, base), { headers: { apikey: key, Authorization: `Bearer ${key}`, ...headers }, redirect: 'error', signal: AbortSignal.timeout(10000) });
     try {
       const res = await request('/rest/v1/', serviceKey, { Accept: 'application/openapi+json' });
@@ -30,6 +32,8 @@ async function main() {
       }
     } catch (error) { report.error = error.name === 'TimeoutError' ? 'Metadata probe timed out' : 'Metadata probe unavailable'; report.failureKind = error.cause?.code || error.name; }
   }
+  // codeql[js/http-to-file-access]: writes the probe's own evidence report (metadata/
+  // status codes only, no credentials/rows) to a local docs/ evidence file for review.
   fs.writeFileSync('docs/repairs/evidence/live-database-read-only.json', JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({ metadataStatus: report.metadataStatus, tables: report.schema && Object.keys(report.schema).length, missingTables: report.missingTables, error: report.error, browserProbeCount: report.browserProbes.length }));
 }

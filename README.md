@@ -14,6 +14,7 @@ self-hostable dashboard — no enterprise plan, no vendor lock-in, your data sta
 [![Stars](https://img.shields.io/github/stars/Priyanshu-byte-coder/devtrack?style=flat&color=yellow)](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)
 [![Contributors](https://img.shields.io/github/contributors/Priyanshu-byte-coder/devtrack?color=brightgreen)](https://github.com/Priyanshu-byte-coder/devtrack/graphs/contributors)
 [![Good First Issues](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[![Hacktoberfest](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/hacktoberfest?label=hacktoberfest%20issues&color=ff7518)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22hacktoberfest%22)
 [![Views](https://komarev.com/ghpvc/?username=Priyanshu-byte-coder&label=Views&color=blueviolet)](https://github.com/Priyanshu-byte-coder/devtrack)
 
 <br />
@@ -170,29 +171,29 @@ The full walkthrough — Supabase migrations, OAuth app setup, every environment
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16 (App Router), TypeScript, Tailwind CSS |
-| Auth | GitHub OAuth via NextAuth.js |
-| Database | Supabase (PostgreSQL) with Row Level Security |
-| Charts | Recharts |
-| AI | Groq API |
-| Testing | Vitest, Playwright (E2E + visual regression) |
-| Deployment | Vercel — runs entirely on free tiers |
+| Layer      | Technology                                        |
+| ---------- | ------------------------------------------------- |
+| Frontend   | Next.js 16 (App Router), TypeScript, Tailwind CSS |
+| Auth       | GitHub OAuth via NextAuth.js                      |
+| Database   | Supabase (PostgreSQL) with Row Level Security     |
+| Charts     | Recharts                                          |
+| AI         | Groq API                                          |
+| Testing    | Vitest, Playwright (E2E + visual regression)      |
+| Deployment | Vercel — runs entirely on free tiers              |
 
 ---
 
 ## Documentation
 
-| Guide | What it covers |
-|---|---|
-| [DEVELOPMENT.md](./DEVELOPMENT.md) | Local setup, environment variables, project structure, adding widgets |
-| [Self-Hosting Guide](./docs/self-hosting.md) | Deploying your own production instance |
-| [Docker Guide](./docs/docker.md) | Containerized local development |
-| [Architecture Overview](./docs/architecture.md) | System diagrams: frontend, API routes, Supabase schema, sync flows |
-| [API Reference](./docs/api.md) | REST API usage guide — interactive Swagger UI at `/api-docs` |
-| [FAQ](./docs/faq.md) | OAuth setup, login issues, testing, supported versions |
-| [Caching Guidelines](./docs/caching.md) | Caching patterns used across the codebase |
+| Guide                                           | What it covers                                                        |
+| ----------------------------------------------- | --------------------------------------------------------------------- |
+| [DEVELOPMENT.md](./DEVELOPMENT.md)              | Local setup, environment variables, project structure, adding widgets |
+| [Self-Hosting Guide](./docs/self-hosting.md)    | Deploying your own production instance                                |
+| [Docker Guide](./docs/docker.md)                | Containerized local development                                       |
+| [Architecture Overview](./docs/architecture.md) | System diagrams: frontend, API routes, Supabase schema, sync flows    |
+| [API Reference](./docs/api.md)                  | REST API usage guide — interactive Swagger UI at `/api-docs`          |
+| [FAQ](./docs/faq.md)                            | OAuth setup, login issues, testing, supported versions                |
+| [Caching Guidelines](./docs/caching.md)         | Caching patterns used across the codebase                             |
 
 ---
 
@@ -209,17 +210,17 @@ DevTrack is built by its community — over two hundred developers have shipped 
 
 **[CONTRIBUTING.md](./CONTRIBUTING.md)** covers commit style, branch naming, and the review process. Questions are always welcome in [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
 
-DevTrack participates in **GSSoC** (GirlScript Summer of Code) — program participants can find labeled issues and scoring details in the contributing guide.
+DevTrack takes part in **Hacktoberfest** — look for the [`hacktoberfest`](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22hacktoberfest%22) label on issues, and `level:*` labels for a sense of difficulty.
 
 **Looking for something bigger?** These are open on the roadmap:
 
-| Feature | Difficulty |
-|---|---|
-| GitLab integration | Advanced |
-| Team dashboards | Advanced |
-| Embeddable stats widgets | Intermediate |
-| Jira integration | Advanced |
-| Mobile app (React Native) | Advanced |
+| Feature                   | Difficulty   |
+| ------------------------- | ------------ |
+| GitLab integration        | Advanced     |
+| Team dashboards           | Advanced     |
+| Embeddable stats widgets  | Intermediate |
+| Jira integration          | Advanced     |
+| Mobile app (React Native) | Advanced     |
 
 Open an issue to claim one and discuss the approach first.
 
@@ -271,10 +272,10 @@ MIT — see [LICENSE](./LICENSE) for details.
 
 ## Maintainers
 
-| Name | GitHub | Role |
-|---|---|---|
+| Name            | GitHub                                                           | Role                 |
+| --------------- | ---------------------------------------------------------------- | -------------------- |
 | Priyanshu Doshi | [@Priyanshu-byte-coder](https://github.com/Priyanshu-byte-coder) | Founder & Maintainer |
-| Saahil Doshi | [@Legit-Ox](https://github.com/Legit-Ox) | Maintainer |
+| Saahil Doshi    | [@Legit-Ox](https://github.com/Legit-Ox)                         | Maintainer           |
 
 ## Contributors
 

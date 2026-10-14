@@ -2,9 +2,9 @@
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| `main` branch | ✅ |
+| Version       | Supported |
+| ------------- | --------- |
+| `main` branch | ✅        |
 
 > We recommend always using the latest version of DevTrack to ensure you have all security patches.
 
@@ -35,11 +35,11 @@ When reporting a vulnerability, please include:
 
 ## Expected Response Time & Escalation
 
-| Severity | Fix Timeline |
-|----------|-------------|
+| Severity | Fix Timeline        |
+| -------- | ------------------- |
 | Critical | Within **72 hours** |
-| High | Within **7 days** |
-| Medium | Within **14 days** |
+| High     | Within **7 days**   |
+| Medium   | Within **14 days**  |
 
 **Acknowledgement** is within 48 hours for all reports. Fix timeline is communicated within 5 business days.
 
@@ -83,11 +83,11 @@ Reporters are credited by name unless they request anonymity.
 
 ---
 
-## GSSoC Points & Recognition
+## Recognition
 
-Security fixes are treated as **`level:critical`** — the highest point tier in the GSSoC scoring system. A private advisory serves as the issue record; no public issue is required. Points are awarded on merge based on impact and fix quality.
+Security fixes are labeled **`level:critical`** — the highest difficulty tier (see [CONTRIBUTING.md](./CONTRIBUTING.md#7-issue-labels--difficulty-levels)). A private advisory serves as the issue record; no public issue is required.
 
-### GSSoC Contributor Responsibilities
+### Contributor Responsibilities
 
 - Report security issues privately via Security Advisories (never public issues)
 - Include reproduction steps and impact assessment
@@ -100,11 +100,11 @@ Security fixes are treated as **`level:critical`** — the highest point tier in
 
 DevTrack uses Supabase with Row Level Security on all user-data tables.
 
-| Table | RLS | Policies |
-|-------|-----|---------|
-| `users` | ✅ | SELECT, UPDATE own row only |
-| `goals` | ✅ | SELECT, INSERT, UPDATE, DELETE own rows only |
-| `metric_snapshots` | ✅ | SELECT, INSERT, DELETE own rows only |
+| Table              | RLS | Policies                                     |
+| ------------------ | --- | -------------------------------------------- |
+| `users`            | ✅  | SELECT, UPDATE own row only                  |
+| `goals`            | ✅  | SELECT, INSERT, UPDATE, DELETE own rows only |
+| `metric_snapshots` | ✅  | SELECT, INSERT, DELETE own rows only         |
 
 - All RLS policies match against `auth.uid()`
 - `supabaseAdmin` (service role key) is server-side only, never exposed to clients
@@ -120,25 +120,25 @@ This section is the canonical reference for **what may and may not appear in log
 
 The following are strictly forbidden in any log line at any level (including debug):
 
-| Category | Examples |
-|----------|----------|
-| **Authentication tokens** | GitHub OAuth tokens, Supabase service-role keys, JWT bearer tokens, session cookies, refresh tokens, API keys |
-| **Secrets** | `CLIENT_SECRET`, `RESEND_API_KEY`, `DATABASE_URL` containing credentials, signing keys, webhook secrets |
-| **Passwords** | User passwords (plain or hashed), password reset tokens, MFA backup codes, TOTP seeds |
-| **PII** | Email addresses (in URLs only — see exception below), full names, phone numbers, government IDs |
-| **Request/response bodies in full** | Form payloads that may contain passwords, payment fields, medical info |
-| **Cookies and Authorization headers** | `Cookie:`, `Authorization:`, `Set-Cookie:` values |
+| Category                              | Examples                                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Authentication tokens**             | GitHub OAuth tokens, Supabase service-role keys, JWT bearer tokens, session cookies, refresh tokens, API keys |
+| **Secrets**                           | `CLIENT_SECRET`, `RESEND_API_KEY`, `DATABASE_URL` containing credentials, signing keys, webhook secrets       |
+| **Passwords**                         | User passwords (plain or hashed), password reset tokens, MFA backup codes, TOTP seeds                         |
+| **PII**                               | Email addresses (in URLs only — see exception below), full names, phone numbers, government IDs               |
+| **Request/response bodies in full**   | Form payloads that may contain passwords, payment fields, medical info                                        |
+| **Cookies and Authorization headers** | `Cookie:`, `Authorization:`, `Set-Cookie:` values                                                             |
 
-> **Exception — email addresses in URLs:** the email-as-path-segment pattern (`/api/users/foo@example.com/...`) is allowed in info-level request logs because the email is the path. Do not log the *body* of such requests, only the method and path.
+> **Exception — email addresses in URLs:** the email-as-path-segment pattern (`/api/users/foo@example.com/...`) is allowed in info-level request logs because the email is the path. Do not log the _body_ of such requests, only the method and path.
 
 ### Log Levels
 
-| Level | Use for | Examples |
-|-------|---------|----------|
-| `error` | Failures requiring attention | `Failed to sync repo data`, `Rate limit hit for user ${userId}` |
-| `warn` | Recoverable issues, degraded operation | `Retrying Supabase query (attempt 2/3)`, `Cache miss for key ${nonSensitiveKey}` |
-| `info` | Lifecycle events | `User ${userId} signed in via GitHub`, `Background sync started` |
-| `debug` | Developer-only diagnostics | `Calling GitHub API: GET /user/repos` (no body) |
+| Level   | Use for                                | Examples                                                                         |
+| ------- | -------------------------------------- | -------------------------------------------------------------------------------- |
+| `error` | Failures requiring attention           | `Failed to sync repo data`, `Rate limit hit for user ${userId}`                  |
+| `warn`  | Recoverable issues, degraded operation | `Retrying Supabase query (attempt 2/3)`, `Cache miss for key ${nonSensitiveKey}` |
+| `info`  | Lifecycle events                       | `User ${userId} signed in via GitHub`, `Background sync started`                 |
+| `debug` | Developer-only diagnostics             | `Calling GitHub API: GET /user/repos` (no body)                                  |
 
 ### Redaction Patterns
 
@@ -149,17 +149,24 @@ Use a single `logger` module that wraps the underlying library. The wrapper reda
 ```ts
 // lib/logger.ts
 const REDACT_KEYS = new Set([
-  'authorization', 'cookie', 'set-cookie',
-  'password', 'token', 'secret', 'apiKey',
-  'accessToken', 'refreshToken', 'sessionId',
+  "authorization",
+  "cookie",
+  "set-cookie",
+  "password",
+  "token",
+  "secret",
+  "apiKey",
+  "accessToken",
+  "refreshToken",
+  "sessionId",
 ]);
 
 function redact(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(redact);
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value)) {
-      if (REDACT_KEYS.has(k)) out[k] = '[REDACTED]';
+      if (REDACT_KEYS.has(k)) out[k] = "[REDACTED]";
       else out[k] = redact(v);
     }
     return out;
@@ -173,9 +180,9 @@ function redact(value: unknown): unknown {
 When logging raw objects, copy and strip before passing to the logger:
 
 ```ts
-logger.info('user.update', {
+logger.info("user.update", {
   userId: user.id,
-  email: '[REDACTED]',
+  email: "[REDACTED]",
   preferences: user.preferences, // safe — no PII
 });
 ```
@@ -205,11 +212,11 @@ Unit tests for the logger should assert:
 4. The original object passed to the logger is **not mutated**
 
 ```ts
-test('redacts authorization header at any depth', () => {
-  const input = { req: { headers: { authorization: 'Bearer xyz' } } };
+test("redacts authorization header at any depth", () => {
+  const input = { req: { headers: { authorization: "Bearer xyz" } } };
   const out = redact(input) as typeof input;
-  expect(out.req.headers.authorization).toBe('[REDACTED]');
-  expect(input.req.headers.authorization).toBe('Bearer xyz'); // original intact
+  expect(out.req.headers.authorization).toBe("[REDACTED]");
+  expect(input.req.headers.authorization).toBe("Bearer xyz"); // original intact
 });
 ```
 
@@ -235,4 +242,4 @@ When reviewing a PR that adds or modifies logging code, confirm:
 
 1. [Fix reported vulnerabilities — GitHub Docs](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/fix-reported-vulnerabilities)
 2. [Add a security policy to your repository — GitHub Docs](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/add-security-policy)
-3. [DevTrack Repository — GitHub](https://github.com/Umbrella-io/devtrack)
+3. [DevTrack Repository — GitHub](https://github.com/Priyanshu-byte-coder/devtrack)

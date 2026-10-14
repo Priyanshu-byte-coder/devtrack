@@ -24,12 +24,19 @@ jobs:
             const repoUrl = `https://github.com/${owner}/${repo}`;
 
             async function hasStarred(username) {
-              const login = username.toLowerCase();
-              const stargazers = await github.paginate(
-                github.rest.activity.listStargazersForRepo,
-                { owner, repo, per_page: 100 },
-              );
-              return stargazers.some(u => u.login.toLowerCase() === login);
+              // Paginate the AUTHOR's starred repos (bounded, typically small),
+              // not the target repo's full stargazer list (unbounded, grows with
+              // the project's popularity — pulling every page of that for every
+              // PR push does not scale and burns rate limit on a popular repo).
+              const target = `${owner}/${repo}`.toLowerCase();
+              for (let page = 1; page <= 20; page++) {
+                const { data } = await github.rest.activity.listReposStarredByUser({
+                  username, per_page: 100, page,
+                });
+                if (data.some(r => r.full_name.toLowerCase() === target)) return true;
+                if (data.length < 100) return false;
+              }
+              return false; // safety cap: checked up to 2000 starred repos
             }
 
             async function setStatus(sha, state, description) {

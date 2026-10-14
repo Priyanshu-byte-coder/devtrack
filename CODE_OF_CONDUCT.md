@@ -32,34 +32,29 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 
 ---
 
-## GSSoC Contributor Procedures
+## Reporting Procedures
 
-This section supplements the Contributor Covenant above with procedures specific to
-**GirlScript Summer of Code (GSSoC) 2026** contributors. Both the Contributor Covenant
-and these GSSoC procedures apply; in case of conflict, the Contributor Covenant prevails
-for non-GSSoC contributions.
+This section supplements the Contributor Covenant above with a concrete reporting
+procedure for everyone in the DevTrack community — contributors, maintainers, and
+participants in programs such as Hacktoberfest alike.
 
 ### Scope
 
-These procedures apply to:
-
-- All participants registered for GSSoC 2026 (mentors, contributors, maintainers)
-- All DevTrack contribution channels: GitHub Issues, Pull Requests, Discussions, and the
-  project Discord (if applicable) during the GSSoC program window
-- All GSSoC-related work, including issue selection, claims, reviews, and evaluations
+These procedures apply to all DevTrack contribution channels: GitHub Issues, Pull
+Requests, Discussions, and any linked community chat, including all contribution work
+regardless of what program (if any) brought a contributor to the project.
 
 ### Reporting Procedure
 
-If you experience or witness behavior that violates the Contributor Covenant during
-GSSoC participation:
+If you experience or witness behavior that violates the Contributor Covenant:
 
 1. **Open a private GitHub Security Advisory** at
-   <https://github.com/Umbrella-io/devtrack/security/advisories/new> with the
-   `gsoc-coc` label in the title. This keeps the report visible only to the maintainer.
+   <https://github.com/Priyanshu-byte-coder/devtrack/security/advisories/new> with
+   `[CoC]` in the title. This keeps the report visible only to the maintainer.
 2. **If the advisory form is unavailable**, email **doshipriyanshu3@gmail.com** with
-   subject line `GSSoC CoC Report`.
+   subject line `CoC Report`.
 3. Include the following:
-   - Your GitHub handle and GSSoC participant ID (if registered)
+   - Your GitHub handle
    - The GitHub handle of the person whose behavior is being reported
    - A factual description of the incident(s) with dates and links to public evidence
      (issues, PRs, comments) when possible
@@ -70,7 +65,6 @@ GSSoC participation:
 - **Acknowledgement:** within **48 hours** of receiving a report
 - **Initial review outcome:** within **5 business days**
 - **Resolution and any corrective action:** communicated privately to the reporter
-  and, where appropriate, to the GSSoC program admins
 
 ### Confidentiality and Anonymity
 
@@ -85,8 +79,7 @@ GSSoC participation:
 
 If you disagree with a CoC enforcement decision made under these procedures, you may
 appeal by replying to the original advisory thread within **14 days** of the decision.
-An uninvolved maintainer (or, if none is available, a GSSoC program admin) will review
-the appeal and respond within **7 business days**.
+An uninvolved maintainer will review the appeal and respond within **7 business days**.
 
 ### After a Report
 
@@ -103,5 +96,3 @@ Once a report is filed:
 
 - Disputes over technical decisions (architecture, code style, merge timing) are
   handled through normal PR review and Discussion channels, not CoC procedures.
-- Issues with the GSSoC platform itself (points, leaderboard, certificate eligibility)
-  should be directed to the GSSoC program admins, not the project maintainer.

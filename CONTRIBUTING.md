@@ -1,6 +1,6 @@
 # Contributing to DevTrack
 
-Thank you for your interest in contributing to DevTrack! Whether you are a GSSoC (GirlScript Summer of Code) participant or a general open-source contributor, we are thrilled to have you.
+Thank you for your interest in contributing to DevTrack! Whether this is your first open-source contribution or your hundredth, we are thrilled to have you.
 
 Please note that this project is released with a Code of Conduct. By participating in this project, you agree to abide by its terms.
 
@@ -22,7 +22,7 @@ cd devtrack
 ### 3. Configure Upstream Remote
 
 ```bash
-git remote add upstream https://github.com/Umbrella-io/devtrack.git
+git remote add upstream https://github.com/Priyanshu-byte-coder/devtrack.git
 ```
 
 ### 4. Install pnpm
@@ -77,7 +77,7 @@ http://localhost:3000
 - Code Style & Standards
 - Branch Naming Conventions
 - Commit Guidelines
-- Issue Labels & GSSoC Levels
+- Issue Labels & Difficulty Levels
 - Pull Request (PR) Checklist
 - Self-Hosting & Deployment
 
@@ -102,18 +102,21 @@ Before setting up DevTrack locally, make sure you have configured the following:
    ```
    GitHub Profile → Settings → Developer Settings → OAuth Apps → New OAuth App
 
-1. **Fork the Repo:** Click the "Fork" button at the top-right of the [DevTrack repository](https://github.com/Umbrella-io/devtrack).
-2. **Clone Your Fork:**
+   ```
+
+1. **Fork the Repo:** Click the "Fork" button at the top-right of the [DevTrack repository](https://github.com/Priyanshu-byte-coder/devtrack).
+1. **Clone Your Fork:**
    ```bash
    git clone https://github.com/<your-username>/devtrack.git
    cd devtrack
    ```
-3. **Configure Upstream Remote:**
+1. **Configure Upstream Remote:**
+
    ```bash
-   git remote add upstream https://github.com/Umbrella-io/devtrack.git
+   git remote add upstream https://github.com/Priyanshu-byte-coder/devtrack.git
    ```
 
-2. Configure:
+1. Configure:
 
    **Application Name**
 
@@ -133,9 +136,9 @@ Before setting up DevTrack locally, make sure you have configured the following:
    http://localhost:3000/api/auth/callback/github
    ```
 
-3. Register the application.
+1. Register the application.
 
-4. Copy the **Client ID** and generate a new **Client Secret**.
+1. Copy the **Client ID** and generate a new **Client Secret**.
 
 ---
 
@@ -165,7 +168,7 @@ Project Settings → API
 4. [Code Style & Standards](#4-code-style--standards)
 5. [Branch Naming Conventions](#5-branch-naming-conventions)
 6. [Commit Guidelines](#6-commit-guidelines)
-7. [Issue Labels & GSSoC Levels](#7-issue-labels--gssoc-levels)
+7. [Issue Labels & Difficulty Levels](#7-issue-labels--difficulty-levels)
 8. [Pull Request (PR) Checklist](#8-pull-request-pr-checklist)
 9. [Self-Hosting & Deployment](#9-self-hosting--deployment)
 10. [Frequently Asked Questions (FAQ)](#10-frequently-asked-questions-faq)
@@ -217,21 +220,21 @@ DevTrack relies on a set of environment variables to connect to external APIs an
 
 Copy `.env.example` to `.env.local` and populate the following values:
 
-| Variable | Required | Description |
-|-----------|-----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Your Supabase public anonymous API key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server-side Supabase secret key |
-| `NEXTAUTH_URL` | Yes | Base URL where your app runs locally |
-| `NEXTAUTH_SECRET` | Yes | Used to sign NextAuth tokens |
-| `GITHUB_ID` | Yes | GitHub OAuth Client ID |
-| `GITHUB_SECRET` | Yes | GitHub OAuth Client Secret |
-| `ENCRYPTION_KEY` | Yes | 32-byte hex key used to encrypt OAuth tokens |
-| `GITHUB_WEBHOOK_SECRET` | No | Secret key to verify incoming GitHub webhooks |
-| `GITHUB_TOKEN` | No | GitHub PAT used to bypass API rate limits |
-| `UPSTASH_REDIS_REST_URL` | No | Upstash Redis URL |
-| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST Token |
-| `GROQ_API_KEY` | No | Groq API Key for AI insights |
+| Variable                        | Required | Description                                   |
+| ------------------------------- | -------- | --------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Your Supabase project URL                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Your Supabase public anonymous API key        |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes      | Server-side Supabase secret key               |
+| `NEXTAUTH_URL`                  | Yes      | Base URL where your app runs locally          |
+| `NEXTAUTH_SECRET`               | Yes      | Used to sign NextAuth tokens                  |
+| `GITHUB_ID`                     | Yes      | GitHub OAuth Client ID                        |
+| `GITHUB_SECRET`                 | Yes      | GitHub OAuth Client Secret                    |
+| `ENCRYPTION_KEY`                | Yes      | 32-byte hex key used to encrypt OAuth tokens  |
+| `GITHUB_WEBHOOK_SECRET`         | No       | Secret key to verify incoming GitHub webhooks |
+| `GITHUB_TOKEN`                  | No       | GitHub PAT used to bypass API rate limits     |
+| `UPSTASH_REDIS_REST_URL`        | No       | Upstash Redis URL                             |
+| `UPSTASH_REDIS_REST_TOKEN`      | No       | Upstash Redis REST Token                      |
+| `GROQ_API_KEY`                  | No       | Groq API Key for AI insights                  |
 
 ### Generate Secrets
 
@@ -504,13 +507,13 @@ prefix/short-descriptive-name
 
 ### Prefix Types
 
-| Prefix | Example |
-|----------|----------|
-| `feat/` | `feat/add-achievements-tab` |
-| `fix/` | `fix/oauth-token-expiry` |
-| `docs/` | `docs/update-installation-guide` |
-| `test/` | `test/visual-regression-setup` |
-| `refactor/` | `refactor/api-routes` |
+| Prefix      | Example                          |
+| ----------- | -------------------------------- |
+| `feat/`     | `feat/add-achievements-tab`      |
+| `fix/`      | `fix/oauth-token-expiry`         |
+| `docs/`     | `docs/update-installation-guide` |
+| `test/`     | `test/visual-regression-setup`   |
+| `refactor/` | `refactor/api-routes`            |
 
 ---
 
@@ -546,23 +549,25 @@ docs(contributing): document environment variable configuration
 
 ---
 
-## Issue Labels & GSSoC Levels
+## Issue Labels & Difficulty Levels
 
-For contributors joining through GirlScript Summer of Code (GSSoC), we map issues using levels to indicate complexity and points.
+Issues carry a `level:*` label so you can gauge scope before picking one up:
 
-| Label | Level / Difficulty | Points |
-|---------|-------------------|---------|
-| `gssoc:level1` | Beginner — Simple styling, documentation fixes, minor bugs | 20 |
-| `gssoc:level2` | Intermediate — Feature additions, routing changes, basic tests | 35 |
-| `gssoc:level3` | Advanced — Complex logic, API integrations, deep layout refactoring | 55 |
+| Label                | Difficulty   | Typical scope                                            |
+| -------------------- | ------------ | -------------------------------------------------------- |
+| `level:beginner`     | Beginner     | Simple styling, documentation fixes, minor bugs          |
+| `level:intermediate` | Intermediate | Feature additions, routing changes, basic tests          |
+| `level:advanced`     | Advanced     | Complex logic, API integrations, deep layout refactoring |
+| `level:critical`     | Critical     | Security fixes, data-integrity issues                    |
+
+During **Hacktoberfest**, also check the [`hacktoberfest`](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22hacktoberfest%22) label for issues curated for the event.
 
 ### Guidelines
 
-### Guidelines:
-* **One Issue at a Time**: Prefer working on one issue at a time so reviews stay focused.
-* **Auto-unassignment**: If you are assigned but do not open a PR within **7 days**, the issue-assignment bot will unassign you so others can pick it up. Still working on it? Comment on the issue and request re-assignment.
-* **Link Issue to PR**: Ensure your pull request description explicitly links to your assigned issue (e.g. `Closes #45`).
-* **GSSoC scoring labels**: Maintainers apply `level:*` difficulty labels and `gssoc:approved` on your PR at merge time so it counts toward GSSoC scoring. See [FAQ — GSSoC 2026](#gssoc-2026) for details.
+- **One Issue at a Time**: Prefer working on one issue at a time so reviews stay focused.
+- **Auto-unassignment**: If you are assigned but do not open a PR within **7 days**, the issue-assignment bot will unassign you so others can pick it up. Still working on it? Comment on the issue and request re-assignment.
+- **Link Issue to PR**: Ensure your pull request description explicitly links to your assigned issue (e.g. `Closes #45`).
+- **Low-effort/AI-generated PRs**: Maintainers label spammy or low-effort PRs (e.g. unreviewed AI output, trivial whitespace-only changes) as `invalid` or `spam` rather than merging them — this keeps the project healthy and keeps them from counting toward Hacktoberfest.
 
 ---
 
@@ -613,7 +618,7 @@ Happy coding! 🚀
 
 ## 10. Frequently Asked Questions (FAQ)
 
-Answers to the most common questions from new contributors and GSSoC participants. If your question is not covered here, ask in [GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions) or on the GSSoC Discord.
+Answers to the most common questions from new contributors. If your question is not covered here, ask in [GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
 
 ### Getting Started
 
@@ -638,14 +643,16 @@ Prefer one issue at a time so reviews stay manageable. The per-contributor assig
 <details>
 <summary><strong>Should I use npm or pnpm?</strong></summary>
 
-CI runs `npm ci` against `package-lock.json`, and [DEVELOPMENT.md](./DEVELOPMENT.md) uses `npm` commands. For the closest match with CI, use **npm**:
+Use **pnpm** — CI runs `pnpm install --frozen-lockfile` against `pnpm-lock.yaml`, not npm:
 
 ```bash
-npm install
-npm run dev
+corepack enable
+corepack prepare pnpm@11.13.1 --activate
+pnpm install
+pnpm run dev
 ```
 
-Some sections of this guide reference `pnpm`; either package manager works locally, but **do not commit conflicting lockfile changes**. Do not mix `package-lock.json` and `pnpm-lock.yaml` updates in the same PR.
+`package-lock.json` is gitignored; don't commit it, and don't mix `package-lock.json` changes into a PR — only `pnpm-lock.yaml`.
 </details>
 
 <details>
@@ -662,12 +669,13 @@ Optional variables (`GROQ_API_KEY`, Upstash Redis, `GITHUB_TOKEN`, etc.) enable 
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** — step-by-step setup from clone to running app
 - **[docs/architecture.md](./docs/architecture.md)** — how pages, API routes, and Supabase fit together
 - **[docs/self-hosting.md](./docs/self-hosting.md)** — deployment and production env vars
+
 </details>
 
 <details>
 <summary><strong>I'm new to open source — where should I start?</strong></summary>
 
-Browse [good first issues](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=label%3A%22good+first+issue%22), read [docs/architecture.md](./docs/architecture.md), and pick a `gssoc:level1` or documentation issue if you are participating in GSSoC.
+Browse [good first issues](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=label%3A%22good+first+issue%22), read [docs/architecture.md](./docs/architecture.md), and pick a `level:beginner` or documentation issue to start.
 </details>
 
 ### Issues and PRs
@@ -676,9 +684,10 @@ Browse [good first issues](https://github.com/Priyanshu-byte-coder/devtrack/issu
 <summary><strong>How do I claim an issue?</strong></summary>
 
 1. Find an open, unassigned issue.
-2. Comment with your intent (e.g. `I'd like to work on this issue. I'm a GSSoC'26 contributor.`).
-3. Wait for the bot to assign you and add the `gssoc:assigned` label.
+2. Comment with your intent (e.g. `I'd like to work on this issue.`, `assign me`, or `/assign`).
+3. Wait for the bot to assign you and add the `status:assigned` label.
 4. Create a branch, implement the change, and open a PR linking the issue (`Closes #123`).
+
 </details>
 
 <details>
@@ -707,6 +716,7 @@ Prefer the prefixes in [Section 5](#5-branch-naming-conventions): `feat/`, `fix/
 - Passing CI checks (lint, type-check, tests, build)
 - Screenshots or a short GIF for UI changes
 - Conventional commit messages on your branch
+
 </details>
 
 <details>
@@ -722,47 +732,18 @@ git push origin main
 Before opening or updating a PR, rebase your feature branch onto the latest `upstream/main`.
 </details>
 
-### GSSoC 2026
+### Hacktoberfest
 
 <details>
-<summary><strong>How do GSSoC points work for DevTrack?</strong></summary>
-
-Points depend on issue difficulty and PR quality labels applied by maintainers at merge time. The assignment bot and GSSoC label automation help track your work, but **maintainers must add `level:*` and `gssoc:approved` labels before your PR counts toward scoring**.
-</details>
-
-<details>
-<summary><strong>What labels matter for GSSoC scoring?</strong></summary>
-
-| Label | Purpose |
-| :--- | :--- |
-| `level:beginner` | 20 pts |
-| `level:intermediate` | 35 pts |
-| `level:advanced` | 55 pts |
-| `level:critical` | 80 pts |
-| `quality:clean` | ×1.2 multiplier (optional) |
-| `quality:exceptional` | ×1.5 multiplier (optional) |
-| `gssoc:approved` | **Required** for the PR to score |
-| `gssoc:invalid` / `gssoc:spam` / `gssoc:ai-slop` | Does not score |
-
-Issue labels such as `gssoc:level1` indicate estimated difficulty; final scoring labels are applied on the merged PR.
-</details>
-
-<details>
-<summary><strong>Is documentation-only work valid for GSSoC?</strong></summary>
+<summary><strong>Is documentation-only work valid for Hacktoberfest?</strong></summary>
 
 Yes. Documentation improvements are valuable contributions. Use a `docs/` branch prefix, and your PR will receive a `type:docs` label when merged.
 </details>
 
 <details>
-<summary><strong>Should I mention GSSoC in my issue comment or PR?</strong></summary>
-
-Yes — mention that you are a GSSoC'26 contributor when requesting assignment (e.g. `I'm a GSSoC'26 contributor and I would like to work on this issue.`). Always link the issue in your PR with `Closes #<number>`.
-</details>
-
-<details>
 <summary><strong>What happens after my PR is approved?</strong></summary>
 
-A maintainer merges your PR and applies the appropriate `level:*` and `gssoc:approved` labels. If those labels are missing after approval, the GSSoC bot will remind maintainers so your contribution counts.
+A maintainer applies the appropriate `level:*` label and merges it. Low-effort or spammy PRs are labeled `invalid`/`spam` instead and are not merged — see [the guidelines above](#guidelines).
 </details>
 
 ### Troubleshooting
@@ -797,6 +778,7 @@ Verify the following in [Section 1 — Prerequisites](#1-prerequisites):
 - `NEXTAUTH_URL` is `http://localhost:3000`
 - `GITHUB_ID` and `GITHUB_SECRET` match your OAuth app
 - `.env.local` exists and the dev server was restarted after editing env vars
+
 </details>
 
 <details>
@@ -804,8 +786,8 @@ Verify the following in [Section 1 — Prerequisites](#1-prerequisites):
 
 - **[GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** — questions, ideas, and community help
 - **Comment on your assigned issue** — maintainers and other contributors can guide you
-- **GSSoC Discord** — see [docs/HUSKY_TROUBLESHOOTING.md](./docs/HUSKY_TROUBLESHOOTING.md) for community links
 - **[Open an issue](https://github.com/Priyanshu-byte-coder/devtrack/issues/new/choose)** — for bugs or unclear documentation
+
 </details>
 
 <details>
@@ -829,8 +811,7 @@ If you are unsure how to resolve a conflict, ask in your PR or issue before forc
 
 Thank you for helping make DevTrack better! Happy coding! 🚀
 
-
-### GSSoC Git Commit & Branching Conventions
+### Git Commit & Branching Conventions
 
 To maintain a clean and consistent Git history, contributors must follow these standards.
 
@@ -846,6 +827,7 @@ Use prefixes:
 - test: Adding or updating tests
 
 ### Examples:
+
 - feat(auth): add GitHub OAuth login
 - fix(ui): resolve navbar alignment issue
 - docs(contributing): update branching guide
@@ -860,6 +842,7 @@ Use prefixes:
 - docs/<name>
 
 ### Examples:
+
 - feature/login-system
 - fix/header-alignment
 - docs/readme-update
@@ -887,4 +870,3 @@ Closes #1944
 - Do not mix unrelated changes
 - Rebase before pushing if needed
 - Rebase before push if needed
-

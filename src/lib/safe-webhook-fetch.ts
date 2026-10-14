@@ -83,6 +83,10 @@ export async function safeWebhookFetch(
   // Never let callers override the validated authority.
   delete headers.host;
   return new Promise<Response>((resolve, reject) => {
+    // codeql[js/request-forgery]: destination is intentionally caller-supplied (webhook
+    // dispatch); every resolved address is checked against isPublicAddress's
+    // block-list above and pinned via `lookup` so the TCP connection cannot be
+    // redirected to a different, unvalidated address after the check (TOCTOU-safe).
     const request = (url.protocol === "https:" ? https : http).request(
       url,
       {
