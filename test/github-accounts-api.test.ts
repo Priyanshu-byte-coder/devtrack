@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET } from "@/app/api/user/github-accounts/route";
 import { DELETE } from "@/app/api/user/github-accounts/[githubId]/route";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { resolveAppUser } from "@/lib/resolve-user";
 
 // Mock next-auth
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: vi.fn(),
 }));
 

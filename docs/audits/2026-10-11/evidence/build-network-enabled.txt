@@ -1,0 +1,187 @@
+
+> devtrack@0.2.0 build
+> npm run validate-env && next build && node scripts/copy-standalone-static.js
+
+
+> devtrack@0.2.0 validate-env
+> node scripts/validate-env.js
+
+✅ Environment validation skipped in CI.
+▲ Next.js 16.3.5 (Turbopack)
+- Environments: .env.local, .env
+✓ Running next.config.mjs took 1576ms
+
+node : ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+At line:2 char:1
++ node docs/audits/2026-10-11/evidence/run-isolated-build.cjs > docs/au ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (⚠ The "middlewa...proxy" instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.1s
+  Running TypeScript ...
+  Finished TypeScript in 10.9s ...
+  Collecting page data using 15 workers ...
+⚠ The Edge Runtime is deprecated. You can use the "nodejs" runtime instead. Learn more: 
+https://nextjs.org/docs/messages/edge-runtime-deprecated
+⚠ Using edge runtime on a page currently disables static generation for that page
+  Generating static pages using 15 workers (0/35) ...
+  Generating static pages using 15 workers (8/35) 
+  Generating static pages using 15 workers (17/35) 
+  Generating static pages using 15 workers (26/35) 
+✓ Generating static pages using 15 workers (35/35) in 875ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /api-docs
+├ ƒ /api/accounts
+├ ƒ /api/accounts/[githubLogin]
+├ ƒ /api/accounts/link
+├ ƒ /api/ai-insights
+├ ƒ /api/ai/roast
+├ ƒ /api/ai/weekly-summary
+├ ƒ /api/auth/[...nextauth]
+├ ƒ /api/auth/link-github
+├ ƒ /api/auth/link-github/callback
+├ ƒ /api/badge/commits
+├ ƒ /api/badge/streak-shield
+├ ƒ /api/contact
+├ ƒ /api/cron/sync
+├ ƒ /api/cron/weekly-digest
+├ ƒ /api/cv/analyze
+├ ƒ /api/cv/export
+├ ƒ /api/cv/generate
+├ ƒ /api/daily-focus
+├ ƒ /api/daily-note
+├ ƒ /api/debug/health
+├ ƒ /api/goals
+├ ƒ /api/goals/[id]
+├ ƒ /api/goals/history
+├ ƒ /api/goals/sync
+├ ƒ /api/integrations/jira
+├ ƒ /api/integrations/jira/credentials
+├ ƒ /api/leaderboard
+├ ƒ /api/leaderboard/rebuild
+├ ƒ /api/leaderboard/refresh
+├ ƒ /api/local-coding/keys
+├ ƒ /api/local-coding/stats
+├ ƒ /api/local-coding/sync
+├ ƒ /api/metrics/achievement-progress
+├ ƒ /api/metrics/achievements
+├ ƒ /api/metrics/activity
+├ ƒ /api/metrics/ci
+├ ƒ /api/metrics/coding-activity-insights
+├ ƒ /api/metrics/commit-times
+├ ƒ /api/metrics/community-engagement
+├ ƒ /api/metrics/compare
+├ ƒ /api/metrics/consistency-score
+├ ƒ /api/metrics/contributions
+├ ƒ /api/metrics/contributions/daily
+├ ƒ /api/metrics/contributions/hourly
+├ ƒ /api/metrics/devtrack-badges
+├ ƒ /api/metrics/discussions
+├ ƒ /api/metrics/inactive-repos
+├ ƒ /api/metrics/issues
+├ ƒ /api/metrics/languages
+├ ƒ /api/metrics/pinned-repos
+├ ƒ /api/metrics/pr-breakdown
+├ ƒ /api/metrics/pr-review-time
+├ ƒ /api/metrics/productive-hours
+├ ƒ /api/metrics/prs
+├ ƒ /api/metrics/repo-analytics
+├ ƒ /api/metrics/repo-explorer
+├ ƒ /api/metrics/repo-health
+├ ƒ /api/metrics/repos
+├ ƒ /api/metrics/repos/[owner]/[name]/commits
+├ ƒ /api/metrics/sponsors
+├ ƒ /api/metrics/streak
+├ ƒ /api/metrics/weekly-summary
+├ ƒ /api/milestones
+├ ƒ /api/milestones/[id]
+├ ƒ /api/notifications
+├ ƒ /api/notifications/[id]
+├ ƒ /api/notifications/discord-sync
+├ ƒ /api/notifications/weekly
+├ ƒ /api/og/user
+├ ƒ /api/personality
+├ ƒ /api/project-tutor
+├ ƒ /api/public/[username]
+├ ƒ /api/public/privacy
+├ ƒ /api/room-invitations
+├ ƒ /api/room-invitations/[invitationId]
+├ ƒ /api/rooms
+├ ƒ /api/rooms/[roomId]
+├ ƒ /api/rooms/[roomId]/invite
+├ ƒ /api/rooms/[roomId]/members/[username]
+├ ƒ /api/rooms/[roomId]/messages
+├ ƒ /api/sponsors/sync
+├ ƒ /api/streak/freeze
+├ ƒ /api/stream
+├ ƒ /api/unsubscribe
+├ ƒ /api/user/dashboard-layout
+├ ƒ /api/user/data-export
+├ ƒ /api/user/export
+├ ƒ /api/user/github-accounts
+├ ƒ /api/user/github-accounts/[githubId]
+├ ƒ /api/user/github-orgs
+├ ƒ /api/user/orgs
+├ ƒ /api/user/pinned-repos/details
+├ ƒ /api/user/settings
+├ ƒ /api/user/settings/discord-test
+├ ƒ /api/users/search
+├ ƒ /api/wakatime
+├ ƒ /api/wakatime/sync
+├ ƒ /api/webhooks/activity-alerts
+├ ƒ /api/webhooks/custom
+├ ƒ /api/webhooks/custom/[id]
+├ ƒ /api/webhooks/custom/[id]/deliveries/[deliveryId]/retry
+├ ƒ /api/webhooks/custom/[id]/rotate-secret
+├ ƒ /api/webhooks/custom/[id]/test
+├ ƒ /api/webhooks/dispatch
+├ ƒ /api/webhooks/dispatch/metrics
+├ ƒ /api/webhooks/github
+├ ƒ /api/wrapped
+├ ƒ /api/wrapped/og
+├ ƒ /auth/signin
+├ ƒ /compare/[users]
+├ ƒ /contact
+├ ƒ /dashboard
+├ ƒ /dashboard/career-intelligence
+├ ƒ /dashboard/personality
+├ ƒ /dashboard/repo-comparison
+├ ƒ /dashboard/repo-health
+├ ƒ /dashboard/settings
+├ ƒ /friend-compare
+├ ƒ /guidelines
+├ ƒ /leaderboard
+├ ƒ /login-required
+├ ƒ /privacy-policy
+├ ƒ /profile-card
+├ ƒ /project-tutor
+├ ○ /robots.txt
+├ ƒ /rooms
+├ ƒ /rooms/[roomId]
+├ ƒ /settings
+├ ○ /sitemap.xml
+├ ƒ /u/[username]
+├ ƒ /u/[username]/feed.xml
+├ ƒ /u/[username]/goals/[goalId]
+├ ƒ /u/[username]/opengraph-image
+└ ƒ /wrapped
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+Copying static files to standalone directory...
+Done.

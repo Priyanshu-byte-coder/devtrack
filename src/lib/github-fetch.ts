@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 /**
  * Typed GitHub API fetch helper.
  * Centralises Authorization headers, Accept header, ok-check,
@@ -9,15 +10,8 @@ import { GITHUB_API } from "@/lib/github";
 
 export { GITHUB_API };
 
-export class GitHubRateLimitError extends Error {
-  constructor(
-    public resetAt: Date | null,
-    public retryAfter: number | null = null,
-  ) {
-    super("GitHub API rate limit exceeded");
-    this.name = "GitHubRateLimitError";
-  }
-}
+import { GitHubRateLimitError } from "@/lib/github-rate-limit";
+export { GitHubRateLimitError };
 
 export class GitHubApiError extends Error {
   constructor(public status: number) {
@@ -82,6 +76,8 @@ async function buildGitHubError(
   const { resetAt, retryAfter, remaining } = extractRateLimitInfo(res.headers);
 
   // 429: always a rate limit
+  if (res.status === 401) throw new GitHubAuthError();
+
   if (res.status === 429) {
     return new GitHubRateLimitError(resetAt, retryAfter);
   }
@@ -130,7 +126,7 @@ export async function githubFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
 
-  const res = await fetch(url, {
+  const res = await githubRequest(url, {
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -159,7 +155,7 @@ export async function githubGraphQL<T>(
   const MAX_RETRIES = 2;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    const res = await fetch("https://api.github.com/graphql", {
+    const res = await githubRequest("https://api.github.com/graphql", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

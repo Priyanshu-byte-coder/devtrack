@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -81,7 +83,7 @@ async function fetchProductiveHoursForAccount(
         searchUrl.searchParams.set("sort", "author-date");
         searchUrl.searchParams.set("order", "desc");
 
-        const searchRes = await fetch(searchUrl.toString(), {
+        const searchRes = await githubRequest(searchUrl.toString(), {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/vnd.github+json",
@@ -242,6 +244,8 @@ export async function GET(req: NextRequest) {
       );
       return Response.json(result);
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
@@ -303,6 +307,8 @@ export async function GET(req: NextRequest) {
       );
       return Response.json(result);
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
@@ -337,6 +343,9 @@ export async function GET(req: NextRequest) {
     );
     return Response.json(result);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }

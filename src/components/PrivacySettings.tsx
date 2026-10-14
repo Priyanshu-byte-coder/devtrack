@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useState } from "react";
 
 export default function PrivacySettings() {
@@ -72,7 +73,7 @@ export default function PrivacySettings() {
         throw new Error(data.error || "Failed to delete account");
       }
 
-      window.location.href = "/api/auth/signout";
+      await signOut({ callbackUrl: "/" });
     } catch (err) {
       setMessage({
         kind: "error",

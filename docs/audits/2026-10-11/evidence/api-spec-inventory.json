@@ -1,0 +1,1320 @@
+{
+  "route_files_all_extensions": 108,
+  "routes": [
+    {
+      "file": "src/app/api/accounts/route.ts",
+      "path": "/api/accounts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/ai-insights/route.ts",
+      "path": "/api/ai-insights",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/contact/route.ts",
+      "path": "/api/contact",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/daily-focus/route.ts",
+      "path": "/api/daily-focus",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/daily-note/route.ts",
+      "path": "/api/daily-note",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/goals/route.ts",
+      "path": "/api/goals",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/leaderboard/route.ts",
+      "path": "/api/leaderboard",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/milestones/route.ts",
+      "path": "/api/milestones",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/notifications/route.ts",
+      "path": "/api/notifications",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/personality/route.ts",
+      "path": "/api/personality",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/project-tutor/route.ts",
+      "path": "/api/project-tutor",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/room-invitations/route.ts",
+      "path": "/api/room-invitations",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/rooms/route.ts",
+      "path": "/api/rooms",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/stream/route.ts",
+      "path": "/api/stream",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/unsubscribe/route.ts",
+      "path": "/api/unsubscribe",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/wakatime/route.ts",
+      "path": "/api/wakatime",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/wrapped/route.ts",
+      "path": "/api/wrapped",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/accounts/link/route.ts",
+      "path": "/api/accounts/link",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/accounts/[githubLogin]/route.ts",
+      "path": "/api/accounts/{githubLogin}",
+      "methods": [
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/ai/roast/route.ts",
+      "path": "/api/ai/roast",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/ai/weekly-summary/route.ts",
+      "path": "/api/ai/weekly-summary",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/auth/link-github/route.ts",
+      "path": "/api/auth/link-github",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/auth/[...nextauth]/route.ts",
+      "path": "/api/auth/{...nextauth}",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/auth/link-github/callback/route.ts",
+      "path": "/api/auth/link-github/callback",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/badge/commits/route.ts",
+      "path": "/api/badge/commits",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/badge/streak-shield/route.ts",
+      "path": "/api/badge/streak-shield",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/cron/sync/route.ts",
+      "path": "/api/cron/sync",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/cron/weekly-digest/route.ts",
+      "path": "/api/cron/weekly-digest",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/cv/analyze/route.ts",
+      "path": "/api/cv/analyze",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/cv/export/route.ts",
+      "path": "/api/cv/export",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/cv/generate/route.ts",
+      "path": "/api/cv/generate",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/debug/health/route.ts",
+      "path": "/api/debug/health",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/goals/history/route.ts",
+      "path": "/api/goals/history",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/goals/sync/route.ts",
+      "path": "/api/goals/sync",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/goals/[id]/route.ts",
+      "path": "/api/goals/{id}",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/integrations/jira/route.ts",
+      "path": "/api/integrations/jira",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/integrations/jira/credentials/route.ts",
+      "path": "/api/integrations/jira/credentials",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/leaderboard/rebuild/route.ts",
+      "path": "/api/leaderboard/rebuild",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/leaderboard/refresh/route.ts",
+      "path": "/api/leaderboard/refresh",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/local-coding/keys/route.ts",
+      "path": "/api/local-coding/keys",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/local-coding/stats/route.ts",
+      "path": "/api/local-coding/stats",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/local-coding/sync/route.ts",
+      "path": "/api/local-coding/sync",
+      "methods": [
+        "POST",
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/achievement-progress/route.ts",
+      "path": "/api/metrics/achievement-progress",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/achievements/route.ts",
+      "path": "/api/metrics/achievements",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/activity/route.ts",
+      "path": "/api/metrics/activity",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/ci/route.ts",
+      "path": "/api/metrics/ci",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/coding-activity-insights/route.ts",
+      "path": "/api/metrics/coding-activity-insights",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/commit-times/route.ts",
+      "path": "/api/metrics/commit-times",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/community-engagement/route.ts",
+      "path": "/api/metrics/community-engagement",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/compare/route.ts",
+      "path": "/api/metrics/compare",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/consistency-score/route.ts",
+      "path": "/api/metrics/consistency-score",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/contributions/route.ts",
+      "path": "/api/metrics/contributions",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/devtrack-badges/route.ts",
+      "path": "/api/metrics/devtrack-badges",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/discussions/route.ts",
+      "path": "/api/metrics/discussions",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/inactive-repos/route.ts",
+      "path": "/api/metrics/inactive-repos",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/issues/route.ts",
+      "path": "/api/metrics/issues",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/languages/route.ts",
+      "path": "/api/metrics/languages",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/pinned-repos/route.ts",
+      "path": "/api/metrics/pinned-repos",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/pr-breakdown/route.ts",
+      "path": "/api/metrics/pr-breakdown",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/pr-review-time/route.ts",
+      "path": "/api/metrics/pr-review-time",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/productive-hours/route.ts",
+      "path": "/api/metrics/productive-hours",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/prs/route.ts",
+      "path": "/api/metrics/prs",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/repo-analytics/route.ts",
+      "path": "/api/metrics/repo-analytics",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/repo-explorer/route.ts",
+      "path": "/api/metrics/repo-explorer",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/repo-health/route.ts",
+      "path": "/api/metrics/repo-health",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/repos/route.ts",
+      "path": "/api/metrics/repos",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/sponsors/route.ts",
+      "path": "/api/metrics/sponsors",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/streak/route.ts",
+      "path": "/api/metrics/streak",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/weekly-summary/route.ts",
+      "path": "/api/metrics/weekly-summary",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/contributions/daily/route.ts",
+      "path": "/api/metrics/contributions/daily",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/contributions/hourly/route.ts",
+      "path": "/api/metrics/contributions/hourly",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/metrics/repos/[owner]/[name]/commits/route.ts",
+      "path": "/api/metrics/repos/{owner}/{name}/commits",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/milestones/[id]/route.ts",
+      "path": "/api/milestones/{id}",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/notifications/discord-sync/route.ts",
+      "path": "/api/notifications/discord-sync",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/notifications/weekly/route.ts",
+      "path": "/api/notifications/weekly",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/notifications/[id]/route.ts",
+      "path": "/api/notifications/{id}",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/og/user/route.tsx",
+      "path": "/api/og/user",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/public/privacy/route.ts",
+      "path": "/api/public/privacy",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/public/[username]/route.ts",
+      "path": "/api/public/{username}",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/room-invitations/[invitationId]/route.ts",
+      "path": "/api/room-invitations/{invitationId}",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/rooms/[roomId]/route.ts",
+      "path": "/api/rooms/{roomId}",
+      "methods": [
+        "GET",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/rooms/[roomId]/invite/route.ts",
+      "path": "/api/rooms/{roomId}/invite",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/rooms/[roomId]/messages/route.ts",
+      "path": "/api/rooms/{roomId}/messages",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/rooms/[roomId]/members/[username]/route.ts",
+      "path": "/api/rooms/{roomId}/members/{username}",
+      "methods": [
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/sponsors/sync/route.ts",
+      "path": "/api/sponsors/sync",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/streak/freeze/route.ts",
+      "path": "/api/streak/freeze",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/user/dashboard-layout/route.ts",
+      "path": "/api/user/dashboard-layout",
+      "methods": [
+        "GET",
+        "PATCH"
+      ]
+    },
+    {
+      "file": "src/app/api/user/data-export/route.ts",
+      "path": "/api/user/data-export",
+      "methods": [
+        "GET",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/user/export/route.ts",
+      "path": "/api/user/export",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/user/github-accounts/route.ts",
+      "path": "/api/user/github-accounts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/user/github-orgs/route.ts",
+      "path": "/api/user/github-orgs",
+      "methods": [
+        "GET",
+        "PATCH"
+      ]
+    },
+    {
+      "file": "src/app/api/user/orgs/route.ts",
+      "path": "/api/user/orgs",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/user/settings/route.ts",
+      "path": "/api/user/settings",
+      "methods": [
+        "GET",
+        "PATCH"
+      ]
+    },
+    {
+      "file": "src/app/api/user/github-accounts/[githubId]/route.ts",
+      "path": "/api/user/github-accounts/{githubId}",
+      "methods": [
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/user/pinned-repos/details/route.ts",
+      "path": "/api/user/pinned-repos/details",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/user/settings/discord-test/route.ts",
+      "path": "/api/user/settings/discord-test",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/users/search/route.ts",
+      "path": "/api/users/search",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/wakatime/sync/route.ts",
+      "path": "/api/wakatime/sync",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/activity-alerts/route.ts",
+      "path": "/api/webhooks/activity-alerts",
+      "methods": [
+        "POST",
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/custom/route.ts",
+      "path": "/api/webhooks/custom",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/dispatch/route.ts",
+      "path": "/api/webhooks/dispatch",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/github/route.ts",
+      "path": "/api/webhooks/github",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/custom/[id]/route.ts",
+      "path": "/api/webhooks/custom/{id}",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/custom/[id]/rotate-secret/route.ts",
+      "path": "/api/webhooks/custom/{id}/rotate-secret",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/custom/[id]/test/route.ts",
+      "path": "/api/webhooks/custom/{id}/test",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/custom/[id]/deliveries/[deliveryId]/retry/route.ts",
+      "path": "/api/webhooks/custom/{id}/deliveries/{deliveryId}/retry",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "file": "src/app/api/webhooks/dispatch/metrics/route.ts",
+      "path": "/api/webhooks/dispatch/metrics",
+      "methods": [
+        "POST",
+        "GET"
+      ]
+    },
+    {
+      "file": "src/app/api/wrapped/og/route.tsx",
+      "path": "/api/wrapped/og",
+      "methods": [
+        "GET"
+      ]
+    }
+  ],
+  "documented_paths": 35,
+  "duplicate_openapi_keys": [],
+  "undocumented_routes": [
+    "/api/accounts",
+    "/api/accounts/link",
+    "/api/accounts/{githubLogin}",
+    "/api/ai-insights",
+    "/api/auth/{...nextauth}",
+    "/api/badge/streak-shield",
+    "/api/contact",
+    "/api/cron/sync",
+    "/api/cron/weekly-digest",
+    "/api/cv/analyze",
+    "/api/cv/export",
+    "/api/cv/generate",
+    "/api/daily-focus",
+    "/api/daily-note",
+    "/api/debug/health",
+    "/api/goals/history",
+    "/api/goals/sync",
+    "/api/integrations/jira",
+    "/api/integrations/jira/credentials",
+    "/api/local-coding/keys",
+    "/api/local-coding/stats",
+    "/api/local-coding/sync",
+    "/api/metrics/achievement-progress",
+    "/api/metrics/achievements",
+    "/api/metrics/activity",
+    "/api/metrics/ci",
+    "/api/metrics/coding-activity-insights",
+    "/api/metrics/commit-times",
+    "/api/metrics/community-engagement",
+    "/api/metrics/consistency-score",
+    "/api/metrics/contributions/daily",
+    "/api/metrics/contributions/hourly",
+    "/api/metrics/devtrack-badges",
+    "/api/metrics/discussions",
+    "/api/metrics/inactive-repos",
+    "/api/metrics/pr-review-time",
+    "/api/metrics/productive-hours",
+    "/api/metrics/repo-analytics",
+    "/api/metrics/repo-explorer",
+    "/api/metrics/repos/{owner}/{name}/commits",
+    "/api/metrics/sponsors",
+    "/api/milestones",
+    "/api/milestones/{id}",
+    "/api/notifications/discord-sync",
+    "/api/notifications/weekly",
+    "/api/og/user",
+    "/api/personality",
+    "/api/project-tutor",
+    "/api/room-invitations",
+    "/api/room-invitations/{invitationId}",
+    "/api/rooms",
+    "/api/rooms/{roomId}",
+    "/api/rooms/{roomId}/invite",
+    "/api/rooms/{roomId}/members/{username}",
+    "/api/rooms/{roomId}/messages",
+    "/api/sponsors/sync",
+    "/api/stream",
+    "/api/unsubscribe",
+    "/api/user/dashboard-layout",
+    "/api/user/data-export",
+    "/api/user/export",
+    "/api/user/github-orgs",
+    "/api/user/orgs",
+    "/api/user/pinned-repos/details",
+    "/api/user/settings/discord-test",
+    "/api/users/search",
+    "/api/webhooks/activity-alerts",
+    "/api/webhooks/custom/{id}/deliveries/{deliveryId}/retry",
+    "/api/webhooks/custom/{id}/rotate-secret",
+    "/api/webhooks/custom/{id}/test",
+    "/api/webhooks/dispatch",
+    "/api/webhooks/dispatch/metrics",
+    "/api/wrapped",
+    "/api/wrapped/og"
+  ],
+  "undocumented_operations": [
+    [
+      "/api/accounts",
+      "get"
+    ],
+    [
+      "/api/accounts/link",
+      "post"
+    ],
+    [
+      "/api/accounts/{githubLogin}",
+      "delete"
+    ],
+    [
+      "/api/ai-insights",
+      "get"
+    ],
+    [
+      "/api/auth/{...nextauth}",
+      "get"
+    ],
+    [
+      "/api/auth/{...nextauth}",
+      "post"
+    ],
+    [
+      "/api/badge/streak-shield",
+      "get"
+    ],
+    [
+      "/api/contact",
+      "post"
+    ],
+    [
+      "/api/cron/sync",
+      "post"
+    ],
+    [
+      "/api/cron/weekly-digest",
+      "get"
+    ],
+    [
+      "/api/cv/analyze",
+      "post"
+    ],
+    [
+      "/api/cv/export",
+      "post"
+    ],
+    [
+      "/api/cv/generate",
+      "post"
+    ],
+    [
+      "/api/daily-focus",
+      "delete"
+    ],
+    [
+      "/api/daily-focus",
+      "get"
+    ],
+    [
+      "/api/daily-focus",
+      "post"
+    ],
+    [
+      "/api/daily-note",
+      "get"
+    ],
+    [
+      "/api/daily-note",
+      "post"
+    ],
+    [
+      "/api/debug/health",
+      "get"
+    ],
+    [
+      "/api/goals/history",
+      "get"
+    ],
+    [
+      "/api/goals/sync",
+      "post"
+    ],
+    [
+      "/api/goals/{id}",
+      "patch"
+    ],
+    [
+      "/api/integrations/jira",
+      "get"
+    ],
+    [
+      "/api/integrations/jira/credentials",
+      "delete"
+    ],
+    [
+      "/api/integrations/jira/credentials",
+      "get"
+    ],
+    [
+      "/api/integrations/jira/credentials",
+      "post"
+    ],
+    [
+      "/api/leaderboard/refresh",
+      "get"
+    ],
+    [
+      "/api/local-coding/keys",
+      "delete"
+    ],
+    [
+      "/api/local-coding/keys",
+      "get"
+    ],
+    [
+      "/api/local-coding/keys",
+      "post"
+    ],
+    [
+      "/api/local-coding/stats",
+      "get"
+    ],
+    [
+      "/api/local-coding/sync",
+      "get"
+    ],
+    [
+      "/api/local-coding/sync",
+      "post"
+    ],
+    [
+      "/api/metrics/achievement-progress",
+      "get"
+    ],
+    [
+      "/api/metrics/achievements",
+      "get"
+    ],
+    [
+      "/api/metrics/activity",
+      "get"
+    ],
+    [
+      "/api/metrics/ci",
+      "get"
+    ],
+    [
+      "/api/metrics/coding-activity-insights",
+      "get"
+    ],
+    [
+      "/api/metrics/commit-times",
+      "get"
+    ],
+    [
+      "/api/metrics/community-engagement",
+      "get"
+    ],
+    [
+      "/api/metrics/consistency-score",
+      "get"
+    ],
+    [
+      "/api/metrics/contributions/daily",
+      "get"
+    ],
+    [
+      "/api/metrics/contributions/hourly",
+      "get"
+    ],
+    [
+      "/api/metrics/devtrack-badges",
+      "get"
+    ],
+    [
+      "/api/metrics/discussions",
+      "get"
+    ],
+    [
+      "/api/metrics/inactive-repos",
+      "get"
+    ],
+    [
+      "/api/metrics/pr-review-time",
+      "get"
+    ],
+    [
+      "/api/metrics/productive-hours",
+      "get"
+    ],
+    [
+      "/api/metrics/repo-analytics",
+      "get"
+    ],
+    [
+      "/api/metrics/repo-explorer",
+      "get"
+    ],
+    [
+      "/api/metrics/repos/{owner}/{name}/commits",
+      "get"
+    ],
+    [
+      "/api/metrics/sponsors",
+      "get"
+    ],
+    [
+      "/api/milestones",
+      "get"
+    ],
+    [
+      "/api/milestones",
+      "post"
+    ],
+    [
+      "/api/milestones/{id}",
+      "delete"
+    ],
+    [
+      "/api/milestones/{id}",
+      "patch"
+    ],
+    [
+      "/api/notifications",
+      "delete"
+    ],
+    [
+      "/api/notifications/discord-sync",
+      "get"
+    ],
+    [
+      "/api/notifications/weekly",
+      "get"
+    ],
+    [
+      "/api/notifications/weekly",
+      "post"
+    ],
+    [
+      "/api/notifications/{id}",
+      "delete"
+    ],
+    [
+      "/api/og/user",
+      "get"
+    ],
+    [
+      "/api/personality",
+      "get"
+    ],
+    [
+      "/api/project-tutor",
+      "post"
+    ],
+    [
+      "/api/room-invitations",
+      "get"
+    ],
+    [
+      "/api/room-invitations/{invitationId}",
+      "post"
+    ],
+    [
+      "/api/rooms",
+      "get"
+    ],
+    [
+      "/api/rooms",
+      "post"
+    ],
+    [
+      "/api/rooms/{roomId}",
+      "delete"
+    ],
+    [
+      "/api/rooms/{roomId}",
+      "get"
+    ],
+    [
+      "/api/rooms/{roomId}/invite",
+      "post"
+    ],
+    [
+      "/api/rooms/{roomId}/members/{username}",
+      "delete"
+    ],
+    [
+      "/api/rooms/{roomId}/messages",
+      "get"
+    ],
+    [
+      "/api/rooms/{roomId}/messages",
+      "post"
+    ],
+    [
+      "/api/sponsors/sync",
+      "get"
+    ],
+    [
+      "/api/streak/freeze",
+      "delete"
+    ],
+    [
+      "/api/streak/freeze",
+      "get"
+    ],
+    [
+      "/api/stream",
+      "get"
+    ],
+    [
+      "/api/unsubscribe",
+      "get"
+    ],
+    [
+      "/api/user/dashboard-layout",
+      "get"
+    ],
+    [
+      "/api/user/dashboard-layout",
+      "patch"
+    ],
+    [
+      "/api/user/data-export",
+      "delete"
+    ],
+    [
+      "/api/user/data-export",
+      "get"
+    ],
+    [
+      "/api/user/export",
+      "get"
+    ],
+    [
+      "/api/user/github-orgs",
+      "get"
+    ],
+    [
+      "/api/user/github-orgs",
+      "patch"
+    ],
+    [
+      "/api/user/orgs",
+      "get"
+    ],
+    [
+      "/api/user/orgs",
+      "post"
+    ],
+    [
+      "/api/user/pinned-repos/details",
+      "get"
+    ],
+    [
+      "/api/user/settings",
+      "patch"
+    ],
+    [
+      "/api/user/settings/discord-test",
+      "post"
+    ],
+    [
+      "/api/users/search",
+      "get"
+    ],
+    [
+      "/api/wakatime/sync",
+      "get"
+    ],
+    [
+      "/api/webhooks/activity-alerts",
+      "get"
+    ],
+    [
+      "/api/webhooks/activity-alerts",
+      "post"
+    ],
+    [
+      "/api/webhooks/custom/{id}/deliveries/{deliveryId}/retry",
+      "post"
+    ],
+    [
+      "/api/webhooks/custom/{id}/rotate-secret",
+      "post"
+    ],
+    [
+      "/api/webhooks/custom/{id}/test",
+      "post"
+    ],
+    [
+      "/api/webhooks/dispatch",
+      "get"
+    ],
+    [
+      "/api/webhooks/dispatch",
+      "post"
+    ],
+    [
+      "/api/webhooks/dispatch/metrics",
+      "get"
+    ],
+    [
+      "/api/webhooks/dispatch/metrics",
+      "post"
+    ],
+    [
+      "/api/wrapped",
+      "get"
+    ],
+    [
+      "/api/wrapped/og",
+      "get"
+    ]
+  ],
+  "documented_operations_without_matching_handler": [
+    [
+      "/api/badge/streak",
+      "get"
+    ],
+    [
+      "/api/goals/{id}",
+      "put"
+    ],
+    [
+      "/api/leaderboard/refresh",
+      "post"
+    ],
+    [
+      "/api/public/privacy",
+      "patch"
+    ],
+    [
+      "/api/user/settings",
+      "put"
+    ],
+    [
+      "/api/wakatime",
+      "delete"
+    ],
+    [
+      "/api/wakatime/sync",
+      "post"
+    ]
+  ]
+}

@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -51,7 +51,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      accounts: (accounts ?? []).map((row: LinkedAccountRow) => ({
+      accounts: (accounts ?? []).map((row) => ({
         id: row.id,
         githubId: row.github_id,
         githubLogin: row.github_login,

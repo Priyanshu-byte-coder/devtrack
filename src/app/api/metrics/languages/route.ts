@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { isMetricsCacheBypassed, metricsCacheKey, withMetricsCache, METRICS_CACHE_TTL_SECONDS} from "@/lib/metrics-cache";
@@ -46,19 +48,21 @@ export async function GET(req: NextRequest) {
     userId = accountId;
   }
 
+  const rawDays = Number(req.nextUrl.searchParams.get("days") ?? "90");
+  const days = Number.isFinite(rawDays) && rawDays > 0 ? Math.min(Math.floor(rawDays), 365) : 90;
   const key = metricsCacheKey(
     userId,
     "languages" as any,
-    { accountId: accountId || undefined }
+    { accountId: accountId || undefined, days }
   );
 
   try {
     const data = await withMetricsCache({ bypass, key, ttlSeconds: METRICS_CACHE_TTL_SECONDS.languages }, async () => {
       const headers = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
       const since = new Date();
-      const rawDays = parseInt(req.nextUrl.searchParams.get("days") ?? "90", 10);    const days = Number.isFinite(rawDays) && rawDays > 0 ? Math.min(rawDays, 365) : 90;
+      since.setUTCDate(since.getUTCDate() - days);
 
-      const searchRes = await fetch(
+      const searchRes = await githubRequest(
         `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${since.toISOString().slice(0, 10)}&per_page=100&sort=author-date&order=desc`,
         { headers, cache: "no-store" }
       );
@@ -86,7 +90,7 @@ export async function GET(req: NextRequest) {
                   ttlSeconds: METRICS_CACHE_TTL_SECONDS.languages,
                 },
                 async () => {
-                  const res = await fetch(
+                  const res = await githubRequest(
                     `${GITHUB_API}/repos/${repoName}/languages`,
                     { headers, cache: "no-store" },
                   );
@@ -137,6 +141,9 @@ export async function GET(req: NextRequest) {
     });
     return Response.json(data);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     const errorMessage = e instanceof Error ? e.message : "Unknown error";
     console.error("[METRICS] Language metrics endpoint error", {
       userId: session.githubId ?? session.githubLogin,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import ThemePresetPicker from "@/components/ThemePresetPicker";
@@ -23,6 +22,7 @@ import Image from "next/image";
 const BIO_MAX = 160;
 
 interface UserSettings {
+  webhook_url?: string | null;
   id: string;
   github_login: string;
   bio: string;

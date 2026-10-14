@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 /**
  * GitHub App service layer.
  *
@@ -7,18 +8,18 @@
  * relying on an individual user's OAuth token.
  *
  * How it works
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * ─────────────
  * 1. Sign a short-lived JWT (RS256, 10 min TTL) using the App's private key.
  * 2. POST the JWT to /app/installations/{id}/access_tokens to obtain a
  *    standard bearer token (GitHub issues these with a 1-hour lifetime).
  * 3. Cache the bearer token in memory and refresh it ~5 minutes before it
  *    expires so callers always receive a valid token.
- * 4. Concurrent callers share a single in-flight refresh request â€” no
+ * 4. Concurrent callers share a single in-flight refresh request — no
  *    duplicate token generation on bursts.
  *
  * Environment variables
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- *   GITHUB_APP_ID              Numeric App ID (App settings â†’ About this App)
+ * ──────────────────────
+ *   GITHUB_APP_ID              Numeric App ID (App settings → About this App)
  *   GITHUB_APP_PRIVATE_KEY     PEM-encoded RSA private key.  Literal \n
  *                              escaping (as stored in Vercel / Railway env
  *                              dashboards) is normalised automatically.
@@ -27,18 +28,18 @@
  *                              /settings/installations/{id}
  *
  * Required permissions on the GitHub App
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- *   contents:read    â€” read repository file trees and commit data
- *   metadata:read    â€” read public repository metadata
- *   pull_requests:read â€” read PR lists and review state
+ * ────────────────────────────────────────
+ *   contents:read    — read repository file trees and commit data
+ *   metadata:read    — read public repository metadata
+ *   pull_requests:read — read PR lists and review state
  *
  * Backwards compatibility
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * ────────────────────────
  * All three env vars must be set for the App path to activate.  When any is
  * missing, isGitHubAppConfigured() returns false and callers fall back to
  * process.env.GITHUB_TOKEN (a PAT) or unauthenticated requests.  Existing
  * authenticated user routes continue to use the per-user OAuth token stored
- * in the NextAuth session â€” those are unaffected by this module.
+ * in the NextAuth session — those are unaffected by this module.
  */
 
 import { createSign } from "node:crypto";
@@ -57,7 +58,7 @@ const IAT_DRIFT_SECONDS = 60;
 // expires so callers always receive a token with meaningful remaining life.
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5 minutes
 
-// â”€â”€ Public types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Public types ──────────────────────────────────────────────────────────────
 
 export interface AppConfig {
   appId: string;
@@ -80,7 +81,7 @@ export interface RateLimitInfo {
   resource: string;
 }
 
-// â”€â”€ In-process token cache â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── In-process token cache ────────────────────────────────────────────────────
 
 let tokenCache: InstallationToken | null = null;
 
@@ -91,7 +92,7 @@ let tokenCache: InstallationToken | null = null;
  */
 let refreshPromise: Promise<InstallationToken> | null = null;
 
-// â”€â”€ Config helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Config helpers ────────────────────────────────────────────────────────────
 
 /**
  * Returns true when all three GitHub App environment variables are present
@@ -130,7 +131,7 @@ export function readAppConfig(): AppConfig {
   return { appId, privateKey, installationId };
 }
 
-// â”€â”€ JWT generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── JWT generation ────────────────────────────────────────────────────────────
 
 function toBase64Url(input: string | Buffer): string {
   const buf = typeof input === "string" ? Buffer.from(input, "utf8") : input;
@@ -140,8 +141,8 @@ function toBase64Url(input: string | Buffer): string {
 /**
  * Generate a signed RS256 JWT for GitHub App authentication.
  *
- * The JWT is intentionally short-lived (â‰¤10 min) and is used solely to
- * exchange for an installation access token â€” it is never exposed to users.
+ * The JWT is intentionally short-lived (≤10 min) and is used solely to
+ * exchange for an installation access token — it is never exposed to users.
  *
  * @param appId      GitHub App numeric ID (from the App settings page).
  * @param privateKey PEM-encoded RSA private key with proper header/footer.
@@ -162,7 +163,7 @@ export function buildAppJwt(appId: string, privateKey: string): string {
   return `${signingInput}.${signature}`;
 }
 
-// â”€â”€ Installation token fetch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Installation token fetch ──────────────────────────────────────────────────
 
 /**
  * Request a fresh installation access token from GitHub.
@@ -177,7 +178,7 @@ export async function fetchInstallationToken(
 ): Promise<InstallationToken> {
   const jwt = buildAppJwt(config.appId, config.privateKey);
 
-  const res = await fetch(
+  const res = await githubRequest(
     `${GITHUB_API_BASE}/app/installations/${config.installationId}/access_tokens`,
     {
       method: "POST",
@@ -193,7 +194,7 @@ export async function fetchInstallationToken(
   if (!res.ok) {
     const body = await res.text().catch(() => "(no body)");
     throw new Error(
-      `GitHub App token request failed: HTTP ${res.status} â€” ${body}`,
+      `GitHub App token request failed: HTTP ${res.status} — ${body}`,
     );
   }
 
@@ -214,7 +215,7 @@ export async function fetchInstallationToken(
   };
 }
 
-// â”€â”€ Token lifecycle management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Token lifecycle management ────────────────────────────────────────────────
 
 /**
  * Returns true when the cached token has more than TOKEN_REFRESH_BUFFER_MS
@@ -231,7 +232,7 @@ function isCacheValid(): boolean {
  *
  * Tokens are cached for their full lifetime (~1 hour) and proactively
  * refreshed 5 minutes before expiry.  Concurrent callers share one in-flight
- * refresh request â€” the GitHub API is never called more than once per window.
+ * refresh request — the GitHub API is never called more than once per window.
  *
  * @throws {Error} When env vars are missing or the GitHub API request fails.
  *   On failure the cache is cleared so the next call retries rather than
@@ -284,17 +285,17 @@ export function clearTokenCache(): void {
   refreshPromise = null;
 }
 
-// â”€â”€ Server-side token resolution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Server-side token resolution ──────────────────────────────────────────────
 
 /**
  * Resolve the best available server-side GitHub token for operations that run
  * outside of a user request (background jobs, public-profile API, digests).
  *
  * Priority:
- *  1. GitHub App installation token â€” 5 000 req/hr per installation, shared
+ *  1. GitHub App installation token — 5 000 req/hr per installation, shared
  *     across all server-side calls, automatically refreshed before expiry.
- *  2. GITHUB_TOKEN environment variable â€” a classic PAT for simpler setups.
- *  3. undefined â€” GitHub allows 60 unauthenticated req/hr per origin IP.
+ *  2. GITHUB_TOKEN environment variable — a classic PAT for simpler setups.
+ *  3. undefined — GitHub allows 60 unauthenticated req/hr per origin IP.
  *
  * This function never throws; App token failures are logged and the PAT
  * fallback is used so background jobs remain operational.
@@ -313,7 +314,7 @@ export async function resolveServerGitHubToken(): Promise<string | undefined> {
   return process.env.GITHUB_TOKEN || undefined;
 }
 
-// â”€â”€ Rate limit diagnostics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Rate limit diagnostics ────────────────────────────────────────────────────
 
 /**
  * Return the current rate limit status for the installation token, or null
@@ -327,7 +328,7 @@ export async function getInstallationRateLimitInfo(): Promise<RateLimitInfo | nu
   try {
     const token = await getInstallationToken();
 
-    const res = await fetch(`${GITHUB_API_BASE}/rate_limit`, {
+    const res = await githubRequest(`${GITHUB_API_BASE}/rate_limit`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json",

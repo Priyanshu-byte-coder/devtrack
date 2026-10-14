@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -78,7 +80,7 @@ export async function GET() {
             };
           }
           // Fetch the organizations for this account token
-          const res = await fetch("https://api.github.com/user/orgs", {
+          const res = await githubRequest("https://api.github.com/user/orgs", {
             headers: {
               Authorization: `Bearer ${acc.token}`,
               Accept: "application/vnd.github+json",
@@ -129,6 +131,9 @@ export async function GET() {
       config,
     });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     console.error("Error in /api/user/orgs GET:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
@@ -169,6 +174,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     console.error("Error in /api/user/orgs POST:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

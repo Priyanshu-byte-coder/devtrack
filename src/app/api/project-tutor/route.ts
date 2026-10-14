@@ -1,5 +1,7 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -8,7 +10,7 @@ async function callGroq(prompt: string): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return "AI insights unavailable — GROQ_API_KEY not configured.";
 
-  const res = await fetch(GROQ_API_URL, {
+  const res = await githubRequest(GROQ_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,9 +39,9 @@ async function fetchRepoData(owner: string, repo: string) {
   const safeOwner = encodeURIComponent(owner);
   const safeRepo = encodeURIComponent(repo);
   const [repoRes, readmeRes, languagesRes] = await Promise.all([
-    fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}`, { headers }),
-    fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}/readme`, { headers }),
-    fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}/languages`, { headers }),
+    githubRequest(`https://api.github.com/repos/${safeOwner}/${safeRepo}`, { headers }),
+    githubRequest(`https://api.github.com/repos/${safeOwner}/${safeRepo}/readme`, { headers }),
+    githubRequest(`https://api.github.com/repos/${safeOwner}/${safeRepo}/languages`, { headers }),
   ]);
 
   const repoData = repoRes.ok ? await repoRes.json() : {};
@@ -160,6 +162,9 @@ Give a clear, concise answer focused on interview preparation. Keep it under 200
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     console.error("Project tutor error:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }

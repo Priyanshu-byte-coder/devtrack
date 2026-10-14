@@ -1,0 +1,76 @@
+diff --git a/b/lib/assert-depth.js b/lib/assert-depth.js
+new file mode 100644
+index 0000000..30fcaf4
+--- /dev/null
++++ b/lib/assert-depth.js
+@@ -0,0 +1,14 @@
++'use strict';
++// Bound recursive AST walkers, including callers that pass a hand-built AST.
++module.exports = ast => {
++  const pending = [[ast, 0]];
++  const seen = new Set();
++  let count = 0;
++  while (pending.length) {
++    const [node, depth] = pending.pop();
++    if (!node || typeof node !== 'object') continue;
++    if (depth > 64 || ++count > 65536 || seen.has(node)) throw new RangeError('Brace pattern exceeds safe complexity');
++    seen.add(node);
++    if (Array.isArray(node.nodes)) for (const child of node.nodes) pending.push([child, depth + 1]);
++  }
++};
+diff --git a/lib/compile.js b/lib/compile.js
+index dce69be..c84ab0d 100644
+--- a/lib/compile.js
++++ b/lib/compile.js
+@@ -4,6 +4,7 @@ const fill = require('fill-range');
+ const utils = require('./utils');
+ 
+ const compile = (ast, options = {}) => {
++  require('./assert-depth')(ast);
+   const walk = (node, parent = {}) => {
+     const invalidBlock = utils.isInvalidBrace(parent);
+     const invalidNode = node.invalid === true && options.escapeInvalid === true;
+diff --git a/lib/expand.js b/lib/expand.js
+index 35b2c41..919d669 100644
+--- a/lib/expand.js
++++ b/lib/expand.js
+@@ -31,6 +31,7 @@ const append = (queue = '', stash = '', enclose = false) => {
+ };
+ 
+ const expand = (ast, options = {}) => {
++  require('./assert-depth')(ast);
+   const rangeLimit = options.rangeLimit === undefined ? 1000 : options.rangeLimit;
+ 
+   const walk = (node, parent = {}) => {
+diff --git a/lib/parse.js b/lib/parse.js
+index 3a6988e..c47f6b2 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -144,6 +144,7 @@ const parse = (input, options = {}) => {
+ 
+     if (value === CHAR_LEFT_PARENTHESES) {
+       block = push({ type: 'paren', nodes: [] });
++      if (stack.length >= 64) throw new RangeError('Brace pattern exceeds safe complexity');
+       stack.push(block);
+       push({ type: 'text', value });
+       continue;
+@@ -210,6 +211,7 @@ const parse = (input, options = {}) => {
+       };
+ 
+       block = push(brace);
++      if (stack.length >= 64) throw new RangeError('Brace pattern exceeds safe complexity');
+       stack.push(block);
+       push({ type: 'open', value });
+       continue;
+diff --git a/lib/stringify.js b/lib/stringify.js
+index 8bcf872..2d5be10 100644
+--- a/lib/stringify.js
++++ b/lib/stringify.js
+@@ -3,6 +3,7 @@
+ const utils = require('./utils');
+ 
+ module.exports = (ast, options = {}) => {
++  require('./assert-depth')(ast);
+   const stringify = (node, parent = {}) => {
+     const invalidBlock = options.escapeInvalid && utils.isInvalidBrace(parent);
+     const invalidNode = node.invalid === true && options.escapeInvalid === true;

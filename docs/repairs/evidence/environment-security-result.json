@@ -1,0 +1,11 @@
+{
+  "check": "environment-security",
+  "checkedAt": "2026-10-14T15:30:27.319Z",
+  "command": [
+    "node",
+    "scripts/check-env-security.js"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 0.251
+}

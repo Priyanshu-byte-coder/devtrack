@@ -1,0 +1,61 @@
+{
+  "advisories": {
+    "1240992": {
+      "findings": [
+        {
+          "version": "3.0.3",
+          "paths": [
+            ".>@ducanh2912/next-pwa>fast-glob>micromatch>braces"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240992,
+      "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+      "module_name": "braces",
+      "vulnerable_versions": "<=3.0.3",
+      "patched_versions": ">=3.0.4",
+      "severity": "high",
+      "cwe": "CWE-674",
+      "github_advisory_id": "GHSA-vfj7-8cjw-p6xm",
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+    },
+    "1241202": {
+      "findings": [
+        {
+          "version": "1.1.3",
+          "paths": [
+            ".>swagger-ui-react>remarkable>argparse>sprintf-js"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241202,
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "module_name": "sprintf-js",
+      "vulnerable_versions": "<=1.1.3",
+      "patched_versions": ">=1.1.4",
+      "severity": "moderate",
+      "cwe": "CWE-1284",
+      "github_advisory_id": "GHSA-hp3w-g68c-fv3c",
+      "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 1,
+      "critical": 0
+    },
+    "dependencies": 772,
+    "devDependencies": 0,
+    "optionalDependencies": 152,
+    "totalDependencies": 924
+  }
+}

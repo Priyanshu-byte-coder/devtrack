@@ -15,7 +15,7 @@
  * the endpoint degrades gracefully rather than failing.
  */
 
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { type NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";

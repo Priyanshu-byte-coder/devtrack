@@ -1,0 +1,1852 @@
+{
+  "commit": "a20e51d437a220db4e626a072a9716b67381eca9",
+  "tracked_files": 777,
+  "source_files": 411,
+  "source_lines": 71536,
+  "components": 152,
+  "pages": 24,
+  "route_files": 106,
+  "migration_files": 56,
+  "routes": [
+    {
+      "path": "/api/accounts/[githubLogin]",
+      "file": "src/app/api/accounts/[githubLogin]/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/accounts/link",
+      "file": "src/app/api/accounts/link/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/accounts",
+      "file": "src/app/api/accounts/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/ai-insights",
+      "file": "src/app/api/ai-insights/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/ai/roast",
+      "file": "src/app/api/ai/roast/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/ai/weekly-summary",
+      "file": "src/app/api/ai/weekly-summary/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/auth/[...nextauth]",
+      "file": "src/app/api/auth/[...nextauth]/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/auth/link-github/callback",
+      "file": "src/app/api/auth/link-github/callback/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/auth/link-github",
+      "file": "src/app/api/auth/link-github/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/badge/commits",
+      "file": "src/app/api/badge/commits/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/badge/streak-shield",
+      "file": "src/app/api/badge/streak-shield/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/contact",
+      "file": "src/app/api/contact/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/cron/sync",
+      "file": "src/app/api/cron/sync/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": [
+        "edge"
+      ]
+    },
+    {
+      "path": "/api/cron/weekly-digest",
+      "file": "src/app/api/cron/weekly-digest/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": true,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/cv/analyze",
+      "file": "src/app/api/cv/analyze/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/cv/export",
+      "file": "src/app/api/cv/export/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/cv/generate",
+      "file": "src/app/api/cv/generate/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/daily-focus",
+      "file": "src/app/api/daily-focus/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/daily-note",
+      "file": "src/app/api/daily-note/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/debug/health",
+      "file": "src/app/api/debug/health/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/goals/[id]",
+      "file": "src/app/api/goals/[id]/route.ts",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/goals/history",
+      "file": "src/app/api/goals/history/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/goals",
+      "file": "src/app/api/goals/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/goals/sync",
+      "file": "src/app/api/goals/sync/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/integrations/jira/credentials",
+      "file": "src/app/api/integrations/jira/credentials/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/integrations/jira",
+      "file": "src/app/api/integrations/jira/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/leaderboard/rebuild",
+      "file": "src/app/api/leaderboard/rebuild/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/leaderboard/refresh",
+      "file": "src/app/api/leaderboard/refresh/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/leaderboard",
+      "file": "src/app/api/leaderboard/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/local-coding/keys",
+      "file": "src/app/api/local-coding/keys/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/local-coding/stats",
+      "file": "src/app/api/local-coding/stats/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/local-coding/sync",
+      "file": "src/app/api/local-coding/sync/route.ts",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/achievement-progress",
+      "file": "src/app/api/metrics/achievement-progress/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/achievements",
+      "file": "src/app/api/metrics/achievements/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/activity",
+      "file": "src/app/api/metrics/activity/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/ci",
+      "file": "src/app/api/metrics/ci/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/coding-activity-insights",
+      "file": "src/app/api/metrics/coding-activity-insights/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/commit-times",
+      "file": "src/app/api/metrics/commit-times/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/community-engagement",
+      "file": "src/app/api/metrics/community-engagement/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/compare",
+      "file": "src/app/api/metrics/compare/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/consistency-score",
+      "file": "src/app/api/metrics/consistency-score/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/contributions/daily",
+      "file": "src/app/api/metrics/contributions/daily/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/contributions/hourly",
+      "file": "src/app/api/metrics/contributions/hourly/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/contributions",
+      "file": "src/app/api/metrics/contributions/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/devtrack-badges",
+      "file": "src/app/api/metrics/devtrack-badges/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/discussions",
+      "file": "src/app/api/metrics/discussions/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/inactive-repos",
+      "file": "src/app/api/metrics/inactive-repos/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/issues",
+      "file": "src/app/api/metrics/issues/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/languages",
+      "file": "src/app/api/metrics/languages/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/pinned-repos",
+      "file": "src/app/api/metrics/pinned-repos/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/pr-breakdown",
+      "file": "src/app/api/metrics/pr-breakdown/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/pr-review-time",
+      "file": "src/app/api/metrics/pr-review-time/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/productive-hours",
+      "file": "src/app/api/metrics/productive-hours/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/prs",
+      "file": "src/app/api/metrics/prs/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/repo-analytics",
+      "file": "src/app/api/metrics/repo-analytics/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/repo-explorer",
+      "file": "src/app/api/metrics/repo-explorer/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/repo-health",
+      "file": "src/app/api/metrics/repo-health/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/repos/[owner]/[name]/commits",
+      "file": "src/app/api/metrics/repos/[owner]/[name]/commits/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/repos",
+      "file": "src/app/api/metrics/repos/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/sponsors",
+      "file": "src/app/api/metrics/sponsors/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/streak",
+      "file": "src/app/api/metrics/streak/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/metrics/weekly-summary",
+      "file": "src/app/api/metrics/weekly-summary/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/milestones/[id]",
+      "file": "src/app/api/milestones/[id]/route.ts",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/milestones",
+      "file": "src/app/api/milestones/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/notifications/[id]",
+      "file": "src/app/api/notifications/[id]/route.ts",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/notifications/discord-sync",
+      "file": "src/app/api/notifications/discord-sync/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": true,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/notifications",
+      "file": "src/app/api/notifications/route.ts",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/notifications/weekly",
+      "file": "src/app/api/notifications/weekly/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/personality",
+      "file": "src/app/api/personality/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/project-tutor",
+      "file": "src/app/api/project-tutor/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/public/[username]",
+      "file": "src/app/api/public/[username]/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/public/privacy",
+      "file": "src/app/api/public/privacy/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/room-invitations/[invitationId]",
+      "file": "src/app/api/room-invitations/[invitationId]/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/room-invitations",
+      "file": "src/app/api/room-invitations/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/rooms/[roomId]/invite",
+      "file": "src/app/api/rooms/[roomId]/invite/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/rooms/[roomId]/members/[username]",
+      "file": "src/app/api/rooms/[roomId]/members/[username]/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/rooms/[roomId]/messages",
+      "file": "src/app/api/rooms/[roomId]/messages/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/rooms/[roomId]",
+      "file": "src/app/api/rooms/[roomId]/route.ts",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/rooms",
+      "file": "src/app/api/rooms/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/sponsors/sync",
+      "file": "src/app/api/sponsors/sync/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": true,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/streak/freeze",
+      "file": "src/app/api/streak/freeze/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/stream",
+      "file": "src/app/api/stream/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/unsubscribe",
+      "file": "src/app/api/unsubscribe/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/dashboard-layout",
+      "file": "src/app/api/user/dashboard-layout/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": false,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/data-export",
+      "file": "src/app/api/user/data-export/route.ts",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/export",
+      "file": "src/app/api/user/export/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/github-accounts/[githubId]",
+      "file": "src/app/api/user/github-accounts/[githubId]/route.ts",
+      "methods": [
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/github-accounts",
+      "file": "src/app/api/user/github-accounts/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/github-orgs",
+      "file": "src/app/api/user/github-orgs/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/orgs",
+      "file": "src/app/api/user/orgs/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/pinned-repos/details",
+      "file": "src/app/api/user/pinned-repos/details/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/settings/discord-test",
+      "file": "src/app/api/user/settings/discord-test/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/user/settings",
+      "file": "src/app/api/user/settings/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/users/search",
+      "file": "src/app/api/users/search/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/wakatime",
+      "file": "src/app/api/wakatime/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/wakatime/sync",
+      "file": "src/app/api/wakatime/sync/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": false,
+      "cron_guard": true,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/activity-alerts",
+      "file": "src/app/api/webhooks/activity-alerts/route.ts",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/custom/[id]/deliveries/[deliveryId]/retry",
+      "file": "src/app/api/webhooks/custom/[id]/deliveries/[deliveryId]/retry/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/custom/[id]/rotate-secret",
+      "file": "src/app/api/webhooks/custom/[id]/rotate-secret/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/custom/[id]",
+      "file": "src/app/api/webhooks/custom/[id]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/custom/[id]/test",
+      "file": "src/app/api/webhooks/custom/[id]/test/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/custom",
+      "file": "src/app/api/webhooks/custom/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/dispatch/metrics",
+      "file": "src/app/api/webhooks/dispatch/metrics/route.ts",
+      "methods": [
+        "POST",
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/dispatch",
+      "file": "src/app/api/webhooks/dispatch/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/webhooks/github",
+      "file": "src/app/api/webhooks/github/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "session_check": false,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    },
+    {
+      "path": "/api/wrapped",
+      "file": "src/app/api/wrapped/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "session_check": true,
+      "cron_guard": false,
+      "dynamic": true,
+      "runtime": []
+    }
+  ],
+  "tables_queried": {
+    "ai_insights": [
+      "src/app/api/ai-insights/route.ts",
+      "src/app/api/personality/route.ts"
+    ],
+    "collaboration_rooms": [
+      "src/app/api/rooms/[roomId]/route.ts",
+      "src/lib/supabase-rooms.ts"
+    ],
+    "cv_analyses": [
+      "src/app/api/cv/analyze/route.ts",
+      "src/app/api/cv/generate/route.ts"
+    ],
+    "cv_generated_content": [
+      "src/app/api/cv/generate/route.ts"
+    ],
+    "daily_focus": [
+      "src/app/api/daily-focus/route.ts"
+    ],
+    "daily_notes": [
+      "src/app/api/daily-note/route.ts"
+    ],
+    "data_export_audit": [
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts"
+    ],
+    "devtrack_badges": [
+      "src/app/api/metrics/community-engagement/route.ts"
+    ],
+    "goal_history": [
+      "src/app/api/goals/history/route.ts",
+      "src/app/api/goals/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts"
+    ],
+    "goals": [
+      "src/app/api/goals/[id]/route.ts",
+      "src/app/api/goals/route.ts",
+      "src/app/api/goals/sync/route.ts",
+      "src/app/api/notifications/weekly/route.ts",
+      "src/app/api/stream/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts",
+      "src/app/u/[username]/goals/[goalId]/page.tsx",
+      "src/lib/public-profile-data.ts"
+    ],
+    "jira_credentials": [
+      "src/app/api/integrations/jira/credentials/route.ts",
+      "src/app/api/integrations/jira/route.ts"
+    ],
+    "leaderboard_cache": [
+      "src/app/api/leaderboard/rebuild/route.ts"
+    ],
+    "local_coding_api_keys": [
+      "src/app/api/local-coding/keys/route.ts",
+      "src/app/api/local-coding/sync/route.ts"
+    ],
+    "local_coding_sessions": [
+      "src/app/api/local-coding/stats/route.ts",
+      "src/app/api/local-coding/sync/route.ts",
+      "src/app/api/user/data-export/route.ts"
+    ],
+    "metric_snapshots": [
+      "src/app/api/notifications/weekly/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts"
+    ],
+    "milestones": [
+      "src/app/api/milestones/[id]/route.ts",
+      "src/app/api/milestones/route.ts"
+    ],
+    "notifications": [
+      "src/app/api/notifications/[id]/route.ts",
+      "src/app/api/notifications/route.ts",
+      "src/app/api/stream/route.ts",
+      "src/lib/supabase-rooms.ts"
+    ],
+    "room_invitations": [
+      "src/lib/supabase-rooms.ts"
+    ],
+    "room_members": [
+      "src/app/api/rooms/route.ts",
+      "src/lib/supabase-rooms.ts"
+    ],
+    "room_messages": [
+      "src/lib/supabase-rooms.ts"
+    ],
+    "streak_freezes": [
+      "src/app/api/metrics/community-engagement/route.ts",
+      "src/app/api/metrics/streak/route.ts",
+      "src/app/api/streak/freeze/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts"
+    ],
+    "streak_milestones": [
+      "src/app/api/metrics/community-engagement/route.ts",
+      "src/app/api/metrics/streak/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts",
+      "src/lib/public-profile-data.ts"
+    ],
+    "user_github_accounts": [
+      "src/app/api/accounts/[githubLogin]/route.ts",
+      "src/app/api/accounts/route.ts",
+      "src/app/api/auth/link-github/callback/route.ts",
+      "src/app/api/cron/sync/route.ts",
+      "src/app/api/metrics/activity/route.ts",
+      "src/app/api/metrics/ci/route.ts",
+      "src/app/api/metrics/coding-activity-insights/route.ts",
+      "src/app/api/metrics/consistency-score/route.ts",
+      "src/app/api/metrics/contributions/route.ts",
+      "src/app/api/metrics/inactive-repos/route.ts",
+      "src/app/api/metrics/issues/route.ts",
+      "src/app/api/metrics/languages/route.ts",
+      "src/app/api/metrics/productive-hours/route.ts",
+      "src/app/api/metrics/prs/route.ts",
+      "src/app/api/metrics/repos/[owner]/[name]/commits/route.ts",
+      "src/app/api/metrics/repos/route.ts",
+      "src/app/api/metrics/streak/route.ts",
+      "src/app/api/metrics/weekly-summary/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts",
+      "src/app/api/user/github-accounts/[githubId]/route.ts",
+      "src/app/api/user/github-accounts/route.ts",
+      "src/app/api/webhooks/github/route.ts",
+      "src/lib/github-accounts.ts"
+    ],
+    "user_github_achievements": [
+      "src/lib/github-achievements.ts"
+    ],
+    "user_github_orgs": [
+      "src/app/api/user/github-orgs/route.ts"
+    ],
+    "user_sponsor_metrics": [
+      "src/lib/sponsors.ts"
+    ],
+    "users": [
+      "src/app/api/ai/weekly-summary/route.ts",
+      "src/app/api/auth/link-github/callback/route.ts",
+      "src/app/api/cron/sync/route.ts",
+      "src/app/api/cron/weekly-digest/route.ts",
+      "src/app/api/debug/health/route.ts",
+      "src/app/api/goals/sync/route.ts",
+      "src/app/api/metrics/consistency-score/route.ts",
+      "src/app/api/metrics/contributions/route.ts",
+      "src/app/api/metrics/issues/route.ts",
+      "src/app/api/metrics/prs/route.ts",
+      "src/app/api/metrics/repos/route.ts",
+      "src/app/api/metrics/streak/route.ts",
+      "src/app/api/notifications/discord-sync/route.ts",
+      "src/app/api/notifications/route.ts",
+      "src/app/api/notifications/weekly/route.ts",
+      "src/app/api/sponsors/sync/route.ts",
+      "src/app/api/streak/freeze/route.ts",
+      "src/app/api/unsubscribe/route.ts",
+      "src/app/api/user/dashboard-layout/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts",
+      "src/app/api/user/orgs/route.ts",
+      "src/app/api/user/pinned-repos/details/route.ts",
+      "src/app/api/user/settings/route.ts",
+      "src/app/api/wakatime/route.ts",
+      "src/app/api/wakatime/sync/route.ts",
+      "src/app/api/webhooks/github/route.ts",
+      "src/app/page.tsx",
+      "src/app/u/[username]/feed.xml/route.ts",
+      "src/app/u/[username]/goals/[goalId]/page.tsx",
+      "src/lib/auth.ts",
+      "src/lib/badge-validation.ts",
+      "src/lib/leaderboard.ts",
+      "src/lib/public-profile-data.ts",
+      "src/lib/resolve-user.ts",
+      "src/lib/supabase-admin.ts",
+      "src/lib/supabase-rooms.ts"
+    ],
+    "wakatime_stats": [
+      "src/app/api/cron/sync/route.ts",
+      "src/app/api/wakatime/route.ts",
+      "src/app/api/wakatime/sync/route.ts"
+    ],
+    "webhook_configs": [
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/user/export/route.ts",
+      "src/app/api/webhooks/custom/[id]/deliveries/[deliveryId]/retry/route.ts",
+      "src/app/api/webhooks/custom/[id]/rotate-secret/route.ts",
+      "src/app/api/webhooks/custom/[id]/route.ts",
+      "src/app/api/webhooks/custom/[id]/test/route.ts",
+      "src/app/api/webhooks/custom/route.ts",
+      "src/lib/webhooks.ts"
+    ],
+    "webhook_deliveries": [
+      "src/app/api/user/data-export/route.ts",
+      "src/app/api/webhooks/custom/[id]/deliveries/[deliveryId]/retry/route.ts",
+      "src/app/api/webhooks/custom/[id]/route.ts",
+      "src/app/api/webhooks/custom/[id]/test/route.ts",
+      "src/lib/webhooks.ts"
+    ]
+  },
+  "tables_created_in_schema": [
+    "ai_insights",
+    "collaboration_rooms",
+    "daily_notes",
+    "goal_history",
+    "goals",
+    "jira_credentials",
+    "leaderboard_cache",
+    "local_coding_api_keys",
+    "local_coding_sessions",
+    "metric_snapshots",
+    "notifications",
+    "room_invitations",
+    "room_members",
+    "room_messages",
+    "streak_freezes",
+    "user_github_accounts",
+    "user_github_achievements",
+    "user_sponsor_metrics",
+    "users",
+    "wakatime_stats"
+  ],
+  "tables_created_anywhere": [
+    "ai_insights",
+    "collaboration_rooms",
+    "cv_analyses",
+    "cv_generated_content",
+    "daily_focus",
+    "daily_notes",
+    "data_export_audit",
+    "devtrack_badges",
+    "goal_history",
+    "goals",
+    "jira_credentials",
+    "leaderboard_cache",
+    "local_coding_api_keys",
+    "local_coding_sessions",
+    "metric_snapshots",
+    "milestones",
+    "notifications",
+    "room_invitations",
+    "room_members",
+    "room_messages",
+    "streak_freezes",
+    "streak_milestones",
+    "user_github_accounts",
+    "user_github_achievements",
+    "user_github_orgs",
+    "user_sponsor_metrics",
+    "user_tokens",
+    "users",
+    "wakatime_stats",
+    "webhook_configs",
+    "webhook_deliveries"
+  ],
+  "queried_not_created": [],
+  "schema_missing_queried_tables": [
+    "cv_analyses",
+    "cv_generated_content",
+    "daily_focus",
+    "data_export_audit",
+    "devtrack_badges",
+    "milestones",
+    "streak_milestones",
+    "user_github_orgs",
+    "webhook_configs",
+    "webhook_deliveries"
+  ],
+  "schema_tables_without_rls_statement": [
+    "ai_insights",
+    "daily_notes",
+    "jira_credentials",
+    "leaderboard_cache",
+    "local_coding_api_keys",
+    "local_coding_sessions",
+    "metric_snapshots",
+    "notifications",
+    "user_github_accounts"
+  ],
+  "all_tables_without_rls_statement": [
+    "ai_insights",
+    "data_export_audit",
+    "devtrack_badges",
+    "jira_credentials",
+    "leaderboard_cache",
+    "local_coding_api_keys",
+    "local_coding_sessions",
+    "milestones",
+    "notifications",
+    "streak_milestones"
+  ],
+  "duplicate_migration_versions": {
+    "20260520000000": [
+      "20260520000000_add_seen_onboarding.sql",
+      "20260520000000_add_webhook_configs.sql"
+    ],
+    "20260522000000": [
+      "20260522000000_add_api_key_hash_column.sql",
+      "20260522000000_add_users_insert_policy.sql"
+    ],
+    "20260525000000": [
+      "20260525000000_add_wakatime_api_key.sql",
+      "20260525000000_add_webhook_url_to_users.sql"
+    ],
+    "20260526000000": [
+      "20260526000000_add_wakatime_stats.sql",
+      "20260526000000_add_weekly_digest_opt_in.sql"
+    ],
+    "20260527000000": [
+      "20260527000000_add_batch_upsert_sessions_rpc.sql",
+      "20260527000000_add_user_bio.sql"
+    ],
+    "20260603000000": [
+      "20260603000000_add_discord_muted_until.sql",
+      "20260603000000_backfill_api_key_hash.sql"
+    ],
+    "20260603000001": [
+      "20260603000001_add_daily_focus.sql",
+      "20260603000001_add_goal_history.sql",
+      "20260603000001_add_organizations_config.sql"
+    ],
+    "20260604000000": [
+      "20260604000000_add_last_digest_sent_at.sql",
+      "20260604000000_add_user_github_orgs.sql"
+    ],
+    "20260606000000": [
+      "20260606000000_add_devtrack_badges.sql",
+      "20260606000000_add_preferred_locale.sql"
+    ],
+    "20260608000000": [
+      "20260608000000_add_daily_notes_rls.sql",
+      "20260608000000_add_public_widgets.sql"
+    ]
+  },
+  "nontimestamp_migrations": [
+    "20250607_goal_history.sql",
+    "cv_intelligence.sql"
+  ],
+  "env_variables": {
+    "ALLOWED_ORIGINS": [
+      "src/lib/csrf.ts"
+    ],
+    "ANTHROPIC_API_KEY": [
+      "src/lib/anthropic.ts"
+    ],
+    "CI": [
+      "src/middleware.ts"
+    ],
+    "CONTACT_TO_EMAIL": [
+      "src/app/api/contact/route.ts"
+    ],
+    "CRON_SECRET": [
+      "src/app/api/cron/sync/route.ts",
+      "src/app/api/leaderboard/refresh/route.ts",
+      "src/lib/cron-auth.ts"
+    ],
+    "DEBUG_SECRET": [
+      "src/app/api/debug/health/route.ts"
+    ],
+    "DIGEST_UNSUBSCRIBE_SECRET": [
+      "src/lib/weekly-digest.ts"
+    ],
+    "ENABLE_DEBUG_ENDPOINT": [
+      "src/app/api/debug/health/route.ts"
+    ],
+    "ENCRYPTION_KEY": [
+      "src/lib/crypto-edge.ts",
+      "src/lib/crypto.ts"
+    ],
+    "GEMINI_API_KEY": [
+      "src/app/api/ai/roast/route.ts"
+    ],
+    "GITHUB_APP_ID": [
+      "src/lib/github-app.ts"
+    ],
+    "GITHUB_APP_INSTALLATION_ID": [
+      "src/lib/github-app.ts"
+    ],
+    "GITHUB_APP_PRIVATE_KEY": [
+      "src/lib/github-app.ts"
+    ],
+    "GITHUB_ID": [
+      "src/app/api/accounts/link/route.ts",
+      "src/app/api/auth/link-github/callback/route.ts",
+      "src/app/api/auth/link-github/route.ts",
+      "src/lib/auth.ts"
+    ],
+    "GITHUB_SECRET": [
+      "src/app/api/auth/link-github/callback/route.ts",
+      "src/lib/auth.ts"
+    ],
+    "GITHUB_TOKEN": [
+      "src/app/api/badge/commits/route.ts",
+      "src/app/api/badge/streak-shield/route.ts",
+      "src/app/api/cron/weekly-digest/route.ts",
+      "src/app/api/notifications/discord-sync/route.ts",
+      "src/app/api/project-tutor/route.ts",
+      "src/app/api/rooms/[roomId]/invite/route.ts",
+      "src/app/api/sponsors/sync/route.ts",
+      "src/app/page.tsx",
+      "src/app/u/[username]/opengraph-image.tsx",
+      "src/lib/github-app.ts",
+      "src/lib/leaderboard.ts"
+    ],
+    "GITHUB_WEBHOOK_SECRET": [
+      "src/app/api/webhooks/github/route.ts"
+    ],
+    "GROQ_API_KEY": [
+      "src/app/api/ai-insights/route.ts",
+      "src/app/api/personality/route.ts",
+      "src/app/api/project-tutor/route.ts",
+      "src/lib/cv/cv-ai-generator.ts"
+    ],
+    "LEADERBOARD_REBUILD_TOKEN": [
+      "src/app/api/leaderboard/rebuild/route.ts"
+    ],
+    "LEADERBOARD_USER_CONCURRENCY": [
+      "src/lib/leaderboard.ts"
+    ],
+    "MEMORY_RATE_LIMIT_MAX_ENTRIES": [
+      "src/app/api/public/[username]/route.ts"
+    ],
+    "NEXTAUTH_SECRET": [
+      "src/app/dashboard/page.tsx",
+      "src/app/page.tsx",
+      "src/lib/auth.ts",
+      "src/lib/weekly-digest.ts",
+      "src/middleware.ts"
+    ],
+    "NEXTAUTH_URL": [
+      "src/app/api/accounts/link/route.ts",
+      "src/app/api/ai-insights/route.ts",
+      "src/app/api/auth/link-github/callback/route.ts",
+      "src/app/api/auth/link-github/route.ts",
+      "src/app/api/cron/weekly-digest/route.ts",
+      "src/app/api/personality/route.ts",
+      "src/app/api/unsubscribe/route.ts",
+      "src/app/u/[username]/feed.xml/route.ts",
+      "src/app/u/[username]/page.tsx",
+      "src/lib/csrf.ts",
+      "src/lib/digest-email.ts",
+      "src/lib/weekly-digest.ts"
+    ],
+    "NEXT_PUBLIC_APP_URL": [
+      "src/app/robots.ts",
+      "src/app/sitemap.ts",
+      "src/app/u/[username]/page.tsx",
+      "src/components/ShareProfileButton.tsx",
+      "src/lib/csrf.ts"
+    ],
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": [
+      "src/hooks/useRealtimeSync.ts",
+      "src/lib/badge-validation.ts",
+      "src/lib/supabase-browser.ts"
+    ],
+    "NEXT_PUBLIC_SUPABASE_URL": [
+      "src/hooks/useRealtimeSync.ts",
+      "src/lib/badge-validation.ts",
+      "src/lib/supabase-admin.ts",
+      "src/lib/supabase-browser.ts",
+      "src/lib/supabase.ts"
+    ],
+    "NEXT_RUNTIME": [
+      "src/instrumentation.ts"
+    ],
+    "NODE_ENV": [
+      "src/app/api/accounts/link/route.ts",
+      "src/app/api/auth/link-github/callback/route.ts",
+      "src/app/api/auth/link-github/route.ts",
+      "src/app/api/cron/sync/route.ts",
+      "src/app/api/cv/analyze/route.ts",
+      "src/app/api/cv/generate/route.ts",
+      "src/app/api/leaderboard/refresh/route.ts",
+      "src/app/api/metrics/languages/route.ts",
+      "src/app/api/user/data-export/route.ts",
+      "src/app/error.tsx",
+      "src/components/DashboardHeader.tsx",
+      "src/components/OfflineBanner.tsx",
+      "src/lib/cron-auth.ts",
+      "src/lib/csrf.ts",
+      "src/lib/error-handler.ts",
+      "src/lib/error-utils.ts",
+      "src/lib/metrics-cache.ts",
+      "src/lib/rate-limit.ts",
+      "src/middleware.ts"
+    ],
+    "PLAYWRIGHT_SERVER_MODE": [
+      "src/lib/auth.ts"
+    ],
+    "PLAYWRIGHT_TEST": [
+      "src/app/dashboard/page.tsx",
+      "src/app/page.tsx",
+      "src/lib/public-profile-data.ts"
+    ],
+    "RESEND_API_KEY": [
+      "src/app/api/contact/route.ts",
+      "src/app/api/cron/weekly-digest/route.ts"
+    ],
+    "RESEND_FROM_EMAIL": [
+      "src/app/api/contact/route.ts",
+      "src/app/api/cron/weekly-digest/route.ts"
+    ],
+    "SUPABASE_SERVICE_ROLE_KEY": [
+      "src/lib/badge-validation.ts",
+      "src/lib/supabase-admin.ts",
+      "src/lib/supabase.ts"
+    ],
+    "TRUSTED_PROXY": [
+      "src/lib/rate-limit.ts"
+    ],
+    "UPSTASH_REDIS_REST_TOKEN": [
+      "src/lib/metrics-cache.ts",
+      "src/lib/redis-cache-helper.ts",
+      "src/lib/upstash-rest.ts",
+      "src/middleware.ts"
+    ],
+    "UPSTASH_REDIS_REST_URL": [
+      "src/lib/metrics-cache.ts",
+      "src/lib/redis-cache-helper.ts",
+      "src/lib/upstash-rest.ts",
+      "src/middleware.ts"
+    ],
+    "VERCEL": [
+      "src/lib/rate-limit.ts"
+    ],
+    "WEBHOOK_DISPATCH_SECRET": [
+      "src/app/api/webhooks/dispatch/metrics/route.ts",
+      "src/app/api/webhooks/dispatch/route.ts"
+    ]
+  },
+  "unit_file_count": 168,
+  "undiscovered_unit_files": [
+    "test/check-deps.test.js",
+    "test/crypto.test.js",
+    "test/leaderboard-cache.test.mjs",
+    "test/upstash-rest.test.mjs",
+    "test/validate-github-username.test.js"
+  ],
+  "merge_conflict_markers": [],
+  "largest_source_files": [
+    {
+      "file": "src/app/dashboard/settings/page.tsx",
+      "lines": 1961
+    },
+    {
+      "file": "src/components/landing/LandingPage.tsx",
+      "lines": 1436
+    },
+    {
+      "file": "src/components/StreakTracker.tsx",
+      "lines": 1172
+    },
+    {
+      "file": "src/components/GoalTracker.tsx",
+      "lines": 1109
+    },
+    {
+      "file": "src/components/ContributionHeatmap.tsx",
+      "lines": 894
+    },
+    {
+      "file": "src/components/ContributionGraph.tsx",
+      "lines": 864
+    },
+    {
+      "file": "src/components/webhook/WebhookManager.tsx",
+      "lines": 814
+    },
+    {
+      "file": "src/components/ExportButton.tsx",
+      "lines": 784
+    },
+    {
+      "file": "src/app/api/metrics/prs/route.ts",
+      "lines": 755
+    },
+    {
+      "file": "src/components/dashboard/CustomizableDashboard.tsx",
+      "lines": 748
+    },
+    {
+      "file": "src/app/u/[username]/page.tsx",
+      "lines": 712
+    },
+    {
+      "file": "src/components/TopRepos.tsx",
+      "lines": 700
+    },
+    {
+      "file": "src/lib/cv/cv-classifier.ts",
+      "lines": 660
+    },
+    {
+      "file": "src/components/WeeklySummaryCard.tsx",
+      "lines": 628
+    },
+    {
+      "file": "src/components/ParticleBackground.tsx",
+      "lines": 627
+    },
+    {
+      "file": "src/app/api/metrics/contributions/route.ts",
+      "lines": 624
+    },
+    {
+      "file": "src/components/career-intelligence/ResumePreview.tsx",
+      "lines": 559
+    },
+    {
+      "file": "src/lib/leaderboard.ts",
+      "lines": 546
+    },
+    {
+      "file": "src/components/DashboardHeader.tsx",
+      "lines": 538
+    },
+    {
+      "file": "src/components/ProductiveHoursWidget.tsx",
+      "lines": 535
+    },
+    {
+      "file": "src/app/api/metrics/weekly-summary/route.ts",
+      "lines": 531
+    },
+    {
+      "file": "src/lib/cv/cv-ai-generator.ts",
+      "lines": 481
+    },
+    {
+      "file": "src/lib/github-achievements.ts",
+      "lines": 475
+    },
+    {
+      "file": "src/components/ProjectMetrics.tsx",
+      "lines": 473
+    },
+    {
+      "file": "src/lib/public-profile-data.ts",
+      "lines": 471
+    }
+  ]
+}

@@ -1,0 +1,1179 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--list",
+      "--reporter=json"
+    ],
+    "configFile": "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\playwright.config.mjs",
+    "rootDir": "C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 8,
+    "webServer": {
+      "command": "node node_modules/next/dist/bin/next dev -H 127.0.0.1 -p 3002",
+      "url": "http://127.0.0.1:3002",
+      "reuseExistingServer": true,
+      "timeout": 120000,
+      "env": {
+        "NEXTAUTH_SECRET": "test-nextauth-secret-for-playwright-tests",
+        "NEXTAUTH_URL": "http://127.0.0.1:3002",
+        "NEXT_PUBLIC_APP_URL": "http://127.0.0.1:3002",
+        "GITHUB_ID": "playwright-github-id",
+        "GITHUB_SECRET": "playwright-github-secret",
+        "NEXT_PUBLIC_SUPABASE_URL": "https://placeholder.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "placeholder-anon-key",
+        "SUPABASE_SERVICE_ROLE_KEY": "placeholder-service-role-key",
+        "PORT": "3002",
+        "HOSTNAME": "127.0.0.1",
+        "PLAYWRIGHT_TEST": "true"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "api.spec.ts",
+      "file": "api.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[API E2E] /api/metrics/contributions returns 401 without a session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-65b4abc88c595195d0ac",
+          "file": "api.spec.ts",
+          "line": 32,
+          "column": 5
+        },
+        {
+          "title": "[API E2E] /api/goals returns 401 without a session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-b7df5027a14e3c154976",
+          "file": "api.spec.ts",
+          "line": 40,
+          "column": 5
+        },
+        {
+          "title": "[API E2E] /api/metrics/streak returns 401 without a session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-67e504145e31218d8a96",
+          "file": "api.spec.ts",
+          "line": 47,
+          "column": 5
+        },
+        {
+          "title": "[API E2E] /api/metrics/contributions returns 200 with valid session cookie",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-ee4203dfcd998f910da5",
+          "file": "api.spec.ts",
+          "line": 54,
+          "column": 5
+        },
+        {
+          "title": "[API E2E] /api/auth/session returns a JSON object",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-465b8d889973950fb112",
+          "file": "api.spec.ts",
+          "line": 101,
+          "column": 5
+        },
+        {
+          "title": "[API E2E] /api/goals POST without session returns 401 or 403",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-afbe77f811dfbb370c41",
+          "file": "api.spec.ts",
+          "line": 111,
+          "column": 5
+        },
+        {
+          "title": "[API E2E] /api/metrics/contributions with days param returns valid JSON when authenticated",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ea1b1599cbc08f16936-480d244ea879d578cf90",
+          "file": "api.spec.ts",
+          "line": 120,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "auth-bypass.spec.js",
+      "file": "auth-bypass.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "unauthenticated request to /dashboard redirects to landing page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "049aa1215675afe0e257-d09bc0ff3a5fff6fbbc8",
+          "file": "auth-bypass.spec.js",
+          "line": 16,
+          "column": 5
+        },
+        {
+          "title": "dashboard heading is not visible without a valid session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "049aa1215675afe0e257-47c9b43cd78ccc6b8adc",
+          "file": "auth-bypass.spec.js",
+          "line": 26,
+          "column": 5
+        },
+        {
+          "title": "setting playwright-dashboard-auth=1 cookie does not bypass authentication",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "049aa1215675afe0e257-0851c1dc46716dd813a6",
+          "file": "auth-bypass.spec.js",
+          "line": 35,
+          "column": 5
+        },
+        {
+          "title": "multiple attacker-controlled cookies combined do not bypass authentication",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "049aa1215675afe0e257-6afa9d12db2d0d7e2182",
+          "file": "auth-bypass.spec.js",
+          "line": 60,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[Auth E2E] landing page loads with H1 heading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-aaeeef1e1a7a3819cc53",
+          "file": "auth.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "[Auth E2E] Sign in with GitHub button is visible on landing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-ce1919d67c8c65f166be",
+          "file": "auth.spec.ts",
+          "line": 15,
+          "column": 5
+        },
+        {
+          "title": "[Auth E2E] Sign in with GitHub button points to NextAuth GitHub provider",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-85ff8c99c75d6c5bf3b5",
+          "file": "auth.spec.ts",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "[Auth E2E] OAuth redirect fires when Sign in link is clicked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-9b5921d5e3e4e7affb7d",
+          "file": "auth.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "[Auth E2E] /dashboard redirects unauthenticated users to landing page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-88c334eb62148027cb2b",
+          "file": "auth.spec.ts",
+          "line": 63,
+          "column": 5
+        },
+        {
+          "title": "[Auth E2E] landing page shows DevTrack feature section",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-7c1a0805797c66f7dd42",
+          "file": "auth.spec.ts",
+          "line": 70,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "csrf.spec.js",
+      "file": "csrf.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "POST with invalid origin returns 403",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ec8ef61c6cf5307316e-b866e97c2ee0754af781",
+          "file": "csrf.spec.js",
+          "line": 3,
+          "column": 5
+        },
+        {
+          "title": "POST with invalid referer returns 403",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ec8ef61c6cf5307316e-20c4611df4a7f65b7089",
+          "file": "csrf.spec.js",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "GET is not blocked by CSRF",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ec8ef61c6cf5307316e-a943a46955c94c83d83a",
+          "file": "csrf.spec.js",
+          "line": 25,
+          "column": 5
+        },
+        {
+          "title": "webhook POST without origin is not blocked",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ec8ef61c6cf5307316e-5905366549cf034e799e",
+          "file": "csrf.spec.js",
+          "line": 31,
+          "column": 5
+        },
+        {
+          "title": "same-origin POST reaches handler",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1ec8ef61c6cf5307316e-337496a9fbb346fcc002",
+          "file": "csrf.spec.js",
+          "line": 38,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "dashboard-widgets.spec.js",
+      "file": "dashboard-widgets.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dashboard widgets render with mocked metrics",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "a47fb1b3e41db6e4c963-e9462ab91c6a9129f29f",
+          "file": "dashboard-widgets.spec.js",
+          "line": 228,
+          "column": 5
+        },
+        {
+          "title": "contribution graph range buttons request a new range",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "a47fb1b3e41db6e4c963-6e6a5ffd6c328228116e",
+          "file": "dashboard-widgets.spec.js",
+          "line": 248,
+          "column": 5
+        },
+        {
+          "title": "goal form posts a new goal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "a47fb1b3e41db6e4c963-2171867cdd8391a697ce",
+          "file": "dashboard-widgets.spec.js",
+          "line": 275,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "dashboard.spec.ts",
+      "file": "dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[Dashboard E2E] dashboard heading is visible after mock login",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-199ad0478ba5dbfd0682",
+          "file": "dashboard.spec.ts",
+          "line": 380,
+          "column": 5
+        },
+        {
+          "title": "[Dashboard E2E] Commits widget renders",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-d374afe19b57e0e0c6ea",
+          "file": "dashboard.spec.ts",
+          "line": 389,
+          "column": 5
+        },
+        {
+          "title": "[Dashboard E2E] PR Analytics widget renders",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-b4f58443bc3898062b92",
+          "file": "dashboard.spec.ts",
+          "line": 397,
+          "column": 5
+        },
+        {
+          "title": "[Dashboard E2E] Goals widget renders with mocked goal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-42c2d96fb5b623c5149e",
+          "file": "dashboard.spec.ts",
+          "line": 405,
+          "column": 5
+        },
+        {
+          "title": "[Dashboard E2E] no uncaught console errors on dashboard load",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-c0a4b4ea7e2d1127f498",
+          "file": "dashboard.spec.ts",
+          "line": 418,
+          "column": 5
+        },
+        {
+          "title": "[Dashboard E2E] weekly summary widget renders",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-2e7d0aacbf0c8a2b8c2d",
+          "file": "dashboard.spec.ts",
+          "line": 458,
+          "column": 5
+        },
+        {
+          "title": "[Dashboard E2E] analytics widgets render once without duplicate metric requests",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90cda532ab82d274b30b-1a9cb93901142b7ae211",
+          "file": "dashboard.spec.ts",
+          "line": 499,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "goals.spec.ts",
+      "file": "goals.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[Goals E2E] goals widget renders on dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb9d194c74d1f273665a-b1d46f5e78469625cad2",
+          "file": "goals.spec.ts",
+          "line": 125,
+          "column": 5
+        },
+        {
+          "title": "[Goals E2E] creating a goal sends POST /api/goals with correct payload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb9d194c74d1f273665a-51fb44086f0389565cdd",
+          "file": "goals.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "[Goals E2E] newly created goal appears in the goals list",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb9d194c74d1f273665a-72f2ef8c268ce895b52b",
+          "file": "goals.spec.ts",
+          "line": 181,
+          "column": 5
+        },
+        {
+          "title": "[Goals E2E] deleting a goal removes it from the list",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb9d194c74d1f273665a-673d89a8214cd0493738",
+          "file": "goals.spec.ts",
+          "line": 248,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "landing.spec.js",
+      "file": "landing.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[Landing E2E] page renders GitHub sign-in entrypoint",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3370f39aa0d6cc6ba3dc-969a8d2a98a1a9afcde0",
+          "file": "landing.spec.js",
+          "line": 3,
+          "column": 5
+        },
+        {
+          "title": "[Landing E2E] dashboard stays protected for unauthenticated users",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3370f39aa0d6cc6ba3dc-617363abf0791544bcf8",
+          "file": "landing.spec.js",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "[Landing E2E] landing has dashboard link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3370f39aa0d6cc6ba3dc-2344ea7f1a21454bc420",
+          "file": "landing.spec.js",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "[Landing E2E] landing introduces DevTrack in an about section",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3370f39aa0d6cc6ba3dc-848f422fa0f2e7e80409",
+          "file": "landing.spec.js",
+          "line": 27,
+          "column": 5
+        },
+        {
+          "title": "[Landing E2E] landing shows footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "3370f39aa0d6cc6ba3dc-b74ae4666596fb8e2f03",
+          "file": "landing.spec.js",
+          "line": 36,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "notifications.spec.js",
+      "file": "notifications.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "notification bell opens and closes drawer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "f6eacf2b8e2b45284b7c-8b6f01269c629d4c6748",
+          "file": "notifications.spec.js",
+          "line": 326,
+          "column": 5
+        },
+        {
+          "title": "notification search filters and highlights correctly",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "f6eacf2b8e2b45284b7c-d940b971b2b2aca08f02",
+          "file": "notifications.spec.js",
+          "line": 366,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "public-profile.spec.js",
+      "file": "public-profile.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "public profile route renders without requiring authentication",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2b0b175abb5f860fad9c-5b755421c9039497f866",
+          "file": "public-profile.spec.js",
+          "line": 3,
+          "column": 5
+        },
+        {
+          "title": "invalid public profile username shows 404 page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2b0b175abb5f860fad9c-72a14c5a289fc6743c74",
+          "file": "public-profile.spec.js",
+          "line": 10,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "settings.spec.js",
+      "file": "settings.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "settings page saves and reflects changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "90e6e24ee78bd89d0a34-649f665aee0d1d33f9aa",
+          "file": "settings.spec.js",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "streak.spec.ts",
+      "file": "streak.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "[Streak E2E]",
+          "file": "streak.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "streak widget shows the mocked longest streak value",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6e02b10b8c48e14325ce-3bc4bfd8294b31efb374",
+              "file": "streak.spec.ts",
+              "line": 161,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "theme.spec.js",
+      "file": "theme.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "theme selector switches between themes on the dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "a256222dfb5f87c657fc-0b9f49ddd9d3fbcd3f3d",
+          "file": "theme.spec.js",
+          "line": 73,
+          "column": 5
+        },
+        {
+          "title": "public profile page theme selector works without authentication",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "a256222dfb5f87c657fc-3aef476b6d0a20e8adfa",
+          "file": "theme.spec.js",
+          "line": 104,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T06:57:13.576Z",
+    "duration": 183.72300000000007,
+    "expected": 0,
+    "skipped": 49,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

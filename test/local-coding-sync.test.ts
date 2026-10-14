@@ -392,7 +392,7 @@ describe("Local Coding Sync POST API Endpoint", () => {
 
     expect(mockUpdateFields).toHaveBeenCalledWith({
       api_key_hash: keyHash,
-      api_key: null,
+      api_key: "legacy-legacy-key-id",
       last_used_at: expect.any(String),
     });
     expect(mockUpdateEqLocal).toHaveBeenCalledWith("id", "legacy-key-id");

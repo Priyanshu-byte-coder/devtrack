@@ -170,6 +170,7 @@ export default function AppNavbar() {
             !isPublicProfileRoute && (
               <Link
                 href="/api/auth/signin/github?callbackUrl=/dashboard"
+                prefetch={false}
                 className="shrink-0 rounded-full px-5 py-2 text-[13px] font-semibold text-[var(--accent-foreground)] shadow-[0_0_20px_rgba(129,140,248,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_25px_rgba(129,140,248,0.5)]"
                 style={{ fontFamily: MONO, background: "var(--accent)" }}
               >
@@ -258,6 +259,7 @@ export default function AppNavbar() {
                 !isPublicProfileRoute && (
                   <Link
                     href="/api/auth/signin/github?callbackUrl=/dashboard"
+                prefetch={false}
                     className="block w-full rounded-xl px-4 py-3.5 text-center text-sm font-semibold text-[var(--accent-foreground)] shadow-lg"
                     style={{ background: "var(--accent)", fontFamily: MONO }}
                   >

@@ -1181,7 +1181,7 @@ function HowItWorksSection() {
         {STEPS.map((step, i) => {
           const Icon = step.icon;
           return (
-          <Link key={i} href={step.href} className="group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/15" style={{ flex: '1 1 300px', background: 'color-mix(in srgb, var(--card) 70%, transparent)', border: `1px solid ${BORDER}`, borderRadius: 16, padding: '32px 24px', textAlign: 'center', boxShadow: 'var(--shadow-medium)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'default' }}>
+          <Link key={i} href={step.href} prefetch={false} className="group transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/15" style={{ flex: '1 1 300px', background: 'color-mix(in srgb, var(--card) 70%, transparent)', border: `1px solid ${BORDER}`, borderRadius: 16, padding: '32px 24px', textAlign: 'center', boxShadow: 'var(--shadow-medium)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'default' }}>
             <div className="group-hover:border-indigo-500/40 transition-colors duration-300" style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: 12, overflow: 'hidden', marginBottom: 24, border: `1px solid ${BORDER}`, boxShadow: 'var(--shadow-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(129,140,248,0.05)' }}>
               <Icon size={64} strokeWidth={1} color="#818cf8" className="group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-90" />
             </div>

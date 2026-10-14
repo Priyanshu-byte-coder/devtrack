@@ -14,7 +14,7 @@ const mocks = vi.hoisted(() => ({
   fetch: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/metrics-cache", () => ({
   isMetricsCacheBypassed: mocks.isMetricsCacheBypassed,

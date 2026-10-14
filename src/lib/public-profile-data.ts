@@ -1,3 +1,6 @@
+import { collectGitHubSearch } from "@/lib/github-search";
+import { fetchCommitStreakDates } from "@/lib/streak-data";
+import { githubRequest } from "@/lib/github-request";
 import { calculateStreakFromDates } from "@/lib/streak";
 import type { GitHubAchievement } from "@/lib/github-achievements";
 import { syncGitHubAchievementsForUser } from "@/lib/github-achievements";
@@ -23,6 +26,8 @@ export interface ContributionData {
   days: number;
   total: number;
   data: Record<string, number>;
+  complete?: boolean;
+  partialReason?: string;
 }
 
 export interface StreakData {
@@ -30,6 +35,8 @@ export interface StreakData {
   longest: number;
   lastCommitDate: string | null;
   totalActiveDays: number;
+  complete?: boolean;
+  partialReason?: string;
 }
 
 export interface WeeklyGoalProgress {
@@ -79,7 +86,7 @@ async function ghFetch(url: string, token?: string): Promise<Response> {
     Accept: "application/vnd.github+json",
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(url, { headers, cache: "no-store" });
+  return githubRequest(url, { headers, cache: "no-store" });
 }
 
 /**
@@ -94,7 +101,7 @@ export async function fetchPublicGists(
 ): Promise<number> {
   const res = await ghFetch(`${GITHUB_API}/users/${username}`, token);
 
-  if (!res.ok) return 0;
+  if (!res.ok) throw new Error('Public GitHub metric unavailable');
 
   const data = (await res.json()) as { public_gists?: number };
   return data.public_gists ?? 0;
@@ -116,16 +123,10 @@ export async function fetchPublicTopRepos(
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString().slice(0, 10);
 
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
-    token
+  const data = await collectGitHubSearch<{ repository: { full_name: string; html_url: string } }>(
+    'commits', `author:${username} author-date:>=${sinceStr} is:public`, token
   );
-
-  if (!res.ok) return [];
-
-  const data = (await res.json()) as {
-    items: Array<{ repository: { full_name: string; html_url: string } }>;
-  };
+  if (!data.complete) throw new Error('Public repository activity is incomplete');
 
   const repoMap: Record<string, { commits: number; url: string }> = {};
   for (const item of data.items) {
@@ -156,17 +157,9 @@ export async function fetchPublicContributions(
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString().slice(0, 10);
 
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
-    token
+  const data = await collectGitHubSearch<{ commit: { author: { date: string } } }>(
+    'commits', `author:${username} author-date:>=${sinceStr} is:public`, token
   );
-
-  if (!res.ok) return { days, total: 0, data: {} };
-
-  const data = (await res.json()) as {
-    total_count: number;
-    items: Array<{ commit: { author: { date: string } } }>;
-  };
 
   const commitsByDay: Record<string, number> = {};
   for (const item of data.items) {
@@ -174,7 +167,7 @@ export async function fetchPublicContributions(
     commitsByDay[date] = (commitsByDay[date] ?? 0) + 1;
   }
 
-  return { days, total: data.total_count, data: commitsByDay };
+  return { days, total: data.total, data: commitsByDay, complete: data.complete, partialReason: data.partialReason };
 }
 
 /**
@@ -188,45 +181,16 @@ export async function fetchPublicStreak(
   token?: string,
   timezone?: string
 ): Promise<StreakData> {
-  const since = new Date();
-  since.setDate(since.getDate() - 365);
-  const sinceStr = since.toISOString().slice(0, 10);
-
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
-    token
-  );
-
-  if (!res.ok) return { current: 0, longest: 0, lastCommitDate: null, totalActiveDays: 0 };
-
-  const data = (await res.json()) as {
-    items: Array<{ commit: { author: { date: string } } }>;
-  };
-
   const tz = timezone || "UTC";
-  const activeDates = new Set<string>();
-  for (const item of data.items) {
-    try {
-      const d = new Date(item.commit.author.date);
-      const tzDate = new Intl.DateTimeFormat("en-CA", {
-        timeZone: tz,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(d);
-      activeDates.add(tzDate);
-    } catch (e) {
-      activeDates.add(item.commit.author.date.slice(0, 10));
-    }
+  const dates = await fetchCommitStreakDates(username, token, { bypass: false, userId: `public-login:${username}` }, tz, 'public');
+  const user = await getUserByUsername(username);
+  let freezes = new Set<string>();
+  if (user) {
+    const { data, error } = await supabaseAdmin.from('streak_freezes').select('freeze_date').eq('user_id', user.id);
+    if (error) throw new Error('Public streak freezes unavailable');
+    freezes = new Set((data ?? []).map(row => row.freeze_date));
   }
-
-  const result = calculateStreakFromDates(activeDates, new Set(), tz);
-  return {
-    current: result.current,
-    longest: result.longest,
-    lastCommitDate: result.lastCommitDate,
-    totalActiveDays: result.totalActiveDays,
-  };
+  return { ...calculateStreakFromDates(dates, freezes, tz), complete: dates.complete, partialReason: dates.partialReason };
 }
 
 /**
@@ -280,7 +244,7 @@ export async function fetchPublicTopLanguages(
     token
   );
 
-  if (!res.ok) return [];
+  if (!res.ok) throw new Error('Public languages unavailable');
 
   const repos = (await res.json()) as Array<{ language: string | null }>;
   const counts: Record<string, number> = {};
@@ -315,11 +279,11 @@ export async function fetchPublicPullRequests(
   token?: string
 ): Promise<number> {
   const res = await ghFetch(
-    `${GITHUB_API}/search/issues?q=type:pr+author:${username}&per_page=1`,
+    `${GITHUB_API}/search/issues?q=type:pr+author:${username}+is:public&per_page=1`,
     token
   );
 
-  if (!res.ok) return 0;
+  if (!res.ok) throw new Error('Public GitHub metric unavailable');
 
   const data = (await res.json()) as { total_count?: number };
   return data.total_count ?? 0;

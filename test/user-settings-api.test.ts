@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET, PATCH } from "@/app/api/user/settings/route";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { encryptToken } from "@/lib/crypto";
 
 // Mock next-auth
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: vi.fn(),
 }));
 

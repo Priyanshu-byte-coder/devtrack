@@ -1,4 +1,4 @@
-// @ts-nocheck
+import { toDatabaseJson } from "@/lib/database-json";
 import { NextRequest, NextResponse } from "next/server";
 import { buildLeaderboard, setMemoryCachedLeaderboard, CACHE_STALE_SECONDS, LEADERBOARD_CACHE_KEY } from "@/lib/leaderboard";
 import { cacheSet } from "@/lib/metrics-cache";
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         await supabaseAdmin.from("leaderboard_cache").upsert(
           {
             key: LEADERBOARD_CACHE_KEY,
-            payload,
+            payload: toDatabaseJson(payload),
             generated_at: now,
             expires_at: expiresAt,
             building_until: null,

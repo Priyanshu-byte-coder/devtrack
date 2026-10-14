@@ -1,4 +1,7 @@
-import { getServerSession } from "next-auth";
+import { collectGitHubSearch } from "@/lib/github-search";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -36,6 +39,9 @@ interface RepoLanguage {
 interface RepoResponse {
   repos: RepoSummary[];
   days: number;
+  complete?: boolean;
+  sampledCommits?: number;
+  partialReason?: string;
 }
 
 function mergeRepoCommits(
@@ -76,7 +82,7 @@ async function fetchRepoLanguages(
   // This is called once per top repo (up to 6 calls per fetchReposForAccount).
   // At 5,000/hr that is negligible for a single account, but for the "combined"
   // multi-account view this multiplies: N accounts × 6 repos = N×6 REST requests.
-  const res = await fetch(`${GITHUB_API}/repos/${repoName}/languages`, {
+  const res = await githubRequest(`${GITHUB_API}/repos/${repoName}/languages`, {
     headers: {
       // OAuth token / PAT: keeps requests in the 5,000/hr authenticated tier.
       // Without this, 60 req/hr unauthenticated would be exhausted almost immediately.
@@ -149,45 +155,8 @@ async function fetchReposForAccount(
       }
       q += `+author-date:>=${sinceStr}`;
 
-      // GitHub Commit Search API — finds all commits by this user in the date window.
-      // Rate limits (separate and stricter than the REST API):
-      //   • Authenticated (OAuth token / PAT): 30 requests/minute
-      //   • Unauthenticated:                   10 requests/minute
-      //
-      // We fetch a single page of 100 commits — enough to identify the top 6 repos
-      // by commit count. The withMetricsCache wrapper above prevents re-fetching
-      // within the TTL, so this Search API request is only made on a cache miss.
-      const searchRes = await fetch(
-        `${GITHUB_API}/search/commits?q=${q}&per_page=100&sort=author-date&order=desc`,
-        {
-          headers: {
-            // OAuth token / PAT: raises the Search API limit from 10 → 30 req/min.
-            // For the "combined" multi-account view, this is called once per linked
-            // account — e.g. 3 accounts = 3 Search API requests in parallel, each
-            // drawing from that account token's own 30 req/min quota.
-            Authorization: `Bearer ${token}`,
-            // The Accept header is mandatory for the Commit Search endpoint.
-            // Omitting it causes GitHub to return HTTP 415 (Unsupported Media Type).
-            Accept: "application/vnd.github+json",
-          },
-          cache: "no-store",
-        }
-      );
-
-      // HTTP 401 = token revoked — throw auth error so caller can surface reconnect.
-      // HTTP 403 = Search API rate limit exceeded for this token.
-      // HTTP 422 = malformed query (e.g. invalid date format or username characters).
-      if (!searchRes.ok) {
-        if (searchRes.status === 401) throw new GitHubAuthError();
-        throw new Error("GitHub API error");
-      }
-
-      const data = (await searchRes.json()) as {
-        items: Array<{
-          repository: { full_name: string; html_url: string; description: string | null };
-          commit: { author: { date: string } };
-        }>;
-      };
+      const search = await collectGitHubSearch<{repository: {full_name:string; html_url:string; description:string|null}; commit:{author:{date:string}}}>('commits',q.replace(/\+/g,' '),token);
+      const data = {items:search.items};
 
       // Group commits by repository and count them.
       // Each item in the Search API response represents one commit, so we tally
@@ -218,7 +187,7 @@ async function fetchReposForAccount(
         })
       );
 
-      return { repos: reposWithLanguages, days };
+      return { repos: reposWithLanguages, days, complete: search.complete, sampledCommits: search.items.length, partialReason: search.partialReason };
     }
   );
 }
@@ -283,6 +252,8 @@ export async function GET(req: NextRequest) {
       );
       return Response.json(result);
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
@@ -351,6 +322,8 @@ export async function GET(req: NextRequest) {
       );
       return Response.json(result);
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
@@ -385,6 +358,9 @@ export async function GET(req: NextRequest) {
     );
     return Response.json(result);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }

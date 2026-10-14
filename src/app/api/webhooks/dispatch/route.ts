@@ -1,3 +1,5 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextResponse } from "next/server";
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -23,7 +25,7 @@ async function getUserMetrics(
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString().slice(0, 10);
 
-  const commitsRes = await fetch(
+  const commitsRes = await githubRequest(
     `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100`,
     {
       headers: {
@@ -43,7 +45,7 @@ async function getUserMetrics(
     activeDaysSet.add(item.commit.author.date.slice(0, 10));
   }
 
-  const prsRes = await fetch(
+  const prsRes = await githubRequest(
     `${GITHUB_API}/search/issues?q=type:pr+author:${githubLogin}+created:>=${sinceStr}&per_page=100`,
     {
       headers: {
@@ -145,6 +147,9 @@ export async function GET(req: Request) {
       message: "Summary webhook dispatched",
     });
   } catch (err) {
+    const githubLimit = githubRateLimitResponse(err);
+    if (githubLimit) return githubLimit;
+
     console.error("Failed to dispatch summary:", err);
     return NextResponse.json(
       { error: "Failed to dispatch summary" },
@@ -189,6 +194,9 @@ export async function POST(req: Request) {
       dispatched: 1,
     });
   } catch (err) {
+    const githubLimit = githubRateLimitResponse(err);
+    if (githubLimit) return githubLimit;
+
     console.error("Failed to dispatch:", err);
     return NextResponse.json(
       { error: "Failed to dispatch webhook" },

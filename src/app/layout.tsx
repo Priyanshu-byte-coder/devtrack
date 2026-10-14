@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import CustomCursor from "@/components/CustomCursor";
 import type { Metadata, Viewport } from "next";
 import { Inter, Syne, JetBrains_Mono } from "next/font/google";
@@ -62,14 +63,20 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const locale = await getRequestLocale();
   const messages = await getMessagesForLocale(locale);
 
   return (
-    <html lang={locale} dir={getLocaleDirection(locale)} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={getLocaleDirection(locale)}
+      suppressHydrationWarning
+    >
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -122,7 +129,12 @@ export default async function RootLayout({
 
           <Toaster richColors position="top-right" />
         </div>
-        <DeferredVercelMetrics />
+        <DeferredVercelMetrics
+          enabled={
+            process.env.VERCEL === "1" ||
+            process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ENABLED === "true"
+          }
+        />
       </body>
     </html>
   );

@@ -1,0 +1,16 @@
+[
+  {
+    "package": "braces",
+    "version": "3.0.3",
+    "advisory": "GHSA-vfj7-8cjw-p6xm",
+    "patch": "patches/braces@3.0.3.patch",
+    "sha256": "af1969c4aa34220e0fd6ab21d14cd902d580cc0b9aa4d839a7c5f8d3455a6a82"
+  },
+  {
+    "package": "sprintf-js",
+    "version": "1.1.3",
+    "advisory": "GHSA-hp3w-g68c-fv3c",
+    "patch": "patches/sprintf-js@1.1.3.patch",
+    "sha256": "ad1aef0868a9f3065779b30bf2c151343470d2f971250d4f6567cd16479887f3"
+  }
+]

@@ -1,14 +1,14 @@
 import "./setup";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { getAllAccounts, getAccountToken } from "@/lib/github-accounts";
 
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
-vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 
 vi.mock("@/lib/metrics-cache", () => ({

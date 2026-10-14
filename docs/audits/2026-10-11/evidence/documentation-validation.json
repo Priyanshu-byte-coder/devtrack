@@ -1,0 +1,24 @@
+{
+  "json_files_parsed": 21,
+  "findings": 31,
+  "priorities": {
+    "P0": 2,
+    "P1": 18,
+    "P2": 10,
+    "P3": 1
+  },
+  "api_routes": 108,
+  "issues": 124,
+  "prs": 23,
+  "advisory_entries": 35,
+  "e2e": {
+    "startTime": "2026-10-11T07:04:54.772Z",
+    "duration": 158216.269,
+    "expected": 49,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tracked_changes": [],
+  "broken_links_or_artifacts": []
+}

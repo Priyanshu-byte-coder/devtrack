@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -50,7 +51,7 @@ export async function GET(
   since.setDate(since.getDate() - 90);
   const sinceStr = since.toISOString();
 
-  const res = await fetch(
+  const res = await githubRequest(
     `${GITHUB_API}/repos/${repoFullName}/commits?author=${authorLogin}&since=${sinceStr}&per_page=100`,
     {
       headers: {

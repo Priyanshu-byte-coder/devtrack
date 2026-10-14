@@ -16,6 +16,7 @@ export interface RoomMember {
   id: string;
   room_id: string;
   github_username: string;
+  github_id: string | null;
   role: 'owner' | 'member';
   joined_at: string;
   // From GitHub API

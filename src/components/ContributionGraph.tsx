@@ -1,11 +1,9 @@
-// @ts-nocheck
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
 import CommitSearchPanel from "@/components/CommitSearchPanel";
 import type { CommitItem } from "@/lib/github";
-import { get, set } from "idb-keyval";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 import {
   BarChart,
@@ -40,6 +38,8 @@ interface ContributionSources {
 }
 
 interface ContributionResponse {
+  complete?: boolean;
+  partialReason?: string;
   data: Record<string, number>;
   commits?: CommitItem[];
   sources?: ContributionSources;
@@ -132,6 +132,7 @@ function mergeContributionSources(
 
 export default function ContributionGraph() {
   const { selectedAccount } = useAccount();
+  const [partialReason, setPartialReason] = useState<string | null>(null);
   const [data, setData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState<number>(() => {
@@ -227,40 +228,8 @@ export default function ContributionGraph() {
         ? `/api/metrics/contributions?from=${customFrom}&to=${customTo}${accountParam}${repoParam}${timezoneParam}`
         : `/api/metrics/contributions?days=${days}${accountParam}${repoParam}${timezoneParam}`;
 
-    const cacheKey = `contrib-graph-${selectedAccount ?? "default"}-${repo}-${days}-${customFrom ?? "none"}-${customTo ?? "none"}`;
-    const CACHE_TTL = 60 * 60 * 1000; // 1 hour
-
     async function processFetch() {
-      // 1. Attempt to load from IndexedDB cache
-      let cached: { data: DayData[]; commits: CommitItem[]; timestamp: number } | undefined;
-      try {
-        cached = await get(cacheKey);
-      } catch (err) {
-        console.warn("Failed to get cache from IndexedDB:", err);
-      }
-
-      if (cached && active) {
-        // Hydrate from cache immediately (Local Hydration)
-        setData(cached.data);
-        setCommits(cached.commits);
-        setLoading(false);
-        setLastUpdated(new Date(cached.timestamp));
-        setMinutesAgo(Math.floor((Date.now() - cached.timestamp) / 60000));
-        setError(null);
-
-        // Check if cache has expired (TTL Strategy)
-        const isExpired = Date.now() - cached.timestamp > CACHE_TTL;
-        if (!isExpired) {
-          // If not expired, skip background fetch
-          return;
-        }
-      } else if (active) {
-        // No cache: show standard loading
-        setLoading(true);
-        setError(null);
-        setCommits([]);
-      }
-
+      if(active) {setLoading(true);setError(null);setData([]);setCommits([]);setPartialReason(null);}
       // 2. Perform background sync / standard fetch
       try {
         const r = await fetch(url);
@@ -276,29 +245,17 @@ export default function ContributionGraph() {
         const sorted = normalizeContributionData(merged);
 
         setData(sorted);
+        setPartialReason(res.complete===false ? res.partialReason ?? "Only part of your activity history is available." : null);
         setCommits(res.commits ?? []);
         setError(null);
         setLastUpdated(new Date());
         setMinutesAgo(0);
 
-        // Update IndexedDB cache
-        try {
-          await set(cacheKey, {
-            data: sorted,
-            commits: res.commits ?? [],
-            timestamp: Date.now(),
-          });
-        } catch (err) {
-          console.warn("Failed to write cache to IndexedDB:", err);
-        }
       } catch (err) {
         if (!active) return;
-        // If we have cached data, suppress fetch error (Offline recovery)
-        if (!cached) {
-          setError("Failed to load contribution data.");
-        }
+        setError("Failed to load contribution data.");
       } finally {
-        if (active && !cached) {
+        if (active) {
           setLoading(false);
         }
       }
@@ -502,6 +459,7 @@ export default function ContributionGraph() {
           {!compareMode && !loading && !error && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
               {totalCommits} commit{totalCommits === 1 ? "" : "s"}
+              {partialReason && <span className="block mt-1" role="status">Partial history: {partialReason}</span>}
             </p>
           )}
         </div>

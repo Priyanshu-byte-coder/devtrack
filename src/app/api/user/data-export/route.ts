@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { checkedExportQuery } from "@/lib/export-query";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -76,7 +77,7 @@ function redactSensitiveFields(value: unknown): unknown {
 async function writeAuditLog(
   userId: string,
   action: "export" | "delete",
-  req: NextRequest | null,
+  req: NextRequest | null
 ): Promise<void> {
   try {
     const ip =
@@ -105,15 +106,17 @@ async function writeAuditLog(
 async function getRecentExport(userId: string): Promise<Date | null> {
   const since = new Date(Date.now() - EXPORT_RATE_LIMIT_MS).toISOString();
 
-  const { data } = await supabaseAdmin
-    .from("data_export_audit")
-    .select("created_at")
-    .eq("user_id", userId)
-    .eq("action", "export")
-    .gte("created_at", since)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { data } = checkedExportQuery(
+    await supabaseAdmin
+      .from("data_export_audit")
+      .select("created_at")
+      .eq("user_id", userId)
+      .eq("action", "export")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+  );
 
   return data ? new Date(data.created_at as string) : null;
 }
@@ -141,160 +144,204 @@ async function getRecentExport(userId: string): Promise<Date | null> {
  * `requiresRecentAuth()` guard here before the rate-limit check.
  */
 export async function GET(req: NextRequest) {
-  // --- Authentication --------------------------------------------------
-  const session = await getServerSession(authOptions);
-  if (!session?.githubId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    // --- Authentication --------------------------------------------------
+    const session = await getServerSession(authOptions);
+    if (!session?.githubId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+    const user = await resolveAppUser(session.githubId, session.githubLogin);
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-  const format = req.nextUrl.searchParams.get("format"); // "csv" | null (default: json)
+    const format = req.nextUrl.searchParams.get("format"); // "csv" | null (default: json)
 
-  // --- Rate limiting ---------------------------------------------------
-  const lastExport = await getRecentExport(user.id);
-  if (lastExport) {
-    const retryAfterMs = EXPORT_RATE_LIMIT_MS - (Date.now() - lastExport.getTime());
-    const retryAfterSecs = Math.ceil(retryAfterMs / 1000);
-    return NextResponse.json(
-      {
-        error: "Rate limit exceeded. You may export your data once per hour.",
-        retryAfterSeconds: retryAfterSecs,
-      },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(retryAfterSecs),
+    // --- Rate limiting ---------------------------------------------------
+    const lastExport = await getRecentExport(user.id);
+    if (lastExport) {
+      const retryAfterMs =
+        EXPORT_RATE_LIMIT_MS - (Date.now() - lastExport.getTime());
+      const retryAfterSecs = Math.ceil(retryAfterMs / 1000);
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded. You may export your data once per hour.",
+          retryAfterSeconds: retryAfterSecs,
         },
-      },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(retryAfterSecs),
+          },
+        }
+      );
+    }
+
+    // --- Audit log (before fetch so a crash mid-fetch is still recorded) --
+    await writeAuditLog(user.id, "export", req);
+
+    // --- Data collection -------------------------------------------------
+    // Every query is scoped to `user.id` which was resolved from the
+    // authenticated session — there is no user-supplied target ID, so IDOR
+    // is not possible with the current design.
+
+    const sections: Record<string, unknown> = {};
+
+    const { data: userData } = checkedExportQuery(
+      await supabaseAdmin
+        .from("users")
+        .select("id, github_login, is_public, leaderboard_opt_in, created_at")
+        .eq("id", user.id)
+        .single()
     );
-  }
+    if (userData) {
+      sections.user = {
+        githubLogin: userData.github_login,
+        isPublic: userData.is_public,
+        leaderboardOptIn: userData.leaderboard_opt_in,
+        createdAt: userData.created_at,
+      };
+    }
 
-  // --- Audit log (before fetch so a crash mid-fetch is still recorded) --
-  await writeAuditLog(user.id, "export", req);
+    const { data: goals } = checkedExportQuery(
+      await supabaseAdmin
+        .from("goals")
+        .select(
+          "id, user_id, title, target, current, unit, repo, recurrence, deadline, period_start, created_at, updated_at"
+        )
+        .eq("user_id", user.id)
+    );
+    sections.goals = goals || [];
 
-  // --- Data collection -------------------------------------------------
-  // Every query is scoped to `user.id` which was resolved from the
-  // authenticated session — there is no user-supplied target ID, so IDOR
-  // is not possible with the current design.
+    const { data: goalHistory } = checkedExportQuery(
+      await supabaseAdmin
+        .from("goal_history")
+        .select(
+          "id, goal_id, user_id, period_start, period_end, target, achieved, completed, created_at"
+        )
+        .eq("user_id", user.id)
+        .order("period_end", { ascending: false })
+    );
+    sections.goalHistory = goalHistory || [];
 
-  const sections: Record<string, unknown> = {};
+    const { data: snapshots } = checkedExportQuery(
+      await supabaseAdmin
+        .from("metric_snapshots")
+        .select(
+          "id, user_id, commits, prs_open, prs_merged, issues_closed, snapshot_at"
+        )
+        .eq("user_id", user.id)
+        .order("snapshot_at", { ascending: false })
+        .limit(1000)
+    );
+    sections.metricSnapshots = snapshots || [];
 
-  const { data: userData } = await supabaseAdmin
-    .from("users")
-    .select("id, github_login, is_public, leaderboard_opt_in, created_at")
-    .eq("id", user.id)
-    .single();
-  if (userData) {
-    sections.user = {
-      githubLogin: userData.github_login,
-      isPublic: userData.is_public,
-      leaderboardOptIn: userData.leaderboard_opt_in,
-      createdAt: userData.created_at,
+    const { data: webhooks } = checkedExportQuery(
+      await supabaseAdmin
+        .from("webhook_configs")
+        // Intentionally exclude any secret/signing columns that may be added later;
+        // the redactSensitiveFields pass below is a second safety net.
+        .select("id, name, url, events, is_enabled, created_at")
+        .eq("user_id", user.id)
+    );
+    sections.webhooks = webhooks || [];
+
+    const webhookIds = webhooks?.map((w) => w.id) ?? [];
+    const { data: webhookDeliveries } = checkedExportQuery(
+      await supabaseAdmin
+        .from("webhook_deliveries")
+        // `payload` and `response_body` may contain tokens embedded in JSON; the
+        // redactSensitiveFields pass below will scrub any recognised key names.
+        .select(
+          "id, webhook_id, event, payload, status_code, success, error_message, delivered_at"
+        )
+        .in("webhook_id", webhookIds)
+    );
+    sections.webhookDeliveries = webhookDeliveries || [];
+
+    const { data: streakFreezes } = checkedExportQuery(
+      await supabaseAdmin
+        .from("streak_freezes")
+        .select("id, user_id, freeze_date, created_at")
+        .eq("user_id", user.id)
+    );
+    sections.streakFreezes = streakFreezes || [];
+
+    const { data: streakMilestones } = checkedExportQuery(
+      await supabaseAdmin
+        .from("streak_milestones")
+        .select("id, user_id, streak_count, achieved_at")
+        .eq("user_id", user.id)
+    );
+    sections.streakMilestones = streakMilestones || [];
+
+    const { data: linkedAccounts } = checkedExportQuery(
+      await supabaseAdmin
+        .from("user_github_accounts")
+        // Deliberately omit any token columns — only identity fields are exported.
+        .select("id, user_id, github_id, github_login, added_at")
+        .eq("user_id", user.id)
+    );
+    sections.linkedAccounts = linkedAccounts || [];
+
+    const { data: localCodingSessions } = checkedExportQuery(
+      await supabaseAdmin
+        .from("local_coding_sessions")
+        .select(
+          "id, user_id, date, total_seconds, file_count, project_count, created_at, updated_at"
+        )
+        .eq("user_id", user.id)
+        .order("date", { ascending: false })
+        .limit(365)
+    );
+    sections.localCodingSessions = localCodingSessions || [];
+
+    // --- Redact any sensitive fields that slipped through the column selects --
+    const redactedSections = redactSensitiveFields(sections) as Record<
+      string,
+      unknown
+    >;
+
+    const exportPayload = {
+      exportedAt: new Date().toISOString(),
+      userId: user.id,
+      githubLogin: session.githubLogin,
+      sections: redactedSections,
     };
-  }
 
-  const { data: goals } = await supabaseAdmin
-    .from("goals")
-    .select("id, user_id, title, description, status, created_at, updated_at")
-    .eq("user_id", user.id);
-  sections.goals = goals || [];
+    if (format === "csv") {
+      // Flatten goals section to CSV
+      const goals = (redactedSections as any)?.goals ?? [];
+      const headers = [
+        "id",
+        "title",
+        "target",
+        "current",
+        "unit",
+        "recurrence",
+        "deadline",
+        "created_at",
+      ];
+      const rows = goals.map((g: Record<string, unknown>) =>
+        headers.map((h) => JSON.stringify(g[h] ?? "")).join(",")
+      );
+      const csv = [headers.join(","), ...rows].join("\n");
+      return new NextResponse(csv, {
+        headers: {
+          "Content-Type": "text/csv",
+          "Content-Disposition": `attachment; filename="devtrack-export-${session.githubLogin}.csv"`,
+        },
+      });
+    }
 
-  const { data: goalHistory } = await supabaseAdmin
-    .from("goal_history")
-    .select("id, goal_id, user_id, period_start, period_end, target, achieved, completed, created_at")
-    .eq("user_id", user.id)
-    .order("period_end", { ascending: false });
-  sections.goalHistory = goalHistory || [];
-
-  const { data: snapshots } = await supabaseAdmin
-    .from("metric_snapshots")
-    .select(
-      "id, user_id, streak_current, streak_longest, total_commits, total_prs, total_issues, snapshot_at",
-    )
-    .eq("user_id", user.id)
-    .order("snapshot_at", { ascending: false })
-    .limit(1000);
-  sections.metricSnapshots = snapshots || [];
-
-  const { data: webhooks } = await supabaseAdmin
-    .from("webhook_configs")
-    // Intentionally exclude any secret/signing columns that may be added later;
-    // the redactSensitiveFields pass below is a second safety net.
-    .select("id, name, url, events, is_enabled, created_at")
-    .eq("user_id", user.id);
-  sections.webhooks = webhooks || [];
-
-  const webhookIds = webhooks?.map((w) => w.id) ?? [];
-  const { data: webhookDeliveries } = await supabaseAdmin
-    .from("webhook_deliveries")
-    // `payload` and `response_body` may contain tokens embedded in JSON; the
-    // redactSensitiveFields pass below will scrub any recognised key names.
-    .select(
-      "id, webhook_id, event_type, payload, response_status, response_body, delivered_at, created_at",
-    )
-    .in("webhook_id", webhookIds);
-  sections.webhookDeliveries = webhookDeliveries || [];
-
-  const { data: streakFreezes } = await supabaseAdmin
-    .from("streak_freezes")
-    .select("id, user_id, freeze_date, created_at")
-    .eq("user_id", user.id);
-  sections.streakFreezes = streakFreezes || [];
-
-  const { data: streakMilestones } = await supabaseAdmin
-    .from("streak_milestones")
-    .select("id, user_id, streak_count, achieved_at")
-    .eq("user_id", user.id);
-  sections.streakMilestones = streakMilestones || [];
-
-  const { data: linkedAccounts } = await supabaseAdmin
-    .from("user_github_accounts")
-    // Deliberately omit any token columns — only identity fields are exported.
-    .select("id, user_id, github_id, github_login, created_at")
-    .eq("user_id", user.id);
-  sections.linkedAccounts = linkedAccounts || [];
-
-  const { data: localCodingSessions } = await supabaseAdmin
-    .from("local_coding_sessions")
-    .select(
-      "id, user_id, date, duration_minutes, lines_added, lines_deleted, commits_count",
-    )
-    .eq("user_id", user.id)
-    .order("date", { ascending: false })
-    .limit(365);
-  sections.localCodingSessions = localCodingSessions || [];
-
-  // --- Redact any sensitive fields that slipped through the column selects --
-  const redactedSections = redactSensitiveFields(sections) as Record<string, unknown>;
-
-  const exportPayload = {
-    exportedAt: new Date().toISOString(),
-    userId: user.id,
-    githubLogin: session.githubLogin,
-    sections: redactedSections,
-  };
-
-  if (format === "csv") {
-    // Flatten goals section to CSV
-    const goals = (redactedSections as any)?.goals ?? [];
-    const headers = ["id", "title", "target", "current", "unit", "recurrence", "deadline", "created_at"];
-    const rows = goals.map((g: Record<string, unknown>) =>
-      headers.map((h) => JSON.stringify(g[h] ?? "")).join(",")
+    return NextResponse.json(exportPayload);
+  } catch {
+    return NextResponse.json(
+      { error: "Export data is unavailable" },
+      { status: 503 }
     );
-    const csv = [headers.join(","), ...rows].join("\n");
-    return new NextResponse(csv, {
-      headers: {
-        "Content-Type": "text/csv",
-        "Content-Disposition": `attachment; filename="devtrack-export-${session.githubLogin}.csv"`,
-      },
-    });
   }
-
-  return NextResponse.json(exportPayload);
 }
 
 // ---------------------------------------------------------------------------
@@ -315,83 +362,67 @@ export async function DELETE(req: NextRequest) {
 
   // --- Confirmation guard ----------------------------------------------
   const body = await req.json().catch(() => ({}));
-  const { confirmText } = body as { confirmText?: string };
+  const confirmText =
+    body && typeof body === "object" && !Array.isArray(body)
+      ? body.confirmText
+      : undefined;
 
   if (confirmText !== "DELETE") {
     return NextResponse.json(
       { error: "Please type DELETE to confirm account deletion" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
   // --- Audit log (before deletion so the row still exists) -------------
   await writeAuditLog(user.id, "delete", req);
 
-  // --- Data deletion ---------------------------------------------------
-  // Delete webhook_deliveries first — they reference webhook_configs via
-  // webhook_id (not user_id), so we must resolve the IDs before removing
-  // the parent webhook_configs rows.
-  const { data: userWebhooks } = await supabaseAdmin
-    .from("webhook_configs")
-    .select("id")
-    .eq("user_id", user.id);
-
-  const webhookIds = userWebhooks?.map((w) => w.id) ?? [];
-  if (webhookIds.length > 0) {
-    await supabaseAdmin
-      .from("webhook_deliveries")
-      .delete()
-      .in("webhook_id", webhookIds);
+  // One database transaction checks stable ownership and cascades the whole deletion.
+  try {
+    const { data, error } = await supabaseAdmin.rpc("delete_app_user", {
+      p_user_id: user.id,
+      p_github_id: session.githubId,
+    });
+    if (error)
+      return NextResponse.json(
+        { error: "Account deletion is unavailable" },
+        { status: 503 }
+      );
+    if (!data)
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+  } catch {
+    return NextResponse.json(
+      { error: "Account deletion is unavailable" },
+      { status: 503 }
+    );
   }
-
-  // Tables with a direct user_id foreign key, ordered to respect any
-  // potential FK constraints (children before parents).
-  // ai_insights is included explicitly here even though ON DELETE CASCADE on
-  // the foreign key would remove those rows when the users row is deleted.
-  // The explicit delete is a defense-in-depth measure that works regardless
-  // of whether the FK migration has been applied to a given environment.
-  const tablesToDelete = [
-    "notifications",
-    "ai_insights",
-    "data_export_audit",
-    "streak_freezes",
-    "streak_milestones",
-    "local_coding_sessions",
-    "local_coding_api_keys",
-    "jira_credentials",
-    "webhook_configs",
-    "user_github_accounts",
-    "goal_history",
-    "goals",
-    "metric_snapshots",
-  ];
-
-  for (const table of tablesToDelete) {
-    await supabaseAdmin.from(table).delete().eq("user_id", user.id);
-  }
-
-  await supabaseAdmin.from("users").delete().eq("id", user.id);
 
   // --- Clear session cookie --------------------------------------------
   const response = NextResponse.json({
     success: true,
-    message: "All user data has been deleted. You will be signed out.",
+    message: "Your account has been deleted. You will be signed out.",
   });
 
-  const useSecureCookies = process.env.NODE_ENV === "production";
-  const sessionTokenCookieName = useSecureCookies
-    ? "__Secure-next-auth.session-token"
-    : "next-auth.session-token";
-
-  response.cookies.set({
-    name: sessionTokenCookieName,
-    value: "",
-    httpOnly: true,
-    sameSite: "lax",
-    secure: useSecureCookies,
-    path: "/",
-    expires: new Date(0),
-  });
+  const names = new Set([
+    "next-auth.session-token",
+    "__Secure-next-auth.session-token",
+    ...req.cookies
+      .getAll()
+      .map((cookie) => cookie.name)
+      .filter((name) =>
+        /^(?:__Secure-)?next-auth\.session-token(?:\.\d+)?$/.test(name)
+      ),
+  ]);
+  for (const name of names)
+    response.cookies.set({
+      name,
+      value: "",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: name.startsWith("__Secure-"),
+      path: "/",
+      expires: new Date(0),
+    });
 
   return response;
 }

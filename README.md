@@ -293,3 +293,7 @@ Built by the DevTrack community · [devtrack-silk-kappa.vercel.app](https://devt
 **If DevTrack is useful to you, a star goes a long way.**
 
 </div>
+
+## Audit and repairs
+
+The [2026-10-11 audit](docs/audits/2026-10-11/README.md) records the original code and GitHub backlog. The [repair ledger](docs/repairs/2026-10-11.md) maps each finding to changes and verification. Existing deployments must follow the [database adoption guide](supabase/README.md) before using the repaired schema.

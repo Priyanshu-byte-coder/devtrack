@@ -1,5 +1,6 @@
+import { toDatabaseJson } from "@/lib/database-json";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import type {
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const analysis = analysisRow.analysis_data as ContributionClassification;
+    const analysis = analysisRow.analysis_data as unknown as ContributionClassification;
 
     /* ── 5. Check for cached generation for this role ────────── */
     const { data: cachedContent } = await supabaseAdmin
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
 
     if (cachedContent) {
       const response: CVGenerateResponse = {
-        content: cachedContent.content as ResumeContent,
+        content: cachedContent.content as unknown as ResumeContent,
         cached: true,
       };
       return NextResponse.json(response);
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
       {
         user_id: userId,
         role,
-        content,
+        content: toDatabaseJson(content),
         generated_at: now.toISOString(),
         expires_at: expiresAt.toISOString(),
       },

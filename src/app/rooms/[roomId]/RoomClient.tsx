@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -23,6 +23,7 @@ export default function RoomClient({
   const router = useRouter();
   const [messages, setMessages] = useState<RoomMessage[]>(initialMessages);
   const [members, setMembers] = useState<RoomMember[]>(initialMembers);
+  useEffect(() => setMembers(initialMembers), [initialMembers]);
   const [deleting, setDeleting] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
 
@@ -40,21 +41,13 @@ export default function RoomClient({
     setMessages((prev) => {
       const existingIds = new Set(prev.map((m) => m.id));
       const novel = incoming.filter((m) => !existingIds.has(m.id));
-      return novel.length > 0 ? [...prev, ...novel] : prev;
+      return novel.length > 0 ? [...prev, ...novel].sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)) : prev;
     });
   }, []);
 
-  function handleMemberAdded(username: string) {
-    setMembers((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        room_id: room.id,
-        github_username: username,
-        role: 'member',
-        joined_at: new Date().toISOString(),
-      },
-    ]);
+  function handleMemberAdded(_username: string) {
+    // Invitations become memberships only after the recipient accepts.
+    router.refresh();
   }
 
   function handleMemberRemoved(username: string) {

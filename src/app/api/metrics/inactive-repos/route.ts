@@ -1,3 +1,4 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { getAccountToken, getAllAccounts, mergeMetrics } from "@/lib/github-accounts";
@@ -241,6 +242,9 @@ export async function GET(req: NextRequest) {
 
     return Response.json(result);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }

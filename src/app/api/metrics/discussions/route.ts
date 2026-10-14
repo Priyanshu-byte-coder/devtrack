@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -63,7 +65,7 @@ async function fetchDiscussionsMetrics(
         };
       }
       const { from, to } = getWindowDates(days);
-      const response = await fetch("https://api.github.com/graphql", {
+      const response = await githubRequest("https://api.github.com/graphql", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -140,6 +142,8 @@ export async function GET(req: NextRequest) {
       });
       return Response.json(formatDiscussionsMetrics(result));
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
@@ -209,6 +213,9 @@ export async function GET(req: NextRequest) {
     });
     return Response.json(formatDiscussionsMetrics(result));
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }

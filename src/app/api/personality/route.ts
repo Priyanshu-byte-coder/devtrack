@@ -1,5 +1,6 @@
+import { toDatabaseJson } from "@/lib/database-json";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -284,7 +285,7 @@ export async function GET(request: Request) {
         {
             user_id: userId,
             insight_type: PERSONALITY_INSIGHT_TYPE,
-            content: report,
+            content: toDatabaseJson(report),
             generated_at: now.toISOString(),
             expires_at: expiresAt.toISOString(),
         },

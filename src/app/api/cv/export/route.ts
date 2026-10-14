@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import type { CVExportRequest, ResumeContent } from "@/types/cv-types";
 

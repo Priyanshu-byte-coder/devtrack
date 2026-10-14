@@ -1,3 +1,4 @@
+import { toDatabaseJson } from "@/lib/database-json";
 import { githubGraphQL } from "@/lib/github-fetch";
 import { supabaseAdmin, isSupabaseAdminAvailable } from "@/lib/supabase";
 
@@ -152,7 +153,7 @@ export async function syncSponsorMetricsForUser(options: {
           active_count: result.activeCount,
           growth_trend: result.growthTrend,
           sparkline_data: result.sparklineData,
-          sponsors_json: result.sponsors,
+          sponsors_json: toDatabaseJson(result.sponsors),
           synced_at: nowStr,
           updated_at: nowStr,
         },
@@ -290,7 +291,7 @@ export async function syncSponsorMetricsForUser(options: {
           active_count: activeCount,
           growth_trend: growthTrend,
           sparkline_data: sparklineData,
-          sponsors_json: activeSponsorsList,
+          sponsors_json: toDatabaseJson(activeSponsorsList),
           synced_at: nowStr,
           updated_at: nowStr,
         },

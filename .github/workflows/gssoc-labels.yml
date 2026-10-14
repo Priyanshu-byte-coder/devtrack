@@ -17,11 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
       - name: Detect and apply type labels
         uses: actions/github-script@v9
         with:
@@ -34,10 +29,10 @@ jobs:
             const body = (pr.body || '').toLowerCase();
 
             // Fetch changed files
-            const filesRes = await github.rest.pulls.listFiles({
+            const filesRes = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
-            const files = filesRes.data.map(f => f.filename.toLowerCase());
+            const files = filesRes.map(f => f.filename.toLowerCase());
 
             const labelsToAdd = new Set();
 
@@ -95,7 +90,8 @@ jobs:
             // Auto-assign PR author to PR
             const creator = pr.user.login;
             const currentAssignees = pr.assignees.map(a => a.login);
-            if (!currentAssignees.includes(creator)) {
+            if (pr.user.type !== "Bot" && !creator.endsWith("[bot]") && !currentAssignees.includes(creator)) {
+              try {
               await github.rest.issues.addAssignees({
                 owner,
                 repo,
@@ -103,6 +99,10 @@ jobs:
                 assignees: [creator]
               });
               console.log(`Assigned PR #${prNumber} to author @${creator}`);
+              } catch (error) {
+                if (![403, 422].includes(error.status)) throw error;
+                core.warning(`Author assignment skipped: HTTP ${error.status}`);
+              }
             }
 
       - name: Post admin checklist comment

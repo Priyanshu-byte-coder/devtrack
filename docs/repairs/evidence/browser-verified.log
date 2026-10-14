@@ -1,0 +1,174 @@
+
+> devtrack@0.2.0 test:e2e
+> playwright test --workers=2 --retries=0 --timeout=30000 --max-failures=5 --reporter=json
+
+
+Running 52 tests using 2 workers
+····················································
+  52 passed (2.0m)
+[WebServer] (node:18156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] UPSTASH_REDIS_REST_URL is not set – rate limits will use in-memory storage and reset on cold starts.
+(node:7688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at aj (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\consistency-score\route.js:1:33968)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\consistency-score\route.js:1:38909)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\consistency-score\route.js:1:39976)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\consistency-score\route.js:1:41959)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] Unexpected error fetching user: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:9079)
+[WebServer]     at C (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\chunks\1720.js:1:5801)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\public\[username]\route.js:8:7239)
+[WebServer] Unexpected error fetching user: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:9079)
+[WebServer]     at C (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\chunks\1720.js:1:5801)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\public\[username]\route.js:8:7239)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\custom\route.js:1:565)
+[WebServer]     at async m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\custom\route.js:1:697)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\custom\route.js:1:14308)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\custom\route.js:1:15375)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\custom\route.js:1:17358)
+[WebServer] [badge-validation] Supabase lookup error: TypeError: fetch failed
+[WebServer] {"timestamp":"2026-10-11T15:33:22.450Z","endpoint":"/api/badge/streak-shield","operation":"generate_badge","error":"Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.","username":"playwright-user"}
+[WebServer] [badge-validation] Supabase lookup error: TypeError: fetch failed
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] Error syncing sponsor metrics: Error [GitHubAuthError]: GitHub token revoked or expired
+[WebServer]     at i (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\wrapped\route.js:1:7288)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\wrapped\route.js:1:8050)
+[WebServer]     at async m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\sponsors\route.js:36:11)
+[WebServer]     at async o (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\sponsors\route.js:36:1899)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\sponsors\route.js:36:5442)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\sponsors\route.js:36:6509) {
+[WebServer]   status: 401
+[WebServer] }
+[WebServer] Unexpected error fetching user: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:9079)
+[WebServer]     at C (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\chunks\1720.js:1:5801)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\public\[username]\route.js:8:7239)
+[WebServer] Unexpected error fetching user: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:9079)
+[WebServer]     at C (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\chunks\1720.js:1:5801)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\public\[username]\route.js:8:7239)
+[WebServer] Unexpected error fetching user: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:9079)
+[WebServer]     at C (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\chunks\1720.js:1:5801)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\public\[username]\route.js:8:7239)
+[WebServer] Unexpected error fetching user: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:9079)
+[WebServer]     at C (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\chunks\1720.js:1:5801)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\public\[username]\route.js:8:7239)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at j (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\accounts\route.js:1:516)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\accounts\route.js:1:5153)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\accounts\route.js:1:6220)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\accounts\route.js:1:8203)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at m (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\orgs\route.js:1:9139)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\orgs\route.js:1:3554)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\orgs\route.js:1:4621)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\orgs\route.js:1:6604)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at t (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\settings\route.js:1:4523)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\settings\route.js:1:18489)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\settings\route.js:1:19556)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\settings\route.js:1:21539)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at p (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\streak\route.js:1:16687)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\streak\route.js:1:8317)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\streak\route.js:1:9384)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\metrics\streak\route.js:1:11367)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\streak\freeze\route.js:1:1233)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\streak\freeze\route.js:1:7556)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\streak\freeze\route.js:1:8623)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\streak\freeze\route.js:1:10606)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:10325)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:6417)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:7484)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\daily-focus\route.js:1:9467)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at s (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\dashboard-layout\route.js:1:9903)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\dashboard-layout\route.js:1:3517)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\dashboard-layout\route.js:1:4584)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\user\dashboard-layout\route.js:1:6567)
+[WebServer] resolveAppUser failed: Error: Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
+[WebServer]     at Object.from (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\u\[username]\goals\[goalId]\page.js:1:8987)
+[WebServer]     at e (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\webhooks\dispatch\route.js:1:14170)
+[WebServer]     at l (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\milestones\route.js:1:917)
+[WebServer]     at async $ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\milestones\route.js:1:7266)
+[WebServer]     at async _ (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\milestones\route.js:1:8333)
+[WebServer]     at async Module.A (C:\Users\Priyanshu\OneDrive\Desktop\All_projects\devtrack\.next\standalone\.next\server\app\api\milestones\route.js:1:10316)

@@ -16,7 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────
 
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: vi.fn(),
 }));
 
@@ -32,7 +32,7 @@ vi.mock("@/lib/supabase", () => ({
 
 // ── Imports (after mocks) ─────────────────────────────────────────────────
 
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { supabaseAdmin } from "@/lib/supabase";
 import { POST } from "@/app/api/goals/sync/route";
 
@@ -114,13 +114,17 @@ function setupSupabaseMocks({
     in: vi.fn().mockReturnThis(),
     gte: vi.fn().mockReturnThis(),
     lte: vi.fn().mockResolvedValue({ data: goals, error: goalsError }),
+    limit: vi.fn().mockResolvedValue({ data: goals, error: goalsError }),
   };
 
   const updateChain = {
     update: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockResolvedValue({ data: null, error: updateError }),
+    eq: vi.fn().mockReturnThis(),
+    then: (resolve: (value: unknown)=>unknown) => Promise.resolve({data:null,error:updateError}).then(resolve),
     in: vi.fn().mockResolvedValue({ data: null, error: updateError }),
   };
+
+  updateChain.update.mockReturnValue(updateChain);
 
   vi.mocked(supabaseAdmin.from).mockImplementation((table: string) => {
     if (table === "users") return userChain as any;
@@ -424,13 +428,13 @@ describe("POST /api/goals/sync", () => {
       const body = await res.json();
 
       expect(res.status).toBe(429);
-      expect(body.rateLimited).toBe(true);
-      expect(body.error).toContain("rate limit");
+      expect(body.error).toBe("GITHUB_RATE_LIMITED");
+      expect(res.headers.get("retry-after")).toBeTruthy();
       // Goals must NOT be updated when rate limited
       expect(updateChain.update).not.toHaveBeenCalled();
     });
 
-    it("returns 429 when GitHub returns 403 for commit search", async () => {
+    it("returns 502 when GitHub denies permission without quota exhaustion", async () => {
       vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
       setupSupabaseMocks({ goals: [makeCommitGoal()] });
 
@@ -442,7 +446,7 @@ describe("POST /api/goals/sync", () => {
       } as any);
 
       const res = await POST();
-      expect(res.status).toBe(429);
+      expect(res.status).toBe(502);
     });
 
     it("includes reset time in message when X-RateLimit-Reset header is present", async () => {
@@ -460,7 +464,7 @@ describe("POST /api/goals/sync", () => {
       const body = await res.json();
 
       expect(res.status).toBe(429);
-      expect(body.error).toContain("Sync will resume at");
+      expect(body.rateLimit.resetAt).toBe("2099-01-01T10:30:00.000Z");
     });
 
     it("returns 429 and does not update PR goals when GitHub PR search is rate limited", async () => {
@@ -514,76 +518,17 @@ describe("POST /api/goals/sync", () => {
     expect(body.error).toBe("Failed to fetch goals");
   });
 
-  it("returns 500 when Supabase update fails for a commit goal", async () => {
+  it("returns 500 when a progress write fails",async()=>{
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
-
-    // Wire the full chain manually so update().eq() resolves with an error
-    const updateEqMock = vi.fn().mockResolvedValue({ data: null, error: { message: "Update failed" } });
-    const updateMock = vi.fn().mockReturnValue({ eq: updateEqMock, in: updateEqMock });
-
-    vi.mocked(supabaseAdmin.from).mockImplementation((table: string) => {
-      if (table === "users") {
-        return {
-          select: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({ data: mockUser, error: null }),
-        } as any;
-      }
-      // goals table — SELECT resolves with one commit goal, UPDATE fails
-      return {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        in: vi.fn().mockReturnThis(),
-        gte: vi.fn().mockReturnThis(),
-        lte: vi.fn().mockResolvedValue({ data: [makeCommitGoal()], error: null }),
-        update: updateMock,
-      } as any;
-    });
-
-    vi.mocked(global.fetch).mockResolvedValue(
-      makeGitHubCommitsResponse(5) as any
-    );
-
-    const res = await POST();
-    const body = await res.json();
-
-    expect(res.status).toBe(500);
-    expect(body.error).toBe("Failed to update goals");
+    setupSupabaseMocks({updateError:{message:'DB write failed'}});
+    vi.mocked(global.fetch).mockResolvedValue(makeGitHubCommitsResponse(1,5) as any);
+    const res=await POST();expect(res.status).toBe(500);expect((await res.json()).error).toBe('Failed to update goals');
   });
-
-  it("returns 500 when Supabase update fails for PR goals", async () => {
+  it("checks failures for review goals as well as commit goals",async()=>{
     vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
-
-    const updateInMock = vi.fn().mockResolvedValue({ data: null, error: { message: "PR update failed" } });
-    const updateMock = vi.fn().mockReturnValue({ eq: updateInMock, in: updateInMock });
-
-    vi.mocked(supabaseAdmin.from).mockImplementation((table: string) => {
-      if (table === "users") {
-        return {
-          select: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({ data: mockUser, error: null }),
-        } as any;
-      }
-      return {
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        in: vi.fn().mockReturnThis(),
-        gte: vi.fn().mockReturnThis(),
-        lte: vi.fn().mockResolvedValue({ data: [makePRGoal()], error: null }),
-        update: updateMock,
-      } as any;
-    });
-
-    vi.mocked(global.fetch).mockResolvedValue(
-      makeGitHubPRsResponse(3) as any
-    );
-
-    const res = await POST();
-    const body = await res.json();
-
-    expect(res.status).toBe(500);
-    expect(body.error).toBe("Failed to update PR goals");
+    setupSupabaseMocks({goals:[makeCommitGoal({unit:'reviews'})],updateError:{message:'DB write failed'}});
+    vi.mocked(global.fetch).mockResolvedValue(makeGitHubPRsResponse(3) as any);
+    expect((await POST()).status).toBe(500);
   });
 });
 
@@ -628,55 +573,24 @@ describe("POST /api/goals/sync", () => {
 
   // ── Pagination ────────────────────────────────────────────────────────────
 
-  describe("commit pagination", () => {
-    it("fetches additional pages when first page returns exactly 100 items", async () => {
+  describe("count requests", () => {
+    it("uses total_count beyond the Search pagination ceiling in one request", async()=>{
       vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
-      setupSupabaseMocks({ goals: [makeCommitGoal()] });
-
-      // First page: 100 items (triggers next page fetch)
-      // Second page: 30 items (stops pagination)
-      vi.mocked(global.fetch)
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-          headers: new Headers(),
-          json: vi.fn().mockResolvedValue({
-            items: Array(100).fill({ sha: "abc" }),
-          }),
-        } as any)
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-          headers: new Headers(),
-          json: vi.fn().mockResolvedValue({
-            items: Array(30).fill({ sha: "def" }),
-          }),
-        } as any);
-
-      const { updateChain } = setupSupabaseMocks({ goals: [makeCommitGoal()] });
-
-      vi.mocked(global.fetch)
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-          headers: new Headers(),
-          json: vi.fn().mockResolvedValue({ items: Array(100).fill({}) }),
-        } as any)
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-          headers: new Headers(),
-          json: vi.fn().mockResolvedValue({ items: Array(30).fill({}) }),
-        } as any);
-
-      await POST();
-
-      // Should have made exactly 2 GitHub API calls for this one goal
-      expect(vi.mocked(global.fetch)).toHaveBeenCalledTimes(2);
-      // Total commits = 100 + 30 = 130
-      expect(updateChain.update).toHaveBeenCalledWith(
-        expect.objectContaining({ current: 130 })
-      );
+      const {updateChain}=setupSupabaseMocks({goals:[makeCommitGoal()]});
+      vi.mocked(global.fetch).mockResolvedValue(makeGitHubCommitsResponse(1,2500) as any);
+      const res=await POST();expect(res.status).toBe(200);expect(fetch).toHaveBeenCalledTimes(1);
+      expect(updateChain.update).toHaveBeenCalledWith(expect.objectContaining({current:2500}));
+    });
+    it("shares identical counts across goals",async()=>{
+      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      const {updateChain}=setupSupabaseMocks({goals:[makeCommitGoal({id:'one'}),makeCommitGoal({id:'two'})]});
+      vi.mocked(global.fetch).mockResolvedValue(makeGitHubCommitsResponse(1,150) as any);
+      expect((await POST()).status).toBe(200);expect(fetch).toHaveBeenCalledTimes(1);expect(updateChain.update).toHaveBeenCalledTimes(2);
+    });
+    it("never writes incomplete search counts",async()=>{
+      vi.mocked(getServerSession).mockResolvedValue(mockSession as any);
+      const {updateChain}=setupSupabaseMocks();vi.mocked(global.fetch).mockResolvedValue({ok:true,json:async()=>({total_count:30,incomplete_results:true})} as any);
+      expect((await POST()).status).toBe(502);expect(updateChain.update).not.toHaveBeenCalled();
     });
   });
 

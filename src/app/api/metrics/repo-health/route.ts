@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { computeHealthScore } from "@/lib/repo-health";
@@ -21,7 +23,7 @@ async function fetchReposForAccount(token: string, githubLogin: string, days: nu
   // This single request costs 1 of the 30 req/min quota.
   // The outer withMetricsCache (ttlSeconds: 10 * 60) in the GET handler prevents
   // re-fetching on every page load — this is only called on a cache miss.
-  const searchRes = await fetch(
+  const searchRes = await githubRequest(
     `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${since}&per_page=100&sort=author-date&order=desc`,
     {
       headers: {
@@ -64,7 +66,7 @@ function daysSince(isoDate: string): number { return Math.max(0, Math.floor((Dat
 // Throws on any non-ok response so the per-repo try/catch in the GET handler
 // can skip a single failing repo without aborting the entire health check.
 async function fetchJson<T>(url: string, token: string, accept?: string): Promise<T> {
-  const res = await fetch(url, {
+  const res = await githubRequest(url, {
     headers: {
       // OAuth token / PAT used for every request — keeps all calls in the
       // authenticated tier (5,000/hr REST, 30/min Search API).
@@ -184,6 +186,9 @@ export async function GET(req: NextRequest) {
     });
     return Response.json(data);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     // Catches errors from fetchReposForAccount (the initial Search API call).
     // Returns 502 so the client shows an error state rather than an empty health widget.
     return Response.json({ error: "GitHub API error" }, { status: 502 });

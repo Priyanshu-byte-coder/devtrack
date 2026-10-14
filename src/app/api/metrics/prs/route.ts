@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
@@ -113,8 +115,8 @@ async function fetchFirstReviewTimestamp(
   };
 
   const [reviewsRes, commentsRes] = await Promise.all([
-    fetch(`${GITHUB_API}/repos/${repo}/pulls/${pr.number}/reviews?per_page=100`, { headers, cache: "no-store" }),
-    fetch(`${GITHUB_API}/repos/${repo}/pulls/${pr.number}/comments?per_page=100`, { headers, cache: "no-store" }),
+    githubRequest(`${GITHUB_API}/repos/${repo}/pulls/${pr.number}/reviews?per_page=100`, { headers, cache: "no-store" }),
+    githubRequest(`${GITHUB_API}/repos/${repo}/pulls/${pr.number}/comments?per_page=100`, { headers, cache: "no-store" }),
   ]);
 
   if (!reviewsRes.ok || !commentsRes.ok) return null;
@@ -186,7 +188,7 @@ async function fetchPRMetrics(
   } else if (excludedOrgs.length > 0) {
     q += excludedOrgs.map((org) => `+-org:${org}`).join("");
   }
-  const searchRes = await fetch(
+  const searchRes = await githubRequest(
     `${GITHUB_API}/search/issues?q=${q}&sort=updated&order=desc&per_page=100`,
     {
       headers: { Authorization: `Bearer ${token}` },
@@ -243,7 +245,7 @@ async function fetchPRMetrics(
     }
   `;
 
-  const gqlRes = await fetch("https://api.github.com/graphql", {
+  const gqlRes = await githubRequest("https://api.github.com/graphql", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -329,7 +331,7 @@ async function fetchGitLabMRMetrics(token: string): Promise<PRMetricsBase> {
     url.searchParams.set("per_page", String(perPage));
     url.searchParams.set("page", String(page));
 
-    const response = await fetch(url.toString(), {
+    const response = await githubRequest(url.toString(), {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
@@ -494,7 +496,7 @@ async function fetchReviewMetrics(token: string): Promise<ReviewMetrics> {
     }
   `;
 
-  const res = await fetch("https://api.github.com/graphql", {
+  const res = await githubRequest("https://api.github.com/graphql", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -603,7 +605,9 @@ export async function GET(req: NextRequest) {
       ]);
 
       return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });
-    } catch {
+    } catch (error) {
+      const githubLimit = githubRateLimitResponse(error);
+      if (githubLimit) return githubLimit;
       // Catches errors from fetchCachedPRMetrics (GitHub Search API failures).
       // Returns 502 so the client knows the data is unavailable, not just empty.
       return Response.json({ error: "GitHub API error" }, { status: 502 });
@@ -706,7 +710,9 @@ export async function GET(req: NextRequest) {
       ]);
 
       return Response.json({ ...formatPRMetricsResponse(combinedMetrics, gitlab), reviews });
-    } catch {
+    } catch (error) {
+      const githubLimit = githubRateLimitResponse(error);
+      if (githubLimit) return githubLimit;
       return Response.json({ error: "Failed to compile combined profile metrics" }, { status: 502 });
     }
   }
@@ -750,6 +756,9 @@ export async function GET(req: NextRequest) {
 
     return Response.json({ ...formatPRMetricsResponse(result, gitlab), reviews });
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

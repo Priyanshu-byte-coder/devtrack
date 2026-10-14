@@ -1,8 +1,8 @@
 import "server-only";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
-import type { Session } from "next-auth";
+import type { ServerSession as Session } from "@/lib/server-session";
 
 export interface SessionWithToken {
   session: Session;

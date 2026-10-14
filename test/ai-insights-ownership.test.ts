@@ -7,9 +7,10 @@ const mocks = vi.hoisted(() => ({
   resolveAppUser: vi.fn(),
   supabaseFrom: vi.fn(),
   fetch: vi.fn(),
+  metrics: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/resolve-user", () => ({ resolveAppUser: mocks.resolveAppUser }));
 vi.mock("@/lib/supabase", () => ({
@@ -23,6 +24,7 @@ vi.mock("@/lib/ai-mentor", () => ({
   computeTrends: vi.fn().mockReturnValue({ direction: "up", percentage: 5 }),
 }));
 
+vi.mock("@/lib/insight-metrics",()=>({loadInsightMetrics:mocks.metrics,InsightMetricsUnavailableError:class extends Error {}}));
 vi.stubGlobal("fetch", mocks.fetch);
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -93,6 +95,7 @@ describe("GET /api/ai-insights — ownership model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     stubMetricsFetches();
+    mocks.metrics.mockResolvedValue([{data:{},total:0},{open:0,merged:0},{current:0,longest:0,totalActiveDays:0},{repos:[]}]);
 
     mocks.getServerSession.mockResolvedValue({
       githubId: GITHUB_ID,
@@ -244,4 +247,9 @@ describe("GET /api/ai-insights — ownership model", () => {
     expect(body.cached).toBe(false);
     expect(body.data).toBeDefined();
   });
+});
+
+it('does not cache insights when metric loading fails',async()=>{
+ const {upsertChain}=setupSupabaseCacheMiss();mocks.getServerSession.mockResolvedValue({githubId:GITHUB_ID,githubLogin:'alice'});mocks.resolveAppUser.mockResolvedValue({id:freshUUID()});mocks.metrics.mockRejectedValue(new Error('Metrics unavailable'));
+ const {GET}=await import('@/app/api/ai-insights/route');expect((await GET(makeRequest())).status).toBe(503);expect(upsertChain).not.toHaveBeenCalled();
 });

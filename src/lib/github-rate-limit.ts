@@ -7,11 +7,21 @@ export interface GitHubRateLimitDetails {
 
 export class GitHubRateLimitError extends Error {
   details: GitHubRateLimitDetails;
-
-  constructor(details: GitHubRateLimitDetails) {
+  resetAt: Date | null;
+  retryAfter: number | null;
+  constructor(detailsOrReset: GitHubRateLimitDetails | Date | null, retryAfter: number | null = null) {
+    const resetAt = detailsOrReset instanceof Date && Number.isFinite(detailsOrReset.getTime()) ? detailsOrReset : null;
+    const details = detailsOrReset && !(detailsOrReset instanceof Date) ? detailsOrReset : {
+      code: "GITHUB_RATE_LIMITED" as const,
+      message: "GitHub API rate limit reached. Please try again after the cooldown.",
+      resetAt: resetAt?.toISOString() ?? null,
+      resetAtEpoch: resetAt ? Math.ceil(resetAt.getTime() / 1000) : null,
+    };
     super(details.message);
     this.name = "GitHubRateLimitError";
     this.details = details;
+    this.resetAt = details.resetAt ? new Date(details.resetAt) : null;
+    this.retryAfter = retryAfter;
   }
 }
 
@@ -76,6 +86,6 @@ export function githubRateLimitResponse(error: unknown): Response | null {
         resetAtEpoch: error.details.resetAtEpoch,
       },
     },
-    { status: 429 }
+    { status: 429, headers: { "Retry-After": String(Math.max(1, error.retryAfter ?? ((error.details.resetAtEpoch ?? Math.ceil(Date.now() / 1000) + 60) - Math.floor(Date.now() / 1000)))) } }
   );
 }

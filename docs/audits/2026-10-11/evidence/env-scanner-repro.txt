@@ -1,0 +1,4 @@
+canary present=true
+grep exit=1
+
+
