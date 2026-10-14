@@ -13,6 +13,11 @@ import { decode } from "next-auth/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
+import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
+import ThrottleBanner from "@/components/ThrottleBanner";
+import CustomizableDashboard from "@/components/dashboard/CustomizableDashboard";
+import MilestonePlanner from "@/components/MilestonePlanner";
+import ShareDashboardButton from "@/components/ShareDashboardButton";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import RoastHypeWidget from "./RoastHypeWidget";
 
@@ -53,6 +58,20 @@ export default async function DashboardPage() {
         <main className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
           <DashboardHeader />
 
+            <Link
+              href="/dashboard/settings"
+              className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)]/60 px-5 py-2.5 text-sm font-medium transition-all hover:bg-[var(--card)]/80 hover:shadow-sm hover:scale-[1.02] active:scale-95"
+            >
+              Settings
+            </Link>
+
+            <ShareDashboardButton />
+          </div>
+
+          <div className="w-full sm:w-auto">
+            <ExportButton />
+          </div>
+        </div>
           <div className="mt-6 space-y-8">
             {/* Quick actions */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
