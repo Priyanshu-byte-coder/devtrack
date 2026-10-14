@@ -1,5 +1,6 @@
+import { toDatabaseJson } from "@/lib/database-json";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -70,7 +71,7 @@ export async function PATCH(request: Request) {
       const { error } = await supabaseAdmin
             .from("users")
             .update({
-                      dashboard_layout: layout,
+                      dashboard_layout: toDatabaseJson(layout),
                       updated_at: new Date().toISOString(),
             })
             .eq("id", appUser.id);

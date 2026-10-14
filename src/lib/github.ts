@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 import { throwIfGitHubRateLimited } from "@/lib/github-rate-limit";
 
 // Re-export the canonical GitHubAuthError class from github-fetch so all
@@ -19,7 +20,7 @@ async function githubFetch(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
+    const res = await githubRequest(url, { ...options, signal: controller.signal });
     return res;
   } finally {
     clearTimeout(timeout);

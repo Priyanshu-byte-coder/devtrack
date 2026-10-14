@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 function getParam(req: NextRequest, key: string, fallback: string) {
   const value = req.nextUrl.searchParams.get(key);

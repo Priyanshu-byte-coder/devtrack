@@ -3,30 +3,46 @@ info:
   title: DevTrack API
   description: REST API for DevTrack - an open-source developer productivity dashboard
   version: 1.0.0
-
 servers:
   - url: http://localhost:3000
     description: Local development server
   - url: https://devtrack.vercel.app
     description: Production server
-
 security:
   - cookieAuth: []
-
 components:
   securitySchemes:
     cookieAuth:
       type: apiKey
       in: cookie
       name: next-auth.session-token
-
+      description: >-
+        HttpOnly NextAuth cookie; HTTPS uses the __Secure- prefix. Provider tokens are never returned to
+        browser clients.
+    cronAuth:
+      type: http
+      scheme: bearer
+      description: CRON_SECRET supplied by the scheduler; all environments enforce it.
+    localCodingKey:
+      type: http
+      scheme: bearer
+      description: Personal DevTrack local coding API key.
+    leaderboardRebuild:
+      type: apiKey
+      in: header
+      name: x-devtrack-rebuild-token
+      description: LEADERBOARD_REBUILD_TOKEN supplied by a trusted operator.
+    githubWebhook:
+      type: apiKey
+      in: header
+      name: x-hub-signature-256
+      description: HMAC SHA-256 of the raw request body using GITHUB_WEBHOOK_SECRET.
   schemas:
     Error:
       type: object
       properties:
         error:
           type: string
-
     Goal:
       type: object
       properties:
@@ -35,45 +51,184 @@ components:
         title:
           type: string
         target:
-          type: number
+          type: integer
         current:
-          type: number
-        createdAt:
+          type: integer
+        unit:
+          type: string
+        repo:
+          type:
+            - string
+            - 'null'
+        recurrence:
+          type: string
+          enum:
+            - none
+            - weekly
+            - monthly
+        created_at:
           type: string
           format: date-time
-
     Streak:
       type: object
       properties:
         current:
-          type: number
+          type: integer
         longest:
-          type: number
-        lastActive:
-          type: string
-          format: date-time
-
+          type: integer
+        lastCommitDate:
+          type:
+            - string
+            - 'null'
+        totalActiveDays:
+          type: integer
+        complete:
+          type: boolean
+          description: False when the requested commit history could not be fully collected.
 paths:
-  # AUTH ROUTES
-  /api/auth/link-github:
-    get:
-      tags: [Auth]
-      summary: Initiate GitHub account linking
+  /api/accounts/{githubLogin}:
+    delete:
+      operationId: delete_api_accounts_githubLogin_
+      summary: DELETE /api/accounts/{githubLogin}
+      tags:
+        - accounts
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+      parameters:
+        - name: githubLogin
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/accounts/link:
+    post:
+      operationId: post_api_accounts_link
+      summary: POST /api/accounts/link
+      tags:
+        - accounts
       responses:
-        '302':
-          description: Redirects to GitHub OAuth
-        '401':
-          description: Unauthorized
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/accounts:
+    get:
+      operationId: get_api_accounts
+      summary: GET /api/accounts
+      tags:
+        - accounts
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/ai-insights:
+    get:
+      operationId: get_api_ai_insights
+      summary: GET /api/ai-insights
+      tags:
+        - ai-insights
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/ai/roast:
+    post:
+      tags:
+        - AI
+      summary: Generate AI roast or hype of coding style
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: AI-generated content
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                type: object
+        '401':
+          description: Unauthorized
+        '500':
+          description: AI service unavailable (GROQ_API_KEY not configured)
+      operationId: post_api_ai_roast
+  /api/ai/weekly-summary:
+    post:
+      tags:
+        - AI
+      summary: Generate AI weekly summary
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: AI-generated weekly summary
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+      operationId: post_api_ai_weekly_summary
+  /api/auth/{nextauth}:
+    get:
+      operationId: get_api_auth_nextauth_
+      summary: GET /api/auth/{nextauth}
+      tags:
+        - auth
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+      parameters:
+        - name: nextauth
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Catch-all NextAuth operation path; may contain multiple segments.
+      x-nextjs-catchall: true
+    post:
+      operationId: post_api_auth_nextauth_
+      summary: POST /api/auth/{nextauth}
+      tags:
+        - auth
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+      parameters:
+        - name: nextauth
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Catch-all NextAuth operation path; may contain multiple segments.
+      x-nextjs-catchall: true
   /api/auth/link-github/callback:
     get:
-      tags: [Auth]
+      tags:
+        - Auth
       summary: GitHub OAuth callback for account linking
       parameters:
         - name: code
@@ -90,32 +245,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  # BADGE ROUTES
-  /api/badge/streak:
+      operationId: get_api_auth_link_github_callback
+      security:
+        - cookieAuth: []
+  /api/auth/link-github:
     get:
-      tags: [Badges]
-      summary: Get streak badge SVG
-      parameters:
-        - name: user
-          in: query
-          required: true
-          schema:
-            type: string
-          description: GitHub username
+      tags:
+        - Auth
+      summary: Initiate GitHub account linking
+      security:
+        - cookieAuth: []
       responses:
-        '200':
-          description: SVG badge
+        '302':
+          description: Redirects to GitHub OAuth
+        '401':
+          description: Unauthorized
           content:
-            image/svg+xml:
+            application/json:
               schema:
-                type: string
-        '404':
-          description: User not found
-
+                $ref: '#/components/schemas/Error'
+      operationId: get_api_auth_link_github
   /api/badge/commits:
     get:
-      tags: [Badges]
+      tags:
+        - Badges
       summary: Get commits badge SVG
       parameters:
         - name: user
@@ -133,55 +286,218 @@ paths:
                 type: string
         '404':
           description: User not found
-
-  # GOALS ROUTES
-  /api/goals:
+      operationId: get_api_badge_commits
+      security: []
+  /api/badge/streak-shield:
     get:
-      tags: [Goals]
-      summary: Get all goals for authenticated user
-      security:
-        - cookieAuth: []
+      tags:
+        - Badges
+      summary: Get streak badge SVG
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+          description: GitHub username
       responses:
         '200':
-          description: List of goals
+          description: SVG badge
           content:
-            application/json:
+            image/svg+xml:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Goal'
-        '401':
-          description: Unauthorized
+                type: string
+        '404':
+          description: User not found
+      operationId: get_api_badge_streak_shield
+      security: []
+  /api/contact:
     post:
-      tags: [Goals]
-      summary: Create a new goal
+      operationId: post_api_contact
+      summary: POST /api/contact
+      tags:
+        - contact
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/cron/goals-sync:
+    get:
+      operationId: get_api_cron_goals_sync
+      summary: GET /api/cron/goals-sync
+      tags:
+        - cron
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+  /api/cron/sync:
+    get:
+      operationId: get_api_cron_sync
+      summary: GET /api/cron/sync
+      tags:
+        - cron
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+    post:
+      operationId: post_api_cron_sync
+      summary: POST /api/cron/sync
+      tags:
+        - cron
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+  /api/cron/weekly-digest:
+    get:
+      operationId: get_api_cron_weekly_digest
+      summary: GET /api/cron/weekly-digest
+      tags:
+        - cron
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+  /api/cv/analyze:
+    post:
+      operationId: post_api_cv_analyze
+      summary: POST /api/cv/analyze
+      tags:
+        - cv
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [title, target]
-              properties:
-                title:
-                  type: string
-                target:
-                  type: number
+  /api/cv/export:
+    post:
+      operationId: post_api_cv_export
+      summary: POST /api/cv/export
+      tags:
+        - cv
       responses:
-        '201':
-          description: Goal created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Goal'
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/cv/generate:
+    post:
+      operationId: post_api_cv_generate
+      summary: POST /api/cv/generate
+      tags:
+        - cv
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/daily-focus:
+    delete:
+      operationId: delete_api_daily_focus
+      summary: DELETE /api/daily-focus
+      tags:
+        - daily-focus
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    get:
+      operationId: get_api_daily_focus
+      summary: GET /api/daily-focus
+      tags:
+        - daily-focus
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_daily_focus
+      summary: POST /api/daily-focus
+      tags:
+        - daily-focus
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/daily-note:
+    get:
+      operationId: get_api_daily_note
+      summary: GET /api/daily-note
+      tags:
+        - daily-note
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_daily_note
+      summary: POST /api/daily-note
+      tags:
+        - daily-note
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/debug/health:
+    get:
+      operationId: get_api_debug_health
+      summary: GET /api/debug/health
+      tags:
+        - debug
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/goals/{id}:
+    delete:
+      tags:
+        - Goals
+      summary: Delete a goal
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Goal deleted
         '401':
           description: Unauthorized
-
-  /api/goals/{id}:
-    put:
-      tags: [Goals]
+        '404':
+          description: Goal not found
+      operationId: delete_api_goals_id_
+    patch:
+      tags:
+        - Goals
       summary: Update a goal
       security:
         - cookieAuth: []
@@ -211,193 +527,392 @@ paths:
           description: Unauthorized
         '404':
           description: Goal not found
-    delete:
-      tags: [Goals]
-      summary: Delete a goal
+      operationId: patch_api_goals_id_
+  /api/goals/history:
+    get:
+      operationId: get_api_goals_history
+      summary: GET /api/goals/history
+      tags:
+        - goals
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/goals:
+    get:
+      tags:
+        - Goals
+      summary: Get all goals for authenticated user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of goals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Goal'
+        '401':
+          description: Unauthorized
+      operationId: get_api_goals
+    post:
+      tags:
+        - Goals
+      summary: Create a new goal
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - target
+              properties:
+                title:
+                  type: string
+                target:
+                  type: number
+      responses:
+        '201':
+          description: Goal created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+        '401':
+          description: Unauthorized
+      operationId: post_api_goals
+  /api/goals/sync:
+    post:
+      operationId: post_api_goals_sync
+      summary: POST /api/goals/sync
+      tags:
+        - goals
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/integrations/jira/credentials:
+    delete:
+      operationId: delete_api_integrations_jira_credentials
+      summary: DELETE /api/integrations/jira/credentials
+      tags:
+        - integrations
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    get:
+      operationId: get_api_integrations_jira_credentials
+      summary: GET /api/integrations/jira/credentials
+      tags:
+        - integrations
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_integrations_jira_credentials
+      summary: POST /api/integrations/jira/credentials
+      tags:
+        - integrations
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/integrations/jira:
+    get:
+      operationId: get_api_integrations_jira
+      summary: GET /api/integrations/jira
+      tags:
+        - integrations
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/leaderboard/rebuild:
+    post:
+      tags:
+        - Leaderboard
+      summary: Full leaderboard rebuild
+      security:
+        - leaderboardRebuild: []
       parameters:
-        - name: id
-          in: path
+        - name: Authorization
+          in: header
           required: true
           schema:
             type: string
+          description: Bearer token with LEADERBOARD_REBUILD_TOKEN
       responses:
         '200':
-          description: Goal deleted
+          description: Leaderboard rebuild started
         '401':
-          description: Unauthorized
-        '404':
-          description: Goal not found
-
-  # METRICS ROUTES
-  /api/metrics/contributions:
+          description: Invalid or missing rebuild token
+      operationId: post_api_leaderboard_rebuild
+  /api/leaderboard/refresh:
     get:
-      tags: [Metrics]
-      summary: Get contribution graph data
-      security:
-        - cookieAuth: []
+      operationId: get_api_leaderboard_refresh
+      summary: GET /api/leaderboard/refresh
+      tags:
+        - leaderboard
       responses:
         '200':
-          description: Contribution data
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/leaderboard:
+    get:
+      tags:
+        - Leaderboard
+      summary: Get public leaderboard rankings
+      parameters:
+        - name: lang
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by primary language
+        - name: period
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - week
+              - month
+              - year
+          description: Filter by time period
+      responses:
+        '200':
+          description: Leaderboard data
           content:
             application/json:
               schema:
                 type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/repos:
-    get:
-      tags: [Metrics]
-      summary: Get list of user repositories
-      security:
-        - cookieAuth: []
+        '429':
+          description: Rate limit exceeded
+      operationId: get_api_leaderboard
+      security: []
+  /api/local-coding/keys:
+    delete:
+      operationId: delete_api_local_coding_keys
+      summary: DELETE /api/local-coding/keys
+      tags:
+        - local-coding
       responses:
         '200':
-          description: List of repositories
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/languages:
-    get:
-      tags: [Metrics]
-      summary: Get language breakdown across repos
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+    get:
+      operationId: get_api_local_coding_keys
+      summary: GET /api/local-coding/keys
+      tags:
+        - local-coding
       responses:
         '200':
-          description: Language stats
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/prs:
-    get:
-      tags: [Metrics]
-      summary: Get pull request stats
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+    post:
+      operationId: post_api_local_coding_keys
+      summary: POST /api/local-coding/keys
+      tags:
+        - local-coding
       responses:
         '200':
-          description: PR statistics
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/pr-breakdown:
-    get:
-      tags: [Metrics]
-      summary: Get detailed PR breakdown
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/local-coding/stats:
+    get:
+      operationId: get_api_local_coding_stats
+      summary: GET /api/local-coding/stats
+      tags:
+        - local-coding
       responses:
         '200':
-          description: PR breakdown data
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/issues:
-    get:
-      tags: [Metrics]
-      summary: Get issues stats
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/local-coding/sync:
+    get:
+      operationId: get_api_local_coding_sync
+      summary: GET /api/local-coding/sync
+      tags:
+        - local-coding
       responses:
         '200':
-          description: Issues statistics
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/streak:
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - localCodingKey: []
+    post:
+      operationId: post_api_local_coding_sync
+      summary: POST /api/local-coding/sync
+      tags:
+        - local-coding
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - localCodingKey: []
+  /api/metrics/achievement-progress:
     get:
-      tags: [Metrics]
-      summary: Get streak metrics
+      operationId: get_api_metrics_achievement_progress
+      summary: GET /api/metrics/achievement-progress
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/metrics/achievements:
+    get:
+      operationId: get_api_metrics_achievements
+      summary: GET /api/metrics/achievements
+      tags:
+        - metrics
       responses:
         '200':
-          description: Streak data
-          content:
-            application/json:
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
               schema:
-                $ref: '#/components/schemas/Streak'
-        '401':
-          description: Unauthorized
-
-  /api/metrics/pinned-repos:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/activity:
     get:
-      tags: [Metrics]
-      summary: Get pinned repositories
+      operationId: get_api_metrics_activity
+      summary: GET /api/metrics/activity
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/ci:
+    get:
+      operationId: get_api_metrics_ci
+      summary: GET /api/metrics/ci
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/coding-activity-insights:
+    get:
+      operationId: get_api_metrics_coding_activity_insights
+      summary: GET /api/metrics/coding-activity-insights
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/commit-times:
+    get:
+      operationId: get_api_metrics_commit_times
+      summary: GET /api/metrics/commit-times
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/metrics/community-engagement:
+    get:
+      operationId: get_api_metrics_community_engagement
+      summary: GET /api/metrics/community-engagement
+      tags:
+        - metrics
       responses:
         '200':
-          description: Pinned repos
-          content:
-            application/json:
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
               schema:
-                type: array
-                items:
-                  type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/repo-health:
-    get:
-      tags: [Metrics]
-      summary: Get repository health score
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
-      responses:
-        '200':
-          description: Repo health data
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  /api/metrics/weekly-summary:
-    get:
-      tags: [Metrics]
-      summary: Get weekly activity summary
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Weekly summary
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
   /api/metrics/compare:
     get:
-      tags: [Metrics]
+      tags:
+        - Metrics
       summary: Compare metrics between two users
       security:
         - cookieAuth: []
@@ -417,51 +932,208 @@ paths:
                 type: object
         '401':
           description: Unauthorized
-
-  # PUBLIC ROUTES
-  # STREAK ROUTES
-  # USER ROUTES
-  /api/user/settings:
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_compare
+  /api/metrics/consistency-score:
     get:
-      tags: [User]
-      summary: Get user settings
+      operationId: get_api_metrics_consistency_score
+      summary: GET /api/metrics/consistency-score
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/contributions/daily:
+    get:
+      operationId: get_api_metrics_contributions_daily
+      summary: GET /api/metrics/contributions/daily
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/contributions/hourly:
+    get:
+      operationId: get_api_metrics_contributions_hourly
+      summary: GET /api/metrics/contributions/hourly
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/contributions:
+    get:
+      tags:
+        - Metrics
+      summary: Get contribution graph data
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: User settings
+          description: Contribution data
           content:
             application/json:
               schema:
                 type: object
         '401':
           description: Unauthorized
-    put:
-      tags: [User]
-      summary: Update user settings
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_contributions
+  /api/metrics/devtrack-badges:
+    get:
+      operationId: get_api_metrics_devtrack_badges
+      summary: GET /api/metrics/devtrack-badges
+      tags:
+        - metrics
       responses:
         '200':
-          description: Settings updated
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/discussions:
+    get:
+      operationId: get_api_metrics_discussions
+      summary: GET /api/metrics/discussions
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/inactive-repos:
+    get:
+      operationId: get_api_metrics_inactive_repos
+      summary: GET /api/metrics/inactive-repos
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/issues:
+    get:
+      tags:
+        - Metrics
+      summary: Get issues stats
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Issues statistics
+          content:
+            application/json:
+              schema:
+                type: object
         '401':
           description: Unauthorized
-
-  /api/user/github-accounts:
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_issues
+  /api/metrics/languages:
     get:
-      tags: [User]
-      summary: Get linked GitHub accounts
+      tags:
+        - Metrics
+      summary: Get language breakdown across repos
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: List of linked accounts
+          description: Language stats
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_languages
+  /api/metrics/pinned-repos:
+    get:
+      tags:
+        - Metrics
+      summary: Get pinned repositories
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Pinned repos
           content:
             application/json:
               schema:
@@ -470,31 +1142,406 @@ paths:
                   type: object
         '401':
           description: Unauthorized
-
-  /api/user/github-accounts/{githubId}:
-    delete:
-      tags: [User]
-      summary: Unlink a GitHub account
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_pinned_repos
+  /api/metrics/pr-breakdown:
+    get:
+      tags:
+        - Metrics
+      summary: Get detailed PR breakdown
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: PR breakdown data
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_pr_breakdown
+  /api/metrics/pr-review-time:
+    get:
+      operationId: get_api_metrics_pr_review_time
+      summary: GET /api/metrics/pr-review-time
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/productive-hours:
+    get:
+      operationId: get_api_metrics_productive_hours
+      summary: GET /api/metrics/productive-hours
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/prs:
+    get:
+      tags:
+        - Metrics
+      summary: Get pull request stats
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: PR statistics
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_prs
+  /api/metrics/repo-analytics:
+    get:
+      operationId: get_api_metrics_repo_analytics
+      summary: GET /api/metrics/repo-analytics
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/repo-explorer:
+    get:
+      operationId: get_api_metrics_repo_explorer
+      summary: GET /api/metrics/repo-explorer
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/metrics/repo-health:
+    get:
+      tags:
+        - Metrics
+      summary: Get repository health score
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Repo health data
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_repo_health
+  /api/metrics/repos/{owner}/{name}/commits:
+    get:
+      operationId: get_api_metrics_repos_owner_name_commits
+      summary: GET /api/metrics/repos/{owner}/{name}/commits
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
       parameters:
-        - name: githubId
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/metrics/repos:
+    get:
+      tags:
+        - Metrics
+      summary: Get list of user repositories
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of repositories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_repos
+  /api/metrics/sponsors:
+    get:
+      operationId: get_api_metrics_sponsors
+      summary: GET /api/metrics/sponsors
+      tags:
+        - metrics
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/metrics/streak:
+    get:
+      tags:
+        - Metrics
+      summary: Get streak metrics
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Streak data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Streak'
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_streak
+  /api/metrics/weekly-summary:
+    get:
+      tags:
+        - Metrics
+      summary: Get weekly activity summary
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Weekly summary
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+      operationId: get_api_metrics_weekly_summary
+  /api/milestones/{id}:
+    delete:
+      operationId: delete_api_milestones_id_
+      summary: DELETE /api/milestones/{id}
+      tags:
+        - milestones
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+    patch:
+      operationId: patch_api_milestones_id_
+      summary: PATCH /api/milestones/{id}
+      tags:
+        - milestones
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/milestones:
+    get:
+      operationId: get_api_milestones
+      summary: GET /api/milestones
+      tags:
+        - milestones
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_milestones
+      summary: POST /api/milestones
+      tags:
+        - milestones
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/notifications/{id}:
+    delete:
+      operationId: delete_api_notifications_id_
+      summary: DELETE /api/notifications/{id}
+      tags:
+        - notifications
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+    patch:
+      tags:
+        - Notifications
+      summary: Mark a specific notification as read
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
           in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Account unlinked
+          description: Notification marked as read
         '401':
           description: Unauthorized
         '404':
-          description: Account not found
-
-  # NOTIFICATIONS ROUTES
-  /api/notifications:
+          description: Notification not found
+      operationId: patch_api_notifications_id_
+  /api/notifications/discord-sync:
     get:
-      tags: [Notifications]
+      operationId: get_api_notifications_discord_sync
+      summary: GET /api/notifications/discord-sync
+      tags:
+        - notifications
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+  /api/notifications:
+    delete:
+      operationId: delete_api_notifications
+      summary: DELETE /api/notifications
+      tags:
+        - notifications
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    get:
+      tags:
+        - Notifications
       summary: Get recent notifications
       security:
         - cookieAuth: []
@@ -526,8 +1573,10 @@ paths:
                     type: number
         '401':
           description: Unauthorized
+      operationId: get_api_notifications
     patch:
-      tags: [Notifications]
+      tags:
+        - Notifications
       summary: Mark all notifications as read
       security:
         - cookieAuth: []
@@ -536,87 +1585,69 @@ paths:
           description: All notifications marked as read
         '401':
           description: Unauthorized
-
-  /api/notifications/{id}:
-    patch:
-      tags: [Notifications]
-      summary: Mark a specific notification as read
+      operationId: patch_api_notifications
+  /api/notifications/weekly:
+    get:
+      operationId: get_api_notifications_weekly
+      summary: GET /api/notifications/weekly
+      tags:
+        - notifications
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+    post:
+      operationId: post_api_notifications_weekly
+      summary: POST /api/notifications/weekly
+      tags:
+        - notifications
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Notification marked as read
-        '401':
-          description: Unauthorized
-        '404':
-          description: Notification not found
-
-  # LEADERBOARD ROUTES
-  /api/leaderboard:
+  /api/og/user:
     get:
-      tags: [Leaderboard]
-      summary: Get public leaderboard rankings
-      parameters:
-        - name: lang
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter by primary language
-        - name: period
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [week, month, year]
-          description: Filter by time period
+      operationId: get_api_og_user
+      summary: GET /api/og/user
+      tags:
+        - og
       responses:
         '200':
-          description: Leaderboard data
-          content:
-            application/json:
-              schema:
-                type: object
-        '429':
-          description: Rate limit exceeded
-
-  /api/leaderboard/refresh:
-    post:
-      tags: [Leaderboard]
-      summary: Trigger leaderboard refresh
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/personality:
+    get:
+      operationId: get_api_personality
+      summary: GET /api/personality
+      tags:
+        - personality
       responses:
         '200':
-          description: Leaderboard refresh triggered
-
-  /api/leaderboard/rebuild:
-    post:
-      tags: [Leaderboard]
-      summary: Full leaderboard rebuild
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
-        - bearerAuth: []
-      parameters:
-        - name: Authorization
-          in: header
-          required: true
-          schema:
-            type: string
-          description: Bearer token with LEADERBOARD_REBUILD_TOKEN
+        - cookieAuth: []
+  /api/project-tutor:
+    post:
+      operationId: post_api_project_tutor
+      summary: POST /api/project-tutor
+      tags:
+        - project-tutor
       responses:
         '200':
-          description: Leaderboard rebuild started
-        '401':
-          description: Invalid or missing rebuild token
-
-  # PUBLIC PROFILE ROUTES
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
   /api/public/{username}:
     get:
-      tags: [Public]
+      tags:
+        - Public
       summary: Get public profile data for a user
       parameters:
         - name: username
@@ -633,13 +1664,14 @@ paths:
                 type: object
         '404':
           description: User not found or profile is private
-
+      operationId: get_api_public_username_
+      security: []
   /api/public/privacy:
     get:
-      tags: [Public]
+      tags:
+        - Public
       summary: Get current user's privacy settings
-      security:
-        - cookieAuth: []
+      security: []
       responses:
         '200':
           description: Privacy settings
@@ -649,9 +1681,436 @@ paths:
                 type: object
         '401':
           description: Unauthorized
+      operationId: get_api_public_privacy
+  /api/room-invitations/{invitationId}:
+    post:
+      operationId: post_api_room_invitations_invitationId_
+      summary: POST /api/room-invitations/{invitationId}
+      tags:
+        - room-invitations
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: invitationId
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/room-invitations:
+    get:
+      operationId: get_api_room_invitations
+      summary: GET /api/room-invitations
+      tags:
+        - room-invitations
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/rooms/{roomId}/invite:
+    post:
+      operationId: post_api_rooms_roomId_invite
+      summary: POST /api/rooms/{roomId}/invite
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/rooms/{roomId}/members/{username}:
+    delete:
+      operationId: delete_api_rooms_roomId_members_username_
+      summary: DELETE /api/rooms/{roomId}/members/{username}
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/rooms/{roomId}/messages:
+    get:
+      operationId: get_api_rooms_roomId_messages
+      summary: GET /api/rooms/{roomId}/messages
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+    post:
+      operationId: post_api_rooms_roomId_messages
+      summary: POST /api/rooms/{roomId}/messages
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/rooms/{roomId}:
+    delete:
+      operationId: delete_api_rooms_roomId_
+      summary: DELETE /api/rooms/{roomId}
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+    get:
+      operationId: get_api_rooms_roomId_
+      summary: GET /api/rooms/{roomId}
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/rooms:
+    get:
+      operationId: get_api_rooms
+      summary: GET /api/rooms
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_rooms
+      summary: POST /api/rooms
+      tags:
+        - rooms
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/sponsors/sync:
+    get:
+      operationId: get_api_sponsors_sync
+      summary: GET /api/sponsors/sync
+      tags:
+        - sponsors
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+  /api/streak/freeze:
+    delete:
+      operationId: delete_api_streak_freeze
+      summary: DELETE /api/streak/freeze
+      tags:
+        - streak
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    get:
+      operationId: get_api_streak_freeze
+      summary: GET /api/streak/freeze
+      tags:
+        - streak
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      tags:
+        - Streak
+      summary: Use a streak freeze to protect current streak
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Streak freeze applied
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: No streak freezes available
+        '401':
+          description: Unauthorized
+      operationId: post_api_streak_freeze
+  /api/stream:
+    get:
+      operationId: get_api_stream
+      summary: GET /api/stream
+      tags:
+        - stream
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/unsubscribe:
+    get:
+      operationId: get_api_unsubscribe
+      summary: GET /api/unsubscribe
+      tags:
+        - unsubscribe
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/user/dashboard-layout:
+    get:
+      operationId: get_api_user_dashboard_layout
+      summary: GET /api/user/dashboard-layout
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
     patch:
-      tags: [Public]
-      summary: Update privacy settings
+      operationId: patch_api_user_dashboard_layout
+      summary: PATCH /api/user/dashboard-layout
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/data-export:
+    delete:
+      operationId: delete_api_user_data_export
+      summary: DELETE /api/user/data-export
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    get:
+      operationId: get_api_user_data_export
+      summary: GET /api/user/data-export
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/export:
+    get:
+      operationId: get_api_user_export
+      summary: GET /api/user/export
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/github-accounts/{githubId}:
+    delete:
+      tags:
+        - User
+      summary: Unlink a GitHub account
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: githubId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account unlinked
+        '401':
+          description: Unauthorized
+        '404':
+          description: Account not found
+      operationId: delete_api_user_github_accounts_githubId_
+  /api/user/github-accounts:
+    get:
+      tags:
+        - User
+      summary: Get linked GitHub accounts
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of linked accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+      operationId: get_api_user_github_accounts
+  /api/user/github-orgs:
+    get:
+      operationId: get_api_user_github_orgs
+      summary: GET /api/user/github-orgs
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    patch:
+      operationId: patch_api_user_github_orgs
+      summary: PATCH /api/user/github-orgs
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/orgs:
+    get:
+      operationId: get_api_user_orgs
+      summary: GET /api/user/orgs
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_user_orgs
+      summary: POST /api/user/orgs
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/pinned-repos/details:
+    get:
+      operationId: get_api_user_pinned_repos_details
+      summary: GET /api/user/pinned-repos/details
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/settings/discord-test:
+    post:
+      operationId: post_api_user_settings_discord_test
+      summary: POST /api/user/settings/discord-test
+      tags:
+        - user
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/user/settings:
+    get:
+      tags:
+        - User
+      summary: Get user settings
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User settings
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+      operationId: get_api_user_settings
+    patch:
+      tags:
+        - User
+      summary: Update user settings
       security:
         - cookieAuth: []
       requestBody:
@@ -662,14 +2121,296 @@ paths:
               type: object
       responses:
         '200':
-          description: Privacy settings updated
+          description: Settings updated
         '401':
           description: Unauthorized
-
-  # WEBHOOK ROUTES
+      operationId: patch_api_user_settings
+  /api/users/search:
+    get:
+      operationId: get_api_users_search
+      summary: GET /api/users/search
+      tags:
+        - users
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/wakatime:
+    get:
+      tags:
+        - Integrations
+      summary: Get WakaTime connection status
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: WakaTime connection status
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+      operationId: get_api_wakatime
+  /api/wakatime/sync:
+    get:
+      operationId: get_api_wakatime_sync
+      summary: GET /api/wakatime/sync
+      tags:
+        - wakatime
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
+  /api/webhooks/activity-alerts:
+    get:
+      operationId: get_api_webhooks_activity_alerts
+      summary: GET /api/webhooks/activity-alerts
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_webhooks_activity_alerts
+      summary: POST /api/webhooks/activity-alerts
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/webhooks/custom/{id}/deliveries/{deliveryId}/retry:
+    post:
+      operationId: post_api_webhooks_custom_id_deliveries_deliveryId_retry
+      summary: POST /api/webhooks/custom/{id}/deliveries/{deliveryId}/retry
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: deliveryId
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/webhooks/custom/{id}/rotate-secret:
+    post:
+      operationId: post_api_webhooks_custom_id_rotate_secret
+      summary: POST /api/webhooks/custom/{id}/rotate-secret
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/webhooks/custom/{id}:
+    delete:
+      tags:
+        - Webhooks
+      summary: Delete a webhook
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Webhook not found
+      operationId: delete_api_webhooks_custom_id_
+    get:
+      tags:
+        - Webhooks
+      summary: Get webhook details
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook details
+        '401':
+          description: Unauthorized
+        '404':
+          description: Webhook not found
+      operationId: get_api_webhooks_custom_id_
+    patch:
+      tags:
+        - Webhooks
+      summary: Update a webhook
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Webhook not found
+      operationId: patch_api_webhooks_custom_id_
+  /api/webhooks/custom/{id}/test:
+    post:
+      operationId: post_api_webhooks_custom_id_test
+      summary: POST /api/webhooks/custom/{id}/test
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+  /api/webhooks/custom:
+    get:
+      tags:
+        - Webhooks
+      summary: List user's configured webhooks
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+      operationId: get_api_webhooks_custom
+    post:
+      tags:
+        - Webhooks
+      summary: Create a new webhook
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Webhook created
+        '400':
+          description: Invalid URL or configuration
+        '401':
+          description: Unauthorized
+      operationId: post_api_webhooks_custom
+  /api/webhooks/dispatch/metrics:
+    get:
+      operationId: get_api_webhooks_dispatch_metrics
+      summary: GET /api/webhooks/dispatch/metrics
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+    post:
+      operationId: post_api_webhooks_dispatch_metrics
+      summary: POST /api/webhooks/dispatch/metrics
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
+  /api/webhooks/dispatch:
+    get:
+      operationId: get_api_webhooks_dispatch
+      summary: GET /api/webhooks/dispatch
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+    post:
+      operationId: post_api_webhooks_dispatch
+      summary: POST /api/webhooks/dispatch
+      tags:
+        - webhooks
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
   /api/webhooks/github:
     post:
-      tags: [Webhooks]
+      tags:
+        - Webhooks
       summary: Receive GitHub push events
       parameters:
         - name: x-hub-signature-256
@@ -693,221 +2434,33 @@ paths:
       responses:
         '200':
           description: Webhook processed successfully
-        '401':
-          description: Invalid signature
         '400':
           description: Bad request
-
-  /api/webhooks/custom:
+        '401':
+          description: Invalid signature
+      operationId: post_api_webhooks_github
+      security:
+        - githubWebhook: []
+  /api/wrapped/og:
     get:
-      tags: [Webhooks]
-      summary: List user's configured webhooks
-      security:
-        - cookieAuth: []
+      operationId: get_api_wrapped_og
+      summary: GET /api/wrapped/og
+      tags:
+        - wrapped
       responses:
         '200':
-          description: List of webhooks
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-        '401':
-          description: Unauthorized
-    post:
-      tags: [Webhooks]
-      summary: Create a new webhook
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [url]
-              properties:
-                url:
-                  type: string
-                  format: uri
-                events:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        '201':
-          description: Webhook created
-        '401':
-          description: Unauthorized
-        '400':
-          description: Invalid URL or configuration
-
-  /api/webhooks/custom/{id}:
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+  /api/wrapped:
     get:
-      tags: [Webhooks]
-      summary: Get webhook details
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+      operationId: get_api_wrapped
+      summary: GET /api/wrapped
+      tags:
+        - wrapped
       responses:
         '200':
-          description: Webhook details
-        '401':
-          description: Unauthorized
-        '404':
-          description: Webhook not found
-    patch:
-      tags: [Webhooks]
-      summary: Update a webhook
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        '200':
-          description: Webhook updated
-        '401':
-          description: Unauthorized
-        '404':
-          description: Webhook not found
-    delete:
-      tags: [Webhooks]
-      summary: Delete a webhook
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Webhook deleted
-        '401':
-          description: Unauthorized
-        '404':
-          description: Webhook not found
-
-  # AI FEATURES
-  /api/ai/roast:
-    post:
-      tags: [AI]
-      summary: Generate AI roast or hype of coding style
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        '200':
-          description: AI-generated content
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-        '500':
-          description: AI service unavailable (GROQ_API_KEY not configured)
-
-  /api/ai/weekly-summary:
-    post:
-      tags: [AI]
-      summary: Generate AI weekly summary
-      security:
-        - cookieAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        '200':
-          description: AI-generated weekly summary
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-
-  # WAKATIME INTEGRATION
-  /api/wakatime:
-    get:
-      tags: [Integrations]
-      summary: Get WakaTime connection status
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: WakaTime connection status
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-    delete:
-      tags: [Integrations]
-      summary: Disconnect WakaTime
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: WakaTime disconnected
-        '401':
-          description: Unauthorized
-
-  /api/wakatime/sync:
-    post:
-      tags: [Integrations]
-      summary: Trigger WakaTime data sync
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: WakaTime sync triggered
-        '401':
-          description: Unauthorized
-        '429':
-          description: Rate limit exceeded
-
-  # STREAK FREEZE
-  /api/streak/freeze:
-    post:
-      tags: [Streak]
-      summary: Use a streak freeze to protect current streak
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: Streak freeze applied
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-        '400':
-          description: No streak freezes available

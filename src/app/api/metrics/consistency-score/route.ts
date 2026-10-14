@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
@@ -45,7 +47,7 @@ async function fetchActiveDates(
       let page = 1;
 
       while (true) {
-        const searchRes = await fetch(
+        const searchRes = await githubRequest(
           `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
           {
             headers: {
@@ -147,7 +149,9 @@ export async function GET(req: NextRequest) {
         accountKey: "default",
       });
       return Response.json(result);
-    } catch {
+    } catch (error) {
+      const githubLimit = githubRateLimitResponse(error);
+      if (githubLimit) return githubLimit;
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
@@ -235,7 +239,9 @@ export async function GET(req: NextRequest) {
       accountKey: accountId,
     });
     return Response.json(result);
-  } catch {
+  } catch (error) {
+      const githubLimit = githubRateLimitResponse(error);
+      if (githubLimit) return githubLimit;
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

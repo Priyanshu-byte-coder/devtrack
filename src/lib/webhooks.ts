@@ -1,3 +1,5 @@
+import { toDatabaseJson } from "@/lib/database-json";
+import { safeWebhookFetch } from "@/lib/safe-webhook-fetch";
 import { createHmac, randomBytes } from "crypto";
 import { supabaseAdmin } from "./supabase";
 import { encryptToken, decryptToken } from "./crypto";
@@ -59,8 +61,8 @@ export function encryptSecretKey(secret: string): { encrypted: string; iv: strin
   return encryptToken(secret);
 }
 
-export function decryptSecretKey(encrypted: string, iv: string): string | null {
-  return decryptToken(encrypted, iv);
+export function decryptSecretKey(encrypted: string, iv: string | null): string | null {
+  return iv ? decryptToken(encrypted, iv) : null;
 }
 
 export function signPayload(payload: string, secret: string): string {
@@ -104,7 +106,7 @@ export async function dispatchWebhook(
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
-      payload,
+      payload: toDatabaseJson(payload),
       success: false,
       error_message: errorMessage,
     });
@@ -118,7 +120,7 @@ export async function dispatchWebhook(
     const contentType: string =
       (webhook as { content_type?: string }).content_type ?? "application/json";
 
-    const response = await fetch(webhook.url, {
+    const response = await safeWebhookFetch(webhook.url, {
       method: "POST",
       headers: {
         "Content-Type": contentType,
@@ -154,7 +156,7 @@ export async function dispatchWebhook(
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
-      payload,
+      payload: toDatabaseJson(payload),
       status_code: statusCode,
       success,
       error_message: success ? null : `HTTP ${statusCode}`,
@@ -167,7 +169,7 @@ export async function dispatchWebhook(
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
-      payload,
+      payload: toDatabaseJson(payload),
       success: false,
       error_message: errorMessage,
     });

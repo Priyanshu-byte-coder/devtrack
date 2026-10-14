@@ -1,3 +1,5 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import {
@@ -71,7 +73,7 @@ async function fetchCommitTimestampsForAccount(
       let page = 1;
 
       while (page <= 10) {
-        const response = await fetch(
+        const response = await githubRequest(
           `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
           {
             headers: {
@@ -168,6 +170,8 @@ export async function GET(req: NextRequest) {
 
       return Response.json(data);
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
   }
@@ -247,6 +251,9 @@ export async function GET(req: NextRequest) {
 
     return Response.json(data);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

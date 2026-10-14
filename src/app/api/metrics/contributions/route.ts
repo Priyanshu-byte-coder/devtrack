@@ -1,8 +1,11 @@
+import { extractValidRepoFromGoal } from "@/lib/goals-sync-utils";
+import { collectGitHubSearch } from "@/lib/github-search";
+import { githubRequest } from "@/lib/github-request";
 import {
   githubRateLimitResponse,
   throwIfGitHubRateLimited,
 } from "@/lib/github-rate-limit";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -47,6 +50,9 @@ interface TimeBlocks {
 
 interface ContributionResponse {
   days: number;
+  complete?: boolean;
+  sampledCommits?: number;
+  partialReason?: string;
   total: number;
   data: Record<string, number>;
   commits: CommitItem[];
@@ -121,7 +127,8 @@ async function fetchContributionsForAccount(
   fromDate?: string,
   repo?: string | null,
   orgName?: string | null,
-  excludedOrgs: string[] = []
+  excludedOrgs: string[] = [],
+  toDate?: string
 ): Promise<ContributionResponse> {
   const repoFilter = repo ? ` repo:${repo}` : "";
 
@@ -130,6 +137,7 @@ async function fetchContributionsForAccount(
     githubLogin,
     timezone,
     from: fromDate ?? undefined,
+    to: toDate,
     repo,
     orgName: orgName || undefined,
     excludedOrgs: excludedOrgs.length > 0 ? excludedOrgs.join(",") : undefined,
@@ -149,79 +157,17 @@ async function fetchContributionsForAccount(
       let allItems: GitHubCommitSearchItem[] = [];
       const commitItems: CommitItem[] = [];
       let totalCount = 0;
-      let page = 1;
 
-      let q = `author:${githubLogin} author-date:>=${sinceStr}${repoFilter}`;
+      let q = `author:${githubLogin} author-date:${toDate ? `${sinceStr}..${toDate}` : `>=${sinceStr}`}${repoFilter}`;
       if (orgName) {
         q += ` org:${orgName}`;
       } else if (excludedOrgs.length > 0) {
         q += excludedOrgs.map((org) => ` -org:${org}`).join("");
       }
 
-      // Note: this may issue up to 10 sequential GitHub Search API calls (max 1000 results).
-      // Authenticated GitHub Search rate limits are low (~30 req/min). We handle 429/403
-      // responses gracefully by returning partial results rather than failing the endpoint.
-      while (page <= 10) {
-        const searchUrl = new URL(`${GITHUB_API}/search/commits`);
-        searchUrl.searchParams.set("q", q);
-        searchUrl.searchParams.set("per_page", "100");
-        searchUrl.searchParams.set("page", String(page));
-        searchUrl.searchParams.set("sort", "author-date");
-        searchUrl.searchParams.set("order", "desc");
-
-        // The Authorization header upgrades the rate limit from 60 req/hr
-        // (unauthenticated, shared per IP) to 5,000 req/hr (per user).
-        // Without it, multiple users on the same server IP would exhaust
-        // the shared quota almost immediately.
-        // Authorization header raises the rate limit from 60 req/hr (unauthenticated,
-        // shared per IP) to 5,000 req/hr per user. Without it, shared server IPs
-        // would exhaust the unauthenticated quota almost immediately.
-        const searchRes = await fetch(
-          searchUrl.toString(),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github+json",
-            },
-            cache: "no-store",
-          }
-        );
-
-        if (!searchRes.ok) {
-  throwIfGitHubRateLimited(searchRes);
-
-  if (searchRes.status === 429 || searchRes.status === 403) {
-    if (allItems.length === 0) {
-      throw new Error(`GitHub API error: ${searchRes.status}`);
-    }
-
-    break;
-  }
-
-  throw new Error(`GitHub API error: ${searchRes.status}`);
-}
-
-        const data = (await searchRes.json()) as {
-          total_count: number;
-          items: GitHubCommitSearchItem[];
-        };
-
-        if (page === 1) {
-          totalCount = data.total_count;
-        }
-
-        allItems = allItems.concat(data.items);
-
-        if (data.items.length < 100) {
-          break;
-        }
-
-        if (allItems.length >= 1000 || allItems.length >= totalCount) {
-          break;
-        }
-
-        page += 1;
-      }
+      const search = await collectGitHubSearch<GitHubCommitSearchItem>('commits',q,token);
+      allItems = search.items;
+      totalCount = search.total;
 
       const commitsByDay: Record<string, number> = {};
       const timeBlocks: TimeBlocks = { morning: 0, afternoon: 0, evening: 0, night: 0 };
@@ -244,7 +190,7 @@ async function fetchContributionsForAccount(
         else timeBlocks.night++;
       }
 
-      return { days, total: totalCount, data: commitsByDay, commits: commitItems, timeBlocks };
+      return { days, total: totalCount, data: commitsByDay, commits: commitItems, timeBlocks, complete: search.complete, sampledCommits: search.items.length, partialReason: search.partialReason };
     }
   );
 }
@@ -280,7 +226,7 @@ async function fetchGitLabContributions(
         url.searchParams.set("per_page", "100");
         url.searchParams.set("page", String(page));
 
-        const response = await fetch(url.toString(), {
+        const response = await githubRequest(url.toString(), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -348,6 +294,7 @@ async function mergeGitLabContributions(
   const combinedTotal = result.total + sumContributionDays(gitlabResult.data);
 
   return {
+    ...result,
     days: result.days,
     total: combinedTotal,
     data: combinedData,
@@ -385,6 +332,13 @@ export async function GET(req: NextRequest) {
     const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
     days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
   }
+
+  try { new Intl.DateTimeFormat('en', {timeZone:timezone}).format(); }
+  catch { return Response.json({error:'Invalid timezone'}, {status:400}); }
+  if (!Number.isFinite(days) || days < 1 || days > 365 || (fromParam && !/^\d{4}-\d{2}-\d{2}$/.test(fromParam)) || (toParam && !/^\d{4}-\d{2}-\d{2}$/.test(toParam)) || Boolean(fromParam)!==Boolean(toParam)) {
+    return Response.json({error:'Invalid date range'}, {status:400});
+  }
+  if(repoParam && !extractValidRepoFromGoal({id:'',unit:'commits',repo:repoParam})) return Response.json({error:'Invalid repository'},{status:400});
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const usernameParam = req.nextUrl.searchParams.get("username");
@@ -444,7 +398,8 @@ export async function GET(req: NextRequest) {
         fromDate,
         repoParam,
         orgName,
-        excludedOrgs
+        excludedOrgs,
+        toParam ?? undefined
       );
       return Response.json(result);
   } catch (error) {
@@ -463,7 +418,8 @@ export async function GET(req: NextRequest) {
         fromDate,
         repoParam,
         orgName,
-        excludedOrgs
+        excludedOrgs,
+        toParam ?? undefined
       );
 
       if (!gitlabToken) {
@@ -512,7 +468,8 @@ export async function GET(req: NextRequest) {
           fromDate,
           repoParam,
           orgName,
-          excludedOrgs
+          excludedOrgs,
+        toParam ?? undefined
         )
       )
     );
@@ -530,6 +487,9 @@ if (rateLimitedResult) {
 
     const merged = mergeMetrics(results, (a, b) => ({
       days: a.days,
+      complete: a.complete !== false && b.complete !== false,
+      sampledCommits: (a.sampledCommits ?? a.commits.length) + (b.sampledCommits ?? b.commits.length),
+      partialReason: a.partialReason ?? b.partialReason,
       total: a.total + b.total,
       data: mergeContributionDays(a.data, b.data),
       commits: [...a.commits, ...b.commits].sort(
@@ -570,7 +530,8 @@ if (rateLimitedResult) {
         fromDate,
         repoParam,
         orgName,
-        excludedOrgs
+        excludedOrgs,
+        toParam ?? undefined
       );
 
       if (!gitlabToken) {
@@ -619,6 +580,9 @@ if (rateLimitedResult) {
     );
     return Response.json(result);
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     return githubApiErrorResponse(error);
   }
 }

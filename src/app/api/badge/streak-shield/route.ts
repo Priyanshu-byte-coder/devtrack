@@ -1,3 +1,7 @@
+import { fetchCommitStreakDates } from "@/lib/streak-data";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextRequest, NextResponse } from "next/server";
 import { generateBadgeSVG } from "../badge-utils";
 import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
@@ -33,56 +37,17 @@ async function fetchGitHubWithToken(
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  return fetch(url, { headers, cache: "no-store" });
+  return githubRequest(url, { headers, cache: "no-store" });
 }
 
-async function fetchStreak(
-  username: string,
-  token?: string
-): Promise<StreakData> {
-  const since = new Date();
-  since.setDate(since.getDate() - 90);
-  const sinceStr = since.toISOString().slice(0, 10);
-
-  const url = new URL(`${GITHUB_API}/search/commits`);
-  url.searchParams.set("q", `author:${username} author-date:>=${sinceStr}`);
-  url.searchParams.set("per_page", "100");
-  url.searchParams.set("sort", "author-date");
-  url.searchParams.set("order", "desc");
-
-  const searchRes = await fetchGitHubWithToken(url.toString(), token);
-
-  if (!searchRes.ok) {
-    const isRateLimited = searchRes.status === 403;
-    console.error(`GitHub API error fetching streak for ${username}:`, {
-      status: searchRes.status,
-      rateLimited: isRateLimited,
-    });
-    return {
-      current: 0,
-      longest: 0,
-      lastCommitDate: null,
-      totalActiveDays: 0,
-      stale: isRateLimited ? true : undefined,
-    };
-  }
-
-  const data = (await searchRes.json()) as {
-    items: Array<{ commit: { author: { date: string } } }>;
-  };
-
-  const activeDates = new Set<string>();
-  for (const item of data.items) {
-    activeDates.add(item.commit.author.date.slice(0, 10));
-  }
-
-  const result = calculateStreakFromDates(activeDates);
-  return {
-    current: result.current,
-    longest: result.longest,
-    lastCommitDate: result.lastCommitDate,
-    totalActiveDays: result.totalActiveDays,
-  };
+async function fetchStreak(username: string, token?: string): Promise<StreakData> {
+  const {data:user,error}=await supabaseAdmin.from('users').select('id,timezone,github_id').ilike('github_login',username).single();
+  if(error || !user) throw new Error('Badge user unavailable');
+  const {data:freezes,error:freezeError}=await supabaseAdmin.from('streak_freezes').select('freeze_date').eq('user_id',user.id);
+  if(freezeError) throw new Error('Badge freezes unavailable');
+  const dates=await fetchCommitStreakDates(username,token,{bypass:false,userId:`public:${user.github_id}`},user.timezone ?? 'UTC','public');
+  if(!dates.complete) throw new Error('Incomplete streak history');
+  return calculateStreakFromDates(dates,new Set((freezes ?? []).map(row=>row.freeze_date)),user.timezone ?? 'UTC');
 }
 
 export async function GET(req: NextRequest) {
@@ -141,6 +106,9 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     logError(error, {
       endpoint: "/api/badge/streak-shield",
       operation: "generate_badge",

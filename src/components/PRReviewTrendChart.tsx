@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, signIn } from "next-auth/react";
 import { useAccount } from "@/components/AccountContext";
 import {
   CartesianGrid,
@@ -205,7 +205,7 @@ export default function PRReviewTrendChart() {
               type="button"
               onClick={() => {
                 void signOut({ redirect: false }).then(() => {
-                  window.location.href = "/api/auth/signin/github?callbackUrl=/dashboard";
+                  void signIn("github", { callbackUrl: "/dashboard" });
                 });
               }}
               className="inline-flex items-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"

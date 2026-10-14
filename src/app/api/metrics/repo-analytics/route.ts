@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { isMetricsCacheBypassed, metricsCacheKey, withMetricsCache } from "@/lib/metrics-cache";
@@ -54,20 +56,20 @@ export async function GET(req: NextRequest) {
 
   try {
     const data = await withMetricsCache({ bypass, key, ttlSeconds: 60 * 60 }, async () => {
-      const repoRes = await fetch(repoUrl, {
+      const repoRes = await githubRequest(repoUrl, {
         headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
       if (!repoRes.ok) throw new Error("API error fetching repo overview");
       const repoData = await repoRes.json();
 
-      const contribRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/contributors?per_page=10`, {
+      const contribRes = await githubRequest(`${GITHUB_API}/repos/${safeRepoPath}/contributors?per_page=10`, {
         headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
       const contribData = contribRes.ok ? await contribRes.json() : [];
 
-      const langRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/languages`, {
+      const langRes = await githubRequest(`${GITHUB_API}/repos/${safeRepoPath}/languages`, {
         headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
@@ -84,7 +86,7 @@ export async function GET(req: NextRequest) {
 
       const primaryStack = languageBreakdown.slice(0, 3).map((l) => l.name);
 
-      const activityRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/stats/commit_activity`, {
+      const activityRes = await githubRequest(`${GITHUB_API}/repos/${safeRepoPath}/stats/commit_activity`, {
         headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
@@ -135,7 +137,7 @@ export async function GET(req: NextRequest) {
       const health = computeHealthScore(repoData.name, healthSignals);
 
       // Fetch PR activity for this repo (Issue 1: top repos by PR activity)
-      const prRes = await fetch(`${GITHUB_API}/repos/${safeRepoPath}/pulls?state=all&per_page=1`, {
+      const prRes = await githubRequest(`${GITHUB_API}/repos/${safeRepoPath}/pulls?state=all&per_page=1`, {
         headers: { Authorization: `Bearer ${session.accessToken}`, Accept: "application/vnd.github+json" },
         cache: "no-store",
       });
@@ -173,6 +175,9 @@ export async function GET(req: NextRequest) {
 
     return Response.json(data);
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     console.error(error);
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }

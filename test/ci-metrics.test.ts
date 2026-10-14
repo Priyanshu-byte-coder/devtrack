@@ -14,7 +14,7 @@ vi.mock("@/lib/metrics-cache", () => ({
   metricsCacheKey: vi.fn(),
   withMetricsCache: vi.fn(),
 }));
-vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 
 describe("CI Metrics Route Helpers", () => {

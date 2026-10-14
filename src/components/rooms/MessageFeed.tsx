@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import type { RoomMessage } from '@/types/rooms';
+import { useEffect, useRef } from "react";
+import type { RoomMessage } from "@/types/rooms";
 
 interface Props {
   roomId: string;
@@ -11,44 +10,64 @@ interface Props {
   onNewMessages: (msgs: RoomMessage[]) => void;
 }
 
-export default function MessageFeed({ roomId, currentUser, messages, onNewMessages }: Props) {
-  const supabase = supabaseBrowser;
+export default function MessageFeed({
+  roomId,
+  currentUser,
+  messages,
+  onNewMessages,
+}: Props) {
+  const latestMessages = useRef(messages);
+  useEffect(() => {
+    latestMessages.current = messages;
+  }, [messages]);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom whenever new messages arrive.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Establish Supabase Realtime subscription
+  // The API verifies stable membership identity before returning messages.
   useEffect(() => {
     if (!roomId) return;
-
-    // 🧠 REALTIME SUBSCRIPTION FIX: Utilizes parent scope instance variable to eliminate variable shadowing crashes
-    const channel = supabase
-      .channel(`realtime:room:${roomId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `room_id=eq.${roomId}` // Assumes your foreign key column is 'room_id'
-        },
-        (payload) => {
-          // Intercept the INSERT event and append the new payload
-          const incomingMessage = payload.new as RoomMessage;
-          onNewMessages([incomingMessage]);
+    const controller = new AbortController();
+    let pending = false;
+    let cursor = latestMessages.current.at(-1);
+    const refresh = async () => {
+      if (pending || document.visibilityState === "hidden") return;
+      pending = true;
+      try {
+        const query = cursor
+          ? `?after=${encodeURIComponent(cursor.created_at)}&afterId=${encodeURIComponent(cursor.id)}`
+          : "";
+        const response = await fetch(
+          `/api/rooms/${encodeURIComponent(roomId)}/messages${query}`,
+          { signal: controller.signal, cache: "no-store" }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length) {
+            onNewMessages(data);
+            cursor = data.at(-1);
+          }
         }
-      )
-      .subscribe();
-
-    // Explicit cleanup routine to unsubscribe and remove the channel instance
-    return () => {
-      supabase.removeChannel(channel);
+      } catch {
+        /* Keep existing messages during a temporary disconnect. */
+      } finally {
+        pending = false;
+      }
     };
-  }, [roomId, onNewMessages, supabase]);
+    void refresh();
+    const timer = setInterval(() => void refresh(), 5000);
+    const onFocus = () => void refresh();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(timer);
+      controller.abort();
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [roomId, onNewMessages]);
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
@@ -61,7 +80,10 @@ export default function MessageFeed({ roomId, currentUser, messages, onNewMessag
       {messages.map((msg) => {
         const isMe = msg.sender_username === currentUser;
         return (
-          <div key={msg.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+          <div
+            key={msg.id}
+            className={`flex gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
+          >
             {/* eslint-disable @next/next/no-img-element */}
             {msg.sender_avatar ? (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -76,21 +98,28 @@ export default function MessageFeed({ roomId, currentUser, messages, onNewMessag
               </div>
             )}
 
-            <div className={`max-w-[70%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
+            <div
+              className={`max-w-[70%] ${isMe ? "items-end" : "items-start"} flex flex-col`}
+            >
               {!isMe && (
-                <span className="text-xs text-gray-500 mb-0.5 ml-1">{msg.sender_username}</span>
+                <span className="text-xs text-gray-500 mb-0.5 ml-1">
+                  {msg.sender_username}
+                </span>
               )}
               <div
                 className={`px-3 py-2 rounded-2xl text-sm break-words ${
                   isMe
-                    ? 'bg-blue-600 text-white rounded-tr-sm'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-sm'
+                    ? "bg-blue-600 text-white rounded-tr-sm"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-sm"
                 }`}
               >
                 {msg.content}
               </div>
               <span className="text-[10px] text-gray-400 mt-0.5 mx-1">
-                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(msg.created_at).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </span>
             </div>
           </div>
@@ -101,4 +130,3 @@ export default function MessageFeed({ roomId, currentUser, messages, onNewMessag
     </div>
   );
 }
-

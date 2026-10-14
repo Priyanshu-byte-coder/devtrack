@@ -1,0 +1,11 @@
+{
+  "check": "dependency-audit",
+  "checkedAt": "2026-10-14T15:31:21.129Z",
+  "command": [
+    "node",
+    "scripts/security-audit.cjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 53.766
+}

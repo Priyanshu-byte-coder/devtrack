@@ -1,7 +1,7 @@
-# GSSoC Badge API — Rate Limits Reference Manual
+# Badge API — Rate Limits Reference Manual
 
 This document is the authoritative reference for rate limiting behaviour
-across all DevTrack badge endpoints. It is intended for GSSoC contributors
+across all DevTrack badge endpoints. It is intended for contributors
 who are integrating badges into their READMEs, building tooling around the
 Badge API, or working on badge-related code.
 
@@ -29,10 +29,10 @@ DevTrack badge endpoints are **publicly accessible** — no authentication is
 required to fetch a badge. To protect the service and the GitHub API quota
 from abuse, each badge endpoint enforces two layers of rate limiting:
 
-| Layer | Enforced by | Limit |
-|---|---|---|
-| **DevTrack badge rate limit** | `checkBadgeRateLimit()` in `src/lib/badge-rate-limit.ts` | 20 requests / minute / IP |
-| **GitHub API rate limit** | GitHub's servers | 60 req/hr (unauthenticated) · 5000 req/hr (with token) |
+| Layer                         | Enforced by                                              | Limit                                                  |
+| ----------------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| **DevTrack badge rate limit** | `checkBadgeRateLimit()` in `src/lib/badge-rate-limit.ts` | 20 requests / minute / IP                              |
+| **GitHub API rate limit**     | GitHub's servers                                         | 60 req/hr (unauthenticated) · 5000 req/hr (with token) |
 
 ---
 
@@ -46,10 +46,9 @@ from abuse, each badge endpoint enforces two layers of rate limiting:
 - **Applies to:** All `/api/badge/*` endpoints
 - **Reset:** Automatically resets after the 60-second window expires
 
-> **Note for GSSoC contributors:** The `BADGE_API.md` file mentions
-> "100 requests per minute per IP" — the actual enforced limit in the
-> source code (`X-RateLimit-Limit: 20`) is **20 requests per minute**.
-> This document reflects the implemented behaviour.
+> **Note:** The enforced limit in the source code
+> (`X-RateLimit-Limit: 20`) is **20 requests per minute** — this document
+> and `BADGE_API.md` both reflect the implemented behaviour.
 
 ### Why 20 requests/minute?
 
@@ -64,9 +63,10 @@ within a single minute window.
 ### `GET /api/badge/commits`
 
 Returns an SVG badge showing commits made this month.
-| Parameter | Required | Description |
-|---|---|---|
-| `user` | ✅ Yes | GitHub username (case-insensitive) |
+
+| Parameter | Required | Description                        |
+| --------- | -------- | ---------------------------------- |
+| `user`    | ✅ Yes   | GitHub username (case-insensitive) |
 
 **Rate limit:** 20 req/min/IP  
 **Cache:** `s-maxage=3600, stale-while-revalidate=86400`
@@ -86,11 +86,11 @@ Returns an SVG badge showing the user's current commit streak.
 Every badge response includes the following headers regardless of whether
 the request succeeded or was rate limited:
 
-| Header | Type | Description |
-|---|---|---|
-| `X-RateLimit-Limit` | `integer` | Maximum requests allowed per window (20) |
-| `X-RateLimit-Remaining` | `integer` | Requests remaining in current window |
-| `X-RateLimit-Reset` | `unix timestamp` | When the current window resets (seconds since epoch) |
+| Header                  | Type             | Description                                          |
+| ----------------------- | ---------------- | ---------------------------------------------------- |
+| `X-RateLimit-Limit`     | `integer`        | Maximum requests allowed per window (20)             |
+| `X-RateLimit-Remaining` | `integer`        | Requests remaining in current window                 |
+| `X-RateLimit-Reset`     | `unix timestamp` | When the current window resets (seconds since epoch) |
 
 ### Example — successful response headers
 
@@ -122,12 +122,12 @@ X-RateLimit-Reset: 1718800260
 ### How to handle 429 in code
 
 ```typescript
-const res = await fetch('/api/badge/commits?user=octocat');
+const res = await fetch("/api/badge/commits?user=octocat");
 
 if (res.status === 429) {
-  const retryAfter = Number(res.headers.get('Retry-After') ?? 60);
+  const retryAfter = Number(res.headers.get("Retry-After") ?? 60);
   console.warn(`Rate limited. Retry after ${retryAfter} seconds.`);
-  await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+  await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
   // retry the request
 }
 ```
@@ -139,10 +139,10 @@ if (res.status === 429) {
 Badge endpoints call the GitHub Search API internally. GitHub enforces its
 own rate limits on top of DevTrack's limits:
 
-| Token type | Rate limit |
-|---|---|
-| No token (unauthenticated) | 60 requests / hour |
-| `GITHUB_TOKEN` set | 5 000 requests / hour |
+| Token type                    | Rate limit             |
+| ----------------------------- | ---------------------- |
+| No token (unauthenticated)    | 60 requests / hour     |
+| `GITHUB_TOKEN` set            | 5 000 requests / hour  |
 | GitHub App installation token | 15 000 requests / hour |
 
 ### When GitHub rate limits are hit
@@ -152,6 +152,7 @@ If GitHub returns a `403` on the streak endpoint, the badge renders with
 The commits endpoint returns `0` commits in this case.
 
 **Signs your deployment is hitting GitHub limits:**
+
 - Badges showing `0` unexpectedly
 - `403` errors in server logs for GitHub API calls
 - High badge traffic without `GITHUB_TOKEN` set
@@ -163,12 +164,12 @@ The commits endpoint returns `0` commits in this case.
 DevTrack badge endpoints use aggressive CDN caching to reduce both
 DevTrack server load and GitHub API calls:
 
-| Endpoint | `Cache-Control` | Effective cache duration |
-|---|---|---|
-| `/api/badge/commits` | `s-maxage=3600, stale-while-revalidate=86400` | 1 hour fresh · 24 hours stale |
+| Endpoint                   | `Cache-Control`                               | Effective cache duration      |
+| -------------------------- | --------------------------------------------- | ----------------------------- |
+| `/api/badge/commits`       | `s-maxage=3600, stale-while-revalidate=86400` | 1 hour fresh · 24 hours stale |
 | `/api/badge/streak-shield` | `s-maxage=3600, stale-while-revalidate=86400` | 1 hour fresh · 24 hours stale |
-| `/api/badge/streak` | `max-age=3600, public` | 1 hour |
-| Error responses | `max-age=60, public` | 1 minute |
+| `/api/badge/streak`        | `max-age=3600, public`                        | 1 hour                        |
+| Error responses            | `max-age=60, public`                          | 1 minute                      |
 
 ### What this means for contributors
 
@@ -186,6 +187,7 @@ DevTrack server load and GitHub API calls:
 
 ```markdown
 <!-- ✅ Good — links to your profile -->
+
 [![DevTrack Streak](https://devtrack-silk-kappa.vercel.app/api/badge/streak-shield?user=YOUR_USERNAME)](https://devtrack-silk-kappa.vercel.app/u/YOUR_USERNAME)
 [![DevTrack Commits](https://devtrack-silk-kappa.vercel.app/api/badge/commits?user=YOUR_USERNAME)](https://devtrack-silk-kappa.vercel.app/u/YOUR_USERNAME)
 ```
@@ -195,7 +197,6 @@ DevTrack server load and GitHub API calls:
 ```yaml
 # ❌ Bad — fetches badge on every CI run
 - run: curl https://devtrack-silk-kappa.vercel.app/api/badge/commits?user=me
-
 # ✅ Good — use cached badge URLs from README, don't fetch in CI
 ```
 
@@ -212,20 +213,20 @@ GITHUB_TOKEN=ghp_your_token_here
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| Badge shows `Error` | GitHub API call failed | Check `GITHUB_TOKEN` is set; check GitHub status |
-| Badge shows `0` commits/streak | GitHub rate limited (403) | Set `GITHUB_TOKEN`; wait for rate limit reset |
-| HTTP 429 from DevTrack | >20 req/min from your IP | Wait for `Retry-After` seconds |
-| Badge not updating | CDN cache still fresh | Wait 1 hour or append `?v=N` to URL |
-| `Invalid GitHub username` (400) | Username failed validation | Check username contains only `[a-zA-Z0-9-]` |
+| Symptom                         | Likely cause               | Fix                                              |
+| ------------------------------- | -------------------------- | ------------------------------------------------ |
+| Badge shows `Error`             | GitHub API call failed     | Check `GITHUB_TOKEN` is set; check GitHub status |
+| Badge shows `0` commits/streak  | GitHub rate limited (403)  | Set `GITHUB_TOKEN`; wait for rate limit reset    |
+| HTTP 429 from DevTrack          | >20 req/min from your IP   | Wait for `Retry-After` seconds                   |
+| Badge not updating              | CDN cache still fresh      | Wait 1 hour or append `?v=N` to URL              |
+| `Invalid GitHub username` (400) | Username failed validation | Check username contains only `[a-zA-Z0-9-]`      |
 
 ---
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
+| Variable       | Required    | Description                                                                   |
+| -------------- | ----------- | ----------------------------------------------------------------------------- |
 | `GITHUB_TOKEN` | Recommended | GitHub personal access token. Raises GitHub API limit from 60 to 5000 req/hr. |
 
 Set in `.env.local` for local development:
@@ -238,14 +239,14 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 
 ## Implementation Reference
 
-| File | Purpose |
-|---|---|
-| `src/lib/badge-rate-limit.ts` | `checkBadgeRateLimit()` and `getBadgeClientIp()` — core rate limiting logic |
-| `src/app/api/badge/commits/route.ts` | Commits badge endpoint |
-| `src/app/api/badge/streak-shield/route.ts` | Streak shield badge endpoint |
-| `src/app/api/badge/streak/route.ts` | Streak badge endpoint |
-| `src/app/api/badge/badge-utils.ts` | `generateBadgeSVG()` — SVG generation shared utility |
-| `BADGE_API.md` | High-level badge API overview (user-facing) |
+| File                                       | Purpose                                                                     |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| `src/lib/badge-rate-limit.ts`              | `checkBadgeRateLimit()` and `getBadgeClientIp()` — core rate limiting logic |
+| `src/app/api/badge/commits/route.ts`       | Commits badge endpoint                                                      |
+| `src/app/api/badge/streak-shield/route.ts` | Streak shield badge endpoint                                                |
+| `src/app/api/badge/streak/route.ts`        | Streak badge endpoint                                                       |
+| `src/app/api/badge/badge-utils.ts`         | `generateBadgeSVG()` — SVG generation shared utility                        |
+| `BADGE_API.md`                             | High-level badge API overview (user-facing)                                 |
 
 ---
 
@@ -254,4 +255,4 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 - [BADGE_API.md](../BADGE_API.md) — User-facing badge documentation
 - [docs/api.md](./api.md) — General API documentation
 - [docs/caching.md](./caching.md) — Caching strategy across DevTrack
-- [CONTRIBUTING.md](../CONTRIBUTING.md) — Contribution guide for GSSoC
+- [CONTRIBUTING.md](../CONTRIBUTING.md) — Contribution guide

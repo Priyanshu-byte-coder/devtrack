@@ -1,4 +1,5 @@
 import "server-only";
+import type { Database } from "@/types/supabase";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -36,11 +37,13 @@ export const isSupabaseAdminAvailable = !!getValidatedAdminEnv();
 export const SUPABASE_ADMIN_UNAVAILABLE_MESSAGE =
   "Supabase admin client is unavailable. Check NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.";
 
-// eslint-disable-next-line
-type SupabaseAdminClient = SupabaseClient<any, any, any>;
+type SupabaseAdminClient = SupabaseClient<Database>;
 
 function createUnavailableSupabaseAdmin(): SupabaseAdminClient {
   return {
+    rpc() {
+      throw new Error(SUPABASE_ADMIN_UNAVAILABLE_MESSAGE);
+    },
     from() {
       throw new Error(SUPABASE_ADMIN_UNAVAILABLE_MESSAGE);
     },
@@ -52,7 +55,7 @@ function createUnavailableSupabaseAdmin(): SupabaseAdminClient {
 const env = getValidatedAdminEnv();
 
 export const supabaseAdmin: SupabaseAdminClient = env
-  ? createClient(env.url, env.serviceRoleKey, {
+  ? createClient<Database>(env.url, env.serviceRoleKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,

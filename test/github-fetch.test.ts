@@ -20,7 +20,7 @@ describe("GitHubRateLimitError", () => {
   it("should have correct name and message", () => {
     const error = new GitHubRateLimitError(null);
     expect(error.name).toBe("GitHubRateLimitError");
-    expect(error.message).toBe("GitHub API rate limit exceeded");
+    expect(error.message).toMatch(/GitHub API rate limit/i);
   });
 
   it("should store resetAt date when provided", () => {

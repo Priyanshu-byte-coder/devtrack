@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
   insertSingle: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: mocks.getServerSession,
 }));
 

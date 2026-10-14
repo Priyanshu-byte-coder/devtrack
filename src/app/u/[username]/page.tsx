@@ -5,7 +5,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import BadgeSection from "@/components/BadgeSection";
 import GitHubAchievements from "@/components/GitHubAchievements";
 import StatsCard from "@/components/StatsCard";
@@ -504,7 +504,7 @@ function PublicContributionGraph({
   );
 }
 
-function PublicStreakTracker({ streak }: { streak: any }) {
+function PublicStreakTracker({ streak }: { streak: import("@/lib/public-profile-data").StreakData }) {
   const stats = [
     {
       label: "Current Streak",
@@ -521,7 +521,7 @@ function PublicStreakTracker({ streak }: { streak: any }) {
       icon: "🏆",
     },
     {
-      label: "Active Days (90d)",
+      label: "Active Days (365d)",
       value: streak.totalActiveDays,
       unit: "days",
       highlight: false,
@@ -546,6 +546,7 @@ function PublicStreakTracker({ streak }: { streak: any }) {
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
         Commit Streaks
       </h2>
+      {streak.complete === false && <p role="status" className="mb-3 text-sm text-amber-500">{streak.partialReason ?? "Streak history is incomplete."}</p>}
       <div className="grid grid-cols-2 gap-3">
         {stats.map((stat) => (
           <div

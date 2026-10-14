@@ -12,7 +12,7 @@ async function hasActiveSession(fetcher: typeof window.fetch) {
     if (!response.ok) return false;
 
     const session = await response.json();
-    return Boolean(session?.user || session?.githubId || session?.accessToken);
+    return Boolean(session?.user || session?.githubId);
   } catch {
     return false;
   }

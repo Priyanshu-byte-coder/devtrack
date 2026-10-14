@@ -48,7 +48,6 @@ async function injectMockSession(page: import("@playwright/test").Page) {
         },
         githubLogin: "playwright-user",
         githubId: "99001",
-        accessToken: "mock-access-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     })

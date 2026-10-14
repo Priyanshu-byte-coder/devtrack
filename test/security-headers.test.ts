@@ -35,7 +35,7 @@ describe("Security Headers Configuration", () => {
     expect(headerMap.get("Strict-Transport-Security")).toBeDefined();
     
     // Assert Content-Security-Policy is present
-    expect(headerMap.get("Content-Security-Policy")).toBeDefined();
+    expect(headerMap.get("Content-Security-Policy")).toBeUndefined(); // Nonce CSP is generated per request by proxy.ts.
     
     // Assert X-XSS-Protection is present
     expect(headerMap.get("X-XSS-Protection")).toBe("1; mode=block");

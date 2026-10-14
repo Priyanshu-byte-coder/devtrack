@@ -1,4 +1,6 @@
-﻿import { getSessionWithToken } from "@/lib/get-session-token";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { GITHUB_API } from "@/lib/github";
 import {
@@ -45,7 +47,7 @@ export async function GET(req: NextRequest) {
         ttlSeconds: METRICS_CACHE_TTL_SECONDS.contributions,
       },
       async () => {
-        const searchRes = await fetch(
+        const searchRes = await githubRequest(
           `${GITHUB_API}/search/commits?q=author:${session.githubLogin}+author-date:${date}&per_page=100`,
           {
             headers: {
@@ -83,6 +85,9 @@ export async function GET(req: NextRequest) {
 
     return Response.json(result);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

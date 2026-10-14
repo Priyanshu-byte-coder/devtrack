@@ -1,10 +1,8 @@
-name: GSSoC Label Automation
+name: PR Label & Assignment Automation
 
 on:
   pull_request_target:
     types: [opened, reopened, synchronize]
-  pull_request_review:
-    types: [submitted]
 
 permissions:
   pull-requests: write
@@ -17,11 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
       - name: Detect and apply type labels
         uses: actions/github-script@v9
         with:
@@ -34,10 +27,10 @@ jobs:
             const body = (pr.body || '').toLowerCase();
 
             // Fetch changed files
-            const filesRes = await github.rest.pulls.listFiles({
+            const filesRes = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: prNumber, per_page: 100
             });
-            const files = filesRes.data.map(f => f.filename.toLowerCase());
+            const files = filesRes.map(f => f.filename.toLowerCase());
 
             const labelsToAdd = new Set();
 
@@ -79,9 +72,6 @@ jobs:
             // Fetch current labels
             const currentLabels = pr.labels.map(l => l.name);
 
-            // Always add gssoc26 to every PR
-            if (!currentLabels.includes('gssoc26')) labelsToAdd.add('gssoc26');
-
             // Only add labels not already present
             const newLabels = [...labelsToAdd].filter(l => !currentLabels.includes(l));
 
@@ -95,7 +85,8 @@ jobs:
             // Auto-assign PR author to PR
             const creator = pr.user.login;
             const currentAssignees = pr.assignees.map(a => a.login);
-            if (!currentAssignees.includes(creator)) {
+            if (pr.user.type !== "Bot" && !creator.endsWith("[bot]") && !currentAssignees.includes(creator)) {
+              try {
               await github.rest.issues.addAssignees({
                 owner,
                 repo,
@@ -103,68 +94,8 @@ jobs:
                 assignees: [creator]
               });
               console.log(`Assigned PR #${prNumber} to author @${creator}`);
-            }
-
-      - name: Post admin checklist comment
-        uses: actions/github-script@v9
-        if: github.event.action == 'opened'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const pr = context.payload.pull_request;
-            const { owner, repo } = context.repo;
-
-            const body = `## GSSoC Label Checklist 🏷️
-
-            @${context.repo.owner} — please apply the appropriate labels before merging:
-
-            **Difficulty** (pick one):
-            - [ ] \`level:beginner\` — 20 pts
-            - [ ] \`level:intermediate\` — 35 pts
-            - [ ] \`level:advanced\` — 55 pts
-            - [ ] \`level:critical\` — 80 pts
-
-            **Quality** (optional):
-            - [ ] \`quality:clean\` — ×1.2 multiplier
-            - [ ] \`quality:exceptional\` — ×1.5 multiplier
-
-            **Validation** (required to score):
-            - [ ] \`gssoc:approved\` — counts for points
-            - [ ] \`gssoc:invalid\` / \`gssoc:spam\` / \`gssoc:ai-slop\` — does not score
-
-            > Type labels (\`type:*\`) are auto-detected from files and title. Review and adjust if needed.
-            > Points formula: \`(difficulty × quality_multiplier) + type_bonus\``;
-
-            await github.rest.issues.createComment({
-              owner, repo, issue_number: pr.number, body
-            });
-
-  notify-on-approve:
-    name: Remind admin to add gssoc:approved
-    runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved'
-    steps:
-      - name: Check for gssoc:approved label
-        uses: actions/github-script@v9
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const pr = context.payload.pull_request;
-            const { owner, repo } = context.repo;
-            const hasApproved = pr.labels.some(l => l.name === 'gssoc:approved');
-            const hasDifficulty = pr.labels.some(l => l.name.startsWith('level:'));
-
-            if (!hasApproved || !hasDifficulty) {
-              const missing = [];
-              if (!hasDifficulty) missing.push('a `level:*` difficulty label');
-              if (!hasApproved) missing.push('`gssoc:approved`');
-
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: pr.number,
-                body: `PR is approved but missing ${missing.join(' and ')} — add before merging so it scores in GSSoC. 🏷️`
-              });
+              } catch (error) {
+                if (![403, 422].includes(error.status)) throw error;
+                core.warning(`Author assignment skipped: HTTP ${error.status}`);
+              }
             }

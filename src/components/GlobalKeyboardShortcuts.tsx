@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useTheme } from "@/components/ThemeContext";
 import ShortcutsModal from "./ShortcutsModal";
 
 export default function GlobalKeyboardShortcuts() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const { theme, themeDefinition, toggleTheme } = useTheme();
@@ -72,7 +74,7 @@ export default function GlobalKeyboardShortcuts() {
 
       // G + D -> Dashboard
       if (gPressed && e.key.toLowerCase() === "d") {
-        window.location.href = "/dashboard";
+        router.push("/dashboard");
         e.preventDefault();
         return;
       }
@@ -107,7 +109,7 @@ export default function GlobalKeyboardShortcuts() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [toggleTheme]);
+  }, [toggleTheme, router]);
 
   return (
     <>

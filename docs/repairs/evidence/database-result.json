@@ -1,0 +1,11 @@
+{
+  "check": "database",
+  "checkedAt": "2026-10-14T15:30:18.190Z",
+  "command": [
+    "node",
+    "scripts/check-database.cjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 5.772
+}

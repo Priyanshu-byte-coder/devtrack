@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -146,23 +147,23 @@ async function fetchUserStats(
 
   const [commitsRes, prsRes, reviewsRes, openSourceRes, issuesRes] =
     await Promise.allSettled([
-      fetch(
+      githubRequest(
         `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=1`,
         { headers, cache: "no-store" }
       ),
-      fetch(
+      githubRequest(
         `${GITHUB_API}/search/issues?q=author:${githubLogin}+type:pr+is:merged&per_page=1`,
         { headers, cache: "no-store" }
       ),
-      fetch(
+      githubRequest(
         `${GITHUB_API}/search/issues?q=reviewed-by:${githubLogin}+type:pr&per_page=1`,
         { headers, cache: "no-store" }
       ),
-      fetch(
+      githubRequest(
         `${GITHUB_API}/search/issues?q=author:${githubLogin}+type:pr+is:merged+-user:${githubLogin}&per_page=1`,
         { headers, cache: "no-store" }
       ),
-      fetch(
+      githubRequest(
         `${GITHUB_API}/search/issues?q=assignee:${githubLogin}+type:issue+state:closed&per_page=1`,
         { headers, cache: "no-store" }
       ),

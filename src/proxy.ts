@@ -1,3 +1,4 @@
+import { getClientIp as getIp } from "@/lib/rate-limit";
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 import {
@@ -5,13 +6,7 @@ import {
   isAuthSensitivePath,
   AUTH_LIMIT,
 } from "@/lib/auth-rate-limit";
-import {
-  isStateChangingMethod,
-  isCsrfExempt,
-  validateCsrf,
-} from "@/lib/csrf";
-
-export const runtime = "nodejs";
+import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
 
 const isDev = process.env.NODE_ENV === "development";
 const memoryBuckets = new Map<string, number[]>();
@@ -61,7 +56,10 @@ const RATE_LIMIT_CONFIG = {
 } as const;
 
 // Warn in production if Upstash Redis is not configured (rates reset on cold starts)
-if (process.env.NODE_ENV === "production" && !process.env.UPSTASH_REDIS_REST_URL) {
+if (
+  process.env.NODE_ENV === "production" &&
+  !process.env.UPSTASH_REDIS_REST_URL
+) {
   console.warn(
     "UPSTASH_REDIS_REST_URL is not set – rate limits will use in-memory storage and reset on cold starts."
   );
@@ -73,15 +71,6 @@ type RateLimitResult = {
   remaining: number;
   reset: number;
 };
-
-function getIp(req: NextRequest) {
-  return (
-    req.headers.get("cf-connecting-ip")?.trim() ??
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip")?.trim() ??
-    "unknown"
-  );
-}
 
 function buildHeaders(result: RateLimitResult) {
   const headers = new Headers();
@@ -132,7 +121,9 @@ function checkMemoryLimit(
   const active = (memoryBuckets.get(key) ?? []).filter(
     (timestamp) => timestamp > cutoff
   );
-  const reset = Math.ceil(((active[0] ?? now) + RATE_LIMIT_CONFIG.WINDOW_SECONDS * 1000) / 1000);
+  const reset = Math.ceil(
+    ((active[0] ?? now) + RATE_LIMIT_CONFIG.WINDOW_SECONDS * 1000) / 1000
+  );
 
   if (active.length >= limit) {
     memoryBuckets.set(key, active);
@@ -166,7 +157,9 @@ async function checkUpstashLimit(
   }
 
   const cutoff = now - RATE_LIMIT_CONFIG.WINDOW_SECONDS * 1000;
-  const reset = Math.ceil((now + RATE_LIMIT_CONFIG.WINDOW_SECONDS * 1000) / 1000);
+  const reset = Math.ceil(
+    (now + RATE_LIMIT_CONFIG.WINDOW_SECONDS * 1000) / 1000
+  );
   const memberToken = `${now}:${Math.random().toString(36).slice(2)}`;
 
   const luaScript = `
@@ -188,23 +181,40 @@ async function checkUpstashLimit(
   `;
 
   try {
-    const response = await fetch(`${url}/eval`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        script: luaScript,
-        keys: [key],
-        args: [String(cutoff), String(now), String(limit), String(RATE_LIMIT_CONFIG.WINDOW_SECONDS), memberToken],
-      }),
+      body: JSON.stringify([
+        "EVAL",
+        luaScript,
+        1,
+        key,
+        String(cutoff),
+        String(now),
+        String(limit),
+        String(RATE_LIMIT_CONFIG.WINDOW_SECONDS),
+        memberToken,
+      ]),
+      signal: AbortSignal.timeout(2000),
       cache: "no-store",
     });
 
-    if (!response.ok) { return null; }
+    if (!response.ok) {
+      return null;
+    }
 
     const data = await response.json();
+    if (
+      !Array.isArray(data.result) ||
+      data.result.length !== 2 ||
+      !data.result.every(
+        (value: unknown) => typeof value === "number" && Number.isFinite(value)
+      )
+    )
+      return null;
     const [allowedFlag, currentCount] = data.result as [number, number];
     return {
       allowed: allowedFlag === 1,
@@ -213,7 +223,10 @@ async function checkUpstashLimit(
       reset,
     };
   } catch (error) {
-    console.error("Rate-limiter cloud pipeline failure, falling back to local memory storage:", error);
+    console.error(
+      "Rate-limiter cloud pipeline failure, falling back to local memory storage:",
+      error
+    );
     return null;
   }
 }
@@ -227,14 +240,43 @@ async function checkRateLimit(identifier: string, limit: number) {
   );
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://avatars.githubusercontent.com https://github.githubassets.com https://images.unsplash.com",
+    "connect-src 'self' https://api.github.com https://*.supabase.co wss://*.supabase.co https://*.upstash.io https://vitals.vercel-insights.com",
+    "worker-src 'self' blob:",
+    "frame-ancestors 'none'",
+    "base-uri 'none'",
+    "object-src 'none'",
+    ...(!isDev &&
+    new URL(process.env.NEXTAUTH_URL ?? req.url).protocol === "https:"
+      ? ["upgrade-insecure-requests"]
+      : []),
+  ].join("; ");
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
+  const next = () => {
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  };
 
   // In production (HTTPS), NextAuth.js writes the session to the
   // __Secure-next-auth.session-token cookie (Secure flag set).
   // We must try the secure cookie first; the plain cookie is only
   // present in local development (HTTP, no Secure flag).
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction =
+    new URL(process.env.NEXTAUTH_URL ?? req.url).protocol === "https:";
 
   let token = await getToken({
     req,
@@ -257,6 +299,8 @@ export async function middleware(req: NextRequest) {
         : "next-auth.session-token",
     });
   }
+
+  if (token?.error === "TokenRevoked") token = null;
 
   const isApiStateChange =
     pathname.startsWith("/api/") &&
@@ -288,15 +332,17 @@ export async function middleware(req: NextRequest) {
   }
 
   if (isProtectedRoute) {
-    return NextResponse.next();
+    return next();
   }
 
   if (isAdminRoute) {
     // Check if token explicitly has the admin role
     if (!token?.role || token.role !== "admin") {
-      return new NextResponse("Forbidden: Admin access required", { status: 403 });
+      return new NextResponse("Forbidden: Admin access required", {
+        status: 403,
+      });
     }
-    return NextResponse.next();
+    return next();
   }
 
   if (isAuthSensitivePath(pathname)) {
@@ -325,28 +371,35 @@ export async function middleware(req: NextRequest) {
       );
     }
 
-    return NextResponse.next();
+    return next();
   }
 
   const isRateLimitedPath =
     pathname.startsWith("/api/metrics/") || pathname === "/api/contact";
 
   if (!isRateLimitedPath) {
-    return NextResponse.next();
+    return next();
   }
 
   const githubId = typeof token?.githubId === "string" ? token.githubId : null;
   const identifier = githubId ? `user:${githubId}` : `ip:${getIp(req)}`;
-  const limit = githubId ? RATE_LIMIT_CONFIG.AUTHENTICATED_LIMIT : RATE_LIMIT_CONFIG.ANONYMOUS_LIMIT;
+  const limit = githubId
+    ? RATE_LIMIT_CONFIG.AUTHENTICATED_LIMIT
+    : RATE_LIMIT_CONFIG.ANONYMOUS_LIMIT;
 
   const result = await checkRateLimit(identifier, limit);
   const headers = buildHeaders(result);
 
   if (!result.allowed) {
     const isContact = req.nextUrl.pathname.startsWith("/api/contact");
-    console.warn(isContact ? "contact_rate_limit_hit" : "metrics_rate_limit_hit", {
-      identifier, path: req.nextUrl.pathname, limit,
-    });
+    console.warn(
+      isContact ? "contact_rate_limit_hit" : "metrics_rate_limit_hit",
+      {
+        identifier,
+        path: req.nextUrl.pathname,
+        limit,
+      }
+    );
     return NextResponse.json(
       {
         error: isContact
@@ -357,11 +410,11 @@ export async function middleware(req: NextRequest) {
     );
   }
 
-  const response = NextResponse.next();
+  const response = next();
   headers.forEach((value, key) => response.headers.set(key, value));
 
   if (req.method === "GET") {
-    response.headers.set("Cache-Control", "private, max-age=300, stale-while-revalidate=600");
+    response.headers.set("Cache-Control", "private, no-store");
   }
 
   return response;
@@ -369,12 +422,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard",
-    "/dashboard/:path*",
-    "/settings",
-    "/settings/:path*",
-    "/admin",
-    "/admin/:path*",
-    "/api/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-|manifest.json|offline.html).*)",
   ],
 };

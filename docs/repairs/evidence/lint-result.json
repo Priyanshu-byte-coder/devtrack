@@ -1,0 +1,12 @@
+{
+  "check": "lint",
+  "checkedAt": "2026-10-11T15:14:34.892Z",
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "src"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 26.098
+}

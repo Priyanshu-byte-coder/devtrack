@@ -1,5 +1,8 @@
+import { toDatabaseJson } from "@/lib/database-json";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import type { ContributionClassification, CVAnalyzeResponse } from "@/types/cv-types";
@@ -29,7 +32,7 @@ async function resolveGitHubLogin(
     return sessionLogin;
   }
   // Fallback: resolve via GitHub REST API
-  const res = await fetch("https://api.github.com/user", {
+  const res = await githubRequest("https://api.github.com/user", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
@@ -96,7 +99,7 @@ export async function POST() {
 
     if (cached) {
       const response: CVAnalyzeResponse = {
-        analysis: cached.analysis_data as ContributionClassification,
+        analysis: cached.analysis_data as unknown as ContributionClassification,
         cached: true,
       };
       return NextResponse.json(response);
@@ -126,7 +129,7 @@ export async function POST() {
     const { error: upsertError } = await supabaseAdmin.from("cv_analyses").upsert(
       {
         user_id: userId,
-        analysis_data: analysis,
+        analysis_data: toDatabaseJson(analysis),
         generated_at: now.toISOString(),
         expires_at: expiresAt.toISOString(),
       },
@@ -145,6 +148,9 @@ export async function POST() {
     const response: CVAnalyzeResponse = { analysis, cached: false };
     return NextResponse.json(response);
   } catch (err) {
+    const githubLimit = githubRateLimitResponse(err);
+    if (githubLimit) return githubLimit;
+
     console.error("CV analyze error:", err);
     return NextResponse.json(
       { error: "Internal server error" },

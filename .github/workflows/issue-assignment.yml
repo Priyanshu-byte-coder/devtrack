@@ -96,12 +96,12 @@ jobs:
               assignees: [commenter],
             });
 
-            // Add gssoc:assigned label if not already present
+            // Add status:assigned label if not already present
             const currentLabels = issue.labels.map(l => l.name);
-            if (!currentLabels.includes('gssoc:assigned')) {
+            if (!currentLabels.includes('status:assigned')) {
               await github.rest.issues.addLabels({
                 owner, repo, issue_number: issueNumber,
-                labels: ['gssoc:assigned'],
+                labels: ['status:assigned'],
               });
             }
 

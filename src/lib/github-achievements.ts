@@ -1,3 +1,5 @@
+import { toDatabaseJson } from "@/lib/database-json";
+import { githubRequest } from "@/lib/github-request";
 import { supabaseAdmin } from "@/lib/supabase";
 
 const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
@@ -187,7 +189,7 @@ async function fetchCanonicalGitHubUser(
   }
 
   try {
-    const response = await fetch(GITHUB_GRAPHQL_API, {
+    const response = await githubRequest(GITHUB_GRAPHQL_API, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -314,7 +316,7 @@ export async function fetchGitHubAchievements(
   token?: string
 ): Promise<GitHubAchievement[]> {
   const user = await fetchCanonicalGitHubUser(username, token);
-  const response = await fetch(user.url, {
+  const response = await githubRequest(user.url, {
     headers: GITHUB_WEB_HEADERS,
     cache: "no-store",
   });
@@ -407,7 +409,7 @@ export async function syncGitHubAchievementsForUser(options: {
       {
         user_id: options.userId,
         github_login: options.githubLogin,
-        achievements,
+        achievements: toDatabaseJson(achievements),
         synced_at: now,
         fetch_error: null,
         updated_at: now,
@@ -446,7 +448,7 @@ export async function syncGitHubAchievementsForUser(options: {
         {
           user_id: options.userId,
           github_login: options.githubLogin,
-          achievements: cached?.achievements ?? [],
+          achievements: toDatabaseJson(cached?.achievements ?? []),
           synced_at: cached?.syncedAt ?? now,
           fetch_error: message,
           updated_at: now,

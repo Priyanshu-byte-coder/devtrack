@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 import { decryptToken } from "@/lib/crypto";
 import { supabaseAdmin } from "@/lib/supabase";
 
@@ -57,7 +58,7 @@ export async function getLinkedTokens(userId: string): Promise<string[]> {
 
 export async function getRateLimitRemaining(token: string): Promise<number> {
   try {
-    const response = await fetch("https://api.github.com/rate_limit", {
+    const response = await githubRequest("https://api.github.com/rate_limit", {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json",

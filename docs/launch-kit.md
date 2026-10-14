@@ -126,14 +126,25 @@ Do:
 
 ---
 
-## 7. GSSoC channels
+## 7. Hacktoberfest channels
 
-One message in the GSSoC Discord/community group reaches most of your 272 contributors at
-once, off-GitHub, where a star ask is just a normal community ask:
+Hacktoberfest (October) is the highest-leverage contributor-acquisition window of the
+year — the `hacktoberfest` repo topic and issue label put DevTrack in front of people
+actively looking for repos to contribute to. Post in Hacktoberfest-adjacent spaces
+(r/Hacktoberfest, the official Hacktoberfest Discord's "share your project" channel,
+Twitter/X with #hacktoberfest) once issues are labeled and the star-gate / contributing
+guide are in good shape:
 
-> DevTrack update: we crossed 800 merged PRs. If DevTrack was part of your GSSoC journey,
-> two asks — add your streak badge to your profile README, and star the repo so the next
-> batch of contributors can find it. Both take 30 seconds.
+> DevTrack is participating in Hacktoberfest! Open-source GitHub analytics dashboard
+> (streaks, PR analytics, goals, AI resume generator) — self-hostable, MIT licensed.
+> We've curated `good first issue` and `hacktoberfest` labeled issues across frontend,
+> backend, and docs. PRs reviewed within 48 hours.
+>
+> Repo: https://github.com/Priyanshu-byte-coder/devtrack
+
+Reuse the same message at the start and midpoint of the month — Hacktoberfest traffic is
+front-loaded in week 1 but has a second wave once people realize they're short on PRs
+near the deadline.
 
 ---
 
@@ -155,7 +166,7 @@ once, off-GitHub, where a star ask is just a normal community ask:
 | ------- | --------------------------------------------------------------------------------------- |
 | 1       | Upload social preview image (Settings → Social preview, use cover_image.png)            |
 | 1       | Cut release v0.3.0 with contributor shoutouts — notifies all watchers                   |
-| 2       | GSSoC Discord message + badge Discussion pinned                                         |
+| 2       | Hacktoberfest channel post + badge Discussion pinned                                    |
 | 3       | dev.to article                                                                          |
 | 5       | Reddit r/opensource                                                                     |
 | 6 (Sat) | r/webdev Showoff Saturday                                                               |

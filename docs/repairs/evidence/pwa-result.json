@@ -1,0 +1,11 @@
+{
+  "check": "pwa",
+  "checkedAt": "2026-10-11T15:31:44.455Z",
+  "command": [
+    "node",
+    "scripts/check-pwa.mjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 0.376
+}

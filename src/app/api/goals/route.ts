@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { extractValidRepoFromGoal } from "@/lib/goals-sync-utils";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -58,7 +59,7 @@ function getPeriodStart(recurrence: Recurrence): string {
   if (recurrence === "monthly") {
     return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   }
-  return new Date(0).toISOString(); // 'none' never resets
+  return now.toISOString(); // Non-recurring goals start at creation and never reset.
 }
 
 function getPreviousPeriodEnd(periodStart: Date): string {
@@ -89,7 +90,7 @@ export async function GET() {
 
   // Reset progress if we're in a new period
   const processedGoals = await Promise.all(
-    (goals ?? []).map(async (goal: Goal) => {
+    (goals ?? []).map(async (goal) => {
       if (goal.recurrence === "none") return goal;
 
       const periodStart = new Date(getPeriodStart(goal.recurrence as Recurrence));
@@ -204,7 +205,7 @@ try {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { title, target, unit, recurrence, deadline, category } = body as Record<string, unknown>;
+  const { title, target, unit, recurrence, deadline, category, repo } = body as Record<string, unknown>;
 
   if (typeof title !== "string" || title.trim().length === 0) {
     return Response.json({ error: "title must be a non-empty string" }, { status: 400 });
@@ -227,6 +228,9 @@ try {
       { status: 400 }
     );
   }
+
+  const safeRepo = repo == null || repo === '' ? null : typeof repo === 'string' ? extractValidRepoFromGoal({id:'',unit:'',repo}) : null;
+  if (repo != null && repo !== '' && !safeRepo) return Response.json({error:'repo must be owner/repository'}, {status:400});
 
   const safeUnit = typeof unit === "string" ? unit.slice(0, MAX_UNIT_LEN) : "commits";
   const safeRecurrence: Recurrence = VALID_RECURRENCES.includes(recurrence as Recurrence)
@@ -288,6 +292,7 @@ try {
       title: sanitizedTitle,
       target,
       unit: safeUnit,
+      repo: safeRepo,
       recurrence: safeRecurrence,
       period_start: getPeriodStart(safeRecurrence),
       deadline: safeDeadline,

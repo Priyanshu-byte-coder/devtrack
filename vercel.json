@@ -9,8 +9,8 @@
       "schedule": "0 0 * * *"
     },
     {
-      "path": "/api/goals/sync",
-      "schedule": "0 0 * * *"
+      "path": "/api/cron/goals-sync",
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/sponsors/sync",
@@ -22,7 +22,7 @@
     },
     {
       "path": "/api/notifications/weekly",
-      "schedule": "0 9 * * 1"
+      "schedule": "0 * * * *"
     }
   ]
 }

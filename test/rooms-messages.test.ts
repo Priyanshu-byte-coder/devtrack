@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => ({
   sendRoomMessage: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/supabase-rooms", () => ({
   getRoomById: mocks.getRoomById,
@@ -31,7 +31,7 @@ vi.mock("@/lib/supabase-rooms", () => ({
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-const SESSION = { user: { name: "alice", image: "https://example.com/a.png" } };
+const SESSION = { githubId: "101", githubLogin: "alice", user: { name: "alice", image: "https://example.com/a.png" } };
 const ROOM = { id: "room-1", name: "Dev chat" };
 const BASE_URL = "http://localhost/api/rooms/room-1/messages";
 
@@ -108,7 +108,8 @@ describe("POST /api/rooms/[roomId]/messages — message sanitization", () => {
       "room-1",
       "alice",
       SESSION.user.image,
-      "Hello world"
+      "Hello world",
+      SESSION.githubId
     );
   });
 
@@ -135,7 +136,8 @@ describe("POST /api/rooms/[roomId]/messages — message sanitization", () => {
       "room-1",
       "alice",
       SESSION.user.image,
-      "Hello"
+      "Hello",
+      SESSION.githubId
     );
   });
 
@@ -162,7 +164,8 @@ describe("POST /api/rooms/[roomId]/messages — message sanitization", () => {
       "room-1",
       "alice",
       SESSION.user.image,
-      "alert(1)"
+      "alert(1)",
+      SESSION.githubId
     );
   });
 
@@ -189,7 +192,8 @@ describe("POST /api/rooms/[roomId]/messages — message sanitization", () => {
       "room-1",
       "alice",
       SESSION.user.image,
-      "click here"
+      "click here",
+      SESSION.githubId
     );
   });
 
@@ -290,7 +294,14 @@ describe("POST /api/rooms/[roomId]/messages — message sanitization", () => {
       "room-1",
       "alice",
       SESSION.user.image,
-      text
+      text,
+      SESSION.githubId
     );
   });
+});
+
+it('authorizes stable GitHub identity even when a display name impersonates another account',async()=>{
+ vi.clearAllMocks();mocks.getServerSession.mockResolvedValue({...SESSION,user:{name:'another-member'}});mocks.getRoomById.mockResolvedValue(null);
+ const {POST}=await import('@/app/api/rooms/[roomId]/messages/route');const response=await POST(makePost('hello'),roomParams('room-1'));
+ expect(response.status).toBe(404);expect(mocks.getRoomById).toHaveBeenCalledWith('room-1','101');expect(mocks.sendRoomMessage).not.toHaveBeenCalled();
 });

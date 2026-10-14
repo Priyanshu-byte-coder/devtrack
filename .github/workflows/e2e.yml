@@ -23,16 +23,16 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://127.0.0.1:3002
       GITHUB_ID: playwright-github-id
       GITHUB_SECRET: playwright-github-secret
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
       PLAYWRIGHT_SERVER_MODE: start
       CI: true
     steps:
       - uses: actions/checkout@v7
 
       - name: Setup pnpm
-        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
+        run: corepack enable && corepack prepare pnpm@11.13.1 --activate
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -49,9 +49,9 @@ jobs:
           NEXT_PUBLIC_APP_URL=http://127.0.0.1:3002
           GITHUB_ID=playwright-github-id
           GITHUB_SECRET=playwright-github-secret
-          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role-key
           PLAYWRIGHT_SERVER_MODE=start
           GITHUB_WEBHOOK_SECRET=ci-placeholder-webhook-secret
           EOF

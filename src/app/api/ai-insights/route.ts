@@ -1,5 +1,8 @@
+import { loadInsightMetrics, InsightMetricsUnavailableError } from "@/lib/insight-metrics";
+import { checkAiQuota } from "@/lib/ai-quota";
+import { toDatabaseJson } from "@/lib/database-json";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -60,29 +63,6 @@ interface RepoSummary {
 
 interface ReposApiResponse {
   repos?: RepoSummary[];
-}
-
-async function fetchJsonOrEmpty<T>(
-  url: string,
-  headers: HeadersInit
-): Promise<T> {
-  try {
-    const res = await fetch(url, {
-      headers,
-      cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    if (!res.ok) {
-      console.error(`Metrics fetch failed: ${url}`, res.status, await res.text());
-      return {} as T;
-    }
-
-    return (await res.json()) as T;
-  } catch (err) {
-    console.error(`Metrics fetch error: ${url}`, err);
-    return {} as T;
-  }
 }
 
 export async function GET(request: Request) {
@@ -180,33 +160,14 @@ export async function GET(request: Request) {
     );
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-  const cookie = request.headers.get("cookie") ?? "";
-  const headers = { Cookie: cookie };
-
-  const [contributionsRaw, prsRaw, streakRaw, reposRaw]: [
-    ContributionsApiResponse,
-    PRsApiResponse,
-    StreakApiResponse,
-    ReposApiResponse,
-  ] = await Promise.all([
-    fetchJsonOrEmpty<ContributionsApiResponse>(
-      `${baseUrl}/api/metrics/contributions?days=90`,
-      headers
-    ),
-    fetchJsonOrEmpty<PRsApiResponse>(
-      `${baseUrl}/api/metrics/prs`,
-      headers
-    ),
-    fetchJsonOrEmpty<StreakApiResponse>(
-      `${baseUrl}/api/metrics/streak`,
-      headers
-    ),
-    fetchJsonOrEmpty<ReposApiResponse>(
-      `${baseUrl}/api/metrics/repos?days=90`,
-      headers
-    ),
-  ]);
+  let loaded: Awaited<ReturnType<typeof loadInsightMetrics>>;
+  try { loaded = await loadInsightMetrics(request); }
+  catch(error) {
+    const status=error instanceof InsightMetricsUnavailableError && error.response.status===429 ? 429 : 503;
+    const retryAfter=error instanceof InsightMetricsUnavailableError ? error.response.headers.get('retry-after') : null;
+    return NextResponse.json({error:'Complete metrics are unavailable; insights were not generated'}, {status, ...(retryAfter?{headers:{'Retry-After':retryAfter}}:{})});
+  }
+  const [contributionsRaw, prsRaw, streakRaw, reposRaw] = loaded as [ContributionsApiResponse, PRsApiResponse, StreakApiResponse, ReposApiResponse];
 
   const commitsByDay: Record<string, number> = contributionsRaw.data ?? {};
   const commitsArray = Object.entries(commitsByDay)
@@ -237,6 +198,7 @@ export async function GET(request: Request) {
   let aiSummary: string | null = null;
 
   if (type === "weekly_summary" && process.env.GROQ_API_KEY) {
+    const quota=await checkAiQuota(session.githubId);if(quota) return quota;
     try {
       const topRepoName = metrics.repos[0]?.name ?? "unknown";
       const totalCommits = metrics.commits.reduce((s, d) => s + d.count, 0);
@@ -260,6 +222,7 @@ export async function GET(request: Request) {
         "https://api.groq.com/openai/v1/chat/completions",
         {
           method: "POST",
+          signal: AbortSignal.timeout(15_000),
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
@@ -299,7 +262,7 @@ export async function GET(request: Request) {
     {
       user_id: userId,
       insight_type: type,
-      content: payload,
+      content: toDatabaseJson(payload),
       generated_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
     },

@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockUpsert = vi.fn();
 const mockSingle = vi.fn();
 vi.mock('@/lib/supabase', () => ({
+  isSupabaseAdminAvailable: true,
   supabaseAdmin: {
     from: vi.fn().mockReturnValue({
       upsert: (...args: any[]) => {
@@ -162,7 +163,7 @@ describe('auth.ts NextAuth callbacks', () => {
   });
 
   describe('session callback', () => {
-    it('populates session.accessToken from token.jwt', async () => {
+    it('keeps the provider accessToken out of the public session', async () => {
       const sessionCallback = authOptions.callbacks?.session;
       if (!sessionCallback) return;
 
@@ -170,7 +171,8 @@ describe('auth.ts NextAuth callbacks', () => {
       const token = { accessToken: 'jwt-token-xyz', githubId: '111', githubLogin: 'user1' } as any;
       const result = await sessionCallback({ session, token, user: {} } as any);
 
-      expect((result as any).accessToken).toBe('jwt-token-xyz');
+      expect((result as any).accessToken).toBeUndefined();
+      expect(JSON.stringify(result)).not.toContain('jwt-token-xyz');
     });
 
     it('populates session.githubId from token.jwt', async () => {

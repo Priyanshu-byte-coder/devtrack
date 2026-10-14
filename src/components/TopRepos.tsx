@@ -288,6 +288,7 @@ function getVisibleLanguages(languages: RepoLanguage[]): RepoLanguage[] {
 
 export default function TopRepos() {
   const { selectedAccount } = useAccount();
+  const [partialReason, setPartialReason] = useState<string | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -396,7 +397,7 @@ const togglePin = useCallback((repoFullName: string) => {
       : "";
     fetch(`/api/metrics/repos?days=${days}${accountParam}`)
       .then((r) => r.json())
-      .then((d: { repos: Repo[] }) => setRepos(d.repos ?? []))
+      .then((d: { repos: Repo[]; complete?: boolean; partialReason?: string }) => {setRepos(d.repos ?? []);setPartialReason(d.complete===false ? d.partialReason ?? "Incomplete commit history" : null);})
       .catch(() => setError("We couldn't load your top repositories right now. Please try again in a moment."))
       .finally(() => {
         setLoading(false);
@@ -482,6 +483,7 @@ const togglePin = useCallback((repoFullName: string) => {
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      {partialReason && <p role="status" className="mb-3 text-xs text-[var(--muted-foreground)]">Repository counts use partial history: {partialReason}</p>}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <SectionHeader

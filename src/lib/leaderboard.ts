@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 import { supabaseAdmin } from "@/lib/supabase";
 import { dateDiffDays, toDateStr } from "@/lib/date-utils";
 import { cacheGet, cacheSet, cacheDelete, invalidateLeaderboardCache } from "@/lib/metrics-cache";
@@ -196,7 +197,7 @@ async function fetchGitHubJson<T>(path: string): Promise<T | null> {
   if (token) headers.Authorization = `Bearer ${token}`;
 
   try {
-    const res = await fetch(`${GITHUB_API}${path}`, {
+    const res = await githubRequest(`${GITHUB_API}${path}`, {
       headers,
       next: { revalidate: 3600 },
     });

@@ -1,0 +1,11 @@
+{
+  "check": "browser-security",
+  "checkedAt": "2026-10-11T15:30:53.360Z",
+  "command": [
+    "node",
+    "docs/repairs/run-security-browser.cjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 39.847
+}

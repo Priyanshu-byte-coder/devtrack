@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -50,7 +52,7 @@ async function fetchActiveDates(githubLogin: string, token: string): Promise<Set
   // NOTE: this function is called INSIDE withMetricsCache in the GET handler,
   // so it only runs on a cache miss — repeated page loads reuse cached dates.
   while (true) {
-    const searchRes = await fetch(
+    const searchRes = await githubRequest(
       `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
       {
         headers: {
@@ -132,7 +134,7 @@ async function fetchWeeklySummaryForAccount(
     const fourteenDaysAgoStr = toDateStr(new Date(Date.now() - 14 * 86400000));
 
     // Search API call 1 of 3 — fetches commits for the past 14 days.
-    const commitsRes = await fetch(
+    const commitsRes = await githubRequest(
       `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${fourteenDaysAgoStr}&per_page=100`,
       {
         headers: {
@@ -197,7 +199,7 @@ async function fetchWeeklySummaryForAccount(
     });
 
     // Search API call 2 of 3 — fetches PRs opened in the past 14 days.
-    const prsRes = await fetch(
+    const prsRes = await githubRequest(
       `${GITHUB_API}/search/issues?q=type:pr+author:@me+created:>=${fourteenDaysAgoStr}&per_page=100`,
       {
         headers: {
@@ -248,7 +250,7 @@ async function fetchWeeklySummaryForAccount(
     const commitDelta = commitsThisWeek - commitsPrevWeek;
 
     // Search API call 4 - fetches Issues opened in the past 14 days
-    const issuesRes = await fetch(
+    const issuesRes = await githubRequest(
       `${GITHUB_API}/search/issues?q=type:issue+author:@me+created:>=${fourteenDaysAgoStr}&per_page=100`,
       {
         headers: {
@@ -486,6 +488,8 @@ export async function GET(req: NextRequest) {
 
       return Response.json(data);
     } catch (e) {
+      const githubLimit = githubRateLimitResponse(e);
+      if (githubLimit) return githubLimit;
       if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
       return Response.json({ error: "GitHub API error" }, { status: 502 });
     }
@@ -525,6 +529,9 @@ export async function GET(req: NextRequest) {
     const data = await fetchWeeklySummaryForAccount(token, githubLogin, userId, bypass);
     return Response.json(data);
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     if (e instanceof GitHubAuthError) return githubAuthErrorResponse();
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }

@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup pnpm
-        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
+        run: corepack enable && corepack prepare pnpm@11.13.1 --activate
 
       - name: Setup Node
         uses: actions/setup-node@v7

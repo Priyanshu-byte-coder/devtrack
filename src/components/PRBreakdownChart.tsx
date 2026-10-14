@@ -21,6 +21,7 @@ const SLICES: { key: keyof PRBreakdown; label: string; color: string }[] = [
 
 export default function PRBreakdownChart() {
   const { selectedAccount } = useAccount();
+  const [partialReason, setPartialReason] = useState<string | null>(null);
   const [breakdown, setBreakdown] = useState<PRBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,8 +42,8 @@ export default function PRBreakdownChart() {
       : "/api/metrics/pr-breakdown";
 
     fetch(url)
-      .then((r) => r.json())
-      .then((d: PRBreakdown) => setBreakdown(d))
+      .then((r) => {if(!r.ok) throw new Error("PR metrics unavailable");return r.json();})
+      .then((d: PRBreakdown & {complete?:boolean;partialReason?:string}) => {setBreakdown(d);setPartialReason(d.complete===false ? d.partialReason ?? "Incomplete PR history" : null);})
       .catch(() =>
         setError("We couldn't load your PR breakdown right now. Please try again in a moment.")
       )
@@ -89,6 +90,7 @@ export default function PRBreakdownChart() {
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">PR Breakdown</h2>
+      {partialReason && <p role="status" className="mb-3 text-xs text-[var(--muted-foreground)]">Partial history: {partialReason}</p>}
       {total === 0 ? (
         <p className="flex h-[200px] items-center justify-center text-sm text-[var(--muted-foreground)]">
           No pull requests found.

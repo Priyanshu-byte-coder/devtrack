@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 import { GITHUB_API } from "@/lib/github";
 
 interface TopRepo { name: string; commits: number; }
@@ -15,7 +16,7 @@ export function mergeCIAnalytics(a: CIAnalyticsResponse, b: CIAnalyticsResponse)
 }
 
 export async function fetchCIAnalyticsForAccount(token: string, githubLogin: string): Promise<CIAnalyticsResponse> {
-  const searchRes = await fetch(`${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${toIsoDate(30)}&per_page=100&sort=author-date&order=desc`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, cache: "no-store" });
+  const searchRes = await githubRequest(`${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${toIsoDate(30)}&per_page=100&sort=author-date&order=desc`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, cache: "no-store" });
   if (!searchRes.ok) throw new Error("API error");
   const data = await searchRes.json();
   
@@ -26,7 +27,7 @@ export async function fetchCIAnalyticsForAccount(token: string, githubLogin: str
   const failedRepos: string[] = [];
   const runsByRepo = await Promise.all(repos.map(async (repo) => {
     try {
-      const res = await fetch(`${GITHUB_API}/repos/${repo.name}/actions/runs?per_page=100&created=>=${toIsoDate(30)}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, cache: "no-store" });
+      const res = await githubRequest(`${GITHUB_API}/repos/${repo.name}/actions/runs?per_page=100&created=>=${toIsoDate(30)}`, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, cache: "no-store" });
       if (res.status === 404 || res.status === 403) return [];
       if (!res.ok) throw new Error("API error");
       const d = await res.json(); return d.workflow_runs ?? [];

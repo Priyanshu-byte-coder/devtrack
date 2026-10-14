@@ -25,6 +25,7 @@ export async function upstashPipeline(
     },
     body: JSON.stringify(commands),
     cache: "no-store",
+    signal: AbortSignal.timeout(2000),
   });
 
   if (!res.ok) {

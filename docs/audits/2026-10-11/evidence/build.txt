@@ -1,0 +1,181 @@
+
+> devtrack@0.2.0 build
+> npm run validate-env && next build && node scripts/copy-standalone-static.js
+
+
+> devtrack@0.2.0 validate-env
+> node scripts/validate-env.js
+
+✅ Environment validation skipped in CI.
+▲ Next.js 16.3.5 (Turbopack)
+- Environments: .env.local, .env
+✓ Running next.config.mjs took 58s
+
+node : ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+At line:2 char:1
++ node docs/audits/2026-10-11/evidence/run-isolated-build.cjs > docs/au ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (⚠ The "middlewa...proxy" instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Turbopack build encountered 6 warnings:
+[next]/internal/font/google/dm_sans_7e1694e2.module.css
+Warning: Error while requesting resource
+There was an issue establishing a connection while requesting 
+https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_7e1694e2.module.css
+    [next]/internal/font/google/dm_sans_7e1694e2.js
+    ./src/app/page.tsx
+
+
+[next]/internal/font/google/inter_fa93af41.module.css
+Warning: Error while requesting resource
+There was an issue establishing a connection while requesting 
+https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_fa93af41.module.css
+    [next]/internal/font/google/inter_fa93af41.js
+    ./src/app/layout.tsx
+
+
+[next]/internal/font/google/jetbrains_mono_1bef6f7d.module.css
+Warning: Error while requesting resource
+There was an issue establishing a connection while requesting 
+https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=optional
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/jetbrains_mono_1bef6f7d.module.css
+    [next]/internal/font/google/jetbrains_mono_1bef6f7d.js
+    ./src/app/layout.tsx
+
+
+[next]/internal/font/google/jetbrains_mono_3b5be28e.module.css
+Warning: Error while requesting resource
+There was an issue establishing a connection while requesting 
+https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/jetbrains_mono_3b5be28e.module.css
+    [next]/internal/font/google/jetbrains_mono_3b5be28e.js
+    ./src/app/page.tsx
+
+
+[next]/internal/font/google/syne_8643a85d.module.css
+Warning: Error while requesting resource
+There was an issue establishing a connection while requesting 
+https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/syne_8643a85d.module.css
+    [next]/internal/font/google/syne_8643a85d.js
+    ./src/app/layout.tsx
+
+
+[next]/internal/font/google/syne_fd85a7ba.module.css
+Warning: Error while requesting resource
+There was an issue establishing a connection while requesting 
+https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/syne_fd85a7ba.module.css
+    [next]/internal/font/google/syne_fd85a7ba.js
+    ./src/app/page.tsx
+
+
+
+> Build error occurred
+Error: Turbopack build failed with 6 errors:
+[next]/internal/font/google/dm_sans_7e1694e2.module.css
+Error: next/font: error:
+Failed to fetch DM Sans from Google Fonts.
+If you are offline or behind a proxy, self-host the font with next/font/local, or set HTTP_PROXY/HTTPS_PROXY so 
+Next.js can reach fonts.googleapis.com.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/dm_sans_7e1694e2.module.css
+    [next]/internal/font/google/dm_sans_7e1694e2.js
+    ./src/app/page.tsx
+
+
+[next]/internal/font/google/inter_fa93af41.module.css
+Error: next/font: error:
+Failed to fetch Inter from Google Fonts.
+If you are offline or behind a proxy, self-host the font with next/font/local, or set HTTP_PROXY/HTTPS_PROXY so 
+Next.js can reach fonts.googleapis.com.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/inter_fa93af41.module.css
+    [next]/internal/font/google/inter_fa93af41.js
+    ./src/app/layout.tsx
+
+
+[next]/internal/font/google/jetbrains_mono_1bef6f7d.module.css
+Error: next/font: error:
+Failed to fetch JetBrains Mono from Google Fonts.
+If you are offline or behind a proxy, self-host the font with next/font/local, or set HTTP_PROXY/HTTPS_PROXY so 
+Next.js can reach fonts.googleapis.com.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/jetbrains_mono_1bef6f7d.module.css
+    [next]/internal/font/google/jetbrains_mono_1bef6f7d.js
+    ./src/app/layout.tsx
+
+
+[next]/internal/font/google/jetbrains_mono_3b5be28e.module.css
+Error: next/font: error:
+Failed to fetch JetBrains Mono from Google Fonts.
+If you are offline or behind a proxy, self-host the font with next/font/local, or set HTTP_PROXY/HTTPS_PROXY so 
+Next.js can reach fonts.googleapis.com.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/jetbrains_mono_3b5be28e.module.css
+    [next]/internal/font/google/jetbrains_mono_3b5be28e.js
+    ./src/app/page.tsx
+
+
+[next]/internal/font/google/syne_8643a85d.module.css
+Error: next/font: error:
+Failed to fetch Syne from Google Fonts.
+If you are offline or behind a proxy, self-host the font with next/font/local, or set HTTP_PROXY/HTTPS_PROXY so 
+Next.js can reach fonts.googleapis.com.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/syne_8643a85d.module.css
+    [next]/internal/font/google/syne_8643a85d.js
+    ./src/app/layout.tsx
+
+
+[next]/internal/font/google/syne_fd85a7ba.module.css
+Error: next/font: error:
+Failed to fetch Syne from Google Fonts.
+If you are offline or behind a proxy, self-host the font with next/font/local, or set HTTP_PROXY/HTTPS_PROXY so 
+Next.js can reach fonts.googleapis.com.
+
+Import trace:
+  Server Component:
+    [next]/internal/font/google/syne_fd85a7ba.module.css
+    [next]/internal/font/google/syne_fd85a7ba.js
+    ./src/app/page.tsx
+
+
+    at ignore-listed frames

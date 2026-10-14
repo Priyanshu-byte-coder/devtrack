@@ -1,0 +1,3326 @@
+[
+  {
+    "baseRefName": "main",
+    "headRefName": "dependabot/npm_and_yarn/next-16.3.8",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3523,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:46Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886446584/job/113677414682",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-10-09T04:59:37Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449217/job/113677421824",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677422769",
+        "name": "Type check",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449526/job/113677422577",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:02:44Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449224/job/113677422267",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:46Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886446532/job/113677414517",
+        "name": "label",
+        "startedAt": "2026-10-09T04:59:37Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886446575/job/113677414395",
+        "name": "Star required",
+        "startedAt": "2026-10-09T04:59:37Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449239/job/113677421860",
+        "name": "typecheck",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886446549/job/113677415039",
+        "name": "welcome",
+        "startedAt": "2026-10-09T04:59:37Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:35Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886446584/job/113677415921",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-10-09T04:59:36Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677422927",
+        "name": "Lint",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:02:01Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677422884",
+        "name": "Test coverage",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677422989",
+        "name": "Build",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:00:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677422882",
+        "name": "Dependency audit",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:44Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677422960",
+        "name": "Environment security check",
+        "startedAt": "2026-10-09T04:59:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:34Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37886449374/job/113677893995",
+        "name": "CI passed",
+        "startedAt": "2026-10-09T05:01:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:01:09Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/113677796235",
+        "name": "CodeQL",
+        "startedAt": "2026-10-09T05:01:06Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-10-09T05:00:59Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/c85cc124-394b-454a-8186-22deccaecdae/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T04:59:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-10-09T04:59:34Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-09T05:00:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3523",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-10-09T04:59:43Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "star-required",
+        "startedAt": "2026-10-09T04:59:40Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://github.com/Priyanshu-byte-coder/devtrack"
+      }
+    ],
+    "title": "chore(deps): bump next from 16.3.5 to 16.3.8",
+    "updatedAt": "2026-10-09T05:00:59Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3523"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "dependabot/npm_and_yarn/axios-1.20.0",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3522,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:46:42Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741548/job/112051141075",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:48:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741172/job/112051138797",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:47:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051140272",
+        "name": "Type check",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:48:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741484/job/112051139935",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:49:54Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741328/job/112051139607",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:47:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741436/job/112051141023",
+        "name": "label",
+        "startedAt": "2026-10-06T00:47:09Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:46:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395740859/job/112051138678",
+        "name": "Star required",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:46:38Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741814/job/112051141294",
+        "name": "typecheck",
+        "startedAt": "2026-10-06T00:46:34Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:47:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395740505/job/112051137701",
+        "name": "welcome",
+        "startedAt": "2026-10-06T00:47:09Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:46:31Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741548/job/112051142520",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-10-06T00:46:32Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:48:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051140293",
+        "name": "Lint",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:49:19Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051140355",
+        "name": "Test coverage",
+        "startedAt": "2026-10-06T00:46:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:48:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051140086",
+        "name": "Build",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:47:30Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051140336",
+        "name": "Dependency audit",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:46:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051140347",
+        "name": "Environment security check",
+        "startedAt": "2026-10-06T00:46:33Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:48:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37395741400/job/112051683479",
+        "name": "CI passed",
+        "startedAt": "2026-10-06T00:48:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:48:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/112051556471",
+        "name": "CodeQL",
+        "startedAt": "2026-10-06T00:48:03Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-10-06T00:46:50Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/b14f73b9-b371-4b33-b5ad-ef02e88fe0f8/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:46:31Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-10-06T00:46:30Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:47:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3522",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-10-06T00:46:39Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "star-required",
+        "startedAt": "2026-10-06T00:46:35Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://github.com/Priyanshu-byte-coder/devtrack"
+      }
+    ],
+    "title": "chore(deps): bump axios from 1.18.1 to 1.20.0",
+    "updatedAt": "2026-10-06T00:47:11Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3522"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "dependabot/npm_and_yarn/minor-and-patch-4e028031a4",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3521,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:36Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392484981/job/112040580502",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-10-06T00:09:29Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:11:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487360/job/112040586836",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:10:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112040587675",
+        "name": "Type check",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:10:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487681/job/112040588112",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:12:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487827/job/112040588614",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-10-06T00:09:30Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392485106/job/112040581555",
+        "name": "label",
+        "startedAt": "2026-10-06T00:09:29Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392485071/job/112040580859",
+        "name": "Star required",
+        "startedAt": "2026-10-06T00:09:29Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487797/job/112040588220",
+        "name": "typecheck",
+        "startedAt": "2026-10-06T00:09:30Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:34Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392485642/job/112040582377",
+        "name": "welcome",
+        "startedAt": "2026-10-06T00:09:30Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:27Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392484981/job/112040581769",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-10-06T00:09:27Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:10:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112040587756",
+        "name": "Lint",
+        "startedAt": "2026-10-06T00:09:30Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:11:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112040587593",
+        "name": "Test coverage",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:11:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112040587916",
+        "name": "Build",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:10:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112040587307",
+        "name": "Dependency audit",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112040587804",
+        "name": "Environment security check",
+        "startedAt": "2026-10-06T00:09:30Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:11:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37392487350/job/112041068610",
+        "name": "CI passed",
+        "startedAt": "2026-10-06T00:11:05Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:10:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/112040913056",
+        "name": "CodeQL",
+        "startedAt": "2026-10-06T00:10:33Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-10-06T00:09:57Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/c844f42f-f453-4d20-8ca0-c4c90e222d5a/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:09:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-10-06T00:09:26Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-06T00:10:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3521",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-10-06T00:09:35Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "star-required",
+        "startedAt": "2026-10-06T00:09:31Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://github.com/Priyanshu-byte-coder/devtrack"
+      }
+    ],
+    "title": "chore(deps): bump the minor-and-patch group across 1 directory with 38 updates",
+    "updatedAt": "2026-10-06T00:10:09Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3521"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "add-railyard-deploy-button",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3520,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:27:25Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37363424642/job/111943070600",
+        "name": "Star required",
+        "startedAt": "2026-10-05T19:27:20Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:27:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37363424606/job/111943070226",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-10-05T19:26:50Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:36:57Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37363424662/job/111943070349",
+        "name": "label",
+        "startedAt": "2026-10-05T19:36:50Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:27:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37363424532/job/111943070832",
+        "name": "welcome",
+        "startedAt": "2026-10-05T19:27:20Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:26:43Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37363424606/job/111943071771",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-10-05T19:26:44Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-10-05T19:27:03Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/15090665-f2d5-4368-abdc-872b938ca1f1/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:27:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-10-05T19:26:42Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-05T19:27:17Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3520",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-10-05T19:26:50Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "Add Deploy to Railyard button",
+    "updatedAt": "2026-10-05T19:27:22Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3520"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "dependabot/npm_and_yarn/dompurify-3.4.16",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3519,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:20Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231128293/job/111520797296",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-10-04T20:11:12Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129585/job/111520800644",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111520801259",
+        "name": "Type check",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129623/job/111520800739",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:14:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129537/job/111520800722",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231128257/job/111520796646",
+        "name": "label",
+        "startedAt": "2026-10-04T20:11:13Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231128220/job/111520796453",
+        "name": "Star required",
+        "startedAt": "2026-10-04T20:11:12Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:17Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129516/job/111520800292",
+        "name": "typecheck",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:17Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231128197/job/111520796607",
+        "name": "welcome",
+        "startedAt": "2026-10-04T20:11:13Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:11Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231128293/job/111520798754",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-10-04T20:11:11Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:09Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111520801275",
+        "name": "Lint",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:14:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111520801165",
+        "name": "Test coverage",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:56Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111520801189",
+        "name": "Build",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111520801250",
+        "name": "Dependency audit",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111520800978",
+        "name": "Environment security check",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:13:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/37231129649/job/111521120201",
+        "name": "CI passed",
+        "startedAt": "2026-10-04T20:12:58Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/111521072335",
+        "name": "CodeQL",
+        "startedAt": "2026-10-04T20:12:40Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-10-04T20:11:24Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/510bff33-8a86-4b3b-9ed3-a19d458a55db/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:11:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-10-04T20:11:10Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-04T20:12:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3519",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-10-04T20:11:24Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "star-required",
+        "startedAt": "2026-10-04T20:11:14Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://github.com/Priyanshu-byte-coder/devtrack"
+      }
+    ],
+    "title": "chore(deps): bump dompurify from 3.4.13 to 3.4.16",
+    "updatedAt": "2026-10-04T20:12:11Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3519"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "dependabot/npm_and_yarn/undici-7.30.0",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3518,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:31Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967086635/job/110713073863",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-10-02T05:01:23Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:03:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088187/job/110713076781",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:02:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713076646",
+        "name": "Type check",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:03:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088062/job/110713076073",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:03:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088091/job/110713076769",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967086630/job/110713072867",
+        "name": "label",
+        "startedAt": "2026-10-02T05:01:23Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967086667/job/110713072939",
+        "name": "Star required",
+        "startedAt": "2026-10-02T05:01:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088027/job/110713076285",
+        "name": "typecheck",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967086653/job/110713073241",
+        "name": "welcome",
+        "startedAt": "2026-10-02T05:01:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:21Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967086635/job/110713074665",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-10-02T05:01:22Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:02:44Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713076411",
+        "name": "Lint",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:04:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713076634",
+        "name": "Test coverage",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:03:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713076653",
+        "name": "Build",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:02:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713076668",
+        "name": "Dependency audit",
+        "startedAt": "2026-10-02T05:01:26Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713076632",
+        "name": "Environment security check",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:03:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36967088040/job/110713504826",
+        "name": "CI passed",
+        "startedAt": "2026-10-02T05:03:23Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:03:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/110713424995",
+        "name": "CodeQL",
+        "startedAt": "2026-10-02T05:02:59Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-10-02T05:01:37Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/c261ba47-dbb4-481f-bb9c-9acc4c7bca8f/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:01:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-10-02T05:01:24Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-02T05:02:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3518",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-10-02T05:01:29Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "star-required",
+        "startedAt": "2026-10-02T05:01:25Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://github.com/Priyanshu-byte-coder/devtrack"
+      }
+    ],
+    "title": "chore(deps): bump undici from 7.29.0 to 7.30.0",
+    "updatedAt": "2026-10-02T05:02:04Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3518"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "fix-dashboard-username-overflow",
+    "isDraft": false,
+    "mergeStateStatus": "BEHIND",
+    "mergeable": "MERGEABLE",
+    "number": 3509,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:45Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030838230/job/101479911349",
+        "name": "Star required",
+        "startedAt": "2026-09-06T11:38:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840495/job/101479917731",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-09-06T11:38:45Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:39:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101479917316",
+        "name": "Type check",
+        "startedAt": "2026-09-06T11:38:46Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840432/job/101479917301",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-09-06T11:38:47Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:41:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840406/job/101479917266",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-09-06T11:38:47Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:52Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030838192/job/101479911181",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-09-06T11:38:43Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030838200/job/101479911078",
+        "name": "label",
+        "startedAt": "2026-09-06T11:38:42Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840361/job/101479916891",
+        "name": "typecheck",
+        "startedAt": "2026-09-06T11:38:45Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:46Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840379/job/101479917187",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-09-06T11:38:46Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030838100/job/101479910873",
+        "name": "welcome",
+        "startedAt": "2026-09-06T11:38:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Welcome first-time contributors"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:41Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030838192/job/101479912235",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-09-06T11:38:41Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:39:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101479917280",
+        "name": "Lint",
+        "startedAt": "2026-09-06T11:38:45Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:52Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101479917277",
+        "name": "Test coverage",
+        "startedAt": "2026-09-06T11:38:46Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101479917332",
+        "name": "Build",
+        "startedAt": "2026-09-06T11:38:47Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:39:15Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101479917181",
+        "name": "Dependency audit",
+        "startedAt": "2026-09-06T11:38:45Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:38:55Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101479917272",
+        "name": "Environment security check",
+        "startedAt": "2026-09-06T11:38:45Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/34030840414/job/101480085399",
+        "name": "CI passed",
+        "startedAt": "2026-09-06T11:40:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:40:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/101480094987",
+        "name": "CodeQL",
+        "startedAt": "2026-09-06T11:40:08Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-09-06T11:38:59Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/35c208a3-491d-4dde-91fa-5296b5ac1573/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:39:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-09-06T11:38:40Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-06T11:39:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3509",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-09-06T11:38:49Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "fix: prevent dashboard username overflow on mobile",
+    "updatedAt": "2026-10-04T04:08:46Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3509"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "fix/issue-3493",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "number": 3505,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-29T15:21:01Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36589495425/job/109478553943",
+        "name": "Star required",
+        "startedAt": "2026-09-29T15:20:58Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-29T15:21:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36589495516/job/109478554554",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-09-29T15:20:58Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-29T15:21:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36589495378/job/109478554307",
+        "name": "label",
+        "startedAt": "2026-09-29T15:20:58Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-29T15:20:55Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/36589495516/job/109478556943",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-09-29T15:20:56Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "DeepSource: Secrets",
+        "startedAt": "2026-09-29T15:22:45Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://app.deepsource.com/gh/Priyanshu-byte-coder/devtrack/run/a21b5ca8-a12e-4eaa-a3f3-1cd8ea1719c4/secrets/"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-29T15:21:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-09-29T15:20:56Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-29T15:22:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://sonarcloud.io/dashboard?id=Priyanshu-byte-coder_devtrack&pullRequest=3505",
+        "name": "SonarCloud Code Analysis",
+        "startedAt": "2026-09-29T15:21:06Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "star-required",
+        "startedAt": "2026-09-29T15:20:55Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://github.com/Priyanshu-byte-coder/devtrack"
+      }
+    ],
+    "title": "fix: Fix landing GitHub stats showing zeros",
+    "updatedAt": "2026-09-29T15:23:18Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/3505"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "fix/docker-self-host-pnpm",
+    "isDraft": false,
+    "mergeStateStatus": "DIRTY",
+    "mergeable": "CONFLICTING",
+    "number": 2885,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:50:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238404/job/84937692725",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:49:38Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937692946",
+        "name": "Type check",
+        "startedAt": "2026-07-03T05:48:35Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:50:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238396/job/84937692676",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:51:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238403/job/84937692898",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:48:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641237515/job/84937689858",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-03T05:48:33Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:48:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641237532/job/84937689911",
+        "name": "label",
+        "startedAt": "2026-07-03T05:48:33Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:48:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238441/job/84937692814",
+        "name": "typecheck",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:50:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238416/job/84937692839",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-07-03T05:48:36Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:48:31Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641237515/job/84937690434",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-03T05:48:31Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:49:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937692994",
+        "name": "Lint",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:50:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937693001",
+        "name": "Test coverage",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:50:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937692956",
+        "name": "Build",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:49:25Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937692976",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:48:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937692938",
+        "name": "Environment security check",
+        "startedAt": "2026-07-03T05:48:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:50:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28641238440/job/84937864191",
+        "name": "CI passed",
+        "startedAt": "2026-07-03T05:50:05Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:49:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/84937853041",
+        "name": "CodeQL",
+        "startedAt": "2026-07-03T05:49:56Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T05:49:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-03T05:48:30Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "fix(docker): resolve self-hosting build and OAuth troubleshooting issues",
+    "updatedAt": "2026-10-08T04:20:03Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2885"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "fix/issue-2845-secure-token-storage",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2875,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:57:40Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986398/job/86120639530",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-09T12:42:26Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:57:40Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986390/job/86120639716",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-09T12:42:26Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:57:40Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018985751/job/86120637835",
+        "name": "label",
+        "startedAt": "2026-07-09T12:42:25Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:57:40Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986382/job/86120639842",
+        "name": "typecheck",
+        "startedAt": "2026-07-09T12:42:26Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:57:39Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986475/job/86120639896",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-07-09T12:42:26Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:47:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86120639676",
+        "name": "Type check",
+        "startedAt": "2026-07-09T12:47:00Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:49:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986376/job/86120639538",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-09T12:47:20Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:47:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018985731/job/86120637832",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-09T12:46:59Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:42:25Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018985731/job/86120638338",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-09T12:42:25Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:48:01Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86120639722",
+        "name": "Lint",
+        "startedAt": "2026-07-09T12:46:58Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:49:32Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86120639695",
+        "name": "Test coverage",
+        "startedAt": "2026-07-09T12:46:59Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:48:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86120639689",
+        "name": "Build",
+        "startedAt": "2026-07-09T12:47:00Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:57:40Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86120639704",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-09T12:42:26Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:47:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86120639682",
+        "name": "Environment security check",
+        "startedAt": "2026-07-09T12:46:59Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T13:03:20Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29018986394/job/86123258689",
+        "name": "CI passed",
+        "startedAt": "2026-07-09T13:02:55Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:48:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/86121767465",
+        "name": "CodeQL",
+        "startedAt": "2026-07-09T12:48:55Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-09T12:42:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-09T12:42:24Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "fix(security): remove GitHub access token from client-exposed session",
+    "updatedAt": "2026-10-09T04:25:03Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2875"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feat/contribution-heatmap-calendar",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2839,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611888/job/85088410161",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-04T00:41:51Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:42:40Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088410122",
+        "name": "Type check",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:28Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611848/job/85088409987",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-04T00:41:51Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:44:44Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611864/job/85088410105",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:41:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611624/job/85088409325",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-04T00:41:49Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:41:59Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611621/job/85088409442",
+        "name": "label",
+        "startedAt": "2026-07-04T00:41:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:41:55Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611844/job/85088410085",
+        "name": "typecheck",
+        "startedAt": "2026-07-04T00:41:51Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:56Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611845/job/85088410002",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-07-04T00:41:51Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:41:48Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611624/job/85088421190",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-04T00:41:58Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:42:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088410113",
+        "name": "Lint",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088410111",
+        "name": "Test coverage",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088410130",
+        "name": "Build",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:42:17Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088410114",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:41:55Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088410121",
+        "name": "Environment security check",
+        "startedAt": "2026-07-04T00:41:50Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:17Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28689611862/job/85088504417",
+        "name": "CI passed",
+        "startedAt": "2026-07-04T00:43:13Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:43:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/85088512463",
+        "name": "CodeQL",
+        "startedAt": "2026-07-04T00:43:18Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T00:42:19Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-04T00:41:47Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "feat(heatmap): add shared 365-day contribution calendar",
+    "updatedAt": "2026-10-10T04:10:14Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2839"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feature-heatmap-enhancements",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2803,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-08T16:08:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28957385597/job/85919843161",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-08T16:07:52Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-08T16:08:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28957385601/job/85919843287",
+        "name": "label",
+        "startedAt": "2026-07-08T16:07:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-08T16:07:50Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28957385597/job/85919844012",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-08T16:07:51Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-08T16:08:22Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-08T16:07:50Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "Add last updated timestamp tracking to dashboard widgets",
+    "updatedAt": "2026-10-10T04:10:20Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2803"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feat/export-analytics-2712",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2739,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:19Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152660711/job/89665535601",
+        "name": "Star required",
+        "startedAt": "2026-07-25T09:21:16Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:22:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661397/job/89665537155",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:22:01Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665537268",
+        "name": "Type check",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:23:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661409/job/89665537211",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-25T09:21:18Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:24:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661402/job/89665537203",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:22Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152660708/job/89665535597",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-25T09:21:15Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:23Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152660703/job/89665535514",
+        "name": "label",
+        "startedAt": "2026-07-25T09:21:16Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661399/job/89665537182",
+        "name": "typecheck",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:23:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661396/job/89665537350",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:14Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152660708/job/89665535745",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-25T09:21:14Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:22:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665537276",
+        "name": "Lint",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:22:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665537271",
+        "name": "Test coverage",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:22:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665537288",
+        "name": "Build",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665537257",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:24Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665537273",
+        "name": "Environment security check",
+        "startedAt": "2026-07-25T09:21:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:22:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/30152661400/job/89665633288",
+        "name": "CI passed",
+        "startedAt": "2026-07-25T09:22:39Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:23:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/89665658044",
+        "name": "CodeQL",
+        "startedAt": "2026-07-25T09:22:58Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-25T09:21:46Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-25T09:21:13Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "feat: add visual export functionality for dashboard analytics (#2712)",
+    "updatedAt": "2026-07-25T09:21:12Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2739"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feature/achievement-badge-system",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2738,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:57:30Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28847669570/job/85555247063",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-07T06:57:22Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:57:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28847669556/job/85555247023",
+        "name": "label",
+        "startedAt": "2026-07-07T06:57:24Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:57:21Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28847669570/job/85555247701",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-07T06:57:21Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:57:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-07T06:57:20Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "Feature/achievement badge system",
+    "updatedAt": "2026-07-07T06:57:18Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2738"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feature/goal-setting-progress-tracking",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2730,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:53:14Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28847467452/job/85554593185",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-07T06:53:07Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:53:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28847467454/job/85554592943",
+        "name": "label",
+        "startedAt": "2026-07-07T06:53:07Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:53:05Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28847467452/job/85554593833",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-07T06:53:06Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:53:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-07T06:53:04Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "feat: implement modular Goal Setting and Progress Tracking System",
+    "updatedAt": "2026-07-07T06:53:02Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2730"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feature/weekly-productivity-summary",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2717,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:41:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28846892393/job/85552796885",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-07T06:41:04Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:41:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28846892340/job/85552796856",
+        "name": "label",
+        "startedAt": "2026-07-07T06:41:03Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:41:00Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28846892393/job/85552812791",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-07T06:41:07Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-07T06:41:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-07T06:41:00Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "feat: add weekly productivity summary dashboard",
+    "updatedAt": "2026-07-29T16:45:49Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2717"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feat/empty-state-widgets-2646",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2693,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:04:47Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256400990/job/86837785689",
+        "name": "Star required",
+        "startedAt": "2026-07-13T14:04:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Require star to contribute"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:06:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403864/job/86837794571",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-13T14:04:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:05:24Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86837794559",
+        "name": "Type check",
+        "startedAt": "2026-07-13T14:04:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:06:10Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403855/job/86837794586",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-13T14:04:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:07:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256402927/job/86837792025",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-13T14:04:43Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:04:47Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256401943/job/86837788572",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-13T14:04:41Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:04:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256401147/job/86837786404",
+        "name": "label",
+        "startedAt": "2026-07-13T14:04:41Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:04:46Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256402901/job/86837791546",
+        "name": "typecheck",
+        "startedAt": "2026-07-13T14:04:42Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:06:46Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403860/job/86837794313",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-07-13T14:04:43Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:04:39Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256401943/job/86837789546",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-13T14:04:40Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:05:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86837794543",
+        "name": "Lint",
+        "startedAt": "2026-07-13T14:04:42Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:06:41Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86837794477",
+        "name": "Test coverage",
+        "startedAt": "2026-07-13T14:04:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:05:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86837794504",
+        "name": "Build",
+        "startedAt": "2026-07-13T14:04:42Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:05:14Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86837794568",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-13T14:04:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:04:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86837794550",
+        "name": "Environment security check",
+        "startedAt": "2026-07-13T14:04:42Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:06:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/29256403811/job/86838093920",
+        "name": "CI passed",
+        "startedAt": "2026-07-13T14:05:56Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:06:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/86838120540",
+        "name": "CodeQL",
+        "startedAt": "2026-07-13T14:06:00Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-13T14:05:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-13T14:04:37Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "[FEAT] Add reusable empty states to dashboard widgets #2646",
+    "updatedAt": "2026-08-17T11:26:45Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2693"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "fix/strip-html-xss-entity-decode-bypass",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2671,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:21:41Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28531998062/job/84583641644",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-01T16:21:33Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:21:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28531998072/job/84583641536",
+        "name": "label",
+        "startedAt": "2026-07-01T16:21:33Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:21:31Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28531998062/job/84583642408",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-01T16:21:31Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:22:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-01T16:21:30Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "fix(sanitize):decode HTML entities before stripping tags to prevent X…",
+    "updatedAt": "2026-07-12T17:43:51Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2671"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "fix/ssrf-dns-rebinding-webhook-delivery",
+    "isDraft": false,
+    "mergeStateStatus": "DIRTY",
+    "mergeable": "CONFLICTING",
+    "number": 2669,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:23:30Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28532100462/job/84583999599",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-01T16:23:21Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:23:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28532100369/job/84583999615",
+        "name": "label",
+        "startedAt": "2026-07-01T16:23:20Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:23:19Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28532100462/job/84584025369",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-01T16:23:27Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-01T16:23:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-01T16:23:18Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "fix(webhooks): replace isSafeUrl+fetch with pinnedFetch in test and r…",
+    "updatedAt": "2026-07-12T17:43:50Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2669"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "refactor/API-Payload",
+    "isDraft": false,
+    "mergeStateStatus": "DIRTY",
+    "mergeable": "CONFLICTING",
+    "number": 2667,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-06T06:27:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28772336817/job/85308481434",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-06T06:27:42Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-06T06:27:52Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28772336800/job/85308481392",
+        "name": "label",
+        "startedAt": "2026-07-06T06:27:43Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-06T06:27:40Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28772336817/job/85308481926",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-06T06:27:41Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-06T06:28:14Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-06T06:27:40Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "Refactor/api payload",
+    "updatedAt": "2026-07-06T06:27:38Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2667"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "main",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "number": 2665,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:38:53Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486568/job/85047897668",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85047897767",
+        "name": "Type check",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:38:41Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486572/job/85047897615",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:40:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486565/job/85047897887",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675484850/job/85047892560",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-03T17:37:05Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675484876/job/85047892609",
+        "name": "label",
+        "startedAt": "2026-07-03T17:37:05Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:09Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486549/job/85047897552",
+        "name": "typecheck",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:03Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675484850/job/85047911968",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-03T17:37:12Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:57Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85047897771",
+        "name": "Lint",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:39:06Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85047897780",
+        "name": "Test coverage",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:38:22Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85047897776",
+        "name": "Build",
+        "startedAt": "2026-07-03T17:37:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:51Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85047897781",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-03T17:37:08Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:16Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85047897768",
+        "name": "Environment security check",
+        "startedAt": "2026-07-03T17:37:08Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:38:28Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28675486567/job/85048051390",
+        "name": "CI passed",
+        "startedAt": "2026-07-03T17:38:24Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "Vercel",
+        "startedAt": "2026-07-03T17:37:03Z",
+        "state": "FAILURE",
+        "targetUrl": "https://vercel.com/git/authorize?team=legitox's%20projects&slug=legitoxs-projects&teamId=team_IFEarUr3g3ko3cyTBfME6WAC&type=github&job=%7B%22headInfo%22%3A%7B%22sha%22%3A%2288e2506474fa589569a3c3b5d572059ddba9208b%22%7D%2C%22id%22%3A%22QmSrLi5nWmzd89Qa75J9mmsDWDWQtLnu1fmatap6ttLipi%22%2C%22org%22%3A%22Priyanshu-byte-coder%22%2C%22prId%22%3A2665%2C%22repo%22%3A%22devtrack%22%7D"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:38:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/85048073271",
+        "name": "CodeQL",
+        "startedAt": "2026-07-03T17:38:33Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T17:37:36Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-03T17:37:02Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "Complete TODO.md Empty State Implementation for Goals Widget",
+    "updatedAt": "2026-07-03T17:37:00Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2665"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "2529-oauth-mfa-auth-clean",
+    "isDraft": false,
+    "mergeStateStatus": "BEHIND",
+    "mergeable": "MERGEABLE",
+    "number": 2650,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:09:55Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655693/job/85159154668",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-04T19:07:54Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:08:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159154714",
+        "name": "Type check",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:09:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655708/job/85159154691",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:10:25Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655692/job/85159154753",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:07:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655938/job/85159155360",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:07:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655465/job/85159154161",
+        "name": "label",
+        "startedAt": "2026-07-04T19:07:42Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:07:47Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655690/job/85159154692",
+        "name": "typecheck",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:07:42Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655938/job/85159155709",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-04T19:07:42Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:08:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159154718",
+        "name": "Lint",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:09:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159154717",
+        "name": "Test coverage",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:09:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159154719",
+        "name": "Build",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:08:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159154734",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:07:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159154728",
+        "name": "Environment security check",
+        "startedAt": "2026-07-04T19:07:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:09:11Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28716655702/job/85159245224",
+        "name": "CI passed",
+        "startedAt": "2026-07-04T19:09:07Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:09:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/85159253868",
+        "name": "CodeQL",
+        "startedAt": "2026-07-04T19:09:11Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-04T19:08:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-04T19:07:40Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "feat(auth): implement type safe OAuth 2.0 social sign-in identity pro…",
+    "updatedAt": "2026-07-04T19:08:27Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2650"
+  },
+  {
+    "baseRefName": "main",
+    "headRefName": "feat/share-dashboard-button",
+    "isDraft": false,
+    "mergeStateStatus": "BEHIND",
+    "mergeable": "MERGEABLE",
+    "number": 2323,
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:17Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930577169",
+        "name": "Type check",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:25Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806043/job/84930577043",
+        "name": "Playwright smoke tests",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "E2E"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:52Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806040/job/84930576973",
+        "name": "Playwright visual regression",
+        "startedAt": "2026-07-03T04:39:31Z",
+        "status": "COMPLETED",
+        "workflowName": "Visual Regression"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:41:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806044/job/84930576971",
+        "name": "Continuous Integration Security & Audit Suite",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "Automated Testing Suite & CI/CD Pipeline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:41:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806033/job/84930576936",
+        "name": "Analyze (javascript-typescript)",
+        "startedAt": "2026-07-03T04:39:31Z",
+        "status": "COMPLETED",
+        "workflowName": "CodeQL"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:39:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638805868/job/84930576359",
+        "name": "Auto-apply type labels",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:39:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638805870/job/84930576340",
+        "name": "label",
+        "startedAt": "2026-07-03T04:39:31Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Labeler"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:39:34Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806042/job/84930576989",
+        "name": "typecheck",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "Type Check (DEPRECATED - see ci.yml)"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:31Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930577144",
+        "name": "Lint",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:39:29Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638805868/job/84930591727",
+        "name": "Remind admin to add gssoc:approved",
+        "startedAt": "2026-07-03T04:39:39Z",
+        "status": "COMPLETED",
+        "workflowName": "GSSoC Label Automation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:41:34Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930577177",
+        "name": "Test coverage",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:28Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930577176",
+        "name": "Build",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930577185",
+        "name": "Dependency audit",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:39:37Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930577138",
+        "name": "Environment security check",
+        "startedAt": "2026-07-03T04:39:32Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:38Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/actions/runs/28638806060/job/84930678506",
+        "name": "CI passed",
+        "startedAt": "2026-07-03T04:40:35Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:41:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/Priyanshu-byte-coder/devtrack/runs/84930721670",
+        "name": "CodeQL",
+        "startedAt": "2026-07-03T04:40:59Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-07-03T04:40:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-07-03T04:39:29Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "title": "feat(dashboard): add Share Dashboard button with clipboard toast",
+    "updatedAt": "2026-07-03T07:53:56Z",
+    "url": "https://github.com/Priyanshu-byte-coder/devtrack/pull/2323"
+  }
+]

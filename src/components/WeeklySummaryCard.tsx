@@ -3,7 +3,7 @@
 import { Check, ChevronDown, Copy, Download, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
-import { signOut } from "next-auth/react";
+import { signOut, signIn } from "next-auth/react";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface WeeklySummaryData {
@@ -301,7 +301,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               type="button"
               onClick={() => {
                 void signOut({ redirect: false }).then(() => {
-                  window.location.href = "/api/auth/signin/github?callbackUrl=/dashboard";
+                  void signIn("github", { callbackUrl: "/dashboard" });
                 });
               }}
               className="inline-flex items-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"

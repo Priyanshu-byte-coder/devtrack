@@ -1,0 +1,290 @@
+TAP version 13
+# Subtest: extractPackageName keeps scoped package names intact
+ok 1 - extractPackageName keeps scoped package names intact
+  ---
+  duration_ms: 0.8022
+  ...
+# Subtest: extractImports includes side-effect imports
+ok 2 - extractImports includes side-effect imports
+  ---
+  duration_ms: 0.9902
+  ...
+# Subtest: extractImports handles comments with quotes inside multiline imports
+ok 3 - extractImports handles comments with quotes inside multiline imports
+  ---
+  duration_ms: 0.1804
+  ...
+# Subtest: collectMissingDeps reports undeclared side-effect imports
+ok 4 - collectMissingDeps reports undeclared side-effect imports
+  ---
+  duration_ms: 2.6691
+  ...
+# Subtest: extractPackageName handles @scope packages correctly
+ok 5 - extractPackageName handles @scope packages correctly
+  ---
+  duration_ms: 0.9321
+  ...
+# Subtest: extractPackageName handles unscoped packages correctly
+ok 6 - extractPackageName handles unscoped packages correctly
+  ---
+  duration_ms: 0.2073
+  ...
+# Subtest: extractImports handles various import syntax
+ok 7 - extractImports handles various import syntax
+  ---
+  duration_ms: 0.307
+  ...
+# Subtest: collectMissingDeps skips relative imports
+ok 8 - collectMissingDeps skips relative imports
+  ---
+  duration_ms: 2.9121
+  ...
+# Subtest: collectMissingDeps skips framework aliases
+ok 9 - collectMissingDeps skips framework aliases
+  ---
+  duration_ms: 2.7128
+  ...
+# Subtest: decryptToken rejects malformed IV before decipher creation
+ok 10 - decryptToken rejects malformed IV before decipher creation
+  ---
+  duration_ms: 68.94
+  ...
+# Subtest: decryptToken rejects payloads shorter than the auth tag
+ok 11 - decryptToken rejects payloads shorter than the auth tag
+  ---
+  duration_ms: 14.7834
+  ...
+# Subtest: decryptToken still decrypts valid encrypted tokens
+ok 12 - decryptToken still decrypts valid encrypted tokens
+  ---
+  duration_ms: 13.9781
+  ...
+# Subtest: safeCompare returns true for identical strings
+ok 13 - safeCompare returns true for identical strings
+  ---
+  duration_ms: 19.2131
+  ...
+# Subtest: safeCompare returns false for different length strings
+ok 14 - safeCompare returns false for different length strings
+  ---
+  duration_ms: 12.8638
+  ...
+# Subtest: safeCompare returns false for non-identical strings of same length
+ok 15 - safeCompare returns false for non-identical strings of same length
+  ---
+  duration_ms: 13.6961
+  ...
+# Subtest: safeCompare returns true for empty strings
+ok 16 - safeCompare returns true for empty strings
+  ---
+  duration_ms: 15.5699
+  ...
+# Subtest: safeCompare returns false for empty vs non-empty
+ok 17 - safeCompare returns false for empty vs non-empty
+  ---
+  duration_ms: 14.4463
+  ...
+# Subtest: verifyGitHubSignature returns true for valid signature
+ok 18 - verifyGitHubSignature returns true for valid signature
+  ---
+  duration_ms: 13.4944
+  ...
+# Subtest: verifyGitHubSignature returns false for invalid signature
+ok 19 - verifyGitHubSignature returns false for invalid signature
+  ---
+  duration_ms: 9.561
+  ...
+# Subtest: verifyGitHubSignature returns false for null signature
+ok 20 - verifyGitHubSignature returns false for null signature
+  ---
+  duration_ms: 9.5765
+  ...
+# Subtest: verifyGitHubSignature returns false for signature without sha256 prefix
+ok 21 - verifyGitHubSignature returns false for signature without sha256 prefix
+  ---
+  duration_ms: 8.238
+  ...
+# Subtest: private credentials pass in CI and normal builds
+ok 22 - private credentials pass in CI and normal builds
+  ---
+  duration_ms: 122.6657
+  ...
+# Subtest: dotenv public secret canary fails even in CI without disclosing its value
+ok 23 - dotenv public secret canary fails even in CI without disclosing its value
+  ---
+  duration_ms: 52.0989
+  ...
+# Subtest: invalid encryption key is rejected
+ok 24 - invalid encryption key is rejected
+  ---
+  duration_ms: 50.0372
+  ...
+# Subtest: source scanner detects js secret references
+ok 25 - source scanner detects js secret references
+  ---
+  duration_ms: 48.5788
+  ...
+# Subtest: source scanner detects jsx secret references
+ok 26 - source scanner detects jsx secret references
+  ---
+  duration_ms: 59.278
+  ...
+# Subtest: source scanner detects ts secret references
+ok 27 - source scanner detects ts secret references
+  ---
+  duration_ms: 55.1723
+  ...
+# Subtest: source scanner detects tsx secret references
+ok 28 - source scanner detects tsx secret references
+  ---
+  duration_ms: 49.3016
+  ...
+# Subtest: source scanner detects mjs secret references
+ok 29 - source scanner detects mjs secret references
+  ---
+  duration_ms: 54.5435
+  ...
+# Subtest: source scanner detects cjs secret references
+ok 30 - source scanner detects cjs secret references
+  ---
+  duration_ms: 67.1869
+  ...
+# (node:23604) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:23604) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/src/lib/leaderboard-cache.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\package.json.
+# Subtest: pruneExpiredRateLimits removes only expired IP buckets
+ok 31 - pruneExpiredRateLimits removes only expired IP buckets
+  ---
+  duration_ms: 1.3513
+  ...
+# Subtest: pruneExpiredLeaderboardCache clears stale leaderboard payloads
+ok 32 - pruneExpiredLeaderboardCache clears stale leaderboard payloads
+  ---
+  duration_ms: 0.1534
+  ...
+# Subtest: pruneExpiredLeaderboardCache clears entries that expire exactly at now
+ok 33 - pruneExpiredLeaderboardCache clears entries that expire exactly at now
+  ---
+  duration_ms: 0.0916
+  ...
+# Subtest: pruneExpiredLeaderboardCache returns null for a missing cache entry
+ok 34 - pruneExpiredLeaderboardCache returns null for a missing cache entry
+  ---
+  duration_ms: 0.0954
+  ...
+# Subtest: pruneExpiredLeaderboardCache keeps fresh leaderboard payloads
+ok 35 - pruneExpiredLeaderboardCache keeps fresh leaderboard payloads
+  ---
+  duration_ms: 0.0917
+  ...
+# Subtest: pruneExpiredLeaderboardCache keeps far-future entries untouched
+ok 36 - pruneExpiredLeaderboardCache keeps far-future entries untouched
+  ---
+  duration_ms: 0.0981
+  ...
+# Subtest: pruneExpiredLeaderboardCache preserves payload shape for primitive values
+ok 37 - pruneExpiredLeaderboardCache preserves payload shape for primitive values
+  ---
+  duration_ms: 0.1747
+  ...
+# (node:19836) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:19836) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/src/lib/upstash-rest.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\package.json.
+# Subtest: getUpstashConfig returns null when env is missing
+ok 38 - getUpstashConfig returns null when env is missing
+  ---
+  duration_ms: 1.0998
+  ...
+# Subtest: upstashRateLimitFixedWindow sets expiry for new buckets
+ok 39 - upstashRateLimitFixedWindow sets expiry for new buckets
+  ---
+  duration_ms: 1.7206
+  ...
+# Subtest: upstashRateLimitFixedWindow returns retryAfter from TTL
+ok 40 - upstashRateLimitFixedWindow returns retryAfter from TTL
+  ---
+  duration_ms: 0.3707
+  ...
+# Subtest: upstashTryAcquireLock returns true only when SET succeeds
+ok 41 - upstashTryAcquireLock returns true only when SET succeeds
+  ---
+  duration_ms: 2.5638
+  ...
+# Subtest: isValidGitHubUsername accepts valid GitHub usernames
+ok 42 - isValidGitHubUsername accepts valid GitHub usernames
+  ---
+  duration_ms: 47.005
+  ...
+# Subtest: isValidGitHubUsername rejects path and query injection attempts
+ok 43 - isValidGitHubUsername rejects path and query injection attempts
+  ---
+  duration_ms: 6.2212
+  ...
+# Subtest: normalizeGitHubUsername trims and validates input
+ok 44 - normalizeGitHubUsername trims and validates input
+  ---
+  duration_ms: 7.4435
+  ...
+# Subtest: normalizeGitHubUsername rejects unicode characters
+ok 45 - normalizeGitHubUsername rejects unicode characters
+  ---
+  duration_ms: 6.2114
+  ...
+# Subtest: normalizeGitHubUsername rejects very long strings
+ok 46 - normalizeGitHubUsername rejects very long strings
+  ---
+  duration_ms: 7.737
+  ...
+# Subtest: normalizeGitHubUsername handles single character
+ok 47 - normalizeGitHubUsername handles single character
+  ---
+  duration_ms: 5.2212
+  ...
+# Subtest: normalizeGitHubUsername rejects names with spaces
+ok 48 - normalizeGitHubUsername rejects names with spaces
+  ---
+  duration_ms: 7.1192
+  ...
+# Subtest: normalizeGitHubUsername rejects special characters
+ok 49 - normalizeGitHubUsername rejects special characters
+  ---
+  duration_ms: 8.2632
+  ...
+# Subtest: isValidGitHubUsername rejects underscores and special chars
+ok 50 - isValidGitHubUsername rejects underscores and special chars
+  ---
+  duration_ms: 9.797
+  ...
+# Subtest: isValidGitHubUsername accepts hyphens in middle
+ok 51 - isValidGitHubUsername accepts hyphens in middle
+  ---
+  duration_ms: 5.7282
+  ...
+# Subtest: isValidGitHubUsername rejects underscores and special chars
+ok 52 - isValidGitHubUsername rejects underscores and special chars
+  ---
+  duration_ms: 5.6074
+  ...
+# Subtest: normalizeGitHubUsername handles undefined input
+ok 53 - normalizeGitHubUsername handles undefined input
+  ---
+  duration_ms: 7.153
+  ...
+# Subtest: normalizeGitHubUsername trims leading and trailing whitespace
+ok 54 - normalizeGitHubUsername trims leading and trailing whitespace
+  ---
+  duration_ms: 5.9771
+  ...
+1..54
+# tests 54
+# suites 0
+# pass 54
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 712.6228
