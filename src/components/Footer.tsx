@@ -15,10 +15,22 @@ const PRODUCT_LINKS = [
 ];
 
 const COMMUNITY_LINKS = [
-  { label: "Discussions", href: "https://github.com/Priyanshu-byte-coder/devtrack/discussions" },
-  { label: "Issues", href: "https://github.com/Priyanshu-byte-coder/devtrack/issues" },
-  { label: "GitHub Repository", href: "https://github.com/Priyanshu-byte-coder/devtrack" },
-  { label: "Contributing Guide", href: "https://github.com/Priyanshu-byte-coder/devtrack/blob/main/CONTRIBUTING.md" },
+  {
+    label: "Discussions",
+    href: "https://github.com/Priyanshu-byte-coder/devtrack/discussions",
+  },
+  {
+    label: "Issues",
+    href: "https://github.com/Priyanshu-byte-coder/devtrack/issues",
+  },
+  {
+    label: "GitHub Repository",
+    href: "https://github.com/Priyanshu-byte-coder/devtrack",
+  },
+  {
+    label: "Contributing Guide",
+    href: "https://github.com/Priyanshu-byte-coder/devtrack/blob/main/CONTRIBUTING.md",
+  },
 ];
 
 const LEGAL_LINKS = [
@@ -26,7 +38,6 @@ const LEGAL_LINKS = [
   { label: "Guidelines", href: "/guidelines" },
   { label: "Documentation", href: "/api-docs" },
 ];
-
 
 const SOCIAL_LINKS = [
   {
@@ -110,10 +121,11 @@ export default function Footer() {
 
   return (
     <footer
-      className={`mt-auto border-t relative overflow-hidden ${isLanding
-        ? "bg-transparent border-slate-900/40"
-        : "border-[var(--border)] bg-[var(--background)]"
-        }`}
+      className={`mt-auto border-t relative overflow-hidden ${
+        isLanding
+          ? "bg-transparent border-slate-900/40"
+          : "border-[var(--border)] bg-[var(--background)]"
+      }`}
       aria-label="Site footer"
     >
       {/* Top gradient accent */}
@@ -129,13 +141,11 @@ export default function Footer() {
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl px-6 py-12 sm:px-8 lg:px-12">
-
         {/* Main grid */}
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr_1fr]">
-
           {/* Brand column */}
           <div>
-            <div className="inline-flex items-center rounded-full border border-[var(--accent)]/20 bg-[var(--accent)]/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent)]">
+            <div className="inline-flex items-center rounded-full border border-accent/20 bg-accent/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--accent)]">
               Open source developer dashboard
             </div>
             <h2
@@ -151,7 +161,9 @@ export default function Footer() {
             </h2>
             <p
               className="mt-4 max-w-sm text-[14px] leading-relaxed text-[var(--muted-foreground)]"
-              style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+              style={{
+                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+              }}
             >
               Track GitHub contributions, PR velocity, streaks, goals, and
               community activity — built for contributors who work in public.
@@ -166,7 +178,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-all duration-200 hover:border-[var(--accent)]/40 hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] transition-all duration-200 hover:border-accent/40 hover:bg-accent/10 hover:text-[var(--accent)] hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -178,17 +190,24 @@ export default function Footer() {
           <div>
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
-              style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+              style={{
+                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+              }}
             >
               Product
             </h3>
-            <nav aria-label="Product links" className="mt-6 flex flex-col gap-3">
+            <nav
+              aria-label="Product links"
+              className="mt-6 flex flex-col gap-3"
+            >
               {PRODUCT_LINKS.map(({ label, href }) => {
                 if (label === "Dashboard" && !isAuthenticated) {
                   return (
                     <FooterLink
                       key={label}
-                      onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+                      onClick={() =>
+                        signIn("github", { callbackUrl: "/dashboard" })
+                      }
                     >
                       {label}
                     </FooterLink>
@@ -207,11 +226,16 @@ export default function Footer() {
           <div>
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
-              style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+              style={{
+                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+              }}
             >
               Community
             </h3>
-            <nav aria-label="Community links" className="mt-6 flex flex-col gap-3">
+            <nav
+              aria-label="Community links"
+              className="mt-6 flex flex-col gap-3"
+            >
               {COMMUNITY_LINKS.map(({ label, href }) => (
                 <FooterLink key={label} href={href} external>
                   {label}
@@ -230,10 +254,7 @@ export default function Footer() {
               Legal Links
             </h3>
 
-            <nav
-              aria-label="Legal links"
-              className="mt-6 flex flex-col gap-3"
-            >
+            <nav aria-label="Legal links" className="mt-6 flex flex-col gap-3">
               {LEGAL_LINKS.map(({ label, href }) => (
                 <FooterLink key={label} href={href}>
                   {label}
@@ -245,13 +266,15 @@ export default function Footer() {
           <div>
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
-              style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+              style={{
+                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+              }}
             >
               Built with
             </h3>
             <div className="mt-6 flex flex-col gap-3">
               {[
-                "Next.js 14",
+                "Next.js",
                 "Tailwind CSS",
                 "Supabase",
                 "TypeScript",
@@ -274,7 +297,9 @@ export default function Footer() {
         {/* Bottom bar */}
         <div
           className="mt-6 flex flex-col gap-3 text-[12px] text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between"
-          style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+          style={{
+            fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+          }}
         >
           <p>© {year} DevTrack. Built for open-source contributors.</p>
           <div className="flex flex-wrap items-center gap-4">

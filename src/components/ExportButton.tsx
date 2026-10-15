@@ -120,7 +120,10 @@ function getAverageGoalProgress(goals: Goal[]): number {
     return 0;
   }
 
-  const totalProgress = goals.reduce((total, goal) => total + getGoalProgress(goal), 0);
+  const totalProgress = goals.reduce(
+    (total, goal) => total + getGoalProgress(goal),
+    0
+  );
 
   return totalProgress / goals.length;
 }
@@ -206,7 +209,9 @@ function getExportInsights(goals: Goal[], commitActivity: DayData[]): string[] {
   }
 
   if (activeDays > 0) {
-    insights.push(`You were active on ${activeDays} different days in this report.`);
+    insights.push(
+      `You were active on ${activeDays} different days in this report.`
+    );
   } else {
     insights.push("No active commit days were captured in this report.");
   }
@@ -216,9 +221,13 @@ function getExportInsights(goals: Goal[], commitActivity: DayData[]): string[] {
       goalSummary.notStarted >= goalSummary.inProgress &&
       goalSummary.notStarted >= goalSummary.completed
     ) {
-      insights.push(`${goalSummary.notStarted} goals are currently not started.`);
+      insights.push(
+        `${goalSummary.notStarted} goals are currently not started.`
+      );
     } else if (goalSummary.inProgress >= goalSummary.completed) {
-      insights.push(`${goalSummary.inProgress} goals are currently in progress.`);
+      insights.push(
+        `${goalSummary.inProgress} goals are currently in progress.`
+      );
     } else {
       insights.push(`${goalSummary.completed} goals are already completed.`);
     }
@@ -227,7 +236,9 @@ function getExportInsights(goals: Goal[], commitActivity: DayData[]): string[] {
   }
 
   if (totalCommits > 0 && insights.length < 3) {
-    insights.push(`Total commit volume in this report: ${totalCommits} commits.`);
+    insights.push(
+      `Total commit volume in this report: ${totalCommits} commits.`
+    );
   }
 
   return insights.slice(0, 3);
@@ -262,7 +273,9 @@ function addFooter(doc: jsPDF, generatedAt: string) {
     doc.text(`Exported ${generatedAt}`, pageWidth / 2, pageHeight - 10, {
       align: "center",
     });
-    doc.text(`Page ${page}`, pageWidth - 14, pageHeight - 10, { align: "right" });
+    doc.text(`Page ${page}`, pageWidth - 14, pageHeight - 10, {
+      align: "right",
+    });
   }
 }
 
@@ -291,7 +304,9 @@ export default function ExportButton() {
 
     const prData: PRData | null = prRes.ok ? await prRes.json() : null;
     const goalsData = goalsRes.ok ? await goalsRes.json() : { goals: [] };
-    const contribDataRaw = contribRes.ok ? await contribRes.json() : { data: {} };
+    const contribDataRaw = contribRes.ok
+      ? await contribRes.json()
+      : { data: {} };
     const dbExportData = dbExportRes.ok ? await dbExportRes.json() : null;
 
     const contribData: DayData[] = Object.entries(contribDataRaw.data ?? {})
@@ -302,7 +317,7 @@ export default function ExportButton() {
       prData,
       contribData,
       goalsData: goalsData?.goals as Goal[],
-      dbExportData
+      dbExportData,
     };
   };
 
@@ -339,10 +354,16 @@ export default function ExportButton() {
       }
       csv += appendCsvRow(["Total commits", totalCommits]);
       csv += appendCsvRow(["Active coding days", activeDays]);
-      csv += appendCsvRow(["Best commit day", bestDay ? formatDateLabel(bestDay.day) : "-"]);
+      csv += appendCsvRow([
+        "Best commit day",
+        bestDay ? formatDateLabel(bestDay.day) : "-",
+      ]);
       csv += appendCsvRow(["Highest commits in one day", highestCommits]);
       csv += appendCsvRow(["Total goals", goalsData.length]);
-      csv += appendCsvRow(["Average goal progress", `${averageGoalProgress.toFixed(1)}%`]);
+      csv += appendCsvRow([
+        "Average goal progress",
+        `${averageGoalProgress.toFixed(1)}%`,
+      ]);
 
       csv += "\nPR Metrics\n";
       csv += appendCsvRow(["Open", "Merged", "Avg Review Hours", "Merge Rate"]);
@@ -363,7 +384,13 @@ export default function ExportButton() {
 
       if (goalsData.length > 0) {
         csv += "\nGoals Tracker\n";
-        csv += appendCsvRow(["Goal Title", "Current", "Target", "Progress (%)", "Status"]);
+        csv += appendCsvRow([
+          "Goal Title",
+          "Current",
+          "Target",
+          "Progress (%)",
+          "Status",
+        ]);
         goalsData.forEach((goal) => {
           csv += appendCsvRow([
             goal.title,
@@ -385,7 +412,12 @@ export default function ExportButton() {
 
       if (monthlySummary.length > 0) {
         csv += "\nMonthly Summary\n";
-        csv += appendCsvRow(["Month", "Total Commits", "Active Days", "Best Day"]);
+        csv += appendCsvRow([
+          "Month",
+          "Total Commits",
+          "Active Days",
+          "Best Day",
+        ]);
         monthlySummary.forEach((entry) => {
           csv += appendCsvRow([
             entry.month,
@@ -409,9 +441,7 @@ export default function ExportButton() {
     } catch (error) {
       console.error("CSV export failed:", error);
 
-      toast.error(
-        "Failed to export CSV. Please try again."
-      );
+      toast.error("Failed to export CSV. Please try again.");
     } finally {
       setIsExportingCSV(false);
     }
@@ -490,7 +520,10 @@ export default function ExportButton() {
         startY: number,
         head: string[][],
         body: Array<Array<string | number>>,
-        columnStyles: Record<string, { halign?: "left" | "center" | "right"; cellWidth?: number }> = {}
+        columnStyles: Record<
+          string,
+          { halign?: "left" | "center" | "right"; cellWidth?: number }
+        > = {}
       ) => {
         drawSectionTitle(title, startY);
         autoTable(doc, {
@@ -538,7 +571,13 @@ export default function ExportButton() {
       }
 
       const summaryTop = 38;
-      drawSummaryCard(marginX, summaryTop, "Total commits", String(totalCommits), [59, 130, 246]);
+      drawSummaryCard(
+        marginX,
+        summaryTop,
+        "Total commits",
+        String(totalCommits),
+        [59, 130, 246]
+      );
       drawSummaryCard(
         marginX + cardWidth + cardGap,
         summaryTop,
@@ -585,7 +624,14 @@ export default function ExportButton() {
           "PR Metrics",
           currentY,
           [["Open", "Merged", "Avg Review Hours", "Merge Rate"]],
-          [[prData.open, prData.merged, `${prData.avgReviewHours}h`, prData.mergeRate]],
+          [
+            [
+              prData.open,
+              prData.merged,
+              `${prData.avgReviewHours}h`,
+              prData.mergeRate,
+            ],
+          ],
           {
             0: { halign: "right" },
             1: { halign: "right" },
@@ -639,7 +685,10 @@ export default function ExportButton() {
         autoTable(doc, {
           startY: currentY + 4,
           head: [["Date", "Commits"]],
-          body: contribData.map((day) => [formatDateLabel(day.day), day.commits]),
+          body: contribData.map((day) => [
+            formatDateLabel(day.day),
+            day.commits,
+          ]),
           margin: { left: marginX, right: marginX, bottom: 20 },
           theme: "grid",
           styles: {
@@ -665,16 +714,15 @@ export default function ExportButton() {
 
       addFooter(doc, generatedAt);
 
-      doc.save(`devtrack-export-${reportName || "metrics"}-${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(
+        `devtrack-export-${reportName || "metrics"}-${new Date().toISOString().slice(0, 10)}.pdf`
+      );
       toast.success("PDF exported successfully.");
     } catch (error) {
       console.error("PDF export failed:", error);
 
-      toast.error(
-        "Failed to export PDF. Please try again."
-      );
-    }
-    finally {
+      toast.error("Failed to export PDF. Please try again.");
+    } finally {
       setIsExportingPDF(false);
     }
   };
@@ -682,7 +730,8 @@ export default function ExportButton() {
   const exportJSON = async () => {
     setIsExportingJSON(true);
     try {
-      const { prData, goalsData, contribData, dbExportData } = await fetchData();
+      const { prData, goalsData, contribData, dbExportData } =
+        await fetchData();
       const generatedAt = formatGeneratedTimestamp();
 
       const jsonData = {
@@ -716,69 +765,66 @@ export default function ExportButton() {
     }
   };
 
+  const busy = isExportingCSV || isExportingPDF || isExportingJSON;
+  const formats = [
+    { label: "CSV", run: exportCSV, pending: isExportingCSV },
+    { label: "PDF", run: exportPDF, pending: isExportingPDF },
+    { label: "JSON", run: exportJSON, pending: isExportingJSON },
+  ];
+
   return (
-    <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-      <button
-        type="button"
-        onClick={exportCSV}
-        disabled={isExportingCSV}
-        aria-label="Export dashboard metrics as CSV"
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-all hover:border-[var(--accent)] disabled:opacity-50 sm:w-auto sm:min-w-[140px] hover:opacity-90 active:scale-95"
-      >
-        {isExportingCSV ? (
-  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4z" />
-  </svg>
-) : (
-  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-  </svg>
-)}
-{isExportingCSV ? "Exporting..." : "Export CSV"}
-      </button>
-
-      <button
-        type="button"
-        onClick={exportPDF}
-        disabled={isExportingPDF}
-        aria-label="Export dashboard metrics as PDF"
-        className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-all hover:opacity-90 disabled:opacity-50 sm:min-w-[140px] sm:flex-none active:scale-95"
+    <details className="group relative">
+      <summary
+        className="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] [&::-webkit-details-marker]:hidden"
         suppressHydrationWarning
       >
-        {isExportingPDF ? (
-  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4z" />
-  </svg>
-) : (
-  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-  </svg>
-)}
-{isExportingPDF ? "Exporting..." : "Export PDF"}
-      </button>
-
-      <button
-        type="button"
-        onClick={exportJSON}
-        disabled={isExportingJSON}
-        aria-label="Export dashboard metrics as JSON"
-        className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] disabled:opacity-50 sm:min-w-[140px] sm:flex-none"
-        suppressHydrationWarning
-      >
-        {isExportingJSON ? (
-  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4z" />
-  </svg>
-) : (
-  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-  </svg>
-)}
-{isExportingJSON ? "Exporting..." : "Export JSON"}
-      </button>
-    </div>
+        <svg
+          aria-hidden="true"
+          className={`h-4 w-4 ${busy ? "animate-bounce" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+          />
+        </svg>
+        {busy ? "Exporting..." : "Export"}
+        <svg
+          aria-hidden="true"
+          className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </summary>
+      <div className="absolute right-0 z-30 mt-2 flex w-44 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg">
+        {formats.map(({ label, run, pending }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={(event) => {
+              event.currentTarget.closest("details")?.removeAttribute("open");
+              void run();
+            }}
+            disabled={pending}
+            aria-label={`Export dashboard metrics as ${label}`}
+            className="px-4 py-2 text-left text-sm text-[var(--card-foreground)] transition-colors hover:bg-[var(--card-muted)] disabled:opacity-50"
+          >
+            {pending ? `Exporting ${label}...` : `Export ${label}`}
+          </button>
+        ))}
+      </div>
+    </details>
   );
 }

@@ -124,7 +124,7 @@ export default function LeaderboardFilters() {
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 p-3 shadow-[var(--shadow-soft)]">
+    <div className="mb-6 rounded-2xl border border-[var(--border)] bg-card/90 p-3 shadow-[var(--shadow-soft)]">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <label className="flex flex-col gap-2 text-sm font-medium text-[var(--card-foreground)] md:min-w-64">
           Language

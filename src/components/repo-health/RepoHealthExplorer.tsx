@@ -52,9 +52,9 @@ const GRADE_COLOR: Record<string, string> = {
 };
 
 const GRADE_BG: Record<string, string> = {
-  green: "border-[var(--accent)]/30 bg-[var(--accent)]/8",
+  green: "border-accent/30 bg-accent/8",
   yellow: "border-[#ca8a04]/30 bg-[#ca8a04]/8",
-  red: "border-[var(--destructive)]/30 bg-[var(--destructive)]/8",
+  red: "border-destructive/30 bg-destructive/8",
 };
 
 // ---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ const DetailPanel = memo(function DetailPanel({ health }: DetailPanelProps) {
           href={`https://github.com/${health.repo}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--muted-foreground)] transition hover:border-[var(--accent)]/50 hover:text-[var(--card-foreground)]"
+          className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--muted-foreground)] transition hover:border-accent/50 hover:text-[var(--card-foreground)]"
           aria-label={`Open ${health.repo} on GitHub`}
         >
           <ExternalLink size={12} aria-hidden="true" />
@@ -251,7 +251,7 @@ export default function RepoHealthExplorer() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-[var(--accent)]/40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-accent/40"
             aria-label="Back to dashboard"
           >
             <ArrowLeft size={14} aria-hidden="true" />
@@ -308,7 +308,7 @@ export default function RepoHealthExplorer() {
 
       {/* ── Error state ─────────────────────────────────────────────── */}
       {error && (
-        <div className="mb-6 rounded-xl border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4">
+        <div className="mb-6 rounded-xl border border-destructive/20 bg-destructive/10 p-4">
           <p className="text-sm text-[var(--destructive)]">{error}</p>
           <button
             type="button"

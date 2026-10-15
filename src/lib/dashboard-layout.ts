@@ -1,10 +1,7 @@
 export const DASHBOARD_LAYOUT_STORAGE_KEY = "devtrack.dashboard.layout.v1";
 
 export type DashboardSectionId =
-  | "overview"
-  | "activity"
-  | "analytics"
-  | "goals";
+  "overview" | "activity" | "analytics" | "goals";
 
 export type DashboardWidgetId =
   | "weekly-summary"
@@ -100,11 +97,25 @@ export const DASHBOARD_WIDGET_LABELS: Record<DashboardWidgetId, string> = {
   "achievement-progress": "Achievement Progress",
 };
 
+/**
+ * Widgets that are off by default, with the section they return to when shown:
+ * duplicates of a visible widget, and integrations that stay empty until set up.
+ */
+const HIDDEN_BY_DEFAULT: Partial<
+  Record<DashboardWidgetId, DashboardSectionId>
+> = {
+  "weekly-progress-summary": "overview", // same numbers as "This Week"
+  "sponsor-analytics": "overview", // empty until GitHub Sponsors is set up
+  "local-coding-time": "activity", // needs the VS Code extension
+  "coding-time": "activity", // needs WakaTime
+  "commit-heatmap-time": "activity", // same data as Productive Hours
+};
+
 export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
   version: 1,
   sections: ["overview", "activity", "analytics", "goals"],
   widgets: {
-    overview: ["weekly-summary", "weekly-progress-summary", "personal-records", "ai-mentor", "sponsor-analytics"],
+    overview: ["weekly-summary", "personal-records", "ai-mentor"],
     activity: [
       "contribution-graph",
       "contribution-heatmap",
@@ -113,10 +124,7 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
       "coding-activity-insights",
       "streak-tracker",
       "consistency-score",
-      "local-coding-time",
-      "coding-time",
       "commit-time",
-      "commit-heatmap-time",
       "productive-hours",
     ],
     analytics: [
@@ -141,17 +149,17 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayoutPreference = {
       "achievement-progress",
     ],
   },
-  hidden: [],
+  hidden: Object.keys(HIDDEN_BY_DEFAULT) as DashboardWidgetId[],
 };
 
 const ALL_WIDGET_IDS = new Set<DashboardWidgetId>(
-  Object.keys(DASHBOARD_WIDGET_LABELS) as DashboardWidgetId[],
+  Object.keys(DASHBOARD_WIDGET_LABELS) as DashboardWidgetId[]
 );
 
 const ALL_SECTION_IDS = new Set<DashboardSectionId>(DASHBOARD_SECTIONS);
 
 const cloneLayout = (
-  layout: DashboardLayoutPreference,
+  layout: DashboardLayoutPreference
 ): DashboardLayoutPreference => ({
   version: 1,
   sections: [...layout.sections],
@@ -177,7 +185,7 @@ const isDashboardSectionId = (value: unknown): value is DashboardSectionId =>
   typeof value === "string" && ALL_SECTION_IDS.has(value as DashboardSectionId);
 
 const getDefaultSectionForWidget = (
-  widgetId: DashboardWidgetId,
+  widgetId: DashboardWidgetId
 ): DashboardSectionId => {
   for (const sectionId of DASHBOARD_SECTIONS) {
     if (DEFAULT_DASHBOARD_LAYOUT.widgets[sectionId].includes(widgetId)) {
@@ -185,11 +193,11 @@ const getDefaultSectionForWidget = (
     }
   }
 
-  return "overview";
+  return HIDDEN_BY_DEFAULT[widgetId] ?? "overview";
 };
 
 export const normalizeDashboardLayout = (
-  value: unknown,
+  value: unknown
 ): DashboardLayoutPreference => {
   if (!isRecord(value)) {
     return getDefaultDashboardLayout();
@@ -259,17 +267,17 @@ export const moveWidget = (
   fromSection: DashboardSectionId,
   toSection: DashboardSectionId,
   widgetId: DashboardWidgetId,
-  toIndex: number,
+  toIndex: number
 ): DashboardLayoutPreference => {
   const next = cloneLayout(layout);
 
   next.widgets[fromSection] = next.widgets[fromSection].filter(
-    (id) => id !== widgetId,
+    (id) => id !== widgetId
   );
 
   const safeIndex = Math.max(
     0,
-    Math.min(toIndex, next.widgets[toSection].length),
+    Math.min(toIndex, next.widgets[toSection].length)
   );
 
   next.widgets[toSection] = [
@@ -283,13 +291,13 @@ export const moveWidget = (
 
 export const hideWidget = (
   layout: DashboardLayoutPreference,
-  widgetId: DashboardWidgetId,
+  widgetId: DashboardWidgetId
 ): DashboardLayoutPreference => {
   const next = cloneLayout(layout);
 
   for (const sectionId of DASHBOARD_SECTIONS) {
     next.widgets[sectionId] = next.widgets[sectionId].filter(
-      (id) => id !== widgetId,
+      (id) => id !== widgetId
     );
   }
 
@@ -302,7 +310,7 @@ export const hideWidget = (
 
 export const showWidget = (
   layout: DashboardLayoutPreference,
-  widgetId: DashboardWidgetId,
+  widgetId: DashboardWidgetId
 ): DashboardLayoutPreference => {
   const next = cloneLayout(layout);
 
@@ -310,7 +318,7 @@ export const showWidget = (
 
   const defaultSection = getDefaultSectionForWidget(widgetId);
   const alreadyVisible = DASHBOARD_SECTIONS.some((sectionId) =>
-    next.widgets[sectionId].includes(widgetId),
+    next.widgets[sectionId].includes(widgetId)
   );
 
   if (!alreadyVisible) {

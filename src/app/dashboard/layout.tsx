@@ -6,25 +6,34 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
+/**
+ * Only a successful, empty session response proves the user is signed out.
+ * A failed or slow session check must not end a valid session.
+ */
 async function hasActiveSession(fetcher: typeof window.fetch) {
   try {
     const response = await fetcher("/api/auth/session", { cache: "no-store" });
-    if (!response.ok) return false;
+    if (!response.ok) return true;
 
     const session = await response.json();
     return Boolean(session?.user || session?.githubId);
   } catch {
-    return false;
+    return true;
   }
 }
 
-function TokenRevokedBanner({ onReauthenticate }: { onReauthenticate: () => void }) {
+function TokenRevokedBanner({
+  onReauthenticate,
+}: {
+  onReauthenticate: () => void;
+}) {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-4 bg-red-600 px-6 py-3 text-white shadow-lg">
       <div className="flex items-center gap-3">
         <span className="text-xl">⚠️</span>
         <p className="text-sm font-medium">
-          Your GitHub session has expired. Please sign out and sign back in to refresh your data.
+          Your GitHub session has expired. Please sign out and sign back in to
+          refresh your data.
         </p>
       </div>
       <button
@@ -39,12 +48,10 @@ function TokenRevokedBanner({ onReauthenticate }: { onReauthenticate: () => void
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      router.push("/");
-    },
-  });
+  // The dashboard page redirects signed-out visitors on the server. Client-side
+  // "unauthenticated" can also mean a session request failed under load, so it
+  // is not treated as a sign-out here; confirmed expiry is handled on 401 below.
+  const { data: session, status } = useSession();
 
   const [showTokenBanner, setShowTokenBanner] = useState(false);
 
@@ -120,7 +127,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {showTokenBanner && <TokenRevokedBanner onReauthenticate={handleReauthenticate} />}
+      {showTokenBanner && (
+        <TokenRevokedBanner onReauthenticate={handleReauthenticate} />
+      )}
       {children}
     </>
   );

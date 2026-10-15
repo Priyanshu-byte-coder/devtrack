@@ -31,7 +31,10 @@ export default function ShortcutsModal({
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [isMac, setIsMac] = useState(false);
-  const [position, setPosition] = useState<{ top: number; right: number } | null>(null);
+  const [position, setPosition] = useState<{
+    top: number;
+    right: number;
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -98,9 +101,10 @@ export default function ShortcutsModal({
       if (e.key === "Tab") {
         if (!modalRef.current) return;
 
-        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+        const focusableElements =
+          modalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
 
         if (focusableElements.length === 0) return;
 
@@ -174,7 +178,7 @@ export default function ShortcutsModal({
         {SHORTCUTS.map((item) => (
           <div
             key={item.key}
-            className="flex items-center justify-between border-b border-[var(--border)]/50 py-2 last:border-0"
+            className="flex items-center justify-between border-b border-border/50 py-2 last:border-0"
           >
             <span className="text-sm text-[var(--muted-foreground)]">
               {item.action}

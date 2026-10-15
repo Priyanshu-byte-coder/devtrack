@@ -50,42 +50,44 @@ const PERSONA_PROFILES: Record<PersonaKey, PersonaProfile> = {
     title: "Night Owl",
     emoji: "🌙",
     description: "Most of your commits happen late at night.",
-    gradient: "from-[var(--accent)]/12 via-[var(--background)]/88 to-[var(--background)]",
+    gradient: "from-accent/12 via-background/88 to-[var(--background)]",
   },
   early_bird: {
     key: "early_bird",
     title: "Early Bird",
     emoji: "☀️",
     description: "Your most productive hours start before the workday.",
-    gradient: "from-[var(--success)]/12 via-[var(--background)]/88 to-[var(--background)]",
+    gradient: "from-success/12 via-background/88 to-[var(--background)]",
   },
   refactorer: {
     key: "refactorer",
     title: "Refactorer",
     emoji: "🛠️",
     description: "You are cleaning up more code than you are adding.",
-    gradient: "from-[var(--success)]/10 via-[var(--accent)]/8 to-[var(--background)]",
+    gradient: "from-success/10 via-accent/8 to-[var(--background)]",
   },
   marathoner: {
     key: "marathoner",
     title: "Marathoner",
     emoji: "🏃",
     description: "You keep long coding streaks going without slowing down.",
-    gradient: "from-[var(--accent)]/12 via-[var(--muted)]/10 to-[var(--background)]",
+    gradient: "from-accent/12 via-muted/10 to-[var(--background)]",
   },
   speed_runner: {
     key: "speed_runner",
     title: "Speed Runner",
     emoji: "⚡",
-    description: "Your pull requests are moving from open to merge very quickly.",
-    gradient: "from-[var(--destructive)]/12 via-[var(--accent)]/8 to-[var(--background)]",
+    description:
+      "Your pull requests are moving from open to merge very quickly.",
+    gradient: "from-destructive/12 via-accent/8 to-[var(--background)]",
   },
   balanced_builder: {
     key: "balanced_builder",
     title: "Balanced Builder",
     emoji: "🧭",
     description: "Your activity is spread out evenly across the day.",
-    gradient: "from-[var(--muted-foreground)]/10 via-[var(--background)]/88 to-[var(--background)]",
+    gradient:
+      "from-muted-foreground/10 via-background/88 to-[var(--background)]",
   },
 };
 
@@ -189,13 +191,17 @@ export function choosePersonaCandidate(
   candidates: Array<{ key: PersonaKey; score: number; eligible: boolean }>,
   fallback: PersonaKey
 ): PersonaKey {
-  const eligibleCandidates = candidates.filter((candidate) => candidate.eligible);
+  const eligibleCandidates = candidates.filter(
+    (candidate) => candidate.eligible
+  );
 
   if (eligibleCandidates.length > 0) {
     return eligibleCandidates.sort((a, b) => b.score - a.score)[0].key;
   }
 
-  const scoredCandidates = candidates.filter((candidate) => candidate.score > 0);
+  const scoredCandidates = candidates.filter(
+    (candidate) => candidate.score > 0
+  );
 
   if (scoredCandidates.length > 0) {
     return scoredCandidates.sort((a, b) => b.score - a.score)[0].key;
@@ -227,8 +233,10 @@ export function buildSmartInsightCandidates(
   const insights: Array<SmartInsight & { score: number }> = [];
   const totalChurn = signals.additions + signals.deletions;
   const timeBlockTotal = sumTimeBlocks(signals.timeBlocks);
-  const nightRatio = timeBlockTotal > 0 ? signals.timeBlocks.night / timeBlockTotal : 0;
-  const morningRatio = timeBlockTotal > 0 ? signals.timeBlocks.morning / timeBlockTotal : 0;
+  const nightRatio =
+    timeBlockTotal > 0 ? signals.timeBlocks.night / timeBlockTotal : 0;
+  const morningRatio =
+    timeBlockTotal > 0 ? signals.timeBlocks.morning / timeBlockTotal : 0;
 
   if (summary.currentStreak >= 3 || summary.activeDaysThisWeek >= 4) {
     addInsight(
@@ -241,7 +249,10 @@ export function buildSmartInsightCandidates(
     );
   }
 
-  if (summary.currentWeekCommits > summary.previousWeekCommits && summary.previousWeekCommits > 0) {
+  if (
+    summary.currentWeekCommits > summary.previousWeekCommits &&
+    summary.previousWeekCommits > 0
+  ) {
     addInsight(
       insights,
       {
@@ -331,8 +342,10 @@ export function buildDeveloperPersonaResponse(
     0
   );
   const timeBlockTotal = sumTimeBlocks(signals.timeBlocks);
-  const nightRatio = timeBlockTotal > 0 ? signals.timeBlocks.night / timeBlockTotal : 0;
-  const morningRatio = timeBlockTotal > 0 ? signals.timeBlocks.morning / timeBlockTotal : 0;
+  const nightRatio =
+    timeBlockTotal > 0 ? signals.timeBlocks.night / timeBlockTotal : 0;
+  const morningRatio =
+    timeBlockTotal > 0 ? signals.timeBlocks.morning / timeBlockTotal : 0;
   const churnTotal = signals.additions + signals.deletions;
   const deletionRatio = churnTotal > 0 ? signals.deletions / churnTotal : 0;
   const averagePrMergeHours =
@@ -359,14 +372,22 @@ export function buildDeveloperPersonaResponse(
       },
       {
         key: "marathoner",
-        score: Math.min(1, summary.currentStreak / 14 + summary.longestStreak / 30),
+        score: Math.min(
+          1,
+          summary.currentStreak / 14 + summary.longestStreak / 30
+        ),
         eligible: summary.currentStreak >= 7 || summary.longestStreak >= 14,
       },
       {
         key: "speed_runner",
-        score: averagePrMergeHours === null ? 0 : Math.max(0, (12 - averagePrMergeHours) / 12),
+        score:
+          averagePrMergeHours === null
+            ? 0
+            : Math.max(0, (12 - averagePrMergeHours) / 12),
         eligible:
-          averagePrMergeHours !== null && averagePrMergeHours < 4 && signals.prMergeSampleSize >= 2,
+          averagePrMergeHours !== null &&
+          averagePrMergeHours < 4 &&
+          signals.prMergeSampleSize >= 2,
       },
     ],
     "balanced_builder"
@@ -406,9 +427,15 @@ export function mergeCommitCounts(
  * @param b - The second DeveloperSignals object.
  * @returns The aggregated DeveloperSignals.
  */
-export function mergeSignals(a: DeveloperSignals, b: DeveloperSignals): DeveloperSignals {
+export function mergeSignals(
+  a: DeveloperSignals,
+  b: DeveloperSignals
+): DeveloperSignals {
   return {
-    commitCountsByDate: mergeCommitCounts(a.commitCountsByDate, b.commitCountsByDate),
+    commitCountsByDate: mergeCommitCounts(
+      a.commitCountsByDate,
+      b.commitCountsByDate
+    ),
     timeBlocks: {
       morning: a.timeBlocks.morning + b.timeBlocks.morning,
       afternoon: a.timeBlocks.afternoon + b.timeBlocks.afternoon,

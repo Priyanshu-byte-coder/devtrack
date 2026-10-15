@@ -14,7 +14,9 @@ export const dynamic = "force-dynamic";
 
 type Winner = "left" | "right" | "tie";
 
-async function parseUsers(params: Promise<{ users: string }>): Promise<[string, string] | null> {
+async function parseUsers(
+  params: Promise<{ users: string }>
+): Promise<[string, string] | null> {
   let decoded: string;
   try {
     const { users } = await params;
@@ -51,7 +53,9 @@ function repoCommitTotal(repos: TopRepo[]): number {
 
 export async function generateMetadata({
   params,
-}: { params: Promise<{ users: string }> }): Promise<Metadata> {
+}: {
+  params: Promise<{ users: string }>;
+}): Promise<Metadata> {
   const parsed = await parseUsers(params);
   if (!parsed) {
     return {
@@ -69,7 +73,9 @@ export async function generateMetadata({
 
 export default async function PublicProfileComparePage({
   params,
-}: { params: Promise<{ users: string }> }) {
+}: {
+  params: Promise<{ users: string }>;
+}) {
   const { users } = await params;
   const parsed = await parseUsers(params);
 
@@ -104,7 +110,8 @@ export default async function PublicProfileComparePage({
               @{leftProfile.username} vs @{rightProfile.username}
             </h1>
             <p className="mt-2 text-[var(--muted-foreground)]">
-              Shareable comparison built only from publicly visible DevTrack stats.
+              Shareable comparison built only from publicly visible DevTrack
+              stats.
             </p>
           </div>
           <Link
@@ -178,8 +185,14 @@ export default async function PublicProfileComparePage({
             username={rightProfile.username}
             languages={rightProfile.topLanguages}
           />
-          <ReposCard username={leftProfile.username} repos={leftProfile.repos} />
-          <ReposCard username={rightProfile.username} repos={rightProfile.repos} />
+          <ReposCard
+            username={leftProfile.username}
+            repos={leftProfile.repos}
+          />
+          <ReposCard
+            username={rightProfile.username}
+            repos={rightProfile.repos}
+          />
         </div>
       </div>
     </div>
@@ -198,7 +211,10 @@ function CompareUnavailable({
       <div className="surface-card max-w-md rounded-2xl p-8 text-center">
         <h1 className="mb-2 text-3xl font-bold">{title}</h1>
         <p className="mb-6 text-sm text-[var(--muted-foreground)]">{message}</p>
-        <Link href="/" className="primary-button inline-block rounded-lg px-6 py-2">
+        <Link
+          href="/"
+          className="primary-button inline-block rounded-lg px-6 py-2"
+        >
           Back to Home
         </Link>
       </div>
@@ -240,7 +256,8 @@ function ProfileHeader({
             @{profile.username}
           </Link>
           <p className="text-sm text-[var(--muted-foreground)]">
-            {profile.streak.current} day streak - {profile.contributions.total} commits
+            {profile.streak.current} day streak - {profile.contributions.total}{" "}
+            commits
           </p>
         </div>
       </div>
@@ -272,7 +289,9 @@ function MetricRow({
       </div>
       <Value
         value={`${right}${suffix}`}
-        state={winner === "tie" ? "tie" : winner === "right" ? "win" : "neutral"}
+        state={
+          winner === "tie" ? "tie" : winner === "right" ? "win" : "neutral"
+        }
         align="right"
       />
     </div>
@@ -304,7 +323,7 @@ function Value({
 }) {
   const className =
     state === "win"
-      ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
+      ? "border-success/30 bg-success/10 text-[var(--success)]"
       : state === "tie"
         ? "border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)]"
         : "border-transparent text-[var(--foreground)]";
@@ -368,7 +387,13 @@ function LanguageCard({
   );
 }
 
-function ReposCard({ username, repos }: { username: string; repos: TopRepo[] }) {
+function ReposCard({
+  username,
+  repos,
+}: {
+  username: string;
+  repos: TopRepo[];
+}) {
   const maxCommits = repos[0]?.commits ?? 1;
 
   return (
@@ -384,7 +409,10 @@ function ReposCard({ username, repos }: { username: string; repos: TopRepo[] }) 
         <ul className="space-y-3">
           {repos.map((repo, index) => {
             const shortName = repo.name.split("/")[1] ?? repo.name;
-            const width = Math.max(Math.round((repo.commits / maxCommits) * 100), 4);
+            const width = Math.max(
+              Math.round((repo.commits / maxCommits) * 100),
+              4
+            );
 
             return (
               <li key={repo.name}>

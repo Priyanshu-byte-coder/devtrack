@@ -12,7 +12,9 @@ import {
 describe("dashboard-layout", () => {
   it("returns default layout for invalid saved layout", () => {
     expect(normalizeDashboardLayout(null)).toEqual(DEFAULT_DASHBOARD_LAYOUT);
-    expect(normalizeDashboardLayout("invalid")).toEqual(DEFAULT_DASHBOARD_LAYOUT);
+    expect(normalizeDashboardLayout("invalid")).toEqual(
+      DEFAULT_DASHBOARD_LAYOUT
+    );
   });
 
   it("removes unknown widget ids and duplicate widgets", () => {
@@ -29,7 +31,9 @@ describe("dashboard-layout", () => {
     });
 
     expect(layout.widgets.overview).toContain("weekly-summary");
-    expect(layout.widgets.overview.filter((id) => id === "weekly-summary")).toHaveLength(1);
+    expect(
+      layout.widgets.overview.filter((id) => id === "weekly-summary")
+    ).toHaveLength(1);
     expect(JSON.stringify(layout)).not.toContain("unknown-widget");
   });
 
@@ -41,7 +45,10 @@ describe("dashboard-layout", () => {
   });
 
   it("shows a hidden widget again", () => {
-    const hiddenLayout = hideWidget(getDefaultDashboardLayout(), "weekly-summary");
+    const hiddenLayout = hideWidget(
+      getDefaultDashboardLayout(),
+      "weekly-summary"
+    );
     const visibleLayout = showWidget(hiddenLayout, "weekly-summary");
 
     expect(visibleLayout.hidden).not.toContain("weekly-summary");
@@ -54,7 +61,7 @@ describe("dashboard-layout", () => {
       "overview",
       "activity",
       "weekly-summary",
-      0,
+      0
     );
 
     expect(layout.widgets.overview).not.toContain("weekly-summary");
@@ -62,9 +69,22 @@ describe("dashboard-layout", () => {
   });
 
   it("resets to the default dashboard layout", () => {
-    const changedLayout = hideWidget(getDefaultDashboardLayout(), "weekly-summary");
+    const changedLayout = hideWidget(
+      getDefaultDashboardLayout(),
+      "weekly-summary"
+    );
 
     expect(changedLayout).not.toEqual(DEFAULT_DASHBOARD_LAYOUT);
     expect(resetDashboardLayout()).toEqual(DEFAULT_DASHBOARD_LAYOUT);
+  });
+
+  it("hides duplicate widgets by default but restores them to their section", () => {
+    const layout = getDefaultDashboardLayout();
+    expect(layout.hidden).toContain("weekly-progress-summary");
+    expect(layout.widgets.overview).not.toContain("weekly-progress-summary");
+
+    const shown = showWidget(layout, "commit-heatmap-time");
+    expect(shown.widgets.activity).toContain("commit-heatmap-time");
+    expect(shown.hidden).not.toContain("commit-heatmap-time");
   });
 });

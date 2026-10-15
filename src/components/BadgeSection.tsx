@@ -60,55 +60,95 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
   return (
     <>
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
-        📌 Get Your Badge
-      </h2>
-      <p className="mb-4 text-sm text-[var(--muted-foreground)]">
-        Show off your DevTrack stats on your GitHub profile! Copy and paste the markdown below into your README.
-      </p>
-
-      <div className="space-y-4">
-        {/* Streak Badge */}
-        <div>
-          <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
-            Streak Badge
-          </h3>
-          <div className="mb-2">
-            <Image src={streakBadgePreviewUrl} alt="DevTrack Streak" width={150} height={20} className="w-auto h-auto" unoptimized />
-          </div>
-          <CopyableCodeBlock code={streakMarkdown} onCopySuccess={showToast} />
-        </div>
-
-        {/* Commits Badge */}
-        <div>
-          <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
-            Commits Badge
-          </h3>
-          <div className="mb-2">
-            <Image src={commitsBadgePreviewUrl} alt="DevTrack Commits" width={150} height={20} className="w-auto h-auto" unoptimized />
-          </div>
-          <CopyableCodeBlock code={commitsMarkdown} onCopySuccess={showToast} />
-        </div>
-
-        {/* Combined */}
-        <div>
-          <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
-            Combined (Both Badges)
-          </h3>
-          <div className="mb-2 flex gap-1">
-            <Image src={streakBadgePreviewUrl} alt="DevTrack Streak" width={150} height={20} className="w-auto h-auto" unoptimized />
-            <Image src={commitsBadgePreviewUrl} alt="DevTrack Commits" width={150} height={20} className="w-auto h-auto" unoptimized />
-          </div>
-          <CopyableCodeBlock code={combinedMarkdown} onCopySuccess={showToast} />
-        </div>
-      </div>
-
-      <div className="mt-4 p-3 rounded-lg bg-[var(--accent)]/10 border border-[var(--accent)]/20">
-        <p className="text-xs text-[var(--card-foreground)]">
-          <span className="font-semibold">💡 Tip:</span> Badges are cached for 1 hour and update automatically. Public data only (no authentication needed).
+        <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+          📌 Get Your Badge
+        </h2>
+        <p className="mb-4 text-sm text-[var(--muted-foreground)]">
+          Show off your DevTrack stats on your GitHub profile! Copy and paste
+          the markdown below into your README.
         </p>
+
+        <div className="space-y-4">
+          {/* Streak Badge */}
+          <div>
+            <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
+              Streak Badge
+            </h3>
+            <div className="mb-2">
+              <Image
+                src={streakBadgePreviewUrl}
+                alt="DevTrack Streak"
+                width={150}
+                height={20}
+                className="w-auto h-auto"
+                unoptimized
+              />
+            </div>
+            <CopyableCodeBlock
+              code={streakMarkdown}
+              onCopySuccess={showToast}
+            />
+          </div>
+
+          {/* Commits Badge */}
+          <div>
+            <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
+              Commits Badge
+            </h3>
+            <div className="mb-2">
+              <Image
+                src={commitsBadgePreviewUrl}
+                alt="DevTrack Commits"
+                width={150}
+                height={20}
+                className="w-auto h-auto"
+                unoptimized
+              />
+            </div>
+            <CopyableCodeBlock
+              code={commitsMarkdown}
+              onCopySuccess={showToast}
+            />
+          </div>
+
+          {/* Combined */}
+          <div>
+            <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
+              Combined (Both Badges)
+            </h3>
+            <div className="mb-2 flex gap-1">
+              <Image
+                src={streakBadgePreviewUrl}
+                alt="DevTrack Streak"
+                width={150}
+                height={20}
+                className="w-auto h-auto"
+                unoptimized
+              />
+              <Image
+                src={commitsBadgePreviewUrl}
+                alt="DevTrack Commits"
+                width={150}
+                height={20}
+                className="w-auto h-auto"
+                unoptimized
+              />
+            </div>
+            <CopyableCodeBlock
+              code={combinedMarkdown}
+              onCopySuccess={showToast}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 p-3 rounded-lg bg-accent/10 border border-accent/20">
+          <p className="text-xs text-[var(--card-foreground)]">
+            <span className="font-semibold">💡 Tip:</span> Badges are cached for
+            1 hour and update automatically. Public data only (no authentication
+            needed).
+          </p>
+        </div>
       </div>
-    </div>
 
       <Toast visible={toastVisible} />
     </>
@@ -136,7 +176,13 @@ function Toast({ visible }: { visible: boolean }) {
 /**
  * Copyable code block component
  */
-function CopyableCodeBlock({ code, onCopySuccess }: { code: string; onCopySuccess?: () => void }) {
+function CopyableCodeBlock({
+  code,
+  onCopySuccess,
+}: {
+  code: string;
+  onCopySuccess?: () => void;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {

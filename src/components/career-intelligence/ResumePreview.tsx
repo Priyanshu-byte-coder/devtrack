@@ -5,14 +5,22 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit2, Eye, Copy, Check, Info, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ResumeContent, ResumeBulletPoint, ProjectDescription, SkillCategory } from "@/types/cv-types";
+import type {
+  ResumeContent,
+  ResumeBulletPoint,
+  ProjectDescription,
+  SkillCategory,
+} from "@/types/cv-types";
 
 interface ResumePreviewProps {
   content: ResumeContent;
   onContentChange: (content: ResumeContent) => void;
 }
 
-export default function ResumePreview({ content, onContentChange }: ResumePreviewProps) {
+export default function ResumePreview({
+  content,
+  onContentChange,
+}: ResumePreviewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
@@ -34,7 +42,11 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
     });
   };
 
-  const updateBulletPoint = (index: number, field: keyof ResumeBulletPoint, value: any) => {
+  const updateBulletPoint = (
+    index: number,
+    field: keyof ResumeBulletPoint,
+    value: any
+  ) => {
     const newBullets = [...content.bulletPoints];
     newBullets[index] = {
       ...newBullets[index],
@@ -49,7 +61,12 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
   const addBulletPoint = () => {
     const newBullets = [
       ...content.bulletPoints,
-      { text: "New achievement bullet point...", repository: "", confidence: 100, technologies: [] },
+      {
+        text: "New achievement bullet point...",
+        repository: "",
+        confidence: 100,
+        technologies: [],
+      },
     ];
     onContentChange({
       ...content,
@@ -65,7 +82,11 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
     });
   };
 
-  const updateProject = (index: number, field: keyof ProjectDescription, value: any) => {
+  const updateProject = (
+    index: number,
+    field: keyof ProjectDescription,
+    value: any
+  ) => {
     const newProjects = [...content.projectDescriptions];
     newProjects[index] = {
       ...newProjects[index],
@@ -80,7 +101,14 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
   const addProject = () => {
     const newProjects = [
       ...content.projectDescriptions,
-      { name: "New Project", nameWithOwner: "owner/repo", url: "https://github.com/", description: "Project description...", highlights: [], technologies: [] },
+      {
+        name: "New Project",
+        nameWithOwner: "owner/repo",
+        url: "https://github.com/",
+        description: "Project description...",
+        highlights: [],
+        technologies: [],
+      },
     ];
     onContentChange({
       ...content,
@@ -89,14 +117,20 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
   };
 
   const deleteProject = (index: number) => {
-    const newProjects = content.projectDescriptions.filter((_, idx) => idx !== index);
+    const newProjects = content.projectDescriptions.filter(
+      (_, idx) => idx !== index
+    );
     onContentChange({
       ...content,
       projectDescriptions: newProjects,
     });
   };
 
-  const updateSkillCategory = (index: number, field: keyof SkillCategory, value: any) => {
+  const updateSkillCategory = (
+    index: number,
+    field: keyof SkillCategory,
+    value: any
+  ) => {
     const newSkills = [...content.skills];
     newSkills[index] = {
       ...newSkills[index],
@@ -109,7 +143,10 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
   };
 
   const addSkillCategory = () => {
-    const newSkills = [...content.skills, { category: "New Category", skills: ["Skill 1", "Skill 2"] }];
+    const newSkills = [
+      ...content.skills,
+      { category: "New Category", skills: ["Skill 1", "Skill 2"] },
+    ];
     onContentChange({
       ...content,
       skills: newSkills,
@@ -138,7 +175,10 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
         <div className="flex items-center gap-2">
           <Info className="h-4 w-4 text-[var(--accent)]" />
           <span className="text-xs text-[var(--muted-foreground)]">
-            Tailored to <span className="font-semibold text-[var(--foreground)]">{content.role}</span>
+            Tailored to{" "}
+            <span className="font-semibold text-[var(--foreground)]">
+              {content.role}
+            </span>
           </span>
         </div>
 
@@ -148,8 +188,8 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
           className={cn(
             "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-300",
             isEditMode
-              ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
-              : "border-[var(--border)] bg-[var(--card-muted)] hover:bg-[var(--border)]/10 text-[var(--foreground)]"
+              ? "border-[var(--accent)] bg-accent/10 text-[var(--accent)]"
+              : "border-[var(--border)] bg-[var(--card-muted)] hover:bg-border/10 text-[var(--foreground)]"
           )}
         >
           {isEditMode ? (
@@ -169,18 +209,30 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
       {/* Main Preview Container */}
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-xl">
         <Tabs defaultValue="summary" className="w-full">
-          <div className="border-b border-[var(--border)] bg-[var(--card-muted)]/50 px-6 pt-2">
+          <div className="border-b border-[var(--border)] bg-card-muted/50 px-6 pt-2">
             <TabsList className="border-b-0 gap-4">
-              <TabsTrigger value="summary" className="py-3 font-semibold text-xs uppercase tracking-wider">
+              <TabsTrigger
+                value="summary"
+                className="py-3 font-semibold text-xs uppercase tracking-wider"
+              >
                 Professional Summary
               </TabsTrigger>
-              <TabsTrigger value="experience" className="py-3 font-semibold text-xs uppercase tracking-wider">
+              <TabsTrigger
+                value="experience"
+                className="py-3 font-semibold text-xs uppercase tracking-wider"
+              >
                 Experience Bullet Points
               </TabsTrigger>
-              <TabsTrigger value="projects" className="py-3 font-semibold text-xs uppercase tracking-wider">
+              <TabsTrigger
+                value="projects"
+                className="py-3 font-semibold text-xs uppercase tracking-wider"
+              >
                 Project Highlights
               </TabsTrigger>
-              <TabsTrigger value="skills" className="py-3 font-semibold text-xs uppercase tracking-wider">
+              <TabsTrigger
+                value="skills"
+                className="py-3 font-semibold text-xs uppercase tracking-wider"
+              >
                 Skills & Tech
               </TabsTrigger>
             </TabsList>
@@ -190,14 +242,22 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
             {/* TABS CONTENT: SUMMARY */}
             <TabsContent value="summary" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h4 className="text-sm font-bold text-[var(--foreground)]">Professional Summary</h4>
+                <h4 className="text-sm font-bold text-[var(--foreground)]">
+                  Professional Summary
+                </h4>
                 <button
                   type="button"
-                  onClick={() => handleCopySection("summary", content.professionalSummary)}
+                  onClick={() =>
+                    handleCopySection("summary", content.professionalSummary)
+                  }
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy Section"
                 >
-                  {copiedSection === "summary" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  {copiedSection === "summary" ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
@@ -208,7 +268,7 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                   className="min-h-[150px] font-sans text-sm leading-relaxed"
                 />
               ) : (
-                <div className="p-6 rounded-lg border border-[var(--border)]/50 bg-[var(--card-muted)]/20 shadow-inner">
+                <div className="p-6 rounded-lg border border-border/50 bg-card-muted/20 shadow-inner">
                   <p className="font-sans text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-wrap italic">
                     &ldquo;{content.professionalSummary}&rdquo;
                   </p>
@@ -219,19 +279,27 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
             {/* TABS CONTENT: EXPERIENCE BULLETS */}
             <TabsContent value="experience" className="space-y-6">
               <div className="flex justify-between items-center">
-                <h4 className="text-sm font-bold text-[var(--foreground)]">Experience Bullet Points</h4>
+                <h4 className="text-sm font-bold text-[var(--foreground)]">
+                  Experience Bullet Points
+                </h4>
                 <button
                   type="button"
                   onClick={() =>
                     handleCopySection(
                       "experience",
-                      content.bulletPoints.map((bp) => `- ${bp.text}`).join("\n")
+                      content.bulletPoints
+                        .map((bp) => `- ${bp.text}`)
+                        .join("\n")
                     )
                   }
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy All Bullets"
                 >
-                  {copiedSection === "experience" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  {copiedSection === "experience" ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
@@ -239,7 +307,7 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                 {content.bulletPoints.map((bullet, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-lg border border-[var(--border)] bg-[var(--card-muted)]/25 flex flex-col md:flex-row justify-between gap-4"
+                    className="p-4 rounded-lg border border-[var(--border)] bg-card-muted/25 flex flex-col md:flex-row justify-between gap-4"
                   >
                     <div className="flex-1 space-y-3">
                       {isEditMode ? (
@@ -247,13 +315,21 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                           <input
                             type="text"
                             value={bullet.repository}
-                            onChange={(e) => updateBulletPoint(idx, "repository", e.target.value)}
+                            onChange={(e) =>
+                              updateBulletPoint(
+                                idx,
+                                "repository",
+                                e.target.value
+                              )
+                            }
                             placeholder="Repository Name"
                             className="flex h-8 w-1/3 rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                           />
                           <Textarea
                             value={bullet.text}
-                            onChange={(e) => updateBulletPoint(idx, "text", e.target.value)}
+                            onChange={(e) =>
+                              updateBulletPoint(idx, "text", e.target.value)
+                            }
                             className="min-h-[60px] text-xs font-sans"
                             placeholder="Bullet Point Text"
                           />
@@ -318,7 +394,9 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
             {/* TABS CONTENT: PROJECTS */}
             <TabsContent value="projects" className="space-y-6">
               <div className="flex justify-between items-center">
-                <h4 className="text-sm font-bold text-[var(--foreground)]">Project Highlights</h4>
+                <h4 className="text-sm font-bold text-[var(--foreground)]">
+                  Project Highlights
+                </h4>
                 <button
                   type="button"
                   onClick={() =>
@@ -335,7 +413,11 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy All Projects"
                 >
-                  {copiedSection === "projects" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  {copiedSection === "projects" ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
@@ -343,7 +425,7 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                 {content.projectDescriptions.map((proj, idx) => (
                   <div
                     key={idx}
-                    className="p-5 rounded-lg border border-[var(--border)] bg-[var(--card-muted)]/20 space-y-4"
+                    className="p-5 rounded-lg border border-[var(--border)] bg-card-muted/20 space-y-4"
                   >
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 flex-1">
@@ -352,14 +434,18 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                             <input
                               type="text"
                               value={proj.name}
-                              onChange={(e) => updateProject(idx, "name", e.target.value)}
+                              onChange={(e) =>
+                                updateProject(idx, "name", e.target.value)
+                              }
                               placeholder="Project Name"
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                             />
                             <input
                               type="text"
                               value={proj.url}
-                              onChange={(e) => updateProject(idx, "url", e.target.value)}
+                              onChange={(e) =>
+                                updateProject(idx, "url", e.target.value)
+                              }
                               placeholder="Repository URL"
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                             />
@@ -374,7 +460,9 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                             {proj.name}
                           </a>
                         )}
-                        <p className="text-[10px] text-[var(--muted-foreground)]">{proj.nameWithOwner}</p>
+                        <p className="text-[10px] text-[var(--muted-foreground)]">
+                          {proj.nameWithOwner}
+                        </p>
                       </div>
 
                       {isEditMode && (
@@ -393,7 +481,9 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                       {isEditMode ? (
                         <Textarea
                           value={proj.description}
-                          onChange={(e) => updateProject(idx, "description", e.target.value)}
+                          onChange={(e) =>
+                            updateProject(idx, "description", e.target.value)
+                          }
                           className="min-h-[65px] text-xs"
                           placeholder="Project Description"
                         />
@@ -405,7 +495,10 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
 
                       <div className="space-y-1.5 pl-4 border-l-2 border-[var(--border)]">
                         {proj.highlights.map((highlight, hIdx) => (
-                          <p key={hIdx} className="text-xs text-[var(--muted-foreground)] font-sans">
+                          <p
+                            key={hIdx}
+                            className="text-xs text-[var(--muted-foreground)] font-sans"
+                          >
                             • {highlight}
                           </p>
                         ))}
@@ -441,7 +534,9 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
             {/* TABS CONTENT: SKILLS */}
             <TabsContent value="skills" className="space-y-6">
               <div className="flex justify-between items-center">
-                <h4 className="text-sm font-bold text-[var(--foreground)]">Technical Skills & Categories</h4>
+                <h4 className="text-sm font-bold text-[var(--foreground)]">
+                  Technical Skills & Categories
+                </h4>
                 <button
                   type="button"
                   onClick={() =>
@@ -456,7 +551,11 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy Skills"
                 >
-                  {copiedSection === "skills" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                  {copiedSection === "skills" ? (
+                    <Check className="h-4 w-4 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
@@ -478,7 +577,7 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                   {content.skills.map((cat, idx) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-lg border border-[var(--border)] bg-[var(--card-muted)]/20 flex flex-col justify-between gap-3"
+                      className="p-4 rounded-lg border border-[var(--border)] bg-card-muted/20 flex flex-col justify-between gap-3"
                     >
                       <div className="space-y-3">
                         {isEditMode ? (
@@ -486,7 +585,13 @@ export default function ResumePreview({ content, onContentChange }: ResumePrevie
                             <input
                               type="text"
                               value={cat.category}
-                              onChange={(e) => updateSkillCategory(idx, "category", e.target.value)}
+                              onChange={(e) =>
+                                updateSkillCategory(
+                                  idx,
+                                  "category",
+                                  e.target.value
+                                )
+                              }
                               placeholder="Category Title"
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)] font-semibold"
                             />

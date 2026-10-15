@@ -50,12 +50,12 @@ export default function ConfirmModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={disabled ? undefined : onCancel}
         aria-hidden="true"
       />
-      
+
       {/* Modal Content */}
       <div
         ref={modalRef}
@@ -83,7 +83,7 @@ export default function ConfirmModal({
           <Button
             variant="default"
             onClick={onConfirm}
-            className="w-full sm:w-auto shadow-lg shadow-[var(--accent)]/20"
+            className="w-full sm:w-auto shadow-lg shadow-accent/20"
           >
             {confirmLabel}
           </Button>

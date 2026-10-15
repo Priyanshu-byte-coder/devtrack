@@ -33,7 +33,7 @@ class WidgetErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex h-full w-full flex-col items-center justify-center rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/5 p-6 text-center">
+        <div className="flex h-full w-full flex-col items-center justify-center rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
           <AlertTriangle className="h-8 w-8 text-[var(--destructive)] mb-3" />
           <p className="text-sm font-medium text-[var(--destructive)] mb-4">
             {this.props.fallbackMessage || "Unable to load widget"}

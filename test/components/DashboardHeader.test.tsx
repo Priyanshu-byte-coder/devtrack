@@ -94,30 +94,17 @@ describe("DashboardHeader", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders dashboard overview text", () => {
+  it("renders a single heading without repeating the greeting", () => {
     mockedUseSession.mockReturnValue({
-      data: null,
-      status: "unauthenticated",
+      data: { user: { name: "Ada" }, githubLogin: "ada" },
+      status: "authenticated",
     });
 
     renderDashboardHeader();
 
-    expect(
-      screen.getByText(/dashboard overview/i)
-    ).toBeInTheDocument();
-  });
-
-  it("renders subtitle text", () => {
-    mockedUseSession.mockReturnValue({
-      data: null,
-      status: "unauthenticated",
-    });
-
-    renderDashboardHeader();
-
-    expect(
-      screen.getByText(/coding activity at a glance/i)
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole("heading")).toHaveLength(1);
+    // The personal greeting is shown once, by Today's Focus below the header.
+    expect(screen.queryByText(/good (morning|afternoon|evening)/i)).toBeNull();
   });
 
   it("does not fetch settings when session is null", () => {
@@ -170,9 +157,7 @@ describe("DashboardHeader", () => {
 
     renderDashboardHeader();
 
-    expect(
-      await screen.findByText(/share profile/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/share profile/i)).toBeInTheDocument();
   });
 
   it("hides share profile button when profile is private", async () => {
@@ -193,9 +178,7 @@ describe("DashboardHeader", () => {
     renderDashboardHeader();
 
     await waitFor(() => {
-      expect(
-        screen.queryByText(/share profile/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/share profile/i)).not.toBeInTheDocument();
     });
   });
 
@@ -243,9 +226,7 @@ describe("DashboardHeader", () => {
       status: "authenticated",
     });
 
-    (fetch as any).mockRejectedValue(
-      new Error("Network Error")
-    );
+    (fetch as any).mockRejectedValue(new Error("Network Error"));
 
     renderDashboardHeader();
 

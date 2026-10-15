@@ -105,7 +105,8 @@ function getStatusMessage(
   if (error === "rate_limited") {
     return {
       kind: "error",
-      message: "GitHub API rate limit reached. Please try again in a few minutes.",
+      message:
+        "GitHub API rate limit reached. Please try again in a few minutes.",
     };
   }
 
@@ -193,10 +194,13 @@ function SettingsPageContent() {
   const [discordWebhook, setDiscordWebhook] = useState("");
   const [timezone, setTimezone] = useState("");
   const [savingDiscord, setSavingDiscord] = useState(false);
-  const [preferredLocale, setPreferredLocale] = useState<AppLocale>(activeLocale);
+  const [preferredLocale, setPreferredLocale] =
+    useState<AppLocale>(activeLocale);
   const [savingLanguage, setSavingLanguage] = useState(false);
   const [testingDiscord, setTestingDiscord] = useState(false);
-  const [discordMutedUntil, setDiscordMutedUntil] = useState<string | null>(null);
+  const [discordMutedUntil, setDiscordMutedUntil] = useState<string | null>(
+    null
+  );
   const [muteDuration, setMuteDuration] = useState<number>(1);
   const copyResetTimerRef = useRef<number | null>(null);
 
@@ -205,11 +209,13 @@ function SettingsPageContent() {
   const [orgsConfig, setOrgsConfig] = useState<Record<string, boolean>>({});
   const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [isDirty, setIsDirty] = useState(false);
-  const [publicWidgets, setPublicWidgets] = useState<string[]>(["streak", "contributions"]);
+  const [publicWidgets, setPublicWidgets] = useState<string[]>([
+    "streak",
+    "contributions",
+  ]);
   const [savingWidgets, setSavingWidgets] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-
 
   // Spotlight Repos States
   const [userRepos, setUserRepos] = useState<string[]>([]);
@@ -222,7 +228,8 @@ function SettingsPageContent() {
     [searchParams]
   );
 
-  const publicProfileUsername = session?.githubLogin ?? settings?.github_login ?? "";
+  const publicProfileUsername =
+    session?.githubLogin ?? settings?.github_login ?? "";
   const profileUrl = useMemo(
     () =>
       publicProfileUsername
@@ -255,7 +262,12 @@ function SettingsPageContent() {
       if (anchor && isDirty) {
         const href = anchor.getAttribute("href");
         // Only intercept internal links
-        if (href && !href.startsWith("#") && !anchor.hasAttribute("download") && !href.startsWith("http")) {
+        if (
+          href &&
+          !href.startsWith("#") &&
+          !anchor.hasAttribute("download") &&
+          !href.startsWith("http")
+        ) {
           e.preventDefault();
           e.stopPropagation();
           setPendingPath(href);
@@ -396,7 +408,9 @@ function SettingsPageContent() {
         body: JSON.stringify({ config: newConfig }),
       });
       if (res.ok) {
-        toast.success(`Organization ${orgLogin} sync ${enabled ? "enabled" : "disabled"}.`);
+        toast.success(
+          `Organization ${orgLogin} sync ${enabled ? "enabled" : "disabled"}.`
+        );
       } else {
         toast.error("Failed to update organization sync settings.");
       }
@@ -488,12 +502,16 @@ function SettingsPageContent() {
       try {
         const res = await fetch("/api/user/github-accounts");
         if (res.status === 403) {
-          setAccountsError("GitHub API rate limit reached. Please try again in a few minutes.");
+          setAccountsError(
+            "GitHub API rate limit reached. Please try again in a few minutes."
+          );
           setLinkedAccounts([]);
           return;
         }
         if (!res.ok) {
-          setAccountsError("Failed to load linked accounts. Please refresh the page.");
+          setAccountsError(
+            "Failed to load linked accounts. Please refresh the page."
+          );
           setLinkedAccounts([]);
           return;
         }
@@ -502,7 +520,9 @@ function SettingsPageContent() {
         setLinkedAccounts(data.accounts ?? []);
       } catch (error) {
         console.error("Failed to load linked accounts:", error);
-        setAccountsError("Failed to load linked accounts. Please refresh the page.");
+        setAccountsError(
+          "Failed to load linked accounts. Please refresh the page."
+        );
         setLinkedAccounts([]);
       } finally {
         setAccountsLoading(false);
@@ -588,9 +608,21 @@ function SettingsPageContent() {
   };
 
   const WIDGET_OPTIONS = [
-    { key: "streak", label: "Streak stats", description: "Current streak, longest streak, active days" },
-    { key: "contributions", label: "Contribution graph", description: "30-day commit activity heatmap" },
-    { key: "languages", label: "Top languages", description: "Language breakdown from recent repos" },
+    {
+      key: "streak",
+      label: "Streak stats",
+      description: "Current streak, longest streak, active days",
+    },
+    {
+      key: "contributions",
+      label: "Contribution graph",
+      description: "30-day commit activity heatmap",
+    },
+    {
+      key: "languages",
+      label: "Top languages",
+      description: "Language breakdown from recent repos",
+    },
     { key: "prs", label: "Pull requests", description: "Total PRs authored" },
   ] as const;
 
@@ -640,7 +672,11 @@ function SettingsPageContent() {
         setSettings(updated);
         setWakatimeKey("");
         setIsDirty(false);
-        toast.success(wakatimeKey === "" ? "Wakatime key removed" : "Wakatime key saved successfully!");
+        toast.success(
+          wakatimeKey === ""
+            ? "Wakatime key removed"
+            : "Wakatime key saved successfully!"
+        );
       } else {
         const errorData = await res.json();
         toast.error(errorData.error || "Failed to update Wakatime key");
@@ -689,13 +725,21 @@ function SettingsPageContent() {
       const res = await fetch("/api/user/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ discord_webhook_url: discordWebhook, timezone, discord_muted_until: discordMutedUntil }),
+        body: JSON.stringify({
+          discord_webhook_url: discordWebhook,
+          timezone,
+          discord_muted_until: discordMutedUntil,
+        }),
       });
       if (res.ok) {
         const updated = await res.json();
         setSettings(updated);
         setIsDirty(false);
-        toast.success(discordWebhook === "" ? "Discord Webhook removed" : "Discord settings saved successfully!");
+        toast.success(
+          discordWebhook === ""
+            ? "Discord Webhook removed"
+            : "Discord settings saved successfully!"
+        );
       } else {
         const errorData = await res.json();
         toast.error(errorData.error || "Failed to update Discord settings");
@@ -751,7 +795,9 @@ function SettingsPageContent() {
         setSettings(updated);
         setDiscordMutedUntil(updated.discord_muted_until);
         setIsDirty(false);
-        toast.success("Discord notifications muted for " + muteDuration + " " + dayLabel);
+        toast.success(
+          "Discord notifications muted for " + muteDuration + " " + dayLabel
+        );
       } else {
         const err = await res.json();
         toast.error(err.error || "Failed to mute notifications");
@@ -803,17 +849,20 @@ function SettingsPageContent() {
       return;
     }
 
-    navigator.clipboard.writeText(profileUrl).then(() => {
-      setCopied(true);
-      toast.success("Link copied successfully!");
-      copyResetTimerRef.current = window.setTimeout(() => {
-        setCopied(false);
-        copyResetTimerRef.current = null;
-      }, 2000);
-    }).catch((err) => {
-      console.error("Clipboard copy failed:", err);
-      toast.error("Failed to copy profile URL");
-    });
+    navigator.clipboard
+      .writeText(profileUrl)
+      .then(() => {
+        setCopied(true);
+        toast.success("Link copied successfully!");
+        copyResetTimerRef.current = window.setTimeout(() => {
+          setCopied(false);
+          copyResetTimerRef.current = null;
+        }, 2000);
+      })
+      .catch((err) => {
+        console.error("Clipboard copy failed:", err);
+        toast.error("Failed to copy profile URL");
+      });
   };
 
   const handleRemoveAccount = async (githubId: string) => {
@@ -880,8 +929,14 @@ function SettingsPageContent() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <Link href="/dashboard">
-            <button aria-label="Back to Dashboard" className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--accent)] md:bg-[var(--accent)] md:text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95 md:h-auto md:w-auto md:rounded-lg md:px-4 md:py-2">
-              <span aria-hidden="true" className="text-lg items-center transition-transform duration-200 group-hover:-translate-x-1.5">
+            <button
+              aria-label="Back to Dashboard"
+              className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--accent)] md:bg-[var(--accent)] md:text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95 md:h-auto md:w-auto md:rounded-lg md:px-4 md:py-2"
+            >
+              <span
+                aria-hidden="true"
+                className="text-lg items-center transition-transform duration-200 group-hover:-translate-x-1.5"
+              >
                 ←
               </span>
               <span className="ml-2 hidden text-sm font-medium md:inline">
@@ -901,10 +956,11 @@ function SettingsPageContent() {
 
         {statusMessage && (
           <div
-            className={`mb-6 rounded-xl border p-4 text-sm ${statusMessage.kind === "success"
-              ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
-              : "border-[var(--error)]/30 bg-[var(--error)]/10 text-[var(--error)]"
-              }`}
+            className={`mb-6 rounded-xl border p-4 text-sm ${
+              statusMessage.kind === "success"
+                ? "border-success/30 bg-success/10 text-[var(--success)]"
+                : "border-destructive/30 bg-destructive/10 text-[var(--error)]"
+            }`}
           >
             {statusMessage.message}
           </div>
@@ -923,7 +979,8 @@ function SettingsPageContent() {
             </div>
 
             {/* Toggle Switch */}
-            <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle setting</span>
+            <label className="flex items-center cursor-pointer select-none">
+              <span className="sr-only">Toggle setting</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -934,14 +991,16 @@ function SettingsPageContent() {
                   className="sr-only"
                 />
                 <div
-                  className={`block w-10 h-6 rounded-full transition-colors ${settings.is_public
-                    ? "bg-[var(--accent)]"
-                    : "bg-[var(--control)]"
-                    }`}
+                  className={`block w-10 h-6 rounded-full transition-colors ${
+                    settings.is_public
+                      ? "bg-[var(--accent)]"
+                      : "bg-[var(--control)]"
+                  }`}
                 />
                 <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.is_public ? "translate-x-4" : ""
-                    }`}
+                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                    settings.is_public ? "translate-x-4" : ""
+                  }`}
                 />
               </div>
             </label>
@@ -958,7 +1017,12 @@ function SettingsPageContent() {
               </Badge>
               {settings.public_since && (
                 <p className="text-xs text-[var(--muted-foreground)] sm:text-right">
-                  Public since {new Date(settings.public_since).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  Public since{" "}
+                  {new Date(settings.public_since).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               )}
             </div>
@@ -982,7 +1046,8 @@ function SettingsPageContent() {
             </div>
             {!settings.is_public && (
               <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                Your profile is currently private. Enable Public Profile to allow others to view this link.
+                Your profile is currently private. Enable Public Profile to
+                allow others to view this link.
               </p>
             )}
           </div>
@@ -996,10 +1061,12 @@ function SettingsPageContent() {
                     Weekly Goal Progress
                   </h3>
                   <p className="text-sm text-[var(--muted-foreground)] mt-1">
-                    Show your weekly goal completion rate on your public profile.
+                    Show your weekly goal completion rate on your public
+                    profile.
                   </p>
                 </div>
-                <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle weekly goal visibility</span>
+                <label className="flex items-center cursor-pointer select-none">
+                  <span className="sr-only">Toggle weekly goal visibility</span>
                   <div className="relative">
                     <input
                       type="checkbox"
@@ -1019,7 +1086,10 @@ function SettingsPageContent() {
                             setSettings(updated);
                           }
                         } catch (error) {
-                          console.error("Failed to update weekly goals setting:", error);
+                          console.error(
+                            "Failed to update weekly goals setting:",
+                            error
+                          );
                         } finally {
                           setSaving(false);
                         }
@@ -1028,14 +1098,16 @@ function SettingsPageContent() {
                       className="sr-only"
                     />
                     <div
-                      className={`block w-10 h-6 rounded-full transition-colors ${settings.show_weekly_goals
-                        ? "bg-[var(--accent)]"
-                        : "bg-[var(--control)]"
-                        }`}
+                      className={`block w-10 h-6 rounded-full transition-colors ${
+                        settings.show_weekly_goals
+                          ? "bg-[var(--accent)]"
+                          : "bg-[var(--control)]"
+                      }`}
                     />
                     <div
-                      className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.show_weekly_goals ? "translate-x-4" : ""
-                        }`}
+                      className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                        settings.show_weekly_goals ? "translate-x-4" : ""
+                      }`}
                     />
                   </div>
                 </label>
@@ -1058,17 +1130,23 @@ function SettingsPageContent() {
                 {WIDGET_OPTIONS.map(({ key, label, description }) => (
                   <label
                     key={key}
-                    className="flex items-start gap-3 cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 transition-colors hover:bg-[var(--control)]/80"
+                    className="flex items-start gap-3 cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 transition-colors hover:bg-control/80"
                   >
                     <input
                       type="checkbox"
                       checked={publicWidgets.includes(key)}
-                      onChange={(e) => handleToggleWidget(key, e.target.checked)}
+                      onChange={(e) =>
+                        handleToggleWidget(key, e.target.checked)
+                      }
                       className="mt-0.5 accent-[var(--accent)]"
                     />
                     <div>
-                      <div className="text-sm font-medium text-[var(--card-foreground)]">{label}</div>
-                      <div className="text-xs text-[var(--muted-foreground)]">{description}</div>
+                      <div className="text-sm font-medium text-[var(--card-foreground)]">
+                        {label}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {description}
+                      </div>
                     </div>
                   </label>
                 ))}
@@ -1115,18 +1193,18 @@ function SettingsPageContent() {
               placeholder="Write a short bio with **bold**, _italic_, `code`, or links."
               className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
             />
-<div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--control)]">
-  <div
-    className={`h-full transition-all ${
-      bioDraft.length >= 490
-        ? "bg-red-500"
-        : bioDraft.length >= 450
-        ? "bg-yellow-500"
-        : "bg-[var(--accent)]"
-    }`}
-    style={{ width: `${(bioDraft.length / 500) * 100}%` }}
-  />
-</div>
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--control)]">
+              <div
+                className={`h-full transition-all ${
+                  bioDraft.length >= 490
+                    ? "bg-red-500"
+                    : bioDraft.length >= 450
+                      ? "bg-yellow-500"
+                      : "bg-[var(--accent)]"
+                }`}
+                style={{ width: `${(bioDraft.length / 500) * 100}%` }}
+              />
+            </div>
             {showBioPreview && (
               <div className="mt-3 min-h-[128px] rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-[var(--card-foreground)]">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
@@ -1144,10 +1222,11 @@ function SettingsPageContent() {
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
               <span
-                className={`text-xs ${bioDraft.length > 500
-                  ? "text-[var(--error)]"
-                  : "text-[var(--muted-foreground)]"
-                  }`}
+                className={`text-xs ${
+                  bioDraft.length > 500
+                    ? "text-[var(--error)]"
+                    : "text-[var(--muted-foreground)]"
+                }`}
               >
                 {bioDraft.length}/500 characters
               </span>
@@ -1267,7 +1346,9 @@ function SettingsPageContent() {
                 id="preferred-locale"
                 value={preferredLocale}
                 disabled={savingLanguage}
-                onChange={(event) => handleSaveLanguage(event.target.value as AppLocale)}
+                onChange={(event) =>
+                  handleSaveLanguage(event.target.value as AppLocale)
+                }
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:opacity-60"
               >
                 {locales.map((locale) => (
@@ -1297,7 +1378,8 @@ function SettingsPageContent() {
               </p>
             </div>
 
-            <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle setting</span>
+            <label className="flex items-center cursor-pointer select-none">
+              <span className="sr-only">Toggle setting</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -1308,14 +1390,16 @@ function SettingsPageContent() {
                   className="sr-only"
                 />
                 <div
-                  className={`block h-6 w-10 rounded-full transition-colors ${settings.leaderboard_opt_in
-                    ? "bg-[var(--accent)]"
-                    : "bg-[var(--control)]"
-                    }`}
+                  className={`block h-6 w-10 rounded-full transition-colors ${
+                    settings.leaderboard_opt_in
+                      ? "bg-[var(--accent)]"
+                      : "bg-[var(--control)]"
+                  }`}
                 />
                 <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.leaderboard_opt_in ? "translate-x-4" : ""
-                    }`}
+                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                    settings.leaderboard_opt_in ? "translate-x-4" : ""
+                  }`}
                 />
               </div>
             </label>
@@ -1326,7 +1410,6 @@ function SettingsPageContent() {
               Turning this on also enables your public profile so leaderboard
               rows can link to your DevTrack stats.
             </p>
-
           </div>
         </div>
 
@@ -1336,7 +1419,8 @@ function SettingsPageContent() {
             Repository Spotlight 🚀
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)] mb-6">
-            Pin up to 3 repositories to showcase on your dashboard and public profile.
+            Pin up to 3 repositories to showcase on your dashboard and public
+            profile.
           </p>
 
           {/* Currently Pinned */}
@@ -1346,7 +1430,8 @@ function SettingsPageContent() {
             </h3>
             {(settings.pinned_repos || []).length === 0 ? (
               <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)] text-center">
-                No repositories pinned yet. Use the search below to spotlight your best projects!
+                No repositories pinned yet. Use the search below to spotlight
+                your best projects!
               </div>
             ) : (
               <div className="space-y-3">
@@ -1376,7 +1461,10 @@ function SettingsPageContent() {
                       <button
                         type="button"
                         onClick={() => handleMovePin(index, "down")}
-                        disabled={index === (settings.pinned_repos || []).length - 1 || saving}
+                        disabled={
+                          index === (settings.pinned_repos || []).length - 1 ||
+                          saving
+                        }
                         title="Move Down"
                         aria-label={`Move ${repoName} down`}
                         className="p-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--control-hover)] text-[var(--card-foreground)] disabled:opacity-40 disabled:cursor-not-allowed"
@@ -1403,7 +1491,7 @@ function SettingsPageContent() {
 
           {/* Pin New Repos (Search) */}
           {(settings.pinned_repos || []).length < 3 && (
-            <div className="border-t border-[var(--border)]/60 pt-6">
+            <div className="border-t border-border/60 pt-6">
               <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
                 Search & Pin Repositories
               </h3>
@@ -1427,13 +1515,15 @@ function SettingsPageContent() {
                     .filter(
                       (repoName) =>
                         !(settings.pinned_repos || []).includes(repoName) &&
-                        repoName.toLowerCase().includes(repoSearchQuery.toLowerCase())
+                        repoName
+                          .toLowerCase()
+                          .includes(repoSearchQuery.toLowerCase())
                     )
                     .slice(0, 5)
                     .map((repoName) => (
                       <div
                         key={repoName}
-                        className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)]/40 hover:bg-[var(--control)] px-4 py-2 transition-colors"
+                        className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-control/40 hover:bg-[var(--control)] px-4 py-2 transition-colors"
                       >
                         <span className="text-xs font-medium text-[var(--card-foreground)] truncate">
                           {repoName}
@@ -1452,12 +1542,14 @@ function SettingsPageContent() {
                   {userRepos.filter(
                     (repoName) =>
                       !(settings.pinned_repos || []).includes(repoName) &&
-                      repoName.toLowerCase().includes(repoSearchQuery.toLowerCase())
+                      repoName
+                        .toLowerCase()
+                        .includes(repoSearchQuery.toLowerCase())
                   ).length === 0 && (
-                      <div className="text-center py-4 text-xs text-[var(--muted-foreground)]">
-                        No repositories available to pin.
-                      </div>
-                    )}
+                    <div className="text-center py-4 text-xs text-[var(--muted-foreground)]">
+                      No repositories available to pin.
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1475,7 +1567,8 @@ function SettingsPageContent() {
               </p>
             </div>
 
-            <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle setting</span>
+            <label className="flex items-center cursor-pointer select-none">
+              <span className="sr-only">Toggle setting</span>
               <div className="relative">
                 <input
                   type="checkbox"
@@ -1486,14 +1579,16 @@ function SettingsPageContent() {
                   className="sr-only"
                 />
                 <div
-                  className={`block h-6 w-10 rounded-full transition-colors ${settings.weekly_digest_opt_in
-                    ? "bg-[var(--accent)]"
-                    : "bg-[var(--control)]"
-                    }`}
+                  className={`block h-6 w-10 rounded-full transition-colors ${
+                    settings.weekly_digest_opt_in
+                      ? "bg-[var(--accent)]"
+                      : "bg-[var(--control)]"
+                  }`}
                 />
                 <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.weekly_digest_opt_in ? "translate-x-4" : ""
-                    }`}
+                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                    settings.weekly_digest_opt_in ? "translate-x-4" : ""
+                  }`}
                 />
               </div>
             </label>
@@ -1589,13 +1684,13 @@ function SettingsPageContent() {
           </div>
 
           {removeError && (
-            <div className="mt-4 rounded-lg border border-[var(--error)]/30 bg-[var(--error)]/10 p-3 text-sm text-[var(--error)]">
+            <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-[var(--error)]">
               {removeError}
             </div>
           )}
 
           {accountsError && (
-            <div className="mt-4 rounded-lg border border-[var(--error)]/30 bg-[var(--error)]/10 p-3 text-sm text-[var(--error)]">
+            <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-[var(--error)]">
               {accountsError}
             </div>
           )}
@@ -1603,9 +1698,25 @@ function SettingsPageContent() {
           <div className="mt-6">
             {accountsLoading ? (
               <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg
+                  className="animate-spin h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
                 {t("loadingLinkedAccounts")}
               </div>
@@ -1634,7 +1745,7 @@ function SettingsPageContent() {
                       onClick={() => handleRemoveAccount(account.githubId)}
                       aria-label={`Remove ${account.githubLogin}`}
                       disabled={removingAccountId === account.githubId}
-                      className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--error)]/10 hover:text-[var(--error)] disabled:opacity-60"
+                      className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-destructive/10 hover:text-[var(--error)] disabled:opacity-60"
                     >
                       {removingAccountId === account.githubId
                         ? "Removing..."
@@ -1654,7 +1765,8 @@ function SettingsPageContent() {
                 GitHub Organizations
               </h2>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Choose which organizations to include or exclude from your dashboard metrics.
+                Choose which organizations to include or exclude from your
+                dashboard metrics.
               </p>
             </div>
           </div>
@@ -1669,7 +1781,11 @@ function SettingsPageContent() {
               {orgAccounts.some((acc) => !acc.hasOrgScope) && (
                 <div className="rounded-lg border border-amber-300/30 bg-amber-500/10 p-4">
                   <p className="text-sm text-amber-200">
-                    <strong>Action Required:</strong> Organization access is not fully authorized. To display private organization contributions, please sign out and sign back in to grant organization permission (enable the &quot;read:org&quot; scope when prompted).
+                    <strong>Action Required:</strong> Organization access is not
+                    fully authorized. To display private organization
+                    contributions, please sign out and sign back in to grant
+                    organization permission (enable the &quot;read:org&quot;
+                    scope when prompted).
                   </p>
                 </div>
               )}
@@ -1711,17 +1827,26 @@ function SettingsPageContent() {
                                 </span>
                               </div>
                               <label className="flex items-center cursor-pointer select-none">
-                                <span className="sr-only">Toggle {org.login}</span>
+                                <span className="sr-only">
+                                  Toggle {org.login}
+                                </span>
                                 <div className="relative">
                                   <input
                                     type="checkbox"
                                     checked={isEnabled}
-                                    onChange={(e) => handleToggleOrg(org.login, e.target.checked)}
+                                    onChange={(e) =>
+                                      handleToggleOrg(
+                                        org.login,
+                                        e.target.checked
+                                      )
+                                    }
                                     className="sr-only"
                                   />
                                   <div
                                     className={`block h-6 w-10 rounded-full transition-colors ${
-                                      isEnabled ? "bg-[var(--accent)]" : "bg-[var(--control)]"
+                                      isEnabled
+                                        ? "bg-[var(--accent)]"
+                                        : "bg-[var(--control)]"
                                     }`}
                                   />
                                   <div
@@ -1757,7 +1882,10 @@ function SettingsPageContent() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="wakatime-key" className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+              <label
+                htmlFor="wakatime-key"
+                className="block text-sm font-medium text-[var(--card-foreground)] mb-1"
+              >
                 {t("apiKey")}
               </label>
               <div className="flex gap-2">
@@ -1769,7 +1897,11 @@ function SettingsPageContent() {
                     setWakatimeKey(e.target.value);
                     setIsDirty(true);
                   }}
-                  placeholder={settings.has_wakatime_key ? "•••••••••••••••• (Configured)" : "Enter your Wakatime API key"}
+                  placeholder={
+                    settings.has_wakatime_key
+                      ? "•••••••••••••••• (Configured)"
+                      : "Enter your Wakatime API key"
+                  }
                   autoComplete="new-password"
                   className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                 />
@@ -1783,7 +1915,9 @@ function SettingsPageContent() {
                 </button>
               </div>
               <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {settings.has_wakatime_key ? "Leave blank and click Save to remove your key." : "You can find your API key in your Wakatime Settings."}
+                {settings.has_wakatime_key
+                  ? "Leave blank and click Save to remove your key."
+                  : "You can find your API key in your Wakatime Settings."}
               </p>
             </div>
           </div>
@@ -1803,7 +1937,10 @@ function SettingsPageContent() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="discord-webhook" className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+              <label
+                htmlFor="discord-webhook"
+                className="block text-sm font-medium text-[var(--card-foreground)] mb-1"
+              >
                 {t("webhookUrl")}
               </label>
               <div className="flex gap-2">
@@ -1822,7 +1959,10 @@ function SettingsPageContent() {
             </div>
 
             <div>
-              <label htmlFor="timezone-select" className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
+              <label
+                htmlFor="timezone-select"
+                className="block text-sm font-medium text-[var(--card-foreground)] mb-1"
+              >
                 {t("timezoneLabel")}
               </label>
               <select
@@ -1840,14 +1980,20 @@ function SettingsPageContent() {
                 <option value="America/Denver">Mountain Time (MT)</option>
                 <option value="America/Los_Angeles">Pacific Time (PT)</option>
                 <option value="Europe/London">London (GMT/BST)</option>
-                <option value="Europe/Paris">Central European Time (CET)</option>
+                <option value="Europe/Paris">
+                  Central European Time (CET)
+                </option>
                 <option value="Asia/Kolkata">India Standard Time (IST)</option>
                 <option value="Asia/Tokyo">Japan Standard Time (JST)</option>
-                <option value="Australia/Sydney">Australian Eastern Time (AET)</option>
+                <option value="Australia/Sydney">
+                  Australian Eastern Time (AET)
+                </option>
                 {/* Additional common timezones */}
                 <option value="America/Sao_Paulo">Brasilia Time (BRT)</option>
                 <option value="Asia/Dubai">Gulf Standard Time (GST)</option>
-                <option value="Asia/Singapore">Singapore Standard Time (SGT)</option>
+                <option value="Asia/Singapore">
+                  Singapore Standard Time (SGT)
+                </option>
               </select>
             </div>
 
@@ -1874,11 +2020,12 @@ function SettingsPageContent() {
             </p>
 
             {discordWebhook && (
-              <div className="border-t border-[var(--border)]/60 pt-4 mt-4">
+              <div className="border-t border-border/60 pt-4 mt-4">
                 <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
                   {t("muteNotifications")}
                 </h3>
-                {discordMutedUntil && new Date(discordMutedUntil).getTime() > Date.now() ? (
+                {discordMutedUntil &&
+                new Date(discordMutedUntil).getTime() > Date.now() ? (
                   <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4">
                     <p className="text-sm text-[var(--card-foreground)] mb-3">
                       Muted until{" "}
@@ -1915,7 +2062,9 @@ function SettingsPageContent() {
                       disabled={savingDiscord}
                       className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
                     >
-                      {savingDiscord ? common("saving") : t("muteNotifications")}
+                      {savingDiscord
+                        ? common("saving")
+                        : t("muteNotifications")}
                     </button>
                   </div>
                 )}
@@ -1927,7 +2076,10 @@ function SettingsPageContent() {
         <PrivacySettings />
         <div className="mt-4 flex justify-center items-center pt-6">
           <Link href="/dashboard">
-            <button aria-label="Back to Dashboard" className="group inline-flex items-center justify-center rounded-lg border border-[var(--accent)] bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95">
+            <button
+              aria-label="Back to Dashboard"
+              className="group inline-flex items-center justify-center rounded-lg border border-[var(--accent)] bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95"
+            >
               <span className="mr-2 transition-transform duration-200 group-hover:-translate-x-1.5">
                 ←
               </span>

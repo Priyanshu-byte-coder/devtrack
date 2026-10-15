@@ -48,7 +48,11 @@ function CircularProgress({
 
   return (
     <div className="relative flex h-32 w-32 items-center justify-center">
-      <svg className="h-32 w-32 -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+      <svg
+        className="h-32 w-32 -rotate-90"
+        viewBox="0 0 120 120"
+        aria-hidden="true"
+      >
         <circle
           cx="60"
           cy="60"
@@ -71,7 +75,9 @@ function CircularProgress({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-[var(--card-foreground)]">{score}</span>
+        <span className="text-3xl font-bold text-[var(--card-foreground)]">
+          {score}
+        </span>
         <span className="text-xs text-[var(--muted-foreground)]">/ 100</span>
       </div>
     </div>
@@ -86,16 +92,25 @@ function ConsistencyScoreSkeleton() {
       aria-label="Loading consistency score"
       className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full"
     >
-      <div className="h-6 w-40 bg-[var(--card-muted)] rounded mb-6 animate-pulse" aria-hidden="true" />
+      <div
+        className="h-6 w-40 bg-[var(--card-muted)] rounded mb-6 animate-pulse"
+        aria-hidden="true"
+      />
       <div className="flex justify-center mb-6" aria-hidden="true">
         <div className="h-32 w-32 rounded-full bg-[var(--card-muted)] animate-pulse" />
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6" aria-hidden="true">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-20 bg-[var(--card-muted)] rounded-lg animate-pulse" />
+          <div
+            key={i}
+            className="h-20 bg-[var(--card-muted)] rounded-lg animate-pulse"
+          />
         ))}
       </div>
-      <div className="h-40 w-full bg-[var(--card-muted)] rounded-lg animate-pulse" aria-hidden="true" />
+      <div
+        className="h-40 w-full bg-[var(--card-muted)] rounded-lg animate-pulse"
+        aria-hidden="true"
+      />
     </div>
   );
 }
@@ -125,7 +140,9 @@ export default function ConsistencyScoreWidget() {
       setData(json);
     } catch (err) {
       console.error("Failed to fetch consistency score:", err);
-      setError("We couldn't load your consistency score right now. Please try again in a moment.");
+      setError(
+        "We couldn't load your consistency score right now. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }
@@ -151,12 +168,12 @@ export default function ConsistencyScoreWidget() {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
         <SectionHeader title="Consistency Score" />
-        <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
             type="button"
             onClick={fetchScore}
-            className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
             Try again
           </button>
@@ -222,16 +239,27 @@ export default function ConsistencyScoreWidget() {
             key={stat.label}
             className="rounded-lg bg-[var(--control)] p-4 text-center"
           >
-            <div className="text-lg font-bold text-[var(--accent)]">{stat.value}</div>
-            <div className="mt-1 text-xs text-[var(--muted-foreground)]">{stat.label}</div>
+            <div className="text-lg font-bold text-[var(--accent)]">
+              {stat.value}
+            </div>
+            <div className="mt-1 text-xs text-[var(--muted-foreground)]">
+              {stat.label}
+            </div>
           </div>
         ))}
       </div>
 
       <div className="mb-4 h-44 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data.monthlyTrend} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+          <BarChart
+            data={data.monthlyTrend}
+            margin={{ top: 4, right: 4, left: -16, bottom: 0 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="var(--border)"
+              vertical={false}
+            />
             <XAxis
               dataKey="month"
               tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
@@ -254,7 +282,11 @@ export default function ConsistencyScoreWidget() {
               }}
               formatter={(value: number) => [`${value} days`, "Active Days"]}
             />
-            <Bar dataKey="activeDays" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey="activeDays"
+              fill="var(--accent)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
