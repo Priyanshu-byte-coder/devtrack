@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 //    Changed from 2s to 60s per connection — 30x cheaper.
 //    For 500 concurrent users: ~8 queries/sec instead of ~500 queries/sec.
 //
-// 3. Maximum connection duration (MAX_CONNECTION_DURATION_MS = 5 min)
+// 3. Maximum connection duration (MAX_CONNECTION_DURATION_MS = 4 min)
 //    Stale connections are forcibly closed even if the client never sends
 //    an abort signal. EventSource reconnects automatically.
 //
@@ -41,7 +41,9 @@ const MAX_CONNECTIONS_PER_USER = 4;
 const POLL_INTERVAL_MS = 60_000;
 
 // Maximum lifetime for any single SSE connection (5 minutes).
-const MAX_CONNECTION_DURATION_MS = 5 * 60 * 1000;
+// Below the 300s function limit, so the stream ends cleanly before the
+// platform kills it (which logged a timeout error for every connection).
+const MAX_CONNECTION_DURATION_MS = 4 * 60 * 1000;
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -193,10 +195,7 @@ export async function GET(req: NextRequest) {
         checkData();
       }, POLL_INTERVAL_MS);
 
-      maxDurationTimeout = setTimeout(
-        closeStream,
-        MAX_CONNECTION_DURATION_MS
-      );
+      maxDurationTimeout = setTimeout(closeStream, MAX_CONNECTION_DURATION_MS);
 
       cleanupStream = closeStream;
       if (req.signal.aborted) {

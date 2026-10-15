@@ -1,4 +1,8 @@
-import { loadInsightMetrics, InsightMetricsUnavailableError } from "@/lib/insight-metrics";
+import {
+  loadInsightMetrics,
+  InsightMetricsUnavailableError,
+} from "@/lib/insight-metrics";
+import { groqChatCompletion } from "@/lib/groq";
 import { checkAiQuota } from "@/lib/ai-quota";
 import { toDatabaseJson } from "@/lib/database-json";
 import { NextResponse } from "next/server";
@@ -161,13 +165,34 @@ export async function GET(request: Request) {
   }
 
   let loaded: Awaited<ReturnType<typeof loadInsightMetrics>>;
-  try { loaded = await loadInsightMetrics(request); }
-  catch(error) {
-    const status=error instanceof InsightMetricsUnavailableError && error.response.status===429 ? 429 : 503;
-    const retryAfter=error instanceof InsightMetricsUnavailableError ? error.response.headers.get('retry-after') : null;
-    return NextResponse.json({error:'Complete metrics are unavailable; insights were not generated'}, {status, ...(retryAfter?{headers:{'Retry-After':retryAfter}}:{})});
+  try {
+    loaded = await loadInsightMetrics(request);
+  } catch (error) {
+    const status =
+      error instanceof InsightMetricsUnavailableError &&
+      error.response.status === 429
+        ? 429
+        : 503;
+    const retryAfter =
+      error instanceof InsightMetricsUnavailableError
+        ? error.response.headers.get("retry-after")
+        : null;
+    return NextResponse.json(
+      {
+        error: "Complete metrics are unavailable; insights were not generated",
+      },
+      {
+        status,
+        ...(retryAfter ? { headers: { "Retry-After": retryAfter } } : {}),
+      }
+    );
   }
-  const [contributionsRaw, prsRaw, streakRaw, reposRaw] = loaded as [ContributionsApiResponse, PRsApiResponse, StreakApiResponse, ReposApiResponse];
+  const [contributionsRaw, prsRaw, streakRaw, reposRaw] = loaded as [
+    ContributionsApiResponse,
+    PRsApiResponse,
+    StreakApiResponse,
+    ReposApiResponse,
+  ];
 
   const commitsByDay: Record<string, number> = contributionsRaw.data ?? {};
   const commitsArray = Object.entries(commitsByDay)
@@ -198,7 +223,8 @@ export async function GET(request: Request) {
   let aiSummary: string | null = null;
 
   if (type === "weekly_summary" && process.env.GROQ_API_KEY) {
-    const quota=await checkAiQuota(session.githubId);if(quota) return quota;
+    const quota = await checkAiQuota(session.githubId);
+    if (quota) return quota;
     try {
       const topRepoName = metrics.repos[0]?.name ?? "unknown";
       const totalCommits = metrics.commits.reduce((s, d) => s + d.count, 0);
@@ -218,21 +244,9 @@ export async function GET(request: Request) {
         trendLabel,
       });
 
-      const groqRes = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          method: "POST",
-          signal: AbortSignal.timeout(15_000),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            max_tokens: 300,
-            messages: [{ role: "user", content: prompt }],
-          }),
-        }
+      const groqRes = await groqChatCompletion(
+        { max_tokens: 300, messages: [{ role: "user", content: prompt }] },
+        { signal: AbortSignal.timeout(15_000) }
       );
 
       if (groqRes.ok) {
