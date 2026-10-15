@@ -1,5 +1,5 @@
 import { extractValidRepoFromGoal } from "@/lib/goals-sync-utils";
-import { collectGitHubSearch } from "@/lib/github-search";
+import { collectAuthorCommits, scopeCommits } from "@/lib/github-search";
 import { githubRequest } from "@/lib/github-request";
 import {
   githubRateLimitResponse,
@@ -130,8 +130,6 @@ async function fetchContributionsForAccount(
   excludedOrgs: string[] = [],
   toDate?: string
 ): Promise<ContributionResponse> {
-  const repoFilter = repo ? ` repo:${repo}` : "";
-
   const key = metricsCacheKey(cacheContext.userId, "contributions", {
     days,
     githubLogin,
@@ -158,21 +156,31 @@ async function fetchContributionsForAccount(
       const commitItems: CommitItem[] = [];
       let totalCount = 0;
 
-      let q = `author:${githubLogin} author-date:${toDate ? `${sinceStr}..${toDate}` : `>=${sinceStr}`}${repoFilter}`;
-      if (orgName) {
-        q += ` org:${orgName}`;
-      } else if (excludedOrgs.length > 0) {
-        q += excludedOrgs.map((org) => ` -org:${org}`).join("");
-      }
-
-      const search = await collectGitHubSearch<GitHubCommitSearchItem>('commits',q,token);
+      // Every view is a slice of the shared commit timeline, so filters cost no searches.
+      const search = await collectAuthorCommits<GitHubCommitSearchItem>(
+        githubLogin,
+        sinceStr,
+        token,
+        { fresh: cacheContext.bypass }
+      );
+      search.items = scopeCommits(search.items, {
+        repo,
+        org: orgName,
+        excludedOrgs: orgName ? [] : excludedOrgs,
+        until: toDate,
+      });
+      search.total = search.items.length;
       allItems = search.items;
       totalCount = search.total;
 
       const commitsByDay: Record<string, number> = {};
-      const timeBlocks: TimeBlocks = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+      const timeBlocks: TimeBlocks = {
+        morning: 0,
+        afternoon: 0,
+        evening: 0,
+        night: 0,
+      };
       for (const item of allItems) {
-
         const date = getDateInTimezone(item.commit.author.date, timezone);
         commitsByDay[date] = (commitsByDay[date] ?? 0) + 1;
         commitItems.push({
@@ -190,7 +198,16 @@ async function fetchContributionsForAccount(
         else timeBlocks.night++;
       }
 
-      return { days, total: totalCount, data: commitsByDay, commits: commitItems, timeBlocks, complete: search.complete, sampledCommits: search.items.length, partialReason: search.partialReason };
+      return {
+        days,
+        total: totalCount,
+        data: commitsByDay,
+        commits: commitItems,
+        timeBlocks,
+        complete: search.complete,
+        sampledCommits: search.items.length,
+        partialReason: search.partialReason,
+      };
     }
   );
 }
@@ -324,25 +341,44 @@ export async function GET(req: NextRequest) {
   if (fromParam && toParam) {
     fromDate = fromParam;
     const msPerDay = 1000 * 60 * 60 * 24;
-    days = Math.ceil(
-      (new Date(toParam).getTime() - new Date(fromParam).getTime()) / msPerDay
-    ) + 1;
+    days =
+      Math.ceil(
+        (new Date(toParam).getTime() - new Date(fromParam).getTime()) / msPerDay
+      ) + 1;
   } else {
     const daysParam = req.nextUrl.searchParams.get("days");
     const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
-    days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+    days = Number.isNaN(parsedDays)
+      ? 30
+      : Math.max(1, Math.min(365, parsedDays));
   }
 
-  try { new Intl.DateTimeFormat('en', {timeZone:timezone}).format(); }
-  catch { return Response.json({error:'Invalid timezone'}, {status:400}); }
-  if (!Number.isFinite(days) || days < 1 || days > 365 || (fromParam && !/^\d{4}-\d{2}-\d{2}$/.test(fromParam)) || (toParam && !/^\d{4}-\d{2}-\d{2}$/.test(toParam)) || Boolean(fromParam)!==Boolean(toParam)) {
-    return Response.json({error:'Invalid date range'}, {status:400});
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: timezone }).format();
+  } catch {
+    return Response.json({ error: "Invalid timezone" }, { status: 400 });
   }
-  if(repoParam && !extractValidRepoFromGoal({id:'',unit:'commits',repo:repoParam})) return Response.json({error:'Invalid repository'},{status:400});
+  if (
+    !Number.isFinite(days) ||
+    days < 1 ||
+    days > 365 ||
+    (fromParam && !/^\d{4}-\d{2}-\d{2}$/.test(fromParam)) ||
+    (toParam && !/^\d{4}-\d{2}-\d{2}$/.test(toParam)) ||
+    Boolean(fromParam) !== Boolean(toParam)
+  ) {
+    return Response.json({ error: "Invalid date range" }, { status: 400 });
+  }
+  if (
+    repoParam &&
+    !extractValidRepoFromGoal({ id: "", unit: "commits", repo: repoParam })
+  )
+    return Response.json({ error: "Invalid repository" }, { status: 400 });
 
   const accountId = req.nextUrl.searchParams.get("accountId");
   const usernameParam = req.nextUrl.searchParams.get("username");
-  const username = usernameParam ? normalizeGitHubUsername(usernameParam) : null;
+  const username = usernameParam
+    ? normalizeGitHubUsername(usernameParam)
+    : null;
   const bypass = isMetricsCacheBypassed(req);
   const gitlabToken =
     typeof session.gitlabToken === "string" ? session.gitlabToken : undefined;
@@ -360,7 +396,10 @@ export async function GET(req: NextRequest) {
     targetAccountId = parts[1];
     orgName = parts[2];
     if (!targetAccountId || !orgName) {
-      return Response.json({ error: "Invalid organization account ID" }, { status: 400 });
+      return Response.json(
+        { error: "Invalid organization account ID" },
+        { status: 400 }
+      );
     }
   }
 
@@ -374,7 +413,10 @@ export async function GET(req: NextRequest) {
         .eq("github_id", session.githubId)
         .single();
 
-      const orgsConfig = (dbUser?.organizations_config || {}) as Record<string, boolean>;
+      const orgsConfig = (dbUser?.organizations_config || {}) as Record<
+        string,
+        boolean
+      >;
       excludedOrgs = Object.entries(orgsConfig)
         .filter(([_, enabled]) => enabled === false)
         .map(([org]) => org);
@@ -402,9 +444,9 @@ export async function GET(req: NextRequest) {
         toParam ?? undefined
       );
       return Response.json(result);
-  } catch (error) {
-    return githubApiErrorResponse(error);
-  }
+    } catch (error) {
+      return githubApiErrorResponse(error);
+    }
   }
 
   if (!targetAccountId) {
@@ -469,26 +511,27 @@ export async function GET(req: NextRequest) {
           repoParam,
           orgName,
           excludedOrgs,
-        toParam ?? undefined
+          toParam ?? undefined
         )
       )
     );
 
-
     const rateLimitedResult = results.find(
-  (result): result is PromiseRejectedResult =>
-    result.status === "rejected" &&
-    githubRateLimitResponse(result.reason) !== null
-);
+      (result): result is PromiseRejectedResult =>
+        result.status === "rejected" &&
+        githubRateLimitResponse(result.reason) !== null
+    );
 
-if (rateLimitedResult) {
-  return githubApiErrorResponse(rateLimitedResult.reason);
-}
+    if (rateLimitedResult) {
+      return githubApiErrorResponse(rateLimitedResult.reason);
+    }
 
     const merged = mergeMetrics(results, (a, b) => ({
       days: a.days,
       complete: a.complete !== false && b.complete !== false,
-      sampledCommits: (a.sampledCommits ?? a.commits.length) + (b.sampledCommits ?? b.commits.length),
+      sampledCommits:
+        (a.sampledCommits ?? a.commits.length) +
+        (b.sampledCommits ?? b.commits.length),
       partialReason: a.partialReason ?? b.partialReason,
       total: a.total + b.total,
       data: mergeContributionDays(a.data, b.data),

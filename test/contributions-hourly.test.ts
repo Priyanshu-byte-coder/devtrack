@@ -10,7 +10,9 @@ const mocks = vi.hoisted(() => ({
   fetch: vi.fn(),
 }));
 
-vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({
+  getServerSession: mocks.getServerSession,
+}));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/metrics-cache", () => ({
   isMetricsCacheBypassed: mocks.isMetricsCacheBypassed,
@@ -44,7 +46,7 @@ describe("GET /api/metrics/contributions/hourly — days validation", () => {
     mocks.withMetricsCache.mockImplementation(async (_opts, fn) => fn());
     mocks.fetch.mockResolvedValue({
       ok: true,
-      json: async () => ({ items: [] }),
+      json: async () => ({ items: [], total_count: 0 }),
     });
   });
 
@@ -73,7 +75,9 @@ describe("GET /api/metrics/contributions/hourly — days validation", () => {
     const res = await GET(makeRequest("Infinity"));
 
     expect(res.status).toBe(200);
-    const fetchUrl = String(mocks.fetch.mock.calls[0]?.[0] ?? "");
+    const fetchUrl = decodeURIComponent(
+      String(mocks.fetch.mock.calls[0]?.[0] ?? "")
+    );
     const match = fetchUrl.match(/author-date:>=(\d{4}-\d{2}-\d{2})/);
     expect(match).not.toBeNull();
     expect(new Date(match![1]).toString()).not.toBe("Invalid Date");

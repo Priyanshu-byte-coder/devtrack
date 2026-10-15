@@ -67,22 +67,47 @@ describe("GitHub transport coordination", () => {
     });
     expect(fetch).toHaveBeenCalledTimes(3);
   });
-  it("serializes independent URLs using one credential", async () => {
-    let active = 0,
-      maximum = 0;
-    vi.mocked(fetch).mockImplementation(async () => {
-      active++;
-      maximum = Math.max(maximum, active);
+  it("bounds concurrency per credential and resource", async () => {
+    const active = { core: 0, search: 0 };
+    const maximum = { core: 0, search: 0 };
+    vi.mocked(fetch).mockImplementation(async (input) => {
+      const kind = String(input).includes("/search/") ? "search" : "core";
+      active[kind]++;
+      maximum[kind] = Math.max(maximum[kind], active[kind]);
       await new Promise((resolve) => setTimeout(resolve, 5));
-      active--;
-      return json({});
+      active[kind]--;
+      return json({ items: [], total_count: 0 });
     });
-    await Promise.all(
-      ["/user", "/user/repos", "/user/orgs"].map((path) =>
-        githubRequest("https://api.github.com" + path, { headers: token() })
-      )
+    await Promise.all([
+      ...Array.from({ length: 8 }, (_, i) =>
+        githubRequest(`https://api.github.com/repos/o/r${i}`, {
+          headers: token(),
+        })
+      ),
+      ...Array.from({ length: 3 }, (_, i) =>
+        githubRequest(`https://api.github.com/search/commits?q=x&page=${i}`, {
+          headers: token(),
+        })
+      ),
+    ]);
+    expect(maximum).toEqual({ core: 4, search: 1 });
+  });
+  it("serves search from cache for minutes but revalidates when asked", async () => {
+    vi.mocked(fetch).mockImplementation(async () =>
+      json({ items: [] }, { etag: '"s"' })
     );
-    expect(maximum).toBe(1);
+    const url = "https://api.github.com/search/commits?q=author:a";
+    await githubRequest(url, { headers: token() });
+    for (const value of cache.values())
+      if (value && typeof value === "object" && "savedAt" in value)
+        (value as { savedAt: number }).savedAt -= 120_000;
+    await githubRequest(url, { headers: token() });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await githubRequest(url, { headers: token(), cache: "no-cache" });
+    expect(fetch).toHaveBeenCalledTimes(2);
+    // Sibling widgets refreshing in the same burst share that revalidation.
+    await githubRequest(url, { headers: token(), cache: "no-cache" });
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
   it("conditionally refreshes stale responses with ETag", async () => {
     vi.mocked(fetch)
@@ -130,6 +155,26 @@ describe("GitHub transport coordination", () => {
       headers: token("other"),
     });
     expect(fetch).toHaveBeenCalledTimes(3);
+  });
+  it("treats a 429 with remaining=0 as primary and keeps other resources open", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response('{"message":"API rate limit exceeded"}', {
+          status: 429,
+          headers: {
+            "x-ratelimit-remaining": "0",
+            "x-ratelimit-reset": String(Math.ceil(Date.now() / 1000) + 40),
+          },
+        })
+      )
+      .mockImplementation(async () => json({}));
+    await expect(
+      githubRequest("https://api.github.com/search/commits?q=x", {
+        headers: token(),
+      })
+    ).rejects.toBeInstanceOf(GitHubRateLimitError);
+    await githubRequest("https://api.github.com/user", { headers: token() });
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
   it("applies secondary cooldowns to all resources and propagates Retry-After", async () => {
     vi.mocked(fetch).mockResolvedValue(
@@ -253,7 +298,7 @@ it("rejects redirects to another host without forwarding credentials", async () 
   expect(fetch).toHaveBeenCalledTimes(1);
 });
 
-it("keeps an active predecessor serialized after a queued caller times out", async () => {
+it("keeps a full slot held after a queued caller times out", async () => {
   const originalTimer = globalThis.setTimeout;
   const timerSpy = vi
     .spyOn(globalThis, "setTimeout")
@@ -276,18 +321,20 @@ it("keeps an active predecessor serialized after a queued caller times out", asy
         })
     )
     .mockImplementation(async () => json({}));
-  const active = githubRequest("https://api.github.com/user", {
+  const active = githubRequest("https://api.github.com/search/commits?q=a", {
     headers: token(),
   });
   for (let i = 0; i < 100 && !complete; i++)
     await new Promise((resolve) => originalTimer(resolve, 1));
   expect(complete).toBeDefined();
-  const queued = githubRequest("https://api.github.com/user/repos", {
+  const queued = githubRequest("https://api.github.com/search/commits?q=b", {
     headers: token(),
   }).catch((error) => error);
   expect(await queued).toBeInstanceOf(Error);
   await expect(
-    githubRequest("https://api.github.com/user/orgs", { headers: token() })
+    githubRequest("https://api.github.com/search/commits?q=c", {
+      headers: token(),
+    })
   ).rejects.toThrow("queue timed out");
   expect(fetch).toHaveBeenCalledTimes(1);
   complete(json({ login: "alice" }));
