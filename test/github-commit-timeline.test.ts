@@ -8,6 +8,7 @@ vi.mock("@/lib/github-request", () => ({
 import {
   collectAuthorCommits,
   resetCommitTimelines,
+  scopeCommits,
 } from "@/lib/github-search";
 
 const daysAgo = (n: number) =>
@@ -122,5 +123,29 @@ describe("collectAuthorCommits GraphQL timeline", () => {
     await collectAuthorCommits("alice", dateOnly(90), "tok");
     for (const [url] of fetchMock.mock.calls)
       expect(String(url)).toBe("https://api.github.com/graphql");
+  });
+});
+
+describe("scopeCommits", () => {
+  const at = (date: string, full_name: string) => ({
+    commit: { author: { date } },
+    repository: { full_name },
+  });
+  const items = [
+    at("2026-03-02T10:00:00Z", "Acme/api"),
+    at("2026-03-01T10:00:00Z", "acme/web"),
+    at("2026-02-01T10:00:00Z", "alice/dotfiles"),
+  ];
+
+  it("matches repo:, org: and -org: case-insensitively", () => {
+    expect(scopeCommits(items, { repo: "acme/API" })).toHaveLength(1);
+    expect(scopeCommits(items, { org: "ACME" })).toHaveLength(2);
+    expect(scopeCommits(items, { excludedOrgs: ["acme"] })).toEqual([items[2]]);
+  });
+
+  it("includes the whole `until` day", () => {
+    expect(scopeCommits(items, { until: "2026-03-01" })).toEqual(
+      items.slice(1)
+    );
   });
 });

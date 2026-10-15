@@ -319,6 +319,38 @@ export async function collectAuthorCommits<T extends AuthorCommitItem>(
       };
 }
 
+/** Narrows timeline commits the way the search qualifiers repo:, org: and -org: would. */
+export function scopeCommits<
+  T extends AuthorCommitItem & { repository?: { full_name: string } },
+>(
+  items: T[],
+  scope: {
+    repo?: string | null;
+    org?: string | null;
+    excludedOrgs?: string[];
+    until?: string;
+  }
+): T[] {
+  const repo = scope.repo?.toLowerCase();
+  const org = scope.org?.toLowerCase();
+  const excluded = new Set(
+    (scope.excludedOrgs ?? []).map((o) => o.toLowerCase())
+  );
+  const untilMs = scope.until
+    ? Date.parse(`${scope.until}T23:59:59.999Z`)
+    : Infinity;
+  return items.filter((item) => {
+    const name = item.repository?.full_name.toLowerCase() ?? "";
+    const owner = name.split("/")[0];
+    return (
+      (!repo || name === repo) &&
+      (!org || owner === org) &&
+      !excluded.has(owner) &&
+      Date.parse(item.commit.author.date) <= untilMs
+    );
+  });
+}
+
 /** GitHub Search exposes at most 1,000 items. A bounded sample is explicitly labelled. */
 export async function collectGitHubSearch<T>(
   path: "commits" | "issues",

@@ -1,5 +1,5 @@
 import { extractValidRepoFromGoal } from "@/lib/goals-sync-utils";
-import { collectAuthorCommits, collectGitHubSearch } from "@/lib/github-search";
+import { collectAuthorCommits, scopeCommits } from "@/lib/github-search";
 import { githubRequest } from "@/lib/github-request";
 import {
   githubRateLimitResponse,
@@ -130,8 +130,6 @@ async function fetchContributionsForAccount(
   excludedOrgs: string[] = [],
   toDate?: string
 ): Promise<ContributionResponse> {
-  const repoFilter = repo ? ` repo:${repo}` : "";
-
   const key = metricsCacheKey(cacheContext.userId, "contributions", {
     days,
     githubLogin,
@@ -158,29 +156,20 @@ async function fetchContributionsForAccount(
       const commitItems: CommitItem[] = [];
       let totalCount = 0;
 
-      let q = `author:${githubLogin} author-date:${toDate ? `${sinceStr}..${toDate}` : `>=${sinceStr}`}${repoFilter}`;
-      if (orgName) {
-        q += ` org:${orgName}`;
-      } else if (excludedOrgs.length > 0) {
-        q += excludedOrgs.map((org) => ` -org:${org}`).join("");
-      }
-
-      // Unfiltered windows share the per-user commit timeline instead of costing their own searches.
-      const search =
-        !toDate && !repoFilter && !orgName && excludedOrgs.length === 0
-          ? await collectAuthorCommits<GitHubCommitSearchItem>(
-              githubLogin,
-              sinceStr,
-              token,
-              {
-                fresh: cacheContext.bypass,
-              }
-            )
-          : await collectGitHubSearch<GitHubCommitSearchItem>(
-              "commits",
-              q,
-              token
-            );
+      // Every view is a slice of the shared commit timeline, so filters cost no searches.
+      const search = await collectAuthorCommits<GitHubCommitSearchItem>(
+        githubLogin,
+        sinceStr,
+        token,
+        { fresh: cacheContext.bypass }
+      );
+      search.items = scopeCommits(search.items, {
+        repo,
+        org: orgName,
+        excludedOrgs: orgName ? [] : excludedOrgs,
+        until: toDate,
+      });
+      search.total = search.items.length;
       allItems = search.items;
       totalCount = search.total;
 

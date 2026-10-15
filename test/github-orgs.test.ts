@@ -23,7 +23,9 @@ const mocks = vi.hoisted(() => ({
   mergeMetrics: vi.fn(),
 }));
 
-vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({
+  getServerSession: mocks.getServerSession,
+}));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/resolve-user", () => ({
   resolveAppUser: mocks.resolveAppUser,
@@ -48,11 +50,7 @@ const SESSION = {
 };
 const USER = { id: "user-uuid-100" };
 
-function makeRequest(
-  method: string,
-  url: string,
-  body?: unknown
-): NextRequest {
+function makeRequest(method: string, url: string, body?: unknown): NextRequest {
   return new NextRequest(url, {
     method,
     headers: body ? { "Content-Type": "application/json" } : {},
@@ -184,7 +182,10 @@ describe("GET /api/user/github-orgs", () => {
     const { GET } = await import("@/app/api/user/github-orgs/route");
     const res = await GET();
     expect(res.status).toBe(200);
-    const body = await res.json() as { orgs: unknown[]; hasReadOrgScope: boolean };
+    const body = (await res.json()) as {
+      orgs: unknown[];
+      hasReadOrgScope: boolean;
+    };
     expect(body.orgs).toHaveLength(1);
     expect(body.hasReadOrgScope).toBe(true);
   });
@@ -203,7 +204,7 @@ describe("GET /api/user/github-orgs", () => {
     const { GET } = await import("@/app/api/user/github-orgs/route");
     const res = await GET();
     expect(res.status).toBe(200);
-    const body = await res.json() as { orgs: unknown[] };
+    const body = (await res.json()) as { orgs: unknown[] };
     expect(body.orgs).toHaveLength(0);
   });
 
@@ -262,7 +263,7 @@ describe("PATCH /api/user/github-orgs", () => {
       })
     );
     expect(res.status).toBe(200);
-    const body = await res.json() as { ok: boolean };
+    const body = (await res.json()) as { ok: boolean };
     expect(body.ok).toBe(true);
   });
 
@@ -326,17 +327,36 @@ describe("GET /api/metrics/contributions — org: accountId", () => {
     mocks.resolveAppUser.mockResolvedValue(USER);
   });
 
-  it("passes org filter in search query for org: accountId", async () => {
+  it("limits org: accountId views to that org's repositories", async () => {
     // Stub the commit search request — first call is the GitHub Search API
+    const now = new Date().toISOString();
     mocks.fetchFn.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ total_count: 0, items: [] }),
+      json: async () => ({
+        total_count: 2,
+        items: [
+          {
+            sha: "a",
+            html_url: "",
+            commit: { author: { date: now }, message: "in org" },
+            repository: { full_name: "acme-corp/api" },
+          },
+          {
+            sha: "b",
+            html_url: "",
+            commit: { author: { date: now }, message: "personal" },
+            repository: { full_name: "alice/dotfiles" },
+          },
+        ],
+      }),
     });
 
     mocks.getAccountToken.mockResolvedValue("tok-alice");
 
     // Stub metrics cache (supabase) — supports infinite chain-mocking
-    const cacheSingle = vi.fn().mockResolvedValue({ data: { github_login: "alice" }, error: null });
+    const cacheSingle = vi
+      .fn()
+      .mockResolvedValue({ data: { github_login: "alice" }, error: null });
     const createChain = () => {
       const obj = {
         eq: () => obj,
@@ -351,11 +371,13 @@ describe("GET /api/metrics/contributions — org: accountId", () => {
       "GET",
       "http://localhost/api/metrics/contributions?days=30&accountId=org:12345:acme-corp"
     );
-    await GET(req);
+    const res = await GET(req);
+    const body = await res.json();
 
-    // The GitHub Search API must have been called with org:acme-corp in the query
-    const calledUrl = (mocks.fetchFn.mock.calls[0]?.[0] as string) ?? "";
-    expect(calledUrl).toContain("org%3Aacme-corp");
+    expect(body.total).toBe(1);
+    expect(body.commits.map((c: { repo: string }) => c.repo)).toEqual([
+      "acme-corp/api",
+    ]);
   });
 
   it("returns 400 for empty org login (org: with no name)", async () => {

@@ -1,4 +1,4 @@
-import { collectAuthorCommits, collectGitHubSearch } from "@/lib/github-search";
+import { collectAuthorCommits, scopeCommits } from "@/lib/github-search";
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
 import { githubRequest } from "@/lib/github-request";
 import { getServerSession } from "@/lib/server-session";
@@ -158,14 +158,6 @@ async function fetchReposForAccount(
       since.setDate(since.getDate() - days);
       const sinceStr = since.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-      let q = `author:${githubLogin}`;
-      if (orgName) {
-        q += `+org:${orgName}`;
-      } else if (excludedOrgs.length > 0) {
-        q += excludedOrgs.map((org) => `+-org:${org}`).join("");
-      }
-      q += `+author-date:>=${sinceStr}`;
-
       type RepoCommit = {
         repository: {
           full_name: string;
@@ -174,20 +166,17 @@ async function fetchReposForAccount(
         };
         commit: { author: { date: string } };
       };
-      // Org-scoped views need their own query; the default view reuses the shared commit timeline.
-      const search =
-        orgName || excludedOrgs.length > 0
-          ? await collectGitHubSearch<RepoCommit>(
-              "commits",
-              q.replace(/\+/g, " "),
-              token
-            )
-          : await collectAuthorCommits<RepoCommit>(
-              githubLogin,
-              sinceStr,
-              token,
-              { fresh: cacheContext.bypass }
-            );
+      // Org views are slices of the shared commit timeline, so they cost no searches.
+      const search = await collectAuthorCommits<RepoCommit>(
+        githubLogin,
+        sinceStr,
+        token,
+        { fresh: cacheContext.bypass }
+      );
+      search.items = scopeCommits(search.items, {
+        org: orgName,
+        excludedOrgs: orgName ? [] : excludedOrgs,
+      });
       const data = { items: search.items };
 
       // Group commits by repository and count them.
