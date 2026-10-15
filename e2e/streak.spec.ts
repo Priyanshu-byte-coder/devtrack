@@ -72,7 +72,7 @@ test.describe("[Streak E2E]", () => {
         const d = new Date("2026-05-18");
         d.setDate(d.getDate() - i);
         const key = d.toISOString().slice(0, 10);
-        data[key] = i % 3 === 0 ? 0 : i % 2 + 1;
+        data[key] = i % 3 === 0 ? 0 : (i % 2) + 1;
       }
       await route.fulfill({
         contentType: "application/json",
@@ -164,24 +164,29 @@ test.describe("[Streak E2E]", () => {
     // immediately (skips the 650ms rAF animation) in headless Chromium.
     await page.emulateMedia({ reducedMotion: "reduce" });
 
-    await page.goto("/dashboard", { waitUntil: "load" });
+    await page.goto("/dashboard/activity", { waitUntil: "load" });
 
-    // Wait for the dashboard heading — confirms the server-rendered page loaded
+    // Wait for the tab heading — confirms the server-rendered page loaded
     await expect(
-      page.getByRole("heading", { name: "Dashboard", exact: true })
+      page.getByRole("heading", { level: 1, name: "Activity" })
     ).toBeVisible({ timeout: 30_000 });
 
     // Wait for the "Commit Streaks" heading to exist in the DOM first.
     // It is absent during the loading skeleton phase, so we must wait for
     // it before attempting to build a scoped locator from it.
-    const streakHeading = page.getByRole("heading", { name: "Commit Streaks" }).first();
+    const streakHeading = page
+      .getByRole("heading", { name: "Commit Streaks" })
+      .first();
     await expect(streakHeading).toBeVisible({ timeout: 15_000 });
 
     // Now scope to the nearest rounded-xl ancestor — the containerRef div
     // that wraps both the heading and the stats grid.
-    const section = page.locator('div.rounded-xl').filter({
-      has: page.getByRole("heading", { name: "Commit Streaks" })
-    }).first();
+    const section = page
+      .locator("div.rounded-xl")
+      .filter({
+        has: page.getByRole("heading", { name: "Commit Streaks" }),
+      })
+      .first();
 
     // The "Longest Streak" stat card contains the number as a raw text node
     // inside a div whose full text content is "21 days" (number + unit span).

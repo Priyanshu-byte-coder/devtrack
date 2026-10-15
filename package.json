@@ -24,9 +24,6 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.107.0",
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@google/generative-ai": "^0.24.1",
     "@sentry/nextjs": "^10",
@@ -74,6 +71,7 @@
     ]
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@emnapi/core": "^1.11.0",
     "@emnapi/runtime": "^1.11.0",
     "@next/env": "16.3.8",
@@ -94,6 +92,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "16.3.8",
     "husky": "^9.1.7",
+    "js-yaml": "^4.3.2",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.2.0",
     "postcss": "^8.5.23",
@@ -103,9 +102,7 @@
     "tree-sitter": "^0.25.0",
     "typescript": "^6",
     "vitest": "^4.1.11",
-    "web-tree-sitter": "^0.26.10",
-    "@electric-sql/pglite": "0.5.8",
-    "js-yaml": "^4.3.2"
+    "web-tree-sitter": "^0.26.10"
   },
   "engines": {
     "node": ">=22.12 <23"

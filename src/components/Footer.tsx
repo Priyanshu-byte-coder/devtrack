@@ -117,7 +117,7 @@ export default function Footer() {
   const { status } = useSession();
   const isAuthenticated = status === "authenticated";
 
-  if (pathname === "/wrapped") return null;
+  if (pathname === "/wrapped" || pathname.startsWith("/dashboard")) return null;
 
   return (
     <footer

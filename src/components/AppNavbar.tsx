@@ -83,7 +83,8 @@ export default function AppNavbar() {
   }, [isAuthenticated, t]);
 
   // The wrapped experience provides its own navigation
-  if (pathname === "/wrapped") return null;
+  // The wrapped experience and the signed-in app shell provide their own navigation.
+  if (pathname === "/wrapped" || isDashboardRoute) return null;
 
   const headerStyle: React.CSSProperties = {
     position: "sticky",

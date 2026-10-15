@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
+import AppShell from "@/components/shell/AppShell";
 
 /**
  * Only a successful, empty session response proves the user is signed out.
@@ -130,7 +131,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {showTokenBanner && (
         <TokenRevokedBanner onReauthenticate={handleReauthenticate} />
       )}
-      {children}
+      <AppShell>{children}</AppShell>
     </>
   );
 }

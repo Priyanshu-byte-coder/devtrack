@@ -407,7 +407,7 @@ export default function StreakTracker() {
               <span className="text-sm font-medium text-[var(--accent)]">
                 {badge.label} reached
                 {nextMilestone &&
-                  ` · ${nextMilestone.days - (data?.current ?? 0)} days to ${nextMilestone.days}`}
+                  ` · ${nextMilestone.days - (data?.current ?? 0)} ${nextMilestone.days - (data?.current ?? 0) === 1 ? "day" : "days"} to ${nextMilestone.days}`}
               </span>
             </div>
           )}

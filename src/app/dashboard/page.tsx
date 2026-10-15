@@ -1,19 +1,22 @@
 import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
 import ThrottleBanner from "@/components/ThrottleBanner";
-import CustomizableDashboard from "@/components/dashboard/CustomizableDashboard";
-import MilestonePlanner from "@/components/MilestonePlanner";
 import TodayFocusHero from "@/components/TodayFocusHero";
-import DashboardHeader from "@/components/DashboardHeader";
 import ExportButton from "@/components/ExportButton";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import PageHeader from "@/components/shell/PageHeader";
+import StatStrip from "@/components/dashboard/StatStrip";
+import WrappedSpotlight from "@/components/dashboard/WrappedSpotlight";
+import {
+  AIMentor,
+  ContributionGraph,
+  PersonalRecords,
+  RecentActivity,
+} from "@/components/dashboard/widgets";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "@/lib/server-session";
 import { decode } from "next-auth/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
-import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 
 export default async function DashboardPage() {
   // In the production standalone Playwright build, getServerSession can fail to
@@ -53,90 +56,45 @@ export default async function DashboardPage() {
   }
   if (!session) redirect("/");
 
+  const firstName = session.user?.name?.trim().split(/\s+/)[0];
+
   return (
     <DashboardSSEProvider>
-      <DashboardWidgetA11yProvider>
-        <main className="min-h-screen bg-[var(--background)] px-4 py-8 text-[var(--foreground)] transition-colors sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
-          <DashboardHeader />
+      <PageHeader
+        title="Dashboard"
+        description={
+          firstName
+            ? `Welcome back, ${firstName}. Here is your week so far.`
+            : "Here is your week so far."
+        }
+        actions={<ExportButton />}
+      />
 
-          <div className="mt-6 space-y-8">
-            {/* Quick actions */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <Link
-                href="/wrapped"
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)] transition-opacity hover:opacity-90"
-              >
-                ✨ Year in Code
-              </Link>
-              <Link
-                href="/friend-compare"
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)] transition-opacity hover:opacity-90"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                  />
-                </svg>
-                Compare Friends
-              </Link>
-              <Link
-                href="/dashboard/settings"
-                className="secondary-button inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium"
-              >
-                Settings
-              </Link>
-              <div className="sm:ml-auto">
-                <ExportButton />
-              </div>
-            </div>
+      <div className="space-y-4">
+        <ThrottleBanner />
+        <StreakAtRiskBanner />
+        <StatStrip />
+        <WrappedSpotlight />
 
-            {/* Info Banners */}
-            <div className="space-y-3">
-              <ThrottleBanner />
-              <StreakAtRiskBanner />
-            </div>
-
-            {/* Today Focus */}
-            <section>
-              <TodayFocusHero userName={session.user?.name ?? null} />
-            </section>
-
-            {/* Featured: AI resume */}
-            <section className="flex flex-col items-start justify-between gap-4 rounded-xl border border-[var(--border)] bg-gradient-to-r from-violet-950/20 via-indigo-950/10 to-transparent p-5 sm:flex-row sm:items-center sm:p-6">
-              <div className="min-w-0 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-violet-400">
-                  AI Resume Generator
-                </p>
-                <h2 className="text-lg font-bold leading-snug text-[var(--foreground)]">
-                  Generate an ATS-friendly CV backed by your real code
-                </h2>
-              </div>
-              <Link
-                href="/dashboard/career-intelligence"
-                className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-500/20 transition-all hover:shadow-lg active:scale-95"
-              >
-                Build Resume
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            </section>
-
-            {/* All dashboard widgets (drag-and-drop customizable) */}
-            <CustomizableDashboard />
-
-            <section>
-              <MilestonePlanner />
-            </section>
+        <div className="grid gap-4 xl:grid-cols-3">
+          <div className="min-w-0 xl:col-span-2">
+            <ContributionGraph />
           </div>
-        </main>
-      </DashboardWidgetA11yProvider>
+          <div className="min-w-0 space-y-4">
+            <TodayFocusHero />
+            <AIMentor />
+          </div>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-2">
+          <div className="min-w-0">
+            <PersonalRecords />
+          </div>
+          <div className="min-w-0">
+            <RecentActivity />
+          </div>
+        </div>
+      </div>
     </DashboardSSEProvider>
   );
 }

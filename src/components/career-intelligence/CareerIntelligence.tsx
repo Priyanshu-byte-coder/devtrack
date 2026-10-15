@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import PageHeader from "@/components/shell/PageHeader";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -10,9 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Sparkles, Terminal, FileDown, Cpu, ChevronRight } from "lucide-react";
+import { Sparkles, Terminal, FileDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 import RoleSelector from "./RoleSelector";
 import ContributionAnalysisPanel from "./ContributionAnalysisPanel";
@@ -187,30 +187,12 @@ export default function CareerIntelligence() {
   };
 
   return (
-    <div className="space-y-12 max-w-6xl mx-auto p-4 md:p-8 animate-in fade-in duration-500">
+    <div className="max-w-5xl space-y-8">
       {/* Hero Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 md:p-12 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent pointer-events-none" />
-        <div className="space-y-4 max-w-2xl relative z-10">
-          <Badge
-            variant="outline"
-            className="text-xs px-3 py-1 border-accent/30 bg-accent/10 text-[var(--accent)]"
-          >
-            AI-Powered Career Intelligence
-          </Badge>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--foreground)] to-foreground/70 bg-clip-text text-transparent">
-            AI Resume & CV Generator
-          </h1>
-          <p className="text-sm md:text-base text-[var(--muted-foreground)] leading-relaxed">
-            Translate your real GitHub footprint—merged pull requests, code
-            additions/deletions, complexity, and technology patterns—into a
-            professional, ATS-optimized resume tailor-made for your target role.
-          </p>
-        </div>
-        <div className="relative z-10 flex items-center justify-center p-6 rounded-2xl bg-[var(--card-muted)] border border-[var(--border)] shadow-inner">
-          <Cpu className="h-16 w-16 text-[var(--accent)] animate-pulse" />
-        </div>
-      </div>
+      <PageHeader
+        title="Resume"
+        description="Turn your merged PRs, languages and impact into an ATS-friendly resume for a target role."
+      />
 
       {error && (
         <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-400 text-sm flex gap-3 items-center">
@@ -220,12 +202,9 @@ export default function CareerIntelligence() {
       )}
 
       {/* SECTION 1: CONTRIBUTION ANALYSIS */}
-      <section className="space-y-6">
-        <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
-          <div className="h-8 w-1.5 rounded-full bg-violet-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            1. Contribution Analysis
-          </h2>
+      <section className="space-y-4">
+        <div className="border-b border-[var(--border)] pb-2">
+          <h2 className="text-base font-semibold">1. Contribution Analysis</h2>
         </div>
 
         {step === "idle" && (
@@ -284,11 +263,8 @@ export default function CareerIntelligence() {
       {/* SECTION 2: RESUME GENERATOR */}
       {analysis && (
         <section className="space-y-6 animate-in slide-in-from-bottom duration-500">
-          <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
-            <div className="h-8 w-1.5 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              2. Resume Customization
-            </h2>
+          <div className="border-b border-[var(--border)] pb-2">
+            <h2 className="text-base font-semibold">2. Resume Customization</h2>
           </div>
 
           <Card className="border-[var(--border)] bg-[var(--card)] p-6 md:p-8 space-y-8">
@@ -350,11 +326,8 @@ export default function CareerIntelligence() {
       {/* SECTION 3: EXPORT & DOWNLOAD */}
       {resumeContent && (step === "generated" || step === "exporting") && (
         <section className="space-y-6 animate-in slide-in-from-bottom duration-500">
-          <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
-            <div className="h-8 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              3. Export & Download
-            </h2>
+          <div className="border-b border-[var(--border)] pb-2">
+            <h2 className="text-base font-semibold">3. Export & Download</h2>
           </div>
 
           <Card className="border-[var(--border)] bg-[var(--card)] p-6 md:p-8">

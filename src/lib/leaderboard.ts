@@ -452,7 +452,7 @@ export async function buildLeaderboard(
         id: user.id,
         rank: 0,
         username: user.github_login,
-        avatarUrl: `https://github.com/${user.github_login}.png?size=96`,
+        avatarUrl: `https://avatars.githubusercontent.com/${user.github_login}?s=96`,
         profileUrl: `/u/${user.github_login}`,
         streak,
         commits,

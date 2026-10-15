@@ -1922,29 +1922,6 @@ paths:
           description: Successful response. See the route contract for the returned JSON fields.
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security: []
-  /api/user/dashboard-layout:
-    get:
-      operationId: get_api_user_dashboard_layout
-      summary: GET /api/user/dashboard-layout
-      tags:
-        - user
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-    patch:
-      operationId: patch_api_user_dashboard_layout
-      summary: PATCH /api/user/dashboard-layout
-      tags:
-        - user
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
   /api/user/data-export:
     delete:
       operationId: delete_api_user_data_export

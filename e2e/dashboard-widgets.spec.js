@@ -229,16 +229,25 @@ test("dashboard widgets render with mocked metrics", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Dashboard", exact: true })
   ).toBeVisible({ timeout: 30000 });
-  await expect(page.getByRole("heading", { name: "Your Commits" }).first()).toBeVisible(
-    { timeout: 10000 }
+  await expect(
+    page.getByRole("heading", { name: "Your Commits" }).first()
+  ).toBeVisible({ timeout: 10000 });
+
+  await page.goto("/dashboard/pull-requests", { waitUntil: "load" });
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Pull requests" })
+  ).toBeVisible({ timeout: 30000 });
+  await expect(page.getByRole("heading", { name: "PR Analytics" })).toHaveCount(
+    1
   );
-  await expect(page.getByRole("heading", { name: "PR Analytics" })).toHaveCount(1);
   await expect(page.getByRole("heading", { name: "PR Analytics" })).toBeVisible(
     { timeout: 10000 }
   );
+
+  await page.goto("/dashboard/goals", { waitUntil: "load" });
   await expect(
     page.getByRole("heading", { name: "Goals", exact: true }).first()
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible({ timeout: 30000 });
   await expect(page.getByText("Make 10 commits")).toBeVisible({
     timeout: 10000,
   });
@@ -279,9 +288,9 @@ test("goal form posts a new goal", async ({ page }) => {
     }
   });
 
-  await page.goto("/dashboard", { waitUntil: "load" });
+  await page.goto("/dashboard/goals", { waitUntil: "load" });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Goals" })
   ).toBeVisible({ timeout: 30000 });
   await page.getByLabel("Goal title").fill("Ship one PR");
   await page.getByLabel("Target").fill("1");
@@ -349,9 +358,9 @@ function mockMetricResponse(url) {
         thisWeek: { opened: 3, merged: 2 },
         lastWeek: { opened: 1, merged: 1 },
       },
-      issues: { 
-        thisWeek: { opened: 4, closed: 2 }, 
-        lastWeek: { opened: 3, closed: 1 } 
+      issues: {
+        thisWeek: { opened: 4, closed: 2 },
+        lastWeek: { opened: 3, closed: 1 },
       },
       productivityScore: { current: 85, previous: 80 },
       activeDays: {
@@ -360,13 +369,9 @@ function mockMetricResponse(url) {
       },
       streak: 3,
       topRepo: "demo/repo",
-      repoBreakdown: [
-        { repoName: "demo/devtrack", commits: 10 },
-      ],
-      dailyCommits: [
-        { date: "2023-10-07", commits: 5 },
-      ],
-      mostActiveDay: "2023-10-07"
+      repoBreakdown: [{ repoName: "demo/devtrack", commits: 10 }],
+      dailyCommits: [{ date: "2023-10-07", commits: 5 }],
+      mostActiveDay: "2023-10-07",
     };
   }
   if (url.includes("/api/metrics/compare")) {
