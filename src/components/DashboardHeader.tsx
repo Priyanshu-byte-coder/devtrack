@@ -394,7 +394,7 @@ export default function DashboardHeader() {
               </div>
 
               <div className="transition-transform duration-200 hover:rotate-12">
-                <ThemeToggle variant="compact" />
+                <ThemeToggle />
               </div>
 
               <div className="transition-transform duration-200 hover:scale-[1.05]">
