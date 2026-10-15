@@ -168,11 +168,13 @@ export default function ShareProfileSection({
         </div>
       )}
 
-      <ProfileQrModal
-        onClose={() => setShowQrModal(false)}
-        username={username}
-        profileUrl={profileUrl}
-      />
+      {showQrModal && (
+        <ProfileQrModal
+          onClose={() => setShowQrModal(false)}
+          username={username}
+          profileUrl={profileUrl}
+        />
+      )}
     </>
   );
 }
