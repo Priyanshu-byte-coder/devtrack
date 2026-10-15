@@ -47,8 +47,6 @@ interface GQLPullRequestNode {
 interface GQLCommitNode {
   message: string;
   committedDate: string;
-  additions: number;
-  deletions: number;
 }
 
 interface GQLRepositoryNode {
@@ -82,7 +80,10 @@ interface GQLUserResponse {
     login: string;
     avatarUrl: string;
     bio: string | null;
-    repositories: { nodes: GQLRepositoryNode[] };
+    repositories: {
+      nodes: GQLRepositoryNode[];
+      pageInfo: { hasNextPage: boolean; endCursor: string | null };
+    };
     contributionsCollection: GQLContributionsCollection;
   };
 }
@@ -91,29 +92,33 @@ interface GQLUserResponse {
 /*  Query builder                                                      */
 /* ------------------------------------------------------------------ */
 
+/** Repositories fetched in total, and per request. */
+const REPO_LIMIT = 50;
+const REPO_PAGE_SIZE = 10;
+
 /**
- * Builds the full GraphQL query string with the username interpolated.
- * GitHub's GraphQL API is called via `githubGraphQL` which does NOT accept
- * variables separately — the login must be embedded in the query text.
+ * One page of repositories with their merged PRs and recent default-branch
+ * commits. GitHub answers 502 once a query exceeds its ~10s budget: fifty
+ * repositories in one request did, as did per-commit diff stats, so
+ * repositories are paged and commits carry no diff stats.
  *
  * Note: The `history` fragment omits the `author` filter because the
  * viewer's node-ID is not readily available in a single-shot query.
  * Commits are scoped per-repo and limited to 30, so the noise is minimal.
  */
-function buildContributionQuery(login: string): string {
-  // Escape any double-quote / backslash in the login to prevent injection
-  const safeName = login.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-
-  return `{
-  user(login: "${safeName}") {
+const CONTRIBUTION_QUERY = `
+query CvContributions($login: String!, $first: Int!, $after: String) {
+  user(login: $login) {
     login
     avatarUrl
     bio
     repositories(
-      first: 50
+      first: $first
+      after: $after
       orderBy: { field: PUSHED_AT, direction: DESC }
       ownerAffiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]
     ) {
+      pageInfo { hasNextPage endCursor }
       nodes {
         name
         nameWithOwner
@@ -152,8 +157,6 @@ function buildContributionQuery(login: string): string {
                 nodes {
                   message
                   committedDate
-                  additions
-                  deletions
                 }
               }
             }
@@ -170,7 +173,6 @@ function buildContributionQuery(login: string): string {
     }
   }
 }`;
-}
 
 /* ------------------------------------------------------------------ */
 /*  Data mappers                                                       */
@@ -196,8 +198,10 @@ function mapCommit(c: GQLCommitNode): CommitData {
   return {
     message: c.message,
     committedDate: c.committedDate,
-    additions: c.additions,
-    deletions: c.deletions,
+    // Per-commit diff stats are too slow for GitHub to compute in bulk (the
+    // query 502s); line totals come from merged pull requests instead.
+    additions: 0,
+    deletions: 0,
   };
 }
 
@@ -260,11 +264,27 @@ export async function fetchContributionData(
   token: string,
   username: string
 ): Promise<GitHubContributionData> {
-  const query = buildContributionQuery(username);
-
-  let data: GQLUserResponse;
+  let data: GQLUserResponse | null = null;
+  const repositoryNodes: GQLRepositoryNode[] = [];
   try {
-    data = await githubGraphQL<GQLUserResponse>(query, token);
+    let after: string | null = null;
+    while (repositoryNodes.length < REPO_LIMIT) {
+      const page: GQLUserResponse = await githubGraphQL<GQLUserResponse>(
+        CONTRIBUTION_QUERY,
+        token,
+        {
+          login: username,
+          first: Math.min(REPO_PAGE_SIZE, REPO_LIMIT - repositoryNodes.length),
+          after,
+        }
+      );
+      data ??= page;
+      if (!page?.user) break;
+      repositoryNodes.push(...(page.user.repositories?.nodes ?? []));
+      const info = page.user.repositories?.pageInfo;
+      if (!info?.hasNextPage || !info.endCursor) break;
+      after = info.endCursor;
+    }
   } catch (err) {
     // Re-throw rate-limit errors so callers can surface retry-after info
     if (err instanceof GitHubRateLimitError) {
@@ -285,9 +305,7 @@ export async function fetchContributionData(
   const { user } = data;
 
   // Map repositories — tolerate missing nodes gracefully
-  const repositories: RepositoryData[] = (
-    user.repositories?.nodes ?? []
-  ).map(mapRepository);
+  const repositories: RepositoryData[] = repositoryNodes.map(mapRepository);
 
   // Map contribution stats
   const contributionStats: ContributionStats = user.contributionsCollection

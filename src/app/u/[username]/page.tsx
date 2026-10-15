@@ -49,11 +49,6 @@ async function fetchPublicProfile(
 
     const base: PublicProfileData = await res.json();
 
-    const canonicalUsername = base.username.toLowerCase();
-    if (username !== canonicalUsername) {
-      redirect(`/u/${canonicalUsername}`);
-    }
-
     // Compute Night Owl / Early Bird from repos
     let nightOwlCount = 0;
     let earlyBirdCount = 0;
