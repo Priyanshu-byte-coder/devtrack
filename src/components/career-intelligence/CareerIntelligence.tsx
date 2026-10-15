@@ -3,7 +3,13 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Sparkles, Terminal, FileDown, Cpu, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -26,22 +32,29 @@ export default function CareerIntelligence() {
   const [step, setStep] = useState<CVFlowStep>("idle");
   const [progressValue, setProgressValue] = useState(0);
   const [progressText, setProgressText] = useState("");
-  
-  const [analysis, setAnalysis] = useState<ContributionClassification | null>(null);
+
+  const [analysis, setAnalysis] = useState<ContributionClassification | null>(
+    null
+  );
   const [selectedRole, setSelectedRole] = useState<TargetRole | null>(null);
-  const [resumeContent, setResumeContent] = useState<ResumeContent | null>(null);
+  const [resumeContent, setResumeContent] = useState<ResumeContent | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
 
   // Animates the progress bar during analysis
   const startProgressAnimation = () => {
     setProgressValue(0);
     setError(null);
-    
+
     const steps = [
       { max: 25, text: "Connecting to GitHub GraphQL API..." },
       { max: 50, text: "Analyzing repository metadata & branch structures..." },
       { max: 75, text: "Processing merged Pull Requests & line diffs..." },
-      { max: 98, text: "Classifying engineering domains & computing expertise..." },
+      {
+        max: 98,
+        text: "Classifying engineering domains & computing expertise...",
+      },
     ];
 
     let currentStepIdx = 0;
@@ -49,7 +62,7 @@ export default function CareerIntelligence() {
       setProgressValue((prev) => {
         const currentStep = steps[currentStepIdx];
         if (!currentStep) return prev;
-        
+
         setProgressText(currentStep.text);
 
         if (prev >= currentStep.max) {
@@ -155,16 +168,16 @@ export default function CareerIntelligence() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      
+
       const fileExt = format === "markdown" ? "md" : format;
       const roleSlug = resumeContent.role.toLowerCase().replace(/\s+/g, "_");
       a.download = `DevTrack_Resume_${roleSlug}.${fileExt}`;
-      
+
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success(`Downloaded ${format.toUpperCase()} successfully!`);
     } catch (err) {
       toast.error("Failed to download file. Please try again.");
@@ -177,16 +190,21 @@ export default function CareerIntelligence() {
     <div className="space-y-12 max-w-6xl mx-auto p-4 md:p-8 animate-in fade-in duration-500">
       {/* Hero Header Banner */}
       <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 md:p-12 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/5 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent pointer-events-none" />
         <div className="space-y-4 max-w-2xl relative z-10">
-          <Badge variant="outline" className="text-xs px-3 py-1 border-[var(--accent)]/30 bg-[var(--accent)]/10 text-[var(--accent)]">
+          <Badge
+            variant="outline"
+            className="text-xs px-3 py-1 border-accent/30 bg-accent/10 text-[var(--accent)]"
+          >
             AI-Powered Career Intelligence
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--foreground)] to-[var(--foreground)]/70 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-[var(--foreground)] to-foreground/70 bg-clip-text text-transparent">
             AI Resume & CV Generator
           </h1>
           <p className="text-sm md:text-base text-[var(--muted-foreground)] leading-relaxed">
-            Translate your real GitHub footprint—merged pull requests, code additions/deletions, complexity, and technology patterns—into a professional, ATS-optimized resume tailor-made for your target role.
+            Translate your real GitHub footprint—merged pull requests, code
+            additions/deletions, complexity, and technology patterns—into a
+            professional, ATS-optimized resume tailor-made for your target role.
           </p>
         </div>
         <div className="relative z-10 flex items-center justify-center p-6 rounded-2xl bg-[var(--card-muted)] border border-[var(--border)] shadow-inner">
@@ -205,15 +223,21 @@ export default function CareerIntelligence() {
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
           <div className="h-8 w-1.5 rounded-full bg-violet-500 shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
-          <h2 className="text-2xl font-bold tracking-tight">1. Contribution Analysis</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            1. Contribution Analysis
+          </h2>
         </div>
 
         {step === "idle" && (
           <Card className="border-[var(--border)] bg-[var(--card)] hover:shadow-2xl transition-all duration-300">
             <CardHeader className="text-center py-8 space-y-2">
-              <CardTitle className="text-xl font-bold">Discover Your Open-Source Footprint</CardTitle>
+              <CardTitle className="text-xl font-bold">
+                Discover Your Open-Source Footprint
+              </CardTitle>
               <CardDescription className="max-w-md mx-auto">
-                We&apos;ll fetch your top 50 repositories and analyze all your merged Pull Requests to build a complete technology and impact profile.
+                We&apos;ll fetch your top 50 repositories and analyze all your
+                merged Pull Requests to build a complete technology and impact
+                profile.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center pb-8">
@@ -246,9 +270,12 @@ export default function CareerIntelligence() {
           </Card>
         )}
 
-        {analysis && (step !== "idle" && step !== "analyzing") && (
+        {analysis && step !== "idle" && step !== "analyzing" && (
           <div className="space-y-6">
-            <ContributionStats scores={analysis.contributionScores} domains={analysis.domains} />
+            <ContributionStats
+              scores={analysis.contributionScores}
+              domains={analysis.domains}
+            />
             <ContributionAnalysisPanel analysis={analysis} />
           </div>
         )}
@@ -259,14 +286,18 @@ export default function CareerIntelligence() {
         <section className="space-y-6 animate-in slide-in-from-bottom duration-500">
           <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
             <div className="h-8 w-1.5 rounded-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-            <h2 className="text-2xl font-bold tracking-tight">2. Resume Customization</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              2. Resume Customization
+            </h2>
           </div>
 
           <Card className="border-[var(--border)] bg-[var(--card)] p-6 md:p-8 space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-bold">Select Target Role</h3>
               <p className="text-xs text-[var(--muted-foreground)]">
-                Choose the type of position you are applying for. The resume content will be strategically optimized to match this role&apos;s keywords and domains.
+                Choose the type of position you are applying for. The resume
+                content will be strategically optimized to match this
+                role&apos;s keywords and domains.
               </p>
             </div>
 
@@ -294,18 +325,24 @@ export default function CareerIntelligence() {
               <div className="py-12 flex flex-col items-center justify-center gap-4">
                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
                 <div className="text-center space-y-1">
-                  <p className="text-sm font-bold">Consulting AI Career Mentor...</p>
-                  <p className="text-xs text-[var(--muted-foreground)]">Drafting ATS-friendly bullets based on actual PR additions & deletions.</p>
+                  <p className="text-sm font-bold">
+                    Consulting AI Career Mentor...
+                  </p>
+                  <p className="text-xs text-[var(--muted-foreground)]">
+                    Drafting ATS-friendly bullets based on actual PR additions &
+                    deletions.
+                  </p>
                 </div>
               </div>
             )}
 
-            {resumeContent && (step === "generated" || step === "exporting") && (
-              <ResumePreview
-                content={resumeContent}
-                onContentChange={(newContent) => setResumeContent(newContent)}
-              />
-            )}
+            {resumeContent &&
+              (step === "generated" || step === "exporting") && (
+                <ResumePreview
+                  content={resumeContent}
+                  onContentChange={(newContent) => setResumeContent(newContent)}
+                />
+              )}
           </Card>
         </section>
       )}
@@ -315,7 +352,9 @@ export default function CareerIntelligence() {
         <section className="space-y-6 animate-in slide-in-from-bottom duration-500">
           <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
             <div className="h-8 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"></div>
-            <h2 className="text-2xl font-bold tracking-tight">3. Export & Download</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              3. Export & Download
+            </h2>
           </div>
 
           <Card className="border-[var(--border)] bg-[var(--card)] p-6 md:p-8">

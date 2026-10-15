@@ -16,7 +16,9 @@ export default function CIAnalytics() {
   const [data, setData] = useState<CIAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [rateLimitResetTime, setRateLimitResetTime] = useState<Date | null>(null);
+  const [rateLimitResetTime, setRateLimitResetTime] = useState<Date | null>(
+    null
+  );
   const [isRateLimited, setIsRateLimited] = useState(false);
 
   useEffect(() => {
@@ -61,7 +63,9 @@ export default function CIAnalytics() {
               `GitHub API rate limit reached. Resets at ${resetTimeStr}. Try again later.`
             );
           }
-          throw new Error("GitHub API rate limit reached. Please try again later.");
+          throw new Error(
+            "GitHub API rate limit reached. Please try again later."
+          );
         }
         if (!res.ok) throw new Error("API error");
         return res.json();
@@ -120,11 +124,32 @@ export default function CIAnalytics() {
           type="button"
           onClick={fetchCIAnalytics}
           disabled={isRateLimited || loading}
-          title={isRateLimited ? "GitHub API rate limit reached" : "Refresh CI data"}
+          title={
+            isRateLimited ? "GitHub API rate limit reached" : "Refresh CI data"
+          }
           className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 active:scale-95"
         >
           {loading ? (
-            <svg className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg
+              className="animate-spin h-3 w-3 text-[var(--muted-foreground)]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
           ) : null}
           <span>{refreshLabel}</span>
         </button>
@@ -151,7 +176,7 @@ export default function CIAnalytics() {
           className={`rounded-lg border p-4 text-sm ${
             isRateLimited
               ? "border-[var(--border)] bg-[var(--control)] text-[var(--warning)]"
-              : "border-[var(--destructive)]/20 bg-[var(--destructive)]/10 text-[var(--destructive)]"
+              : "border-destructive/20 bg-destructive/10 text-[var(--destructive)]"
           }`}
         >
           <p>{error}</p>
@@ -159,7 +184,7 @@ export default function CIAnalytics() {
             <button
               type="button"
               onClick={fetchCIAnalytics}
-              className="mt-3 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+              className="mt-3 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
             >
               Try again
             </button>
@@ -168,15 +193,15 @@ export default function CIAnalytics() {
       ) : hasNoCIData ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <div className="mb-3 text-4xl">⚙️</div>
-      
+
           <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
             No CI runs detected
           </h3>
-      
+
           <p className="mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
             Set up GitHub Actions to see workflow and build analytics here.
           </p>
-      
+
           <a
             href="https://docs.github.com/actions"
             target="_blank"
@@ -203,7 +228,7 @@ export default function CIAnalytics() {
               </div>
             ))}
           </div>
-      
+
           <div className="rounded-lg bg-[var(--control)] p-4 stat-cell">
             <p className="text-sm font-medium text-[var(--card-foreground)]">
               Flakiest workflow

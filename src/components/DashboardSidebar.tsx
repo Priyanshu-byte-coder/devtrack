@@ -55,8 +55,7 @@ export default function DashboardSidebar() {
   return (
     <>
       <aside className="hidden lg:flex flex-col sticky top-8 ml-5 rounded-xl h-full gap-1 bg-[var(--control)] border-r border-[var(--border)] p-3 min-w-[48px] xl:min-w-[200px]">
-        <div
-          className="text-lg flex items-center font-bold text-[var(--foreground)] mb-4 px-3">
+        <div className="text-lg flex items-center font-bold text-[var(--foreground)] mb-4 px-3">
           Devtrack
         </div>
         {sections.map(({ id, label, icon: Icon }) => (
@@ -77,7 +76,7 @@ export default function DashboardSidebar() {
       </aside>
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-[var(--control)]/80 backdrop-blur-sm border border-[var(--border)] shadow-md"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-control/80 backdrop-blur-sm border border-[var(--border)] shadow-md"
       >
         <Menu size={20} />
       </button>
@@ -88,7 +87,7 @@ export default function DashboardSidebar() {
         />
       )}
       <div
-        className={`lg:hidden fixed top-0 left-0 h-full z-50 w-64 bg-[var(--control)]/90 backdrop-blur-md border-r border-[var(--border)] p-4 shadow-xl transition-transform duration-300 ${
+        className={`lg:hidden fixed top-0 left-0 h-full z-50 w-64 bg-control/90 backdrop-blur-md border-r border-[var(--border)] p-4 shadow-xl transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

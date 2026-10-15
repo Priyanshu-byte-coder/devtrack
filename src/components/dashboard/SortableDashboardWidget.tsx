@@ -58,7 +58,7 @@ export default function SortableDashboardWidget({
             type="button"
             aria-label={`Drag widget: ${title}`}
             title={`Drag to reorder ${title}`}
-            className="touch-none rounded-lg border border-[var(--border)] bg-[var(--card)]/95 p-2 text-[var(--muted-foreground)] shadow-sm backdrop-blur transition-all hover:text-[var(--foreground)] hover:shadow-md hover:border-[var(--accent)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] cursor-grab active:cursor-grabbing"
+            className="touch-none rounded-lg border border-[var(--border)] bg-card/95 p-2 text-[var(--muted-foreground)] shadow-sm backdrop-blur transition-all hover:text-[var(--foreground)] hover:shadow-md hover:border-accent/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] cursor-grab active:cursor-grabbing"
             {...attributes}
             {...listeners}
           >
@@ -70,7 +70,7 @@ export default function SortableDashboardWidget({
             aria-label={`Hide widget: ${title}`}
             title={`Hide ${title}`}
             onClick={() => onHide(id)}
-            className="rounded-lg border border-[var(--border)] bg-[var(--card)]/95 p-2 text-[var(--muted-foreground)] shadow-sm backdrop-blur transition-all hover:text-red-500 hover:shadow-md hover:border-red-500/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            className="rounded-lg border border-[var(--border)] bg-card/95 p-2 text-[var(--muted-foreground)] shadow-sm backdrop-blur transition-all hover:text-red-500 hover:shadow-md hover:border-red-500/50 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
           >
             <EyeOff className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -80,18 +80,12 @@ export default function SortableDashboardWidget({
       <div
         className={
           isEditing
-            ? "rounded-xl outline outline-2 outline-dashed outline-[var(--accent)]/40 outline-offset-2 transition-all"
+            ? "rounded-xl outline outline-2 outline-dashed outline-accent/40 outline-offset-2 transition-all"
             : "transition-shadow duration-200 hover:shadow-lg"
         }
       >
-        <DashboardWidgetShell
-          widgetId={id}
-          title={title}
-          isEditing={isEditing}
-        >
-          <WidgetErrorBoundary
-            fallbackMessage={`Could not load ${title}.`}
-          >
+        <DashboardWidgetShell widgetId={id} title={title} isEditing={isEditing}>
+          <WidgetErrorBoundary fallbackMessage={`Could not load ${title}.`}>
             {children}
           </WidgetErrorBoundary>
         </DashboardWidgetShell>

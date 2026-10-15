@@ -96,8 +96,14 @@ export const ChartSkeleton = () => (
     aria-label="Loading chart"
     className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full min-h-[280px]"
   >
-    <div className="h-6 w-32 bg-[var(--card-muted)] rounded mb-6 animate-pulse" aria-hidden="true" />
-    <div className="h-48 w-full bg-[var(--card-muted)] rounded-lg animate-pulse" aria-hidden="true" />
+    <div
+      className="h-6 w-32 bg-[var(--card-muted)] rounded mb-6 animate-pulse"
+      aria-hidden="true"
+    />
+    <div
+      className="h-48 w-full bg-[var(--card-muted)] rounded-lg animate-pulse"
+      aria-hidden="true"
+    />
   </div>
 );
 
@@ -108,10 +114,16 @@ export const StatsGridSkeleton = () => (
     aria-label="Loading statistics"
     className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full"
   >
-    <div className="h-6 w-40 bg-[var(--card-muted)] rounded mb-6 animate-pulse" aria-hidden="true" />
+    <div
+      className="h-6 w-40 bg-[var(--card-muted)] rounded mb-6 animate-pulse"
+      aria-hidden="true"
+    />
     <div className="grid grid-cols-2 gap-4" aria-hidden="true">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-24 bg-[var(--card-muted)] rounded-lg animate-pulse" />
+        <div
+          key={i}
+          className="h-24 bg-[var(--card-muted)] rounded-lg animate-pulse"
+        />
       ))}
     </div>
   </div>
@@ -124,8 +136,14 @@ export const SkeletonCard = () => (
     aria-label="Loading widget"
     className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm min-h-[200px]"
   >
-    <div className="h-6 w-48 bg-[var(--card-muted)] rounded mb-4 animate-pulse" aria-hidden="true" />
-    <div className="h-40 bg-[var(--card-muted)] rounded animate-pulse" aria-hidden="true" />
+    <div
+      className="h-6 w-48 bg-[var(--card-muted)] rounded mb-4 animate-pulse"
+      aria-hidden="true"
+    />
+    <div
+      className="h-40 bg-[var(--card-muted)] rounded animate-pulse"
+      aria-hidden="true"
+    />
   </div>
 );
 
@@ -136,10 +154,16 @@ export const ContributionHeatmapSkeleton = () => (
     aria-label="Loading contribution heatmap"
     className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full"
   >
-    <div className="h-6 w-48 bg-[var(--card-muted)] rounded mb-6 animate-pulse" aria-hidden="true" />
+    <div
+      className="h-6 w-48 bg-[var(--card-muted)] rounded mb-6 animate-pulse"
+      aria-hidden="true"
+    />
     <div className="grid grid-cols-7 gap-1" aria-hidden="true">
       {Array.from({ length: 35 }).map((_, i) => (
-        <div key={i} className="aspect-square rounded-sm bg-[var(--card-muted)] animate-pulse" />
+        <div
+          key={i}
+          className="aspect-square rounded-sm bg-[var(--card-muted)] animate-pulse"
+        />
       ))}
     </div>
   </div>
@@ -147,42 +171,45 @@ export const ContributionHeatmapSkeleton = () => (
 
 const WeeklyProgressSummary = dynamic(
   () => import("@/components/WeeklyProgressSummary"),
-  { ssr: false, loading: () => <SkeletonCard /> },
+  { ssr: false, loading: () => <SkeletonCard /> }
 );
 
 const CodingActivityInsightsCard = dynamic(
   () => import("@/components/CodingActivityInsightsCard"),
-  { ssr: false, loading: () => <ChartSkeleton /> },
+  { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
-const FriendComparison = dynamic(() => import("@/components/FriendComparison"), {
-  ssr: false,
-  loading: () => <RepoWidgetSkeleton />,
-});
+const FriendComparison = dynamic(
+  () => import("@/components/FriendComparison"),
+  {
+    ssr: false,
+    loading: () => <RepoWidgetSkeleton />,
+  }
+);
 
 const GitHubAchievementProgress = dynamic(
   () => import("@/components/GitHubAchievementProgress"),
-  { ssr: false, loading: () => <SkeletonCard /> },
+  { ssr: false, loading: () => <SkeletonCard /> }
 );
 
 const ActivityRingChart = dynamic(
   () => import("@/components/ActivityRingChart"),
-  { ssr: false, loading: () => <ChartSkeleton /> },
+  { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
 const ContributionGraph = dynamic(
   () => import("@/components/ContributionGraph"),
-  { ssr: false, loading: () => <ChartSkeleton /> },
+  { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
 const ContributionHeatmap = dynamic(
   () => import("@/components/ContributionHeatmap"),
-  { ssr: false, loading: () => <ContributionHeatmapSkeleton /> },
+  { ssr: false, loading: () => <ContributionHeatmapSkeleton /> }
 );
 
 const RepoContributionDistribution = dynamic(
   () => import("@/components/RepoContributionDistribution"),
-  { ssr: false, loading: () => <ChartSkeleton /> },
+  { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
 const PRMetrics = dynamic(() => import("@/components/PRMetrics"), {
@@ -190,10 +217,13 @@ const PRMetrics = dynamic(() => import("@/components/PRMetrics"), {
   loading: () => <StatsGridSkeleton />,
 });
 
-const PRBreakdownChart = dynamic(() => import("@/components/PRBreakdownChart"), {
-  ssr: false,
-  loading: () => <ChartSkeleton />,
-});
+const PRBreakdownChart = dynamic(
+  () => import("@/components/PRBreakdownChart"),
+  {
+    ssr: false,
+    loading: () => <ChartSkeleton />,
+  }
+);
 
 const CommitTimeChart = dynamic(() => import("@/components/CommitTimeChart"), {
   ssr: false,
@@ -202,22 +232,22 @@ const CommitTimeChart = dynamic(() => import("@/components/CommitTimeChart"), {
 
 const PRReviewTrendChart = dynamic(
   () => import("@/components/PRReviewTrendChart"),
-  { ssr: false, loading: () => <ChartSkeleton /> },
+  { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
 const ProductiveHoursWidget = dynamic(
   () => import("@/components/ProductiveHoursWidget"),
-  { ssr: false, loading: () => <ChartSkeleton /> },
+  { ssr: false, loading: () => <ChartSkeleton /> }
 );
 
 const AchievementProgressTracker = dynamic(
   () => import("@/components/AchievementProgressTracker"),
-  { ssr: false, loading: () => <SkeletonCard /> },
+  { ssr: false, loading: () => <SkeletonCard /> }
 );
 
 const SponsorAnalytics = dynamic(
   () => import("@/components/SponsorAnalytics"),
-  { ssr: false, loading: () => <SkeletonCard /> },
+  { ssr: false, loading: () => <SkeletonCard /> }
 );
 
 const SECTION_ANCHOR_IDS: Record<DashboardSectionId, string> = {
@@ -228,10 +258,14 @@ const SECTION_ANCHOR_IDS: Record<DashboardSectionId, string> = {
 };
 
 const SECTION_ACCENT_CLASSES: Record<DashboardSectionId, string> = {
-  overview: "h-1 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)]/60 rounded-full shadow-md",
-  activity: "h-1 bg-gradient-to-r from-emerald-500 to-emerald-500/60 rounded-full shadow-md",
-  analytics: "h-1 bg-gradient-to-r from-blue-500 to-blue-500/60 rounded-full shadow-md",
-  goals: "h-1 bg-gradient-to-r from-purple-500 to-purple-500/60 rounded-full shadow-md",
+  overview:
+    "h-1 bg-gradient-to-r from-[var(--accent)] to-accent/60 rounded-full shadow-md",
+  activity:
+    "h-1 bg-gradient-to-r from-emerald-500 to-emerald-500/60 rounded-full shadow-md",
+  analytics:
+    "h-1 bg-gradient-to-r from-blue-500 to-blue-500/60 rounded-full shadow-md",
+  goals:
+    "h-1 bg-gradient-to-r from-purple-500 to-purple-500/60 rounded-full shadow-md",
 };
 
 const SECTION_GRID_CLASSES: Record<DashboardSectionId, string> = {
@@ -239,10 +273,14 @@ const SECTION_GRID_CLASSES: Record<DashboardSectionId, string> = {
   // but because WIDGET_SPAN_CLASSES uses xl:col-span-2 on several widgets.
   // Without an explicit xl:grid-cols-N, those col-span rules have no effect
   // and the rendered layout diverges from the skeleton at viewports ≥1280px.
-  overview: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 w-full",
-  activity: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full",
-  analytics: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 w-full",
-  goals: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full",
+  overview:
+    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 w-full",
+  activity:
+    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full",
+  analytics:
+    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 w-full",
+  goals:
+    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full",
 };
 
 const WIDGET_SPAN_CLASSES: Partial<Record<DashboardWidgetId, string>> = {
@@ -258,14 +296,14 @@ const WIDGET_SPAN_CLASSES: Partial<Record<DashboardWidgetId, string>> = {
 };
 
 const isDashboardWidgetId = (
-  value: UniqueIdentifier,
+  value: UniqueIdentifier
 ): value is DashboardWidgetId =>
   typeof value === "string" &&
   Object.prototype.hasOwnProperty.call(DASHBOARD_WIDGET_LABELS, value);
 
 const findWidgetSection = (
   layout: DashboardLayoutPreference,
-  widgetId: DashboardWidgetId,
+  widgetId: DashboardWidgetId
 ): DashboardSectionId | null => {
   for (const sectionId of DASHBOARD_SECTIONS) {
     if (layout.widgets[sectionId].includes(widgetId)) {
@@ -479,7 +517,7 @@ const renderDashboardWidget = (widgetId: DashboardWidgetId): ReactNode => {
 
 export default function CustomizableDashboard() {
   const [layout, setLayout] = useState<DashboardLayoutPreference>(() =>
-    getDefaultDashboardLayout(),
+    getDefaultDashboardLayout()
   );
   const [isEditing, setIsEditing] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -494,13 +532,13 @@ export default function CustomizableDashboard() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   useEffect(() => {
     try {
       const savedLayout = window.localStorage.getItem(
-        DASHBOARD_LAYOUT_STORAGE_KEY,
+        DASHBOARD_LAYOUT_STORAGE_KEY
       );
 
       if (savedLayout) {
@@ -553,7 +591,7 @@ export default function CustomizableDashboard() {
 
     window.localStorage.setItem(
       DASHBOARD_LAYOUT_STORAGE_KEY,
-      JSON.stringify(layout),
+      JSON.stringify(layout)
     );
   }, [isHydrated, layout]);
 
@@ -561,9 +599,9 @@ export default function CustomizableDashboard() {
     () =>
       DASHBOARD_SECTIONS.reduce(
         (count, sectionId) => count + layout.widgets[sectionId].length,
-        0,
+        0
       ),
-    [layout],
+    [layout]
   );
 
   useEffect(() => {
@@ -618,7 +656,7 @@ export default function CustomizableDashboard() {
         fromSection,
         toSection,
         activeWidgetId,
-        overIndex,
+        overIndex
       );
     });
   };
@@ -689,8 +727,9 @@ export default function CustomizableDashboard() {
               <section
                 key={sectionId}
                 id={SECTION_ANCHOR_IDS[sectionId]}
-                className={`scroll-mt-28 ${sectionId === "goals" ? "mb-16" : "mb-14"
-                  }`}
+                className={`scroll-mt-28 ${
+                  sectionId === "goals" ? "mb-16" : "mb-14"
+                }`}
               >
                 <div className="space-y-2 mb-6">
                   <div
@@ -701,10 +740,14 @@ export default function CustomizableDashboard() {
                       {DASHBOARD_SECTION_LABELS[sectionId]}
                     </h2>
                     <p className="mt-1 text-sm text-[var(--muted-foreground)] font-medium">
-                      {sectionId === "overview" && "Quick summary of your development profile"}
-                      {sectionId === "activity" && "Your coding patterns and contributions"}
-                      {sectionId === "analytics" && "In-depth analysis of your repositories and code"}
-                      {sectionId === "goals" && "Track progress, milestones, and insights"}
+                      {sectionId === "overview" &&
+                        "Quick summary of your development profile"}
+                      {sectionId === "activity" &&
+                        "Your coding patterns and contributions"}
+                      {sectionId === "analytics" &&
+                        "In-depth analysis of your repositories and code"}
+                      {sectionId === "goals" &&
+                        "Track progress, milestones, and insights"}
                     </p>
                   </div>
                 </div>
@@ -713,7 +756,9 @@ export default function CustomizableDashboard() {
                   items={sectionWidgets}
                   strategy={rectSortingStrategy}
                 >
-                  <div className={`${SECTION_GRID_CLASSES[sectionId]} auto-rows-max`}>
+                  <div
+                    className={`${SECTION_GRID_CLASSES[sectionId]} auto-rows-max`}
+                  >
                     {sectionWidgets.map((widgetId) => (
                       <SortableDashboardWidget
                         key={widgetId}

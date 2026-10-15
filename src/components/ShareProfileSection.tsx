@@ -26,8 +26,7 @@ export default function ShareProfileSection({
 
   useEffect(() => {
     setCanUseNativeShare(
-      typeof navigator !== "undefined" &&
-        "share" in navigator
+      typeof navigator !== "undefined" && "share" in navigator
     );
   }, []);
 
@@ -53,13 +52,13 @@ export default function ShareProfileSection({
       }
     }
   };
-  
+
   const downloadCard = async () => {
     if (!cardRef.current) return;
-  
+
     try {
       const dataUrl = await toPng(cardRef.current);
-  
+
       const link = document.createElement("a");
       link.download = `${username}-devtrack-card.png`;
       link.href = dataUrl;
@@ -69,111 +68,111 @@ export default function ShareProfileSection({
     }
   };
 
-return (
-  <>
-    <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm md:p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--card-foreground)]">
-            Share Profile
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-            Share your public stats on X, LinkedIn, or copy the profile link.
-          </p>
-        </div>
+  return (
+    <>
+      <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm md:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--card-foreground)]">
+              Share Profile
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+              Share your public stats on X, LinkedIn, or copy the profile link.
+            </p>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => setShowPreview(true)}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium"
-        >
-          Generate Share Card
-        </button>
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium"
+          >
+            Generate Share Card
+          </button>
 
-        <div className="flex flex-wrap gap-2">
-          {canUseNativeShare ? (
+          <div className="flex flex-wrap gap-2">
+            {canUseNativeShare ? (
+              <button
+                type="button"
+                onClick={handleNativeShare}
+                aria-label={`Share ${username}'s profile using the device share sheet`}
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-colors hover:opacity-90"
+              >
+                <span>📲</span>
+                <span>Share</span>
+              </button>
+            ) : null}
+
             <button
               type="button"
-              onClick={handleNativeShare}
-              aria-label={`Share ${username}'s profile using the device share sheet`}
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-colors hover:opacity-90"
+              onClick={() => setShowQrModal(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-control/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 active:scale-95"
             >
-              <span>📲</span>
-              <span>Share</span>
+              <QrCode size={16} aria-hidden="true" />
+              <span>QR Code</span>
             </button>
-          ) : null}
 
-          <button
-            type="button"
-            onClick={() => setShowQrModal(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50 active:scale-95"
-          >
-            <QrCode size={16} aria-hidden="true" />
-            <span>QR Code</span>
-          </button>
-        
-          <a
-            href={xShareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Share ${username}'s profile on X`}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]/80"
-          >
-            <span>𝕏</span>
-            <span>X</span>
-          </a>
+            <a
+              href={xShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Share ${username}'s profile on X`}
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-control/80"
+            >
+              <span>𝕏</span>
+              <span>X</span>
+            </a>
 
-          <a
-            href={linkedInShareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Share ${username}'s profile on LinkedIn`}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]/80"
-          >
-            <span>in</span>
-            <span>LinkedIn</span>
-          </a>
-        
-          <CopyLinkButton url={profileUrl} />
+            <a
+              href={linkedInShareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Share ${username}'s profile on LinkedIn`}
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-control/80"
+            >
+              <span>in</span>
+              <span>LinkedIn</span>
+            </a>
+
+            <CopyLinkButton url={profileUrl} />
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    {showPreview && (
-      <div className="mt-4 rounded-xl border p-4">
-        <div ref={cardRef}>
-          <ProfileShareCard
-            username={username}
-            streak={streak}
-            profileUrl={profileUrl}
-          />
+      {showPreview && (
+        <div className="mt-4 rounded-xl border p-4">
+          <div ref={cardRef}>
+            <ProfileShareCard
+              username={username}
+              streak={streak}
+              profileUrl={profileUrl}
+            />
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <button
+              type="button"
+              onClick={downloadCard}
+              className="rounded-lg border px-3 py-2"
+            >
+              Download PNG
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowPreview(false)}
+              className="rounded-lg border px-3 py-2"
+            >
+              Close
+            </button>
+          </div>
         </div>
+      )}
 
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={downloadCard}
-            className="rounded-lg border px-3 py-2"
-          >
-            Download PNG
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowPreview(false)}
-            className="rounded-lg border px-3 py-2"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    )}
-
-    <ProfileQrModal
-      onClose={() => setShowQrModal(false)}
-      username={username}
-      profileUrl={profileUrl}
-    />
-  </>
-);
+      <ProfileQrModal
+        onClose={() => setShowQrModal(false)}
+        username={username}
+        profileUrl={profileUrl}
+      />
+    </>
+  );
 }

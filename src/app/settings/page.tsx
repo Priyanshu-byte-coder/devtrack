@@ -58,13 +58,7 @@ function getStatusMessage(
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
 
-function GitHubAvatar({
-  login,
-  size = 32,
-}: {
-  login: string;
-  size?: number;
-}) {
+function GitHubAvatar({ login, size = 32 }: { login: string; size?: number }) {
   return (
     <Image
       src={`https://github.com/${login}.png?size=${size * 2}`}
@@ -88,7 +82,8 @@ function LinkedAccountsSection() {
   const [error, setError] = useState<string | null>(null);
 
   const statusMessage = useMemo(
-    () => getStatusMessage(searchParams.get("success"), searchParams.get("error")),
+    () =>
+      getStatusMessage(searchParams.get("success"), searchParams.get("error")),
     [searchParams]
   );
 
@@ -196,7 +191,7 @@ function LinkedAccountsSection() {
 
       {/* Primary account */}
       {session?.githubLogin && (
-        <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card-muted)]/50 px-4 py-3">
+        <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-card-muted/50 px-4 py-3">
           <GitHubAvatar login={session.githubLogin} size={32} />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-[var(--foreground)] truncate">
@@ -218,7 +213,7 @@ function LinkedAccountsSection() {
           {linkedAccounts.map((account) => (
             <li
               key={account.githubId}
-              className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card-muted)]/30 px-4 py-3"
+              className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-card-muted/30 px-4 py-3"
             >
               <GitHubAvatar login={account.githubLogin} size={32} />
               <div className="flex-1 min-w-0">
@@ -289,10 +284,8 @@ function LinkedAccountsSection() {
 
 function AccountSwitcherInfo() {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--card-muted)]/30 p-4 text-sm text-[var(--muted-foreground)] space-y-1">
-      <p className="font-semibold text-[var(--foreground)]">
-        Account switcher
-      </p>
+    <div className="rounded-lg border border-[var(--border)] bg-card-muted/30 p-4 text-sm text-[var(--muted-foreground)] space-y-1">
+      <p className="font-semibold text-[var(--foreground)]">Account switcher</p>
       <p>
         Once you link another account, an account switcher will appear at the
         bottom of the Dashboard header. You can select any linked account or
@@ -312,7 +305,10 @@ function PageSkeleton() {
         <div className="h-8 w-48 bg-[var(--card-muted)] rounded animate-pulse" />
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-[var(--card-muted)] rounded animate-pulse" />
+            <div
+              key={i}
+              className="h-16 bg-[var(--card-muted)] rounded animate-pulse"
+            />
           ))}
         </div>
       </div>

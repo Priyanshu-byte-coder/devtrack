@@ -13,10 +13,10 @@ interface PRBreakdown {
 }
 
 const SLICES: { key: keyof PRBreakdown; label: string; color: string }[] = [
-  { key: "open",   label: "Open",   color: "var(--accent)" },
+  { key: "open", label: "Open", color: "var(--accent)" },
   { key: "merged", label: "Merged", color: "var(--success)" },
   { key: "closed", label: "Closed", color: "var(--warning)" },
-  { key: "draft",  label: "Draft",  color: "var(--muted-foreground)" },
+  { key: "draft", label: "Draft", color: "var(--muted-foreground)" },
 ];
 
 export default function PRBreakdownChart() {
@@ -37,15 +37,30 @@ export default function PRBreakdownChart() {
     setLoading(true);
     setError(null);
 
-    const url = selectedAccount !== null
-      ? `/api/metrics/pr-breakdown?accountId=${encodeURIComponent(selectedAccount)}`
-      : "/api/metrics/pr-breakdown";
+    const url =
+      selectedAccount !== null
+        ? `/api/metrics/pr-breakdown?accountId=${encodeURIComponent(selectedAccount)}`
+        : "/api/metrics/pr-breakdown";
 
     fetch(url)
-      .then((r) => {if(!r.ok) throw new Error("PR metrics unavailable");return r.json();})
-      .then((d: PRBreakdown & {complete?:boolean;partialReason?:string}) => {setBreakdown(d);setPartialReason(d.complete===false ? d.partialReason ?? "Incomplete PR history" : null);})
+      .then((r) => {
+        if (!r.ok) throw new Error("PR metrics unavailable");
+        return r.json();
+      })
+      .then(
+        (d: PRBreakdown & { complete?: boolean; partialReason?: string }) => {
+          setBreakdown(d);
+          setPartialReason(
+            d.complete === false
+              ? (d.partialReason ?? "Incomplete PR history")
+              : null
+          );
+        }
+      )
       .catch(() =>
-        setError("We couldn't load your PR breakdown right now. Please try again in a moment.")
+        setError(
+          "We couldn't load your PR breakdown right now. Please try again in a moment."
+        )
       )
       .finally(() => setLoading(false));
   }, [selectedAccount]);
@@ -65,13 +80,15 @@ export default function PRBreakdownChart() {
   if (error) {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-        <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">PR Breakdown</h2>
-        <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+        <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+          PR Breakdown
+        </h2>
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
             type="button"
             onClick={fetchBreakdown}
-            className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
             Try again
           </button>
@@ -80,17 +97,30 @@ export default function PRBreakdownChart() {
     );
   }
 
-  const total = breakdown ? SLICES.reduce((sum, s) => sum + (breakdown[s.key] ?? 0), 0) : 0;
+  const total = breakdown
+    ? SLICES.reduce((sum, s) => sum + (breakdown[s.key] ?? 0), 0)
+    : 0;
   const chartData = breakdown
-    ? SLICES.map((s) => ({ name: s.label, value: breakdown[s.key] ?? 0, color: s.color })).filter(
-        (d) => d.value > 0
-      )
+    ? SLICES.map((s) => ({
+        name: s.label,
+        value: breakdown[s.key] ?? 0,
+        color: s.color,
+      })).filter((d) => d.value > 0)
     : [];
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">PR Breakdown</h2>
-      {partialReason && <p role="status" className="mb-3 text-xs text-[var(--muted-foreground)]">Partial history: {partialReason}</p>}
+      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+        PR Breakdown
+      </h2>
+      {partialReason && (
+        <p
+          role="status"
+          className="mb-3 text-xs text-[var(--muted-foreground)]"
+        >
+          Partial history: {partialReason}
+        </p>
+      )}
       {total === 0 ? (
         <p className="flex h-[200px] items-center justify-center text-sm text-[var(--muted-foreground)]">
           No pull requests found.
@@ -112,20 +142,20 @@ export default function PRBreakdownChart() {
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-               <Tooltip
-  contentStyle={{
-    backgroundColor: getCSSVariable('--tooltip'),
-    border: `1px solid ${getCSSVariable('--border')}`,
-    borderRadius: "10px",
-    color: getCSSVariable('--tooltip-foreground'),
-  }}
-  itemStyle={{
-    color: getCSSVariable('--tooltip-foreground'),
-  }}
-  labelStyle={{
-    color: getCSSVariable('--tooltip-foreground'),
-  }}
-/>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: getCSSVariable("--tooltip"),
+                  border: `1px solid ${getCSSVariable("--border")}`,
+                  borderRadius: "10px",
+                  color: getCSSVariable("--tooltip-foreground"),
+                }}
+                itemStyle={{
+                  color: getCSSVariable("--tooltip-foreground"),
+                }}
+                labelStyle={{
+                  color: getCSSVariable("--tooltip-foreground"),
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-3 flex flex-wrap justify-center gap-4">
@@ -134,7 +164,10 @@ export default function PRBreakdownChart() {
                 key={s.key}
                 className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]"
               >
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: s.color }}
+                />
                 {s.label}: {breakdown?.[s.key] ?? 0}
               </div>
             ))}

@@ -10,9 +10,9 @@ const buttonVariants = cva(
         default:
           "bg-[var(--accent)] text-[var(--accent-foreground)] shadow hover:opacity-90",
         destructive:
-          "border border-[var(--destructive)]/50 bg-[var(--destructive)]/80 text-white shadow hover:bg-[var(--destructive)]",
+          "border border-destructive/50 bg-destructive/80 text-white shadow hover:bg-[var(--destructive)]",
         outline:
-          "border border-[var(--border)] bg-[var(--background)] shadow-sm hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--card-muted)]/50",
+          "border border-[var(--border)] bg-[var(--background)] shadow-sm hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-card-muted/50",
         secondary:
           "bg-[var(--card-muted)] text-[var(--foreground)] border border-[var(--border)] shadow-sm hover:opacity-80",
         ghost: "hover:text-[var(--destructive)] transition-colors",
@@ -33,14 +33,15 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    // Basic implementation without Radix Slot for simplicity, 
+    // Basic implementation without Radix Slot for simplicity,
     // unless asChild is needed (which would require @radix-ui/react-slot)
     // We'll stick to a simple button for now.
     return (

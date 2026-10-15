@@ -11,10 +11,9 @@ interface Props {
 }
 
 const GRADE_BADGE: Record<string, string> = {
-  green:
-    "bg-[var(--accent)]/15 text-[var(--accent)] border-[var(--accent)]/25",
+  green: "bg-accent/15 text-[var(--accent)] border-accent/25",
   yellow: "bg-[#ca8a04]/15 text-[#ca8a04] border-[#ca8a04]/25",
-  red: "bg-[var(--destructive)]/15 text-[var(--destructive)] border-[var(--destructive)]/25",
+  red: "bg-destructive/15 text-[var(--destructive)] border-destructive/25",
 };
 
 const GRADE_RING: Record<string, string> = {
@@ -44,8 +43,8 @@ function RepoHealthCard({ health, isSelected, onClick }: Props) {
         "w-full rounded-xl border p-3 text-left transition-all duration-150",
         "hover:shadow-sm hover:-translate-y-px active:scale-[0.99]",
         isSelected
-          ? `border-[var(--accent)] bg-[var(--accent)]/5 ring-1 ${ringClass}`
-          : "border-[var(--border)] bg-[var(--card)] hover:border-[var(--accent)]/40",
+          ? `border-[var(--accent)] bg-accent/5 ring-1 ${ringClass}`
+          : "border-[var(--border)] bg-[var(--card)] hover:border-accent/40",
       ].join(" ")}
       aria-pressed={isSelected}
       aria-label={`Select ${health.repo} — health score ${health.score}, ${label}`}
