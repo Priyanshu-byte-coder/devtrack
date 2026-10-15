@@ -1,10 +1,9 @@
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
-import { githubRequest } from "@/lib/github-request";
+import { collectAuthorCommits, requireUnthrottled } from "@/lib/github-search";
 import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
-import { GITHUB_API } from "@/lib/github";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -44,46 +43,26 @@ async function fetchActiveDates(
       const sinceStr = since.toISOString().slice(0, 10);
 
       const activeDates = new Set<string>();
-      let page = 1;
+      const { items } = requireUnthrottled(
+        await collectAuthorCommits(githubLogin, sinceStr, token, {
+          fresh: cacheContext.bypass,
+        })
+      );
 
-      while (true) {
-        const searchRes = await githubRequest(
-          `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github+json",
-            },
-            cache: "no-store",
-          }
-        );
-
-        if (!searchRes.ok) {
-          throw new Error("GitHub API error");
+      for (const item of items) {
+        const commitDate = new Date(item.commit.author.date);
+        const parts = new Intl.DateTimeFormat("en", {
+          timeZone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).formatToParts(commitDate);
+        const year = parts.find((p) => p.type === "year")?.value;
+        const month = parts.find((p) => p.type === "month")?.value;
+        const day = parts.find((p) => p.type === "day")?.value;
+        if (year && month && day) {
+          activeDates.add(`${year}-${month}-${day}`);
         }
-
-        const data = (await searchRes.json()) as {
-          items: Array<{ commit: { author: { date: string } } }>;
-        };
-
-        for (const item of data.items) {
-          const commitDate = new Date(item.commit.author.date);
-          const parts = new Intl.DateTimeFormat("en", {
-            timeZone,
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          }).formatToParts(commitDate);
-          const year = parts.find((p) => p.type === "year")?.value;
-          const month = parts.find((p) => p.type === "month")?.value;
-          const day = parts.find((p) => p.type === "day")?.value;
-          if (year && month && day) {
-            activeDates.add(`${year}-${month}-${day}`);
-          }
-        }
-
-        if (data.items.length < 100 || page >= 10) break;
-        page += 1;
       }
 
       return Array.from(activeDates);
@@ -240,8 +219,8 @@ export async function GET(req: NextRequest) {
     });
     return Response.json(result);
   } catch (error) {
-      const githubLimit = githubRateLimitResponse(error);
-      if (githubLimit) return githubLimit;
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

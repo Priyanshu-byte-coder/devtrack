@@ -11,11 +11,60 @@ type StoredResponse = {
   headers: [string, string][];
   savedAt: number;
 };
+type Resource = "core" | "graphql" | "search";
 const flights = new Map<string, Promise<StoredResponse>>();
-const queues = new Map<string, Promise<void>>();
+const slots = new Map<string, { active: number; waiting: Array<() => void> }>();
 const cooldowns = new Map<string, number>();
 const REQUEST_TIMEOUT_MS = 12_000;
-const FRESH_MS = 30_000;
+// Search allows 30 requests/minute; its data also changes slowly, so it is
+// cached longest. Callers force revalidation with `cache: "no-cache"`.
+const FRESH_MS: Record<Resource, number> = {
+  core: 30_000,
+  graphql: 120_000,
+  search: 300_000,
+};
+// A forced refresh fans out to every dashboard widget at once; widgets sharing
+// a query reuse one revalidation instead of each spending a search.
+const REVALIDATED_MS = 15_000;
+// Bounded per-credential concurrency keeps well under GitHub's secondary
+// limits without letting cheap REST calls queue behind slow search pages.
+const CONCURRENCY: Record<Resource, number> = {
+  core: 4,
+  graphql: 2,
+  search: 1,
+};
+
+function acquireSlot(key: string, limit: number, timeoutMs: number) {
+  let slot = slots.get(key);
+  if (!slot) {
+    slot = { active: 0, waiting: [] };
+    slots.set(key, slot);
+  }
+  const held = slot;
+  const release = () => {
+    held.active--;
+    const next = held.waiting.shift();
+    if (next) next();
+    else if (held.active === 0 && slots.get(key) === held) slots.delete(key);
+  };
+  if (held.active < limit) {
+    held.active++;
+    return Promise.resolve(release);
+  }
+  return new Promise<() => void>((resolve, reject) => {
+    const grant = () => {
+      clearTimeout(timer);
+      held.active++;
+      resolve(release);
+    };
+    const timer = setTimeout(() => {
+      const index = held.waiting.indexOf(grant);
+      if (index >= 0) held.waiting.splice(index, 1);
+      reject(new Error("GitHub request queue timed out"));
+    }, timeoutMs);
+    held.waiting.push(grant);
+  });
+}
 
 async function hash(value: string): Promise<string> {
   const bytes = await crypto.subtle.digest(
@@ -116,7 +165,7 @@ export async function githubRequest(
   if (!headers.has("accept"))
     headers.set("accept", "application/vnd.github+json");
   const credential = await hash(headers.get("authorization") ?? "anonymous");
-  const resource = url.pathname.startsWith("/search/")
+  const resource: Resource = url.pathname.startsWith("/search/")
     ? "search"
     : url.pathname === "/graphql"
       ? "graphql"
@@ -141,41 +190,24 @@ export async function githubRequest(
     ));
   if (init.signal?.aborted) throw init.signal.reason;
   let cached: StoredResponse | null = null;
+  const revalidate = init.cache === "no-cache" || init.cache === "reload";
   if (cacheable) {
     cached = await cacheGet<StoredResponse>(key);
-    if (cached && Date.now() - cached.savedAt < FRESH_MS)
+    const freshFor = revalidate ? REVALIDATED_MS : FRESH_MS[resource];
+    if (cached && Date.now() - cached.savedAt < freshFor)
       return asResponse(cached);
     const existing = flights.get(key);
     if (existing) return asResponse(await abortable(existing, init.signal));
   }
-  const previous = queues.get(credential) ?? Promise.resolve();
-  let release!: () => void;
-  const turn = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const chained = previous.then(() => turn);
-  queues.set(credential, chained);
-  // A queued caller can expire before its predecessor finishes. Retain the
-  // chain until it settles so new callers cannot bypass active work.
-  void chained.then(() => {
-    if (queues.get(credential) === chained) queues.delete(credential);
-  });
   const startedAt = Date.now();
   const work = (async () => {
-    // Serialize outbound requests per credential, as recommended by GitHub.
     // Deadline includes queue time, so busy accounts cannot occupy a request indefinitely.
-    let timer: ReturnType<typeof setTimeout> | undefined;
+    const release = await acquireSlot(
+      bucket,
+      CONCURRENCY[resource],
+      REQUEST_TIMEOUT_MS
+    );
     try {
-      await Promise.race([
-        previous,
-        new Promise<never>((_, reject) => {
-          timer = setTimeout(
-            () => reject(new Error("GitHub request queue timed out")),
-            REQUEST_TIMEOUT_MS
-          );
-        }),
-      ]);
-      clearTimeout(timer);
       const until = Math.max(
         cooldowns.get(bucket) ?? 0,
         cooldowns.get(secondaryBucket) ?? 0,
@@ -243,12 +275,15 @@ export async function githubRequest(
         : retrySeconds(response, body);
       if (retry !== null) {
         const reset = Date.now() + retry * 1000;
+        // GitHub answers an exhausted primary quota with 403 or 429 and
+        // remaining=0; only that resource waits. Anything else is a secondary
+        // limit, which applies to the whole credential.
         const secondary =
-          (graphLimited &&
-            response.headers.get("x-ratelimit-remaining") !== "0") ||
-          response.status === 429 ||
-          response.headers.has("retry-after") ||
-          /secondary rate limit|exceeded a secondary/i.test(body);
+          response.headers.get("x-ratelimit-remaining") !== "0" &&
+          (graphLimited ||
+            response.status === 429 ||
+            response.headers.has("retry-after") ||
+            /secondary rate limit|exceeded a secondary/i.test(body));
         cooldowns.set(secondary ? secondaryBucket : bucket, reset);
         await cacheSet(secondary ? secondaryKey : cooldownKey, reset, retry);
         return limited(reset);
@@ -279,7 +314,6 @@ export async function githubRequest(
         await cacheSet(key, stored, 86400);
       return stored;
     } finally {
-      clearTimeout(timer);
       release();
       for (const [key, until] of cooldowns)
         if (until <= Date.now()) cooldowns.delete(key);
@@ -299,6 +333,6 @@ export async function githubRequest(
 /** Test isolation without weakening production behavior. */
 export function resetGitHubRequestState() {
   flights.clear();
-  queues.clear();
+  slots.clear();
   cooldowns.clear();
 }

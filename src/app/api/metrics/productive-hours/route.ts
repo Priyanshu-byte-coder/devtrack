@@ -1,5 +1,5 @@
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
-import { githubRequest } from "@/lib/github-request";
+import { collectAuthorCommits, requireUnthrottled } from "@/lib/github-search";
 import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
@@ -8,7 +8,7 @@ import {
   getAllAccounts,
   mergeMetrics,
 } from "@/lib/github-accounts";
-import { GITHUB_API, GitHubCommitSearchItem, GitHubAuthError } from "@/lib/github";
+import { GitHubCommitSearchItem, GitHubAuthError } from "@/lib/github";
 import { githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
@@ -45,8 +45,6 @@ async function fetchProductiveHoursForAccount(
   fromDate?: string,
   repo?: string | null
 ): Promise<ProductiveHoursResponse> {
-  const repoFilter = repo ? ` repo:${repo}` : "";
-
   const key = metricsCacheKey(cacheContext.userId, "productive-hours", {
     days,
     githubLogin,
@@ -66,64 +64,23 @@ async function fetchProductiveHoursForAccount(
       since.setDate(since.getDate() - days);
       const sinceStr = fromDate ?? toLocalDateStr(since);
 
-      let allItems: GitHubCommitSearchItem[] = [];
-      let totalCount = 0;
-      let page = 1;
-
-      // Paginate GitHub commit search — mirrors contributions/route.ts exactly.
-      // Up to 10 pages × 100 items = 1 000 commits max.
-      while (page <= 10) {
-        const searchUrl = new URL(`${GITHUB_API}/search/commits`);
-        searchUrl.searchParams.set(
-          "q",
-          `author:${githubLogin} author-date:>=${sinceStr}${repoFilter}`
-        );
-        searchUrl.searchParams.set("per_page", "100");
-        searchUrl.searchParams.set("page", String(page));
-        searchUrl.searchParams.set("sort", "author-date");
-        searchUrl.searchParams.set("order", "desc");
-
-        const searchRes = await githubRequest(searchUrl.toString(), {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-          },
-          cache: "no-store",
-        });
-
-        if (!searchRes.ok) {
-          if (searchRes.status === 401) throw new GitHubAuthError();
-          // Graceful degradation on rate-limit — return partial data already collected.
-          if (searchRes.status === 429 || searchRes.status === 403) {
-            if (allItems.length === 0) {
-              throw new Error(`GitHub API error: ${searchRes.status}`);
-            }
-            break;
+      const result = requireUnthrottled(
+        await collectAuthorCommits<GitHubCommitSearchItem>(
+          githubLogin,
+          sinceStr,
+          token,
+          {
+            fresh: cacheContext.bypass,
           }
-          throw new Error("GitHub API error");
-        }
-
-        const data = (await searchRes.json()) as {
-          total_count: number;
-          items: GitHubCommitSearchItem[];
-        };
-
-        if (page === 1) {
-          totalCount = data.total_count;
-        }
-
-        allItems = allItems.concat(data.items);
-
-        if (
-          data.items.length < 100 ||
-          allItems.length >= 1000 ||
-          allItems.length >= totalCount
-        ) {
-          break;
-        }
-
-        page += 1;
-      }
+        )
+      );
+      const repoName = repo?.toLowerCase();
+      const allItems = repoName
+        ? result.items.filter(
+            (item) => item.repository?.full_name?.toLowerCase() === repoName
+          )
+        : result.items;
+      const totalCount = repoName ? allItems.length : result.total;
 
       const counts: Record<string, number> = {};
 
@@ -134,7 +91,7 @@ async function fetchProductiveHoursForAccount(
           utcDate.toLocaleString("en-US", { timeZone: timezone })
         );
 
-        const day = localDate.getDay();   // 0 Sun … 6 Sat
+        const day = localDate.getDay(); // 0 Sun … 6 Sat
         const hour = localDate.getHours(); // 0–23
         const k = `${day}-${hour}`;
         counts[k] = (counts[k] ?? 0) + 1;
@@ -225,7 +182,9 @@ export async function GET(req: NextRequest) {
   } else {
     const daysParam = searchParams.get("days");
     const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
-    days = Number.isNaN(parsedDays) ? 90 : Math.max(1, Math.min(365, parsedDays));
+    days = Number.isNaN(parsedDays)
+      ? 90
+      : Math.max(1, Math.min(365, parsedDays));
   }
 
   const accountId = searchParams.get("accountId");

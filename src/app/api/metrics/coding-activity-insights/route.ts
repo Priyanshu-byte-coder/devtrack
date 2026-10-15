@@ -1,13 +1,9 @@
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
-import { githubRequest } from "@/lib/github-request";
+import { collectAuthorCommits, requireUnthrottled } from "@/lib/github-search";
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
-import {
-  getAccountToken,
-  getAllAccounts,
-} from "@/lib/github-accounts";
-import { GITHUB_API } from "@/lib/github";
-import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
+import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
+import { githubAuthErrorResponse } from "@/lib/github-fetch";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -68,58 +64,19 @@ async function fetchCommitTimestampsForAccount(
       since.setDate(since.getDate() - SEARCH_WINDOW_DAYS);
       const sinceStr = since.toISOString().slice(0, 10);
 
-      const timestamps: string[] = [];
-      let totalCount = 0;
-      let page = 1;
-
-      while (page <= 10) {
-        const response = await githubRequest(
-          `${GITHUB_API}/search/commits?q=author:${githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
+      const { items } = requireUnthrottled(
+        await collectAuthorCommits<CommitSearchItem>(
+          githubLogin,
+          sinceStr,
+          token,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github+json",
-            },
-            cache: "no-store",
+            fresh: cacheContext.bypass,
           }
-        );
-
-        if (!response.ok) {
-          if (response.status === 401) throw new GitHubAuthError();
-          if ((response.status === 403 || response.status === 429) && timestamps.length > 0) {
-            break;
-          }
-
-          throw new Error("GitHub API error");
-        }
-
-        const payload = (await response.json()) as {
-          total_count: number;
-          items: CommitSearchItem[];
-        };
-
-        if (page === 1) {
-          totalCount = payload.total_count;
-        }
-
-        timestamps.push(
-          ...payload.items
-            .map((item) => item.commit?.author?.date)
-            .filter((date): date is string => Boolean(date))
-        );
-
-        if (payload.items.length < 100) {
-          break;
-        }
-
-        if (timestamps.length >= 1000 || timestamps.length >= totalCount) {
-          break;
-        }
-
-        page += 1;
-      }
-
-      return timestamps;
+        )
+      );
+      return items
+        .map((item) => item.commit?.author?.date)
+        .filter((date): date is string => Boolean(date));
     }
   );
 }
@@ -142,7 +99,11 @@ async function buildInsightsForAccount(
 export async function GET(req: NextRequest) {
   const sessionData = await getSessionWithToken();
 
-  if (!sessionData || !sessionData.session.githubLogin || !sessionData.session.githubId) {
+  if (
+    !sessionData ||
+    !sessionData.session.githubLogin ||
+    !sessionData.session.githubId
+  ) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -244,10 +205,15 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: "Account not found" }, { status: 404 });
     }
 
-    const data = await buildInsightsForAccount(token, accountRow.github_login, timeZone, {
-      bypass,
-      userId: accountId,
-    });
+    const data = await buildInsightsForAccount(
+      token,
+      accountRow.github_login,
+      timeZone,
+      {
+        bypass,
+        userId: accountId,
+      }
+    );
 
     return Response.json(data);
   } catch (e) {

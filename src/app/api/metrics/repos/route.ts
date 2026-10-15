@@ -1,4 +1,4 @@
-import { collectGitHubSearch } from "@/lib/github-search";
+import { collectAuthorCommits, collectGitHubSearch } from "@/lib/github-search";
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
 import { githubRequest } from "@/lib/github-request";
 import { getServerSession } from "@/lib/server-session";
@@ -50,7 +50,15 @@ function mergeRepoCommits(
 ): Array<RepoSummary> {
   // Merges repo commit counts across multiple GitHub accounts for the "combined" view.
   // If both accounts committed to the same repo, their counts are summed.
-  const map = new Map<string, { commits: number; description: string | null; url: string; languages?: RepoLanguage[] }>();
+  const map = new Map<
+    string,
+    {
+      commits: number;
+      description: string | null;
+      url: string;
+      languages?: RepoLanguage[];
+    }
+  >();
   for (const repo of [...a, ...b]) {
     const existing = map.get(repo.name);
     map.set(repo.name, {
@@ -100,7 +108,10 @@ async function fetchRepoLanguages(
   }
 
   const langs = (await res.json()) as Record<string, number>;
-  const totalBytes = Object.values(langs).reduce((sum, bytes) => sum + bytes, 0);
+  const totalBytes = Object.values(langs).reduce(
+    (sum, bytes) => sum + bytes,
+    0
+  );
 
   if (totalBytes <= 0) {
     return [];
@@ -155,13 +166,37 @@ async function fetchReposForAccount(
       }
       q += `+author-date:>=${sinceStr}`;
 
-      const search = await collectGitHubSearch<{repository: {full_name:string; html_url:string; description:string|null}; commit:{author:{date:string}}}>('commits',q.replace(/\+/g,' '),token);
-      const data = {items:search.items};
+      type RepoCommit = {
+        repository: {
+          full_name: string;
+          html_url: string;
+          description: string | null;
+        };
+        commit: { author: { date: string } };
+      };
+      // Org-scoped views need their own query; the default view reuses the shared commit timeline.
+      const search =
+        orgName || excludedOrgs.length > 0
+          ? await collectGitHubSearch<RepoCommit>(
+              "commits",
+              q.replace(/\+/g, " "),
+              token
+            )
+          : await collectAuthorCommits<RepoCommit>(
+              githubLogin,
+              sinceStr,
+              token,
+              { fresh: cacheContext.bypass }
+            );
+      const data = { items: search.items };
 
       // Group commits by repository and count them.
       // Each item in the Search API response represents one commit, so we tally
       // per repo to find the most actively committed-to repositories.
-      const repoMap: Record<string, { commits: number; description: string | null; url: string }> = {};
+      const repoMap: Record<
+        string,
+        { commits: number; description: string | null; url: string }
+      > = {};
       for (const item of data.items) {
         const name = item.repository.full_name;
         repoMap[name] = {
@@ -174,7 +209,12 @@ async function fetchReposForAccount(
       // Take the top 6 repos by commit count to keep the dashboard widget compact
       // and to limit the number of subsequent language API calls (6 REST requests max).
       const repos = Object.entries(repoMap)
-        .map(([name, { commits, description, url }]) => ({ name, commits, description, url }))
+        .map(([name, { commits, description, url }]) => ({
+          name,
+          commits,
+          description,
+          url,
+        }))
         .sort((a, b) => b.commits - a.commits)
         .slice(0, 6);
 
@@ -187,7 +227,13 @@ async function fetchReposForAccount(
         })
       );
 
-      return { repos: reposWithLanguages, days, complete: search.complete, sampledCommits: search.items.length, partialReason: search.partialReason };
+      return {
+        repos: reposWithLanguages,
+        days,
+        complete: search.complete,
+        sampledCommits: search.items.length,
+        partialReason: search.partialReason,
+      };
     }
   );
 }
@@ -207,7 +253,9 @@ export async function GET(req: NextRequest) {
   const daysParam = req.nextUrl.searchParams.get("days");
   const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
   // Clamp days between 1 and 365 — GitHub Commit Search supports up to ~1 year lookback.
-  const days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+  const days = Number.isNaN(parsedDays)
+    ? 30
+    : Math.max(1, Math.min(365, parsedDays));
   const accountId = req.nextUrl.searchParams.get("accountId");
   const bypass = isMetricsCacheBypassed(req);
 
@@ -230,7 +278,10 @@ export async function GET(req: NextRequest) {
         .eq("github_id", session.githubId)
         .single();
 
-      const orgsConfig = (dbUser?.organizations_config || {}) as Record<string, boolean>;
+      const orgsConfig = (dbUser?.organizations_config || {}) as Record<
+        string,
+        boolean
+      >;
       excludedOrgs = Object.entries(orgsConfig)
         .filter(([_, enabled]) => enabled === false)
         .map(([org]) => org);

@@ -1,9 +1,8 @@
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
-import { githubRequest } from "@/lib/github-request";
+import { collectAuthorCommits, requireUnthrottled } from "@/lib/github-search";
 import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { GITHUB_API } from "@/lib/github";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -39,28 +38,19 @@ export async function GET(req: NextRequest) {
           new Array(24).fill(0)
         );
 
-        let page = 1;
-        while (true) {
-          const res = await githubRequest(
-            `${GITHUB_API}/search/commits?q=author:${session.githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
+        const { items } = requireUnthrottled(
+          await collectAuthorCommits(
+            session.githubLogin!,
+            sinceStr,
+            session.accessToken,
             {
-              headers: {
-                Authorization: `Bearer ${session.accessToken}`,
-                Accept: "application/vnd.github+json",
-              },
-              cache: "no-store",
+              fresh: bypass,
             }
-          );
-          if (!res.ok) throw new Error("GitHub API error");
-          const data = (await res.json()) as {
-            items: Array<{ commit: { author: { date: string } } }>;
-          };
-          for (const item of data.items) {
-            const d = new Date(item.commit.author.date);
-            matrix[d.getDay()][d.getHours()]++;
-          }
-          if (data.items.length < 100 || page >= 10) break;
-          page++;
+          )
+        );
+        for (const item of items) {
+          const d = new Date(item.commit.author.date);
+          matrix[d.getDay()][d.getHours()]++;
         }
 
         // Find peak slot
@@ -83,8 +73,8 @@ export async function GET(req: NextRequest) {
 
     return Response.json(result);
   } catch (error) {
-      const githubLimit = githubRateLimitResponse(error);
-      if (githubLimit) return githubLimit;
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

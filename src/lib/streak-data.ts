@@ -1,5 +1,5 @@
 ﻿import "server-only";
-import { collectGitHubSearch } from "@/lib/github-search";
+import { collectAuthorCommits, collectGitHubSearch } from "@/lib/github-search";
 import {
   metricsCacheKey,
   withMetricsCache,
@@ -31,13 +31,17 @@ export async function fetchCommitStreakDates(
     async () => {
       const since = new Date();
       since.setUTCDate(since.getUTCDate() - 365);
-      const search = await collectGitHubSearch<{
-        commit: { author: { date: string } };
-      }>(
-        "commits",
-        `author:${login} author-date:>=${since.toISOString().slice(0, 10)}${visibility === "public" ? " is:public" : ""}`,
-        token
-      );
+      const sinceStr = since.toISOString().slice(0, 10);
+      const search =
+        visibility === "public"
+          ? await collectGitHubSearch<{ commit: { author: { date: string } } }>(
+              "commits",
+              `author:${login} author-date:>=${sinceStr} is:public`,
+              token
+            )
+          : await collectAuthorCommits(login, sinceStr, token, {
+              fresh: context.bypass,
+            });
       const dates = new Set<string>();
       const formatter = new Intl.DateTimeFormat("en-CA", {
         timeZone,
