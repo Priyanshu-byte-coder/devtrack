@@ -23,7 +23,6 @@ import OnboardingTour from "@/components/OnboardingTour";
 import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
-import { Button, buttonVariants } from "@/components/ui/button";
 
 type DashboardSyncContextValue = {
   lastSynced: Date | null;
@@ -222,21 +221,9 @@ export default function DashboardHeader() {
   const { data: session } = useSession();
   const [isPublic, setIsPublic] = useState<boolean | null>(null);
   const [seenOnboarding, setSeenOnboarding] = useState<boolean>(true);
-  const [greeting, setGreeting] = useState<string>("Welcome back");
 
   const [isNightOwl, setIsNightOwl] = useState<boolean>(false);
   const [isEarlyBird, setIsEarlyBird] = useState<boolean>(false);
-
-  useEffect(() => {
-    const computeCurrentGreeting = () => {
-      const currentHour = new Date().getHours();
-      if (currentHour >= 5 && currentHour < 12) return "Good morning ☀️";
-      if (currentHour >= 12 && currentHour < 17) return "Good afternoon 🌤️";
-      if (currentHour >= 17 && currentHour < 22) return "Good evening 🌙";
-      return "Burning the midnight oil 🦉";
-    };
-    setGreeting(computeCurrentGreeting());
-  }, []);
 
   // Extracted to useCallback so useRealtimeSync can call it as a stable reference.
   const loadSettings = useCallback(async () => {
@@ -310,14 +297,9 @@ export default function DashboardHeader() {
     evaluateCodingDistributionMilestones();
   }, [session]);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-
   const { lastSynced } = useDashboardSync();
   const [now, setNow] = useState(() => Date.now());
 
-  // Extract a fallback username parameter from active session data strings
-  const displayName =
-    session?.user?.name || session?.githubLogin || "Developer";
   useEffect(() => {
     if (!lastSynced) return;
 
@@ -333,22 +315,13 @@ export default function DashboardHeader() {
     : null;
 
   return (
-    <header className="relative mb-8 overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/95 p-3 shadow-[var(--shadow-soft)] backdrop-blur-md transition-all duration-300 hover:shadow-[var(--shadow-medium)] sm:p-5 md:p-6">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/40 to-transparent" />
-      <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-[var(--accent)]/10 blur-3xl" />
+    <header className="relative mb-8 overflow-hidden rounded-3xl border border-[var(--border)] bg-card/95 p-3 shadow-[var(--shadow-soft)] backdrop-blur-md transition-all duration-300 hover:shadow-[var(--shadow-medium)] sm:p-5 md:p-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
+      <div className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-accent/10 blur-3xl" />
       <div className="relative z-10 flex min-w-0 flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         {/* Left Section */}
         <div className="min-w-0 pr-0">
           <div className="mb-1 flex min-w-0 flex-wrap items-center gap-2">
-            <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[var(--accent)]/20 bg-[var(--accent)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--accent)] transition-all duration-300">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--accent)] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--accent)]"></span>
-              </span>
-              <span className="truncate">
-                {greeting}, {displayName}!
-              </span>
-            </div>
             {isNightOwl && (
               <div
                 title="Night Owl Milestone: You push code between Midnight and 4 AM!"
@@ -369,26 +342,9 @@ export default function DashboardHeader() {
             )}
           </div>
           <div className="min-w-0">
-            <p
-              className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted-foreground)]"
-              style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
-              }}
-            >
-              Dashboard overview
-            </p>
-            <h1 className="mt-2 bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--accent)] bg-clip-text text-xl font-extrabold text-transparent sm:text-3xl md:text-4xl">
+            <h1 className="bg-gradient-to-r from-[var(--foreground)] via-[var(--foreground)] to-[var(--accent)] bg-clip-text text-xl font-extrabold text-transparent sm:text-3xl md:text-4xl">
               Dashboard
             </h1>
-            <p
-              className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]"
-              style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
-                letterSpacing: "0.06em",
-              }}
-            >
-              coding activity at a glance
-            </p>
             {minutesAgo !== null && (
               <p
                 aria-live="polite"
@@ -416,13 +372,12 @@ export default function DashboardHeader() {
         </div>
 
         {/* Right Section */}
-        {/* Right Section */}
         <div className="w-full min-w-0 lg:w-auto">
-          <div className="flex w-full min-w-0 items-center gap-2 overflow-x-auto pb-1 lg:w-auto lg:justify-end lg:overflow-visible lg:pb-0">
+          <div className="flex w-full min-w-0 flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
             {isPublic === true && session?.githubLogin && (
               <ShareProfileButton githubLogin={session.githubLogin} />
             )}
-            <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/50 p-2 shadow-sm backdrop-blur-sm">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-2xl border border-[var(--border)] bg-card-muted/50 p-2 shadow-sm backdrop-blur-sm">
               <div className="transition-transform duration-200 hover:scale-[1.05]">
                 <SyncDataButton />
               </div>
@@ -448,84 +403,7 @@ export default function DashboardHeader() {
             </div>
           </div>
         </div>
-
-        {/* Mobile hamburger button - hidden since controls are inline on mobile via overflow-x-auto */}
-        <Button
-          variant="outline"
-          size="icon"
-          className="hidden"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label="Toggle menu"
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-              aria-hidden="true"
-            >
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-              aria-hidden="true"
-            >
-              <path d="M4 6h16" />
-              <path d="M4 12h16" />
-              <path d="M4 18h16" />
-            </svg>
-          )}
-        </Button>
       </div>
-
-      {/* Mobile dropdown */}
-      {menuOpen && (
-        <div className="mt-4 space-y-3 rounded-2xl border border-[var(--border)] bg-[var(--card-muted)]/70 p-4 shadow-sm backdrop-blur-sm sm:hidden">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <SyncDataButton />
-            </div>
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <KeyboardShortcuts />
-            </div>
-
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <NotificationBell />
-            </div>
-
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <UserAvatar />
-            </div>
-
-            <div className="transition-transform duration-200 hover:rotate-12">
-              <ThemeToggle />
-            </div>
-
-            <div className="transition-transform duration-200 hover:scale-[1.05]">
-              <SignOutButton />
-            </div>
-          </div>
-
-          {isPublic === true && session?.githubLogin && (
-            <ShareProfileButton githubLogin={session.githubLogin} />
-          )}
-        </div>
-      )}
 
       {/* Bottom Toggle */}
       <div className="mt-5">

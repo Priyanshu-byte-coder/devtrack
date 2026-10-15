@@ -1,9 +1,8 @@
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
-import { githubRequest } from "@/lib/github-request";
+import { collectAuthorCommits, requireUnthrottled } from "@/lib/github-search";
 import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { GITHUB_API } from "@/lib/github";
 import {
   isMetricsCacheBypassed,
   METRICS_CACHE_TTL_SECONDS,
@@ -21,7 +20,9 @@ export async function GET(req: NextRequest) {
 
   const daysParam = req.nextUrl.searchParams.get("days");
   const parsedDays = daysParam ? parseInt(daysParam, 10) : NaN;
-  const days = Number.isNaN(parsedDays) ? 30 : Math.max(1, Math.min(365, parsedDays));
+  const days = Number.isNaN(parsedDays)
+    ? 30
+    : Math.max(1, Math.min(365, parsedDays));
   const bypass = isMetricsCacheBypassed(req);
   const key = metricsCacheKey(
     session.githubId ?? session.githubLogin,
@@ -37,32 +38,20 @@ export async function GET(req: NextRequest) {
         ttlSeconds: METRICS_CACHE_TTL_SECONDS.contributions,
       },
       async () => {
-                const since = new Date();
+        const since = new Date();
         since.setDate(since.getDate() - days);
         const sinceStr = since.toISOString().slice(0, 10);
 
-        const allItems: Array<{ commit: { author: { date: string } } }> = [];
-        let page = 1;
-
-        while (true) {
-          const searchRes = await githubRequest(
-            `${GITHUB_API}/search/commits?q=author:${session.githubLogin}+author-date:>=${sinceStr}&per_page=100&page=${page}&sort=author-date&order=desc`,
+        const { items: allItems } = requireUnthrottled(
+          await collectAuthorCommits(
+            session.githubLogin!,
+            sinceStr,
+            session.accessToken,
             {
-              headers: {
-                Authorization: `Bearer ${session.accessToken}`,
-                Accept: "application/vnd.github+json",
-              },
-              cache: "no-store",
+              fresh: bypass,
             }
-          );
-          if (!searchRes.ok) throw new Error("GitHub API error");
-          const data = (await searchRes.json()) as {
-            items: Array<{ commit: { author: { date: string } } }>;
-          };
-          allItems.push(...data.items);
-          if (data.items.length < 100 || page >= 10) break;
-          page++;
-        }
+          )
+        );
 
         // Initialize all 24 hours to 0
         const hourMap: Record<number, number> = {};
@@ -73,7 +62,6 @@ export async function GET(req: NextRequest) {
           const hour = date.getHours();
           hourMap[hour]++;
         }
-
 
         const hours = Array.from({ length: 24 }, (_, i) => ({
           hour: i,

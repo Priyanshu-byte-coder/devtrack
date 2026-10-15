@@ -3,7 +3,10 @@
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Award, Sparkles, FolderKanban } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ContributionClassification, EngineeringDomain } from "@/types/cv-types";
+import type {
+  ContributionClassification,
+  EngineeringDomain,
+} from "@/types/cv-types";
 
 interface ContributionAnalysisPanelProps {
   analysis: ContributionClassification;
@@ -69,7 +72,9 @@ const DOMAIN_STYLES: Record<
   },
 };
 
-export default function ContributionAnalysisPanel({ analysis }: ContributionAnalysisPanelProps) {
+export default function ContributionAnalysisPanel({
+  analysis,
+}: ContributionAnalysisPanelProps) {
   const { techStack, domains, repositoryAnalyses } = analysis;
 
   const renderConfidenceBadge = (confidence: "high" | "medium" | "low") => {
@@ -79,7 +84,12 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
       low: "border-gray-500/20 bg-gray-500/10 text-gray-400",
     };
     return (
-      <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider", styles[confidence])}>
+      <span
+        className={cn(
+          "text-[9px] px-1.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider",
+          styles[confidence]
+        )}
+      >
         {confidence}
       </span>
     );
@@ -92,7 +102,9 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Award className="h-5 w-5 text-[var(--accent)]" />
-            <h3 className="text-lg font-bold text-[var(--foreground)]">Engineering Domains</h3>
+            <h3 className="text-lg font-bold text-[var(--foreground)]">
+              Engineering Domains
+            </h3>
           </div>
 
           <div className="space-y-4">
@@ -101,12 +113,17 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
               return (
                 <div key={ds.domain} className="space-y-1.5">
                   <div className="flex justify-between items-center text-sm font-semibold">
-                    <span className="text-[var(--foreground)]">{ds.domain}</span>
+                    <span className="text-[var(--foreground)]">
+                      {ds.domain}
+                    </span>
                     <span className={style.text}>{ds.score}%</span>
                   </div>
-                  <div className="h-2.5 w-full bg-[var(--card-muted)] rounded-full overflow-hidden border border-[var(--border)]/50">
+                  <div className="h-2.5 w-full bg-[var(--card-muted)] rounded-full overflow-hidden border border-border/50">
                     <div
-                      className={cn("h-full rounded-full transition-all duration-1000", style.bar)}
+                      className={cn(
+                        "h-full rounded-full transition-all duration-1000",
+                        style.bar
+                      )}
                       style={{ width: `${ds.score}%` }}
                     />
                   </div>
@@ -125,7 +142,9 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Sparkles className="h-5 w-5 text-[var(--accent)]" />
-            <h3 className="text-lg font-bold text-[var(--foreground)]">Technology Stack</h3>
+            <h3 className="text-lg font-bold text-[var(--foreground)]">
+              Technology Stack
+            </h3>
           </div>
 
           <div className="space-y-5">
@@ -140,7 +159,7 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
                     <Badge
                       key={tech.name}
                       variant="outline"
-                      className="flex items-center gap-1.5 border-[var(--border)] bg-[var(--card-muted)] hover:bg-[var(--border)]/10 text-xs px-2.5 py-1 text-[var(--foreground)]"
+                      className="flex items-center gap-1.5 border-[var(--border)] bg-[var(--card-muted)] hover:bg-border/10 text-xs px-2.5 py-1 text-[var(--foreground)]"
                     >
                       {tech.name}
                       {renderConfidenceBadge(tech.confidence)}
@@ -161,7 +180,7 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
                     <Badge
                       key={tech.name}
                       variant="outline"
-                      className="flex items-center gap-1.5 border-[var(--border)] bg-[var(--card-muted)] hover:bg-[var(--border)]/10 text-xs px-2.5 py-1 text-[var(--foreground)]"
+                      className="flex items-center gap-1.5 border-[var(--border)] bg-[var(--card-muted)] hover:bg-border/10 text-xs px-2.5 py-1 text-[var(--foreground)]"
                     >
                       {tech.name}
                       {renderConfidenceBadge(tech.confidence)}
@@ -182,7 +201,7 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
                     <Badge
                       key={tech.name}
                       variant="outline"
-                      className="flex items-center gap-1.5 border-[var(--border)] bg-[var(--card-muted)] hover:bg-[var(--border)]/10 text-xs px-2.5 py-1 text-[var(--foreground)]"
+                      className="flex items-center gap-1.5 border-[var(--border)] bg-[var(--card-muted)] hover:bg-border/10 text-xs px-2.5 py-1 text-[var(--foreground)]"
                     >
                       {tech.name}
                       {renderConfidenceBadge(tech.confidence)}
@@ -199,12 +218,17 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
           <FolderKanban className="h-5 w-5 text-[var(--accent)]" />
-          <h3 className="text-lg font-bold text-[var(--foreground)]">Top Repositories & Contributions</h3>
+          <h3 className="text-lg font-bold text-[var(--foreground)]">
+            Top Repositories & Contributions
+          </h3>
         </div>
 
         <div className="divide-y divide-[var(--border)]">
           {repositoryAnalyses.slice(0, 6).map((repo) => (
-            <div key={repo.nameWithOwner} className="py-4 first:pt-0 last:pb-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div
+              key={repo.nameWithOwner}
+              className="py-4 first:pt-0 last:pb-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+            >
               <div className="space-y-2 max-w-2xl">
                 <div className="flex flex-wrap items-center gap-2">
                   <a
@@ -216,11 +240,17 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
                     {repo.name}
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
-                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5 border border-[var(--border)] uppercase font-semibold">
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-2 py-0.5 border border-[var(--border)] uppercase font-semibold"
+                  >
                     {repo.complexity} Complexity
                   </Badge>
                   {repo.prsMerged > 0 && (
-                    <Badge variant="success" className="text-[10px] px-2 py-0.5 font-semibold">
+                    <Badge
+                      variant="success"
+                      className="text-[10px] px-2 py-0.5 font-semibold"
+                    >
                       {repo.prsMerged} PRs Merged
                     </Badge>
                   )}
@@ -235,7 +265,15 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
                   {repo.detectedDomains.map((dom) => {
                     const style = DOMAIN_STYLES[dom] || DOMAIN_STYLES.FullStack;
                     return (
-                      <span key={dom} className={cn("text-[9px] px-2 py-0.5 rounded border font-semibold", style.bg, style.text, style.border)}>
+                      <span
+                        key={dom}
+                        className={cn(
+                          "text-[9px] px-2 py-0.5 rounded border font-semibold",
+                          style.bg,
+                          style.text,
+                          style.border
+                        )}
+                      >
                         {dom}
                       </span>
                     );
@@ -246,7 +284,10 @@ export default function ContributionAnalysisPanel({ analysis }: ContributionAnal
               {/* Technologies & Metrics */}
               <div className="flex flex-wrap gap-1.5 md:justify-end max-w-xs">
                 {repo.languages.slice(0, 3).map((lang) => (
-                  <span key={lang} className="text-[10px] font-medium text-[var(--muted-foreground)] px-2 py-0.5 rounded bg-[var(--card-muted)] border border-[var(--border)]">
+                  <span
+                    key={lang}
+                    className="text-[10px] font-medium text-[var(--muted-foreground)] px-2 py-0.5 rounded bg-[var(--card-muted)] border border-[var(--border)]"
+                  >
                     {lang}
                   </span>
                 ))}

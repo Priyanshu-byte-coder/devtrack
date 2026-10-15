@@ -67,7 +67,8 @@ export default function LanguageBreakdown() {
   const [languages, setLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { setSummary, setIsUpdating } = useDashboardWidgetA11y("language-breakdown");
+  const { setSummary, setIsUpdating } =
+    useDashboardWidgetA11y("language-breakdown");
 
   useEffect(() => {
     setIsUpdating(loading);
@@ -80,7 +81,7 @@ export default function LanguageBreakdown() {
     }
     const top = languages[0];
     setSummary(
-      `Top language: ${top.name}, ${top.percentage}%. ${languages.length} language${languages.length === 1 ? "" : "s"} tracked.`,
+      `Top language: ${top.name}, ${top.percentage}%. ${languages.length} language${languages.length === 1 ? "" : "s"} tracked.`
     );
   }, [languages, setSummary]);
 
@@ -166,7 +167,7 @@ export default function LanguageBreakdown() {
           </div>
         </div>
       ) : error ? (
-        <p className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+        <p className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           {error}
         </p>
       ) : languages.length === 0 ? (
@@ -178,7 +179,8 @@ export default function LanguageBreakdown() {
           </h3>
 
           <p className="mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
-            Start committing code to repositories and we&apos;ll analyze the language distribution across your projects.
+            Start committing code to repositories and we&apos;ll analyze the
+            language distribution across your projects.
           </p>
 
           <a
@@ -238,10 +240,7 @@ export default function LanguageBreakdown() {
           {/* Legend */}
           <div className="flex w-full flex-col gap-2 sm:flex-1">
             {chartData.map((lang) => (
-              <div
-                key={lang.name}
-                className="flex items-center gap-2 text-sm"
-              >
+              <div key={lang.name} className="flex items-center gap-2 text-sm">
                 <span
                   className="h-3 w-3 shrink-0 rounded-full"
                   style={{

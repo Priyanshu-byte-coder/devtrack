@@ -143,13 +143,18 @@ function CompactThemeToggle() {
                       aria-hidden="true"
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs font-medium">{option.name}</span>
+                      <span className="block truncate text-xs font-medium">
+                        {option.name}
+                      </span>
                       <span className="block truncate text-[10px] text-[var(--muted-foreground)]">
                         {option.description}
                       </span>
                     </span>
                     {isActive && (
-                      <CheckIcon className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]" aria-hidden="true" />
+                      <CheckIcon
+                        className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]"
+                        aria-hidden="true"
+                      />
                     )}
                   </button>
                 </li>
@@ -177,10 +182,14 @@ function DefaultThemeToggle() {
   }
 
   const currentLabel = themeDefinition?.name ?? "Theme";
-  const currentDescription = themeDefinition?.description ?? "Customize the dashboard palette";
+  const currentDescription =
+    themeDefinition?.description ?? "Customize the dashboard palette";
 
   return (
-    <label className="inline-flex min-h-12 w-full max-w-[220px] md:max-w-[260px] cursor-pointer items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-[var(--card-foreground)] shadow-sm transition-all duration-300 hover:bg-[var(--control)] focus-within:border-[var(--accent)]">
+    <label
+      title={currentDescription}
+      className="inline-flex min-w-0 max-w-[240px] cursor-pointer items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[var(--card-foreground)] shadow-sm transition-all duration-300 hover:bg-[var(--control)] focus-within:border-[var(--accent)]"
+    >
       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]">
         <PaletteIcon className="h-4 w-4" aria-hidden="true" />
       </span>
@@ -191,9 +200,6 @@ function DefaultThemeToggle() {
         </span>
         <span className="block truncate text-sm font-semibold text-[var(--card-foreground)]">
           {currentLabel}
-        </span>
-        <span className="block truncate text-xs text-[var(--muted-foreground)]">
-          {currentDescription}
         </span>
       </span>
 
@@ -211,8 +217,13 @@ function DefaultThemeToggle() {
           ))}
         </select>
 
-        <span className="text-xs font-medium text-[var(--muted-foreground)]">Change</span>
-        <ChevronIcon className="h-4 w-4 text-[var(--muted-foreground)]" aria-hidden="true" />
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          Change
+        </span>
+        <ChevronIcon
+          className="h-4 w-4 text-[var(--muted-foreground)]"
+          aria-hidden="true"
+        />
       </span>
     </label>
   );

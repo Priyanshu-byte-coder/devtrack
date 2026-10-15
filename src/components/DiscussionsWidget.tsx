@@ -67,19 +67,16 @@ export default function DiscussionsWidget() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-20 rounded-lg skeleton-shimmer"
-            />
+            <div key={i} className="h-20 rounded-lg skeleton-shimmer" />
           ))}
         </div>
       ) : error ? (
-        <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
             type="button"
             onClick={fetchData}
-            className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
             Try again
           </button>
@@ -87,15 +84,15 @@ export default function DiscussionsWidget() {
       ) : hasNoDiscussionData ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
           <div className="mb-3 text-4xl">💬</div>
-      
+
           <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
             No discussion activity yet
           </h3>
-      
+
           <p className="mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
             Participate in GitHub Discussions to see your activity metrics here.
           </p>
-      
+
           <a
             href="https://github.com/discussions"
             target="_blank"

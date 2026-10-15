@@ -5,7 +5,11 @@ import EmptyState from "@/components/EmptyState";
 import LeaderboardFilters from "@/components/leaderboard/LeaderboardFilters";
 import LeaderboardSkeleton from "@/app/leaderboard/LeaderboardSkeleton";
 import SponsorBadge from "@/components/SponsorBadge";
-import { getLeaderboardData, filterLeaderboardByLanguage, type LeaderboardPayload } from "@/lib/leaderboard";
+import {
+  getLeaderboardData,
+  filterLeaderboardByLanguage,
+  type LeaderboardPayload,
+} from "@/lib/leaderboard";
 
 type LeaderboardTab = "streak" | "commits" | "prs";
 type LeaderboardPeriod = "week" | "month" | "all";
@@ -35,7 +39,9 @@ const periods: Record<LeaderboardPeriod, string> = {
   all: "all time",
 };
 
-function isLeaderboardPeriod(value: string | undefined): value is LeaderboardPeriod {
+function isLeaderboardPeriod(
+  value: string | undefined
+): value is LeaderboardPeriod {
   return value === "week" || value === "month" || value === "all";
 }
 
@@ -80,7 +86,8 @@ async function LeaderboardTable({
 
   const activeMeta = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const rows = leaderboard?.leaders[activeTab] ?? [];
-  const metricLabel = activeTab === "streak" ? activeMeta.metric : periods[filters.period];
+  const metricLabel =
+    activeTab === "streak" ? activeMeta.metric : periods[filters.period];
 
   return (
     <>
@@ -93,8 +100,13 @@ async function LeaderboardTable({
       <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-soft)]">
         {!leaderboard ? (
           <div className="px-4 py-12 text-center">
-            <p className="text-sm text-[var(--muted-foreground)]">Leaderboard data is temporarily unavailable.</p>
-            <Link href="/leaderboard" className="mt-4 inline-block text-sm font-medium text-[var(--accent)] hover:underline">
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Leaderboard data is temporarily unavailable.
+            </p>
+            <Link
+              href="/leaderboard"
+              className="mt-4 inline-block text-sm font-medium text-[var(--accent)] hover:underline"
+            >
               Retry
             </Link>
           </div>
@@ -128,7 +140,9 @@ async function LeaderboardTable({
                 key={entry.id}
                 className="grid grid-cols-[72px_1fr_110px_110px] items-center border-b border-[var(--border)] px-4 py-4 last:border-b-0 md:grid-cols-[80px_1fr_140px_140px_120px]"
               >
-                <div className="text-lg font-bold text-[var(--card-foreground)]">#{entry.rank}</div>
+                <div className="text-lg font-bold text-[var(--card-foreground)]">
+                  #{entry.rank}
+                </div>
                 <div className="flex min-w-0 items-center gap-3">
                   <Image
                     src={entry.avatarUrl}
@@ -139,21 +153,34 @@ async function LeaderboardTable({
                     className="h-10 w-10 rounded-full border border-[var(--border)]"
                   />
                   <div className="min-w-0">
-                    <div title={entry.username} className="flex max-w-[120px] items-center gap-2 truncate font-semibold text-[var(--card-foreground)] sm:max-w-[180px] md:max-w-none">
+                    <div
+                      title={entry.username}
+                      className="flex max-w-[120px] items-center gap-2 truncate font-semibold text-[var(--card-foreground)] sm:max-w-[180px] md:max-w-none"
+                    >
                       @{entry.username} {entry.isSponsor && <SponsorBadge />}
                     </div>
                     <div className="text-xs text-[var(--muted-foreground)]">
-                      {entry.commits} commits, {entry.prs} PRs, {entry.streak}d streak
+                      {entry.commits} commits, {entry.prs} PRs, {entry.streak}d
+                      streak
                     </div>
                   </div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-[var(--card-foreground)]">{getMetricValue(entry, activeTab)}</div>
-                  <div className="text-xs text-[var(--muted-foreground)]">{metricLabel}</div>
+                  <div className="text-lg font-semibold text-[var(--card-foreground)]">
+                    {getMetricValue(entry, activeTab)}
+                  </div>
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    {metricLabel}
+                  </div>
                 </div>
-                <div className="hidden text-sm font-medium text-[var(--card-foreground)] md:block">{entry.score}</div>
+                <div className="hidden text-sm font-medium text-[var(--card-foreground)] md:block">
+                  {entry.score}
+                </div>
                 <div>
-                  <Link href={entry.profileUrl} className="secondary-button inline-flex rounded-lg px-3 py-2 text-sm font-medium">
+                  <Link
+                    href={entry.profileUrl}
+                    className="secondary-button inline-flex rounded-lg px-3 py-2 text-sm font-medium"
+                  >
                     View
                   </Link>
                 </div>
@@ -185,17 +212,23 @@ export default async function LeaderboardPage({
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <Link href="/" className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            <Link
+              href="/"
+              className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            >
               DevTrack
             </Link>
-            <h1 className="mt-3 text-3xl font-bold text-[var(--foreground)] md:text-4xl">Public Leaderboard</h1>
+            <h1 className="mt-3 text-3xl font-bold text-[var(--foreground)] md:text-4xl">
+              Public Leaderboard
+            </h1>
             <p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)] md:text-base">
-              Opted-in developers ranked by current streak, commits, and pull request activity.
+              Opted-in developers ranked by current streak, commits, and pull
+              request activity.
             </p>
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 p-2 shadow-[var(--shadow-soft)]">
+        <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-[var(--border)] bg-card/90 p-2 shadow-[var(--shadow-soft)]">
           {tabs.map((tab) => {
             const active = tab.id === activeTab;
             return (
@@ -218,7 +251,10 @@ export default async function LeaderboardPage({
           <LeaderboardFilters />
         </Suspense>
 
-        <Suspense key={`${activeTab}-${filters.lang ?? ""}-${filters.period}`} fallback={<LeaderboardSkeleton />}>
+        <Suspense
+          key={`${activeTab}-${filters.lang ?? ""}-${filters.period}`}
+          fallback={<LeaderboardSkeleton />}
+        >
           <LeaderboardTable activeTab={activeTab} filters={filters} />
         </Suspense>
       </div>

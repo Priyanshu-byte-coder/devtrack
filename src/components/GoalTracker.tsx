@@ -10,7 +10,6 @@ import GoalHistory from "@/components/GoalHistory";
 import EmptyState from "@/components/EmptyState";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
-
 type Recurrence = "none" | "weekly" | "monthly";
 type GoalCategory = "side-project" | "work" | "dsa" | "open-source";
 
@@ -56,7 +55,12 @@ const CATEGORY_BADGE_CLASSES: Record<GoalCategory, string> = {
   "open-source": "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
 };
 
-const CATEGORY_OPTIONS: GoalCategory[] = ["side-project", "work", "dsa", "open-source"];
+const CATEGORY_OPTIONS: GoalCategory[] = [
+  "side-project",
+  "work",
+  "dsa",
+  "open-source",
+];
 
 export function useGoalTracker() {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -71,14 +75,17 @@ export function useGoalTracker() {
   const [recurrence, setRecurrence] = useState<Recurrence>("none");
   const [deadline, setDeadline] = useState("");
   const [category, setCategory] = useState<GoalCategory | "">("");
-  const [activeCategoryFilter, setActiveCategoryFilter] = useState<GoalCategory | null>(null);
+  const [activeCategoryFilter, setActiveCategoryFilter] =
+    useState<GoalCategory | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const [activeConfettiGoalId, setActiveConfettiGoalId] = useState<string | null>(null);
+  const [activeConfettiGoalId, setActiveConfettiGoalId] = useState<
+    string | null
+  >(null);
   const prevGoalsRef = useRef<Map<string, boolean>>(new Map());
   const initialLoadDoneRef = useRef<boolean>(false);
 
@@ -108,7 +115,8 @@ export function useGoalTracker() {
 
         if (res.status === 429) {
           setSyncError(
-            errData.error ?? "GitHub rate limit reached. Please try again later."
+            errData.error ??
+              "GitHub rate limit reached. Please try again later."
           );
         } else if (res.status === 401) {
           setSyncError("Unauthorized. Please log in again.");
@@ -343,10 +351,7 @@ export function useGoalTracker() {
 }
 
 export default function GoalTracker() {
-
-
   const {
-
     goals,
     setGoals,
     loading,
@@ -390,19 +395,22 @@ export default function GoalTracker() {
   }, [loading, setIsUpdating]);
 
   useEffect(() => {
-    const activeCount = goals.filter((goal) => goal.current < goal.target).length;
+    const activeCount = goals.filter(
+      (goal) => goal.current < goal.target
+    ).length;
     const completedCount = goals.filter(
-      (goal) => goal.current >= goal.target,
+      (goal) => goal.current >= goal.target
     ).length;
     setSummary(
-      `${activeCount} active goal${activeCount === 1 ? "" : "s"}. ${completedCount} completed.`,
+      `${activeCount} active goal${activeCount === 1 ? "" : "s"}. ${completedCount} completed.`
     );
   }, [goals, setSummary]);
 
   const { data: session } = useSession();
 
   const githubLogin =
-    typeof (session as { githubLogin?: unknown } | null)?.githubLogin === "string"
+    typeof (session as { githubLogin?: unknown } | null)?.githubLogin ===
+    "string"
       ? (session as { githubLogin: string }).githubLogin
       : null;
 
@@ -429,10 +437,14 @@ export default function GoalTracker() {
       const data: { goal: Goal } = await response.json();
 
       setGoals((currentGoals) =>
-        currentGoals.map((goal) => (goal.id === data.goal.id ? data.goal : goal))
+        currentGoals.map((goal) =>
+          goal.id === data.goal.id ? data.goal : goal
+        )
       );
     } catch {
-      setShareError("Failed to update goal sharing. Please check your connection.");
+      setShareError(
+        "Failed to update goal sharing. Please check your connection."
+      );
     } finally {
       setSharingGoalId(null);
     }
@@ -486,7 +498,9 @@ export default function GoalTracker() {
     <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">Goals</h2>
+        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          Goals
+        </h2>
         <button
           onClick={handleSync}
           disabled={syncing}
@@ -513,7 +527,7 @@ export default function GoalTracker() {
 
       {/* Sync Error */}
       {syncError && (
-        <div className="mb-4 flex items-center justify-between gap-2 rounded-lg border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-3 py-2 text-xs text-[var(--destructive)]">
+        <div className="mb-4 flex items-center justify-between gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-[var(--destructive)]">
           <span>⚠️ {syncError}</span>
           <button
             type="button"
@@ -528,7 +542,7 @@ export default function GoalTracker() {
 
       {/* Delete Error */}
       {deleteError && (
-        <div className="mb-4 rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-3 text-sm text-[var(--destructive)] flex justify-between items-center">
+        <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-[var(--destructive)] flex justify-between items-center">
           <p>{deleteError}</p>
           <button
             onClick={() => setDeleteError(null)}
@@ -542,7 +556,7 @@ export default function GoalTracker() {
 
       {/* Share Error */}
       {shareError && (
-        <div className="mb-4 rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-3 text-sm text-[var(--destructive)] flex justify-between items-center">
+        <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-[var(--destructive)] flex justify-between items-center">
           <p>{shareError}</p>
           <button
             type="button"
@@ -564,7 +578,6 @@ export default function GoalTracker() {
             actionLabel="Create Goal"
             actionHref="#create-goal-form"
           />
-
         </div>
       ) : (
         <>
@@ -606,246 +619,277 @@ export default function GoalTracker() {
             </div>
           )}
 
-        <ul className="space-y-4">
+          <ul className="space-y-4">
+            {goals
+              .filter(
+                (goal) =>
+                  !activeCategoryFilter ||
+                  goal.category === activeCategoryFilter
+              )
+              .map((goal) => {
+                const pct =
+                  goal.current > 0 && goal.target > 0
+                    ? Math.max(
+                        1,
+                        Math.min(
+                          Math.round((goal.current / goal.target) * 100),
+                          100
+                        )
+                      )
+                    : 0;
+                const progressWidth = Math.min(
+                  (goal.current / Math.max(goal.target, 1)) * 100,
+                  100
+                );
+                const isDeleting = deletingId === goal.id;
+                const completed = goal.current >= goal.target;
+                const isSurpassed = goal.current > goal.target;
+                const completionLabel = getCompletionLabel(goal);
+                const isAutoSynced =
+                  goal.unit === "commits" || goal.unit === "prs";
 
-          {goals
-            .filter((goal) => !activeCategoryFilter || goal.category === activeCategoryFilter)
-            .map((goal) => {
-            const pct = 
-              goal.current > 0 && goal.target > 0 
-                ? Math.max(
-                  1, 
-                  Math.min(Math.round((goal.current / goal.target) * 100), 100)
-                  )
-                : 0;
-            const progressWidth = Math.min((goal.current / Math.max(goal.target, 1)) * 100, 100);
-            const isDeleting = deletingId === goal.id;
-            const completed = goal.current >= goal.target;
-            const isSurpassed = goal.current > goal.target;
-            const completionLabel = getCompletionLabel(goal);
-            const isAutoSynced = goal.unit === "commits" || goal.unit === "prs";
+                return (
+                  <li
+                    key={goal.id}
+                    className="relative rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)]"
+                    tabIndex={0}
+                    aria-label={`Goal: ${goal.title}. ${goal.current} of ${goal.target} ${goal.unit}. ${getCompletionLabel(goal) || "In progress"}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        // Focus the primary action button inside this card
+                        const primaryBtn =
+                          e.currentTarget.querySelector<HTMLButtonElement>(
+                            "button:not([disabled])"
+                          );
+                        primaryBtn?.click();
+                      }
+                    }}
+                  >
+                    {activeConfettiGoalId === goal.id && <ConfettiBurst />}
+                    <div className="flex justify-between items-center text-sm mb-1">
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[var(--card-foreground)]">
+                            {goal.title}
+                          </span>
+                          {goal.category && (
+                            <span
+                              className={`text-xs font-medium px-2 py-0.5 rounded-full border ${CATEGORY_BADGE_CLASSES[goal.category]}`}
+                            >
+                              {CATEGORY_LABELS[goal.category]}
+                            </span>
+                          )}
+                          {goal.recurrence !== "none" && (
+                            <span
+                              className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
+                                goal.recurrence === "weekly"
+                                  ? "bg-accent/10 text-[var(--accent)] border-accent/30"
+                                  : "bg-[var(--card-muted)] text-[var(--muted-foreground)] border-[var(--border)]"
+                              }`}
+                            >
+                              {RECURRENCE_LABELS[goal.recurrence]}
+                            </span>
+                          )}
+                          {isAutoSynced && (
+                            <span
+                              title={
+                                goal.last_synced_at
+                                  ? `Last synced: ${new Date(goal.last_synced_at).toLocaleTimeString()}`
+                                  : "Auto-synced from GitHub commits"
+                              }
+                              className="inline-flex items-center gap-0.5 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-medium text-[var(--accent)]"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                className="w-2.5 h-2.5"
+                                aria-hidden="true"
+                              >
+                                <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
+                              </svg>
+                              Auto-synced
+                            </span>
+                          )}
+                        </div>
+                        {completed ? (
+                          <span className="text-xs font-medium text-emerald-500">
+                            {completionLabel}
+                          </span>
+                        ) : completionLabel ? (
+                          <span
+                            className={`text-xs font-medium ${
+                              completionLabel.includes("Overdue")
+                                ? "text-red-500"
+                                : "text-orange-500"
+                            }`}
+                          >
+                            {completionLabel}
+                          </span>
+                        ) : null}
+                        {goal.recurrence === "weekly" && goal.week_start && (
+                          <span className="text-xs text-[var(--muted-foreground)]">
+                            Week:{" "}
+                            {(() => {
+                              const start = new Date(goal.week_start);
+                              const end = new Date(start);
+                              end.setDate(start.getDate() + 6);
+                              return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+                            })()}
+                          </span>
+                        )}
+                        {goal.last_period && (
+                          <span
+                            className={`text-xs font-medium ${
+                              goal.last_period.completed
+                                ? "text-emerald-500"
+                                : "text-[var(--muted-foreground)]"
+                            }`}
+                            title={`Previous period ended ${new Date(
+                              goal.last_period.period_end
+                            ).toLocaleDateString()}`}
+                          >
+                            Last period:{" "}
+                            {goal.last_period.completed ? "✓" : "○"}{" "}
+                            {goal.last_period.achieved}/
+                            {goal.last_period.target} {goal.unit}
+                          </span>
+                        )}
+                      </div>
 
-            return (
-              <li
-                key={goal.id}
-                className="relative rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)]"
-                tabIndex={0}
-                aria-label={`Goal: ${goal.title}. ${goal.current} of ${goal.target} ${goal.unit}. ${getCompletionLabel(goal) || "In progress"}`}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    // Focus the primary action button inside this card
-                    const primaryBtn = e.currentTarget.querySelector<HTMLButtonElement>(
-                      "button:not([disabled])"
-                    );
-                    primaryBtn?.click();
-                  }
-                }}
-              >
-                {activeConfettiGoalId === goal.id && <ConfettiBurst />}
-                <div className="flex justify-between items-center text-sm mb-1">
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[var(--card-foreground)]">{goal.title}</span>
-                      {goal.category && (
-                        <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded-full border ${CATEGORY_BADGE_CLASSES[goal.category]}`}
-                        >
-                          {CATEGORY_LABELS[goal.category]}
+                      <div className="flex items-center gap-2">
+                        <span className="text-[var(--muted-foreground)]">
+                          {goal.current}/{goal.target} {goal.unit}
                         </span>
-                      )}
-                      {goal.recurrence !== "none" && (
-                        <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
-                            goal.recurrence === "weekly"
-                              ? "bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/30"
-                              : "bg-[var(--card-muted)] text-[var(--muted-foreground)] border-[var(--border)]"
-                          }`}
-                        >
-                          {RECURRENCE_LABELS[goal.recurrence]}
-                        </span>
-                      )}
-                      {isAutoSynced && (
-                        <span
-                          title={
-                            goal.last_synced_at
-                              ? `Last synced: ${new Date(goal.last_synced_at).toLocaleTimeString()}`
-                              : "Auto-synced from GitHub commits"
-                          }
-                          className="inline-flex items-center gap-0.5 rounded-full bg-[var(--accent)]/15 px-1.5 py-0.5 text-[10px] font-medium text-[var(--accent)]"
+
+                        {!isAutoSynced && (
+                          <button
+                            onClick={async () => {
+                              const newCurrent = goal.current + 1;
+                              if (newCurrent > goal.target) return;
+                              const res = await fetch(`/api/goals/${goal.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ current: newCurrent }),
+                              });
+                              if (res.ok) {
+                                setGoals((prevGoals) =>
+                                  prevGoals.map((g) =>
+                                    g.id === goal.id
+                                      ? { ...g, current: newCurrent }
+                                      : g
+                                  )
+                                );
+                              }
+                            }}
+                            disabled={goal.current >= goal.target}
+                            aria-label={`Increment "${goal.title}" progress by 1`}
+                            className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                          >
+                            +1
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingId(goal.id)}
+                          disabled={isDeleting}
+                          className="text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors disabled:opacity-50"
+                          aria-label={`Delete goal: ${goal.title}`}
+                          title="Delete goal"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
                             fill="currentColor"
-                            className="w-2.5 h-2.5"
+                            className="w-4 h-4"
                             aria-hidden="true"
                           >
-                            <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
+                            <path
+                              fillRule="evenodd"
+                              d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                              clipRule="evenodd"
+                            />
                           </svg>
-                          Auto-synced
-                        </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`h-2 overflow-hidden rounded-full bg-[var(--control)] ${isSurpassed ? "ring-1 ring-emerald-500/40" : ""}`}
+                    >
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          isSurpassed
+                            ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
+                            : completed
+                              ? "bg-emerald-500"
+                              : "bg-[var(--accent)]"
+                        }`}
+                        style={{
+                          width: `${Math.max(0, Math.min(progressWidth, 100))}%`,
+                        }}
+                        role="progressbar"
+                        aria-valuenow={goal.current}
+                        aria-valuemin={0}
+                        aria-valuemax={goal.target}
+                        aria-label={`Goal progress: ${goal.current} of ${goal.target} ${goal.unit}`}
+                      />
+                    </div>
+
+                    <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium text-[var(--card-foreground)]">
+                            Share this goal
+                          </p>
+                          <p className="text-xs text-[var(--muted-foreground)]">
+                            Make this goal visible on a public share page.
+                          </p>
+                        </div>
+
+                        <label className="inline-flex items-center gap-2 text-sm text-[var(--card-foreground)]">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(goal.is_public)}
+                            disabled={sharingGoalId === goal.id}
+                            onChange={(event) =>
+                              toggleGoalSharing(
+                                goal.id,
+                                event.currentTarget.checked
+                              )
+                            }
+                            aria-label={`Make "${goal.title}" public`}
+                          />
+                          Public
+                        </label>
+                      </div>
+
+                      {goal.is_public && (
+                        <button
+                          type="button"
+                          onClick={() => copyGoalShareLink(goal.id)}
+                          className="secondary-button mt-3 rounded-lg px-3 py-1.5 text-sm"
+                        >
+                          {copiedGoalId === goal.id
+                            ? "Copied!"
+                            : "Copy share link"}
+                        </button>
                       )}
                     </div>
-                    {completed ? (
-                      <span className="text-xs font-medium text-emerald-500">
-                        {completionLabel}
-                      </span>
-                    ) : completionLabel ? (
-                      <span
-                        className={`text-xs font-medium ${
-                          completionLabel.includes("Overdue") ? "text-red-500" : "text-orange-500"
-                        }`}
-                      >
-                        {completionLabel}
-                      </span>
-                    ) : null}
-                    {goal.recurrence === "weekly" && goal.week_start && (
-                      <span className="text-xs text-[var(--muted-foreground)]">
-                        Week: {(() => {
-                          const start = new Date(goal.week_start);
-                          const end = new Date(start);
-                          end.setDate(start.getDate() + 6);
-                          return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-                        })()}
-                      </span>
-                    )}
-                    {goal.last_period && (
-                      <span
-                        className={`text-xs font-medium ${
-                          goal.last_period.completed
-                            ? "text-emerald-500"
-                            : "text-[var(--muted-foreground)]"
-                        }`}
-                        title={`Previous period ended ${new Date(
-                          goal.last_period.period_end
-                        ).toLocaleDateString()}`}
-                      >
-                        Last period: {goal.last_period.completed ? "✓" : "○"}{" "}
-                        {goal.last_period.achieved}/{goal.last_period.target} {goal.unit}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-[var(--muted-foreground)]">
-                      {goal.current}/{goal.target} {goal.unit}
-                    </span>
-
-                    {!isAutoSynced && (
-                      <button
-                        onClick={async () => {
-                          const newCurrent = goal.current + 1;
-                          if (newCurrent > goal.target) return;
-                          const res = await fetch(`/api/goals/${goal.id}`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ current: newCurrent }),
-                          });
-                          if (res.ok) {
-                            setGoals((prevGoals) =>
-                              prevGoals.map((g) =>
-                                g.id === goal.id ? { ...g, current: newCurrent } : g
-                              )
-                            );
-                          }
-                        }}
-                        disabled={goal.current >= goal.target}
-                        aria-label={`Increment "${goal.title}" progress by 1`}
-                        className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        +1
-                      </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => setConfirmingId(goal.id)}
-                      disabled={isDeleting}
-                      className="text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors disabled:opacity-50"
-                      aria-label={`Delete goal: ${goal.title}`}
-                      title="Delete goal"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-4 h-4"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div className={`h-2 overflow-hidden rounded-full bg-[var(--control)] ${isSurpassed ? "ring-1 ring-emerald-500/40" : ""}`}>
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      isSurpassed
-                        ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
-                        : completed
-                        ? "bg-emerald-500"
-                        : "bg-[var(--accent)]"
-                    }`}
-                    style={{ width: `${Math.max(0, Math.min(progressWidth, 100))}%` }}
-                    role="progressbar"
-                    aria-valuenow={goal.current}
-                    aria-valuemin={0}
-                    aria-valuemax={goal.target}
-                    aria-label={`Goal progress: ${goal.current} of ${goal.target} ${goal.unit}`}
-                  />
-                </div>
-
-                <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-medium text-[var(--card-foreground)]">
-                        Share this goal
-                      </p>
-                      <p className="text-xs text-[var(--muted-foreground)]">
-                        Make this goal visible on a public share page.
-                      </p>
-                    </div>
-
-                    <label className="inline-flex items-center gap-2 text-sm text-[var(--card-foreground)]">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(goal.is_public)}
-                        disabled={sharingGoalId === goal.id}
-                        onChange={(event) =>
-                          toggleGoalSharing(goal.id, event.currentTarget.checked)
-                        }
-                        aria-label={`Make "${goal.title}" public`}
-                      />
-                      Public
-                    </label>
-                  </div>
-
-                  {goal.is_public && (
-                    <button
-                      type="button"
-                      onClick={() => copyGoalShareLink(goal.id)}
-                      className="secondary-button mt-3 rounded-lg px-3 py-1.5 text-sm"
-                    >
-                      {copiedGoalId === goal.id ? "Copied!" : "Copy share link"}
-                    </button>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                  </li>
+                );
+              })}
+          </ul>
         </>
       )}
 
       {lastUpdated && (
         <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
-          {minutesAgo === 0 ? "Updated just now" : `Updated ${minutesAgo} min ago`}
+          {minutesAgo === 0
+            ? "Updated just now"
+            : `Updated ${minutesAgo} min ago`}
         </p>
       )}
 
@@ -855,7 +899,6 @@ export default function GoalTracker() {
         onSubmit={handleCreate}
         className="mt-6 space-y-3 border-t border-[var(--border)] pt-4"
       >
-
         <div>
           <label
             htmlFor="goal-title"
@@ -867,7 +910,8 @@ export default function GoalTracker() {
             id="goal-title"
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)} maxLength={100}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={100}
             placeholder="Make 10 commits"
             required
             disabled={creating}
@@ -986,13 +1030,15 @@ export default function GoalTracker() {
           </div>
           {recurrence !== "none" && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {recurrence === "weekly" ? "Resets every Monday." : "Resets on the 1st of each month."}
+              {recurrence === "weekly"
+                ? "Resets every Monday."
+                : "Resets on the 1st of each month."}
             </p>
           )}
         </div>
 
         {(unit === "commits" || unit === "prs") && (
-          <p className="text-xs text-[var(--muted-foreground)] rounded-lg bg-[var(--accent)]/10 px-3 py-2">
+          <p className="text-xs text-[var(--muted-foreground)] rounded-lg bg-accent/10 px-3 py-2">
             ⚡ This goal will auto-update from your GitHub activity.
           </p>
         )}
@@ -1036,18 +1082,27 @@ export default function GoalTracker() {
 }
 
 function ConfettiBurst() {
-  const [particles, setParticles] = useState<Array<{
-  id: number;
-  x: number;
-  y: number;
-  color: string;
-  rot: number;
-  scale: number;
-  speed: number;
-}>>([]);
+  const [particles, setParticles] = useState<
+    Array<{
+      id: number;
+      x: number;
+      y: number;
+      color: string;
+      rot: number;
+      scale: number;
+      speed: number;
+    }>
+  >([]);
 
   useEffect(() => {
-    const colors = ["var(--accent)", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+    const colors = [
+      "var(--accent)",
+      "#10B981",
+      "#F59E0B",
+      "#EF4444",
+      "#8B5CF6",
+      "#EC4899",
+    ];
     const newParticles: Array<{
       id: number;
       x: number;
@@ -1064,7 +1119,7 @@ function ConfettiBurst() {
         id: i,
         x: Math.cos(angle) * distance,
         y: Math.sin(angle) * distance - 20,
-        color: colors[Math.random() * colors.length | 0],
+        color: colors[(Math.random() * colors.length) | 0],
         rot: Math.random() * 360 + 180,
         scale: 0.5 + Math.random() * 0.7,
         speed: 0.8 + Math.random() * 0.6,

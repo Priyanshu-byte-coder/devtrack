@@ -1,6 +1,9 @@
 import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
+const themeColor = (name: string) =>
+  `color-mix(in srgb, var(--${name}) calc(<alpha-value> * 100%), transparent)`;
+
 const config: Config = {
   darkMode: "class",
   content: [
@@ -10,30 +13,32 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // CSS variables hold plain hex colors, so opacity modifiers (bg-accent/20)
+      // are applied with color-mix; Tailwind substitutes <alpha-value>.
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        muted: "var(--muted)",
-        "muted-foreground": "var(--muted-foreground)",
-        card: "var(--card)",
-        "card-foreground": "var(--card-foreground)",
-        "card-muted": "var(--card-muted)",
-        border: "var(--border)",
+        background: themeColor("background"),
+        foreground: themeColor("foreground"),
+        muted: themeColor("muted"),
+        "muted-foreground": themeColor("muted-foreground"),
+        card: themeColor("card"),
+        "card-foreground": themeColor("card-foreground"),
+        "card-muted": themeColor("card-muted"),
+        border: themeColor("border"),
         accent: {
-          DEFAULT: "var(--accent)",
-          foreground: "var(--accent-foreground)",
-          secondary: "var(--accent-secondary)",
-          soft: "var(--accent-soft)",
+          DEFAULT: themeColor("accent"),
+          foreground: themeColor("accent-foreground"),
+          secondary: themeColor("accent-secondary"),
+          soft: themeColor("accent-soft"),
         },
-        control: "var(--control)",
-        "control-hover": "var(--control-hover)",
-        ring: "var(--ring)",
-        success: "var(--success)",
-        warning: "var(--warning)",
+        control: themeColor("control"),
+        "control-hover": themeColor("control-hover"),
+        ring: themeColor("ring"),
+        success: themeColor("success"),
+        warning: themeColor("warning"),
         destructive: {
-          DEFAULT: "var(--destructive)",
-          foreground: "var(--destructive-foreground)",
-          muted: "var(--destructive-muted)",
+          DEFAULT: themeColor("destructive"),
+          foreground: themeColor("destructive-foreground"),
+          muted: themeColor("destructive-muted"),
         },
       },
       keyframes: {
@@ -59,7 +64,7 @@ const config: Config = {
   },
   plugins: [
     require("tailwind-scrollbar")({ nocompatible: true }),
-    plugin(function({ addBase }) {
+    plugin(function ({ addBase }) {
       addBase({
         "*:focus": {
           outline: "none",

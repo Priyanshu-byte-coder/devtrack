@@ -183,7 +183,10 @@ export default function ProjectMetrics() {
               </h3>
               <form onSubmit={handleConnect} className="space-y-4">
                 <div>
-                  <label htmlFor="jiraDomain" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="jiraDomain"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     Jira Domain
                   </label>
                   <input
@@ -199,7 +202,10 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     Email
                   </label>
                   <input
@@ -214,7 +220,10 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="apiToken" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="apiToken"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     API Token
                   </label>
                   <input
@@ -230,7 +239,10 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="projectKey" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="projectKey"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     Project Key (optional)
                   </label>
                   <input
@@ -245,7 +257,9 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 {connectionError && (
-                  <p className="text-sm text-[var(--destructive)]">{connectionError}</p>
+                  <p className="text-sm text-[var(--destructive)]">
+                    {connectionError}
+                  </p>
                 )}
                 <div className="flex gap-2">
                   <button
@@ -286,13 +300,13 @@ export default function ProjectMetrics() {
             Connect Jira
           </button>
         </div>
-        <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
             type="button"
             onClick={fetchData}
 
-            className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
             Try again
           </button>
@@ -305,7 +319,10 @@ export default function ProjectMetrics() {
               </h3>
               <form onSubmit={handleConnect} className="space-y-4">
                 <div>
-                  <label htmlFor="jiraDomain" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="jiraDomain"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     Jira Domain
                   </label>
                   <input
@@ -321,7 +338,10 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     Email
                   </label>
                   <input
@@ -336,7 +356,10 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="apiToken" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="apiToken"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     API Token
                   </label>
                   <input
@@ -352,7 +375,10 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="projectKey" className="block text-sm font-medium mb-1 text-[var(--foreground)]">
+                  <label
+                    htmlFor="projectKey"
+                    className="block text-sm font-medium mb-1 text-[var(--foreground)]"
+                  >
                     Project Key (optional)
                   </label>
                   <input
@@ -367,7 +393,9 @@ export default function ProjectMetrics() {
                   />
                 </div>
                 {connectionError && (
-                  <p className="text-sm text-[var(--destructive)]">{connectionError}</p>
+                  <p className="text-sm text-[var(--destructive)]">
+                    {connectionError}
+                  </p>
                 )}
                 <div className="flex gap-2">
                   <button
@@ -429,9 +457,9 @@ export default function ProjectMetrics() {
             </div>
             <div className="mt-1 text-sm text-[var(--muted-foreground)]">
               {stat.label}
-        </div>
+            </div>
           </div>
-      ))}
+        ))}
       </div>
       {data?.recentIssues && data.recentIssues.length > 0 && (
         <div>

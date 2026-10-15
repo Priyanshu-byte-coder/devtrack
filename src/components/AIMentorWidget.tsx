@@ -20,12 +20,9 @@ interface AIData {
 }
 
 const severityClasses: Record<Insight["severity"], string> = {
-  positive:
-    "bg-[var(--success)]/10 border-[var(--success)]/30 text-[var(--success)]",
-  neutral:
-    "bg-[var(--accent)]/10 border-[var(--accent)]/30 text-[var(--accent-foreground)]",
-  warning:
-    "bg-[var(--destructive)]/10 border-[var(--destructive)]/30 text-[var(--destructive)]",
+  positive: "bg-success/10 border-success/30 text-[var(--success)]",
+  neutral: "bg-accent/10 border-accent/30 text-[var(--accent-foreground)]",
+  warning: "bg-destructive/10 border-destructive/30 text-[var(--destructive)]",
 };
 
 const severityIcon: Record<Insight["severity"], string> = {
@@ -99,7 +96,9 @@ export function AIMentorWidget() {
       })
       .then((json: { data: AIData }) => setData(json.data))
       .catch(() =>
-        setError("AI insights are unavailable right now. Please try again later.")
+        setError(
+          "AI insights are unavailable right now. Please try again later."
+        )
       )
       .finally(() => setLoading(false));
   }, []);
@@ -187,10 +186,13 @@ export function AIMentorWidget() {
               <p className="text-xs font-semibold text-purple-400 mb-1.5 uppercase tracking-wide">
                 Weekly summary · AI
               </p>
-              <p 
+              <p
                 className="text-sm text-[var(--card-foreground)] leading-relaxed"
                 dangerouslySetInnerHTML={{
-                  __html: mounted && typeof window !== "undefined" ? DOMPurify.sanitize(data.aiSummary) : ""
+                  __html:
+                    mounted && typeof window !== "undefined"
+                      ? DOMPurify.sanitize(data.aiSummary)
+                      : "",
                 }}
               />
             </div>

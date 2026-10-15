@@ -123,10 +123,8 @@ export default function PRReviewTrendChart() {
 
     const overallAvg =
       validWeeks.length > 0
-        ? validWeeks.reduce(
-            (sum, week) => sum + (week.avgReviewDays ?? 0),
-            0
-          ) / validWeeks.length
+        ? validWeeks.reduce((sum, week) => sum + (week.avgReviewDays ?? 0), 0) /
+          validWeeks.length
         : null;
 
     const latestValid = [...data]
@@ -186,13 +184,13 @@ export default function PRReviewTrendChart() {
           </div>
           <div className="h-[300px] animate-pulse rounded-lg bg-[var(--card-muted)]" />
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-4">
-  {[1,2,3,4,5,6,7,8].map((i) => (
-    <div
-      key={i}
-      className="h-14 rounded-md bg-[var(--card-muted)] animate-pulse"
-    />
-  ))}
-</div>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div
+                key={i}
+                className="h-14 rounded-md bg-[var(--card-muted)] animate-pulse"
+              />
+            ))}
+          </div>
         </div>
       ) : githubAuthInvalid ? (
         <div className="flex h-[360px] items-center justify-center">
@@ -216,12 +214,12 @@ export default function PRReviewTrendChart() {
         </div>
       ) : error ? (
         <div className="flex h-[360px] items-center justify-center">
-          <div className="max-w-sm rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-5 text-center">
+          <div className="max-w-sm rounded-lg border border-destructive/20 bg-destructive/10 p-5 text-center">
             <p className="text-sm text-[var(--destructive)]">{error}</p>
             <button
               type="button"
               onClick={fetchTrend}
-              className="mt-4 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+              className="mt-4 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
             >
               Try again
             </button>
@@ -285,13 +283,13 @@ export default function PRReviewTrendChart() {
                 />
 
                 <XAxis
-  dataKey="label"
-  axisLine={false}
-  tickLine={false}
-  tickMargin={12}
-  interval="preserveStartEnd"
-  tick={{ fill: "var(--muted-foreground)", fontSize: "0.7rem" }}
-/>
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tickMargin={12}
+                  interval="preserveStartEnd"
+                  tick={{ fill: "var(--muted-foreground)", fontSize: "0.7rem" }}
+                />
 
                 <YAxis
                   axisLine={false}

@@ -38,7 +38,11 @@ export default function CommitTimeChart() {
   const fetchContributions = useCallback(() => {
     setLoading(true);
     setError(null);
-    fetch(`/api/metrics/contributions?days=${days}`)
+    fetch(
+      `/api/metrics/contributions?days=${days}&timezone=${encodeURIComponent(
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+      )}`
+    )
       .then((r) => r.json())
       .then((res: { timeBlocks: TimeBlocks }) => {
         if (!res.timeBlocks) {
@@ -119,7 +123,7 @@ export default function CommitTimeChart() {
           `You commit most frequently in the ${peakTime.split(" ")[0].toLowerCase()}`}
       </p>
 
-      <div className="flex-1 min-h-[250px]">
+      <div className="h-[250px]">
         {loading ? (
           <div
             role="status"
@@ -134,12 +138,12 @@ export default function CommitTimeChart() {
           </div>
         ) : error ? (
           <div className="flex h-full items-center justify-center">
-            <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)] text-center">
+            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)] text-center">
               <p>{error}</p>
               <button
                 type="button"
                 onClick={fetchContributions}
-                className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+                className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
               >
                 Try again
               </button>

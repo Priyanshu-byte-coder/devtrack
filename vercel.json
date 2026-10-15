@@ -9,20 +9,12 @@
       "schedule": "0 0 * * *"
     },
     {
-      "path": "/api/cron/goals-sync",
-      "schedule": "0 * * * *"
-    },
-    {
       "path": "/api/sponsors/sync",
       "schedule": "0 0 * * *"
     },
     {
       "path": "/api/notifications/discord-sync",
       "schedule": "0 20 * * *"
-    },
-    {
-      "path": "/api/notifications/weekly",
-      "schedule": "0 * * * *"
     }
   ]
 }

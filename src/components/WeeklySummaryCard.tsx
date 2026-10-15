@@ -66,7 +66,9 @@ export default function WeeklySummaryCard() {
     ? Math.max(summary.activeDays.thisWeek, summary.activeDays.lastWeek, 1)
     : 1;
 
-  const getIssuesCount = (val: { opened: number; closed: number } | number | undefined) => {
+  const getIssuesCount = (
+    val: { opened: number; closed: number } | number | undefined
+  ) => {
     if (typeof val === "number") return val;
     if (val && typeof val === "object") return val.closed;
     return 0;
@@ -134,8 +136,12 @@ Change              : ${summary.commits.trend === "up" ? "+" : summary.commits.t
 
 PRs Opened          : ${summary.prs.thisWeek.opened}
 PRs Merged          : ${summary.prs.thisWeek.merged}
-${summary.issues ? `\nIssues Resolved     : ${issuesThisWeek}
-Issues Last Week    : ${issuesLastWeek}` : ""}
+${
+  summary.issues
+    ? `\nIssues Resolved     : ${issuesThisWeek}
+Issues Last Week    : ${issuesLastWeek}`
+    : ""
+}
 
 Active Days         : ${summary.activeDays.thisWeek} / 7
 Current Streak      : ${summary.streak} days
@@ -240,18 +246,22 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
           This Week
         </h2>
         <div className="flex items-center gap-2">
-          {summary && !loading && !ai.text && !ai.loading && !rateLimitMessage && (
-            <button
-              type="button"
-              onClick={handleGenerateSummary}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] hover:text-[var(--card-foreground)]"
-              aria-label="Generate AI summary"
-              title="Generate AI summary"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>Summarise</span>
-            </button>
-          )}
+          {summary &&
+            !loading &&
+            !ai.text &&
+            !ai.loading &&
+            !rateLimitMessage && (
+              <button
+                type="button"
+                onClick={handleGenerateSummary}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] hover:text-[var(--card-foreground)]"
+                aria-label="Generate AI summary"
+                title="Generate AI summary"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Summarise</span>
+              </button>
+            )}
           {summary && (
             <button
               type="button"
@@ -310,13 +320,10 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             </button>
           </div>
         ) : error ? (
-          <div className="mt-4 rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+          <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
             {error}
           </div>
-        ) : summary &&
-          summary.commits &&
-          summary.prs &&
-          summary.activeDays ? (
+        ) : summary && summary.commits && summary.prs && summary.activeDays ? (
           <div className="mt-4 space-y-4">
             {ai.loading && (
               <div
@@ -333,7 +340,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             )}
 
             {ai.error && !ai.loading && (
-              <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
                 {ai.error}
               </div>
             )}
@@ -523,7 +530,6 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                   </div>
                 </div>
               </div>
-
             )}
 
             {/* Active Days Comparison */}
@@ -612,12 +618,15 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                   {summary.streak} day streak
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-[var(--control)] p-4">
-                <span className="text-sm text-[var(--muted-foreground)]">
+              <div className="flex items-center justify-between gap-3 rounded-lg bg-[var(--control)] p-4">
+                <span className="shrink-0 text-sm text-[var(--muted-foreground)]">
                   Top repo
                 </span>
-                <span className="text-base font-semibold text-[var(--card-foreground)]">
-                  {summary.topRepo ?? "-"}
+                <span
+                  className="min-w-0 truncate text-base font-semibold text-[var(--card-foreground)]"
+                  title={summary.topRepo ?? undefined}
+                >
+                  {summary.topRepo?.split("/").pop() ?? "-"}
                 </span>
               </div>
             </div>

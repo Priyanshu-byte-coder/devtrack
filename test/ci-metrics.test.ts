@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchCIAnalyticsForAccount, mergeCIAnalytics, CIAnalyticsResponse } from "../src/lib/ci-analytics";
+import {
+  fetchCIAnalyticsForAccount,
+  mergeCIAnalytics,
+  CIAnalyticsResponse,
+} from "../src/lib/ci-analytics";
 
 // Mock the route's dependencies to prevent resolution failures during import
 vi.mock("@/lib/supabase", () => ({ supabaseAdmin: {} as any }));
@@ -38,13 +42,23 @@ describe("CI Metrics Route Helpers", () => {
             ok: true,
             json: async () => ({
               items: [
-                { repository: { full_name: "user/repo-a" } },
-                { repository: { full_name: "user/repo-b" } },
+                {
+                  repository: { full_name: "user/repo-a" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
+                {
+                  repository: { full_name: "user/repo-b" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
               ],
+              total_count: 2,
             }),
           });
         }
-        if (url.includes("/repos/user/repo-a/actions/runs") || url.includes("/repos/user/repo-b/actions/runs")) {
+        if (
+          url.includes("/repos/user/repo-a/actions/runs") ||
+          url.includes("/repos/user/repo-b/actions/runs")
+        ) {
           return Promise.resolve({
             ok: true,
             json: async () => ({
@@ -79,9 +93,16 @@ describe("CI Metrics Route Helpers", () => {
             ok: true,
             json: async () => ({
               items: [
-                { repository: { full_name: "user/repo-a" } },
-                { repository: { full_name: "user/repo-b" } },
+                {
+                  repository: { full_name: "user/repo-a" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
+                {
+                  repository: { full_name: "user/repo-b" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
               ],
+              total_count: 2,
             }),
           });
         }
@@ -108,7 +129,7 @@ describe("CI Metrics Route Helpers", () => {
       vi.stubGlobal("fetch", mockFetch);
 
       const result = await fetchCIAnalyticsForAccount("fake-token", "user");
-      
+
       // Should aggregate only the successful one (repo-a)
       expect(result.successRate).toBe(100);
       expect(result.averageDurationMinutes).toBe(5);
@@ -116,7 +137,9 @@ describe("CI Metrics Route Helpers", () => {
       expect(result.reposChecked).toBe(2);
       // Should log the error
       expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain("Failed to fetch signals for repo user/repo-b:");
+      expect(consoleErrorSpy.mock.calls[0][0]).toContain(
+        "Failed to fetch signals for repo user/repo-b:"
+      );
       // Should track the failed repository in the failedRepos metadata field
       expect(result.failedRepos).toEqual(["user/repo-b"]);
     });
@@ -128,8 +151,12 @@ describe("CI Metrics Route Helpers", () => {
             ok: true,
             json: async () => ({
               items: [
-                { repository: { full_name: "user/repo-a" } },
+                {
+                  repository: { full_name: "user/repo-a" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
               ],
+              total_count: 2,
             }),
           });
         }
@@ -145,7 +172,7 @@ describe("CI Metrics Route Helpers", () => {
       vi.stubGlobal("fetch", mockFetch);
 
       const result = await fetchCIAnalyticsForAccount("fake-token", "user");
-      
+
       expect(result.successRate).toBe(0);
       expect(result.totalRuns).toBe(0);
       expect(result.reposChecked).toBe(1);
@@ -160,9 +187,16 @@ describe("CI Metrics Route Helpers", () => {
             ok: true,
             json: async () => ({
               items: [
-                { repository: { full_name: "user/repo-a" } },
-                { repository: { full_name: "user/repo-b" } },
+                {
+                  repository: { full_name: "user/repo-a" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
+                {
+                  repository: { full_name: "user/repo-b" },
+                  commit: { author: { date: new Date().toISOString() } },
+                },
               ],
+              total_count: 2,
             }),
           });
         }
@@ -193,7 +227,7 @@ describe("CI Metrics Route Helpers", () => {
       vi.stubGlobal("fetch", mockFetch);
 
       const result = await fetchCIAnalyticsForAccount("fake-token", "user");
-      
+
       expect(result.successRate).toBe(100);
       expect(result.totalRuns).toBe(1);
       expect(result.reposChecked).toBe(2);
@@ -229,7 +263,11 @@ describe("CI Metrics Route Helpers", () => {
       expect(merged.flakiestWorkflow).toBe("workflow-a");
       expect(merged.totalRuns).toBe(30);
       expect(merged.reposChecked).toBe(5);
-      expect(merged.failedRepos).toEqual(["user/repo-c", "user/repo-d", "user/repo-e"]);
+      expect(merged.failedRepos).toEqual([
+        "user/repo-c",
+        "user/repo-d",
+        "user/repo-e",
+      ]);
     });
 
     it("should handle missing failedRepos fields", () => {
