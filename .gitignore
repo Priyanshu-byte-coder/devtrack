@@ -65,6 +65,9 @@ screenshot.png
 # Prevent npm lockfile conflicts
 package-lock.json
 
+# Recorded demo-mode API responses (contain private account data)
+demo/fixtures.json
+
 # code-analysis output
 .jscpd-report/
 .scannerwork/

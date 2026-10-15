@@ -1,0 +1,44 @@
+{
+  "responses": {
+    "/api/notifications": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"notifications\":[{\"id\":\"demo-n1\",\"type\":\"streak_milestone\",\"message\":\"You hit a 7-day commit streak. Keep it going!\",\"read\":false,\"created_at\":\"2026-10-15T06:30:00.000Z\"},{\"id\":\"demo-n2\",\"type\":\"goal_completed\",\"message\":\"Weekly goal completed: merge 3 pull requests.\",\"read\":false,\"created_at\":\"2026-10-14T18:10:00.000Z\"},{\"id\":\"demo-n3\",\"type\":\"badge_earned\",\"message\":\"New badge unlocked: Week Warrior.\",\"read\":true,\"created_at\":\"2026-10-13T09:00:00.000Z\"}],\"unreadCount\":2}"
+    },
+    "/api/milestones": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"milestones\":[{\"id\":\"00000000-0000-4000-8000-000000000001\",\"user_id\":\"demo\",\"title\":\"Hacktoberfest maintainer push\",\"description\":\"Review and merge community PRs during October\",\"target_value\":50,\"current_value\":18,\"unit\":\"PRs\",\"target_date\":\"2026-10-31\",\"category\":\"projects\",\"created_at\":\"2026-10-01T00:00:00.000Z\"},{\"id\":\"00000000-0000-4000-8000-000000000002\",\"user_id\":\"demo\",\"title\":\"30-day commit streak\",\"description\":\"Commit at least once every day\",\"target_value\":30,\"current_value\":12,\"unit\":\"days\",\"target_date\":\"2026-11-15\",\"category\":\"streak\",\"created_at\":\"2026-10-03T00:00:00.000Z\"}]}"
+    },
+    "/api/daily-note": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"todayNote\":\"Get DevTrack Hacktoberfest-ready: labels, CI fixes, issue triage.\",\"yesterdayNote\":\"Merged the security/reliability audit (#3525) and Dependabot cleanup (#3526).\"}"
+    },
+    "/api/accounts": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"accounts\":[]}"
+    },
+    "/api/user/orgs": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"accounts\":[],\"config\":{}}"
+    },
+    "/api/local-coding/stats": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"dailyData\":[],\"totals\":{\"totalSeconds\":0,\"totalDays\":0,\"avgSecondsPerDay\":0},\"hasData\":false}"
+    },
+    "/api/wakatime": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"hasData\":false,\"not_configured\":true}"
+    },
+    "/api/webhooks/custom": {
+      "status": 200,
+      "contentType": "application/json",
+      "body": "{\"webhooks\":[]}"
+    }
+  }
+}

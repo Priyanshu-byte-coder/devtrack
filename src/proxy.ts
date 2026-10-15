@@ -7,6 +7,7 @@ import {
   AUTH_LIMIT,
 } from "@/lib/auth-rate-limit";
 import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
+import { handleDemoRequest, isDemoMode } from "@/lib/demo-mode";
 
 const isDev = process.env.NODE_ENV === "development";
 const memoryBuckets = new Map<string, number[]>();
@@ -262,6 +263,15 @@ export async function proxy(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
+
+  if (isDemoMode) {
+    const demoResponse = await handleDemoRequest(req);
+    if (demoResponse) {
+      demoResponse.headers.set("Content-Security-Policy", csp);
+      return demoResponse;
+    }
+  }
+
   const next = () => {
     const response = NextResponse.next({
       request: { headers: requestHeaders },
