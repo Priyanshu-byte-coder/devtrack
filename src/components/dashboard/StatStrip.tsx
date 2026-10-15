@@ -112,10 +112,15 @@ export default function StatStrip() {
             <Icon className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="truncate">{label}</span>
           </div>
-          {value === null || value === undefined ? (
-            <div className="mt-2 h-7 w-16 rounded bg-[var(--card-muted)] animate-pulse">
-              {failed && <span className="sr-only">Unavailable</span>}
-            </div>
+          {failed && !data ? (
+            <p
+              className="mt-1.5 text-2xl font-semibold text-[var(--muted-foreground)]"
+              title="Unavailable right now"
+            >
+              —
+            </p>
+          ) : value === null || value === undefined ? (
+            <div className="mt-2 h-7 w-16 rounded bg-[var(--card-muted)] animate-pulse" />
           ) : (
             <p className="mt-1.5 text-2xl font-semibold tabular-nums text-[var(--card-foreground)]">
               {value}
