@@ -61,7 +61,7 @@ function getStatusMessage(
 function GitHubAvatar({ login, size = 32 }: { login: string; size?: number }) {
   return (
     <Image
-      src={`https://github.com/${login}.png?size=${size * 2}`}
+      src={`https://avatars.githubusercontent.com/${login}?s=${size * 2}`}
       alt={`${login} avatar`}
       width={size}
       height={size}

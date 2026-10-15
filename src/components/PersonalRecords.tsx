@@ -292,7 +292,7 @@ export default function PersonalRecords() {
         title="Personal Records"
         className="transition-all duration-300"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 items-stretch">
           {[1, 2, 3, 4, 5].map((i) => (
             <SkeletonBlock key={i} className="h-32 p-4" />
           ))}
@@ -318,7 +318,7 @@ export default function PersonalRecords() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch stagger-children">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 items-stretch stagger-children">
           {records.map((rec) => (
             <div
               key={rec.label}

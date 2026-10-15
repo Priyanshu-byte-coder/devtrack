@@ -7,7 +7,6 @@ import { submitGoalWithRefresh } from "@/lib/goal-tracker";
 import ConfirmModal from "@/components/ConfirmModal";
 import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
-import EmptyState from "@/components/EmptyState";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 type Recurrence = "none" | "weekly" | "monthly";
@@ -570,15 +569,11 @@ export default function GoalTracker() {
       )}
 
       {goals.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            icon="🎯"
-            title="No goals yet"
-            description="No goals yet. Create your first coding goal to start tracking progress!"
-            actionLabel="Create Goal"
-            actionHref="#create-goal-form"
-          />
-        </div>
+        // The create form sits right below, so a one-line hint beats a second call to action.
+        <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm text-[var(--muted-foreground)]">
+          No goals yet. Set your first one below and it will update from your
+          GitHub activity.
+        </p>
       ) : (
         <>
           {goals.some((g) => g.category) && (

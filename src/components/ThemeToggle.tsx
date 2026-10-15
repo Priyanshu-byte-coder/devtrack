@@ -217,9 +217,7 @@ function DefaultThemeToggle() {
           ))}
         </select>
 
-        <span className="text-xs font-medium text-[var(--muted-foreground)]">
-          Change
-        </span>
+        <span className="sr-only">Change theme</span>
         <ChevronIcon
           className="h-4 w-4 text-[var(--muted-foreground)]"
           aria-hidden="true"
