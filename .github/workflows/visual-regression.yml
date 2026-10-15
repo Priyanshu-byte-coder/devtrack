@@ -74,7 +74,7 @@ jobs:
 
       - name: Regenerate baselines
         if: ${{ inputs.update_snapshots }}
-        run: npx playwright test -c playwright.visual.config.mjs --update-snapshots
+        run: npx playwright test -c playwright.visual.config.mjs --update-snapshots=all
 
       - name: Upload regenerated baselines
         if: ${{ inputs.update_snapshots }}
