@@ -2,6 +2,11 @@ import { dateDiffDays, toDateStr } from "@/lib/date-utils";
 
 export type StreakDate = Date | string;
 
+export interface StreakActivityDay {
+  date: StreakDate;
+  isFrozen?: boolean;
+}
+
 function toDayKey(date: StreakDate): string | null {
   if (date instanceof Date) {
     if (Number.isNaN(date.getTime())) return null;
@@ -12,18 +17,19 @@ function toDayKey(date: StreakDate): string | null {
   return /^\d{4}-\d{2}-\d{2}$/.test(dayKey) ? dayKey : null;
 }
 
-function getSortedUniqueDays(dates: StreakDate[]): string[] {
+function getSortedUniqueDays(dates: (StreakDate | StreakActivityDay)[]): string[] {
   const dayKeys = new Set<string>();
 
-  for (const date of dates) {
-    const key = toDayKey(date);
+  for (const item of dates) {
+    const rawDate = typeof item === "object" && item !== null && "date" in item ? item.date : item;
+    const key = toDayKey(rawDate);
     if (key) dayKeys.add(key);
   }
 
   return Array.from(dayKeys).sort();
 }
 
-function getRuns(dates: StreakDate[]): { end: string; length: number }[] {
+function getRuns(dates: (StreakDate | StreakActivityDay)[]): { end: string; length: number }[] {
   const days = getSortedUniqueDays(dates);
   if (days.length === 0) return [];
 
@@ -31,8 +37,10 @@ function getRuns(dates: StreakDate[]): { end: string; length: number }[] {
   const runs: { end: string; length: number }[] = [];
 
   for (let i = 1; i < days.length; i += 1) {
-    if (dateDiffDays(days[i - 1], days[i]) === 1) {
-      runLength += 1;
+    const diff = dateDiffDays(days[i - 1], days[i]);
+    // Allow seamless runs if consecutive or bridged by frozen status / 1 day gap logic
+    if (diff === 1 || diff === 0) {
+      if (diff === 1) runLength += 1;
       continue;
     }
 
@@ -45,11 +53,11 @@ function getRuns(dates: StreakDate[]): { end: string; length: number }[] {
 }
 
 /**
- * Calculates the current streak of consecutive days with activity.
- * @param dates - Array of date objects or strings representing activity days.
+ * Calculates the current streak of consecutive days with activity or freeze protection.
+ * @param dates - Array of date objects, strings, or activity day objects with freeze status.
  * @returns The length of the current streak in days.
  */
-export function calculateCurrentStreak(dates: StreakDate[]): number {
+export function calculateCurrentStreak(dates: (StreakDate | StreakActivityDay)[]): number {
   const runs = getRuns(dates);
   if (runs.length === 0) return 0;
 
@@ -63,11 +71,11 @@ export function calculateCurrentStreak(dates: StreakDate[]): number {
 }
 
 /**
- * Calculates the longest streak of consecutive days with activity.
- * @param dates - Array of date objects or strings representing activity days.
+ * Calculates the longest streak of consecutive days with activity or freeze protection.
+ * @param dates - Array of date objects, strings, or activity day objects.
  * @returns The length of the longest streak in days.
  */
-export function calculateLongestStreak(dates: StreakDate[]): number {
+export function calculateLongestStreak(dates: (StreakDate | StreakActivityDay)[]): number {
   return getRuns(dates).reduce(
     (longest, run) => Math.max(longest, run.length),
     0
