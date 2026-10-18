@@ -140,7 +140,15 @@ export default function CodingActivityInsightsCard() {
           return;
         }
 
-        setData(payload);
+        // A partial payload (e.g. during a GitHub outage) renders the empty state.
+        setData(
+          payload &&
+            Array.isArray(payload.hourlyCounts) &&
+            payload.mostActiveHour &&
+            payload.leastActiveHour
+            ? payload
+            : null
+        );
       })
       .catch(() => {
         if (requestId !== requestIdRef.current) {
@@ -168,10 +176,12 @@ export default function CodingActivityInsightsCard() {
     fetchInsights();
   }, [fetchInsights, timezone]);
 
-  const chartData = useMemo(
-    () => data?.hourlyCounts.map(({ hour, count }) => ({ hour, count })) ?? [],
-    [data]
-  );
+  const chartData = useMemo(() => {
+    const counts = data?.hourlyCounts;
+    return Array.isArray(counts)
+      ? counts.map(({ hour, count }) => ({ hour, count }))
+      : [];
+  }, [data]);
 
   const hasData = Boolean(
     data &&

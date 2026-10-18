@@ -121,7 +121,7 @@ export default function Footer() {
 
   return (
     <footer
-      className={`mt-auto border-t relative overflow-hidden ${
+      className={`site-footer mt-auto border-t relative overflow-hidden ${
         isLanding
           ? "bg-transparent border-slate-900/40"
           : "border-[var(--border)] bg-[var(--background)]"

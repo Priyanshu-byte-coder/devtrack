@@ -106,12 +106,12 @@ export function ProfileQrModal({
       onClick={handleBackdropClick}
     >
       {/* Panel */}
-      <div className="relative mx-4 flex w-full max-w-sm flex-col items-center rounded-2xl bg-white px-8 py-8 shadow-2xl dark:bg-gray-900">
+      <div className="relative mx-4 flex w-full max-w-sm flex-col items-center rounded-2xl border border-[var(--border)] bg-[var(--card)] px-8 py-8 shadow-2xl">
         {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Close QR code modal"
-          className="absolute right-4 top-4 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          className="absolute right-4 top-4 rounded-full p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] hover:text-[var(--foreground)]"
         >
           {/* ✕ icon (inline SVG to avoid icon-library coupling) */}
           <svg
@@ -134,13 +134,13 @@ export function ProfileQrModal({
         {/* Heading */}
         <h2
           id="qr-modal-title"
-          className="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
+          className="mb-1 text-lg font-semibold text-[var(--foreground)]"
         >
           Share Profile
         </h2>
-        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mb-6 text-sm text-[var(--muted-foreground)]">
           Scan to visit&nbsp;
-          <span className="font-medium text-gray-700 dark:text-gray-300">
+          <span className="font-medium text-[var(--foreground)]">
             @{username}
           </span>
           &apos;s DevTrack profile
@@ -162,7 +162,7 @@ export function ProfileQrModal({
 
         {/* Profile URL (read-only, copyable) */}
         <p
-          className="mt-4 max-w-full truncate text-center text-xs text-gray-400 dark:text-gray-500"
+          className="mt-4 max-w-full truncate text-center text-xs text-[var(--muted-foreground)]"
           title={profileUrl}
         >
           {profileUrl}
@@ -171,7 +171,7 @@ export function ProfileQrModal({
         {/* Download button */}
         <button
           onClick={handleDownload}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
         >
           {/* Download icon */}
           <svg

@@ -4,6 +4,7 @@ import {
   FileText,
   FolderGit2,
   GitPullRequest,
+  GraduationCap,
   LayoutDashboard,
   Settings,
   Sparkles,
@@ -41,7 +42,12 @@ export const APP_NAV: NavSection[] = [
         match: ["/dashboard/repo-health", "/dashboard/repo-comparison"],
       },
       { href: "/dashboard/goals", label: "Goals", icon: Target },
-      { href: "/dashboard/community", label: "Community", icon: Users },
+      {
+        href: "/dashboard/community",
+        label: "Community",
+        icon: Users,
+        match: ["/dashboard/friends", "/dashboard/rooms"],
+      },
     ],
   },
   {
@@ -59,6 +65,11 @@ export const APP_NAV: NavSection[] = [
         icon: FileText,
       },
       { href: "/dashboard/personality", label: "Personality", icon: Brain },
+      {
+        href: "/dashboard/project-tutor",
+        label: "Project tutor",
+        icon: GraduationCap,
+      },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
     ],
   },

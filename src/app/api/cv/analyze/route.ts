@@ -5,7 +5,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import type { ContributionClassification, CVAnalyzeResponse } from "@/types/cv-types";
+import type {
+  ContributionClassification,
+  CVAnalyzeResponse,
+} from "@/types/cv-types";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +49,44 @@ async function resolveGitHubLogin(
   return data.login;
 }
 
+async function loadCachedAnalysis(
+  userId: string
+): Promise<ContributionClassification | null> {
+  const { data } = await supabaseAdmin
+    .from("cv_analyses")
+    .select("analysis_data")
+    .eq("user_id", userId)
+    .gte("expires_at", new Date().toISOString())
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data?.analysis_data as unknown as ContributionClassification) ?? null;
+}
+
+/**
+ * GET /api/cv/analyze
+ *
+ * Returns the cached analysis (24 h TTL) without touching GitHub, so the
+ * Resume page can resume where the user left off. 404 when none exists.
+ */
+export async function GET() {
+  const session = await getServerSession(authOptions);
+  if (!session?.githubId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    const analysis = await loadCachedAnalysis(session.githubId);
+    if (!analysis) {
+      return NextResponse.json({ error: "No analysis yet" }, { status: 404 });
+    }
+    const response: CVAnalyzeResponse = { analysis, cached: true };
+    return NextResponse.json(response);
+  } catch (err) {
+    console.error("CV analyze cache read error:", err);
+    return NextResponse.json({ error: "No analysis yet" }, { status: 404 });
+  }
+}
+
 /**
  * POST /api/cv/analyze
  *
@@ -63,7 +104,14 @@ export async function POST() {
 
     const userId = session.githubId;
 
-    /* ── 2. Rate limiting ────────────────────────────────────── */
+    /* ── 2. Cache check ──────────────────────────────────────── */
+    const cached = await loadCachedAnalysis(userId);
+    if (cached) {
+      const response: CVAnalyzeResponse = { analysis: cached, cached: true };
+      return NextResponse.json(response);
+    }
+
+    /* ── 3. Rate limiting (only fresh analyses count) ────────── */
     const currentTime = Date.now();
 
     let existing = analyzeRateLimit.get(userId);
@@ -74,7 +122,9 @@ export async function POST() {
 
     if (existing.count >= MAX_REQUESTS) {
       return NextResponse.json(
-        { error: "Rate limit exceeded" },
+        {
+          error: `GitHub analysis is limited to ${MAX_REQUESTS} runs per hour. Try again in ${Math.ceil((existing.resetTime - currentTime) / 60000)} min.`,
+        },
         {
           status: 429,
           headers: {
@@ -87,24 +137,6 @@ export async function POST() {
     }
     existing.count += 1;
 
-    /* ── 3. Cache check ──────────────────────────────────────── */
-    const { data: cached } = await supabaseAdmin
-      .from("cv_analyses")
-      .select("*")
-      .eq("user_id", userId)
-      .gte("expires_at", new Date().toISOString())
-      .order("generated_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (cached) {
-      const response: CVAnalyzeResponse = {
-        analysis: cached.analysis_data as unknown as ContributionClassification,
-        cached: true,
-      };
-      return NextResponse.json(response);
-    }
-
     /* ── 4. Resolve login & fetch contributions ───────────────── */
     const accessToken = session.accessToken as string;
     const githubLogin = await resolveGitHubLogin(
@@ -112,29 +144,31 @@ export async function POST() {
       accessToken
     );
 
-    const { fetchContributionData } = await import(
-      "@/lib/cv/cv-github-fetcher"
-    );
-    const { classifyContributions } = await import(
-      "@/lib/cv/cv-classifier"
-    );
+    const { fetchContributionData } =
+      await import("@/lib/cv/cv-github-fetcher");
+    const { classifyContributions } = await import("@/lib/cv/cv-classifier");
 
-    const contributionData = await fetchContributionData(accessToken, githubLogin);
+    const contributionData = await fetchContributionData(
+      accessToken,
+      githubLogin
+    );
     const analysis = classifyContributions(contributionData);
 
     /* ── 5. Cache in Supabase (24 h TTL) — non-fatal ─────────── */
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-    const { error: upsertError } = await supabaseAdmin.from("cv_analyses").upsert(
-      {
-        user_id: userId,
-        analysis_data: toDatabaseJson(analysis),
-        generated_at: now.toISOString(),
-        expires_at: expiresAt.toISOString(),
-      },
-      { onConflict: "user_id" }
-    );
+    const { error: upsertError } = await supabaseAdmin
+      .from("cv_analyses")
+      .upsert(
+        {
+          user_id: userId,
+          analysis_data: toDatabaseJson(analysis),
+          generated_at: now.toISOString(),
+          expires_at: expiresAt.toISOString(),
+        },
+        { onConflict: "user_id" }
+      );
 
     if (upsertError) {
       // Log but don't fail — analysis is computed, just not cached.
@@ -153,7 +187,10 @@ export async function POST() {
 
     console.error("CV analyze error:", err);
     return NextResponse.json(
-      { error: "Internal server error" },
+      {
+        error:
+          "Could not analyze your GitHub activity right now. Please try again in a minute.",
+      },
       { status: 500 }
     );
   }

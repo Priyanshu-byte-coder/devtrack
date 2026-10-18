@@ -27,7 +27,7 @@ export default function ActivityPage() {
       <ContributionHeatmap />
 
       <SectionTitle>Streaks &amp; consistency</SectionTitle>
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div id="streaks" className="grid scroll-mt-20 gap-4 xl:grid-cols-2">
         <StreakTracker />
         <div className="space-y-4">
           <WeeklySummary />

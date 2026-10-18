@@ -16,6 +16,18 @@ type WeeklySummary = {
   streak: number;
 };
 
+function isWeeklySummary(value: unknown): value is WeeklySummary {
+  const v = value as WeeklySummary | null;
+  return (
+    !!v &&
+    typeof v.streak === "number" &&
+    typeof v.commits?.current === "number" &&
+    typeof v.prs?.thisWeek?.merged === "number" &&
+    typeof v.prs?.lastWeek?.merged === "number" &&
+    typeof v.activeDays?.thisWeek === "number"
+  );
+}
+
 function Delta({ now, before }: { now: number; before: number }) {
   if (now === before)
     return (
@@ -46,7 +58,11 @@ export default function StatStrip() {
     setFailed(false);
     fetch(`/api/metrics/weekly-summary${query}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
-      .then((json: WeeklySummary) => !cancelled && setData(json))
+      .then((json: unknown) => {
+        if (cancelled) return;
+        if (isWeeklySummary(json)) setData(json);
+        else setFailed(true);
+      })
       .catch(() => !cancelled && setFailed(true));
     return () => {
       cancelled = true;

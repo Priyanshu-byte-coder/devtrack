@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import PageHeader from "@/components/shell/PageHeader";
+import { buttonVariants } from "@/components/ui/button";
 import { Scale, Trophy } from "lucide-react";
 import Image from "next/image";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
@@ -99,28 +101,20 @@ export default async function PublicProfileComparePage({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-4 text-[var(--foreground)] transition-colors md:p-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-              Public Profile Compare
-            </p>
-            <h1 className="mt-2 text-3xl font-bold text-[var(--foreground)] md:text-4xl">
-              @{leftProfile.username} vs @{rightProfile.username}
-            </h1>
-            <p className="mt-2 text-[var(--muted-foreground)]">
-              Shareable comparison built only from publicly visible DevTrack
-              stats.
-            </p>
-          </div>
-          <Link
-            href={`/u/${encodeURIComponent(rightProfile.username)}`}
-            className="secondary-button inline-flex rounded-lg px-4 py-2 text-sm font-medium"
-          >
-            View profile
-          </Link>
-        </div>
+    <div>
+      <div>
+        <PageHeader
+          title={`@${leftProfile.username} vs @${rightProfile.username}`}
+          description="Shareable comparison built only from public DevTrack stats."
+          actions={
+            <Link
+              href={`/u/${encodeURIComponent(rightProfile.username)}`}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              View @{rightProfile.username}
+            </Link>
+          }
+        />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
           <ProfileHeader profile={leftProfile} />
@@ -132,7 +126,7 @@ export default async function PublicProfileComparePage({
           <ProfileHeader profile={rightProfile} align="right" />
         </div>
 
-        <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow-soft)] md:p-6">
+        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 md:p-5">
           <div className="mb-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm font-medium text-[var(--muted-foreground)]">
             <div>@{leftProfile.username}</div>
             <div className="text-center text-xs uppercase tracking-wide">
@@ -207,15 +201,12 @@ function CompareUnavailable({
   message?: string;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4 text-[var(--foreground)]">
-      <div className="surface-card max-w-md rounded-2xl p-8 text-center">
-        <h1 className="mb-2 text-3xl font-bold">{title}</h1>
+    <div className="flex justify-center py-16">
+      <div className="max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
+        <h1 className="mb-2 text-xl font-semibold">{title}</h1>
         <p className="mb-6 text-sm text-[var(--muted-foreground)]">{message}</p>
-        <Link
-          href="/"
-          className="primary-button inline-block rounded-lg px-6 py-2"
-        >
-          Back to Home
+        <Link href="/leaderboard" className={buttonVariants({ size: "sm" })}>
+          Browse the leaderboard
         </Link>
       </div>
     </div>
@@ -231,7 +222,7 @@ function ProfileHeader({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[var(--shadow-soft)] ${
+      className={`rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 ${
         align === "right" ? "md:text-right" : ""
       }`}
     >
@@ -351,7 +342,7 @@ function LanguageCard({
   const total = languages.reduce((sum, language) => sum + language.count, 0);
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
         @{username} Top Languages
       </h2>
@@ -397,7 +388,7 @@ function ReposCard({
   const maxCommits = repos[0]?.commits ?? 1;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
       <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
         @{username} Top Repositories
       </h2>

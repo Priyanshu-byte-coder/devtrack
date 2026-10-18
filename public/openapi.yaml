@@ -370,6 +370,17 @@ paths:
       security:
         - cronAuth: []
   /api/cv/analyze:
+    get:
+      operationId: get_api_cv_analyze
+      summary: GET /api/cv/analyze
+      tags:
+        - cv
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cookieAuth: []
     post:
       operationId: post_api_cv_analyze
       summary: POST /api/cv/analyze

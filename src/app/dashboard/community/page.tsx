@@ -21,11 +21,11 @@ export default function CommunityPage() {
         description="Your open-source footprint: discussions, reviews, friends and sponsors."
         actions={
           <>
-            <Link href="/friend-compare" className={linkClass}>
+            <Link href="/dashboard/friends" className={linkClass}>
               <UsersRound className="h-4 w-4" aria-hidden="true" />
               Compare friends
             </Link>
-            <Link href="/rooms" className={linkClass}>
+            <Link href="/dashboard/rooms" className={linkClass}>
               <MessagesSquare className="h-4 w-4" aria-hidden="true" />
               Rooms
             </Link>

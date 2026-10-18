@@ -1,5 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  segmentedGroupClass,
+  segmentedItemClass,
+} from "@/components/ui/segmented";
 import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -124,57 +129,43 @@ export default function LeaderboardFilters() {
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-[var(--border)] bg-card/90 p-3 shadow-[var(--shadow-soft)]">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--card-foreground)] md:min-w-64">
-          Language
-          <select
-            value={language}
-            onChange={(event) => updateFilters({ lang: event.target.value })}
-            className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus:border-[var(--accent)]"
+    <div className="flex flex-wrap items-center gap-2">
+      <label className="sr-only" htmlFor="leaderboard-language">
+        Language
+      </label>
+      <select
+        id="leaderboard-language"
+        value={language}
+        onChange={(event) => updateFilters({ lang: event.target.value })}
+        className="h-9 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+      >
+        <option value="">All languages</option>
+        {languages.map((item) => (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        ))}
+      </select>
+
+      <div role="group" aria-label="Time range" className={segmentedGroupClass}>
+        {periods.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            aria-pressed={item.value === period}
+            onClick={() => updateFilters({ period: item.value })}
+            className={segmentedItemClass(item.value === period)}
           >
-            <option value="">All languages</option>
-            {languages.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="flex flex-col gap-2 text-sm font-medium text-[var(--card-foreground)]">
-          Time range
-          <div className="grid grid-cols-3 gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] p-1">
-            {periods.map((item) => {
-              const active = item.value === period;
-
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => updateFilters({ period: item.value })}
-                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-                    active
-                      ? "bg-[var(--accent)] text-[var(--accent-foreground)] shadow-sm"
-                      : "text-[var(--muted-foreground)] hover:bg-[var(--card)] hover:text-[var(--card-foreground)]"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={clearFilters}
-          disabled={!hasFilters}
-          className="secondary-button rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Clear filters
-        </button>
+            {item.label}
+          </button>
+        ))}
       </div>
+
+      {hasFilters && (
+        <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+          Clear
+        </Button>
+      )}
     </div>
   );
 }

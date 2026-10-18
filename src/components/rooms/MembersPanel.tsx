@@ -50,15 +50,15 @@ export default function MembersPanel({
   }
 
   return (
-    <aside className="w-full md:w-56 shrink-0 border-l dark:border-gray-800 flex flex-col">
-      <div className="p-4 border-b dark:border-gray-800 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+    <aside className="w-full md:w-56 shrink-0 border-l flex flex-col">
+      <div className="p-4 border-b flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-[var(--foreground)]">
           Members ({members.length})
         </h3>
         {isOwner && (
           <button
             onClick={() => setShowInvite(true)}
-            className="text-xs px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/60"
+            className="text-xs px-2 py-1 bg-blue-100 text-[var(--accent)] rounded-lg hover:bg-blue-200"
           >
             + Invite
           </button>
@@ -87,7 +87,7 @@ export default function MembersPanel({
                 onClick={() => handleRemove(m.github_username)}
                 disabled={removingUsername === m.github_username}
                 aria-label={`Remove ${m.github_username}`}
-                className="shrink-0 text-[10px] text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-40"
+                className="shrink-0 text-[10px] text-[var(--muted-foreground)] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-40"
               >
                 {removingUsername === m.github_username ? "…" : "✕"}
               </button>

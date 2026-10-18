@@ -27,7 +27,11 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function pluralise(n: number, singular: string, plural = `${singular}s`): string {
+function pluralise(
+  n: number,
+  singular: string,
+  plural = `${singular}s`
+): string {
   return `${n} ${n === 1 ? singular : plural}`;
 }
 
@@ -340,7 +344,7 @@ export function buildDigestHtml(data: DigestEmailData): string {
                        border-top:1px solid #e2e8f0;text-align:center;">
               <p style="margin:0 0 8px 0;font-size:12px;color:#94a3b8;">
                 You are receiving this because you opted into the weekly digest in your
-                <a href="${esc((process.env.NEXTAUTH_URL ?? "").replace(/\/$/, ""))}/settings"
+                <a href="${esc((process.env.NEXTAUTH_URL ?? "").replace(/\/$/, ""))}/dashboard/settings"
                    style="color:#64748b;">DevTrack settings</a>.
               </p>
               <p style="margin:0;font-size:12px;color:#94a3b8;">

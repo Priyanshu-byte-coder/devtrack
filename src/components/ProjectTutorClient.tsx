@@ -1,6 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import { MessageSquare, ListChecks, FileText, Send } from "lucide-react";
+import PageHeader from "@/components/shell/PageHeader";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface Questions {
   easy: string[];
@@ -8,242 +12,317 @@ interface Questions {
   advanced: string[];
 }
 
-interface ProjectTutorClientProps {
-  username: string;
+type Tab = "analysis" | "questions" | "chat";
+
+const TABS: { id: Tab; label: string; icon: typeof FileText }[] = [
+  { id: "analysis", label: "Overview", icon: FileText },
+  { id: "questions", label: "Interview questions", icon: ListChecks },
+  { id: "chat", label: "Ask the tutor", icon: MessageSquare },
+];
+
+const LEVELS: { id: keyof Questions; label: string; dot: string }[] = [
+  { id: "easy", label: "Warm-up", dot: "bg-emerald-500" },
+  { id: "medium", label: "Core", dot: "bg-amber-500" },
+  { id: "advanced", label: "Deep dive", dot: "bg-rose-500" },
+];
+
+async function postTutor(body: Record<string, string>) {
+  const res = await fetch("/api/project-tutor", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      typeof data.error === "string"
+        ? data.error
+        : "The tutor is unavailable right now."
+    );
+  }
+  return data;
 }
 
-export default function ProjectTutorClient({ username }: ProjectTutorClientProps) {
-  const [repoUrl, setRepoUrl] = useState('');
+const inputClass =
+  "h-9 min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]";
+
+export default function ProjectTutorClient() {
+  const [repoUrl, setRepoUrl] = useState("");
+  const [analyzedRepo, setAnalyzedRepo] = useState("");
   const [loading, setLoading] = useState(false);
-  const [analysis, setAnalysis] = useState('');
+  const [analysis, setAnalysis] = useState("");
   const [questions, setQuestions] = useState<Questions | null>(null);
-  const [chatInput, setChatInput] = useState('');
-  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatHistory, setChatHistory] = useState<
+    { role: "user" | "ai"; text: string }[]
+  >([]);
   const [chatLoading, setChatLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'analysis' | 'questions' | 'chat'>('analysis');
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<Tab>("analysis");
 
   const handleAnalyze = async () => {
-    if (!repoUrl.trim()) return;
+    const url = repoUrl.trim();
+    if (!url) return;
     setLoading(true);
-    setError('');
-    setAnalysis('');
+    setError("");
+    setAnalysis("");
     setQuestions(null);
+    setChatHistory([]);
 
     try {
-      const [analysisRes, questionsRes] = await Promise.all([
-        fetch('/api/project-tutor', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repoUrl, action: 'analyze' }),
-        }),
-        fetch('/api/project-tutor', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ repoUrl, action: 'questions' }),
-        }),
+      const [analysisData, questionsData] = await Promise.all([
+        postTutor({ repoUrl: url, action: "analyze" }),
+        postTutor({ repoUrl: url, action: "questions" }),
       ]);
-
-      const analysisData = await analysisRes.json();
-      const questionsData = await questionsRes.json();
-
-      setAnalysis(analysisData.analysis ?? '');
+      setAnalysis(analysisData.analysis ?? "");
       setQuestions(questionsData.questions ?? null);
-    } catch {
-      setError('Failed to analyze repository. Please try again.');
+      setAnalyzedRepo(url);
+      setActiveTab("analysis");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to analyze repository. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleChat = async () => {
-    if (!chatInput.trim()) return;
-    const userMsg = chatInput.trim();
-    setChatInput('');
-    setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
+    const question = chatInput.trim();
+    if (!question || chatLoading) return;
+    setChatInput("");
+    setChatHistory((prev) => [...prev, { role: "user", text: question }]);
     setChatLoading(true);
 
     try {
-      const res = await fetch('/api/project-tutor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repoUrl, action: 'chat', question: userMsg }),
+      const data = await postTutor({
+        repoUrl: analyzedRepo,
+        action: "chat",
+        question,
       });
-      const data = await res.json();
-      setChatHistory(prev => [...prev, { role: 'ai', text: data.answer ?? 'No response.' }]);
-    } catch {
-      setChatHistory(prev => [...prev, { role: 'ai', text: 'Failed to get response. Please try again.' }]);
+      setChatHistory((prev) => [
+        ...prev,
+        { role: "ai", text: data.answer ?? "No response." },
+      ]);
+    } catch (err) {
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          text:
+            err instanceof Error
+              ? err.message
+              : "Failed to get a response. Please try again.",
+        },
+      ]);
     } finally {
       setChatLoading(false);
     }
   };
 
-  const difficultyColor = { easy: '#10b981', medium: '#f59e0b', advanced: '#ef4444' };
+  const hasResults = Boolean(analysis || questions);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f', color: '#f1f5f9', padding: '32px clamp(16px, 4vw, 48px)' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div className="max-w-4xl">
+      <PageHeader
+        title="Project tutor"
+        description="Paste a GitHub repository to get an overview, likely interview questions and a tutor you can quiz."
+      />
 
-        {/* Header */}
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)',
-            borderRadius: '999px', padding: '6px 16px', marginBottom: '16px',
-          }}>
-            <span style={{ fontSize: '0.75rem', color: '#818cf8', fontWeight: 600 }}>AI PROJECT TUTOR</span>
-          </div>
-          <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800, marginBottom: '8px' }}>
-            Prepare for Your Project Interview 🎯
-          </h1>
-          <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: 1.6 }}>
-            Paste any GitHub repo URL to get AI-generated insights, interview questions, and a chat tutor.
-          </p>
+      <form
+        className="flex flex-wrap gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleAnalyze();
+        }}
+      >
+        <label htmlFor="tutor-repo" className="sr-only">
+          GitHub repository URL
+        </label>
+        <input
+          id="tutor-repo"
+          type="url"
+          inputMode="url"
+          value={repoUrl}
+          onChange={(e) => setRepoUrl(e.target.value)}
+          placeholder="https://github.com/owner/repo"
+          className={inputClass}
+        />
+        <Button type="submit" disabled={loading || !repoUrl.trim()}>
+          {loading ? "Analyzing…" : "Analyze"}
+        </Button>
+      </form>
+
+      {error && (
+        <p
+          role="alert"
+          className="mt-4 rounded-lg border border-[var(--destructive-muted-border)] bg-[var(--destructive-muted)] px-3 py-2 text-sm text-[var(--destructive)]"
+        >
+          {error}
+        </p>
+      )}
+
+      {loading && (
+        <div className="mt-6 space-y-3" aria-busy="true" aria-live="polite">
+          <span className="sr-only">Analyzing repository</span>
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-16 animate-pulse rounded-xl bg-[var(--card-muted)]"
+            />
+          ))}
         </div>
+      )}
 
-        {/* Search bar */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            value={repoUrl}
-            onChange={e => setRepoUrl(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAnalyze()}
-            placeholder="https://github.com/username/repo"
-            style={{
-              flex: 1, minWidth: '280px', padding: '12px 16px',
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '10px', color: '#f1f5f9', fontSize: '0.95rem', outline: 'none',
-            }}
-          />
-          <button
-            onClick={handleAnalyze}
-            disabled={loading || !repoUrl.trim()}
-            style={{
-              padding: '12px 24px', background: loading ? '#374151' : '#6366f1',
-              border: 'none', borderRadius: '10px', color: '#fff',
-              fontWeight: 600, fontSize: '0.95rem', cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background 0.2s',
-            }}
+      {!loading && !hasResults && !error && (
+        <div className="mt-6 rounded-xl border border-dashed border-[var(--border)] px-6 py-10 text-center text-sm text-[var(--muted-foreground)]">
+          Works best with your own projects: the tutor reads the README,
+          languages and structure.
+        </div>
+      )}
+
+      {hasResults && !loading && (
+        <div className="mt-6">
+          <div
+            role="tablist"
+            aria-label="Project tutor sections"
+            className="mb-4 inline-flex rounded-lg border border-[var(--border)] bg-[var(--card)] p-0.5"
           >
-            {loading ? 'Analyzing...' : 'Analyze Repo'}
-          </button>
-        </div>
-
-        {error && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', color: '#fca5a5' }}>
-            {error}
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === id}
+                onClick={() => setActiveTab(id)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  activeTab === id
+                    ? "bg-[var(--control)] text-[var(--foreground)]"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                )}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {label}
+              </button>
+            ))}
           </div>
-        )}
 
-        {/* Tabs */}
-        {(analysis || questions) && (
-          <>
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '4px' }}>
-              {(['analysis', 'questions', 'chat'] as const).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    flex: 1, padding: '10px', borderRadius: '8px', border: 'none',
-                    background: activeTab === tab ? '#6366f1' : 'transparent',
-                    color: activeTab === tab ? '#fff' : '#94a3b8',
-                    fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', transition: 'all 0.2s',
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  {tab === 'analysis' ? '📋 Analysis' : tab === 'questions' ? '❓ Questions' : '💬 Ask AI'}
-                </button>
-              ))}
-            </div>
-
-            {/* Analysis tab */}
-            {activeTab === 'analysis' && analysis && (
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '24px' }}>
-                <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: 1.7, color: '#e2e8f0', fontFamily: 'inherit', margin: 0 }}>
+          {activeTab === "analysis" && (
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+              {analysis ? (
+                <div className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--card-foreground)]">
                   {analysis}
-                </pre>
-              </div>
-            )}
+                </div>
+              ) : (
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  No overview was generated for this repository.
+                </p>
+              )}
+            </div>
+          )}
 
-            {/* Questions tab */}
-            {activeTab === 'questions' && questions && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {(['easy', 'medium', 'advanced'] as const).map(level => (
-                  <div key={level} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${difficultyColor[level]}33`, borderRadius: '12px', padding: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: difficultyColor[level], display: 'inline-block' }} />
-                      <span style={{ fontWeight: 700, fontSize: '0.875rem', color: difficultyColor[level], textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {level}
-                      </span>
-                    </div>
-                    <ol style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {questions[level].map((q, i) => (
-                        <li key={i} style={{ color: '#e2e8f0', fontSize: '0.9rem', lineHeight: 1.6 }}>{q}</li>
+          {activeTab === "questions" && (
+            <div className="grid gap-4">
+              {questions ? (
+                LEVELS.map(({ id, label, dot }) => (
+                  <section
+                    key={id}
+                    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5"
+                  >
+                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                      <span
+                        className={cn("h-2 w-2 rounded-full", dot)}
+                        aria-hidden="true"
+                      />
+                      {label}
+                    </h2>
+                    <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-[var(--card-foreground)]">
+                      {(questions[id] ?? []).map((q, i) => (
+                        <li key={i}>{q}</li>
                       ))}
                     </ol>
+                  </section>
+                ))
+              ) : (
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  No questions were generated for this repository.
+                </p>
+              )}
+            </div>
+          )}
+
+          {activeTab === "chat" && (
+            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
+              <div
+                className="flex h-[360px] flex-col gap-3 overflow-y-auto p-4"
+                aria-live="polite"
+              >
+                {chatHistory.length === 0 && (
+                  <p className="m-auto max-w-sm text-center text-sm text-[var(--muted-foreground)]">
+                    Ask about design decisions, trade-offs or how a part of the
+                    project works.
+                  </p>
+                )}
+                {chatHistory.map((msg, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex",
+                      msg.role === "user" ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "max-w-[80%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm leading-relaxed",
+                        msg.role === "user"
+                          ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                          : "bg-[var(--control)] text-[var(--foreground)]"
+                      )}
+                    >
+                      {msg.text}
+                    </div>
                   </div>
                 ))}
+                {chatLoading && (
+                  <div className="w-fit rounded-lg bg-[var(--control)] px-3 py-2 text-sm text-[var(--muted-foreground)]">
+                    Thinking…
+                  </div>
+                )}
               </div>
-            )}
-
-            {/* Chat tab */}
-            {activeTab === 'chat' && (
-              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ height: '360px', overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {chatHistory.length === 0 && (
-                    <p style={{ color: '#64748b', textAlign: 'center', margin: 'auto', fontSize: '0.9rem' }}>
-                      Ask anything about your project — implementation details, design decisions, challenges faced...
-                    </p>
-                  )}
-                  {chatHistory.map((msg, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                      <div style={{
-                        maxWidth: '80%', padding: '10px 14px', borderRadius: '10px',
-                        background: msg.role === 'user' ? '#6366f1' : 'rgba(255,255,255,0.06)',
-                        color: '#f1f5f9', fontSize: '0.875rem', lineHeight: 1.6,
-                      }}>
-                        {msg.text}
-                      </div>
-                    </div>
-                  ))}
-                  {chatLoading && (
-                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                      <div style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', color: '#94a3b8', fontSize: '0.875rem' }}>
-                        Thinking...
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '12px 16px', display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={e => setChatInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleChat()}
-                    placeholder="Ask about your project..."
-                    style={{
-                      flex: 1, padding: '10px 14px', background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
-                      color: '#f1f5f9', fontSize: '0.875rem', outline: 'none',
-                    }}
-                  />
-                  <button
-                    onClick={handleChat}
-                    disabled={chatLoading || !chatInput.trim()}
-                    style={{
-                      padding: '10px 20px', background: '#6366f1', border: 'none',
-                      borderRadius: '8px', color: '#fff', fontWeight: 600,
-                      fontSize: '0.875rem', cursor: 'pointer',
-                    }}
-                  >
-                    Send
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+              <form
+                className="flex gap-2 border-t border-[var(--border)] p-3"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void handleChat();
+                }}
+              >
+                <label htmlFor="tutor-question" className="sr-only">
+                  Your question
+                </label>
+                <input
+                  id="tutor-question"
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask about this project…"
+                  className={inputClass}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  aria-label="Send"
+                  disabled={chatLoading || !chatInput.trim()}
+                >
+                  <Send aria-hidden="true" />
+                </Button>
+              </form>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
