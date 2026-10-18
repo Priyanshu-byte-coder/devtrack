@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import type { RoomMessage } from '@/types/rooms';
+import { useState } from "react";
+import type { RoomMessage } from "@/types/rooms";
 
 interface Props {
   roomId: string;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function MessageInput({ roomId, onSent }: Props) {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,35 +22,38 @@ export default function MessageInput({ roomId, onSent }: Props) {
 
     try {
       const res = await fetch(`/api/rooms/${roomId}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: content.trim() }),
       });
 
       if (res.ok) {
         const message = await res.json();
         onSent(message);
-        setContent('');
+        setContent("");
       } else {
         const data = await res.json().catch(() => ({}));
-        setError((data as { error?: string }).error ?? 'Failed to send message. Please try again.');
+        setError(
+          (data as { error?: string }).error ??
+            "Failed to send message. Please try again."
+        );
       }
     } catch {
-      setError('Network error. Check your connection and try again.');
+      setError("Network error. Check your connection and try again.");
     } finally {
       setSending(false);
     }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend(e as unknown as React.FormEvent);
     }
   }
 
   return (
-    <div className="border-t dark:border-gray-800">
+    <div className="border-t">
       {error && (
         <p role="alert" className="px-3 pt-2 text-xs text-red-500">
           {error}
@@ -58,7 +61,7 @@ export default function MessageInput({ roomId, onSent }: Props) {
       )}
       <form onSubmit={handleSend} className="p-3 flex gap-2 items-end">
         <textarea
-          className="flex-1 resize-none border rounded-xl px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700 max-h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 resize-none border rounded-xl px-3 py-2 text-sm max-h-32 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
           rows={1}
           placeholder="Message (Enter to send, Shift+Enter for newline)"
           value={content}
@@ -73,9 +76,9 @@ export default function MessageInput({ roomId, onSent }: Props) {
         <button
           type="submit"
           disabled={!content.trim() || sending}
-          className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-700 disabled:opacity-40 shrink-0"
+          className="px-4 py-2 bg-[var(--accent)] text-[var(--accent-foreground)] rounded-xl text-sm hover:opacity-90 disabled:opacity-40 shrink-0"
         >
-          {sending ? '…' : 'Send'}
+          {sending ? "…" : "Send"}
         </button>
       </form>
     </div>

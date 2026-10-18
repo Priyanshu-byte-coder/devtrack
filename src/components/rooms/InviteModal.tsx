@@ -33,7 +33,7 @@ export default function InviteModal({ roomId, onClose, onInvited }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+      <div className="bg-[var(--card)] rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <h2 className="text-lg font-semibold mb-4">
           Invite by GitHub Username
         </h2>
@@ -47,7 +47,7 @@ export default function InviteModal({ roomId, onClose, onInvited }: Props) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700"
+                className="px-4 py-2 rounded-lg text-sm bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90"
               >
                 Done
               </button>
@@ -57,7 +57,7 @@ export default function InviteModal({ roomId, onClose, onInvited }: Props) {
           <form onSubmit={handleInvite} className="space-y-4">
             <input
               autoFocus
-              className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700"
+              className="w-full border rounded-lg px-3 py-2 text-sm"
               placeholder="github-username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -68,14 +68,14 @@ export default function InviteModal({ roomId, onClose, onInvited }: Props) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg text-sm border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-4 py-2 rounded-lg text-sm border hover:bg-[var(--control)]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading || !username.trim()}
-                className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90 disabled:opacity-50"
               >
                 {loading ? "Inviting…" : "Send Invite"}
               </button>

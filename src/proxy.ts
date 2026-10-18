@@ -314,7 +314,7 @@ export async function proxy(req: NextRequest) {
     }
   }
 
-  const protectedRoutes = ["/dashboard", "/settings"];
+  const protectedRoutes = ["/dashboard"];
   const isProtectedRoute = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );

@@ -72,7 +72,7 @@ export default function MessageFeed({
   return (
     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
       {messages.length === 0 && (
-        <p className="text-center text-sm text-gray-400 mt-8">
+        <p className="text-center text-sm text-[var(--muted-foreground)] mt-8">
           No messages yet. Start the conversation!
         </p>
       )}
@@ -93,7 +93,7 @@ export default function MessageFeed({
                 className="w-8 h-8 rounded-full shrink-0 mt-1"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 shrink-0 mt-1 flex items-center justify-center text-xs font-bold">
+              <div className="w-8 h-8 rounded-full bg-gray-300 shrink-0 mt-1 flex items-center justify-center text-xs font-bold">
                 {msg.sender_username[0].toUpperCase()}
               </div>
             )}
@@ -102,20 +102,20 @@ export default function MessageFeed({
               className={`max-w-[70%] ${isMe ? "items-end" : "items-start"} flex flex-col`}
             >
               {!isMe && (
-                <span className="text-xs text-gray-500 mb-0.5 ml-1">
+                <span className="text-xs text-[var(--muted-foreground)] mb-0.5 ml-1">
                   {msg.sender_username}
                 </span>
               )}
               <div
                 className={`px-3 py-2 rounded-2xl text-sm break-words ${
                   isMe
-                    ? "bg-blue-600 text-white rounded-tr-sm"
-                    : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-tl-sm"
+                    ? "bg-[var(--accent)] text-[var(--accent-foreground)] rounded-tr-sm"
+                    : "bg-[var(--control)] text-[var(--foreground)] rounded-tl-sm"
                 }`}
               >
                 {msg.content}
               </div>
-              <span className="text-[10px] text-gray-400 mt-0.5 mx-1">
+              <span className="text-[10px] text-[var(--muted-foreground)] mt-0.5 mx-1">
                 {new Date(msg.created_at).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",

@@ -5,6 +5,12 @@ import EmptyState from "@/components/EmptyState";
 import LeaderboardFilters from "@/components/leaderboard/LeaderboardFilters";
 import LeaderboardSkeleton from "@/app/leaderboard/LeaderboardSkeleton";
 import SponsorBadge from "@/components/SponsorBadge";
+import PageHeader from "@/components/shell/PageHeader";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  segmentedGroupClass,
+  segmentedItemClass,
+} from "@/components/ui/segmented";
 import {
   getLeaderboardData,
   filterLeaderboardByLanguage,
@@ -92,12 +98,12 @@ async function LeaderboardTable({
   return (
     <>
       {leaderboard && (
-        <div className="mb-2 text-right text-sm text-[var(--muted-foreground)]">
+        <p className="mb-2 text-right text-xs text-[var(--muted-foreground)]">
           Updated {new Date(leaderboard.generatedAt).toLocaleString()}
-        </div>
+        </p>
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-soft)]">
+      <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
         {!leaderboard ? (
           <div className="px-4 py-12 text-center">
             <p className="text-sm text-[var(--muted-foreground)]">
@@ -138,9 +144,9 @@ async function LeaderboardTable({
             {rows.map((entry) => (
               <div
                 key={entry.id}
-                className="grid grid-cols-[72px_1fr_110px_110px] items-center border-b border-[var(--border)] px-4 py-4 last:border-b-0 md:grid-cols-[80px_1fr_140px_140px_120px]"
+                className="grid grid-cols-[72px_1fr_110px_110px] items-center border-b border-[var(--border)] px-4 py-3 last:border-b-0 md:grid-cols-[80px_1fr_140px_140px_120px]"
               >
-                <div className="text-lg font-bold text-[var(--card-foreground)]">
+                <div className="text-base font-semibold tabular-nums text-[var(--muted-foreground)]">
                   #{entry.rank}
                 </div>
                 <div className="flex min-w-0 items-center gap-3">
@@ -166,7 +172,7 @@ async function LeaderboardTable({
                   </div>
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-[var(--card-foreground)]">
+                  <div className="text-base font-semibold tabular-nums text-[var(--card-foreground)]">
                     {getMetricValue(entry, activeTab)}
                   </div>
                   <div className="text-xs text-[var(--muted-foreground)]">
@@ -179,7 +185,10 @@ async function LeaderboardTable({
                 <div>
                   <Link
                     href={entry.profileUrl}
-                    className="secondary-button inline-flex rounded-lg px-3 py-2 text-sm font-medium"
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                    })}
                   >
                     View
                   </Link>
@@ -208,56 +217,40 @@ export default async function LeaderboardPage({
   const filters = { lang: resolvedSearchParams.lang, period };
 
   return (
-    <main className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--foreground)] md:px-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <Link
-              href="/"
-              className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            >
-              DevTrack
-            </Link>
-            <h1 className="mt-3 text-3xl font-bold text-[var(--foreground)] md:text-4xl">
-              Public Leaderboard
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)] md:text-base">
-              Opted-in developers ranked by current streak, commits, and pull
-              request activity.
-            </p>
-          </div>
-        </div>
+    <>
+      <PageHeader
+        title="Leaderboard"
+        description="Developers who made their profile public, ranked by streak, commits and pull requests."
+      />
 
-        <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-[var(--border)] bg-card/90 p-2 shadow-[var(--shadow-soft)]">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <nav aria-label="Ranking" className={segmentedGroupClass}>
           {tabs.map((tab) => {
             const active = tab.id === activeTab;
             return (
               <Link
                 key={tab.id}
                 href={leaderboardHref(tab.id, filters)}
-                className={`rounded-lg border px-4 py-2 text-sm font-semibold transition-colors ${
-                  active
-                    ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)] shadow-sm"
-                    : "border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] hover:bg-[var(--control)]"
-                }`}
+                aria-current={active ? "page" : undefined}
+                className={segmentedItemClass(active)}
               >
                 {tab.label}
               </Link>
             );
           })}
-        </div>
+        </nav>
 
         <Suspense fallback={null}>
           <LeaderboardFilters />
         </Suspense>
-
-        <Suspense
-          key={`${activeTab}-${filters.lang ?? ""}-${filters.period}`}
-          fallback={<LeaderboardSkeleton />}
-        >
-          <LeaderboardTable activeTab={activeTab} filters={filters} />
-        </Suspense>
       </div>
-    </main>
+
+      <Suspense
+        key={`${activeTab}-${filters.lang ?? ""}-${filters.period}`}
+        fallback={<LeaderboardSkeleton />}
+      >
+        <LeaderboardTable activeTab={activeTab} filters={filters} />
+      </Suspense>
+    </>
   );
 }

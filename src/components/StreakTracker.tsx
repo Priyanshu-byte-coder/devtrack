@@ -273,11 +273,11 @@ export default function StreakTracker() {
               type="button"
               onClick={handleDownload}
               disabled={isDownloading}
-              className="cursor-pointer flex h-8 items-center justify-center rounded-md px-3 py-1.5 text-xs font-medium bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90 disabled:opacity-70 transition-colors gap-1.5 shadow-sm"
+              className="flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--control)] disabled:opacity-70"
               aria-label="Download streak stats as image"
             >
               {isDownloading ? (
-                <span className="w-4 h-4 rounded-full border-2 border-accent-foreground/30 border-t-[var(--accent-foreground)] animate-spin" />
+                <span className="w-4 h-4 rounded-full border-2 border-[var(--border)] border-t-[var(--foreground)] animate-spin" />
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -295,7 +295,7 @@ export default function StreakTracker() {
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
               )}
-              <span>SHARE</span>
+              <span>Save image</span>
             </button>
           </div>
         )}

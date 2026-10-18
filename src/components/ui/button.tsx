@@ -3,26 +3,27 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] focus-visible:ring-[var(--accent)] disabled:pointer-events-none disabled:opacity-50 gap-2 active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] focus-visible:ring-[var(--accent)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--accent)] text-[var(--accent-foreground)] shadow hover:opacity-90",
+          "bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90",
         destructive:
-          "border border-destructive/50 bg-destructive/80 text-white shadow hover:bg-[var(--destructive)]",
+          "bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:opacity-90",
         outline:
-          "border border-[var(--border)] bg-[var(--background)] shadow-sm hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-card-muted/50",
+          "border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--control)]",
         secondary:
-          "bg-[var(--card-muted)] text-[var(--foreground)] border border-[var(--border)] shadow-sm hover:opacity-80",
-        ghost: "hover:text-[var(--destructive)] transition-colors",
+          "bg-[var(--control)] text-[var(--foreground)] hover:bg-[var(--control-hover)]",
+        ghost:
+          "text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--foreground)]",
         link: "text-[var(--accent)] underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3",
-        lg: "h-11 rounded-xl px-8",
-        icon: "h-10 w-10",
+        default: "h-9 px-3.5",
+        sm: "h-8 px-2.5 text-[13px]",
+        lg: "h-10 px-5",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {

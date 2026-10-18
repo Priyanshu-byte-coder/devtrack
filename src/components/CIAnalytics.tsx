@@ -1,5 +1,6 @@
 "use client";
 
+import { metricCount, metricWithUnit } from "@/lib/format-metric";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
 
@@ -91,10 +92,13 @@ export default function CIAnalytics() {
 
   const stats = data
     ? [
-        { label: "Success Rate", value: `${data.successRate}%` },
-        { label: "Avg Duration", value: `${data.averageDurationMinutes}m` },
-        { label: "Runs (30d)", value: data.totalRuns },
-        { label: "Repos Checked", value: data.reposChecked },
+        { label: "Success Rate", value: metricWithUnit(data.successRate, "%") },
+        {
+          label: "Avg Duration",
+          value: metricWithUnit(data.averageDurationMinutes, "m"),
+        },
+        { label: "Runs (30d)", value: metricCount(data.totalRuns) },
+        { label: "Repos Checked", value: metricCount(data.reposChecked) },
       ]
     : [];
 

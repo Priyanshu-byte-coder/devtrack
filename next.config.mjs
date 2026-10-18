@@ -77,6 +77,18 @@ const nextConfig = {
       },
     ],
   },
+  // Signed-in tools moved under /dashboard so they share the app shell.
+  // Query strings are carried over automatically.
+  async redirects() {
+    return [
+      { source: "/settings", destination: "/dashboard/settings", permanent: true },
+      { source: "/friend-compare", destination: "/dashboard/friends", permanent: true },
+      { source: "/rooms", destination: "/dashboard/rooms", permanent: true },
+      { source: "/rooms/:roomId", destination: "/dashboard/rooms/:roomId", permanent: true },
+      { source: "/project-tutor", destination: "/dashboard/project-tutor", permanent: true },
+      { source: "/profile-card", destination: "/dashboard/settings", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

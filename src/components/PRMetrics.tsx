@@ -1,4 +1,6 @@
 "use client";
+
+import { metricCount, metricWithUnit } from "@/lib/format-metric";
 import SectionHeader from "./SectionHeader";
 
 import { useCallback, useEffect, useState } from "react";
@@ -50,8 +52,8 @@ interface PRStat {
   href?: string;
 }
 
-function formatReviewCycle(hours: number | null): string {
-  if (hours === null) return "—";
+function formatReviewCycle(hours: number | null | undefined): string {
+  if (typeof hours !== "number" || !Number.isFinite(hours)) return "—";
   if (hours < 24) return `${hours}h`;
   return `${Math.round((hours / 24) * 10) / 10}d`;
 }
@@ -132,15 +134,15 @@ export default function PRMetrics() {
     }
   ) => {
     const baseStats: PRStat[] = [
-      { label: labels.open, value: source.open },
-      { label: labels.merged, value: source.merged },
+      { label: labels.open, value: metricCount(source.open) },
+      { label: labels.merged, value: metricCount(source.merged) },
       {
         label: "Lines Changed",
         value: `+${(source.totalAdditions ?? 0).toLocaleString()} / -${(source.totalDeletions ?? 0).toLocaleString()}`,
       },
       {
         label: `${labels.avgReview} ⓘ`,
-        value: `${source.avgReviewHours}h`,
+        value: metricWithUnit(source.avgReviewHours, "h"),
         title:
           "Average time from PR creation to close, based on your last 30 closed PRs",
       },
@@ -149,13 +151,13 @@ export default function PRMetrics() {
         value: formatReviewCycle(source.avgFirstReviewHours),
         title: "Average time from PR open to first review comment or approval",
       },
-      { label: labels.mergeRate, value: source.mergeRate },
+      { label: labels.mergeRate, value: source.mergeRate ?? "—" },
     ];
 
     if (labels.avgCycleTime && source.avgCycleTime !== undefined) {
       baseStats.push({
         label: labels.avgCycleTime,
-        value: `${source.avgCycleTime}h`,
+        value: metricWithUnit(source.avgCycleTime, "h"),
       });
     }
     return baseStats;

@@ -1,5 +1,6 @@
 "use client";
 
+import { domainDisplayName } from "@/lib/cv/domain-labels";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Award, Sparkles, FolderKanban } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -102,7 +103,7 @@ export default function ContributionAnalysisPanel({
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Award className="h-5 w-5 text-[var(--accent)]" />
-            <h3 className="text-lg font-bold text-[var(--foreground)]">
+            <h3 className="text-base font-semibold text-[var(--foreground)]">
               Engineering Domains
             </h3>
           </div>
@@ -114,7 +115,7 @@ export default function ContributionAnalysisPanel({
                 <div key={ds.domain} className="space-y-1.5">
                   <div className="flex justify-between items-center text-sm font-semibold">
                     <span className="text-[var(--foreground)]">
-                      {ds.domain}
+                      {domainDisplayName(ds.domain)}
                     </span>
                     <span className={style.text}>{ds.score}%</span>
                   </div>
@@ -142,7 +143,7 @@ export default function ContributionAnalysisPanel({
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Sparkles className="h-5 w-5 text-[var(--accent)]" />
-            <h3 className="text-lg font-bold text-[var(--foreground)]">
+            <h3 className="text-base font-semibold text-[var(--foreground)]">
               Technology Stack
             </h3>
           </div>
@@ -218,7 +219,7 @@ export default function ContributionAnalysisPanel({
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
           <FolderKanban className="h-5 w-5 text-[var(--accent)]" />
-          <h3 className="text-lg font-bold text-[var(--foreground)]">
+          <h3 className="text-base font-semibold text-[var(--foreground)]">
             Top Repositories & Contributions
           </h3>
         </div>
@@ -268,13 +269,13 @@ export default function ContributionAnalysisPanel({
                       <span
                         key={dom}
                         className={cn(
-                          "text-[9px] px-2 py-0.5 rounded border font-semibold",
+                          "text-[11px] px-1.5 py-0.5 rounded border font-medium",
                           style.bg,
                           style.text,
                           style.border
                         )}
                       >
-                        {dom}
+                        {domainDisplayName(dom)}
                       </span>
                     );
                   })}

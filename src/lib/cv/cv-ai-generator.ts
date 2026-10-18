@@ -17,6 +17,7 @@ import {
   cvProjectDescriptionPrompt,
   cvProfessionalSummaryPrompt,
   cvSkillSummaryPrompt,
+  domainLabel,
 } from "@/lib/cv/cv-prompts";
 
 /* ------------------------------------------------------------------ */
@@ -74,16 +75,40 @@ async function callGroqAPI(prompt: string): Promise<string> {
  * Safely parses a JSON string that may be wrapped in markdown fences.
  * Returns `null` on failure so callers can fall back.
  */
-function safeParseJSON<T>(raw: string): T | null {
+export function safeParseJSON<T>(raw: string): T | null {
+  // Strip markdown code fences (```json ... ```) that LLMs sometimes add
+  const cleaned = raw
+    .replace(/^```(?:json)?\s*\n?/i, "")
+    .replace(/\n?```\s*$/i, "")
+    .trim();
   try {
-    // Strip markdown code fences (```json ... ```) that LLMs sometimes add
-    const cleaned = raw
-      .replace(/^```(?:json)?\s*\n?/i, "")
-      .replace(/\n?```\s*$/i, "");
     return JSON.parse(cleaned) as T;
   } catch {
-    return null;
+    // Models often wrap the JSON in a sentence ("Here are the bullets: [...]").
+    // Retry on the outermost array/object in the reply.
+    const start = cleaned.search(/[[{]/);
+    if (start === -1) return null;
+    const close = cleaned[start] === "[" ? "]" : "}";
+    const end = cleaned.lastIndexOf(close);
+    if (end <= start) return null;
+    try {
+      return JSON.parse(cleaned.slice(start, end + 1)) as T;
+    } catch {
+      return null;
+    }
   }
+}
+
+/** Removes "Here is a summary:" style preambles and wrapping quotes. */
+export function cleanPlainText(raw: string): string {
+  return raw
+    .replace(/^```[a-z]*\s*|```$/gi, "")
+    .trim()
+    .replace(/^(?:sure[,!.]?\s*)?here(?:'s| is)[^:\n]*:\s*/i, "")
+    .replace(/^\**(?:professional )?summary\**:?\**\s*/i, "")
+    .trim()
+    .replace(/^["“]([\s\S]*)["”]$/, "$1")
+    .trim();
 }
 
 /* ------------------------------------------------------------------ */
@@ -227,7 +252,7 @@ function fallbackBulletPoints(
 
     if (prs > 0) {
       bullets.push({
-        text: `Contributed ${prs} merged pull request${prs > 1 ? "s" : ""} to ${repo.name}, adding ${adds.toLocaleString()} lines across ${langs}.`,
+        text: `Contributed ${prs} merged pull request${prs > 1 ? "s" : ""} to ${repo.name}${adds > 0 ? `, adding ${adds.toLocaleString()} lines` : ""}${langs ? ` in ${langs}` : ""}.`,
         repository: repo.name,
         confidence: 90,
         technologies: repo.languages.slice(0, 3),
@@ -244,8 +269,12 @@ function fallbackBulletPoints(
 
   // Add an overall stats bullet if we have enough data
   if (contributionScores.totalPRsMerged > 0) {
+    const avgSize =
+      contributionScores.avgPRSize > 0
+        ? ` with an average size of ${contributionScores.avgPRSize.toLocaleString()} changed lines`
+        : "";
     bullets.push({
-      text: `Merged ${contributionScores.totalPRsMerged} pull requests across ${contributionScores.totalReposContributed} repositories with an average PR size of ${contributionScores.avgPRSize} changed lines.`,
+      text: `Merged ${contributionScores.totalPRsMerged} pull requests across ${contributionScores.totalReposContributed} repositories${avgSize}.`,
       repository: repos[0]?.name ?? "various",
       confidence: 95,
       technologies: contributionScores.topLanguages.slice(0, 3),
@@ -290,7 +319,7 @@ function fallbackProfessionalSummary(
   const { contributionScores, primaryDomain } = classification;
   const topLangs = contributionScores.topLanguages.slice(0, 3).join(", ");
   return (
-    `${role} with demonstrated experience in ${primaryDomain} engineering. ` +
+    `${role} with hands-on ${domainLabel(primaryDomain)} engineering experience. ` +
     `Contributed ${contributionScores.totalCommits} commits and ${contributionScores.totalPRsMerged} merged pull requests ` +
     `across ${contributionScores.totalReposContributed} repositories. ` +
     `Proficient in ${topLangs}.`
@@ -408,11 +437,12 @@ async function generateProfessionalSummary(
 
   // The professional summary is plain text — no JSON parsing needed.
   // Basic sanity check: must be at least 50 characters.
-  if (raw.length < 50) {
+  const summary = cleanPlainText(raw);
+  if (summary.length < 50) {
     return fallbackProfessionalSummary(classification, role);
   }
 
-  return raw;
+  return summary;
 }
 
 /**

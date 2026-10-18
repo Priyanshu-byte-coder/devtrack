@@ -230,12 +230,16 @@ function SettingsPageContent() {
 
   const publicProfileUsername =
     session?.githubLogin ?? settings?.github_login ?? "";
+  const [origin, setOrigin] = useState(
+    "https://devtrack-silk-kappa.vercel.app"
+  );
+  useEffect(() => setOrigin(window.location.origin), []);
   const profileUrl = useMemo(
     () =>
       publicProfileUsername
-        ? `https://devtrack-silk-kappa.vercel.app/u/${publicProfileUsername}`
+        ? `${origin}/u/${encodeURIComponent(publicProfileUsername)}`
         : "",
-    [publicProfileUsername]
+    [origin, publicProfileUsername]
   );
 
   const { theme, setTheme } = useHeatmapTheme();

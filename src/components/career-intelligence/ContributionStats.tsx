@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { GitPullRequest, FolderGit2, Code2, Plus, Minus, Eye } from "lucide-react";
+import {
+  GitPullRequest,
+  FolderGit2,
+  Code2,
+  Plus,
+  Minus,
+  Eye,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ContributionScores, DomainScore } from "@/types/cv-types";
 
@@ -40,7 +47,10 @@ function Counter({ value, className }: { value: number; className?: string }) {
   return <span className={className}>{count.toLocaleString()}</span>;
 }
 
-export default function ContributionStats({ scores, domains }: ContributionStatsProps) {
+export default function ContributionStats({
+  scores,
+  domains,
+}: ContributionStatsProps) {
   // Count total technologies
   const totalTech = scores.topLanguages.length; // We can show a base of languages or approximate it
 
@@ -53,14 +63,14 @@ export default function ContributionStats({ scores, domains }: ContributionStats
       bgBorderClass: "hover:border-purple-500/30",
     },
     {
-      label: "Repos Contributed",
+      label: "Repositories",
       value: scores.totalReposContributed,
       icon: FolderGit2,
       colorClass: "text-blue-500",
       bgBorderClass: "hover:border-blue-500/30",
     },
     {
-      label: "Primary Languages",
+      label: "Languages",
       value: totalTech,
       icon: Code2,
       colorClass: "text-amber-500",
@@ -81,7 +91,7 @@ export default function ContributionStats({ scores, domains }: ContributionStats
       bgBorderClass: "hover:border-rose-500/30",
     },
     {
-      label: "Reviews Conducted",
+      label: "Reviews",
       value: scores.totalReviews,
       icon: Eye,
       colorClass: "text-indigo-500",
@@ -90,30 +100,23 @@ export default function ContributionStats({ scores, domains }: ContributionStats
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-      {stats.map((stat, idx) => {
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+      {stats.map((stat) => {
         const Icon = stat.icon;
         return (
           <div
-            key={idx}
-            className={cn(
-              "relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 transition-all duration-300",
-              "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 hover:before:opacity-100",
-              stat.bgBorderClass
-            )}
+            key={stat.label}
+            className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3"
           >
-            <div className="flex justify-between items-start">
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">
-                  {stat.label}
-                </p>
-                <div className="text-2xl lg:text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
-                  <Counter value={stat.value} />
-                </div>
-              </div>
-              <div className={cn("p-2 rounded-lg bg-[var(--card-muted)] border border-[var(--border)]", stat.colorClass)}>
-                <Icon className="h-5 w-5" />
-              </div>
+            <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)]">
+              <Icon
+                className={cn("h-3.5 w-3.5", stat.colorClass)}
+                aria-hidden="true"
+              />
+              {stat.label}
+            </p>
+            <div className="mt-1 text-xl font-semibold tabular-nums text-[var(--foreground)]">
+              <Counter value={stat.value} />
             </div>
           </div>
         );

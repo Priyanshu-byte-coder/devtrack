@@ -197,7 +197,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className="app-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[var(--border)] bg-[var(--card)] lg:flex">
         {sidebar}
       </aside>
@@ -246,7 +246,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <Menu className="h-5 w-5" />
           </button>
           <p className="truncate text-sm font-medium text-[var(--muted-foreground)]">
-            {current?.label ?? "Dashboard"}
+            {current?.label ??
+              (pathname.startsWith("/compare") ? "Compare" : "Dashboard")}
           </p>
           <div className="hidden min-w-0 overflow-x-auto md:block [&>div]:mt-0 [&>div]:flex-nowrap">
             <AccountToggle />

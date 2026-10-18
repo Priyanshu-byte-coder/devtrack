@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
-import QrCodeButton from "@/components/QrCodeButton";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
 import { Metadata } from "next";
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/server-session";
@@ -12,7 +12,6 @@ import StatsCard from "@/components/StatsCard";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import CopyLinkButton from "@/components/CopyLinkButton";
 import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
@@ -179,11 +178,9 @@ export default async function PublicProfilePage({
   if (!profile) {
     return (
       <ProfileThemeWrapper>
-        <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors flex items-center justify-center">
-          <div className="surface-card max-w-md rounded-2xl p-8 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
-              Profile Not Found
-            </h1>
+        <div className="flex justify-center px-4 py-20 text-[var(--foreground)]">
+          <div className="max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
+            <h1 className="mb-2 text-xl font-semibold">Profile Not Found</h1>
             <p className="text-[var(--muted-foreground)] mb-2">
               This profile is not available or has not been made public.
             </p>
@@ -197,11 +194,8 @@ export default async function PublicProfilePage({
               </Link>{" "}
               and enable <strong>Public Profile</strong>.
             </p>
-            <Link
-              href="/"
-              className="primary-button inline-block rounded-lg px-6 py-2"
-            >
-              Back to Home
+            <Link href="/" className={buttonVariants({ size: "sm" })}>
+              Back to home
             </Link>
           </div>
         </div>
@@ -218,6 +212,8 @@ export default async function PublicProfilePage({
   const topRepo = profile.repos[0]?.name ?? "";
   const gistsUrl = `https://gist.github.com/${profile.username}`;
   const githubUrl = `https://github.com/${profile.username}`;
+  const isOwner =
+    loggedInUsername?.toLowerCase() === profile.username.toLowerCase();
   const showCompareButton =
     loggedInUsername !== null &&
     loggedInUsername.toLowerCase() !== profile.username.toLowerCase();
@@ -243,9 +239,9 @@ export default async function PublicProfilePage({
 
   return (
     <ProfileThemeWrapper>
-      <div className="min-h-screen bg-[var(--background)] p-4 text-[var(--foreground)] transition-colors md:p-8">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
         {/* ── Header: Avatar + Identity ── */}
-        <div className="mb-8 flex flex-wrap items-start gap-5">
+        <div className="mb-6 flex flex-wrap items-start gap-5">
           {/* GitHub avatar */}
           <div className="shrink-0">
             <Image
@@ -261,7 +257,7 @@ export default async function PublicProfilePage({
           {/* Identity block */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] flex flex-wrap items-center gap-2">
+              <h1 className="flex flex-wrap items-center gap-2 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
                 <span>@{profile.username}</span>
                 {profile.isSponsor && <SponsorBadge />}
 
@@ -285,7 +281,6 @@ export default async function PublicProfilePage({
                   </span>
                 )}
               </h1>
-              <CopyLinkButton url={profileUrl} />
             </div>
 
             <p className="mt-1 text-[var(--muted-foreground)]">
@@ -330,7 +325,7 @@ export default async function PublicProfilePage({
               {compareHref && (
                 <Link
                   href={compareHref}
-                  className="primary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
+                  className={buttonVariants({ size: "sm" })}
                 >
                   Compare with me
                 </Link>
@@ -338,9 +333,9 @@ export default async function PublicProfilePage({
               {!loggedInUsername && (
                 <Link
                   href={signInToCompareHref}
-                  className="secondary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
-                  Log in to compare
+                  Sign in to compare
                 </Link>
               )}
             </div>
@@ -366,9 +361,6 @@ export default async function PublicProfilePage({
             streak={profile.streak.current}
             profileUrl={profileUrl}
           />
-          <div className="mt-3">
-            <QrCodeButton profileUrl={profileUrl} username={profile.username} />
-          </div>
         </div>
 
         {/* Row 1: Contribution graph + Streak (gated by public_widgets) */}
@@ -431,10 +423,12 @@ export default async function PublicProfilePage({
           />
         </div>
 
-        {/* Get your badge */}
-        <div className="mt-6">
-          <BadgeSection username={profile.username} />
-        </div>
+        {/* README badges: only useful to the profile owner */}
+        {isOwner && (
+          <div className="mt-6">
+            <BadgeSection username={profile.username} />
+          </div>
+        )}
 
         {/* Powered by DevTrack footer badge */}
         <div className="mt-10 flex justify-center">

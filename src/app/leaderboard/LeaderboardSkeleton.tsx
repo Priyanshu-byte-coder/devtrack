@@ -4,7 +4,7 @@ const ROWS = 8;
 
 export default function LeaderboardSkeleton() {
   return (
-    <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-soft)]">
+    <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
       <div className="grid grid-cols-[72px_1fr_110px_110px] border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] md:grid-cols-[80px_1fr_140px_140px_120px]">
         <div>Rank</div>
         <div>Contributor</div>

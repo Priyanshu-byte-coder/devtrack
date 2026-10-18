@@ -12,6 +12,20 @@
  */
 
 import type { ContributionClassification, TargetRole } from "@/types/cv-types";
+import { domainLabel } from "@/lib/cv/domain-labels";
+
+export { domainLabel };
+
+/** Omits zero counts so the model never writes "merged 0 PRs" or "+0 lines". */
+function repoStats(prs: number, additions: number, deletions: number): string {
+  const parts: string[] = [];
+  if (prs > 0) parts.push(`${prs} merged PR${prs === 1 ? "" : "s"}`);
+  if (additions > 0 || deletions > 0)
+    parts.push(`+${additions}/-${deletions} lines`);
+  return (
+    parts.join(", ") || "owner/maintainer (no merged-PR metrics available)"
+  );
+}
 
 const HONESTY_CLAUSE = `
 IMPORTANT RULES:
@@ -32,7 +46,9 @@ export function cvBulletPointPrompt(
 ): string {
   // Sort repositories by relevance to the target role
   const relevantRepos = [...classification.repositoryAnalyses]
-    .sort((a, b) => (b.relevanceByRole[role] ?? 0) - (a.relevanceByRole[role] ?? 0))
+    .sort(
+      (a, b) => (b.relevanceByRole[role] ?? 0) - (a.relevanceByRole[role] ?? 0)
+    )
     .slice(0, 5); // Take top 5 repos
 
   let repoDataString = "";
@@ -41,11 +57,11 @@ export function cvBulletPointPrompt(
     const adds = repo.totalAdditions;
     const dels = repo.totalDeletions;
     const langs = repo.languages.join(", ");
-    
+
     repoDataString += `\n${idx + 1}. REPOSITORY: ${repo.nameWithOwner}\n`;
     repoDataString += `   DESCRIPTION: ${repo.description ?? "No description"}\n`;
     repoDataString += `   LANGUAGES: ${langs}\n`;
-    repoDataString += `   STATS: ${prs} merged PRs, +${adds}/-${dels} lines\n`;
+    repoDataString += `   STATS: ${repoStats(prs, adds, dels)}\n`;
   });
 
   return `You are an expert resume writer specialising in software engineering roles.
@@ -87,7 +103,9 @@ export function cvProjectDescriptionPrompt(
 ): string {
   // Sort repositories by relevance to the target role
   const relevantRepos = [...classification.repositoryAnalyses]
-    .sort((a, b) => (b.relevanceByRole[role] ?? 0) - (a.relevanceByRole[role] ?? 0))
+    .sort(
+      (a, b) => (b.relevanceByRole[role] ?? 0) - (a.relevanceByRole[role] ?? 0)
+    )
     .slice(0, 4); // Take top 4 repos
 
   let repoDataString = "";
@@ -98,7 +116,7 @@ export function cvProjectDescriptionPrompt(
     repoDataString += `   LANGUAGES: ${repo.languages.join(", ")}\n`;
     repoDataString += `   TOPICS: ${repo.topics.join(", ") || "None"}\n`;
     repoDataString += `   COMPLEXITY: ${repo.complexity}\n`;
-    repoDataString += `   STATS: ${repo.prsMerged} merged PRs, +${repo.totalAdditions}/-${repo.totalDeletions} lines\n`;
+    repoDataString += `   STATS: ${repoStats(repo.prsMerged, repo.totalAdditions, repo.totalDeletions)}\n`;
   });
 
   return `You are an expert resume writer specialising in software engineering roles.
@@ -141,8 +159,14 @@ export function cvProfessionalSummaryPrompt(
   role: TargetRole
 ): string {
   const { contributionScores, primaryDomain, techStack } = classification;
-  const langs = techStack.languages.map((l) => l.name).slice(0, 5).join(", ");
-  const frameworks = techStack.frameworks.map((f) => f.name).slice(0, 5).join(", ");
+  const langs = techStack.languages
+    .map((l) => l.name)
+    .slice(0, 5)
+    .join(", ");
+  const frameworks = techStack.frameworks
+    .map((f) => f.name)
+    .slice(0, 5)
+    .join(", ");
 
   return `You are an expert resume writer specialising in software engineering roles.
 
@@ -151,7 +175,7 @@ ${HONESTY_CLAUSE}
 TARGET ROLE: ${role}
 
 DEVELOPER CONTRIBUTION PROFILE:
-- Primary Domain: ${primaryDomain}
+- Primary Domain: ${domainLabel(primaryDomain)}
 - Top Languages: ${langs || "Not detected"}
 - Top Frameworks: ${frameworks || "Not detected"}
 - Repositories Contributed: ${contributionScores.totalReposContributed}
@@ -164,7 +188,8 @@ Write a professional summary paragraph (3-4 sentences) suitable for the top of a
 - Open with the developer's strongest qualifications relevant to the TARGET ROLE.
 - Mention specific technologies from the provided lists.
 - Reference contribution volume using ONLY the metrics above.
-- Use a confident, third-person professional tone.
+- Use implied first person, as is standard on resumes: no "I", no "he/she/they", and never the developer's name.
+- Do not start with a preamble such as "Here is".
 - Do NOT wrap in JSON. Just return the raw text of the summary.
 
 Respond with ONLY the plain-text paragraph.`;
@@ -178,11 +203,19 @@ export function cvSkillSummaryPrompt(
   role: TargetRole
 ): string {
   const { techStack, domains } = classification;
-  
-  const langList = techStack.languages.map((l) => `${l.name} (${l.occurrences} repos)`).join(", ");
-  const fwList = techStack.frameworks.map((f) => `${f.name} (${f.occurrences} repos)`).join(", ");
-  const toolList = techStack.tools.map((t) => `${t.name} (${t.occurrences} repos)`).join(", ");
-  const domainList = domains.map((d) => `${d.domain}: ${d.score}/100`).join(", ");
+
+  const langList = techStack.languages
+    .map((l) => `${l.name} (${l.occurrences} repos)`)
+    .join(", ");
+  const fwList = techStack.frameworks
+    .map((f) => `${f.name} (${f.occurrences} repos)`)
+    .join(", ");
+  const toolList = techStack.tools
+    .map((t) => `${t.name} (${t.occurrences} repos)`)
+    .join(", ");
+  const domainList = domains
+    .map((d) => `${domainLabel(d.domain)}: ${d.score}/100`)
+    .join(", ");
 
   return `You are an expert resume writer specialising in software engineering roles.
 

@@ -93,7 +93,7 @@ export default function PrivacySettings() {
 
   return (
     <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-1">
+      <h2 className="mb-1 text-lg font-semibold text-[var(--card-foreground)]">
         Privacy &amp; Data
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-6">

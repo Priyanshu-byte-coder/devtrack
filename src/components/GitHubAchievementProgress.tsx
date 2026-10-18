@@ -82,7 +82,12 @@ export default function GitHubAchievementProgress() {
         }
         return res.json() as Promise<AchievementProgressInfo[]>;
       })
-      .then((items) => setState({ status: "success", items }))
+      .then((items) =>
+        setState({
+          status: "success",
+          items: Array.isArray(items) ? items : [],
+        })
+      )
       .catch((err: unknown) => {
         setState({
           status: "error",
