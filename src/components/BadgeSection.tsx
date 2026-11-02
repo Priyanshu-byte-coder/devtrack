@@ -30,8 +30,31 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
     ? `${baseUrl}/api/badge/commits?user=${encodedUsername}`
     : commitsBadgePreviewUrl;
 
-  const streakMarkdown = `![DevTrack Streak](${streakBadgeUrl})`;
-  const commitsMarkdown = `![DevTrack Commits](${commitsBadgeUrl})`;
+  // Every badge links back to the profile; a bare image in a README sends
+  // nobody anywhere. UTM tags show which badge brought people in.
+  const profileLink = (badge: string) =>
+    `${baseUrl || ""}/u/${encodedUsername.toLowerCase()}?utm_source=github&utm_medium=readme&utm_campaign=${badge}`;
+  const linked = (alt: string, image: string, badge: string) =>
+    `[![${alt}](${image})](${profileLink(badge)})`;
+
+  const [board, setBoard] = useState<"all" | "month" | "week">("all");
+  const rankQuery = `user=${encodedUsername}${board === "all" ? "" : `&board=${board}`}`;
+  const rankBadgePreviewUrl = `/api/badge/rank?${rankQuery}`;
+  const rankBadgeUrl = baseUrl
+    ? `${baseUrl}${rankBadgePreviewUrl}`
+    : rankBadgePreviewUrl;
+  const rankMarkdown = linked("DevTrack rank", rankBadgeUrl, "rank-badge");
+
+  const streakMarkdown = linked(
+    "DevTrack Streak",
+    streakBadgeUrl,
+    "streak-badge"
+  );
+  const commitsMarkdown = linked(
+    "DevTrack Commits",
+    commitsBadgeUrl,
+    "commits-badge"
+  );
   const combinedMarkdown = `${streakMarkdown} ${commitsMarkdown}`;
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimerRef = useRef<number | null>(null);
@@ -59,16 +82,65 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
 
   return (
     <>
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div
+        id="readme-badges"
+        className="scroll-mt-24 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
+      >
         <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
-          📌 Get Your Badge
+          Show it off on GitHub
         </h2>
         <p className="mb-4 text-sm text-[var(--muted-foreground)]">
-          Show off your DevTrack stats on your GitHub profile! Copy and paste
-          the markdown below into your README.
+          Paste a badge into your GitHub profile README. It updates daily and
+          links back to this profile.
         </p>
 
         <div className="space-y-4">
+          {/* Rank badge: the headline one */}
+          <div>
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-medium text-[var(--card-foreground)]">
+                Rank badge
+              </h3>
+              <div
+                role="group"
+                aria-label="Which board the badge shows"
+                className="inline-flex rounded-lg border border-[var(--border)] bg-[var(--control)] p-0.5 text-xs"
+              >
+                {(
+                  [
+                    ["all", "Global"],
+                    ["month", "Season"],
+                    ["week", "This week"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={board === value}
+                    onClick={() => setBoard(value)}
+                    className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                      board === value
+                        ? "bg-[var(--card)] text-[var(--card-foreground)] shadow-sm"
+                        : "text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mb-2 overflow-x-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element -- live SVG, its size depends on the content */}
+              <img
+                src={rankBadgePreviewUrl}
+                alt="Your DevTrack rank badge"
+                height={64}
+                className="h-16 w-auto max-w-none"
+              />
+            </div>
+            <CopyableCodeBlock code={rankMarkdown} onCopySuccess={showToast} />
+          </div>
+
           {/* Streak Badge */}
           <div>
             <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
