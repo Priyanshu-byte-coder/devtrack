@@ -520,10 +520,47 @@ export const getCachedLeaderboard = (filters: LeaderboardFilters = {}) => {
  * @param filters - Filtering options.
  * @returns A promise resolving to the leaderboard payload.
  */
+/**
+ * Deterministic rows for E2E and visual-regression runs, which have no
+ * Supabase. Without this the page can only ever render its error state, so
+ * the table itself — the part that has to survive narrow screens — goes
+ * untested. Mirrors the fixture hook in `public-profile-data.ts`.
+ */
+function playwrightLeaderboard(): LeaderboardPayload {
+  const people: Array<[string, number, number, number, boolean]> = [
+    ["playwright-user", 42, 1284, 96, true],
+    ["octocat", 31, 980, 74, false],
+    ["a-very-long-github-username-here", 27, 845, 61, false],
+    ["dev-three", 18, 612, 44, false],
+    ["dev-four", 12, 403, 29, false],
+  ];
+  const entries = people.map(
+    ([username, streak, commits, prs, isSponsor], i) => ({
+      id: `fixture-${i + 1}`,
+      rank: i + 1,
+      username,
+      avatarUrl: `https://avatars.githubusercontent.com/${username}?s=96`,
+      profileUrl: `/u/${username}`,
+      streak,
+      commits,
+      prs,
+      score: 1000 - i * 90,
+      isSponsor,
+    })
+  );
+  return {
+    generatedAt: "2026-01-01T00:00:00.000Z",
+    refreshSeconds: 3600,
+    leaders: { streak: entries, commits: entries, prs: entries },
+  };
+}
+
 export async function getLeaderboardData(
   bypass = false,
   filters: LeaderboardFilters = {}
 ): Promise<LeaderboardPayload | null> {
+  if (process.env.PLAYWRIGHT_TEST === "true") return playwrightLeaderboard();
+
   const period = filters.period ?? DEFAULT_PERIOD;
 
   if (bypass) {
