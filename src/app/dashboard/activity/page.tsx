@@ -13,7 +13,7 @@ import {
   WeeklySummary,
 } from "@/components/dashboard/widgets";
 
-export const metadata: Metadata = { title: "Activity · DevTrack" };
+export const metadata: Metadata = { title: "Activity" };
 
 export default function ActivityPage() {
   return (

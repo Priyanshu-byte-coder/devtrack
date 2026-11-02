@@ -34,9 +34,21 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
   ),
-  title: "DevTrack — Developer Productivity Dashboard",
+  title: {
+    default: "DevTrack — GitHub stats, streaks & global developer rankings",
+    template: "%s · DevTrack",
+  },
   description:
-    "Track coding habits, visualize GitHub contributions, and hit your goals.",
+    "Track your GitHub activity, keep your coding streak alive, and see how you rank against developers worldwide. Free and open source.",
+  applicationName: "DevTrack",
+  openGraph: {
+    type: "website",
+    siteName: "DevTrack",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 
   manifest: "/manifest.json",
 

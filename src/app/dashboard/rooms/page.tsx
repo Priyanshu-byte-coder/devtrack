@@ -5,7 +5,7 @@ import { getRoomsForUser } from "@/lib/supabase-rooms";
 import type { CollaborationRoom } from "@/types/rooms";
 import RoomsListClient from "./RoomsListClient";
 
-export const metadata = { title: "Rooms · DevTrack" };
+export const metadata = { title: "Rooms" };
 
 export default async function RoomsPage() {
   const session = await getServerSession(authOptions);

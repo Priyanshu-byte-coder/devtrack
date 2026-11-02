@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import ProjectTutorClient from "@/components/ProjectTutorClient";
 
-export const metadata = { title: "Project tutor · DevTrack" };
+export const metadata = { title: "Project tutor" };
 
 export default async function ProjectTutorPage() {
   const session = await getServerSession(authOptions);

@@ -1,0 +1,30 @@
+# DevTrack
+
+> DevTrack is a free, open-source web app that turns a developer's GitHub activity into stats, streaks and a global ranking. Developers sign in with GitHub to see their commits, pull requests, contribution streak and languages, set coding goals, and compare themselves with friends and other developers worldwide.
+
+DevTrack is built with Next.js and is developed in the open on GitHub, where contributors of every experience level are welcome.
+
+## Public pages
+
+- [Home](https://devtrack.live/): what DevTrack is and live stats for the project itself
+- [Global leaderboard](https://devtrack.live/leaderboard): developers with public profiles ranked by coding streak, commits and merged pull requests, filterable by language and period (week, month, all time)
+- [Public profiles](https://devtrack.live/u/{github-username}): a developer's streak, contributions, top languages, pull requests and GitHub achievements. Only shown for users who made their profile public.
+- [Year in Code](https://devtrack.live/wrapped): a yearly recap of a developer's GitHub activity
+
+## How rankings work
+
+- Only developers who opt in to a public profile appear on the leaderboard.
+- Rankings are computed from public GitHub activity: current contribution streak, commits and pull requests in the selected period.
+- Data refreshes about hourly.
+
+## For developers and contributors
+
+- [Source code](https://github.com/Priyanshu-byte-coder/devtrack)
+- [Contributing guide](https://github.com/Priyanshu-byte-coder/devtrack/blob/main/CONTRIBUTING.md)
+- [Public API reference](https://devtrack.live/api-docs)
+- [Community guidelines](https://devtrack.live/guidelines)
+
+## Optional
+
+- [Privacy policy](https://devtrack.live/privacy-policy)
+- [Contact](https://devtrack.live/contact)

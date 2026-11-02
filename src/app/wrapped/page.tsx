@@ -4,7 +4,7 @@ import { getServerSession } from "@/lib/server-session";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Year in Code | DevTrack",
+  title: "Year in Code",
   description: "A shareable annual recap of your coding activity.",
 };
 

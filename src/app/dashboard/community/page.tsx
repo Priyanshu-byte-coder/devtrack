@@ -8,7 +8,7 @@ import {
   SponsorAnalytics,
 } from "@/components/dashboard/widgets";
 
-export const metadata: Metadata = { title: "Community · DevTrack" };
+export const metadata: Metadata = { title: "Community" };
 
 const linkClass =
   "inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm font-medium text-[var(--card-foreground)] hover:bg-[var(--control)]";

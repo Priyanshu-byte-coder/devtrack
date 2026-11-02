@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -16,6 +17,21 @@ import {
   filterLeaderboardByLanguage,
   type LeaderboardPayload,
 } from "@/lib/leaderboard";
+import { JsonLd, leaderboardJsonLd } from "@/lib/seo/json-ld";
+
+export const metadata: Metadata = {
+  title: "Global developer leaderboard",
+  description:
+    "See who leads DevTrack worldwide by coding streak, commits and merged pull requests. Filter by language and time period.",
+  // Tab and filter query strings are views of the same page.
+  alternates: { canonical: "/leaderboard" },
+  openGraph: {
+    title: "Global developer leaderboard · DevTrack",
+    description:
+      "Who has the longest streak, the most commits and the most merged PRs on DevTrack?",
+    url: "/leaderboard",
+  },
+};
 
 type LeaderboardTab = "streak" | "commits" | "prs";
 type LeaderboardPeriod = "week" | "month" | "all";
@@ -97,6 +113,9 @@ async function LeaderboardTable({
 
   return (
     <>
+      {!hasFilters && rows.length > 0 && (
+        <JsonLd data={leaderboardJsonLd(rows.slice(0, 50))} />
+      )}
       {leaderboard && (
         <p className="mb-2 text-right text-xs text-[var(--muted-foreground)]">
           Updated {new Date(leaderboard.generatedAt).toLocaleString()}

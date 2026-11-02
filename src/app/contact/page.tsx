@@ -3,7 +3,7 @@ import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact | DevTrack",
+  title: "Contact",
   description:
     "Send feedback, questions, or support requests to the DevTrack team.",
 };
