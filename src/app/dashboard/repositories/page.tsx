@@ -11,7 +11,7 @@ import {
   TopRepos,
 } from "@/components/dashboard/widgets";
 
-export const metadata: Metadata = { title: "Repositories · DevTrack" };
+export const metadata: Metadata = { title: "Repositories" };
 
 const linkClass =
   "inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm font-medium text-[var(--card-foreground)] hover:bg-[var(--control)]";

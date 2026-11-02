@@ -63,13 +63,17 @@ export async function generateMetadata({
     return {
       title: "Compare Public Profiles",
       description: "Compare public DevTrack profile stats.",
+      robots: { index: false, follow: true },
     };
   }
 
   const [left, right] = parsed;
   return {
-    title: `${left} vs ${right} - DevTrack Compare`,
+    title: `${left} vs ${right}`,
     description: `Side-by-side public DevTrack stats comparison for ${left} and ${right}.`,
+    // Every pair is its own URL; indexing them would flood search with thin
+    // near-duplicates. They exist to be shared, and still pass link equity.
+    robots: { index: false, follow: true },
   };
 }
 

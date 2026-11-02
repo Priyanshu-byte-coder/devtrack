@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getServerSession } from "@/lib/server-session";
 import BadgeSection from "@/components/BadgeSection";
 import GitHubAchievements from "@/components/GitHubAchievements";
@@ -16,6 +16,8 @@ import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
+import { getPublicProfileForPage } from "@/lib/public-profile-cache";
+import { JsonLd, breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo/json-ld";
 
 // Extend tracking structures to forward gamification flags seamlessly downstream
 interface ExtendedPublicProfileData extends PublicProfileData {
@@ -32,45 +34,32 @@ function getBaseUrl() {
   );
 }
 
-async function fetchPublicProfile(
-  username: string,
-  options: { includeAchievements?: boolean } = {}
+async function loadProfile(
+  username: string
 ): Promise<ExtendedPublicProfileData | null> {
-  try {
-    const url = new URL(
-      `/api/public/${encodeURIComponent(username)}`,
-      getBaseUrl()
-    );
-    if (options.includeAchievements) url.searchParams.set("achievements", "1");
+  const base = await getPublicProfileForPage(username);
+  if (!base) return null;
 
-    const res = await fetch(url.toString(), { cache: "no-store" });
-    if (!res.ok) return null;
+  // Compute Night Owl / Early Bird from repos
+  let nightOwlCount = 0;
+  let earlyBirdCount = 0;
 
-    const base: PublicProfileData = await res.json();
+  (base.repos || []).forEach((repo: any) => {
+    if (repo.last_commit_date || repo.updatedAt) {
+      const commitHour = new Date(
+        repo.last_commit_date || repo.updatedAt
+      ).getHours();
+      if (commitHour >= 0 && commitHour <= 4) nightOwlCount++;
+      if (commitHour >= 5 && commitHour <= 8) earlyBirdCount++;
+    }
+  });
 
-    // Compute Night Owl / Early Bird from repos
-    let nightOwlCount = 0;
-    let earlyBirdCount = 0;
-
-    (base.repos || []).forEach((repo: any) => {
-      if (repo.last_commit_date || repo.updatedAt) {
-        const commitHour = new Date(
-          repo.last_commit_date || repo.updatedAt
-        ).getHours();
-        if (commitHour >= 0 && commitHour <= 4) nightOwlCount++;
-        if (commitHour >= 5 && commitHour <= 8) earlyBirdCount++;
-      }
-    });
-
-    return {
-      ...base,
-      userId: "",
-      isNightOwl: nightOwlCount >= 1,
-      isEarlyBird: earlyBirdCount >= 1,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    ...base,
+    userId: "",
+    isNightOwl: nightOwlCount >= 1,
+    isEarlyBird: earlyBirdCount >= 1,
+  };
 }
 
 async function getLoggedInGitHubUsername() {
@@ -89,7 +78,7 @@ async function getLoggedInGitHubUsername() {
 }
 
 function getProfileUrl(username: string) {
-  return `${getBaseUrl()}/u/${username}`;
+  return `${getBaseUrl()}/u/${username.toLowerCase()}`;
 }
 
 export async function generateMetadata({
@@ -98,68 +87,47 @@ export async function generateMetadata({
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
   const { username } = await params;
-  const profileUrl = getProfileUrl(username);
+  const canonicalPath = `/u/${username.toLowerCase()}`;
 
-  let userExists = false;
+  let profile: PublicProfileData | null;
   try {
-    const res = await fetch(
-      new URL(
-        `/api/public/${encodeURIComponent(username)}`,
-        getBaseUrl()
-      ).toString(),
-      { cache: "no-store" }
-    );
-    userExists = res.ok;
+    profile = await getPublicProfileForPage(username);
   } catch {
-    userExists = false;
+    // Upstream outage: keep the metadata neutral. A noindex here would drop a
+    // real profile from search because GitHub had a bad minute.
+    return { title: username };
   }
 
-  if (!userExists) {
+  if (!profile) {
     return {
-      title: "Profile Not Found",
+      title: "Profile not found",
       description: "This profile is not available or is private.",
+      robots: { index: false, follow: false },
     };
   }
 
-  const baseUrl = getBaseUrl();
+  const displayName = profile.username;
+  const title = `${displayName} — GitHub stats, streak & rank`;
+  const description = `${displayName}'s coding activity on DevTrack: contribution streak, commits, pull requests, top languages and global rank.`;
 
-  const ogImageUrl = new URL(`${baseUrl}/api/og/user`);
-  ogImageUrl.searchParams.set("username", username);
-  ogImageUrl.searchParams.set("name", username);
-  ogImageUrl.searchParams.set(
-    "avatar",
-    `https://avatars.githubusercontent.com/${username}`
-  );
-  ogImageUrl.searchParams.set("topLang", "Code");
-  ogImageUrl.searchParams.set("streak", "0");
-  ogImageUrl.searchParams.set("commits", "0");
-
-  const title = `${username}'s DevTrack Profile`;
-  const description = `GitHub stats and coding activity for ${username}. View commits, streaks, and top repositories.`;
-
+  // No `images` here on purpose: the segment's opengraph-image.tsx renders the
+  // card from live stats. Setting images in config would override it.
   return {
     title,
     description,
+    alternates: { canonical: canonicalPath },
     openGraph: {
       title,
       description,
-      url: profileUrl,
+      url: canonicalPath,
       siteName: "DevTrack",
       type: "profile",
-      images: [
-        {
-          url: ogImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: `${username}'s DevTrack profile`,
-        },
-      ],
+      username: displayName,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImageUrl.toString()],
     },
   };
 }
@@ -170,42 +138,16 @@ export default async function PublicProfilePage({
 }) {
   const { username } = await params;
   const [profile, loggedInUsername] = await Promise.all([
-    fetchPublicProfile(username, { includeAchievements: true }),
+    loadProfile(username),
     getLoggedInGitHubUsername(),
   ]);
   const profileUrl = getProfileUrl(username);
 
-  if (!profile) {
-    return (
-      <ProfileThemeWrapper>
-        <div className="flex justify-center px-4 py-20 text-[var(--foreground)]">
-          <div className="max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
-            <h1 className="mb-2 text-xl font-semibold">Profile Not Found</h1>
-            <p className="text-[var(--muted-foreground)] mb-2">
-              This profile is not available or has not been made public.
-            </p>
-            <p className="text-sm text-[var(--muted-foreground)] mb-6">
-              If this is your profile, go to{" "}
-              <Link
-                href="/dashboard/settings"
-                className="text-[var(--accent)] underline hover:opacity-80"
-              >
-                Settings
-              </Link>{" "}
-              and enable <strong>Public Profile</strong>.
-            </p>
-            <Link href="/" className={buttonVariants({ size: "sm" })}>
-              Back to home
-            </Link>
-          </div>
-        </div>
-      </ProfileThemeWrapper>
-    );
-  }
+  if (!profile) notFound();
 
   const canonicalUsername = profile.username.toLowerCase();
   if (username !== canonicalUsername) {
-    redirect(`/u/${canonicalUsername}`);
+    permanentRedirect(`/u/${canonicalUsername}`);
   }
 
   const avatarUrl = `https://avatars.githubusercontent.com/${profile.username}`;
@@ -239,6 +181,21 @@ export default async function PublicProfilePage({
 
   return (
     <ProfileThemeWrapper>
+      <JsonLd
+        data={[
+          profilePageJsonLd({
+            username: profile.username,
+            bio: profile.bio,
+            memberSince: profile.memberSince,
+            topLanguages: showLanguages ? (profile.topLanguages ?? []) : [],
+          }),
+          breadcrumbJsonLd([
+            { name: "DevTrack", path: "/" },
+            { name: "Leaderboard", path: "/leaderboard" },
+            { name: profile.username, path: `/u/${canonicalUsername}` },
+          ]),
+        ]}
+      />
       <div className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
         {/* ── Header: Avatar + Identity ── */}
         <div className="mb-6 flex flex-wrap items-start gap-5">

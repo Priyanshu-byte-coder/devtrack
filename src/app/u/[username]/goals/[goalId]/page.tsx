@@ -37,7 +37,7 @@ export async function generateMetadata({
   const { username } = await params;
 
   return {
-    title: `${username}'s shared goal | DevTrack`,
+    title: `${username}'s shared goal`,
     description: `View ${username}'s shared DevTrack goal progress.`,
   };
 }
@@ -74,7 +74,10 @@ export default async function PublicGoalPage({
   }
 
   const sharedGoal = goal as PublicGoal;
-  const progress = getGoalProgressPercent(sharedGoal.current, sharedGoal.target);
+  const progress = getGoalProgressPercent(
+    sharedGoal.current,
+    sharedGoal.target
+  );
 
   return (
     <ProfileThemeWrapper>

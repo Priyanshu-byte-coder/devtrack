@@ -8,7 +8,7 @@ import {
   PRReviewTrend,
 } from "@/components/dashboard/widgets";
 
-export const metadata: Metadata = { title: "Pull requests · DevTrack" };
+export const metadata: Metadata = { title: "Pull requests" };
 
 export default function PullRequestsPage() {
   return (

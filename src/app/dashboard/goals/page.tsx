@@ -8,7 +8,7 @@ import {
   MilestonePlanner,
 } from "@/components/dashboard/widgets";
 
-export const metadata: Metadata = { title: "Goals · DevTrack" };
+export const metadata: Metadata = { title: "Goals" };
 
 export default function GoalsPage() {
   return (

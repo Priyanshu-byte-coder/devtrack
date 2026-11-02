@@ -1,11 +1,20 @@
-
 import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import LandingPage, { type RepoStats } from "@/components/landing/LandingPage";
 import { supabaseAdmin } from "@/lib/supabase";
+import {
+  JsonLd,
+  siteJsonLd,
+  softwareApplicationJsonLd,
+} from "@/lib/seo/json-ld";
 
+import type { Metadata } from "next";
 import { Syne, DM_Sans, JetBrains_Mono } from "next/font/google";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const syne = Syne({
   subsets: ["latin"],
@@ -30,7 +39,8 @@ const jetbrains = JetBrains_Mono({
 
 async function fetchRepoStats(): Promise<RepoStats> {
   if (
-    process.env.NEXTAUTH_SECRET === "test-nextauth-secret-for-playwright-tests" ||
+    process.env.NEXTAUTH_SECRET ===
+      "test-nextauth-secret-for-playwright-tests" ||
     process.env.PLAYWRIGHT_TEST === "true"
   ) {
     return {
@@ -51,33 +61,57 @@ async function fetchRepoStats(): Promise<RepoStats> {
     "User-Agent": "devtrack-landing-stats",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-  const OPTS = (ttl: number) => ({ next: { revalidate: ttl }, headers: GH_HEADERS });
+  const OPTS = (ttl: number) => ({
+    next: { revalidate: ttl },
+    headers: GH_HEADERS,
+  });
 
   try {
     const [repoRes, contribRes, gfiRes, prsRes] = await Promise.all([
-      fetch("https://api.github.com/repos/Priyanshu-byte-coder/devtrack", OPTS(3600)),
-      fetch("https://api.github.com/repos/Priyanshu-byte-coder/devtrack/contributors?per_page=100", OPTS(3600)),
+      fetch(
+        "https://api.github.com/repos/Priyanshu-byte-coder/devtrack",
+        OPTS(3600)
+      ),
+      fetch(
+        "https://api.github.com/repos/Priyanshu-byte-coder/devtrack/contributors?per_page=100",
+        OPTS(3600)
+      ),
       // Search API supports is:issue so pull requests with the label are excluded.
       fetch(
         "https://api.github.com/search/issues?q=repo:Priyanshu-byte-coder/devtrack+label:%22good+first+issue%22+is:issue+is:open&per_page=1",
-        OPTS(1800),
+        OPTS(1800)
       ),
-      fetch("https://api.github.com/search/issues?q=repo:Priyanshu-byte-coder/devtrack+type:pr+is:merged&per_page=1", OPTS(3600)),
+      fetch(
+        "https://api.github.com/search/issues?q=repo:Priyanshu-byte-coder/devtrack+type:pr+is:merged&per_page=1",
+        OPTS(3600)
+      ),
     ]);
 
     if (!repoRes.ok) throw new Error(`repo fetch failed: ${repoRes.status}`);
 
     const repo = (await repoRes.json()) as Record<string, unknown>;
-    const contributors = contribRes.ok ? ((await contribRes.json()) as Array<Record<string, unknown>>) : [];
-    const gfiData = gfiRes.ok ? ((await gfiRes.json()) as { total_count?: number; items?: unknown[] }) : null;
+    const contributors = contribRes.ok
+      ? ((await contribRes.json()) as Array<Record<string, unknown>>)
+      : [];
+    const gfiData = gfiRes.ok
+      ? ((await gfiRes.json()) as { total_count?: number; items?: unknown[] })
+      : null;
     const gfiIssues = Array.isArray(gfiData?.items) ? gfiData!.items! : [];
     const gfiCount =
-      typeof gfiData?.total_count === "number" ? gfiData.total_count : gfiIssues.length;
-    const prsData = prsRes.ok ? ((await prsRes.json()) as { total_count?: number }) : null;
+      typeof gfiData?.total_count === "number"
+        ? gfiData.total_count
+        : gfiIssues.length;
+    const prsData = prsRes.ok
+      ? ((await prsRes.json()) as { total_count?: number })
+      : null;
 
     // Total commits = sum of all contributors' contribution counts
     const totalCommits = Array.isArray(contributors)
-      ? contributors.reduce((sum, c) => sum + (typeof c.contributions === "number" ? c.contributions : 0), 0)
+      ? contributors.reduce(
+          (sum, c) =>
+            sum + (typeof c.contributions === "number" ? c.contributions : 0),
+          0
+        )
       : 0;
     const mergedPRs = prsData?.total_count ?? 0;
 
@@ -100,7 +134,9 @@ async function fetchRepoStats(): Promise<RepoStats> {
           .eq("is_sponsor", true);
 
         if (sponsors && sponsors.length > 0) {
-          const sponsorSet = new Set(sponsors.map((s: { github_login: string }) => s.github_login));
+          const sponsorSet = new Set(
+            sponsors.map((s: { github_login: string }) => s.github_login)
+          );
           mappedContributors = mappedContributors.map((c) => ({
             ...c,
             isSponsor: sponsorSet.has(c.login),
@@ -112,9 +148,11 @@ async function fetchRepoStats(): Promise<RepoStats> {
     }
 
     return {
-      stars: typeof repo.stargazers_count === "number" ? repo.stargazers_count : 0,
+      stars:
+        typeof repo.stargazers_count === "number" ? repo.stargazers_count : 0,
       forks: typeof repo.forks_count === "number" ? repo.forks_count : 0,
-      openIssues: typeof repo.open_issues_count === "number" ? repo.open_issues_count : 0,
+      openIssues:
+        typeof repo.open_issues_count === "number" ? repo.open_issues_count : 0,
       contributorCount: Array.isArray(contributors) ? contributors.length : 0,
       goodFirstIssues: gfiCount,
       contributors: mappedContributors,
@@ -144,7 +182,10 @@ export default async function HomePage() {
   const stats = await fetchRepoStats();
 
   return (
-    <div className={`${syne.variable} ${dmSans.variable} ${jetbrains.variable}`}>
+    <div
+      className={`${syne.variable} ${dmSans.variable} ${jetbrains.variable}`}
+    >
+      <JsonLd data={[...siteJsonLd(), softwareApplicationJsonLd()]} />
       <LandingPage repoStats={stats} />
     </div>
   );

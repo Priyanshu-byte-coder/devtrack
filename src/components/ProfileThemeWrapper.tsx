@@ -1,30 +1,18 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useTheme } from "./ThemeContext";
-
+/**
+ * Page frame for public profile routes.
+ *
+ * Colours come from the theme tokens, which the inline script in the root
+ * layout applies before first paint. That lets this render on the server: an
+ * earlier version waited for mount, so profiles reached crawlers (and anyone
+ * without JS) as an empty page.
+ */
 export default function ProfileThemeWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { themeMode } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   return (
-    <div
-      className={
-        themeMode === "dark"
-          ? "bg-[#020817] text-white min-h-screen"
-          : "bg-white text-black min-h-screen"
-      }
-    >
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {children}
     </div>
   );

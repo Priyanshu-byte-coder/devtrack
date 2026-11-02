@@ -12,7 +12,7 @@ const withPWA = withPWAInit({
     document: "/offline.html",
   },
   customWorkerSrc: "src/service-worker",
-  publicExcludes: ["!noprecache/**/*", "!assets/**/*", "!openapi.yaml"],
+  publicExcludes: ["!noprecache/**/*", "!assets/**/*", "!openapi.yaml", "!llms.txt"],
   cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
   cacheStartUrl: false,
