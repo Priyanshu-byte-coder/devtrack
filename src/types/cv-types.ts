@@ -152,8 +152,18 @@ export interface ContributionScores {
 /*  Resume / CV Content                                                */
 /* ------------------------------------------------------------------ */
 
+/** Contact header for exported resumes, taken from the GitHub profile. */
+export interface ResumeProfile {
+  name: string | null;
+  login: string;
+  email: string | null;
+  location: string | null;
+  website: string | null;
+}
+
 export interface ResumeContent {
   role: TargetRole;
+  profile?: ResumeProfile;
   professionalSummary: string;
   bulletPoints: ResumeBulletPoint[];
   projectDescriptions: ProjectDescription[];
@@ -200,6 +210,10 @@ export interface CVAnalyzeResponse {
 
 export interface CVGenerateRequest {
   role: TargetRole;
+  /** Skip the 24 h cache and draft fresh content. */
+  regenerate?: boolean;
+  /** Client copy of the analysis, used only when the server cache is empty. */
+  analysis?: ContributionClassification;
 }
 
 export interface CVGenerateResponse {
@@ -216,7 +230,8 @@ export interface CVExportRequest {
 /*  UI State Types                                                     */
 /* ------------------------------------------------------------------ */
 
-export type CVFlowStep = "idle" | "analyzing" | "analyzed" | "generating" | "generated" | "exporting";
+export type CVFlowStep =
+  "idle" | "analyzing" | "analyzed" | "generating" | "generated" | "exporting";
 
 export interface CVPageState {
   step: CVFlowStep;

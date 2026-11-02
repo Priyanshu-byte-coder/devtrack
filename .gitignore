@@ -67,3 +67,11 @@ package-lock.json
 
 # code-analysis output
 .jscpd-report/
+.scannerwork/
+
+# Reviewed dependency security patches
+!patches/*.patch
+
+# Local verification artifacts
+coverage/
+playwright-report/

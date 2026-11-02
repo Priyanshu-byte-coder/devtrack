@@ -1,0 +1,11 @@
+{
+  "check": "build",
+  "checkedAt": "2026-10-11T15:30:13.442Z",
+  "command": [
+    "node",
+    "docs/audits/2026-10-11/evidence/run-isolated-build.cjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 338.914
+}

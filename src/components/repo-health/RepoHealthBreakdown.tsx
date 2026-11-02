@@ -78,7 +78,7 @@ function RepoHealthBreakdown({ rows }: Props) {
                       {row.earned}
                     </span>
                     <span>/{row.maxScore}</span>
-                    <span className="ml-1 text-[var(--muted-foreground)]/70">
+                    <span className="ml-1 text-muted-foreground/70">
                       ({row.weightPct}%)
                     </span>
                   </span>

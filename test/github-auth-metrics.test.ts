@@ -17,7 +17,7 @@ import { NextRequest } from "next/server";
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
-vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 
 vi.mock("@/lib/metrics-cache", () => ({
@@ -56,7 +56,7 @@ vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: null,
 }));
 
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 const mockGetServerSession = vi.mocked(getServerSession);
 
 function revokedSession() {

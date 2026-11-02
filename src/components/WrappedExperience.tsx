@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import type { WrappedStats } from "@/lib/wrapped";
 
@@ -24,14 +23,20 @@ function formatNumber(value: number) {
 function buildYearOptions() {
   const currentYear = new Date().getFullYear();
   const years: number[] = [];
-  for (let year = currentYear; year >= Math.max(2008, currentYear - 8); year -= 1) {
+  for (
+    let year = currentYear;
+    year >= Math.max(2008, currentYear - 8);
+    year -= 1
+  ) {
     years.push(year);
   }
   return years;
 }
 
 function getShareText(stats: WrappedStats) {
-  const persona = stats.personality ? `I'm a ${stats.personality.icon} ${stats.personality.name}! ` : "";
+  const persona = stats.personality
+    ? `I'm a ${stats.personality.icon} ${stats.personality.name}! `
+    : "";
   return `My ${stats.year} Year in Code: ${persona}${formatNumber(
     stats.totalCommits
   )} commits, ${stats.longestStreak}-day streak, and ${
@@ -54,7 +59,9 @@ function getOgImageUrl(stats: WrappedStats) {
 
 export default function WrappedExperience() {
   const years = useMemo(buildYearOptions, []);
-  const [selectedYear, setSelectedYear] = useState<number>(years[0] ?? new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<number>(
+    years[0] ?? new Date().getFullYear()
+  );
   const [stats, setStats] = useState<WrappedStats | null>(null);
   const [slide, setSlide] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -87,7 +94,16 @@ export default function WrappedExperience() {
         }
         return res.json();
       })
-      .then((data: WrappedStats) => setStats(data))
+      .then((data: WrappedStats) => {
+        if (
+          !data ||
+          !Array.isArray(data.topLanguages) ||
+          !data.mostContributedRepo
+        ) {
+          throw new Error("Unexpected wrapped payload");
+        }
+        setStats(data);
+      })
       .catch((err) => {
         if (err.name !== "AbortError") {
           setError("We could not build your Year in Code right now.");
@@ -222,26 +238,29 @@ export default function WrappedExperience() {
   const currentSlide = slides[slide];
 
   return (
-    <main className="wrapped-root min-h-screen bg-slate-950 text-slate-50">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+    <div className="wrapped-root overflow-hidden rounded-2xl border border-white/10 bg-slate-950 text-slate-50">
+      <div className="flex min-h-[calc(100dvh-7.5rem)] w-full flex-col px-4 py-5 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
               DevTrack
             </p>
-            <h1 className="mt-2 text-3xl font-extrabold leading-tight sm:text-5xl">
+            <h1 className="mt-1 text-2xl font-bold leading-tight sm:text-3xl">
               Year in Code
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <label className="text-sm font-medium text-slate-300" htmlFor="wrapped-year">
+            <label
+              className="text-sm font-medium text-slate-300"
+              htmlFor="wrapped-year"
+            >
               Year
             </label>
             <select
               id="wrapped-year"
               value={selectedYear}
               onChange={(event) => setSelectedYear(Number(event.target.value))}
-              className="h-10 rounded-md border border-white/20 bg-slate-900 px-3 text-sm font-semibold text-white transition focus-visible:border-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-300/30"
+              className="h-9 rounded-lg border border-white/20 bg-slate-900 px-3 text-sm font-medium text-white transition focus-visible:border-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-300/30"
             >
               {years.map((year) => (
                 <option key={year} value={year}>
@@ -249,12 +268,6 @@ export default function WrappedExperience() {
                 </option>
               ))}
             </select>
-            <Link
-              href="/dashboard"
-              className="inline-flex h-10 items-center rounded-md border border-white/20 px-4 text-sm font-semibold text-slate-100 transition hover:border-cyan-300"
-            >
-              Dashboard
-            </Link>
           </div>
         </header>
 
@@ -284,7 +297,9 @@ export default function WrappedExperience() {
         ) : error ? (
           <section className="grid flex-1 place-items-center py-16">
             <div className="max-w-xl rounded-lg border border-rose-300/30 bg-rose-500/10 p-6 text-center">
-              <h2 className="text-xl font-bold">Wrapped is taking a breather</h2>
+              <h2 className="text-xl font-bold">
+                Wrapped is taking a breather
+              </h2>
               <p className="mt-2 text-sm text-rose-100">{error}</p>
               <button
                 type="button"
@@ -346,7 +361,9 @@ export default function WrappedExperience() {
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => setSlide((value) => Math.max(0, value - 1))}
+                        onClick={() =>
+                          setSlide((value) => Math.max(0, value - 1))
+                        }
                         disabled={slide === 0}
                         className="h-11 rounded-md border border-white/20 px-4 text-sm font-bold text-white transition hover:border-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"
                       >
@@ -355,7 +372,9 @@ export default function WrappedExperience() {
                       <button
                         type="button"
                         onClick={() =>
-                          setSlide((value) => Math.min(slides.length - 1, value + 1))
+                          setSlide((value) =>
+                            Math.min(slides.length - 1, value + 1)
+                          )
                         }
                         disabled={slide === slides.length - 1}
                         className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-black text-slate-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
@@ -402,15 +421,28 @@ export default function WrappedExperience() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <MiniStat label="Commits" value={formatNumber(stats.totalCommits)} />
-                  <MiniStat label="Active days" value={formatNumber(stats.activeDays)} />
-                  <MiniStat label="Merged PRs" value={formatNumber(stats.prsMerged)} />
-                  <MiniStat label="Peak hour" value={stats.peakCodingHour.label} />
+                  <MiniStat
+                    label="Commits"
+                    value={formatNumber(stats.totalCommits)}
+                  />
+                  <MiniStat
+                    label="Active days"
+                    value={formatNumber(stats.activeDays)}
+                  />
+                  <MiniStat
+                    label="Merged PRs"
+                    value={formatNumber(stats.prsMerged)}
+                  />
+                  <MiniStat
+                    label="Peak hour"
+                    value={stats.peakCodingHour.label}
+                  />
                 </div>
 
                 {stats.partial && (
                   <p className="rounded-md border border-amber-300/30 bg-amber-300/10 p-3 text-sm text-amber-100">
-                    {stats.year} is still in progress, so this recap uses year-to-date data.
+                    {stats.year} is still in progress, so this recap uses
+                    year-to-date data.
                   </p>
                 )}
               </aside>
@@ -428,7 +460,9 @@ export default function WrappedExperience() {
                   aria-current={slide === index ? "step" : undefined}
                   aria-label={`Go to slide ${index + 1}: ${item.metric}`}
                   className={`h-3 w-10 rounded-full transition ${
-                    slide === index ? "bg-cyan-300" : "bg-white/20 hover:bg-white/40"
+                    slide === index
+                      ? "bg-cyan-300"
+                      : "bg-white/20 hover:bg-white/40"
                   }`}
                 />
               ))}
@@ -436,7 +470,7 @@ export default function WrappedExperience() {
           </>
         ) : null}
       </div>
-    </main>
+    </div>
   );
 }
 

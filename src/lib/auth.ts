@@ -1,7 +1,9 @@
+import { githubRequest } from "@/lib/github-request";
 import { type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import { syncGitHubAchievementsForUser } from "./github-achievements";
-import { supabaseAdmin } from "./supabase";
+import { supabaseAdmin, isSupabaseAdminAvailable } from "./supabase";
+import { encryptToken } from "./crypto";
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 const SESSION_UPDATE_AGE = 24 * 60 * 60;
@@ -47,12 +49,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "github" && profile) {
         const p = profile as { id: number; login: string; email?: string };
 
-        // Guard: supabaseAdmin is null when Supabase env vars are missing or
-        // contain placeholder values (see src/lib/supabase.ts). Calling .from()
-        // on null throws a TypeError which NextAuth silently converts to
-        // return false → error=github redirect. Skip the upsert gracefully
-        // so authentication can still succeed with degraded functionality.
-        if (!supabaseAdmin) {
+        if (!isSupabaseAdminAvailable) {
           console.warn(
             "signIn: supabaseAdmin is not configured; skipping DB upsert. " +
             "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local."
@@ -99,6 +96,14 @@ export const authOptions: NextAuthOptions = {
           }
 
           if (user?.id && account.access_token) {
+            if (/^[a-f0-9]{64}$/i.test(process.env.ENCRYPTION_KEY ?? '')) {
+              const encrypted = encryptToken(account.access_token);
+              const { error: tokenError } = await supabaseAdmin.from('user_tokens').upsert({
+                user_id: user.id, encrypted_token: encrypted.encrypted, token_iv: encrypted.iv,
+                updated_at: new Date().toISOString(),
+              });
+              if (tokenError) console.error('[auth] Background sync token could not be stored', tokenError.code);
+            }
             try {
               await syncGitHubAchievementsForUser({
                 userId: user.id,
@@ -151,7 +156,7 @@ export const authOptions: NextAuthOptions = {
         Date.now() - token.accessTokenValidatedAt > TOKEN_VALIDATION_INTERVAL_MS
       ) {
         try {
-          const res = await fetch(`${GITHUB_API}/user`, {
+          const res = await githubRequest(`${GITHUB_API}/user`, {
             headers: { Authorization: `Bearer ${token.accessToken}` },
             cache: "no-store",
           });
@@ -175,8 +180,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (typeof token.accessToken === "string")
-        session.accessToken = token.accessToken;
+      // Provider credentials remain inside the encrypted, HttpOnly JWT.
+      // Never return them from /api/auth/session.
       if (typeof token.githubId === "string")
         session.githubId = token.githubId;
       if (typeof token.githubLogin === "string")

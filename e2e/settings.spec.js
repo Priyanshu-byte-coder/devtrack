@@ -39,7 +39,6 @@ test.beforeEach(async ({ page }) => {
         user: { name: "Playwright User", email: "playwright@example.com" },
         githubLogin: "playwright-user",
         githubId: "12345",
-        accessToken: "test-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     });

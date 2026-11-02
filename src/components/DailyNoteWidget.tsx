@@ -71,8 +71,8 @@ export default function DailyNoteWidget() {
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-      <div className="m-3 w-40  rounded mb-4 ml-0">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)] ">
+      <div className="m-3 w-40 rounded mb-4 ml-0">
+        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
           Today&apos;s Plan
         </h2>
 
@@ -92,26 +92,29 @@ export default function DailyNoteWidget() {
           placeholder="What will you code today?"
           aria-label="Today's coding plan"
           rows={3}
-          className=" w-full resize-none rounded-md border border-gray-300 p-2
-        focus:outline-none transition focus:border-gray-500"
+          className="w-full resize-none rounded-md border border-[var(--border)] p-2 focus:outline-none transition focus:border-gray-500"
         />
 
         <div className="mt-2 flex items-center justify-between">
-          <p className="text-xs text-gray-400">Auto-saves automatically</p>
-          <p className="text-xs text-gray-500">{note.length}/280</p>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            Auto-saves automatically
+          </p>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            {note.length}/280
+          </p>
         </div>
 
-        <div className="mt-4 rounded-md bg-gray-50 p-3">
+        <div className="mt-4 rounded-md bg-[var(--control)] p-3">
           <button
             type="button"
-            className="text-xs text-gray-500 cursor-pointer text-left"
+            className="text-xs text-[var(--muted-foreground)] cursor-pointer text-left"
             onClick={() => setShowYesterday((prev) => !prev)}
             aria-expanded={showYesterday}
           >
             Yesterday you planned to:
           </button>
           {showYesterday && (
-            <p className="mt-1 text-sm text-gray-700">
+            <p className="mt-1 text-sm text-[var(--foreground)]">
               {yesterdayNote || "No plan from yesterday"}
             </p>
           )}

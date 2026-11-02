@@ -1,0 +1,4 @@
+
+> devtrack@0.2.0 type-check
+> tsc --noEmit
+

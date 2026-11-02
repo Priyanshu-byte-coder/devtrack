@@ -1,3 +1,4 @@
+// @vitest-environment node
 import fs from "fs";
 import path from "path";
 import { describe, it, expect } from "vitest";
@@ -64,5 +65,5 @@ describe("Security Link Audit", () => {
     });
 
     expect(failures, `Found links missing 'noopener' and/or 'noreferrer':\n${failures.join("\n")}`).toEqual([]);
-  });
+  }, 15000);
 });

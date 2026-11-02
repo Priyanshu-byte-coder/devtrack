@@ -1,0 +1,36 @@
+{
+  "browserSessionToken": {
+    "reproduced": true,
+    "requestedScopes": "read:user user:email repo read:discussion read:org",
+    "sessionKeys": [
+      "accessToken",
+      "githubId",
+      "githubLogin"
+    ]
+  },
+  "weeklyWithoutAuth": {
+    "deliveries": 2,
+    "resultCount": 2,
+    "exposesWebhookUrl": true,
+    "resultKeys": [
+      "userId",
+      "github_login",
+      "webhook",
+      "sent",
+      "error",
+      "summary"
+    ]
+  },
+  "weeklySingleUserPost": {
+    "requestedUser": "audit-user-a",
+    "deliveredTo": [
+      "https://example.com/a",
+      "https://example.com/b"
+    ],
+    "resultCount": 2
+  },
+  "aiRoastWithoutAuth": {
+    "modelCalls": 1,
+    "status": 200
+  }
+}

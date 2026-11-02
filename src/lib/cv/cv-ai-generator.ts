@@ -1,4 +1,5 @@
 import "server-only";
+import { groqChatCompletion } from "@/lib/groq";
 
 import type {
   ContributionClassification,
@@ -16,14 +17,13 @@ import {
   cvProjectDescriptionPrompt,
   cvProfessionalSummaryPrompt,
   cvSkillSummaryPrompt,
+  domainLabel,
 } from "@/lib/cv/cv-prompts";
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
 const MAX_TOKENS = 2000;
 
 /* ------------------------------------------------------------------ */
@@ -31,7 +31,7 @@ const MAX_TOKENS = 2000;
 /* ------------------------------------------------------------------ */
 
 /**
- * Sends a prompt to the Groq API (Llama 3.3 70B) and returns the raw
+ * Sends a prompt to the Groq API and returns the raw
  * text response. Returns an empty string on any failure so callers can
  * safely fall back to rule-based content.
  */
@@ -43,17 +43,9 @@ async function callGroqAPI(prompt: string): Promise<string> {
   }
 
   try {
-    const res = await fetch(GROQ_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        max_tokens: MAX_TOKENS,
-        messages: [{ role: "user", content: prompt }],
-      }),
+    const res = await groqChatCompletion({
+      max_tokens: MAX_TOKENS,
+      messages: [{ role: "user", content: prompt }],
     });
 
     if (!res.ok) {
@@ -67,7 +59,10 @@ async function callGroqAPI(prompt: string): Promise<string> {
 
     return data.choices?.[0]?.message?.content?.trim() ?? "";
   } catch (err) {
-    console.error("Groq API call failed — falling back to rule-based content", err);
+    console.error(
+      "Groq API call failed — falling back to rule-based content",
+      err
+    );
     return "";
   }
 }
@@ -80,14 +75,40 @@ async function callGroqAPI(prompt: string): Promise<string> {
  * Safely parses a JSON string that may be wrapped in markdown fences.
  * Returns `null` on failure so callers can fall back.
  */
-function safeParseJSON<T>(raw: string): T | null {
+export function safeParseJSON<T>(raw: string): T | null {
+  // Strip markdown code fences (```json ... ```) that LLMs sometimes add
+  const cleaned = raw
+    .replace(/^```(?:json)?\s*\n?/i, "")
+    .replace(/\n?```\s*$/i, "")
+    .trim();
   try {
-    // Strip markdown code fences (```json ... ```) that LLMs sometimes add
-    const cleaned = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "");
     return JSON.parse(cleaned) as T;
   } catch {
-    return null;
+    // Models often wrap the JSON in a sentence ("Here are the bullets: [...]").
+    // Retry on the outermost array/object in the reply.
+    const start = cleaned.search(/[[{]/);
+    if (start === -1) return null;
+    const close = cleaned[start] === "[" ? "]" : "}";
+    const end = cleaned.lastIndexOf(close);
+    if (end <= start) return null;
+    try {
+      return JSON.parse(cleaned.slice(start, end + 1)) as T;
+    } catch {
+      return null;
+    }
   }
+}
+
+/** Removes "Here is a summary:" style preambles and wrapping quotes. */
+export function cleanPlainText(raw: string): string {
+  return raw
+    .replace(/^```[a-z]*\s*|```$/gi, "")
+    .trim()
+    .replace(/^(?:sure[,!.]?\s*)?here(?:'s| is)[^:\n]*:\s*/i, "")
+    .replace(/^\**(?:professional )?summary\**:?\**\s*/i, "")
+    .trim()
+    .replace(/^["“]([\s\S]*)["”]$/, "$1")
+    .trim();
 }
 
 /* ------------------------------------------------------------------ */
@@ -95,9 +116,12 @@ function safeParseJSON<T>(raw: string): T | null {
 /* ------------------------------------------------------------------ */
 
 /** Collect all known tech names from the classification into a Set. */
-function buildKnownTechSet(classification: ContributionClassification): Set<string> {
+function buildKnownTechSet(
+  classification: ContributionClassification
+): Set<string> {
   const s = new Set<string>();
-  const addItems = (items: TechItem[]) => items.forEach((i) => s.add(i.name.toLowerCase()));
+  const addItems = (items: TechItem[]) =>
+    items.forEach((i) => s.add(i.name.toLowerCase()));
   addItems(classification.techStack.languages);
   addItems(classification.techStack.frameworks);
   addItems(classification.techStack.tools);
@@ -105,7 +129,9 @@ function buildKnownTechSet(classification: ContributionClassification): Set<stri
 }
 
 /** Collect all known repository names from the classification. */
-function buildKnownRepoSet(classification: ContributionClassification): Set<string> {
+function buildKnownRepoSet(
+  classification: ContributionClassification
+): Set<string> {
   const s = new Set<string>();
   for (const repo of classification.repositoryAnalyses) {
     s.add(repo.name.toLowerCase());
@@ -120,7 +146,7 @@ function buildKnownRepoSet(classification: ContributionClassification): Set<stri
  */
 function filterReposForRole(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): RepositoryAnalysis[] {
   return [...classification.repositoryAnalyses]
     .map((repo) => ({
@@ -142,7 +168,7 @@ function filterReposForRole(
  */
 function validateBulletPoints(
   bullets: ResumeBulletPoint[],
-  classification: ContributionClassification,
+  classification: ContributionClassification
 ): ResumeBulletPoint[] {
   const knownTech = buildKnownTechSet(classification);
   const knownRepos = buildKnownRepoSet(classification);
@@ -153,10 +179,10 @@ function validateBulletPoints(
       text: b.text.trim(),
       repository: knownRepos.has((b.repository ?? "").toLowerCase())
         ? b.repository
-        : classification.repositoryAnalyses[0]?.name ?? "unknown",
+        : (classification.repositoryAnalyses[0]?.name ?? "unknown"),
       confidence: Math.max(0, Math.min(100, Number(b.confidence) || 50)),
       technologies: (b.technologies ?? []).filter((t) =>
-        knownTech.has(t.toLowerCase()),
+        knownTech.has(t.toLowerCase())
       ),
     }));
 }
@@ -167,7 +193,7 @@ function validateBulletPoints(
  */
 function validateProjectDescriptions(
   projects: ProjectDescription[],
-  classification: ContributionClassification,
+  classification: ContributionClassification
 ): ProjectDescription[] {
   const knownTech = buildKnownTechSet(classification);
   const repoMap = new Map<string, RepositoryAnalysis>();
@@ -179,7 +205,9 @@ function validateProjectDescriptions(
   return projects
     .filter((p) => {
       const key = (p.name ?? "").toLowerCase();
-      return repoMap.has(key) || repoMap.has((p.nameWithOwner ?? "").toLowerCase());
+      return (
+        repoMap.has(key) || repoMap.has((p.nameWithOwner ?? "").toLowerCase())
+      );
     })
     .map((p) => {
       const match =
@@ -192,12 +220,12 @@ function validateProjectDescriptions(
         description:
           typeof p.description === "string" && p.description.length > 0
             ? p.description.trim()
-            : match.description ?? "",
+            : (match.description ?? ""),
         highlights: Array.isArray(p.highlights)
           ? p.highlights.filter((h) => typeof h === "string" && h.length > 0)
           : [],
         technologies: (p.technologies ?? []).filter((t) =>
-          knownTech.has(t.toLowerCase()),
+          knownTech.has(t.toLowerCase())
         ),
       };
     });
@@ -210,7 +238,7 @@ function validateProjectDescriptions(
 /** Generates simple template-based bullet points when AI is unavailable. */
 function fallbackBulletPoints(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): ResumeBulletPoint[] {
   const repos = filterReposForRole(classification, role).slice(0, 6);
   const { contributionScores } = classification;
@@ -224,7 +252,7 @@ function fallbackBulletPoints(
 
     if (prs > 0) {
       bullets.push({
-        text: `Contributed ${prs} merged pull request${prs > 1 ? "s" : ""} to ${repo.name}, adding ${adds.toLocaleString()} lines across ${langs}.`,
+        text: `Contributed ${prs} merged pull request${prs > 1 ? "s" : ""} to ${repo.name}${adds > 0 ? `, adding ${adds.toLocaleString()} lines` : ""}${langs ? ` in ${langs}` : ""}.`,
         repository: repo.name,
         confidence: 90,
         technologies: repo.languages.slice(0, 3),
@@ -241,8 +269,12 @@ function fallbackBulletPoints(
 
   // Add an overall stats bullet if we have enough data
   if (contributionScores.totalPRsMerged > 0) {
+    const avgSize =
+      contributionScores.avgPRSize > 0
+        ? ` with an average size of ${contributionScores.avgPRSize.toLocaleString()} changed lines`
+        : "";
     bullets.push({
-      text: `Merged ${contributionScores.totalPRsMerged} pull requests across ${contributionScores.totalReposContributed} repositories with an average PR size of ${contributionScores.avgPRSize} changed lines.`,
+      text: `Merged ${contributionScores.totalPRsMerged} pull requests across ${contributionScores.totalReposContributed} repositories${avgSize}.`,
       repository: repos[0]?.name ?? "various",
       confidence: 95,
       technologies: contributionScores.topLanguages.slice(0, 3),
@@ -255,7 +287,7 @@ function fallbackBulletPoints(
 /** Generates simple template-based project descriptions. */
 function fallbackProjectDescriptions(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): ProjectDescription[] {
   return filterReposForRole(classification, role)
     .slice(0, 4)
@@ -263,11 +295,17 @@ function fallbackProjectDescriptions(
       name: repo.name,
       nameWithOwner: repo.nameWithOwner,
       url: repo.url,
-      description: repo.description ?? `A ${repo.complexity}-complexity project using ${repo.languages.slice(0, 3).join(", ")}.`,
+      description:
+        repo.description ??
+        `A ${repo.complexity}-complexity project using ${repo.languages.slice(0, 3).join(", ")}.`,
       highlights: [
         repo.prsMerged > 0 ? `${repo.prsMerged} pull requests merged` : null,
-        repo.totalAdditions > 0 ? `${repo.totalAdditions.toLocaleString()} lines added` : null,
-        repo.topics.length > 0 ? `Topics: ${repo.topics.slice(0, 4).join(", ")}` : null,
+        repo.totalAdditions > 0
+          ? `${repo.totalAdditions.toLocaleString()} lines added`
+          : null,
+        repo.topics.length > 0
+          ? `Topics: ${repo.topics.slice(0, 4).join(", ")}`
+          : null,
       ].filter((h): h is string => h !== null),
       technologies: repo.languages.slice(0, 5),
     }));
@@ -276,12 +314,12 @@ function fallbackProjectDescriptions(
 /** Generates a simple professional summary from classification data. */
 function fallbackProfessionalSummary(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): string {
   const { contributionScores, primaryDomain } = classification;
   const topLangs = contributionScores.topLanguages.slice(0, 3).join(", ");
   return (
-    `${role} with demonstrated experience in ${primaryDomain} engineering. ` +
+    `${role} with hands-on ${domainLabel(primaryDomain)} engineering experience. ` +
     `Contributed ${contributionScores.totalCommits} commits and ${contributionScores.totalPRsMerged} merged pull requests ` +
     `across ${contributionScores.totalReposContributed} repositories. ` +
     `Proficient in ${topLangs}.`
@@ -289,9 +327,10 @@ function fallbackProfessionalSummary(
 }
 
 /** Generates a simple skill summary and categories from classification data. */
-function fallbackSkillSummary(
-  classification: ContributionClassification,
-): { summary: string; skills: SkillCategory[] } {
+function fallbackSkillSummary(classification: ContributionClassification): {
+  summary: string;
+  skills: SkillCategory[];
+} {
   const { techStack } = classification;
 
   const skills: SkillCategory[] = [];
@@ -331,7 +370,7 @@ function fallbackSkillSummary(
  */
 async function generateBulletPoints(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): Promise<ResumeBulletPoint[]> {
   const prompt = cvBulletPointPrompt(classification, role);
   const raw = await callGroqAPI(prompt);
@@ -347,7 +386,9 @@ async function generateBulletPoints(
   }
 
   const validated = validateBulletPoints(parsed, classification);
-  return validated.length > 0 ? validated : fallbackBulletPoints(classification, role);
+  return validated.length > 0
+    ? validated
+    : fallbackBulletPoints(classification, role);
 }
 
 /**
@@ -356,7 +397,7 @@ async function generateBulletPoints(
  */
 async function generateProjectDescriptions(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): Promise<ProjectDescription[]> {
   const prompt = cvProjectDescriptionPrompt(classification, role);
   const raw = await callGroqAPI(prompt);
@@ -367,12 +408,16 @@ async function generateProjectDescriptions(
 
   const parsed = safeParseJSON<ProjectDescription[]>(raw);
   if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
-    console.warn("Failed to parse project descriptions from AI — using fallback");
+    console.warn(
+      "Failed to parse project descriptions from AI — using fallback"
+    );
     return fallbackProjectDescriptions(classification, role);
   }
 
   const validated = validateProjectDescriptions(parsed, classification);
-  return validated.length > 0 ? validated : fallbackProjectDescriptions(classification, role);
+  return validated.length > 0
+    ? validated
+    : fallbackProjectDescriptions(classification, role);
 }
 
 /**
@@ -381,7 +426,7 @@ async function generateProjectDescriptions(
  */
 async function generateProfessionalSummary(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): Promise<string> {
   const prompt = cvProfessionalSummaryPrompt(classification, role);
   const raw = await callGroqAPI(prompt);
@@ -392,11 +437,12 @@ async function generateProfessionalSummary(
 
   // The professional summary is plain text — no JSON parsing needed.
   // Basic sanity check: must be at least 50 characters.
-  if (raw.length < 50) {
+  const summary = cleanPlainText(raw);
+  if (summary.length < 50) {
     return fallbackProfessionalSummary(classification, role);
   }
 
-  return raw;
+  return summary;
 }
 
 /**
@@ -405,7 +451,7 @@ async function generateProfessionalSummary(
  */
 async function generateSkillSummary(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): Promise<{ summary: string; skills: SkillCategory[] }> {
   const prompt = cvSkillSummaryPrompt(classification, role);
   const raw = await callGroqAPI(prompt);
@@ -414,7 +460,9 @@ async function generateSkillSummary(
     return fallbackSkillSummary(classification);
   }
 
-  const parsed = safeParseJSON<{ summary: string; skills: SkillCategory[] }>(raw);
+  const parsed = safeParseJSON<{ summary: string; skills: SkillCategory[] }>(
+    raw
+  );
   if (
     !parsed ||
     typeof parsed.summary !== "string" ||
@@ -458,7 +506,7 @@ async function generateSkillSummary(
  */
 export async function generateResumeContent(
   classification: ContributionClassification,
-  role: TargetRole,
+  role: TargetRole
 ): Promise<ResumeContent> {
   // Run all four generators in parallel for speed
   const [bulletPoints, projectDescriptions, professionalSummary, skillResult] =

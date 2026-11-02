@@ -79,7 +79,6 @@ test("[API E2E] /api/metrics/contributions returns 200 with valid session cookie
         user: { name: "Playwright User", email: "playwright@devtrack.test" },
         githubLogin: "playwright-user",
         githubId: "99001",
-        accessToken: "mock-access-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     })
@@ -142,7 +141,6 @@ test("[API E2E] /api/metrics/contributions with days param returns valid JSON wh
         user: { name: "Playwright User", email: "playwright@devtrack.test" },
         githubLogin: "playwright-user",
         githubId: "99001",
-        accessToken: "mock-access-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     })

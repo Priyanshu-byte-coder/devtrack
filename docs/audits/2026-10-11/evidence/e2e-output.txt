@@ -1,0 +1,4 @@
+
+> devtrack@0.2.0 test:e2e
+> playwright test --workers=2 --retries=0 --reporter=json
+

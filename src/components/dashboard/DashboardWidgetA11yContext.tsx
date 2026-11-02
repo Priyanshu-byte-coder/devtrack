@@ -8,7 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { DashboardWidgetId } from "@/lib/dashboard-layout";
+/** Widget key used to scope live-region announcements. */
+type DashboardWidgetId = string;
 
 type SummaryState = Partial<Record<DashboardWidgetId, string>>;
 type UpdatingState = Partial<Record<DashboardWidgetId, boolean>>;
@@ -43,7 +44,7 @@ export function DashboardWidgetA11yProvider({
         return { ...prev, [widgetId]: text };
       });
     },
-    [],
+    []
   );
 
   const setIsUpdating = useCallback(
@@ -58,7 +59,7 @@ export function DashboardWidgetA11yProvider({
         return { ...prev, [widgetId]: true };
       });
     },
-    [],
+    []
   );
 
   const value = useMemo(
@@ -68,7 +69,7 @@ export function DashboardWidgetA11yProvider({
       setSummary,
       setIsUpdating,
     }),
-    [summaries, updating, setSummary, setIsUpdating],
+    [summaries, updating, setSummary, setIsUpdating]
   );
 
   return (
@@ -90,7 +91,7 @@ export function useDashboardWidgetA11y(widgetId: DashboardWidgetId) {
         setSummaryForWidget(widgetId, text);
       }
     },
-    [setSummaryForWidget, widgetId],
+    [setSummaryForWidget, widgetId]
   );
 
   const setIsUpdating = useCallback(
@@ -99,7 +100,7 @@ export function useDashboardWidgetA11y(widgetId: DashboardWidgetId) {
         setIsUpdatingForWidget(widgetId, isUpdating);
       }
     },
-    [setIsUpdatingForWidget, widgetId],
+    [setIsUpdatingForWidget, widgetId]
   );
 
   return { setSummary, setIsUpdating };

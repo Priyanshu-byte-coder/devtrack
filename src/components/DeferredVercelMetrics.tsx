@@ -7,20 +7,24 @@ type IdleWindow = Window &
   typeof globalThis & {
     requestIdleCallback?: (
       callback: IdleRequestCallback,
-      options?: IdleRequestOptions,
+      options?: IdleRequestOptions
     ) => number;
     cancelIdleCallback?: (handle: number) => void;
   };
 
-export default function DeferredVercelMetrics() {
+export default function DeferredVercelMetrics({
+  enabled = false,
+}: {
+  enabled?: boolean;
+}) {
   const [shouldLoadMetrics, setShouldLoadMetrics] = useState(false);
   const [Analytics, setAnalytics] = useState<ComponentType | null>(null);
   const [SpeedInsights, setSpeedInsights] = useState<ComponentType | null>(
-    null,
+    null
   );
 
   useEffect(() => {
-    if (shouldLoadMetrics) return;
+    if (!enabled || shouldLoadMetrics) return;
 
     const browserWindow: IdleWindow = window;
     const loadMetrics = () => setShouldLoadMetrics(true);
@@ -36,10 +40,10 @@ export default function DeferredVercelMetrics() {
     const timeoutId = browserWindow.setTimeout(loadMetrics, 2000);
 
     return () => browserWindow.clearTimeout(timeoutId);
-  }, [shouldLoadMetrics]);
+  }, [enabled, shouldLoadMetrics]);
 
   useEffect(() => {
-    if (!shouldLoadMetrics) return;
+    if (!enabled || !shouldLoadMetrics) return;
 
     let isMounted = true;
 
@@ -58,9 +62,10 @@ export default function DeferredVercelMetrics() {
     return () => {
       isMounted = false;
     };
-  }, [shouldLoadMetrics]);
+  }, [enabled, shouldLoadMetrics]);
 
-  if (!shouldLoadMetrics || (!Analytics && !SpeedInsights)) return null;
+  if (!enabled || !shouldLoadMetrics || (!Analytics && !SpeedInsights))
+    return null;
 
   return (
     <>

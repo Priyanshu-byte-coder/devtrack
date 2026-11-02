@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GET } from "@/app/api/metrics/repos/route";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { getAccountToken } from "@/lib/github-accounts";
 import { supabaseAdmin } from "@/lib/supabase";
 
 // Mock next-auth
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: vi.fn(),
 }));
 

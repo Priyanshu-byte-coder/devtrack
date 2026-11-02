@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
-import { middleware } from "../src/middleware";
+import { proxy as middleware } from "../src/proxy";
 import { checkAuthRateLimit, isAuthSensitivePath } from "../src/lib/auth-rate-limit";
 
 vi.mock("next-auth/jwt", () => ({

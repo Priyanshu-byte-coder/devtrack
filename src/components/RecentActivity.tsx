@@ -1,15 +1,16 @@
 "use client";
 
-import { type ReactNode, useCallback, useEffect, useState, useRef } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { useAccount } from "@/components/AccountContext";
 
 type ActivityType =
-  | "push"
-  | "pull_request"
-  | "issue"
-  | "release"
-  | "discussion"
-  | "other";
+  "push" | "pull_request" | "issue" | "release" | "discussion" | "other";
 
 interface ActivityItem {
   id: string;
@@ -68,9 +69,21 @@ function getTypeIcon(type: ActivityType): ReactNode {
   if (type === "issue") {
     return (
       <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true">
-        <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle
+          cx="8"
+          cy="8"
+          r="5.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
         <circle cx="8" cy="5" r="1" fill="currentColor" />
-        <path d="M8 7.5v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path
+          d="M8 7.5v3"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
       </svg>
     );
   }
@@ -141,55 +154,58 @@ export default function RecentActivity() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const fetchActivity = useCallback((isLoadMore = false) => {
-    if (isLoadMore) {
-      setIsLoadingMore(true);
-    } else {
-      setLoading(true);
-      offsetRef.current = 0;
-    }
-    setError(null);
+  const fetchActivity = useCallback(
+    (isLoadMore = false) => {
+      if (isLoadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setLoading(true);
+        offsetRef.current = 0;
+      }
+      setError(null);
 
-    const limit = 10;
-    const previousOffset = offsetRef.current;
-    const currentOffset = isLoadMore ? previousOffset + limit : 0;
-    
-    // Advance synchronously to prevent race conditions from concurrent calls
-    offsetRef.current = currentOffset;
+      const limit = 10;
+      const previousOffset = offsetRef.current;
+      const currentOffset = isLoadMore ? previousOffset + limit : 0;
 
-    let queryParams = `?limit=${limit}&offset=${currentOffset}`;
-    if (selectedAccount !== null) {
-      queryParams += `&accountId=${encodeURIComponent(selectedAccount)}`;
-    }
+      // Advance synchronously to prevent race conditions from concurrent calls
+      offsetRef.current = currentOffset;
 
-    fetch(`/api/metrics/activity${queryParams}`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("API error");
-        }
-        return res.json();
-      })
-      .then((payload: { items?: ActivityItem[] }) => {
-        const fetchedItems = payload.items ?? [];
-        if (isLoadMore) {
-          setItems((prev) => [...prev, ...fetchedItems]);
-        } else {
-          setItems(fetchedItems);
-        }
-        setHasMore(fetchedItems.length === limit);
-      })
-      .catch(() => {
-        // Roll back the offset on failure
-        offsetRef.current = previousOffset;
-        setError(
-          "We couldn't load your recent activity right now. Please try again in a moment."
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-        setIsLoadingMore(false);
-      });
-  }, [selectedAccount]);
+      let queryParams = `?limit=${limit}&offset=${currentOffset}`;
+      if (selectedAccount !== null) {
+        queryParams += `&accountId=${encodeURIComponent(selectedAccount)}`;
+      }
+
+      fetch(`/api/metrics/activity${queryParams}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("API error");
+          }
+          return res.json();
+        })
+        .then((payload: { items?: ActivityItem[] }) => {
+          const fetchedItems = payload.items ?? [];
+          if (isLoadMore) {
+            setItems((prev) => [...prev, ...fetchedItems]);
+          } else {
+            setItems(fetchedItems);
+          }
+          setHasMore(fetchedItems.length === limit);
+        })
+        .catch(() => {
+          // Roll back the offset on failure
+          offsetRef.current = previousOffset;
+          setError(
+            "We couldn't load your recent activity right now. Please try again in a moment."
+          );
+        })
+        .finally(() => {
+          setLoading(false);
+          setIsLoadingMore(false);
+        });
+    },
+    [selectedAccount]
+  );
 
   useEffect(() => {
     fetchActivity();
@@ -214,56 +230,71 @@ export default function RecentActivity() {
           className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
         >
           {loading ? (
-            <svg aria-hidden="true" className="animate-spin h-3 w-3 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg
+              aria-hidden="true"
+              className="animate-spin h-3 w-3 text-[var(--muted-foreground)]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
           ) : null}
           <span>Refresh</span>
         </button>
       </div>
-
-      {loading && !isLoadingMore ? ( 
+      {loading && !isLoadingMore ? (
         <div className="max-h-[320px] space-y-3 overflow-y-auto pr-1">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-16 rounded-lg skeleton-shimmer"
-            />
+            <div key={index} className="h-16 rounded-lg skeleton-shimmer" />
           ))}
         </div>
       ) : error ? (
-        <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
             type="button"
             onClick={() => fetchActivity(false)}
-            className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
             Try again
           </button>
         </div>
       ) : items.length === 0 ? (
-  <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card-muted)] p-6 text-center">
-    <div className="mb-3 text-3xl">📈</div>
+        <div className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card-muted)] p-6 text-center">
+          <div className="mb-3 text-3xl">📈</div>
 
-    <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-      No Recent Activity
-    </h3>
+          <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
+            No Recent Activity
+          </h3>
 
-    <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-      We haven&apos;t found any recent GitHub activity for this account yet.
-      Push commits, open pull requests, or contribute to repositories to
-      see activity appear here.
-    </p>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            We haven&apos;t found any recent GitHub activity for this account
+            yet. Push commits, open pull requests, or contribute to repositories
+            to see activity appear here.
+          </p>
 
-    <button
-      type="button"
-      onClick={() => fetchActivity(false)}
-      className="mt-4 rounded-md border border-[var(--border)] px-4 py-2 text-xs font-medium hover:bg-[var(--control)]"
-    >
-      Refresh Activity
-    </button>
-  </div>
-) 
-       : ( 
+          <button
+            type="button"
+            onClick={() => fetchActivity(false)}
+            className="mt-4 rounded-md border border-[var(--border)] px-4 py-2 text-xs font-medium hover:bg-[var(--control)]"
+          >
+            Refresh Activity
+          </button>
+        </div>
+      ) : (
         <div className="max-h-[320px] overflow-y-auto pr-1 flex flex-col space-y-3">
           <ul className="space-y-3 border-l border-[var(--border)] pl-4">
             {items.map((item) => (
@@ -300,7 +331,7 @@ export default function RecentActivity() {
               </li>
             ))}
           </ul>
-          
+
           {hasMore && (
             <div className="pt-2 text-center pb-2">
               <button
@@ -310,14 +341,33 @@ export default function RecentActivity() {
                 className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-4 py-2 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60 bg-[var(--card)] shadow-sm"
               >
                 {isLoadingMore ? (
-                  <svg className="animate-spin h-3.5 w-3.5 text-[var(--muted-foreground)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  <svg
+                    className="animate-spin h-3.5 w-3.5 text-[var(--muted-foreground)]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
                 ) : null}
                 {isLoadingMore ? "Loading..." : "Load more"}
               </button>
             </div>
           )}
         </div>
-      )
-} </div>
+      )}{" "}
+    </div>
   );
 }

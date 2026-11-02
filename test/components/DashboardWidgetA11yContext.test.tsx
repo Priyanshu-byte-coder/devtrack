@@ -7,7 +7,7 @@ import {
   useDashboardWidgetA11y,
   useDashboardWidgetA11yState,
 } from "../../src/components/dashboard/DashboardWidgetA11yContext";
-import DashboardWidgetShell from "../../src/components/dashboard/DashboardWidgetShell";
+import WidgetRegion from "../../src/components/dashboard/WidgetRegion";
 
 function SummaryProbe() {
   const { setSummary } = useDashboardWidgetA11y("goal-tracker");
@@ -35,21 +35,19 @@ describe("DashboardWidgetA11yContext", () => {
     render(
       <DashboardWidgetA11yProvider>
         <SummaryProbe />
-        <DashboardWidgetShell
-          widgetId="goal-tracker"
-          title="Goal Tracker"
-          isEditing={false}
-        >
+        <WidgetRegion widgetId="goal-tracker" title="Goal Tracker">
           <button type="button">Add goal</button>
-        </DashboardWidgetShell>
-      </DashboardWidgetA11yProvider>,
+        </WidgetRegion>
+      </DashboardWidgetA11yProvider>
     );
 
     expect(await screen.findByTestId("summary-probe")).toHaveTextContent(
-      "3 active goals. 1 completed.",
+      "3 active goals. 1 completed."
     );
     expect(
-      within(screen.getByRole("region")).getByText("3 active goals. 1 completed."),
+      within(screen.getByRole("region")).getByText(
+        "3 active goals. 1 completed."
+      )
     ).toHaveAttribute("id", "goal-tracker-summary");
   });
 
@@ -57,14 +55,10 @@ describe("DashboardWidgetA11yContext", () => {
     render(
       <DashboardWidgetA11yProvider>
         <BusyProbe />
-        <DashboardWidgetShell
-          widgetId="pr-metrics"
-          title="PR Metrics"
-          isEditing={false}
-        >
+        <WidgetRegion widgetId="pr-metrics" title="PR Metrics">
           <button type="button">Refresh</button>
-        </DashboardWidgetShell>
-      </DashboardWidgetA11yProvider>,
+        </WidgetRegion>
+      </DashboardWidgetA11yProvider>
     );
 
     expect(screen.getByRole("region")).toHaveAttribute("aria-busy", "true");

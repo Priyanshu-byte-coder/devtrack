@@ -28,8 +28,9 @@
     "closeMenu": "Cerrar menú de navegación",
     "loggedInAs": "Sesión iniciada como",
     "settings": "Configuración",
-    "signInCta": "INICIAR SESIÓN",
-    "signOutCta": "Cerrar sesión"
+    "signInCta": "Iniciar sesión",
+    "signOutCta": "Cerrar sesión",
+    "openDashboard": "Abrir panel"
   },
   "dashboard": {
     "overviewEyebrow": "Resumen del panel",

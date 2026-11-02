@@ -1,0 +1,12 @@
+{
+  "check": "typecheck",
+  "checkedAt": "2026-10-11T15:32:34.505Z",
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 50
+}

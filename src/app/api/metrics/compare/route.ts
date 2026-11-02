@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { toDateStr } from "@/lib/date-utils";
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
   if (!bypassCache) {
     const encodedUsername = encodeURIComponent(normalizedUsername);
 
-    const userRes = await fetch(`${GITHUB_API}/users/${encodedUsername}`, {
+    const userRes = await githubRequest(`${GITHUB_API}/users/${encodedUsername}`, {
       headers: { Authorization: `Bearer ${session.accessToken}` },
       cache: "no-store",
     });
@@ -81,7 +82,7 @@ export async function GET(req: NextRequest) {
     commitsUrl.searchParams.set("sort", "author-date");
     commitsUrl.searchParams.set("order", "desc");
 
-    const commitsRes = await fetch(commitsUrl.toString(), {
+    const commitsRes = await githubRequest(commitsUrl.toString(), {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
         Accept: "application/vnd.github+json",
@@ -132,7 +133,7 @@ export async function GET(req: NextRequest) {
     reposUrl.searchParams.set("per_page", "100");
     reposUrl.searchParams.set("sort", "pushed");
 
-    const reposRes = await fetch(reposUrl.toString(), {
+    const reposRes = await githubRequest(reposUrl.toString(), {
       headers: { Authorization: `Bearer ${session.accessToken}` },
       cache: "no-store",
     });
@@ -156,7 +157,7 @@ export async function GET(req: NextRequest) {
     prsUrl.searchParams.set("q", `type:pr author:${normalizedUsername}`);
     prsUrl.searchParams.set("per_page", "1");
 
-    const prsRes = await fetch(prsUrl.toString(), {
+    const prsRes = await githubRequest(prsUrl.toString(), {
       headers: { Authorization: `Bearer ${session.accessToken}` },
       cache: "no-store",
     });

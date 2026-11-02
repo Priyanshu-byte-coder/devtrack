@@ -1,0 +1,11 @@
+{
+  "check": "imports",
+  "checkedAt": "2026-10-14T15:30:27.016Z",
+  "command": [
+    "node",
+    "scripts/check-deps.js"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 0.389
+}

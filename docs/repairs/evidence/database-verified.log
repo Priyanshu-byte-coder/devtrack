@@ -1,0 +1,2 @@
+Database checks passed: repeatable 32-table bootstrap, RLS, browser grants, stable identity, atomic invitations, rollover and account deletion with rollback.
+Legacy upgrade checks passed: existing users, goals, UUID history and milestones preserved.

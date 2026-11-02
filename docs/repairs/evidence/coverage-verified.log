@@ -1,0 +1,547 @@
+JSON report written to C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/docs/repairs/evidence/vitest-verified.json
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   31.47 |     28.4 |   24.67 |   31.91 |                   
+ src               |    77.2 |    65.25 |   78.57 |   78.19 |                   
+  ...umentation.ts |       0 |        0 |       0 |       0 | 2-7               
+  proxy.ts         |   79.54 |    67.54 |   84.61 |   80.62 | ...31,335,340-345 
+ src/app           |       0 |        0 |       0 |       0 |                   
+  error.tsx        |       0 |        0 |       0 |       0 | 6-23              
+  global-error.tsx |       0 |      100 |       0 |       0 | 3-26              
+  layout.tsx       |       0 |        0 |       0 |       0 | 17-70             
+  not-found.tsx    |       0 |      100 |       0 |       0 | 4                 
+  page.tsx         |       0 |        0 |       0 |       0 | 10-138            
+  providers.tsx    |       0 |      100 |       0 |       0 | 8-11              
+  robots.ts        |       0 |        0 |       0 |       0 | 4-7               
+  sitemap.ts       |       0 |        0 |       0 |       0 | 4-7               
+ src/app/api-docs  |       0 |      100 |       0 |       0 |                   
+  page.tsx         |       0 |      100 |       0 |       0 | 3-6               
+ ...p/api/accounts |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-63              
+ .../[githubLogin] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-68              
+ .../accounts/link |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 2-51              
+ ...pi/ai-insights |   63.76 |    48.27 |      20 |   66.15 |                   
+  route.ts         |   63.76 |    48.27 |      20 |   66.15 | ...75,189,201-247 
+ ...p/api/ai/roast |   82.05 |    84.44 |     100 |   83.87 |                   
+  route.ts         |   82.05 |    84.44 |     100 |   83.87 | 33,43,47,67-68    
+ ...weekly-summary |   96.66 |    96.61 |     100 |   96.66 |                   
+  route.ts         |   96.66 |    96.61 |     100 |   96.66 | 59,94             
+ .../[...nextauth] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 5-68              
+ ...th/link-github |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 2-42              
+ ...ithub/callback |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 19-163            
+ .../badge/commits |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 15-132            
+ .../streak-shield |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-125            
+ ...pp/api/contact |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 4-126             
+ ...ron/goals-sync |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-55              
+ .../api/cron/sync |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 9-201             
+ .../weekly-digest |   92.85 |       82 |   85.71 |   93.61 |                   
+  route.ts         |   92.85 |       82 |   85.71 |   93.61 | ...65-266,289-290 
+ ...api/cv/analyze |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-155            
+ .../api/cv/export |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-252             
+ ...pi/cv/generate |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 13-139            
+ ...pi/daily-focus |   72.22 |     61.7 |     100 |      75 |                   
+  route.ts         |   72.22 |     61.7 |     100 |      75 | ...20,130,136-148 
+ ...api/daily-note |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-101             
+ ...i/debug/health |   83.33 |    85.71 |     100 |   83.33 |                   
+  route.ts         |   83.33 |    85.71 |     100 |   83.33 | 86-87,109-110     
+ src/app/api/goals |   63.88 |    52.68 |   77.77 |   64.07 |                   
+  route.ts         |   63.88 |    52.68 |   77.77 |   64.07 | ...45-248,279,307 
+ ...api/goals/[id] |    73.8 |    65.16 |   66.66 |   74.39 |                   
+  route.ts         |    73.8 |    65.16 |   66.66 |   74.39 | ...58,171,226-227 
+ .../goals/history |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-58              
+ ...api/goals/sync |     100 |     92.3 |     100 |     100 |                   
+  route.ts         |     100 |     92.3 |     100 |     100 | 15                
+ ...egrations/jira |   70.45 |    56.66 |      60 |    73.8 |                   
+  route.ts         |   70.45 |    56.66 |      60 |    73.8 | ...,67,76,126,146 
+ ...ra/credentials |   81.48 |    77.14 |   85.71 |   84.31 |                   
+  route.ts         |   81.48 |    77.14 |   85.71 |   84.31 | ...8,74-75,92,112 
+ ...pi/leaderboard |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 23-184            
+ ...rboard/rebuild |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-44             
+ ...rboard/refresh |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 4-22              
+ ...al-coding/keys |   38.18 |    31.25 |      50 |   40.38 |                   
+  route.ts         |   38.18 |    31.25 |      50 |   40.38 | ...03-104,117-143 
+ ...l-coding/stats |   68.75 |    61.11 |      50 |   73.33 |                   
+  route.ts         |   68.75 |    61.11 |      50 |   73.33 | 16,22,45,70-85    
+ ...al-coding/sync |   91.74 |    81.69 |     100 |    91.5 |                   
+  route.ts         |   91.74 |    81.69 |     100 |    91.5 | ...53,241,295-296 
+ ...ement-progress |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 19-133            
+ ...s/achievements |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-34              
+ ...trics/activity |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 25-310            
+ ...api/metrics/ci |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-54             
+ ...ivity-insights |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 24-257            
+ ...s/commit-times |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 14-88             
+ ...ity-engagement |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 13-270            
+ ...etrics/compare |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 16-181            
+ ...sistency-score |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-245            
+ .../contributions |   38.14 |    36.96 |   19.04 |   40.33 |                   
+  route.ts         |   38.14 |    36.96 |   19.04 |   40.33 | ...55,566,583-586 
+ ...ibutions/daily |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 13-91             
+ ...butions/hourly |    75.6 |    61.11 |     100 |   77.14 |                   
+  route.ts         |    75.6 |    61.11 |     100 |   77.14 | 19,64,72-74,89-92 
+ ...evtrack-badges |   88.23 |    67.85 |     100 |   97.72 |                   
+  route.ts         |   88.23 |    67.85 |     100 |   97.72 | 89                
+ ...cs/discussions |   42.85 |    30.61 |   57.14 |   43.07 |                   
+  route.ts         |   42.85 |    30.61 |   57.14 |   43.07 | ...27,143,152-220 
+ ...inactive-repos |    25.8 |    20.68 |   28.57 |   26.13 |                   
+  route.ts         |    25.8 |    20.68 |   28.57 |   26.13 | ...33,158,165-249 
+ ...metrics/issues |      40 |    39.21 |   28.57 |   40.29 |                   
+  route.ts         |      40 |    39.21 |   28.57 |   40.29 | ...94,107,113-156 
+ ...rics/languages |   94.28 |    77.27 |     100 |   95.38 |                   
+  route.ts         |   94.28 |    77.27 |     100 |   95.38 | 27,31,44          
+ ...s/pinned-repos |   70.37 |    47.36 |      50 |   73.07 |                   
+  route.ts         |   70.37 |    47.36 |      50 |   73.07 | ...,96-97,104,116 
+ ...s/pr-breakdown |   42.55 |    32.14 |     100 |   48.64 |                   
+  route.ts         |   42.55 |    32.14 |     100 |   48.64 | 29-41,49-60       
+ ...pr-review-time |    42.6 |    15.27 |    64.7 |   42.72 |                   
+  route.ts         |    42.6 |    15.27 |    64.7 |   42.72 | ...37,255,264-323 
+ ...oductive-hours |   38.34 |       35 |    62.5 |   39.51 |                   
+  route.ts         |   38.34 |       35 |    62.5 |   39.51 | ...45,254-350,359 
+ ...pi/metrics/prs |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-762            
+ ...repo-analytics |   30.76 |    18.86 |    12.5 |   33.33 |                   
+  route.ts         |   30.76 |    18.86 |    12.5 |   33.33 | ...59-173,178-182 
+ .../repo-explorer |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 9-101             
+ ...cs/repo-health |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-194            
+ .../metrics/repos |   42.37 |       44 |   16.66 |   44.95 |                   
+  route.ts         |   42.37 |       44 |   16.66 |   44.95 | ...28,337,347-359 
+ ...[name]/commits |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-79             
+ ...trics/sponsors |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-48             
+ ...metrics/streak |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 20-219            
+ ...weekly-summary |   79.13 |    53.03 |   96.55 |   81.16 |                   
+  route.ts         |   79.13 |    53.03 |   96.55 |   81.16 | ...94,503-525,530 
+ ...api/milestones |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 8-137             
+ ...ilestones/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-97              
+ .../notifications |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-139             
+ ...fications/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-105             
+ ...s/discord-sync |   28.37 |    17.64 |      25 |   29.41 |                   
+  route.ts         |   28.37 |    17.64 |      25 |   29.41 | 14,58,66-150      
+ ...cations/weekly |   46.05 |    42.85 |      60 |      50 |                   
+  route.ts         |   46.05 |    42.85 |      60 |      50 | ...89-127,140,155 
+ ...pp/api/og/user |       0 |        0 |       0 |       0 |                   
+  route.tsx        |       0 |        0 |       0 |       0 | 5-12              
+ ...pi/personality |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 20-295            
+ .../project-tutor |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-169             
+ ...lic/[username] |      75 |    56.25 |     100 |   77.27 |                   
+  route.ts         |      75 |    56.25 |     100 |   77.27 | 40,72,86-88       
+ ...public/privacy |       0 |      100 |       0 |       0 |                   
+  route.ts         |       0 |      100 |       0 |       0 | 4                 
+ ...om-invitations |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-12              
+ ...[invitationId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 13-49             
+ src/app/api/rooms |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 8-89              
+ ...rooms/[roomId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 11-41             
+ ...roomId]/invite |   70.73 |    63.33 |   33.33 |   77.77 |                   
+  route.ts         |   70.73 |    63.33 |   33.33 |   77.77 | 20,69,81-89,96    
+ ...ers/[username] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-43             
+ ...omId]/messages |   45.45 |    35.13 |   33.33 |   48.14 |                   
+  route.ts         |   45.45 |    35.13 |   33.33 |   48.14 | 11-27             
+ .../sponsors/sync |   66.17 |    60.52 |      50 |   67.18 |                   
+  route.ts         |   66.17 |    60.52 |      50 |   67.18 | ...42-143,157-161 
+ .../streak/freeze |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 13-184            
+ ...app/api/stream |   96.34 |    86.84 |     100 |   96.34 |                   
+  route.ts         |   96.34 |    86.84 |     100 |   96.34 | 106,138,185       
+ ...shboard-layout |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 13-88             
+ ...er/data-export |   87.62 |    71.87 |   69.23 |   90.32 |                   
+  route.ts         |   87.62 |    71.87 |   69.23 |   90.32 | ...15-330,360,394 
+ ...pi/user/export |   95.31 |    73.17 |   91.66 |   96.66 |                   
+  route.ts         |   95.31 |    73.17 |   91.66 |   96.66 | 112,180           
+ ...ithub-accounts |    87.5 |     87.5 |     100 |    87.5 |                   
+  route.ts         |    87.5 |     87.5 |     100 |    87.5 | 50-51             
+ ...er/github-orgs |    92.5 |    84.37 |     100 |    92.1 |                   
+  route.ts         |    92.5 |    84.37 |     100 |    92.1 | 51,125,146        
+ .../api/user/orgs |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-181            
+ ...-repos/details |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-52              
+ .../user/settings |   78.18 |    70.31 |   83.33 |    79.8 |                   
+  route.ts         |   78.18 |    70.31 |   83.33 |    79.8 | ...99,307,311,343 
+ ...i/users/search |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 5-47              
+ ...p/api/wakatime |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-106             
+ .../wakatime/sync |      80 |       75 |     100 |   78.72 |                   
+  route.ts         |      80 |       75 |     100 |   78.72 | ...95,100-101,110 
+ ...ctivity-alerts |   11.11 |        0 |      50 |   11.11 |                   
+  route.ts         |   11.11 |        0 |      50 |   11.11 | 19-65             
+ ...ebhooks/custom |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-167            
+ ...ks/custom/[id] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 9-200             
+ ...iveryId]/retry |      75 |       64 |     100 |   77.77 |                   
+  route.ts         |      75 |       64 |     100 |   77.77 | 14,20,43,47,58,74 
+ .../rotate-secret |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 8-69              
+ ...hooks/dispatch |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-201            
+ ...spatch/metrics |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 7-82              
+ ...ebhooks/github |   72.46 |    54.28 |     100 |   76.92 |                   
+  route.ts         |   69.84 |    51.51 |     100 |   74.57 | ...16,128,140-149 
+ ...pp/api/wrapped |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-240            
+ ...api/wrapped/og |       0 |        0 |       0 |       0 |                   
+  route.tsx        |       0 |        0 |       0 |       0 | 4-110             
+ src/app/auth      |       0 |      100 |       0 |       0 |                   
+  layout.tsx       |       0 |      100 |       0 |       0 | 4                 
+ ...pp/auth/signin |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 7-282             
+ ...ompare/[users] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 13-389            
+ src/app/contact   |       0 |      100 |       0 |       0 |                   
+  page.tsx         |       0 |      100 |       0 |       0 | 5-11              
+ src/app/dashboard |       0 |        0 |       0 |       0 |                   
+  ...icWidgets.tsx |       0 |      100 |       0 |       0 | 3-86              
+  ...ypeWidget.tsx |       0 |        0 |       0 |       0 | 4-71              
+  error.tsx        |       0 |      100 |       0 |       0 | 3-15              
+  layout.tsx       |       0 |        0 |       0 |       0 | 6-121             
+  loading.tsx      |       0 |      100 |       0 |       0 | 2-10              
+  page.tsx         |       0 |        0 |       0 |       0 | 26-50             
+ ...r-intelligence |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 7-9               
+ ...rd/personality |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 7-9               
+ ...epo-comparison |       0 |        0 |       0 |       0 |                   
+  error.tsx        |       0 |      100 |       0 |       0 | 10-14             
+  loading.tsx      |       0 |      100 |       0 |       0 | 2                 
+  page.tsx         |       0 |        0 |       0 |       0 | 5-175             
+ ...rd/repo-health |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 6-15              
+ ...board/settings |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 19-1956           
+ ...friend-compare |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 8-95              
+ ...app/guidelines |       0 |      100 |       0 |       0 |                   
+  page.tsx         |       0 |      100 |       0 |       0 | 3-57              
+ ...pp/leaderboard |       0 |        0 |       0 |       0 |                   
+  ...dSkeleton.tsx |       0 |      100 |       0 |       0 | 3-19              
+  loading.tsx      |       0 |      100 |       0 |       0 | 5-44              
+  page.tsx         |       0 |        0 |       0 |       0 | 26-201            
+ ...login-required |       0 |      100 |       0 |       0 |                   
+  page.tsx         |       0 |      100 |       0 |       0 | 4                 
+ ...privacy-policy |       0 |      100 |       0 |       0 |                   
+  page.tsx         |       0 |      100 |       0 |       0 | 3-56              
+ ...p/profile-card |       0 |      100 |       0 |       0 |                   
+  page.tsx         |       0 |      100 |       0 |       0 | 4                 
+ .../project-tutor |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 7-10              
+ src/app/rooms     |       0 |        0 |       0 |       0 |                   
+  ...istClient.tsx |       0 |        0 |       0 |       0 | 7-78              
+  page.tsx         |       0 |        0 |       0 |       0 | 8-14              
+ ...rooms/[roomId] |       0 |        0 |       0 |       0 |                   
+  RoomClient.tsx   |       0 |        0 |       0 |       0 | 10-164            
+  page.tsx         |       0 |        0 |       0 |       0 | 12-18             
+ src/app/settings  |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 8-407             
+ ...p/u/[username] |       0 |        0 |       0 |       0 |                   
+  ...aph-image.tsx |       0 |        0 |       0 |       0 | 9-195             
+  page.tsx         |       0 |        0 |       0 |       0 | 1-681             
+ ...name]/feed.xml |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-109             
+ ...goals/[goalId] |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 6-155             
+ src/app/wrapped   |       0 |        0 |       0 |       0 |                   
+  page.tsx         |       0 |        0 |       0 |       0 | 6-18              
+ src/components    |   12.79 |     10.3 |    8.53 |      13 |                   
+  ...torWidget.tsx |   93.75 |       70 |     100 |   96.55 | 118               
+  ...ntContext.tsx |       0 |      100 |       0 |       0 | 3-31              
+  ...untToggle.tsx |       0 |        0 |       0 |       0 | 5-138             
+  ...ssTracker.tsx |       0 |        0 |       0 |       0 | 4-63              
+  ...RingChart.tsx |       0 |        0 |       0 |       0 | 3-188             
+  AppNavbar.tsx    |       0 |        0 |       0 |       0 | 9-250             
+  ...TopButton.tsx |     100 |    64.28 |     100 |     100 | 11-30,79          
+  BadgeSection.tsx |       0 |        0 |       0 |       0 | 4-153             
+  CIAnalytics.tsx  |       0 |        0 |       0 |       0 | 4-193             
+  ...ightsCard.tsx |       0 |        0 |       0 |       0 | 17-393            
+  ...imeWidget.tsx |       0 |        0 |       0 |       0 | 5-137             
+  ...itHeatmap.tsx |       0 |        0 |       0 |       0 | 3-209             
+  ...archPanel.tsx |   57.14 |    30.55 |   38.88 |   60.46 | ...,89,93,127-198 
+  ...TimeChart.tsx |       0 |        0 |       0 |       0 | 15-174            
+  ...tyMetrics.tsx |       0 |        0 |       0 |       0 | 5-122             
+  ...isonChart.tsx |       0 |        0 |       0 |       0 | 3-98              
+  ConfirmModal.tsx |    6.25 |        0 |       0 |    7.14 | 27-50             
+  ...oreWidget.tsx |       0 |        0 |       0 |       0 | 16-255            
+  ContactForm.tsx  |       0 |        0 |       0 |       0 | 3-215             
+  ...tionGraph.tsx |   54.36 |    47.29 |   44.26 |   55.06 | ...76,487-555,584 
+  ...onHeatmap.tsx |       0 |        0 |       0 |       0 | 9-712             
+  ...inkButton.tsx |       0 |        0 |       0 |       0 | 4-45              
+  CustomCursor.tsx |       0 |        0 |       0 |       0 | 3-132             
+  ...downSheet.tsx |       0 |        0 |       0 |       0 | 3-164             
+  ...oteWidget.tsx |       0 |        0 |       0 |       0 | 3-108             
+  ...ardHeader.tsx |   39.33 |    27.92 |   35.71 |   41.04 | ...96,324-328,457 
+  ...EProvider.tsx |       0 |        0 |       0 |       0 | 3-91              
+  ...rdSidebar.tsx |       0 |        0 |       0 |       0 | 3-105             
+  ...elMetrics.tsx |       0 |        0 |       0 |       0 | 3-70              
+  ...onsWidget.tsx |       0 |        0 |       0 |       0 | 3-111             
+  EmptyState.tsx   |       0 |        0 |       0 |       0 | 18                
+  ...rBoundary.tsx |       0 |        0 |       0 |       0 | 3-87              
+  ExportButton.tsx |       0 |        0 |       0 |       0 | 7-719             
+  Footer.tsx       |       0 |        0 |       0 |       0 | 6-260             
+  ...omparison.tsx |       0 |        0 |       0 |       0 | 11-319            
+  ...tProgress.tsx |       0 |        0 |       0 |       0 | 3-127             
+  ...ievements.tsx |       0 |        0 |       0 |       0 | 16-51             
+  ...nInButton.tsx |       0 |        0 |       0 |       0 | 4-26              
+  ...Shortcuts.tsx |       0 |        0 |       0 |       0 | 6-119             
+  GoalHistory.tsx  |    3.12 |        0 |       0 |    3.33 | 18-122            
+  GoalTracker.tsx  |   51.11 |    26.73 |   24.63 |    50.6 | ...0-301,384-1094 
+  ...oriesCard.tsx |       0 |        0 |       0 |       0 | 4-142             
+  IssueMetrics.tsx |       0 |        0 |       0 |       0 | 5-126             
+  ...Shortcuts.tsx |       0 |        0 |       0 |       0 | 6-100             
+  ...Breakdown.tsx |       0 |        0 |       0 |       0 | 14-241            
+  LazyWidget.tsx   |       0 |        0 |       0 |       0 | 3-54              
+  ...odingTime.tsx |       0 |        0 |       0 |       0 | 3-189             
+  MarkdownBio.tsx  |       0 |        0 |       0 |       0 | 5-69              
+  ...nePlanner.tsx |       0 |        0 |       0 |       0 | 4-379             
+  ...rendChart.tsx |       0 |        0 |       0 |       0 | 5-132             
+  ...ationBell.tsx |       0 |        0 |       0 |       0 | 7-349             
+  ...ineBanner.tsx |       0 |        0 |       0 |       0 | 3-56              
+  ...rdingTour.tsx |   56.25 |       75 |      50 |   57.14 | 46-47,59-70       
+  ...downChart.tsx |       0 |        0 |       0 |       0 | 6-133             
+  PRMetrics.tsx    |       0 |        0 |       0 |       0 | 12-371            
+  ...rendChart.tsx |       0 |        0 |       0 |       0 | 6-358             
+  ...onutChart.tsx |       0 |        0 |       0 |       0 | 3-180             
+  ...ackground.tsx |       0 |        0 |       0 |       0 | 3-611             
+  ...alRecords.tsx |   95.08 |     79.2 |     100 |   95.04 | ...13,124,154,163 
+  ...alityCard.tsx |       0 |        0 |       0 |       0 | 5-135             
+  ...lityRadar.tsx |       0 |        0 |       0 |       0 | 4-58              
+  PinnedRepos.tsx  |       0 |        0 |       0 |       0 | 5-145             
+  ...posWidget.tsx |       0 |        0 |       0 |       0 | 4-196             
+  ...ySettings.tsx |       0 |        0 |       0 |       0 | 4-234             
+  ...ursWidget.tsx |       0 |        0 |       0 |       0 | 4-482             
+  ProfileCard.tsx  |      75 |    46.66 |      50 |      75 | 77                
+  ...eCardDemo.tsx |       0 |      100 |       0 |       0 | 5                 
+  ...ageClient.tsx |       0 |        0 |       0 |       0 | 6-53              
+  ...leQrModal.tsx |   94.44 |     62.5 |     100 |     100 | 49,78-86          
+  ...ShareCard.tsx |       0 |      100 |       0 |       0 | 12                
+  ...meWrapper.tsx |       0 |        0 |       0 |       0 | 4-20              
+  ...ctMetrics.tsx |       0 |        0 |       0 |       0 | 4-443             
+  ...torClient.tsx |       0 |        0 |       0 |       0 | 3-222             
+  QrCodeButton.tsx |       0 |        0 |       0 |       0 | 4-22              
+  ...tActivity.tsx |       0 |        0 |       0 |       0 | 4-308             
+  ...ityDrawer.tsx |       0 |        0 |       0 |       0 | 6-205             
+  ...tribution.tsx |       0 |        0 |       0 |       0 | 5-323             
+  ...althPanel.tsx |       0 |        0 |       0 |       0 | 3-170             
+  SSEListener.tsx  |       0 |        0 |       0 |       0 | 4-54              
+  ...ionHeader.tsx |       0 |      100 |       0 |       0 | 8                 
+  ...ileButton.tsx |   84.61 |      100 |   66.66 |   84.61 | 31-34             
+  ...leSection.tsx |       0 |        0 |       0 |       0 | 9-173             
+  ...cutsModal.tsx |   82.43 |       68 |   72.72 |   84.05 | 48-61,87-88       
+  ...OutButton.tsx |       0 |        0 |       0 |       0 | 5-51              
+  Skeleton.tsx     |       0 |        0 |       0 |       0 | 7                 
+  ...Analytics.tsx |       0 |        0 |       0 |       0 | 8-399             
+  SponsorBadge.tsx |       0 |        0 |       0 |       0 | 2                 
+  StatsCard.tsx    |       0 |        0 |       0 |       0 | 6-286             
+  ...iskBanner.tsx |       0 |        0 |       0 |       0 | 5-119             
+  ...oneBanner.tsx |   33.33 |      100 |       0 |   33.33 | 11,27             
+  ...akTracker.tsx |   44.37 |    23.17 |   19.04 |   44.73 | ...51,774,827-828 
+  ...ataButton.tsx |   31.25 |       25 |   33.33 |   35.71 | 13-23             
+  ThemeContext.tsx |       0 |        0 |       0 |       0 | 4-99              
+  ...setPicker.tsx |       0 |      100 |       0 |       0 | 8-42              
+  ThemeToggle.tsx  |       0 |        0 |       0 |       0 | 6-226             
+  ...tleBanner.tsx |       0 |        0 |       0 |       0 | 4-49              
+  ...FocusHero.tsx |       0 |        0 |       0 |       0 | 4-258             
+  TopRepos.tsx     |       0 |        0 |       0 |       0 | 11-698            
+  UserAvatar.tsx   |       0 |        0 |       0 |       0 | 5-35              
+  ...ssSummary.tsx |       0 |        0 |       0 |       0 | 9-293             
+  ...mmaryCard.tsx |       0 |        0 |       0 |       0 | 7-304             
+  ...rBoundary.tsx |       0 |        0 |       0 |       0 | 4-52              
+  ...tSkeleton.tsx |     100 |       75 |     100 |     100 | 21                
+  ...xperience.tsx |       0 |        0 |       0 |       0 | 5-444             
+ ...r-intelligence |       0 |        0 |       0 |       0 |                   
+  ...elligence.tsx |       0 |        0 |       0 |       0 | 15-306            
+  ...ysisPanel.tsx |       0 |        0 |       0 |       0 | 5-249             
+  ...tionStats.tsx |       0 |        0 |       0 |       0 | 5-96              
+  ExportPanel.tsx  |       0 |        0 |       0 |       0 | 5-120             
+  ...mePreview.tsx |       0 |        0 |       0 |       0 | 7-530             
+  RoleSelector.tsx |       0 |        0 |       0 |       0 | 5-152             
+ ...ents/dashboard |    14.1 |    11.22 |   12.62 |   14.95 |                   
+  ...ardWidget.tsx |       0 |        0 |       0 |       0 | 4-141             
+  ...ityWidget.tsx |       0 |        0 |       0 |       0 | 4-179             
+  ...Dashboard.tsx |       0 |        0 |       0 |       0 | 49-718            
+  ...utToolbar.tsx |       0 |        0 |       0 |       0 | 4-82              
+  ...1yContext.tsx |   71.79 |       50 |     100 |   75.67 | 38-41,53-56,112   
+  ...dgetShell.tsx |      85 |       75 |     100 |     100 | 31-38             
+  ...ardWidget.tsx |       0 |        0 |       0 |       0 | 9-72              
+  ...ontroller.tsx |       0 |        0 |       0 |       0 | 4-119             
+ ...onents/landing |       0 |        0 |       0 |       0 |                   
+  LandingPage.tsx  |       0 |        0 |       0 |       0 | 6-1418            
+ ...ts/leaderboard |       0 |        0 |       0 |       0 |                   
+  ...rdFilters.tsx |       0 |        0 |       0 |       0 | 4-155             
+ ...ts/personality |       0 |        0 |       0 |       0 |                   
+  ...ityReport.tsx |       0 |        0 |       0 |       0 | 10-136            
+ ...repo-analytics |       0 |        0 |       0 |       0 |                   
+  ...itHeatmap.tsx |       0 |        0 |       0 |       0 | 5-17              
+  ...utorStats.tsx |       0 |        0 |       0 |       0 | 3-11              
+  ...sExplorer.tsx |       0 |        0 |       0 |       0 | 5-71              
+  ...ticsSheet.tsx |       0 |        0 |       0 |       0 | 8-116             
+  RepoCard.tsx     |       0 |        0 |       0 |       0 | 17-152            
+  RepoCarousel.tsx |       0 |        0 |       0 |       0 | 5-143             
+  RepoGrid.tsx     |       0 |        0 |       0 |       0 | 5-85              
+  ...thMetrics.tsx |       0 |        0 |       0 |       0 | 5-21              
+  ...nguagePie.tsx |       0 |        0 |       0 |       0 | 3-30              
+  ...lineChart.tsx |       0 |      100 |       0 |       0 | 3-7               
+ ...ts/repo-health |       0 |        0 |       0 |       0 |                   
+  ...Breakdown.tsx |       0 |        0 |       0 |       0 | 3-55              
+  ...ealthCard.tsx |       0 |        0 |       0 |       0 | 5-39              
+  ...hExplorer.tsx |       0 |        0 |       0 |       0 | 18-351            
+  ...althGauge.tsx |       0 |        0 |       0 |       0 | 3-58              
+  ...hInsights.tsx |       0 |        0 |       0 |       0 | 3-74              
+  ...althRadar.tsx |       0 |        0 |       0 |       0 | 4-32              
+ ...mponents/rooms |       0 |        0 |       0 |       0 |                   
+  ...RoomModal.tsx |       0 |        0 |       0 |       0 | 5-105             
+  InviteModal.tsx  |       0 |        0 |       0 |       0 | 3-63              
+  MembersPanel.tsx |       0 |        0 |       0 |       0 | 6-97              
+  MessageFeed.tsx  |       0 |        0 |       0 |       0 | 3-82              
+  MessageInput.tsx |       0 |        0 |       0 |       0 | 3-67              
+  ...vitations.tsx |       0 |        0 |       0 |       0 | 4-76              
+ src/components/ui |    5.79 |     5.55 |       5 |    6.06 |                   
+  badge.tsx        |       0 |      100 |       0 |       0 | 5-32              
+  card.tsx         |       0 |      100 |       0 |       0 | 4-76              
+  progress.tsx     |       0 |        0 |       0 |       0 | 11-41             
+  select.tsx       |       0 |      100 |       0 |       0 | 11-45             
+  skeleton.tsx     |       0 |      100 |       0 |       0 | 7                 
+  tabs.tsx         |       0 |        0 |       0 |       0 | 4-162             
+  textarea.tsx     |       0 |      100 |       0 |       0 | 7-21              
+ ...onents/webhook |       0 |        0 |       0 |       0 |                   
+  ...okManager.tsx |       0 |        0 |       0 |       0 | 3-781             
+ src/hooks         |   68.71 |    55.95 |    62.5 |   71.08 |                   
+  useCountUp.ts    |   80.48 |       75 |     100 |   80.48 | 19-21,30-31,38-40 
+  ...atmapTheme.ts |   34.32 |    42.85 |   21.42 |    36.5 | 22-24,128-193     
+  useIsMobile.ts   |   88.88 |      100 |      75 |   88.88 | 17                
+  useMetrics.ts    |   88.46 |    41.66 |     100 |      92 | 17-18             
+  ...ifications.ts |     100 |     87.5 |     100 |     100 | 45                
+  ...stentState.ts |       0 |        0 |       0 |       0 | 12-57             
+  ...altimeSync.ts |      68 |     37.5 |   57.14 |      80 | 15-17             
+  useStreak.ts     |     100 |    83.33 |     100 |     100 | 39                
+  ...eakTracker.ts |   75.94 |    67.85 |   78.26 |   79.05 | ...17-318,330-331 
+  ...erSettings.ts |     100 |       75 |     100 |     100 | 43                
+ src/i18n          |   68.18 |    67.34 |   56.25 |   67.21 |                   
+  config.ts        |   85.71 |       50 |      50 |   85.71 | 32                
+  locale.ts        |       0 |      100 |       0 |       0 | 6-9               
+  messages.ts      |       0 |        0 |       0 |       0 | 9-43              
+  request.ts       |       0 |      100 |       0 |       0 | 6-8               
+  translate.ts     |     100 |     87.5 |     100 |     100 | 15,23             
+ src/lib           |   72.87 |    67.24 |   76.92 |   73.75 |                   
+  ...estimators.ts |   25.71 |    42.85 |      50 |   21.21 | 31-152            
+  ...-formatter.ts |   98.24 |    70.93 |     100 |   98.24 | 225               
+  ai-mentor.ts     |     100 |     87.5 |     100 |     100 | 57,71,121         
+  ai-prompts.ts    |      50 |      100 |      50 |      50 | 49                
+  ai-quota.ts      |   10.52 |        0 |       0 |   10.52 | 7-44              
+  anthropic.ts     |      96 |    91.66 |   85.71 |   97.82 | 112               
+  auth.ts          |   63.79 |     64.4 |     100 |   64.91 | ...36,158-170,191 
+  ...rate-limit.ts |   85.29 |    83.33 |     100 |   87.09 | 26-29             
+  ...validation.ts |   13.04 |        0 |      20 |   14.28 | 32-102            
+  ci-analytics.ts  |   94.23 |    82.92 |   91.66 |     100 | 9,20,33-46,48-52  
+  codebase-size.ts |       0 |        0 |       0 |       0 | 13-41             
+  ...y-insights.ts |   16.66 |     14.7 |   23.07 |   18.55 | 82-88,117-358     
+  ...ency-score.ts |    5.74 |        0 |    7.69 |    6.49 | 21-164            
+  ...n-insights.ts |   98.14 |    90.62 |     100 |   97.91 | 158,202           
+  cron-batch.ts    |       0 |        0 |       0 |       0 | 5-26              
+  crypto-edge.ts   |   96.29 |     87.5 |     100 |   96.15 | 24                
+  crypto.ts        |      94 |    85.71 |     100 |      94 | 29,95,99          
+  csrf.ts          |   95.55 |    88.23 |    90.9 |   97.29 | 32                
+  ...ard-layout.ts |   98.59 |    76.47 |     100 |   98.57 | 188               
+  date-utils.ts    |   98.95 |    97.77 |     100 |   98.87 | 242               
+  ...er-persona.ts |   97.77 |    94.93 |   94.73 |   97.67 | 234,315           
+  digest-email.ts  |   87.87 |     87.8 |   88.88 |   87.87 | 407-411           
+  discord.ts       |   70.83 |    45.45 |   85.71 |   73.91 | 8,36-41           
+  error-utils.ts   |     100 |    93.33 |     100 |     100 | 37                
+  ...sion-token.ts |      70 |     62.5 |     100 |     100 | 14-20             
+  ...b-accounts.ts |   96.87 |    83.33 |     100 |   96.82 | 33,46             
+  ...hievements.ts |   20.86 |    13.79 |   52.94 |   21.05 | ...24,143,182-471 
+  github-app.ts    |   97.56 |    91.42 |   91.66 |     100 | 137,310,348       
+  github-fetch.ts  |   86.79 |    90.69 |      80 |   89.58 | ...71,181-182,188 
+  ...ub-request.ts |   94.48 |    81.87 |     100 |   95.27 | 62,212,257-260    
+  github-search.ts |      88 |     64.1 |     100 |   86.36 | 49,64-80          
+  github.ts        |   46.83 |       32 |      30 |   49.27 | ...26-241,252-258 
+  goals-sync.ts    |   95.23 |       80 |     100 |   94.87 | 50,57             
+  leaderboard.ts   |   21.59 |     8.16 |      30 |   21.55 | ...10-407,416-475 
+  metrics-cache.ts |   68.18 |    66.66 |      85 |    69.6 | ...23-224,311-374 
+  ...ser-params.ts |     100 |    92.85 |     100 |     100 | 30                
+  ...y-analysis.ts |   97.43 |     87.5 |     100 |     100 | 71,158,160        
+  pinned-repos.ts  |   83.87 |    58.33 |     100 |   82.75 | 72-74,102-103     
+  ...ofile-data.ts |    75.4 |    61.79 |      65 |   80.39 | ...30,404-407,428 
+  rate-limit.ts    |   93.75 |     85.1 |     100 |   92.85 | 72-76             
+  ...h-insights.ts |     100 |    98.46 |     100 |     100 | 170               
+  request-body.ts  |      92 |       70 |     100 |   95.65 | 9                 
+  ...hook-fetch.ts |   85.45 |    63.15 |    90.9 |   86.27 | ...09-110,136-137 
+  sanitize.ts      |     100 |    88.88 |     100 |     100 | 13                
+  ...er-session.ts |   88.88 |    82.35 |     100 |     100 | 21,45-47          
+  sponsors.ts      |   70.51 |    66.66 |      80 |   71.05 | ...64,222,311-317 
+  ...protection.ts |   85.71 |    88.88 |   83.33 |   87.87 | 41,50,54,65       
+  streak-data.ts   |     100 |       75 |     100 |     100 | 38                
+  streak.ts        |     100 |    83.33 |     100 |     100 | 28-30             
+  ...base-admin.ts |   30.76 |    36.66 |   57.14 |      32 | ...03-128,142-189 
+  ...base-rooms.ts |       0 |        0 |       0 |       0 | 13-284            
+  upstash-rest.ts  |   13.33 |     7.69 |      25 |   13.33 | 9-90              
+  webhooks.ts      |   88.46 |    70.83 |     100 |   88.23 | 138-147           
+  weekly-digest.ts |      40 |    23.33 |   57.14 |   39.47 | 66-147,175,206    
+  ...hook-stats.ts |   78.26 |    52.94 |     100 |   81.81 | 14-21             
+  wrapped.ts       |     100 |    94.64 |     100 |     100 | 195,218,248       
+ src/lib/cv        |   58.16 |    44.79 |   45.45 |   57.33 |                   
+  ...-generator.ts |       0 |        0 |       0 |       0 | 25-472            
+  cv-classifier.ts |    97.4 |     92.4 |     100 |   98.31 | 168,484-485       
+  ...ub-fetcher.ts |       0 |        0 |       0 |       0 | 105-303           
+  cv-prompts.ts    |   95.23 |    86.66 |   85.71 |     100 | 35,90             
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 31.47% ( 5947/18897 )
+Branches     : 28.4% ( 3581/12609 )
+Functions    : 24.67% ( 885/3587 )
+Lines        : 31.91% ( 5597/17536 )
+================================================================================
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package

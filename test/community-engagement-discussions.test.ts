@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GET } from "@/app/api/metrics/devtrack-badges/route";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: vi.fn(),
 }));
 

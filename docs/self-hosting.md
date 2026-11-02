@@ -44,9 +44,10 @@ DevTrack uses `@supabase/supabase-js` which relies on the Supabase REST API, so 
 | `RESEND_API_KEY` | Optional | Resend API key for contact form and weekly digest emails | `re_...` |
 | `RESEND_FROM_EMAIL` | Optional | From address for outbound emails | `DevTrack <noreply@example.com>` |
 | `CONTACT_TO_EMAIL` | Optional | Delivery address for contact form submissions | `you@example.com` |
-| `GROQ_API_KEY` | Optional | Groq API key for AI features (project tutor, personality report, roast) | `gsk_...` |
+| `GROQ_API_KEY` | Optional | Groq API key for project tutor, personality and insights | `gsk_...` |
+| `GEMINI_API_KEY` | Optional | Gemini key for roast/hype | Provider-issued secret |
 | `ANTHROPIC_API_KEY` | Optional | Anthropic API key for AI weekly summary generation | `sk-ant-...` |
-| `UPSTASH_REDIS_REST_URL` | Optional | Upstash Redis REST URL for distributed metrics caching | `https://...upstash.io` |
+| `UPSTASH_REDIS_REST_URL` | Required for production paid AI | Upstash Redis REST URL for shared metrics caches, GitHub cooldowns and AI quotas | `https://...upstash.io` |
 | `UPSTASH_REDIS_REST_TOKEN` | Optional | Upstash Redis REST token | `AXxx...` |
 | `LEADERBOARD_REBUILD_TOKEN` | Optional | Auth token for the `/api/leaderboard/rebuild` endpoint | Run `openssl rand -hex 32` |
 | `LEADERBOARD_USER_CONCURRENCY` | Optional | Concurrent user fetches during leaderboard builds (default: `5`) | `5` |
@@ -58,7 +59,7 @@ DevTrack uses `@supabase/supabase-js` which relies on the Supabase REST API, so 
 
 ## 1. Docker (Recommended)
 
-DevTrack provides a production-ready `Dockerfile` and `docker-compose.yml`.
+DevTrack provides a production `Dockerfile` and `docker-compose.production.yml`. The default `docker-compose.yml` runs the development server. Production Compose passes only NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY and NEXT_PUBLIC_APP_URL as build arguments because Next.js embeds public configuration when building. Private OAuth, service-role, encryption and scheduler secrets come from runtime env_file; do not put them in build arguments. Rebuild the image when public configuration changes.
 
 ### Docker Variables Reference Manual
 
@@ -82,7 +83,7 @@ When running DevTrack with Docker, set the following environment variables in yo
 #### Docker setup steps
 1. Clone the repository and navigate into it:
    ```bash
-   git clone https://github.com/Umbrella-io/devtrack.git
+   git clone https://github.com/Priyanshu-byte-coder/devtrack.git
    cd devtrack
    ```
 2. Copy the `.env.example` file to `.env` and fill in the required variables.
@@ -92,7 +93,7 @@ When running DevTrack with Docker, set the following environment variables in yo
 3. Ensure `NODE_ENV=production` is set in your container or compose configuration.
 4. Start the container:
    ```bash
-   docker compose up -d
+   docker compose -f docker-compose.production.yml up -d --build
    ```
 5. DevTrack will be available at `http://localhost:3000`.
 
@@ -102,7 +103,7 @@ When running DevTrack with Docker, set the following environment variables in yo
 
 Railway is a modern PaaS that can deploy DevTrack directly from a GitHub repository.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2FUmbrella-io%2Fdevtrack)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack)
 
 ### Manual Setup
 1. Click **New Project -> Deploy from GitHub repo** and select your fork of DevTrack.
@@ -121,7 +122,7 @@ DevTrack includes a `render.yaml` Blueprint for easy deployment on Render's free
 2. In the Render Dashboard, click **New + -> Blueprint**.
 3. Connect your GitHub account and select your fork of DevTrack.
 4. Render will automatically detect the `render.yaml` configuration and prompt you to fill in the required environment variables.
-   *Note: `NEXTAUTH_SECRET` and `ENCRYPTION_KEY` will be automatically generated for you.*
+   *Note: `NEXTAUTH_SECRET` and `CRON_SECRET` are generated. Supply `ENCRYPTION_KEY` yourself as exactly 64 hex characters (`openssl rand -hex 32`).*
 5. Click **Apply**. Render will build and deploy your app.
 6. Once live, update your `NEXTAUTH_URL` environment variable to match your Render `.onrender.com` domain, and update your GitHub OAuth settings accordingly.
 
@@ -138,6 +139,16 @@ DevTrack includes a `render.yaml` Blueprint for easy deployment on Render's free
 - **Cron endpoints return 401**:
   Ensure `CRON_SECRET` is set in your environment. Cron routes require a `Authorization: Bearer <CRON_SECRET>` header and fail closed when the secret is absent.
 - **AI features not available**:
-  AI routes (personality, project tutor, roast, weekly summary) require `GROQ_API_KEY` or `ANTHROPIC_API_KEY`. Without them, AI buttons are hidden or the endpoints return a graceful error. The rest of the app functions normally.
+  AI routes use their corresponding `GROQ_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`. Paid roast/insights generation also requires Redis for durable quotas in production. Without them, AI buttons are hidden or the endpoints return a graceful error. The rest of the app functions normally.
 - **Leaderboard rebuild endpoint returns 401**:
   Set `LEADERBOARD_REBUILD_TOKEN` in your environment and pass it in the `x-devtrack-rebuild-token` header when calling `/api/leaderboard/rebuild`. The token is only read from that header — passing it as a `?token=` query parameter is not supported, because query strings end up in access and proxy logs.
+
+## Runtime and scheduled jobs
+
+Use Node 22.12 or newer within the Node 22 release line, and pnpm 11.13.1 as pinned in package.json. Installs must include pnpm-workspace.yaml and patches/; run `pnpm install --frozen-lockfile`.
+
+Production builds use Webpack so the PWA plugin generates sw.js. Only static assets are cached. Personalized API responses use NetworkOnly and private, no-store headers.
+
+Apply the [database adoption guide](../supabase/README.md) before deploying the repair branch over an existing installation. After deployment, sign in again to store an encrypted primary token for background goal sync. Configure your scheduler with the paths in vercel.json and `Authorization: Bearer <CRON_SECRET>`. Goal and webhook jobs run hourly to resume persisted cursors. Weekly webhooks skip recipients already delivered to within seven days. Batches report `hasMore`; large installations can run additional authenticated invocations until false. Choose a hosting plan that supports the configured hourly schedules. Leases prevent overlapping batches. A 300-second hosting execution limit is required for these jobs; adapt batch sizes for shorter plans.
+
+Redis coordinates cooldowns between app instances. GitHub quotas remain finite; a rate-limit response includes Retry-After. Clients must wait for that cooldown. Search-based widgets label truncated histories; increasing a token's permissions does not remove GitHub Search's 1,000-result ceiling.

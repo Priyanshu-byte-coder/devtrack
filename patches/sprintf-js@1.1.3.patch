@@ -1,0 +1,262 @@
+diff --git a/dist/sprintf.min.js b/dist/sprintf.min.js
+index ed09637..7d5e919 100644
+--- a/dist/sprintf.min.js
++++ b/dist/sprintf.min.js
+@@ -1,3 +1,237 @@
+-/*! sprintf-js v1.1.3 | Copyright (c) 2007-present, Alexandru Mărășteanu <hello@alexei.ro> | BSD-3-Clause */
+-!function(){"use strict";var g={not_string:/[^s]/,not_bool:/[^t]/,not_type:/[^T]/,not_primitive:/[^v]/,number:/[diefg]/,numeric_arg:/[bcdiefguxX]/,json:/[j]/,not_json:/[^j]/,text:/^[^\x25]+/,modulo:/^\x25{2}/,placeholder:/^\x25(?:([1-9]\d*)\$|\(([^)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijostTuvxX])/,key:/^([a-z_][a-z_\d]*)/i,key_access:/^\.([a-z_][a-z_\d]*)/i,index_access:/^\[(\d+)\]/,sign:/^[+-]/};function y(e){return function(e,t){var r,n,i,s,a,o,p,c,l,u=1,f=e.length,d="";for(n=0;n<f;n++)if("string"==typeof e[n])d+=e[n];else if("object"==typeof e[n]){if((s=e[n]).keys)for(r=t[u],i=0;i<s.keys.length;i++){if(null==r)throw new Error(y('[sprintf] Cannot access property "%s" of undefined value "%s"',s.keys[i],s.keys[i-1]));r=r[s.keys[i]]}else r=s.param_no?t[s.param_no]:t[u++];if(g.not_type.test(s.type)&&g.not_primitive.test(s.type)&&r instanceof Function&&(r=r()),g.numeric_arg.test(s.type)&&"number"!=typeof r&&isNaN(r))throw new TypeError(y("[sprintf] expecting number but found %T",r));switch(g.number.test(s.type)&&(c=0<=r),s.type){case"b":r=parseInt(r,10).toString(2);break;case"c":r=String.fromCharCode(parseInt(r,10));break;case"d":case"i":r=parseInt(r,10);break;case"j":r=JSON.stringify(r,null,s.width?parseInt(s.width):0);break;case"e":r=s.precision?parseFloat(r).toExponential(s.precision):parseFloat(r).toExponential();break;case"f":r=s.precision?parseFloat(r).toFixed(s.precision):parseFloat(r);break;case"g":r=s.precision?String(Number(r.toPrecision(s.precision))):parseFloat(r);break;case"o":r=(parseInt(r,10)>>>0).toString(8);break;case"s":r=String(r),r=s.precision?r.substring(0,s.precision):r;break;case"t":r=String(!!r),r=s.precision?r.substring(0,s.precision):r;break;case"T":r=Object.prototype.toString.call(r).slice(8,-1).toLowerCase(),r=s.precision?r.substring(0,s.precision):r;break;case"u":r=parseInt(r,10)>>>0;break;case"v":r=r.valueOf(),r=s.precision?r.substring(0,s.precision):r;break;case"x":r=(parseInt(r,10)>>>0).toString(16);break;case"X":r=(parseInt(r,10)>>>0).toString(16).toUpperCase()}g.json.test(s.type)?d+=r:(!g.number.test(s.type)||c&&!s.sign?l="":(l=c?"+":"-",r=r.toString().replace(g.sign,"")),o=s.pad_char?"0"===s.pad_char?"0":s.pad_char.charAt(1):" ",p=s.width-(l+r).length,a=s.width&&0<p?o.repeat(p):"",d+=s.align?l+r+a:"0"===o?l+a+r:a+l+r)}return d}(function(e){if(p[e])return p[e];var t,r=e,n=[],i=0;for(;r;){if(null!==(t=g.text.exec(r)))n.push(t[0]);else if(null!==(t=g.modulo.exec(r)))n.push("%");else{if(null===(t=g.placeholder.exec(r)))throw new SyntaxError("[sprintf] unexpected placeholder");if(t[2]){i|=1;var s=[],a=t[2],o=[];if(null===(o=g.key.exec(a)))throw new SyntaxError("[sprintf] failed to parse named argument key");for(s.push(o[1]);""!==(a=a.substring(o[0].length));)if(null!==(o=g.key_access.exec(a)))s.push(o[1]);else{if(null===(o=g.index_access.exec(a)))throw new SyntaxError("[sprintf] failed to parse named argument key");s.push(o[1])}t[2]=s}else i|=2;if(3===i)throw new Error("[sprintf] mixing positional and named placeholders is not (yet) supported");n.push({placeholder:t[0],param_no:t[1],keys:t[2],sign:t[3],pad_char:t[4],align:t[5],width:t[6],precision:t[7],type:t[8]})}r=r.substring(t[0].length)}return p[e]=n}(e),arguments)}function e(e,t){return y.apply(null,[e].concat(t||[]))}var p=Object.create(null);"undefined"!=typeof exports&&(exports.sprintf=y,exports.vsprintf=e),"undefined"!=typeof window&&(window.sprintf=y,window.vsprintf=e,"function"==typeof define&&define.amd&&define(function(){return{sprintf:y,vsprintf:e}}))}();
+-//# sourceMappingURL=sprintf.min.js.map
++/* global window, exports, define */
++
++!function() {
++    'use strict'
++
++    var re = {
++        not_string: /[^s]/,
++        not_bool: /[^t]/,
++        not_type: /[^T]/,
++        not_primitive: /[^v]/,
++        number: /[diefg]/,
++        numeric_arg: /[bcdiefguxX]/,
++        json: /[j]/,
++        not_json: /[^j]/,
++        text: /^[^\x25]+/,
++        modulo: /^\x25{2}/,
++        placeholder: /^\x25(?:([1-9]\d*)\$|\(([^)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijostTuvxX])/,
++        key: /^([a-z_][a-z_\d]*)/i,
++        key_access: /^\.([a-z_][a-z_\d]*)/i,
++        index_access: /^\[(\d+)\]/,
++        sign: /^[+-]/
++    }
++
++    function sprintf(key) {
++        // `arguments` is not an array, but should be fine for this call
++        return sprintf_format(sprintf_parse(key), arguments)
++    }
++
++    function vsprintf(fmt, argv) {
++        return sprintf.apply(null, [fmt].concat(argv || []))
++    }
++
++    function sprintf_format(parse_tree, argv) {
++        for (var index = 0; index < parse_tree.length; index++) {
++            var field = parse_tree[index];
++            if (field && typeof field === 'object' && (Number(field.width) > 100000 || Number(field.precision) > 1000)) {
++                throw new RangeError('sprintf field exceeds safe size');
++            }
++        }
++        var cursor = 1, tree_length = parse_tree.length, arg, output = '', i, k, ph, pad, pad_character, pad_length, is_positive, sign
++        for (i = 0; i < tree_length; i++) {
++            if (typeof parse_tree[i] === 'string') {
++                output += parse_tree[i]
++            }
++            else if (typeof parse_tree[i] === 'object') {
++                ph = parse_tree[i] // convenience purposes only
++                if (ph.keys) { // keyword argument
++                    arg = argv[cursor]
++                    for (k = 0; k < ph.keys.length; k++) {
++                        if (arg == undefined) {
++                            throw new Error(sprintf('[sprintf] Cannot access property "%s" of undefined value "%s"', ph.keys[k], ph.keys[k-1]))
++                        }
++                        arg = arg[ph.keys[k]]
++                    }
++                }
++                else if (ph.param_no) { // positional argument (explicit)
++                    arg = argv[ph.param_no]
++                }
++                else { // positional argument (implicit)
++                    arg = argv[cursor++]
++                }
++
++                if (re.not_type.test(ph.type) && re.not_primitive.test(ph.type) && arg instanceof Function) {
++                    arg = arg()
++                }
++
++                if (re.numeric_arg.test(ph.type) && (typeof arg !== 'number' && isNaN(arg))) {
++                    throw new TypeError(sprintf('[sprintf] expecting number but found %T', arg))
++                }
++
++                if (re.number.test(ph.type)) {
++                    is_positive = arg >= 0
++                }
++
++                switch (ph.type) {
++                    case 'b':
++                        arg = parseInt(arg, 10).toString(2)
++                        break
++                    case 'c':
++                        arg = String.fromCharCode(parseInt(arg, 10))
++                        break
++                    case 'd':
++                    case 'i':
++                        arg = parseInt(arg, 10)
++                        break
++                    case 'j':
++                        arg = JSON.stringify(arg, null, ph.width ? parseInt(ph.width) : 0)
++                        break
++                    case 'e':
++                        arg = ph.precision ? parseFloat(arg).toExponential(ph.precision) : parseFloat(arg).toExponential()
++                        break
++                    case 'f':
++                        arg = ph.precision ? parseFloat(arg).toFixed(ph.precision) : parseFloat(arg)
++                        break
++                    case 'g':
++                        arg = ph.precision ? String(Number(arg.toPrecision(ph.precision))) : parseFloat(arg)
++                        break
++                    case 'o':
++                        arg = (parseInt(arg, 10) >>> 0).toString(8)
++                        break
++                    case 's':
++                        arg = String(arg)
++                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
++                        break
++                    case 't':
++                        arg = String(!!arg)
++                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
++                        break
++                    case 'T':
++                        arg = Object.prototype.toString.call(arg).slice(8, -1).toLowerCase()
++                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
++                        break
++                    case 'u':
++                        arg = parseInt(arg, 10) >>> 0
++                        break
++                    case 'v':
++                        arg = arg.valueOf()
++                        arg = (ph.precision ? arg.substring(0, ph.precision) : arg)
++                        break
++                    case 'x':
++                        arg = (parseInt(arg, 10) >>> 0).toString(16)
++                        break
++                    case 'X':
++                        arg = (parseInt(arg, 10) >>> 0).toString(16).toUpperCase()
++                        break
++                }
++                if (re.json.test(ph.type)) {
++                    output += arg
++                }
++                else {
++                    if (re.number.test(ph.type) && (!is_positive || ph.sign)) {
++                        sign = is_positive ? '+' : '-'
++                        arg = arg.toString().replace(re.sign, '')
++                    }
++                    else {
++                        sign = ''
++                    }
++                    pad_character = ph.pad_char ? ph.pad_char === '0' ? '0' : ph.pad_char.charAt(1) : ' '
++                    pad_length = ph.width - (sign + arg).length
++                    pad = ph.width ? (pad_length > 0 ? pad_character.repeat(pad_length) : '') : ''
++                    output += ph.align ? sign + arg + pad : (pad_character === '0' ? sign + pad + arg : pad + sign + arg)
++                }
++            }
++        }
++        return output
++    }
++
++    var sprintf_cache = Object.create(null)
++
++    function sprintf_parse(fmt) {
++        if (sprintf_cache[fmt]) {
++            return sprintf_cache[fmt]
++        }
++
++        var _fmt = fmt, match, parse_tree = [], arg_names = 0
++        while (_fmt) {
++            if ((match = re.text.exec(_fmt)) !== null) {
++                parse_tree.push(match[0])
++            }
++            else if ((match = re.modulo.exec(_fmt)) !== null) {
++                parse_tree.push('%')
++            }
++            else if ((match = re.placeholder.exec(_fmt)) !== null) {
++                if (match[2]) {
++                    arg_names |= 1
++                    var field_list = [], replacement_field = match[2], field_match = []
++                    if ((field_match = re.key.exec(replacement_field)) !== null) {
++                        field_list.push(field_match[1])
++                        while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
++                            if ((field_match = re.key_access.exec(replacement_field)) !== null) {
++                                field_list.push(field_match[1])
++                            }
++                            else if ((field_match = re.index_access.exec(replacement_field)) !== null) {
++                                field_list.push(field_match[1])
++                            }
++                            else {
++                                throw new SyntaxError('[sprintf] failed to parse named argument key')
++                            }
++                        }
++                    }
++                    else {
++                        throw new SyntaxError('[sprintf] failed to parse named argument key')
++                    }
++                    match[2] = field_list
++                }
++                else {
++                    arg_names |= 2
++                }
++                if (arg_names === 3) {
++                    throw new Error('[sprintf] mixing positional and named placeholders is not (yet) supported')
++                }
++
++                parse_tree.push(
++                    {
++                        placeholder: match[0],
++                        param_no:    match[1],
++                        keys:        match[2],
++                        sign:        match[3],
++                        pad_char:    match[4],
++                        align:       match[5],
++                        width:       match[6],
++                        precision:   match[7],
++                        type:        match[8]
++                    }
++                )
++            }
++            else {
++                throw new SyntaxError('[sprintf] unexpected placeholder')
++            }
++            _fmt = _fmt.substring(match[0].length)
++        }
++        return sprintf_cache[fmt] = parse_tree
++    }
++
++    /**
++     * export to either browser or node.js
++     */
++    /* eslint-disable quote-props */
++    if (typeof exports !== 'undefined') {
++        exports['sprintf'] = sprintf
++        exports['vsprintf'] = vsprintf
++    }
++    if (typeof window !== 'undefined') {
++        window['sprintf'] = sprintf
++        window['vsprintf'] = vsprintf
++
++        if (typeof define === 'function' && define['amd']) {
++            define(function() {
++                return {
++                    'sprintf': sprintf,
++                    'vsprintf': vsprintf
++                }
++            })
++        }
++    }
++    /* eslint-enable quote-props */
++}(); // eslint-disable-line
+diff --git a/src/sprintf.js b/src/sprintf.js
+index 65d6324..7d5e919 100644
+--- a/src/sprintf.js
++++ b/src/sprintf.js
+@@ -31,6 +31,12 @@
+     }
+ 
+     function sprintf_format(parse_tree, argv) {
++        for (var index = 0; index < parse_tree.length; index++) {
++            var field = parse_tree[index];
++            if (field && typeof field === 'object' && (Number(field.width) > 100000 || Number(field.precision) > 1000)) {
++                throw new RangeError('sprintf field exceeds safe size');
++            }
++        }
+         var cursor = 1, tree_length = parse_tree.length, arg, output = '', i, k, ph, pad, pad_character, pad_length, is_positive, sign
+         for (i = 0; i < tree_length; i++) {
+             if (typeof parse_tree[i] === 'string') {

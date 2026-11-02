@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 /**
  * Weekly digest service — data aggregation and unsubscribe token utilities.
  *
@@ -56,7 +57,7 @@ const GITHUB_API = "https://api.github.com";
 
 /**
  * Fetch the number of pull requests the user merged during the past 7 days.
- * Returns 0 on any error so callers always get a usable value.
+ * Errors remain unavailable so the email can show its dashboard-link fallback.
  */
 async function fetchWeeklyMergedPrs(
   githubLogin: string,
@@ -67,7 +68,7 @@ async function fetchWeeklyMergedPrs(
   const weekAgoStr = weekAgo.toISOString().slice(0, 10);
 
   try {
-    const res = await fetch(
+    const res = await githubRequest(
       `${GITHUB_API}/search/issues?q=type:pr+author:${githubLogin}+is:merged+merged:>=${weekAgoStr}&per_page=1`,
       {
         headers: {
@@ -77,20 +78,20 @@ async function fetchWeeklyMergedPrs(
         cache: "no-store",
       }
     );
-    if (!res.ok) return 0;
+    if (!res.ok) throw new Error('Weekly PR count unavailable');
     const data = (await res.json()) as { total_count?: number };
     return data.total_count ?? 0;
-  } catch {
-    return 0;
+  } catch (error) {
+    throw error;
   }
 }
 
 /**
  * Aggregate the weekly digest metrics for a single user.
  *
- * All metric requests run concurrently via Promise.allSettled so one slow or
- * failing GitHub endpoint does not delay the others.  Every metric falls back
- * to an empty/zero value on failure, ensuring the digest can always be sent.
+ * Metric requests run concurrently through the shared GitHub transport.
+ * Incomplete metrics fail instead of becoming zero; the email sender can use
+ * its explicit unavailable-metrics fallback.
  */
 export async function buildDigestMetrics(
   githubLogin: string,
@@ -104,6 +105,12 @@ export async function buildDigestMetrics(
       fetchPublicTopRepos(githubLogin, token, 7),
       fetchWeeklyMergedPrs(githubLogin, token),
     ]);
+
+  if ([streakResult, contributionsResult, languagesResult, reposResult, prsResult].some(result => result.status === 'rejected') ||
+      (streakResult.status === 'fulfilled' && streakResult.value.complete === false) ||
+      (contributionsResult.status === 'fulfilled' && contributionsResult.value.complete === false)) {
+    throw new Error('Weekly digest metrics unavailable or incomplete');
+  }
 
   const streak: DigestStreak =
     streakResult.status === "fulfilled"

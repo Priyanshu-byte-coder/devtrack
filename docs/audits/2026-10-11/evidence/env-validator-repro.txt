@@ -1,0 +1,8 @@
+🔍 Validating environment variables...
+
+❌ Sensitive environment variable detected: GITHUB_SECRET
+❌ Sensitive environment variable detected: NEXTAUTH_SECRET
+
+🚨 Build blocked: Private credentials detected.
+
+exit=1

@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API } from "@/lib/github";
@@ -48,7 +49,7 @@ async function fetchDiscussionCount(
   to: string
 ): Promise<number> {
   try {
-    const response = await fetch("https://api.github.com/graphql", {
+    const response = await githubRequest("https://api.github.com/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,23 +119,23 @@ export async function GET(req: NextRequest) {
 
       const [searchResults, discussions] = await Promise.all([
         Promise.allSettled([
-          fetch(
+          githubRequest(
             `${GITHUB_API}/search/issues?q=reviewed-by:${session.githubLogin}+type:pr+updated:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
-          fetch(
+          githubRequest(
             `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:issue+created:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
-          fetch(
+          githubRequest(
             `${GITHUB_API}/search/issues?q=assignee:${session.githubLogin}+type:issue+state:closed+closed:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
-          fetch(
+          githubRequest(
             `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:pr+is:merged+-user:${session.githubLogin}+merged:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),
-          fetch(
+          githubRequest(
             `${GITHUB_API}/search/issues?q=author:${session.githubLogin}+type:pr+is:merged+label:documentation+merged:>=${sinceStr}&per_page=1`,
             { headers, cache: "no-store" }
           ),

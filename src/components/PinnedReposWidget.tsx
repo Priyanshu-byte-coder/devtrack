@@ -57,7 +57,7 @@ export default function PinnedReposWidget({
               <div className="h-5 w-3/4 bg-[var(--border)] rounded animate-pulse" />
               <div className="h-3 w-1/2 bg-[var(--border)] rounded animate-pulse" />
               <div className="h-8 w-full bg-[var(--border)] rounded animate-pulse mt-2" />
-              <div className="border-t border-[var(--border)]/60 pt-3 mt-1 flex justify-between">
+              <div className="border-t border-border/60 pt-3 mt-1 flex justify-between">
                 <div className="h-8 w-1/3 bg-[var(--border)] rounded animate-pulse" />
                 <div className="h-8 w-1/3 bg-[var(--border)] rounded animate-pulse" />
               </div>
@@ -97,12 +97,13 @@ export default function PinnedReposWidget({
         <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
           Repository Spotlight 🚀
         </h2>
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card-muted)]/50 p-8 text-center">
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-card-muted/50 p-8 text-center">
           <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-1">
             Showcase your best projects!
           </h3>
           <p className="text-xs text-[var(--muted-foreground)] max-w-sm mx-auto mb-4">
-            Pin up to 3 of your flagship repositories in Settings to spotlight them here and on your public profile.
+            Pin up to 3 of your flagship repositories in Settings to spotlight
+            them here and on your public profile.
           </p>
           <a
             href="/dashboard/settings"
@@ -141,18 +142,18 @@ export default function PinnedReposWidget({
 
           const points = sparkline.map((val, idx) => {
             const x = (idx / (sparkline.length - 1)) * width;
-            const y = height - 2 - ((val / maxVal) * (height - 4));
+            const y = height - 2 - (val / maxVal) * (height - 4);
             return { x, y };
           });
 
-          const pathPoints = points.map(p => `${p.x},${p.y}`).join(" ");
-          const lineData = `M ${points.map(p => `${p.x} ${p.y}`).join(" L ")}`;
+          const pathPoints = points.map((p) => `${p.x},${p.y}`).join(" ");
+          const lineData = `M ${points.map((p) => `${p.x} ${p.y}`).join(" L ")}`;
           const fillData = `${lineData} L ${width} ${height} L 0 ${height} Z`;
 
           return (
             <div
               key={repo.name}
-              className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-muted)] p-5 transition-all duration-300 hover:shadow-[var(--shadow-soft)] hover:border-[var(--accent)]/50 group"
+              className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-muted)] p-5 transition-all duration-300 hover:shadow-[var(--shadow-soft)] hover:border-accent/50 group"
             >
               <div className="flex items-start justify-between">
                 <div className="min-w-0 flex-1">
@@ -163,7 +164,10 @@ export default function PinnedReposWidget({
                     className="flex items-center gap-1 text-sm font-semibold text-[var(--card-foreground)] hover:text-[var(--accent)] transition-colors"
                   >
                     <span className="truncate">{shortName}</span>
-                    <ExternalLink size={12} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink
+                      size={12}
+                      className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
                   </a>
                   <span className="text-[10px] text-[var(--muted-foreground)] block truncate">
                     by {owner}
@@ -187,7 +191,7 @@ export default function PinnedReposWidget({
               </a>
 
               {/* Sparkline Graph */}
-              <div className="flex items-center justify-between border-t border-[var(--border)]/60 pt-3 mt-1">
+              <div className="flex items-center justify-between border-t border-border/60 pt-3 mt-1">
                 <div>
                   <span className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider block">
                     30d Activity
@@ -196,12 +200,34 @@ export default function PinnedReposWidget({
                     {sparkline.reduce((a, b) => a + b, 0)} commit(s)
                   </span>
                 </div>
-                <div className="w-[140px] h-[34px] relative" title="Commit activity sparkline (last 30 days)">
-                  <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+                <div
+                  className="w-[140px] h-[34px] relative"
+                  title="Commit activity sparkline (last 30 days)"
+                >
+                  <svg
+                    width={width}
+                    height={height}
+                    viewBox={`0 0 ${width} ${height}`}
+                    className="overflow-visible"
+                  >
                     <defs>
-                      <linearGradient id={`sparkGrad-${repo.name.replace(/\//g, "-")}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
-                        <stop offset="100%" stopColor="var(--accent)" stopOpacity={0.0} />
+                      <linearGradient
+                        id={`sparkGrad-${repo.name.replace(/\//g, "-")}`}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="var(--accent)"
+                          stopOpacity={0.25}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="var(--accent)"
+                          stopOpacity={0.0}
+                        />
                       </linearGradient>
                     </defs>
                     <path
@@ -220,7 +246,7 @@ export default function PinnedReposWidget({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] border-t border-[var(--border)]/60 pt-3 mt-auto">
+              <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] border-t border-border/60 pt-3 mt-auto">
                 <div className="flex items-center gap-2">
                   {repo.primaryLanguage && (
                     <span className="flex items-center gap-1">
@@ -234,7 +260,10 @@ export default function PinnedReposWidget({
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
-                    <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                    <Star
+                      size={12}
+                      className="text-yellow-400 fill-yellow-400"
+                    />
                     {repo.stargazerCount}
                   </span>
                   <span className="flex items-center gap-1">

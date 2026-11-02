@@ -28,8 +28,9 @@
     "closeMenu": "Close navigation menu",
     "loggedInAs": "Logged in as",
     "settings": "Settings",
-    "signInCta": "SIGN IN",
-    "signOutCta": "Sign out"
+    "signInCta": "Sign in",
+    "signOutCta": "Sign out",
+    "openDashboard": "Open dashboard"
   },
   "dashboard": {
     "overviewEyebrow": "Dashboard overview",

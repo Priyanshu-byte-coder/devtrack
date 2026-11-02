@@ -1,5 +1,5 @@
-// @ts-nocheck
-import { getServerSession } from "next-auth";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
   const redirectUri = `${process.env.NEXTAUTH_URL ?? ""}/api/auth/link-github/callback`;
 
-  const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+  const tokenResponse = await githubRequest("https://github.com/login/oauth/access_token", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const profileResponse = await fetch("https://api.github.com/user", {
+  const profileResponse = await githubRequest("https://api.github.com/user", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",

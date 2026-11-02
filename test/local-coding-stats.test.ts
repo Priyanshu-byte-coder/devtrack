@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   order: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({
+vi.mock("@/lib/server-session", () => ({
   getServerSession: mocks.getServerSession,
 }));
 

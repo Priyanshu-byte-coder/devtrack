@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     return Response.json({ users: [] });
   }
 
-  const searchRes = await fetch(
+  const searchRes = await githubRequest(
     `${GITHUB_API}/search/users?q=${encodeURIComponent(`${q} in:login`)}&per_page=${MAX_RESULTS}`,
     {
       headers: { Authorization: `Bearer ${accessToken}` },

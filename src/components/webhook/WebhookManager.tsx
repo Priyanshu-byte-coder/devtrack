@@ -29,7 +29,8 @@ const AVAILABLE_EVENTS = [
     value: "streak.milestone_reached",
     label: "Streak Milestone Reached",
     group: "Activity Alerts",
-    description: "Fired when a user hits a streak milestone (7, 30, 100 days, etc.)",
+    description:
+      "Fired when a user hits a streak milestone (7, 30, 100 days, etc.)",
   },
   {
     value: "goal.completed",
@@ -142,7 +143,9 @@ export default function WebhookManager() {
           url: formUrl,
           events: formEvents,
           content_type: formContentType,
-          ...(formSecretToken.trim() ? { secret_token: formSecretToken.trim() } : {}),
+          ...(formSecretToken.trim()
+            ? { secret_token: formSecretToken.trim() }
+            : {}),
         }),
       });
 
@@ -363,7 +366,7 @@ export default function WebhookManager() {
       </div>
 
       {newSecret && (
-        <div className="mb-6 rounded-lg border border-[var(--success)]/30 bg-[var(--success)]/10 p-4">
+        <div className="mb-6 rounded-lg border border-success/30 bg-success/10 p-4">
           <p className="text-sm font-semibold text-[var(--success)]">
             Webhook Created!
           </p>
@@ -380,7 +383,7 @@ export default function WebhookManager() {
             <button
               type="button"
               onClick={() => copySecret(newSecret)}
-              className="flex-shrink-0 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors"
+              className="flex-shrink-0 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors"
             >
               {secretCopied ? "Copied!" : "Copy"}
             </button>
@@ -457,10 +460,9 @@ export default function WebhookManager() {
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] font-mono"
             />
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              DevTrack signs payloads with HMAC-SHA256. The signature is sent
-              in the{" "}
-              <code className="font-mono">X-Webhook-Signature</code> header as{" "}
-              <code className="font-mono">sha256=&lt;hex&gt;</code>.
+              DevTrack signs payloads with HMAC-SHA256. The signature is sent in
+              the <code className="font-mono">X-Webhook-Signature</code> header
+              as <code className="font-mono">sha256=&lt;hex&gt;</code>.
             </p>
           </div>
 
@@ -480,8 +482,8 @@ export default function WebhookManager() {
                     key={event.value}
                     className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all text-sm ${
                       formEvents.includes(event.value)
-                        ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--foreground)]"
-                        : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]/50"
+                        ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
+                        : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
                     }`}
                   >
                     <input
@@ -535,8 +537,8 @@ export default function WebhookManager() {
                     key={event.value}
                     className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all text-sm ${
                       formEvents.includes(event.value)
-                        ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--foreground)]"
-                        : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]/50"
+                        ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
+                        : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
                     }`}
                   >
                     <input
@@ -610,7 +612,7 @@ export default function WebhookManager() {
                       {webhook.name}
                     </h3>
                     {!webhook.is_enabled && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--muted-foreground)]/20 text-[var(--muted-foreground)]">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted-foreground/20 text-[var(--muted-foreground)]">
                         Disabled
                       </span>
                     )}
@@ -622,7 +624,7 @@ export default function WebhookManager() {
                     {webhook.events.map((event) => (
                       <span
                         key={event}
-                        className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)]"
+                        className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-[var(--accent)]"
                       >
                         {getEventLabel(event)}
                       </span>
@@ -637,9 +639,7 @@ export default function WebhookManager() {
                     }
                     className="p-2 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                     title={
-                      webhook.is_enabled
-                        ? "Disable webhook"
-                        : "Enable webhook"
+                      webhook.is_enabled ? "Disable webhook" : "Enable webhook"
                     }
                   >
                     {webhook.is_enabled ? (
@@ -700,14 +700,14 @@ export default function WebhookManager() {
                   <button
                     onClick={() => handleTest(webhook.id)}
                     disabled={testingId === webhook.id}
-                    className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors disabled:opacity-60"
+                    className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors disabled:opacity-60"
                     title="Send test payload"
                   >
                     {testingId === webhook.id ? "Testing..." : "Test"}
                   </button>
                   <button
                     onClick={() => handleDelete(webhook.id)}
-                    className="p-2 rounded-lg border border-[var(--destructive)]/30 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-colors"
+                    className="p-2 rounded-lg border border-destructive/30 text-[var(--destructive)] hover:bg-destructive/10 transition-colors"
                     title="Delete webhook"
                   >
                     <svg
@@ -735,8 +735,8 @@ export default function WebhookManager() {
         <div
           className={`mt-4 rounded-lg border p-4 ${
             testResult.success
-              ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
-              : "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]"
+              ? "border-success/30 bg-success/10 text-[var(--success)]"
+              : "border-destructive/30 bg-destructive/10 text-[var(--destructive)]"
           }`}
         >
           {testResult.message}

@@ -7,37 +7,45 @@ The DevTrack Badge API provides public, shareable SVG badges that contributors c
 ## Endpoints
 
 ### 1. Streak Badge
+
 **Endpoint:** `GET /api/badge/streak?user=<githubLogin>`
 
 Returns an SVG badge displaying the user's current commit streak.
 
 **Query Parameters:**
+
 - `user` (required): GitHub username
 
 **Example:**
+
 ```
 GET /api/badge/streak?user=octocat
 ```
 
 **Response:**
+
 - Content-Type: `image/svg+xml;charset=utf-8`
 - SVG showing current streak (orange if active, indigo if none)
 - Cached for 1 hour
 
 ### 2. Commits Badge
+
 **Endpoint:** `GET /api/badge/commits?user=<githubLogin>`
 
 Returns an SVG badge displaying commits made this month.
 
 **Query Parameters:**
+
 - `user` (required): GitHub username
 
 **Example:**
+
 ```
 GET /api/badge/commits?user=octocat
 ```
 
 **Response:**
+
 - Content-Type: `image/svg+xml;charset=utf-8`
 - SVG showing commits count for current month
 - Cached for 1 hour
@@ -50,12 +58,15 @@ Add to your GitHub README:
 
 ```markdown
 <!-- Streak Badge -->
+
 ![DevTrack Streak](https://devtrack.app/api/badge/streak?user=yourname)
 
 <!-- Commits Badge -->
+
 ![DevTrack Commits](https://devtrack.app/api/badge/commits?user=yourname)
 
 <!-- Both Together -->
+
 ![DevTrack Streak](https://devtrack.app/api/badge/streak?user=yourname) ![DevTrack Commits](https://devtrack.app/api/badge/commits?user=yourname)
 ```
 
@@ -120,6 +131,7 @@ X-Content-Type-Options: nosniff
 ### Badge Generation
 
 Badges use a shields.io-style design implemented with SVG:
+
 - Linear gradient background for depth
 - White text with subtle shadow
 - Rounded corners for modern appearance
@@ -150,6 +162,7 @@ Replace `your-domain.com` with your DevTrack deployment domain.
 ## Support
 
 For issues or feature requests related to badges:
+
 1. Check the DevTrack documentation
 2. Create an issue on GitHub
 3. Contact the DevTrack team
@@ -157,24 +170,27 @@ For issues or feature requests related to badges:
 ## Examples
 
 ### Single Badge
+
 ```markdown
 ![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)
 ```
 
 ### Multiple Badges
+
 ```markdown
 [![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)](https://devtrack.app/u/octocat)
 [![DevTrack Commits](https://devtrack.app/api/badge/commits?user=octocat)](https://devtrack.app/u/octocat)
 ```
 
 ### With Profile Link
+
 ```markdown
 [
-  ![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)
+![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)
 ](https://devtrack.app/u/octocat)
 ```
 
+### Badge API Rate Limiting
 
-### GSSoC Badge API Rate Limiting
 - Badge requests are restricted to **20 requests per minute per IP**
 - This is enforced server-side via a sliding window counter per IP address

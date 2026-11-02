@@ -8,7 +8,7 @@ Everything you need to run DevTrack locally from scratch in under 10 minutes.
 
 | Tool    | Version | Check           |
 |---------|---------|-----------------|
-| Node.js | >= 20   | `node -v`       |
+| Node.js | >= 22.12 < 23   | `node -v`       |
 | npm     | >= 10   | `npm -v`        |
 | Git     | any     | `git --version` |
 
@@ -22,9 +22,11 @@ You also need free accounts on:
 ## 1. Clone and install
 
 ```bash
-git clone https://github.com/Umbrella-io/devtrack.git
+git clone https://github.com/Priyanshu-byte-coder/devtrack.git
 cd devtrack
-npm install
+corepack enable
+corepack prepare pnpm@11.13.1 --activate
+pnpm install --frozen-lockfile
 ```
 
 ---
@@ -55,18 +57,9 @@ DevTrack uses this key only in server-side API routes. See `.env.example` for de
 
 ### 🔒 Database Security: Row Level Security (RLS) & Verification
 
-All user-owned database tables in DevTrack (`users`, `goals`, `goal_history`, `streak_freezes`, `user_github_achievements`, `user_sponsor_metrics`, `wakatime_stats`, `collaboration_rooms`, etc.) have Row Level Security (RLS) enabled in `supabase/schema.sql`.
+All 32 application tables have RLS enabled. NextAuth sessions do not produce Supabase user JWTs, so browser roles have no direct table grants. Authenticated server APIs enforce ownership before the server service-role client accesses records. Realtime views use authenticated polling.
 
-#### Why RLS Matters
-Although DevTrack primarily performs server-side database operations using `SUPABASE_SERVICE_ROLE_KEY`, explicit RLS policies provide critical defense-in-depth:
-- If client-side queries or the public `NEXT_PUBLIC_SUPABASE_ANON_KEY` are used directly, users are strictly restricted to reading and writing their own data (`user_id = auth.uid()`).
-- Prevents cross-tenant data leaks and unauthorized modifications.
-
-#### Verifying RLS in the Supabase Dashboard
-1. Log in to your project on [supabase.com](https://supabase.com).
-2. Go to **Authentication** → **Policies** (or **Table Editor**).
-3. Confirm that **RLS Enabled** (green lock badge) is present on all user tables (`users`, `goals`, `streak_freezes`, etc.).
-4. Verify that each table has explicit policies configured (e.g., `"Users can manage own goals"` with expression `user_id = auth.uid()::text`).
+For an existing deployment, follow the [database adoption guide](supabase/README.md), including staging validation and migration-history reconciliation. Historical SQL under `supabase/legacy-migrations` is archival. New installations use the single active baseline or the identical `supabase/schema.sql` bootstrap.
 
 ---
 
@@ -552,7 +545,7 @@ You hit the 30 requests/minute search API limit. Wait 1 minute. In production th
 
 When you add a new Supabase migration under `supabase/migrations/`, you must also update `supabase/schema.sql` so that fresh local setups work without manually running every migration.
 
-A simple rule: append the new migration SQL into `supabase/schema.sql` (including any new columns, tables, indexes, functions, and RLS policies).
+Use a unique 14-digit migration version after `20261011000000`, update `supabase/schema.sql` (including new columns, tables, indexes, functions, and RLS/grants), and run `pnpm run test:db` and regenerate types. Do not append historical migrations from the archive.
 
 ---
 
@@ -632,18 +625,18 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
 
 ### 9. Node.js version incompatibility
 * **Symptom:** `npm install` throws errors like `engine "node" is incompatible with this module`, unexpected syntax errors during `npm run dev`, or certain packages fail to compile.
-* **Likely Cause:** Your system's Node.js version is below the required `>= 20`. Run `node -v` to check your current version.
-* **Solution:** Install Node.js 20 or higher.
+* **Likely Cause:** Your system's Node.js version is below the required `>= 22.12 < 23`. Run `node -v` to check your current version.
+* **Solution:** Install a supported Node.js 22 release and the pinned pnpm 11.13.1.
   * **Using nvm (recommended for macOS/Linux):**
     ```bash
-    nvm install 20
-    nvm use 20
+    nvm install 22
+    nvm use 22
     node -v   # should print v20.x.x or higher
     ```
   * **Using nvm-windows (Windows):**
     ```powershell
-    nvm install 20
-    nvm use 20
+    nvm install 22
+    nvm use 22
     node -v
     ```
   * **Without nvm:** Download the LTS installer directly from [nodejs.org](https://nodejs.org) and re-run `npm install` after upgrading.
@@ -697,7 +690,7 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/Umbrella-io/devtrack/discussions) — not an issue.
+Open a [GitHub Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions) — not an issue.
 
 ### Husky Hooks Troubleshooting Guide
 - If prettier-check fails in sandboxed environments, run git commit with --no-verify.

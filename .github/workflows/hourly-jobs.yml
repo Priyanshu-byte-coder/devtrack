@@ -1,0 +1,41 @@
+name: Hourly jobs
+
+# Vercel Hobby only runs crons once a day, so hourly jobs are triggered from here.
+# Requires repository secrets APP_URL (e.g. https://devtrack.example.com) and CRON_SECRET.
+on:
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: hourly-jobs
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    if: github.repository == 'Priyanshu-byte-coder/devtrack'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        path:
+          - /api/cron/goals-sync
+          - /api/notifications/weekly
+    steps:
+      - name: Call ${{ matrix.path }}
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::notice::APP_URL or CRON_SECRET is not configured; skipping."
+            exit 0
+          fi
+          status=$(curl -sS -o response.json -w '%{http_code}' --max-time 310 \
+            -H "Authorization: Bearer $CRON_SECRET" "${APP_URL%/}${{ matrix.path }}")
+          echo "HTTP $status"
+          head -c 500 response.json; echo
+          test "$status" -lt 400

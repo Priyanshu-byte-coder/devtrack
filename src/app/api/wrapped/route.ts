@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API, GitHubCommitSearchItem } from "@/lib/github";
@@ -62,7 +64,7 @@ async function fetchYearCommits(
     searchUrl.searchParams.set("sort", "author-date");
     searchUrl.searchParams.set("order", "desc");
 
-    const res = await fetch(searchUrl.toString(), {
+    const res = await githubRequest(searchUrl.toString(), {
       headers,
       cache: "no-store",
     });
@@ -118,7 +120,7 @@ async function fetchMergedPRCount(
   );
   searchUrl.searchParams.set("per_page", "1");
 
-  const res = await fetch(searchUrl.toString(), {
+  const res = await githubRequest(searchUrl.toString(), {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
@@ -147,7 +149,7 @@ async function fetchTopLanguages(token: string, repos: string[]) {
     await Promise.all(
       repoBatch.slice(i, i + 5).map(async (repo) => {
       try {
-        const res = await fetch(`${GITHUB_API}/repos/${repo}/languages`, {
+        const res = await githubRequest(`${GITHUB_API}/repos/${repo}/languages`, {
           headers,
           cache: "no-store",
         });
@@ -232,6 +234,9 @@ export async function GET(req: NextRequest) {
       partial,
     });
   } catch (e) {
+    const githubLimit = githubRateLimitResponse(e);
+    if (githubLimit) return githubLimit;
+
     return Response.json({ error: "GitHub API error" }, { status: 502 });
   }
 }

@@ -1,3 +1,5 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextRequest, NextResponse } from "next/server";
 import { generateBadgeSVG } from "../badge-utils";
 import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
@@ -24,7 +26,7 @@ async function fetchGitHubWithToken(
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  return fetch(url, { headers, cache: "no-store" });
+  return githubRequest(url, { headers, cache: "no-store" });
 }
 
 async function fetchCommitsThisMonth(
@@ -111,6 +113,9 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     logError(error, {
       endpoint: "/api/badge/commits",
       operation: "generate_badge",

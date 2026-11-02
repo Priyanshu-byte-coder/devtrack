@@ -56,7 +56,7 @@ async function authenticateApiKey(apiKey: string): Promise<string | null> {
           .from("local_coding_api_keys")
           .update({
             api_key_hash: keyHash,
-            api_key: null,
+            api_key: `legacy-${legacyRecord.id}`,
             last_used_at: new Date().toISOString(),
           })
           .eq("id", legacyRecord.id);

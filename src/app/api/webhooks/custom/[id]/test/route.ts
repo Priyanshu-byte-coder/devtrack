@@ -1,5 +1,6 @@
+import { safeWebhookFetch } from "@/lib/safe-webhook-fetch";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser, AppUser } from "@/lib/resolve-user";
@@ -77,7 +78,7 @@ export async function POST(
   let responseBody: string | undefined;
 
   try {
-    const response = await fetch(webhook.url, {
+    const response = await safeWebhookFetch(webhook.url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

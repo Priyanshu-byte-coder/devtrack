@@ -1,0 +1,12 @@
+{
+  "check": "database-types",
+  "checkedAt": "2026-10-14T15:30:19.849Z",
+  "command": [
+    "node",
+    "scripts/generate-database-types.cjs",
+    "--check"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 1.579
+}

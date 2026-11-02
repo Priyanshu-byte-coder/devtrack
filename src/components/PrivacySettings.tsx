@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useState } from "react";
 
 export default function PrivacySettings() {
@@ -7,7 +8,10 @@ export default function PrivacySettings() {
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    kind: "success" | "error";
+    text: string;
+  } | null>(null);
 
   /** Download a portable ZIP archive of all user-owned data. */
   async function handleExportZip() {
@@ -18,7 +22,9 @@ export default function PrivacySettings() {
       const res = await fetch("/api/user/export");
 
       if (res.status === 429) {
-        const body = await res.json().catch(() => ({})) as { retryAfterSeconds?: number };
+        const body = (await res.json().catch(() => ({}))) as {
+          retryAfterSeconds?: number;
+        };
         const mins = body.retryAfterSeconds
           ? Math.ceil(body.retryAfterSeconds / 60)
           : 60;
@@ -45,7 +51,10 @@ export default function PrivacySettings() {
 
       setMessage({ kind: "success", text: "Export downloaded successfully." });
     } catch {
-      setMessage({ kind: "error", text: "Failed to generate export. Please try again." });
+      setMessage({
+        kind: "error",
+        text: "Failed to generate export. Please try again.",
+      });
     } finally {
       setDownloading(false);
     }
@@ -72,7 +81,7 @@ export default function PrivacySettings() {
         throw new Error(data.error || "Failed to delete account");
       }
 
-      window.location.href = "/api/auth/signout";
+      await signOut({ callbackUrl: "/" });
     } catch (err) {
       setMessage({
         kind: "error",
@@ -84,7 +93,7 @@ export default function PrivacySettings() {
 
   return (
     <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="text-xl font-semibold text-[var(--card-foreground)] mb-1">
+      <h2 className="mb-1 text-lg font-semibold text-[var(--card-foreground)]">
         Privacy &amp; Data
       </h2>
       <p className="text-sm text-[var(--muted-foreground)] mb-6">
@@ -95,8 +104,8 @@ export default function PrivacySettings() {
         <div
           className={`mb-4 rounded-lg border p-4 text-sm ${
             message.kind === "success"
-              ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
-              : "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]"
+              ? "border-success/30 bg-success/10 text-[var(--success)]"
+              : "border-destructive/30 bg-destructive/10 text-[var(--destructive)]"
           }`}
         >
           {message.text}
@@ -177,21 +186,21 @@ export default function PrivacySettings() {
             Delete Account
           </h3>
           <p className="text-sm text-[var(--muted-foreground)] mb-4">
-            Permanently delete all your data from DevTrack. This action cannot be
-            undone.
+            Permanently delete all your data from DevTrack. This action cannot
+            be undone.
           </p>
 
           {!showDeleteConfirm ? (
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="rounded-lg border border-[var(--destructive)]/30 px-4 py-2 text-sm font-medium text-[var(--destructive)] transition hover:bg-[var(--destructive)]/10"
+              className="rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-[var(--destructive)] transition hover:bg-destructive/10"
             >
               Delete My Account
             </button>
           ) : (
             <div className="space-y-4">
-              <div className="rounded-lg border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 p-4">
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
                 <p className="text-sm text-[var(--destructive)] mb-3">
                   This will permanently delete:
                 </p>
@@ -215,14 +224,14 @@ export default function PrivacySettings() {
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder="Type DELETE to confirm"
-                  className="w-full rounded-lg border border-[var(--destructive)]/30 bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] mb-3"
+                  className="w-full rounded-lg border border-destructive/30 bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] mb-3"
                 />
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={handleDeleteAccount}
                     disabled={deleting || deleteConfirmText !== "DELETE"}
-                    className="rounded-lg bg-[var(--destructive)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition hover:bg-[var(--destructive)]/90 disabled:opacity-60"
+                    className="rounded-lg bg-[var(--destructive)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition hover:bg-destructive/90 disabled:opacity-60"
                   >
                     {deleting ? "Deleting..." : "Confirm Delete"}
                   </button>

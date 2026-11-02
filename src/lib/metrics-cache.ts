@@ -128,7 +128,7 @@ export function getRedisClient(): Redis | null {
     return redisClient;
   }
 
-  redisClient = new Redis({ url, token });
+  redisClient = new Redis({ url, token, retry: { retries: 0 }, signal: () => AbortSignal.timeout(2000) });
   return redisClient;
 }
 
@@ -236,7 +236,7 @@ export async function cacheSet<T>(
  * @param loadFresh - A callback to load fresh data on a cache miss.
  * @returns A promise resolving to the data.
  */
-export async function withMetricsCache<T>(
+async function loadMetricsCache<T>(
   options: MetricsCacheOptions,
   loadFresh: () => Promise<T>
 ): Promise<T> {
@@ -280,6 +280,17 @@ export async function withMetricsCache<T>(
 
     throw error;
   }
+}
+
+// Coalesce both ordinary cache misses and explicit refreshes for one scope.
+const metricFlights = new Map<string, Promise<unknown>>();
+export async function withMetricsCache<T>(options: MetricsCacheOptions, loadFresh: () => Promise<T>): Promise<T> {
+  const existing = metricFlights.get(options.key);
+  if (existing) return existing as Promise<T>;
+  const work = loadMetricsCache(options, loadFresh);
+  metricFlights.set(options.key, work);
+  try { return await work; }
+  finally { if (metricFlights.get(options.key) === work) metricFlights.delete(options.key); }
 }
 
 /**

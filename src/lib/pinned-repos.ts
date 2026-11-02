@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: "#3178c6",
   JavaScript: "#f7df1e",
@@ -35,7 +36,7 @@ export async function fetchPinnedRepoDetails(
     pinnedRepos.map(async (repoFullName) => {
       try {
         // 1. Fetch basic repository metadata
-        const repoRes = await fetch(`${GITHUB_API}/repos/${repoFullName}`, {
+        const repoRes = await githubRequest(`${GITHUB_API}/repos/${repoFullName}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/vnd.github+json",
@@ -51,7 +52,7 @@ export async function fetchPinnedRepoDetails(
         const repoData = await repoRes.json();
 
         // 2. Fetch commits by author for the last 30 days
-        const commitsRes = await fetch(
+        const commitsRes = await githubRequest(
           `${GITHUB_API}/repos/${repoFullName}/commits?author=${githubLogin}&since=${sinceStr}&per_page=100`,
           {
             headers: {

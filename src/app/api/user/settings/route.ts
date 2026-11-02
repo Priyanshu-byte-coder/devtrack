@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import type { Database } from "@/types/supabase";
+import { isSafeUrl } from "@/lib/ssrf-protection";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -257,6 +259,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (hasWebhookUrl && (typeof webhook_url === "string" || webhook_url === null)) {
+    if (webhook_url && !(await isSafeUrl(webhook_url))) return NextResponse.json({ error: 'Invalid webhook URL' }, { status: 400 });
     updates.webhook_url = webhook_url;
   }
 

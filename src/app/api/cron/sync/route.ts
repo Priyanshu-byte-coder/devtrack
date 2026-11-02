@@ -1,26 +1,16 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { validateCronRequest } from "@/lib/cron-auth";
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from "@/lib/supabase";
 import { decryptTokenEdge } from "@/lib/crypto-edge";
 import { syncGitHubAchievementsForUser } from "@/lib/github-achievements";
 import { logError } from "@/lib/error-handler";
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
-  // Verify authorization
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (!cronSecret) {
-    return NextResponse.json(
-      { error: "CRON_SECRET is not configured" },
-      { status: 500 }
-    );
-  }
-
-  if (authHeader !== `Bearer ${cronSecret}` && process.env.NODE_ENV !== "development") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = validateCronRequest(req);
+  if (denied) return denied;
 
   try {
     let wakaSuccess = 0;
@@ -199,8 +189,13 @@ export async function POST(req: Request) {
       github: { success: githubSuccess, failure: githubFailure }
     });
   } catch (error: unknown) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     logError(error, { endpoint: "/api/cron/sync", operation: "cronSyncFatal" });
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
+
+export const GET = POST;

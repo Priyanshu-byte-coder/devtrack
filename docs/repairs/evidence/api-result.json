@@ -1,0 +1,12 @@
+{
+  "check": "api",
+  "checkedAt": "2026-10-14T15:30:26.578Z",
+  "command": [
+    "node",
+    "scripts/sync-openapi.cjs",
+    "--check"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 1.423
+}

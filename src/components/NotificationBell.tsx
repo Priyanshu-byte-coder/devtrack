@@ -12,10 +12,15 @@ export default function NotificationBell() {
   const { data, loading, error, refetch } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number } | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{
+    top: number;
+    right: number;
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const notifications = data?.notifications ?? EMPTY_NOTIFICATIONS;
   const unreadCountFromApi = data?.unreadCount ?? 0;
@@ -167,7 +172,8 @@ export default function NotificationBell() {
     setClearing(true);
     try {
       const res = await fetch("/api/notifications", { method: "DELETE" });
-      if (!res.ok) throw new Error(`Failed to clear notifications (${res.status})`);
+      if (!res.ok)
+        throw new Error(`Failed to clear notifications (${res.status})`);
 
       setUnreadCount(0);
       if (typeof window !== "undefined") {
@@ -229,145 +235,157 @@ export default function NotificationBell() {
       </button>
 
       {/* dropdown via portal so it escapes overflow:hidden ancestors */}
-      {open && mounted && createPortal(
-        <div
-          ref={dropdownRef}
-          style={{
-            position: "fixed",
-            top: dropdownPos?.top ?? 64,
-            right: dropdownPos?.right ?? 16,
-            zIndex: 9999,
-            width: 320,
-          }}
-          className="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-xl"
-        >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
-            <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-              Notifications
-            </h3>
-            <div className="flex items-center gap-2">
-              {unreadCount === 0 && (
-                <span className="text-xs text-[var(--muted-foreground)]">
-                  All caught up
-                </span>
-              )}
-              {notifications.length > 0 && (
+      {open &&
+        mounted &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            style={{
+              position: "fixed",
+              top: dropdownPos?.top ?? 64,
+              right: dropdownPos?.right ?? 16,
+              zIndex: 9999,
+              width: 320,
+            }}
+            className="rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-xl"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+              <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
+                Notifications
+              </h3>
+              <div className="flex items-center gap-2">
+                {unreadCount === 0 && (
+                  <span className="text-xs text-[var(--muted-foreground)]">
+                    All caught up
+                  </span>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearAll}
+                    disabled={clearing}
+                    className="text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Clear all notifications"
+                    title="Clear all notifications"
+                  >
+                    {clearing ? "Clearing…" : "Clear all"}
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={handleClearAll}
-                  disabled={clearing}
-                  className="text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Clear all notifications"
-                  title="Clear all notifications"
+                  onClick={() => setOpen(false)}
+                  className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-colors"
+                  aria-label="Close notifications"
                 >
-                  {clearing ? "Clearing…" : "Clear all"}
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-colors"
-                aria-label="Close notifications"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
-              </button>
+              </div>
             </div>
-          </div>
 
-          <div className="p-3 border-b border-[var(--border)] relative">
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search notifications..."
-              aria-label="Search notifications"
-              className="w-full pl-3 pr-8 py-1.5 text-sm bg-[var(--control)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-shadow"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] text-lg leading-none p-1"
-                aria-label="Clear search"
-              >
-                ×
-              </button>
-            )}
-          </div>
-
-          <ul className="max-h-72 overflow-y-auto divide-y divide-[var(--border)] scrollbar-thin">
-            {loading ? (
-              <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
-                Loading notifications…
-              </li>
-            ) : error ? (
-              <li className="px-4 py-6 text-center">
-                <p className="text-sm text-[var(--destructive)]">
-                  Failed to load notifications
-                </p>
-
-                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                  {error.message}
-                </p>
-
+            <div className="p-3 border-b border-[var(--border)] relative">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search notifications..."
+                aria-label="Search notifications"
+                className="w-full pl-3 pr-8 py-1.5 text-sm bg-[var(--control)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-shadow"
+              />
+              {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => void refetch()}
-                  className="mt-2 text-xs underline"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] text-lg leading-none p-1"
+                  aria-label="Clear search"
                 >
-                  Retry
+                  ×
                 </button>
-              </li>
-            ) : filteredNotifications.length === 0 ? (
-              <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
-                {debouncedSearchQuery ? `No results for '${debouncedSearchQuery}'` : "No notifications yet"}
-              </li>
-            ) : (
-              filteredNotifications.map((n) => (
-                <li
-                  key={n.id}
-                  className={`px-4 py-3 ${!n.read ? "bg-[var(--accent)]/5" : ""
-                    }`}
-                >
-                  <p className="text-sm text-[var(--card-foreground)]">
-                    {debouncedSearchQuery ? (() => {
-                      const escapedQuery = debouncedSearchQuery.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
-                      return n.message.split(new RegExp(`(${escapedQuery})`, "gi")).map((part: string, i: number) =>
-                        part.toLowerCase() === debouncedSearchQuery.toLowerCase() ? (
-                          <mark key={i} className="bg-[var(--accent)]/20 text-inherit rounded-sm px-0.5">
-                            {part}
-                          </mark>
-                        ) : (
-                          <span key={i}>{part}</span>
-                        )
-                      );
-                    })() : (
-                      n.message
-                    )}
-                  </p>
-                  <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
-                    {timeAgo(n.created_at)}
-                  </p>
+              )}
+            </div>
+
+            <ul className="max-h-72 overflow-y-auto divide-y divide-[var(--border)] scrollbar-thin">
+              {loading ? (
+                <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
+                  Loading notifications…
                 </li>
-              ))
-            )}
-          </ul>
-        </div>,
-        document.body
-      )}
+              ) : error ? (
+                <li className="px-4 py-6 text-center">
+                  <p className="text-sm text-[var(--destructive)]">
+                    Failed to load notifications
+                  </p>
+
+                  <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                    {error.message}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => void refetch()}
+                    className="mt-2 text-xs underline"
+                  >
+                    Retry
+                  </button>
+                </li>
+              ) : filteredNotifications.length === 0 ? (
+                <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
+                  {debouncedSearchQuery
+                    ? `No results for '${debouncedSearchQuery}'`
+                    : "No notifications yet"}
+                </li>
+              ) : (
+                filteredNotifications.map((n) => (
+                  <li
+                    key={n.id}
+                    className={`px-4 py-3 ${!n.read ? "bg-accent/5" : ""}`}
+                  >
+                    <p className="text-sm text-[var(--card-foreground)]">
+                      {debouncedSearchQuery
+                        ? (() => {
+                            const escapedQuery = debouncedSearchQuery.replace(
+                              /[/\-\\^$*+?.()|[\]{}]/g,
+                              "\\$&"
+                            );
+                            return n.message
+                              .split(new RegExp(`(${escapedQuery})`, "gi"))
+                              .map((part: string, i: number) =>
+                                part.toLowerCase() ===
+                                debouncedSearchQuery.toLowerCase() ? (
+                                  <mark
+                                    key={i}
+                                    className="bg-accent/20 text-inherit rounded-sm px-0.5"
+                                  >
+                                    {part}
+                                  </mark>
+                                ) : (
+                                  <span key={i}>{part}</span>
+                                )
+                              );
+                          })()
+                        : n.message}
+                    </p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                      {timeAgo(n.created_at)}
+                    </p>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

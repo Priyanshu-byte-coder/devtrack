@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -41,6 +42,9 @@ export async function GET(req: NextRequest) {
     });
     return Response.json(data);
   } catch (err) {
+    const githubLimit = githubRateLimitResponse(err);
+    if (githubLimit) return githubLimit;
+
     return Response.json({ error: "Failed to fetch sponsors" }, { status: 502 });
   }
 }

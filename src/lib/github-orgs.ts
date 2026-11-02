@@ -1,3 +1,4 @@
+import { githubRequest } from "@/lib/github-request";
 /**
  * GitHub Organization utilities.
  *
@@ -25,7 +26,7 @@ export interface GitHubOrg {
  */
 export async function fetchUserOrgs(token: string): Promise<GitHubOrg[]> {
   try {
-    const res = await fetch(`${GITHUB_API}/user/orgs?per_page=100`, {
+    const res = await githubRequest(`${GITHUB_API}/user/orgs?per_page=100`, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json",

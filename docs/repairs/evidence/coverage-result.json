@@ -1,0 +1,16 @@
+{
+  "check": "coverage",
+  "checkedAt": "2026-10-11T15:11:41.280Z",
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--coverage",
+    "--maxWorkers=4",
+    "--reporter=json",
+    "--outputFile=docs/repairs/evidence/vitest-verified.json"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 137.316
+}

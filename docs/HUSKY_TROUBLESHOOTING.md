@@ -1,6 +1,6 @@
-# 🐶 Husky Troubleshooting Reference Manual (GSSoC Contributors)
+# 🐶 Husky Troubleshooting Reference Manual
 
-This guide helps GSSoC contributors resolve common Husky and Git hook issues encountered during local development on DevTrack.
+This guide helps contributors resolve common Husky and Git hook issues encountered during local development on DevTrack.
 
 ---
 
@@ -36,6 +36,7 @@ This ensures all code merged into `main` meets quality standards.
 **Cause:** Dependencies not installed or Husky not initialized.
 
 **Fix:**
+
 ```bash
 pnpm install
 pnpm prepare
@@ -48,6 +49,7 @@ pnpm prepare
 **Cause:** Hook scripts are not executable (common on Linux/macOS).
 
 **Fix:**
+
 ```bash
 chmod +x .husky/pre-commit
 chmod +x .husky/pre-push
@@ -60,6 +62,7 @@ chmod +x .husky/pre-push
 **Cause:** Husky hooks were not generated after install.
 
 **Fix:**
+
 ```bash
 pnpm install
 npx husky install
@@ -72,6 +75,7 @@ npx husky install
 **Cause:** ESLint or Prettier found errors in your code.
 
 **Fix:**
+
 ```bash
 # Auto-fix lint errors
 pnpm run lint -- --fix
@@ -91,6 +95,7 @@ git commit -m "your message"
 **Cause:** TypeScript type check failed before push.
 
 **Fix:**
+
 ```bash
 pnpm run type-check
 ```
@@ -174,11 +179,13 @@ You should see `pre-commit` and `pre-push` files.
 **Cause:** Windows CRLF line endings in hook files.
 
 **Fix:**
+
 ```bash
 git config --global core.autocrlf false
 ```
 
 Then reinstall:
+
 ```bash
 pnpm install
 npx husky install
@@ -216,15 +223,15 @@ git commit -m "test: verify husky working"
 
 ## Quick Reference
 
-| Problem | Command |
-|---|---|
-| Husky not found | `pnpm install && pnpm prepare` |
-| Permission denied | `chmod +x .husky/pre-commit` |
-| Lint errors | `pnpm run lint -- --fix` |
-| Format errors | `pnpm run format` |
-| Type errors | `pnpm run type-check` |
-| Windows line endings | `git config --global core.autocrlf false` |
-| Full reset | `rm -rf node_modules && pnpm install && npx husky install` |
+| Problem              | Command                                                    |
+| -------------------- | ---------------------------------------------------------- |
+| Husky not found      | `pnpm install && pnpm prepare`                             |
+| Permission denied    | `chmod +x .husky/pre-commit`                               |
+| Lint errors          | `pnpm run lint -- --fix`                                   |
+| Format errors        | `pnpm run format`                                          |
+| Type errors          | `pnpm run type-check`                                      |
+| Windows line endings | `git config --global core.autocrlf false`                  |
+| Full reset           | `rm -rf node_modules && pnpm install && npx husky install` |
 
 ---
 
@@ -232,8 +239,8 @@ git commit -m "test: verify husky working"
 
 - Check [CONTRIBUTING.md](../CONTRIBUTING.md) for setup guide
 - Open a [GitHub Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions)
-- Ask in the GSSoC Discord community
+- Ask in [GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)
 
 ---
 
-*This document is maintained for GSSoC 2026 contributors.*
+_This document is maintained for DevTrack contributors._

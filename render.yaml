@@ -2,7 +2,7 @@ services:
   - type: web
     name: devtrack
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: corepack enable && corepack prepare pnpm@11.13.1 --activate && pnpm install --frozen-lockfile && pnpm run build
     startCommand: npm start
     envVars:
       - key: NEXT_PUBLIC_SUPABASE_URL
@@ -20,6 +20,14 @@ services:
       - key: GITHUB_SECRET
         sync: false
       - key: ENCRYPTION_KEY
+        sync: false
+      - key: CRON_SECRET
         generateValue: true
+      - key: NODE_VERSION
+        value: 22
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
       - key: NODE_ENV
         value: production

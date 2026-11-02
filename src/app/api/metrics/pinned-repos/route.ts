@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { getServerSession } from "@/lib/server-session";
 import type { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import {
@@ -56,7 +57,7 @@ const PINNED_REPOS_QUERY = `
   }
 `;
 
-export async function GET(req?: NextRequest) {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session?.accessToken) {
@@ -102,6 +103,9 @@ export async function GET(req?: NextRequest) {
 
     return Response.json(result);
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     if (
       error instanceof GitHubAuthError ||
       (error instanceof GitHubApiError && error.status === 401)

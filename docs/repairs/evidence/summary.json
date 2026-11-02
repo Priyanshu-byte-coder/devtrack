@@ -1,0 +1,247 @@
+{
+  "baselineCommit": "a20e51d437a220db4e626a072a9716b67381eca9",
+  "branch": "fix/audit-and-github-reliability",
+  "unit": {
+    "passed": 2478,
+    "failed": 0,
+    "files": 175
+  },
+  "node": {
+    "passed": 54,
+    "failed": 0
+  },
+  "browser": {
+    "startTime": "2026-10-11T15:31:45.146Z",
+    "duration": 122061.67300000001,
+    "expected": 52,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "coverage": {
+    "lines": {
+      "total": 17536,
+      "covered": 5597,
+      "skipped": 0,
+      "pct": 31.91
+    },
+    "statements": {
+      "total": 18897,
+      "covered": 5947,
+      "skipped": 0,
+      "pct": 31.47
+    },
+    "functions": {
+      "total": 3587,
+      "covered": 885,
+      "skipped": 0,
+      "pct": 24.67
+    },
+    "branches": {
+      "total": 12609,
+      "covered": 3581,
+      "skipped": 0,
+      "pct": 28.4
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "checks": {
+    "api": {
+      "check": "api",
+      "checkedAt": "2026-10-11T15:14:36.814Z",
+      "command": [
+        "node",
+        "scripts/sync-openapi.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 0.644
+    },
+    "browser": {
+      "check": "browser",
+      "checkedAt": "2026-10-11T15:33:47.295Z",
+      "command": [
+        "node",
+        "docs/audits/2026-10-11/evidence/run-isolated-e2e.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 123.219
+    },
+    "browser-security": {
+      "check": "browser-security",
+      "checkedAt": "2026-10-11T15:30:53.360Z",
+      "command": [
+        "node",
+        "docs/repairs/run-security-browser.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 39.847
+    },
+    "build": {
+      "check": "build",
+      "checkedAt": "2026-10-11T15:30:13.442Z",
+      "command": [
+        "node",
+        "docs/audits/2026-10-11/evidence/run-isolated-build.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 338.914
+    },
+    "coverage": {
+      "check": "coverage",
+      "checkedAt": "2026-10-11T15:11:41.280Z",
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--coverage",
+        "--maxWorkers=4",
+        "--reporter=json",
+        "--outputFile=docs/repairs/evidence/vitest-verified.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 137.316
+    },
+    "database-contracts": {
+      "check": "database-contracts",
+      "checkedAt": "2026-10-11T14:56:01.313Z",
+      "command": [
+        "node",
+        "scripts/check-database-contracts.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 2.381
+    },
+    "database": {
+      "check": "database",
+      "checkedAt": "2026-10-11T14:55:57.031Z",
+      "command": [
+        "node",
+        "scripts/check-database.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 3.629
+    },
+    "database-types": {
+      "check": "database-types",
+      "checkedAt": "2026-10-11T14:55:58.844Z",
+      "command": [
+        "node",
+        "scripts/generate-database-types.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 1.703
+    },
+    "dependency-audit": {
+      "check": "dependency-audit",
+      "checkedAt": "2026-10-11T14:56:14.399Z",
+      "command": [
+        "node",
+        "scripts/security-audit.cjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 12.138
+    },
+    "environment-security": {
+      "check": "environment-security",
+      "checkedAt": "2026-10-11T15:14:37.189Z",
+      "command": [
+        "node",
+        "scripts/check-env-security.js"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 0.11
+    },
+    "imports": {
+      "check": "imports",
+      "checkedAt": "2026-10-11T15:14:37.028Z",
+      "command": [
+        "node",
+        "scripts/check-deps.js"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 0.156
+    },
+    "lint": {
+      "check": "lint",
+      "checkedAt": "2026-10-11T15:14:34.892Z",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "src"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 26.098
+    },
+    "node": {
+      "check": "node",
+      "checkedAt": "2026-10-11T14:55:53.312Z",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "test/check-deps.test.js",
+        "test/crypto.test.js",
+        "test/environment-security.test.mjs",
+        "test/leaderboard-cache.test.mjs",
+        "test/upstash-rest.test.mjs",
+        "test/validate-github-username.test.js"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 0.828
+    },
+    "pwa": {
+      "check": "pwa",
+      "checkedAt": "2026-10-11T15:31:44.455Z",
+      "command": [
+        "node",
+        "scripts/check-pwa.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 0.376
+    },
+    "typecheck": {
+      "check": "typecheck",
+      "checkedAt": "2026-10-11T15:32:34.505Z",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "durationSeconds": 50
+    }
+  },
+  "liveDatabaseChanged": false,
+  "deployed": false,
+  "committed": false,
+  "pushed": false,
+  "remaining": [
+    "Live database endpoint, snapshot and migration-history verification/adoption",
+    "Correct hosting project/scope and deployment/staging checks",
+    "Expanded endpoint-specific OpenAPI JSON schemas",
+    "Incremental large-module and implicit-any cleanup",
+    "Docker image execution with an available daemon"
+  ]
+}

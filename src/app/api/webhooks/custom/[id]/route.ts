@@ -1,5 +1,6 @@
+import type { Database } from "@/types/supabase";
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser, AppUser } from "@/lib/resolve-user";
@@ -90,7 +91,7 @@ export async function PATCH(
     return Response.json({ error: "Webhook not found" }, { status: 404 });
   }
 
-  const updateData: Record<string, unknown> = {
+  const updateData: Database["public"]["Tables"]["webhook_configs"]["Update"] = {
     updated_at: new Date().toISOString(),
   };
 

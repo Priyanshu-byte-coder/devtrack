@@ -1,3 +1,5 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { validateCronRequest } from "@/lib/cron-auth";
@@ -59,7 +61,7 @@ export async function GET(req: Request) {
       }
     `;
 
-    const res = await fetch("https://api.github.com/graphql", {
+    const res = await githubRequest("https://api.github.com/graphql", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -152,6 +154,9 @@ export async function GET(req: Request) {
       sponsors: sponsorLogins
     });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     console.error("Error in sponsors sync:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

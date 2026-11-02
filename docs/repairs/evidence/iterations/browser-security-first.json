@@ -1,0 +1,248 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/security-repairs.spec.ts",
+      "--workers=2",
+      "--retries=0",
+      "--timeout=30000",
+      "--max-failures=5",
+      "--reporter=json"
+    ],
+    "configFile": "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\playwright.config.mjs",
+    "rootDir": "C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 5,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 2,
+    "webServer": {
+      "command": "node -e \"const fs=require('fs'); fs.cpSync('public','.next/standalone/public',{recursive:true,force:true}); fs.cpSync('.next/static','.next/standalone/.next/static',{recursive:true,force:true});\" && node .next/standalone/server.js",
+      "url": "http://127.0.0.1:3002",
+      "reuseExistingServer": false,
+      "timeout": 120000,
+      "env": {
+        "NEXTAUTH_SECRET": "test-nextauth-secret-for-playwright-tests",
+        "NEXTAUTH_URL": "http://127.0.0.1:3002",
+        "NEXT_PUBLIC_APP_URL": "http://127.0.0.1:3002",
+        "GITHUB_ID": "playwright-github-id",
+        "GITHUB_SECRET": "playwright-github-secret",
+        "NEXT_PUBLIC_SUPABASE_URL": "https://placeholder.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "placeholder-anon-key",
+        "SUPABASE_SERVICE_ROLE_KEY": "placeholder-service-role-key",
+        "PORT": "3002",
+        "HOSTNAME": "127.0.0.1",
+        "PLAYWRIGHT_TEST": "true"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "security-repairs.spec.ts",
+      "file": "security-repairs.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "session endpoint keeps provider credentials inside the HttpOnly cookie",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2135,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T14:57:10.601Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4533c7622da8f4ba7b0e-da33e2c6a0f96e08a42d",
+          "file": "security-repairs.spec.ts",
+          "line": 4,
+          "column": 5
+        },
+        {
+          "title": "production pages hydrate with fresh CSP nonces and worker permission",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 1407,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T14:57:10.597Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4533c7622da8f4ba7b0e-027a5ff99ed5b2d09c05",
+          "file": "security-repairs.spec.ts",
+          "line": 52,
+          "column": 5
+        },
+        {
+          "title": "worker cleans legacy private caches and never serves an API response offline",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "failed",
+                  "duration": 15542,
+                  "error": {
+                    "message": "Error: page.evaluate: Error: Worker phase timed out: initial registration\n    at eval (eval at evaluate (:303:30), <anonymous>:2:115)",
+                    "stack": "Error: page.evaluate: Error: Worker phase timed out: initial registration\n    at eval (eval at evaluate (:303:30), <anonymous>:2:115)\n    at eval (eval at evaluate (:303:30), <anonymous>:2:115)\n    at C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\e2e\\security-repairs.spec.ts:108:29",
+                    "location": {
+                      "file": "eval at evaluate (:303:30), <anonymous>",
+                      "column": 115,
+                      "line": 2
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "eval at evaluate (:303:30), <anonymous>",
+                        "column": 115,
+                        "line": 2
+                      },
+                      "message": "Error: page.evaluate: Error: Worker phase timed out: initial registration\n    at eval (eval at evaluate (:303:30), <anonymous>:2:115)\n    at eval (eval at evaluate (:303:30), <anonymous>:2:115)\n    at C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\e2e\\security-repairs.spec.ts:108:29"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T14:57:12.176Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\test-results\\security-repairs-worker-cl-84ac4-ves-an-API-response-offline-chromium\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\test-results\\security-repairs-worker-cl-84ac4-ves-an-API-response-offline-chromium\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\test-results\\security-repairs-worker-cl-84ac4-ves-an-API-response-offline-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\test-results\\security-repairs-worker-cl-84ac4-ves-an-API-response-offline-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "eval at evaluate (:303:30), <anonymous>",
+                    "column": 115,
+                    "line": 2
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4533c7622da8f4ba7b0e-2996eda90bbde788a94f",
+          "file": "security-repairs.spec.ts",
+          "line": 103,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T14:57:07.892Z",
+    "duration": 21644.313,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -36,7 +36,7 @@ const m = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: m.getServerSession }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: m.getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/resolve-user", () => ({ resolveAppUser: m.resolveAppUser }));
 

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { resolveAppUser } from "@/lib/resolve-user";
 import { stripHtml } from "@/lib/sanitize";
