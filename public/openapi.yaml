@@ -322,6 +322,18 @@ paths:
           description: Successful response. See the route contract for the returned JSON fields.
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security: []
+  /api/cron/gamification:
+    get:
+      operationId: get_api_cron_gamification
+      summary: GET /api/cron/gamification
+      tags:
+        - cron
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security:
+        - cronAuth: []
   /api/cron/goals-sync:
     get:
       operationId: get_api_cron_goals_sync

@@ -1,0 +1,5 @@
+# Generated files. CI compares them byte-for-byte with their generators
+# (supabase:generate-types --check, api:check), so formatting them here
+# would make every commit that touches them fail.
+src/types/supabase.ts
+public/openapi.yaml
