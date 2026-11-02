@@ -7,7 +7,11 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { githubRateLimitResponse } from "@/lib/github-rate-limit";
 import { githubRequest } from "@/lib/github-request";
 import { NextRequest, NextResponse } from "next/server";
-import { generateBadgeSVG } from "../badge-utils";
+import {
+  lastSevenDays,
+  renderStreakBadge,
+} from "@/lib/gamification/stat-badge";
+import { svgBadgeResponse } from "@/lib/gamification/badge-response";
 import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
 import { calculateStreakFromDates } from "@/lib/streak";
 import { logError } from "@/lib/error-handler";
@@ -22,6 +26,10 @@ import {
 export const dynamic = "force-dynamic";
 
 const GITHUB_API = "https://api.github.com";
+// Streaks come from GitHub search, so the CDN keeps them for an hour; the
+// short max-age stops GitHub's image proxy holding a stale day count.
+const STREAK_CACHE_CONTROL =
+  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
 
 interface StreakData {
   current: number;
@@ -47,7 +55,7 @@ async function fetchGitHubWithToken(
 async function fetchStreak(
   username: string,
   token?: string
-): Promise<StreakData & { coverage: StreakCoverage }> {
+): Promise<StreakData & { coverage: StreakCoverage; lastWeek: boolean[] }> {
   const { data: user, error } = await supabaseAdmin
     .from("users")
     .select("id,timezone,github_id")
@@ -67,11 +75,8 @@ async function fetchStreak(
     "public"
   );
   const timeZone = user.timezone ?? "UTC";
-  const streak = calculateStreakFromDates(
-    dates,
-    new Set((freezes ?? []).map((row) => row.freeze_date)),
-    timeZone
-  );
+  const freezeDates = new Set((freezes ?? []).map((row) => row.freeze_date));
+  const streak = calculateStreakFromDates(dates, freezeDates, timeZone);
   // Very active users exceed GitHub search's 1,000-result cap, so their year
   // of commits comes back partial. The current streak can still be exact, or
   // at worst a lower bound; only refuse when search itself timed out.
@@ -84,6 +89,9 @@ async function fetchStreak(
   return {
     ...streak,
     coverage: currentStreakCoverage(dates, streak.current, today),
+    lastWeek: lastSevenDays(today).map(
+      (day) => dates.has(day) || freezeDates.has(day)
+    ),
   };
 }
 
@@ -128,38 +136,21 @@ export async function GET(req: NextRequest) {
     if (streak.coverage === "unknown") {
       // GitHub's search timed out partway; show a neutral badge and let
       // caches retry soon rather than publishing a wrong number.
-      return new NextResponse(
-        generateBadgeSVG({
-          label: "DevTrack",
-          value: "streak syncing",
-          color: "#9f9f9f",
-          labelColor: "#555",
-        }),
-        {
-          status: 200,
-          headers: {
-            "Content-Type": "image/svg+xml;charset=utf-8",
-            "Cache-Control": "public, max-age=300, s-maxage=300",
-            "X-Content-Type-Options": "nosniff",
-          },
-        }
-      );
+      return svgBadgeResponse(renderStreakBadge({ state: "syncing" }), req, {
+        cacheControl: "public, max-age=300, s-maxage=300",
+      });
     }
 
-    const days = `${streak.current}${streak.coverage === "lower-bound" ? "+" : ""}`;
-    const svg = generateBadgeSVG({
-      label: "DevTrack",
-      value: `🔥 ${days} day streak`,
-      color: streak.current > 0 ? "#4c1" : "#e05d44",
-      labelColor: "#555",
+    const svg = renderStreakBadge({
+      state: "ok",
+      current: streak.current,
+      longest: streak.longest,
+      lowerBound: streak.coverage === "lower-bound",
+      lastWeek: streak.lastWeek,
     });
-
-    return new NextResponse(svg, {
-      status: 200,
-      headers: {
-        "Content-Type": "image/svg+xml;charset=utf-8",
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
-        "X-Content-Type-Options": "nosniff",
+    return svgBadgeResponse(svg, req, {
+      cacheControl: STREAK_CACHE_CONTROL,
+      extraHeaders: {
         "X-RateLimit-Remaining": String(rateLimit.remaining),
         "X-RateLimit-Reset": String(rateLimit.reset),
       },
@@ -174,19 +165,9 @@ export async function GET(req: NextRequest) {
       additionalContext: { username },
     });
 
-    const svg = generateBadgeSVG({
-      label: "DevTrack",
-      value: "Error",
-      color: "#ef4444",
-      labelColor: "#555",
-    });
-
-    return new NextResponse(svg, {
+    return svgBadgeResponse(renderStreakBadge({ state: "error" }), req, {
       status: 500,
-      headers: {
-        "Content-Type": "image/svg+xml;charset=utf-8",
-        "Cache-Control": "max-age=60, public",
-      },
+      cacheControl: "public, max-age=60",
     });
   }
 }
