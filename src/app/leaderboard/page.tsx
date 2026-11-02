@@ -134,67 +134,100 @@ async function LeaderboardTable({
           />
         ) : (
           <>
-            <div className="grid grid-cols-[72px_1fr_110px_110px] border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] md:grid-cols-[80px_1fr_140px_140px_120px]">
-              <div>Rank</div>
-              <div>Contributor</div>
-              <div>{activeMeta.label}</div>
-              <div className="hidden md:block">Score</div>
-              <div>Profile</div>
+            {/* Column headings only make sense once the row is a real table;
+                below `sm` each row reads as a card instead. */}
+            <div
+              aria-hidden="true"
+              className="hidden border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] sm:flex sm:items-center sm:gap-3"
+            >
+              <span className="w-10 shrink-0">Rank</span>
+              <span className="w-10 shrink-0" />
+              <span className="min-w-0 flex-1">Contributor</span>
+              <span className="w-24 shrink-0 text-right">
+                {activeMeta.label}
+              </span>
+              <span className="hidden w-16 shrink-0 text-right md:block">
+                Score
+              </span>
+              <span className="w-[4.5rem] shrink-0 text-right">Profile</span>
             </div>
-            {rows.map((entry) => (
-              <div
-                key={entry.id}
-                className="grid grid-cols-[72px_1fr_110px_110px] items-center border-b border-[var(--border)] px-4 py-3 last:border-b-0 md:grid-cols-[80px_1fr_140px_140px_120px]"
-              >
-                <div className="text-base font-semibold tabular-nums text-[var(--muted-foreground)]">
-                  #{entry.rank}
-                </div>
-                <div className="flex min-w-0 items-center gap-3">
+
+            <ul className="divide-y divide-[var(--border)]">
+              {rows.map((entry) => (
+                <li
+                  key={entry.id}
+                  className="flex items-center gap-3 px-4 py-3"
+                >
+                  <span className="w-7 shrink-0 text-sm font-semibold tabular-nums text-[var(--muted-foreground)] sm:w-10 sm:text-base">
+                    #{entry.rank}
+                  </span>
+
                   <Image
                     src={entry.avatarUrl}
-                    alt={`${entry.username} avatar`}
+                    alt=""
                     width={40}
                     height={40}
                     unoptimized
-                    className="h-10 w-10 rounded-full border border-[var(--border)]"
+                    className="h-10 w-10 shrink-0 rounded-full border border-[var(--border)]"
                   />
-                  <div className="min-w-0">
-                    <div
-                      title={entry.username}
-                      className="flex max-w-[120px] items-center gap-2 truncate font-semibold text-[var(--card-foreground)] sm:max-w-[180px] md:max-w-none"
-                    >
-                      @{entry.username} {entry.isSponsor && <SponsorBadge />}
+
+                  {/* min-w-0 lets the long usernames actually truncate instead
+                      of forcing the row wider than the screen. */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        title={entry.username}
+                        className="truncate font-semibold text-[var(--card-foreground)]"
+                      >
+                        @{entry.username}
+                      </span>
+                      {entry.isSponsor && (
+                        <SponsorBadge
+                          className="shrink-0"
+                          labelClassName="hidden sm:inline"
+                        />
+                      )}
                     </div>
-                    <div className="text-xs text-[var(--muted-foreground)]">
-                      {entry.commits} commits, {entry.prs} PRs, {entry.streak}d
-                      streak
+
+                    {/* On a phone the metric has no column of its own, so it
+                        leads the secondary line instead. */}
+                    <p className="truncate text-xs text-[var(--muted-foreground)]">
+                      <span className="font-semibold text-[var(--card-foreground)] sm:hidden">
+                        {getMetricValue(entry, activeTab)} {metricLabel}
+                        {" · "}
+                      </span>
+                      {entry.commits} commits · {entry.prs} PRs · {entry.streak}
+                      d streak
+                    </p>
+                  </div>
+
+                  <div className="hidden w-24 shrink-0 text-right sm:block">
+                    <div className="text-base font-semibold tabular-nums text-[var(--card-foreground)]">
+                      {getMetricValue(entry, activeTab)}
+                    </div>
+                    <div className="truncate text-xs text-[var(--muted-foreground)]">
+                      {metricLabel}
                     </div>
                   </div>
-                </div>
-                <div>
-                  <div className="text-base font-semibold tabular-nums text-[var(--card-foreground)]">
-                    {getMetricValue(entry, activeTab)}
+
+                  <div className="hidden w-16 shrink-0 text-right text-sm font-medium tabular-nums text-[var(--card-foreground)] md:block">
+                    {entry.score}
                   </div>
-                  <div className="text-xs text-[var(--muted-foreground)]">
-                    {metricLabel}
-                  </div>
-                </div>
-                <div className="hidden text-sm font-medium text-[var(--card-foreground)] md:block">
-                  {entry.score}
-                </div>
-                <div>
+
                   <Link
                     href={entry.profileUrl}
+                    aria-label={`View ${entry.username}'s profile`}
                     className={buttonVariants({
                       variant: "outline",
                       size: "sm",
+                      className: "w-[4.5rem] shrink-0 justify-center",
                     })}
                   >
                     View
                   </Link>
-                </div>
-              </div>
-            ))}
+                </li>
+              ))}
+            </ul>
           </>
         )}
       </section>
