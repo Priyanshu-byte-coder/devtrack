@@ -297,6 +297,35 @@ export async function GET(req: NextRequest) {
     );
     sections.localCodingSessions = localCodingSessions || [];
 
+    const { data: progress } = checkedExportQuery(
+      await supabaseAdmin
+        .from("user_progress")
+        .select("user_id, xp, level, tier, best_tier, best_rank, updated_at")
+        .eq("user_id", user.id)
+    );
+    sections.progress = progress || [];
+
+    const { data: leaderboardSnapshots } = checkedExportQuery(
+      await supabaseAdmin
+        .from("leaderboard_snapshots")
+        .select(
+          "period, captured_on, rank, score_v2, tier, streak, commits, prs, reviews, active_days, repos"
+        )
+        .eq("user_id", user.id)
+        .order("captured_on", { ascending: false })
+        // A year of daily rows for each of the three boards.
+        .limit(3 * 366)
+    );
+    sections.leaderboardSnapshots = leaderboardSnapshots || [];
+
+    const { data: seasonResults } = checkedExportQuery(
+      await supabaseAdmin
+        .from("season_results")
+        .select("season, rank, score_v2, tier, finalized_at")
+        .eq("user_id", user.id)
+    );
+    sections.seasonResults = seasonResults || [];
+
     // --- Redact any sensitive fields that slipped through the column selects --
     const redactedSections = redactSensitiveFields(sections) as Record<
       string,

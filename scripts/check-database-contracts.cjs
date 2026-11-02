@@ -2,7 +2,7 @@
 const fs = require("node:fs"),
   path = require("node:path"),
   ts = require("typescript");
-const { createTestDatabase } = require("./check-database.cjs");
+const { createTestDatabase, applySchema } = require("./check-database.cjs");
 function walk(dir) {
   return fs
     .readdirSync(dir, { withFileTypes: true })
@@ -31,7 +31,7 @@ async function main() {
   const db = await createTestDatabase();
   const tables = new Map();
   try {
-    await db.exec(fs.readFileSync("supabase/schema.sql", "utf8"));
+    await applySchema(db);
     for (const row of (
       await db.query(
         "SELECT table_name,column_name FROM information_schema.columns WHERE table_schema='public'"

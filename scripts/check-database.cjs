@@ -2,6 +2,32 @@
 const { PGlite } = require("@electric-sql/pglite");
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
+const path = require("node:path");
+
+const MIGRATIONS_DIR = "supabase/migrations";
+const BASELINE = "20261011000000_canonical_schema.sql";
+// Baseline tables plus those added by later migrations.
+const EXPECTED_TABLES = 35;
+
+/**
+ * Migrations after the squashed baseline, in version order. schema.sql stays
+ * byte-identical to the baseline (it has already been applied to production),
+ * so new schema changes live only in these files.
+ */
+function laterMigrations() {
+  return fs
+    .readdirSync(MIGRATIONS_DIR)
+    .filter((f) => /^\d{14}_[a-z0-9_]+\.sql$/.test(f) && f > BASELINE)
+    .sort()
+    .map((f) => ({ name: f, sql: fs.readFileSync(path.join(MIGRATIONS_DIR, f), "utf8") }));
+}
+
+/** The full current schema: the baseline, then every later migration in order. */
+async function applySchema(db) {
+  await db.exec(fs.readFileSync("supabase/schema.sql", "utf8"));
+  for (const { sql } of laterMigrations()) await db.exec(sql);
+}
+
 async function createTestDatabase() {
   const db = new PGlite();
   await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
@@ -23,10 +49,17 @@ async function main() {
     );
     await db.exec(schema);
     await db.exec(schema);
+    // Later migrations must also be safe to run twice.
+    for (const { name, sql } of laterMigrations()) {
+      await db.exec(sql);
+      await db.exec(sql).catch((err) => {
+        throw new Error(`${name} is not repeatable: ${err.message}`);
+      });
+    }
     const { rows: tables } = await db.query(
       `SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public'`
     );
-    assert.equal(tables.length, 32);
+    assert.equal(tables.length, EXPECTED_TABLES);
     for (const table of tables) {
       assert.equal(
         table.rowsecurity,
@@ -150,7 +183,7 @@ async function main() {
       false
     );
     console.log(
-      "Database checks passed: repeatable 32-table bootstrap, RLS, browser grants, stable identity, atomic invitations, rollover and account deletion with rollback."
+      `Database checks passed: repeatable ${EXPECTED_TABLES}-table bootstrap, RLS, browser grants, stable identity, atomic invitations, rollover and account deletion with rollback.`
     );
   } finally {
     await db.close();
@@ -168,8 +201,8 @@ async function checkLegacyUpgrade() {
     INSERT INTO goal_history(user_id,goal_id,period_start,period_end,target,achieved,completed) VALUES('11111111-1111-1111-1111-111111111111','22222222-2222-2222-2222-222222222222','2026-09-01','2026-09-30',10,4,false);
     CREATE TABLE milestones(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid NOT NULL,title text NOT NULL,description text DEFAULT '',target_value integer NOT NULL,current_value integer DEFAULT 0,unit text DEFAULT 'units',target_date date NOT NULL,category text DEFAULT 'custom',created_at timestamptz DEFAULT now());
     INSERT INTO milestones(user_id,title,target_value,target_date) VALUES('11111111-1111-1111-1111-111111111111','preserve',10,'2026-12-01');`);
-    await db.exec(fs.readFileSync("supabase/schema.sql", "utf8"));
-    await db.exec(fs.readFileSync("supabase/schema.sql", "utf8"));
+    await applySchema(db);
+    await applySchema(db);
     assert.equal(
       (await db.query("SELECT achieved FROM goal_history")).rows[0].achieved,
       4
@@ -198,10 +231,61 @@ async function checkLegacyUpgrade() {
     await db.close();
   }
 }
-module.exports = { createTestDatabase };
+async function checkGamification() {
+  const db = await createTestDatabase();
+  try {
+    await applySchema(db);
+    const uid = "33333333-3333-3333-3333-333333333333";
+    await db.exec(`INSERT INTO users(id,github_id,github_login) VALUES ('${uid}','777','player');
+      INSERT INTO user_progress(user_id,xp,level,tier,best_tier,best_rank) VALUES ('${uid}',5000,12,'gold','gold',3);`);
+
+    // Progress never regresses, even if a later update reports less.
+    await db.exec(`UPDATE user_progress SET xp=100, level=2, tier='bronze', best_tier='bronze', best_rank=9 WHERE user_id='${uid}'`);
+    let row = (await db.query(`SELECT * FROM user_progress WHERE user_id='${uid}'`)).rows[0];
+    assert.equal(Number(row.xp), 5000, "xp must not decrease");
+    assert.equal(row.level, 12, "level must not decrease");
+    assert.equal(row.best_rank, 3, "best_rank keeps the best (lowest) rank");
+    assert.equal(row.best_tier, "gold", "best_tier must not regress");
+    assert.equal(row.tier, "bronze", "current tier may fall");
+
+    // ...but it does move forward.
+    await db.exec(`UPDATE user_progress SET xp=9000, level=18, best_tier='diamond', best_rank=1 WHERE user_id='${uid}'`);
+    row = (await db.query(`SELECT * FROM user_progress WHERE user_id='${uid}'`)).rows[0];
+    assert.equal(Number(row.xp), 9000);
+    assert.equal(row.best_rank, 1);
+    assert.equal(row.best_tier, "diamond");
+
+    // Constraints reject impossible values.
+    await assert.rejects(
+      db.exec(`INSERT INTO leaderboard_snapshots(user_id,period,captured_on,rank,score_v2,tier) VALUES ('${uid}','week','2026-11-01',1,1001,'gold')`),
+      "score_v2 above 1000 must be rejected"
+    );
+    await assert.rejects(
+      db.exec(`INSERT INTO season_results(season,user_id,rank,score_v2,tier) VALUES ('2026-13','${uid}',1,500,'gold')`),
+      "an invalid season month must be rejected"
+    );
+
+    // Deleting the account removes every gamification row.
+    await db.exec(`INSERT INTO leaderboard_snapshots(user_id,period,captured_on,rank,score_v2,tier) VALUES ('${uid}','week','2026-11-01',1,640,'platinum');
+      INSERT INTO season_results(season,user_id,rank,score_v2,tier) VALUES ('2026-10','${uid}',1,640,'platinum');`);
+    await db.query("SELECT delete_app_user($1,$2)", [uid, "777"]);
+    for (const table of ["user_progress", "leaderboard_snapshots", "season_results"]) {
+      const { rows } = await db.query(`SELECT count(*)::int AS n FROM ${table} WHERE user_id=$1`, [uid]);
+      assert.equal(rows[0].n, 0, `${table} rows must be removed with the account`);
+    }
+    console.log(
+      "Gamification checks passed: progress never regresses, constraints hold, account deletion cascades."
+    );
+  } finally {
+    await db.close();
+  }
+}
+
+module.exports = { createTestDatabase, applySchema, laterMigrations };
 if (require.main === module)
   main()
     .then(checkLegacyUpgrade)
+    .then(checkGamification)
     .catch((error) => {
       console.error(error);
       process.exitCode = 1;
