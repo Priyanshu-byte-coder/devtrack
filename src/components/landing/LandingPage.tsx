@@ -16,6 +16,7 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 
 /* ═══════════════════════════════════════════════════════════
    PUBLIC TYPES
@@ -124,12 +125,20 @@ const ABOUT_HIGHLIGHTS: Array<{
    ═══════════════════════════════════════════════════════════ */
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const [vis, setVis] = useState(prefersReducedMotion);
+  // Always start hidden, on the server and the client alike. Reading
+  // matchMedia during render made the client's first render differ from the
+  // server HTML; React keeps the server's styles on hydration, and with the
+  // effect then bailing out, reduced-motion visitors were left with every
+  // section stuck hidden.
+  const [vis, setVis] = useState(false);
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (reduced || typeof IntersectionObserver === "undefined") {
+      setVis(true);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -143,35 +152,8 @@ function useScrollReveal(threshold = 0.15) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold, prefersReducedMotion]);
+  }, [threshold]);
   return [ref, vis] as const;
-}
-
-function Counter({ end, active }: { end: number; active: boolean }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (reduceMotion) {
-      setVal(end);
-      return;
-    }
-
-    const dur = 1500;
-    const t0 = performance.now();
-    let raf: number;
-    const tick = (now: number) => {
-      const p = Math.min((now - t0) / dur, 1);
-      setVal(Math.round((1 - (1 - p) ** 3) * end));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [active, end]);
-  return <>{val.toLocaleString()}</>;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1289,7 +1271,7 @@ function StatItem({
           letterSpacing: "-0.03em",
         }}
       >
-        <Counter end={value} active={vis} />
+        <AnimatedNumber value={value} />
         <span style={{ color: A, fontSize: "clamp(18px,3vw,28px)" }}>+</span>
       </div>
       <div

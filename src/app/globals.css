@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 :root {
+  /* Motion tokens. Mirrors src/lib/motion.ts; keep the two in sync. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --duration-instant: 100ms;
+  --duration-fast: 180ms;
+  --duration-base: 280ms;
+  --duration-slow: 450ms;
+  --duration-slower: 700ms;
+
   color-scheme: dark;
   --background: #050816;
   --foreground: #f5f7fb;
@@ -757,6 +767,12 @@ body {
   .skeleton-shimmer,
   .animate-shimmer {
     animation: none !important;
+  }
+
+  /* Scroll entrances (components/motion/Reveal) start hidden; show them at rest. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
