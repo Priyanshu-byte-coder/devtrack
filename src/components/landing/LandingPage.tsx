@@ -980,7 +980,7 @@ function AboutHighlightCard({
         // @ts-ignore
         tiltRef.current = el;
       }}
-      className="lnd-about-card group relative overflow-hidden transition-all duration-500 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/20"
+      className="lnd-about-card cursor-pointer group relative overflow-hidden transition-all duration-500 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/20"
       style={{
         opacity: visible ? 1 : 0,
         transformStyle: "preserve-3d",
@@ -993,7 +993,6 @@ function AboutHighlightCard({
           : `opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 80}ms, transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${index * 80}ms`,
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        cursor: "pointer",
       }}
     >
       <div
