@@ -44,7 +44,8 @@ const ACHIEVEMENT_DESCRIPTIONS: Record<string, string> = {
   "arctic-code-vault-contributor":
     "Contributed code to repositories preserved in the 2020 GitHub Arctic Code Vault.",
   "galaxy-brain": "Answered discussions with replies marked as accepted.",
-  "pair-extraordinaire": "Coauthored commits that were merged into a repository.",
+  "pair-extraordinaire":
+    "Coauthored commits that were merged into a repository.",
   "pull-shark": "Opened pull requests that were merged.",
   quickdraw: "Closed an issue or pull request shortly after opening it.",
   starstruck: "Created a repository that earned stars.",
@@ -78,7 +79,7 @@ function logGitHubAchievements(
 export function decodeHtml(value: string): string {
   // Decode &amp; last to avoid double-decoding entity sequences like &amp;lt;
   return value
-    .replace(/&quot;/g, "\"")
+    .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -91,7 +92,12 @@ export function decodeHtml(value: string): string {
  * @returns The plain text string without tags.
  */
 export function stripTags(value: string): string {
-  return decodeHtml(value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  return decodeHtml(
+    value
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
 /**
@@ -149,7 +155,10 @@ export function absoluteGitHubUrl(value: string): string {
  * @param attribute - The name of the attribute to extract.
  * @returns The attribute value, or null if not found.
  */
-export function getHtmlAttribute(tag: string, attribute: string): string | null {
+export function getHtmlAttribute(
+  tag: string,
+  attribute: string
+): string | null {
   const pattern = new RegExp(`${attribute}="([^"]*)"`, "i");
   const match = tag.match(pattern);
   return match?.[1] ? decodeHtml(match[1]) : null;
@@ -162,7 +171,9 @@ export function getHtmlAttribute(tag: string, attribute: string): string | null 
  */
 export function slugFromAchievementImage(imageUrl: string): string | null {
   const fileName = imageUrl.split("/").pop()?.split("?")[0] ?? "";
-  const match = fileName.match(/^(.+?)(?:-(?:default|badge|dark|light))?-[a-f0-9]{6,}\.png$/i);
+  const match = fileName.match(
+    /^(.+?)(?:-(?:default|badge|dark|light))?-[a-f0-9]{6,}\.png$/i
+  );
   return match?.[1]?.toLowerCase() ?? null;
 }
 
@@ -215,7 +226,8 @@ async function fetchCanonicalGitHubUser(
         githubLogin: fallback.login,
         stage: "graphql_user_lookup",
         status: response.status,
-        message: "GitHub GraphQL lookup failed; falling back to public profile HTML",
+        message:
+          "GitHub GraphQL lookup failed; falling back to public profile HTML",
       });
       return fallback;
     }
@@ -243,7 +255,7 @@ async function fetchCanonicalGitHubUser(
   }
 }
 
-function parseAchievementsFromProfileHtml(
+export function parseAchievementsFromProfileHtml(
   html: string,
   githubProfileUrl: string
 ): GitHubAchievement[] {
@@ -255,19 +267,25 @@ function parseAchievementsFromProfileHtml(
     const href = match[1];
     const slug = decodeHtml(match[2]).toLowerCase();
     const anchorHtml = match[3];
-    const imgMatch = anchorHtml.match(/<img alt="" aria-hidden="true"\b[^>]*src="([^"]+)"[^>]*>/i);
+    const imgMatch = anchorHtml.match(
+      /<img alt="" aria-hidden="true"\b[^>]*src="([^"]+)"[^>]*>/i
+    );
 
     if (!imgMatch) {
       continue;
     }
 
     const imageUrl = absoluteGitHubUrl(imgMatch[1]);
-    const altMatch = anchorHtml.match(/<img alt="" aria-hidden="true"\b[^>]*alt="([^"]*)"[^>]*>/i);
+    const altMatch = anchorHtml.match(
+      /<img alt="" aria-hidden="true"\b[^>]*alt="([^"]*)"[^>]*>/i
+    );
     const ariaMatch = anchorHtml.match(/aria-label="([^"]+)"/i);
     const titleMatch = anchorHtml.match(/title="([^"]+)"/i);
     const rawTitle =
       altMatch?.[1] || ariaMatch?.[1] || titleMatch?.[1] || titleFromSlug(slug);
-    const title = stripTags(rawTitle.replace(/^Achievement:\s*/i, "")) || titleFromSlug(slug);
+    const title =
+      stripTags(rawTitle.replace(/^Achievement:\s*/i, "")) ||
+      titleFromSlug(slug);
 
     achievements.set(slug, {
       slug,
@@ -278,16 +296,30 @@ function parseAchievementsFromProfileHtml(
     });
   }
 
-  const achievementImagePattern = /<img alt="" aria-hidden="true"\b[^>]*alt="Achievement:\s*([^"]+)"[^>]*>/gi;
-
-  for (const match of html.matchAll(achievementImagePattern)) {
+  // Match any <img> whose alt starts with "Achievement:", whatever order its
+  // attributes come in. GitHub's sidebar markup used to open with
+  // alt="" aria-hidden="true"; it now leads with src, and a pattern tied to
+  // the old attribute order silently found nothing.
+  for (const match of html.matchAll(/<img\b[^>]*>/gi)) {
     const imageTag = match[0];
-    const title = stripTags(match[1]) || "GitHub Achievement";
+    // Older markup carried two alt attributes (an empty one, then the real
+    // one), so check them all.
+    const altTitle = [...imageTag.matchAll(/\balt="([^"]*)"/gi)]
+      .map((m) => decodeHtml(m[1]).match(/^\s*Achievement:\s*(.+)$/i)?.[1])
+      .find(Boolean);
+    if (!altTitle) continue;
+    const title = stripTags(altTitle) || "GitHub Achievement";
     const imageUrl = absoluteGitHubUrl(getHtmlAttribute(imageTag, "src") ?? "");
     const hovercardUrl = getHtmlAttribute(imageTag, "data-hovercard-url");
-    const hovercardSlug = hovercardUrl?.match(/\/achievements\/([^/"]+)\/detail/i)?.[1];
+    const hovercardSlug = hovercardUrl?.match(
+      /\/achievements\/([^/"]+)\/detail/i
+    )?.[1];
     const imageSlug = slugFromAchievementImage(imageUrl);
-    const slug = (hovercardSlug ?? imageSlug ?? slugFromTitle(title)).toLowerCase();
+    const slug = (
+      hovercardSlug ??
+      imageSlug ??
+      slugFromTitle(title)
+    ).toLowerCase();
 
     if (!slug || !imageUrl) {
       continue;
@@ -302,7 +334,9 @@ function parseAchievementsFromProfileHtml(
     });
   }
 
-  return [...achievements.values()].sort((a, b) => a.title.localeCompare(b.title));
+  return [...achievements.values()].sort((a, b) =>
+    a.title.localeCompare(b.title)
+  );
 }
 
 /**
@@ -327,6 +361,21 @@ export async function fetchGitHubAchievements(
 
   const html = await response.text();
   const achievements = parseAchievementsFromProfileHtml(html, user.url);
+
+  // The page lists achievements but none parsed: GitHub's markup has changed.
+  // Fail loudly so it's recorded as a fetch error rather than cached for hours
+  // as "no achievements".
+  if (
+    achievements.length === 0 &&
+    /data-hovercard-type="achievement"|alt="Achievement:/i.test(html)
+  ) {
+    logGitHubAchievements("error", {
+      githubLogin: user.login,
+      stage: "profile_html_parse",
+      error: "Achievements present in profile HTML but none could be parsed",
+    });
+    throw new Error("GitHub achievement markup could not be parsed");
+  }
 
   logGitHubAchievements("info", {
     githubLogin: user.login,
@@ -405,17 +454,19 @@ export async function syncGitHubAchievementsForUser(options: {
       options.token
     );
     const now = new Date().toISOString();
-    const { error } = await supabaseAdmin.from("user_github_achievements").upsert(
-      {
-        user_id: options.userId,
-        github_login: options.githubLogin,
-        achievements: toDatabaseJson(achievements),
-        synced_at: now,
-        fetch_error: null,
-        updated_at: now,
-      },
-      { onConflict: "user_id" }
-    );
+    const { error } = await supabaseAdmin
+      .from("user_github_achievements")
+      .upsert(
+        {
+          user_id: options.userId,
+          github_login: options.githubLogin,
+          achievements: toDatabaseJson(achievements),
+          synced_at: now,
+          fetch_error: null,
+          updated_at: now,
+        },
+        { onConflict: "user_id" }
+      );
 
     if (error) {
       logGitHubAchievements("error", {
@@ -439,7 +490,9 @@ export async function syncGitHubAchievementsForUser(options: {
     return { achievements, syncedAt: now, error: null };
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Failed to sync GitHub achievements";
+      error instanceof Error
+        ? error.message
+        : "Failed to sync GitHub achievements";
     const now = new Date().toISOString();
 
     const { error: updateError } = await supabaseAdmin
@@ -457,7 +510,10 @@ export async function syncGitHubAchievementsForUser(options: {
       );
 
     if (updateError) {
-      console.error("Error updating GitHub achievements sync status:", updateError);
+      console.error(
+        "Error updating GitHub achievements sync status:",
+        updateError
+      );
     }
 
     logGitHubAchievements("error", {

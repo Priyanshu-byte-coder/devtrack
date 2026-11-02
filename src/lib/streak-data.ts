@@ -1,4 +1,5 @@
 ﻿import "server-only";
+import { dateDiffDays } from "@/lib/date-utils";
 import { collectAuthorCommits, collectGitHubSearch } from "@/lib/github-search";
 import {
   metricsCacheKey,
@@ -62,4 +63,33 @@ export async function fetchCommitStreakDates(
     complete: result.complete,
     partialReason: result.partialReason,
   });
+}
+
+export type StreakCoverage = "exact" | "lower-bound" | "unknown";
+
+/**
+ * Whether a current streak worked out from possibly partial dates is exact.
+ *
+ * Commit search caps at 1,000 results, so very active users rarely get a full
+ * year. That doesn't matter for the current streak: search returns newest
+ * first, so a partial result still covers every day after the oldest date it
+ * reached. The streak is exact as long as the day that broke it falls inside
+ * that window; otherwise the true streak is at least what was counted.
+ *
+ * When GitHub reports the search itself timed out, gaps could be anywhere,
+ * so the result can't be trusted at all.
+ */
+export function currentStreakCoverage(
+  dates: ActiveDates,
+  current: number,
+  today: string
+): StreakCoverage {
+  if (dates.complete) return "exact";
+  if (dates.partialReason?.includes("reported incomplete")) return "unknown";
+  if (dates.size === 0) return "unknown";
+  const oldest = [...dates].sort()[0];
+  // Days strictly after the oldest fetched day are fully covered. The day
+  // that ended a streak sits current + 1 days before today at the latest.
+  const coveredDays = Math.round(dateDiffDays(oldest, today));
+  return current <= coveredDays - 2 ? "exact" : "lower-bound";
 }
