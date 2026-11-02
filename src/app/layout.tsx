@@ -31,7 +31,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://devtrack.vercel.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
+  ),
   title: "DevTrack — Developer Productivity Dashboard",
   description:
     "Track coding habits, visualize GitHub contributions, and hit your goals.",

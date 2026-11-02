@@ -26,7 +26,7 @@ keeps each one fresh and lets you reuse momentum ("we hit the dev.to front page 
 > Stack: Next.js 16, TypeScript, Supabase, deployable free on Vercel — one-click deploy in
 > the README. Fully self-hostable, full data export, MIT.
 >
-> Live demo: https://devtrack-silk-kappa.vercel.app
+> Live demo: https://devtrack.live
 > Repo: https://github.com/Priyanshu-byte-coder/devtrack
 >
 > Happy to answer anything about the build or about running a high-volume open-source
@@ -51,7 +51,7 @@ Title: `DevTrack — open-source, self-hostable GitHub analytics dashboard (270+
 > Runs entirely on free tiers (Vercel + Supabase), one-click deploy, full data export.
 > It's been built by 270+ contributors — a lot of them made their first open-source PR here.
 >
-> Demo: https://devtrack-silk-kappa.vercel.app
+> Demo: https://devtrack.live
 > Code: https://github.com/Priyanshu-byte-coder/devtrack
 >
 > Feedback welcome — especially from self-hosters, the Docker path is newer.
