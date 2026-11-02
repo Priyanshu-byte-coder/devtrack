@@ -6,8 +6,8 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 
-const MONO = "var(--font-jetbrains, ui-monospace, monospace)";
-const DISP = "var(--font-syne, system-ui, sans-serif)";
+const MONO = "var(--font-jetbrains), ui-monospace, monospace";
+const DISP = "var(--font-syne), system-ui, sans-serif";
 
 /** Maps NextAuth error codes → user-facing messages. */
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
@@ -15,20 +15,16 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "GitHub sign-in failed. This is usually caused by incorrect OAuth credentials or a mismatched callback URL. Check your GitHub OAuth App settings and try again.",
   OAuthCallback:
     "The OAuth callback could not be completed. Please try signing in again.",
-  OAuthSignin:
-    "Could not start the GitHub sign-in flow. Please try again.",
+  OAuthSignin: "Could not start the GitHub sign-in flow. Please try again.",
   Configuration:
     "There is a server configuration error. Please contact the site administrator.",
   AccessDenied:
     "Access was denied. You may have cancelled the GitHub authorization.",
-  Verification:
-    "The sign-in link has expired or has already been used.",
-  RateLimit:
-    "Too many login attempts. Please try again later.",
+  Verification: "The sign-in link has expired or has already been used.",
+  RateLimit: "Too many login attempts. Please try again later.",
   RateLimitError:
     "Too many authentication attempts. Please wait a minute and try again.",
-  Default:
-    "An unexpected authentication error occurred. Please try again.",
+  Default: "An unexpected authentication error occurred. Please try again.",
 };
 
 function getErrorMessage(error: string): string {
@@ -95,9 +91,13 @@ function MouseSpotlight() {
       ref={ref}
       aria-hidden
       style={{
-        position: "fixed", pointerEvents: "none", zIndex: 0,
-        left: 0, top: 0,
-        width: 600, height: 600,
+        position: "fixed",
+        pointerEvents: "none",
+        zIndex: 0,
+        left: 0,
+        top: 0,
+        width: 600,
+        height: 600,
         background:
           "radial-gradient(circle, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 70%)",
         transform: "translate3d(-50%, -50%, 0)",
@@ -210,7 +210,8 @@ function SignInContent() {
             margin: "0 0 16px",
           }}
         >
-          WELCOME<br />
+          WELCOME
+          <br />
           <span style={{ color: "var(--accent)" }}>BACK.</span>
         </h1>
 
@@ -232,8 +233,11 @@ function SignInContent() {
           type="button"
           onClick={async () => {
             try {
-              const res = await signIn("github", { callbackUrl: "/dashboard", redirect: false });
-              
+              const res = await signIn("github", {
+                callbackUrl: "/dashboard",
+                redirect: false,
+              });
+
               if (res?.error) {
                 toast.error(getErrorMessage(res.error));
                 return;
@@ -242,7 +246,10 @@ function SignInContent() {
               if (res?.url) {
                 const url = new URL(res.url, window.location.origin);
                 // NextAuth redirects to ?csrf=true or back to the signin page if environment mismatch occurs
-                if (url.searchParams.get("csrf") === "true" || url.pathname === "/auth/signin") {
+                if (
+                  url.searchParams.get("csrf") === "true" ||
+                  url.pathname === "/auth/signin"
+                ) {
                   toast.error(
                     "Sign-in failed due to a security mismatch. If you're running locally, ensure you access the app via localhost (or the exact NEXTAUTH_URL) and not 127.0.0.1.",
                     { duration: 10000 }

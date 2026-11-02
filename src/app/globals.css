@@ -487,10 +487,13 @@ body {
 }
 
 /* ─────────────────────────────────────────
-   DARK MODE GLOBAL TYPOGRAPHY
+   PAGE HEADINGS
+   Syne in every theme. This used to be scoped to .dark, but the font
+   variable it reads was never defined, so it did nothing until the root
+   layout started attaching it; then only dark mode changed typeface.
    ───────────────────────────────────────── */
-.dark h1 {
-  font-family: var(--font-syne, system-ui, sans-serif);
+h1 {
+  font-family: var(--font-syne), system-ui, sans-serif;
   letter-spacing: -0.03em;
 }
 
@@ -553,7 +556,7 @@ body {
 }
 
 .lnd-nav-link {
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 12px;
   font-weight: 500;
   color: var(--muted-foreground);
@@ -573,7 +576,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 14px;
   font-weight: 600;
   color: #000;
@@ -604,7 +607,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 13px;
   font-weight: 500;
   color: var(--foreground);
@@ -624,7 +627,7 @@ body {
 }
 
 .lnd-footer-link {
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 11px;
   color: var(--muted-foreground);
   text-decoration: none;
