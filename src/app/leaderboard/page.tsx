@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
 import EmptyState from "@/components/EmptyState";
+import { Reveal } from "@/components/motion/Reveal";
+import { stagger } from "@/lib/motion";
 import LeaderboardFilters from "@/components/leaderboard/LeaderboardFilters";
 import LeaderboardSkeleton from "@/app/leaderboard/LeaderboardSkeleton";
 import SponsorBadge from "@/components/SponsorBadge";
@@ -153,10 +155,16 @@ async function LeaderboardTable({
             </div>
 
             <ul className="divide-y divide-[var(--border)]">
-              {rows.map((entry) => (
-                <li
+              {rows.map((entry, index) => (
+                <Reveal
+                  as="li"
                   key={entry.id}
                   className="flex items-center gap-3 px-4 py-3"
+                  y={8}
+                  amount={0}
+                  // The first screenful cascades in; rows further down just
+                  // appear as they scroll into view, without a growing delay.
+                  delay={index < 15 ? index * stagger.tight : 0}
                 >
                   <span className="w-7 shrink-0 text-sm font-semibold tabular-nums text-[var(--muted-foreground)] sm:w-10 sm:text-base">
                     #{entry.rank}
@@ -225,7 +233,7 @@ async function LeaderboardTable({
                   >
                     View
                   </Link>
-                </li>
+                </Reveal>
               ))}
             </ul>
           </>

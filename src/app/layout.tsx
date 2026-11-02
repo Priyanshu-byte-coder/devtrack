@@ -77,6 +77,13 @@ export default async function RootLayout({
     >
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
+        {/* Scroll entrances start hidden and are revealed by JS; without JS, show them. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html:
+              "<style>[data-reveal]{opacity:1!important;transform:none!important}</style>",
+          }}
+        />
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
@@ -105,7 +112,7 @@ export default async function RootLayout({
       </head>
 
       <body
-        className={`${inter.className} min-h-screen bg-[var(--background)] text-[var(--foreground)]`}
+        className={`${inter.className} ${syne.variable} ${jetbrains.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)]`}
       >
         <a
           href="#main-content"
