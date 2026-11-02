@@ -1,17 +1,62 @@
 import { ImageResponse } from "next/og";
+import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import { getRankBadgeRow } from "@/lib/gamification/queries";
 import { getUserByUsername } from "@/lib/supabase";
+import { rankMovement } from "@/lib/gamification/ranking";
+import { levelFromXp } from "@/lib/gamification/scoring";
 import {
-  fetchPublicContributions,
-  fetchPublicStreak,
-  fetchTopLanguage,
-} from "@/lib/public-profile-data";
+  SHARE_CARD_SIZE,
+  ShareCard,
+  type ShareCardData,
+} from "@/lib/gamification/share-card";
 
 export const runtime = "nodejs";
-export const alt = "DevTrack Profile";
-export const size = { width: 1200, height: 630 };
+export const alt = "DevTrack rank card";
+export const size = SHARE_CARD_SIZE;
 export const contentType = "image/png";
-// Do not export `revalidate` here because the GitHub-backed data fetches used by
-// this route are currently performed as uncached requests by the shared helpers.
+// Built from cached snapshot reads, not live GitHub calls, so it renders fast
+// enough for link-preview crawlers and can be cached between shares.
+export const revalidate = 1800;
+
+async function cardData(rawLogin: string): Promise<ShareCardData> {
+  const login = normalizeGitHubUsername(rawLogin);
+  if (!login) return { state: "unranked", login: "" };
+
+  const row = await getRankBadgeRow(login, "all");
+  if (row) {
+    return {
+      state: "ranked",
+      login,
+      boardLabel: "GLOBAL",
+      rank: row.rank,
+      total: row.total,
+      tier: row.tier,
+      scoreV2: row.scoreV2,
+      level: row.level,
+      xp: row.xp,
+      levelProgress: row.xp === null ? null : levelFromXp(row.xp).fraction,
+      movement: rankMovement(
+        row.rank,
+        row.previousRank ?? undefined,
+        row.hasPrevious
+      ),
+      streak: row.streak,
+      commits: row.commits,
+      prs: row.prs,
+    };
+  }
+
+  // Public but not on the leaderboard: name and avatar, no stats. Private or
+  // unknown: the brand card, so the image never confirms an account exists.
+  const isPlaywright = process.env.PLAYWRIGHT_TEST === "true";
+  const publicUser = isPlaywright
+    ? null
+    : await getUserByUsername(login).catch(() => null);
+  return {
+    state: "unranked",
+    login: publicUser ? publicUser.github_login : "",
+  };
+}
 
 export default async function Image({
   params,
@@ -19,203 +64,7 @@ export default async function Image({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-
-  try {
-    const user = await getUserByUsername(username);
-
-    if (!user) {
-      return new ImageResponse(
-        (
-          <div
-            style={{
-              height: "100%",
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#09090b",
-              color: "#ffffff",
-              fontFamily: "sans-serif",
-            }}
-          >
-            <h1 style={{ fontSize: 80, fontWeight: "bold", color: "#f8fafc" }}>
-              DevTrack
-            </h1>
-            <p style={{ fontSize: 40, color: "#a1a1aa", marginTop: 20 }}>
-              Profile Not Found
-            </p>
-          </div>
-        ),
-        { ...size }
-      );
-    }
-
-    const githubToken = process.env.GITHUB_TOKEN;
-
-    const [contributions, streak, topLanguage] = await Promise.all([
-      fetchPublicContributions(user.github_login, githubToken, 30),
-      fetchPublicStreak(user.github_login, githubToken, user.timezone),
-      fetchTopLanguage(user.github_login, githubToken),
-    ]);
-
-    const avatarUrl = `https://avatars.githubusercontent.com/${user.github_login}`;
-
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            backgroundColor: "#09090b", // Deep dark background
-            backgroundImage: "linear-gradient(to bottom right, #09090b, #18181b)",
-            color: "#ffffff",
-            padding: 80,
-            fontFamily: "sans-serif",
-          }}
-        >
-          {/* Header Section */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: 60 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img loading="lazy"
-              src={avatarUrl}
-              alt={user.github_login}
-              style={{
-                width: 160,
-                height: 160,
-                borderRadius: "50%",
-                marginRight: 40,
-                border: "4px solid #3b82f6", // DevTrack accent color
-              }}
-            />
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <h1
-                style={{
-                  fontSize: 72,
-                  fontWeight: "bold",
-                  margin: 0,
-                  lineHeight: 1,
-                  color: "#f8fafc",
-                }}
-              >
-                {user.github_login}
-              </h1>
-              <p
-                style={{
-                  fontSize: 32,
-                  color: "#a1a1aa",
-                  margin: 0,
-                  marginTop: 10,
-                }}
-              >
-                DevTrack Profile
-              </p>
-            </div>
-          </div>
-
-          {/* Stats Grid */}
-          <div style={{ display: "flex", gap: 30, width: "100%" }}>
-            {/* Streak Stat */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                padding: "30px 40px",
-                borderRadius: 20,
-                border: "1px solid rgba(255,255,255,0.1)",
-                flex: 1,
-              }}
-            >
-              <span style={{ fontSize: 28, color: "#a1a1aa", marginBottom: 10 }}>
-                Current Streak
-              </span>
-              <div style={{ display: "flex", alignItems: "baseline" }}>
-                <span style={{ fontSize: 56, fontWeight: "bold", color: "#3b82f6" }}>
-                  {streak.current}
-                </span>
-                <span style={{ fontSize: 24, marginLeft: 10, color: "#a1a1aa" }}>
-                  days
-                </span>
-              </div>
-            </div>
-
-            {/* Commits Stat */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "rgba(255,255,255,0.05)",
-                padding: "30px 40px",
-                borderRadius: 20,
-                border: "1px solid rgba(255,255,255,0.1)",
-                flex: 1,
-              }}
-            >
-              <span style={{ fontSize: 28, color: "#a1a1aa", marginBottom: 10 }}>
-                Commits (30d)
-              </span>
-              <span style={{ fontSize: 56, fontWeight: "bold", color: "#10b981" }}>
-                {contributions.total}
-              </span>
-            </div>
-
-            {/* Top Language Stat */}
-            {topLanguage && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  backgroundColor: "rgba(255,255,255,0.05)",
-                  padding: "30px 40px",
-                  borderRadius: 20,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  flex: 1,
-                }}
-              >
-                <span style={{ fontSize: 28, color: "#a1a1aa", marginBottom: 10 }}>
-                  Top Language
-                </span>
-                <span style={{ fontSize: 56, fontWeight: "bold", color: "#f59e0b" }}>
-                  {topLanguage}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      ),
-      { ...size }
-    );
-  } catch (e) {
-    console.error("Error generating OG image:", e);
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#09090b",
-            color: "#ffffff",
-            fontFamily: "sans-serif",
-          }}
-        >
-          <h1 style={{ fontSize: 80, fontWeight: "bold", color: "#f8fafc" }}>
-            DevTrack
-          </h1>
-          <p style={{ fontSize: 40, color: "#a1a1aa", marginTop: 20 }}>
-            Error generating image
-          </p>
-        </div>
-      ),
-      { ...size }
-    );
-  }
+  return new ImageResponse(<ShareCard data={await cardData(username)} />, {
+    ...SHARE_CARD_SIZE,
+  });
 }

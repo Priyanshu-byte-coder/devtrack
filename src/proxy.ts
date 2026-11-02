@@ -426,7 +426,9 @@ export const config = {
     // READMEs and fetched through GitHub's image proxy. This proxy stamps
     // "private, no-store" and the page CSP on everything it touches, which
     // stopped every badge from being cached anywhere; the badge routes set
-    // their own cache headers and a sandboxing CSP.
-    "/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-|manifest.json|offline.html|api/badge/).*)",
+    // their own cache headers and a sandboxing CSP. Profile share cards
+    // (u/<login>/opengraph-image) are public images too, fetched by link
+    // preview crawlers, so they're excluded for the same reason.
+    "/((?!_next/static|_next/image|favicon.ico|sw.js|workbox-|manifest.json|offline.html|api/badge/|u/[^/]+/opengraph-image).*)",
   ],
 };
