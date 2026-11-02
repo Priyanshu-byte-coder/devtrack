@@ -88,6 +88,7 @@ const config: Config = {
         ],
       },
       fontFamily: {
+        pixel: ["var(--font-pixel)", "ui-monospace", "monospace"],
         display: [
           "var(--font-syne)",
           "ui-sans-serif",

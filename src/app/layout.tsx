@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import type { Metadata, Viewport } from "next";
-import { Inter, Syne, JetBrains_Mono } from "next/font/google";
+import { Inter, Syne, JetBrains_Mono, Silkscreen } from "next/font/google";
 import AppNavbar from "@/components/AppNavbar";
 import Footer from "@/components/Footer";
 import DeferredVercelMetrics from "@/components/DeferredVercelMetrics";
@@ -27,6 +27,14 @@ const jetbrains = JetBrains_Mono({
   weight: ["400", "500", "600", "700"],
   display: "optional",
   preload: false,
+});
+
+// The arcade display face: headings, HUD labels and scores. Never body text.
+const pixel = Silkscreen({
+  subsets: ["latin"],
+  variable: "--font-pixel",
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -123,7 +131,7 @@ export default async function RootLayout({
       </head>
 
       <body
-        className={`${inter.className} ${syne.variable} ${jetbrains.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)]`}
+        className={`${inter.className} ${syne.variable} ${jetbrains.variable} ${pixel.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)]`}
       >
         <a
           href="#main-content"

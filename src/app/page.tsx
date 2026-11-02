@@ -1,7 +1,13 @@
 import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import LandingPage, { type RepoStats } from "@/components/landing/LandingPage";
+import ArcadeLanding from "@/components/landing/arcade/ArcadeLanding";
+import type {
+  LandingLeader,
+  RepoStats,
+} from "@/components/landing/arcade/types";
+import { getLeaderboardData } from "@/lib/leaderboard";
+import { rankEntriesByScoreV2 } from "@/lib/gamification/ranking";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
   JsonLd,
@@ -10,32 +16,41 @@ import {
 } from "@/lib/seo/json-ld";
 
 import type { Metadata } from "next";
-import { Syne, DM_Sans, JetBrains_Mono } from "next/font/google";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const syne = Syne({
-  subsets: ["latin"],
-  variable: "--font-syne",
-  weight: ["700", "800"],
-  display: "swap",
-});
+/** Don't hold the page for a cold leaderboard build; the table just hides. */
+const LEADERS_TIMEOUT_MS = 2500;
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
+async function fetchLeaders(): Promise<{
+  leaders: LandingLeader[];
+  playerCount: number;
+}> {
+  const empty = { leaders: [], playerCount: 0 };
+  try {
+    const board = await Promise.race([
+      getLeaderboardData(false, { period: "all" }),
+      new Promise<null>((resolve) =>
+        setTimeout(() => resolve(null), LEADERS_TIMEOUT_MS)
+      ),
+    ]);
+    if (!board) return empty;
+    const ranked = rankEntriesByScoreV2(Object.values(board.leaders).flat());
+    return {
+      leaders: ranked.slice(0, 5).map((e) => ({
+        username: e.username,
+        scoreV2: e.scoreV2,
+        tier: e.tier,
+        streak: e.streak,
+      })),
+      playerCount: ranked.length,
+    };
+  } catch {
+    return empty;
+  }
+}
 
 async function fetchRepoStats(): Promise<RepoStats> {
   if (
@@ -179,14 +194,19 @@ export default async function HomePage() {
     redirect("/dashboard");
   }
 
-  const stats = await fetchRepoStats();
+  const [stats, { leaders, playerCount }] = await Promise.all([
+    fetchRepoStats(),
+    fetchLeaders(),
+  ]);
 
   return (
-    <div
-      className={`${syne.variable} ${dmSans.variable} ${jetbrains.variable}`}
-    >
+    <>
       <JsonLd data={[...siteJsonLd(), softwareApplicationJsonLd()]} />
-      <LandingPage repoStats={stats} />
-    </div>
+      <ArcadeLanding
+        repoStats={stats}
+        leaders={leaders}
+        playerCount={playerCount}
+      />
+    </>
   );
 }
