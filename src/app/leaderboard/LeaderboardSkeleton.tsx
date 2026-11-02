@@ -16,7 +16,7 @@ export default function LeaderboardSkeleton() {
         <span className="w-24 shrink-0 text-right">
           <Skeleton className="ml-auto h-3 w-12" />
         </span>
-        <span className="hidden w-16 shrink-0 text-right md:block">Score</span>
+        <span className="hidden w-16 shrink-0 text-right md:block">Level</span>
         <span className="w-[4.5rem] shrink-0 text-right">Profile</span>
       </div>
 
