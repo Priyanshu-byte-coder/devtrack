@@ -13,6 +13,14 @@ import {
   type LeaderboardCacheEntry,
 } from "@/lib/leaderboard-cache";
 import { unstable_cache, revalidateTag } from "next/cache";
+import {
+  levelFromXp,
+  scoreCohort,
+  tierForScore,
+  xpFromTotals,
+  type ActivityStats,
+  type Tier,
+} from "@/lib/gamification/scoring";
 
 export const CACHE_REFRESH_SECONDS = 3600; // 1 hour
 export const CACHE_STALE_SECONDS = 6 * 60 * 60; // 6 hours
@@ -45,6 +53,20 @@ export interface LeaderboardEntry {
   prs: number;
   score: number;
   isSponsor: boolean;
+  /**
+   * Score v2 (0–1000) and its tier, from src/lib/gamification/scoring.ts.
+   * Computed alongside the legacy `score` while both run side by side;
+   * rankings still use the legacy score until the cutover. Optional because
+   * cached payloads built before this field existed may lack it.
+   */
+  scoreV2?: number;
+  tier?: Tier;
+  activeDays?: number;
+  reviews?: number;
+  repos?: number;
+  /** Only on the all-time board, where totals are lifetime. */
+  xp?: number;
+  level?: number;
 }
 
 export interface LeaderboardPayload {
@@ -253,7 +275,15 @@ function getPeriodSince(period: LeaderboardPeriod): string | undefined {
   return toDateStr(new Date(Date.now() - days * 86400000));
 }
 
-type UserStats = { streak: number; commits: number; prs: number };
+type UserStats = {
+  streak: number;
+  commits: number;
+  prs: number;
+  /** Days with a contribution since the period start (last 365 days for all time). */
+  activeDays: number;
+  reviews: number;
+  repos: number;
+};
 
 const CONTRIBUTIONS_QUERY = `
 query LeaderboardStats($login: String!, $yearAgo: DateTime!, $from: DateTime!) {
@@ -265,6 +295,8 @@ query LeaderboardStats($login: String!, $yearAgo: DateTime!, $from: DateTime!) {
     period: contributionsCollection(from: $from) {
       totalCommitContributions
       totalPullRequestContributions
+      totalPullRequestReviewContributions
+      totalRepositoriesWithContributedCommits
     }
   }
 }`;
@@ -272,6 +304,8 @@ query LeaderboardStats($login: String!, $yearAgo: DateTime!, $from: DateTime!) {
 type Totals = {
   totalCommitContributions: number;
   totalPullRequestContributions: number;
+  totalPullRequestReviewContributions?: number;
+  totalRepositoriesWithContributedCommits?: number;
 };
 
 async function githubGraphQLData<T>(
@@ -341,10 +375,17 @@ async function fetchUserStats(
     .flatMap((week) => week.contributionDays)
     .filter((day) => day.contributionCount > 0)
     .map((day) => day.date);
+  const activeDaysInPeriod = periodStart
+    ? activeDays.filter((date) => date >= periodStart).length
+    : activeDays.length;
   let {
     totalCommitContributions: commits,
     totalPullRequestContributions: prs,
   } = data.user.period;
+  let reviews = data.user.period.totalPullRequestReviewContributions ?? 0;
+  // Repositories over the last year, even for all time: summing per-year
+  // counts would count the same repository once per year.
+  const repos = data.user.period.totalRepositoriesWithContributedCommits ?? 0;
 
   // All time: GitHub reports contributions per calendar year.
   if (!periodStart) {
@@ -352,7 +393,7 @@ async function fetchUserStats(
     const fields = years
       .map(
         (y) =>
-          `y${y}: contributionsCollection(from: "${y}-01-01T00:00:00Z", to: "${y}-12-31T23:59:59Z") { totalCommitContributions totalPullRequestContributions }`
+          `y${y}: contributionsCollection(from: "${y}-01-01T00:00:00Z", to: "${y}-12-31T23:59:59Z") { totalCommitContributions totalPullRequestContributions totalPullRequestReviewContributions }`
       )
       .join(" ");
     const all = years.length
@@ -366,10 +407,21 @@ async function fetchUserStats(
       const totals = Object.values(all.user);
       commits = totals.reduce((sum, t) => sum + t.totalCommitContributions, 0);
       prs = totals.reduce((sum, t) => sum + t.totalPullRequestContributions, 0);
+      reviews = totals.reduce(
+        (sum, t) => sum + (t.totalPullRequestReviewContributions ?? 0),
+        0
+      );
     }
   }
 
-  return { streak: calculateCurrentStreak(activeDays), commits, prs };
+  return {
+    streak: calculateCurrentStreak(activeDays),
+    commits,
+    prs,
+    activeDays: activeDaysInPeriod,
+    reviews,
+    repos,
+  };
 }
 
 /** Without any token only cheap count queries are made; streaks need contribution data. */
@@ -388,7 +440,8 @@ async function fetchSearchCounts(
     count("commits", `author:${username}${dateFilter("author-date")}`),
     count("issues", `author:${username} type:pr${dateFilter("created")}`),
   ]);
-  return { streak: 0, commits, prs };
+  // Search can't see contribution days, reviews or repositories.
+  return { streak: 0, commits, prs, activeDays: 0, reviews: 0, repos: 0 };
 }
 
 async function loadUserTokens(userIds: string[]): Promise<Map<string, string>> {
@@ -438,14 +491,14 @@ export async function buildLeaderboard(
   const rows = await mapWithConcurrency(
     safeUsers,
     USER_CONCURRENCY,
-    async (user) => {
+    async (user): Promise<LeaderboardEntry> => {
       // Each user's own token spreads the load across their rate limits.
       const token = userTokens.get(user.id) ?? process.env.GITHUB_TOKEN;
       const stats =
         (token &&
           (await fetchUserStats(user.github_login, token, periodStart))) ||
         (await fetchSearchCounts(user.github_login, periodStart));
-      const { streak, commits, prs } = stats;
+      const { streak, commits, prs, activeDays, reviews, repos } = stats;
       const score = streak * 5 + commits + prs * 3;
 
       return {
@@ -459,9 +512,31 @@ export async function buildLeaderboard(
         prs,
         score,
         isSponsor: user.is_sponsor ?? false,
+        activeDays,
+        reviews,
+        repos,
       };
     }
   );
+
+  // Score v2 is relative to the cohort, so it's computed once every row is in.
+  const cohort: ActivityStats[] = rows.map((row) => ({
+    activeDays: row.activeDays ?? 0,
+    streak: row.streak,
+    commits: row.commits,
+    prs: row.prs,
+    reviews: row.reviews ?? 0,
+    repos: row.repos ?? 0,
+  }));
+  const scoresV2 = scoreCohort(cohort, period);
+  rows.forEach((row, i) => {
+    row.scoreV2 = scoresV2[i];
+    row.tier = tierForScore(scoresV2[i]);
+    if (period === "all") {
+      row.xp = xpFromTotals(cohort[i]);
+      row.level = levelFromXp(row.xp).level;
+    }
+  });
 
   const rankBy = (metric: LeaderboardMetric) =>
     [...rows]
