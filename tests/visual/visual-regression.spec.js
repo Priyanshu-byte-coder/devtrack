@@ -523,7 +523,11 @@ test.describe("visual regression screenshots", () => {
     await expect(
       page.getByRole("heading", { name: "Leaderboard", exact: true })
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTitle("playwright-user")).toBeVisible();
+    // First place is on the podium; the table starts at fourth.
+    await expect(
+      page.getByRole("link", { name: "@playwright-user" })
+    ).toBeVisible();
+    await expect(page.getByTitle("dev-three")).toBeVisible();
     await stabilize(page);
 
     await expect(page).toHaveScreenshot("leaderboard-mobile.png", {
@@ -537,7 +541,11 @@ test.describe("visual regression screenshots", () => {
     await expect(
       page.getByRole("heading", { name: "Leaderboard", exact: true })
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByTitle("playwright-user")).toBeVisible();
+    // First place is on the podium; the table starts at fourth.
+    await expect(
+      page.getByRole("link", { name: "@playwright-user" })
+    ).toBeVisible();
+    await expect(page.getByTitle("dev-three")).toBeVisible();
     await stabilize(page);
 
     await expectViewportScreenshot(page, "leaderboard-desktop.png");
