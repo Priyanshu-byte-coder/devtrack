@@ -230,9 +230,7 @@ function SettingsPageContent() {
 
   const publicProfileUsername =
     session?.githubLogin ?? settings?.github_login ?? "";
-  const [origin, setOrigin] = useState(
-    "https://devtrack-silk-kappa.vercel.app"
-  );
+  const [origin, setOrigin] = useState("https://devtrack.live");
   useEffect(() => setOrigin(window.location.origin), []);
   const profileUrl = useMemo(
     () =>

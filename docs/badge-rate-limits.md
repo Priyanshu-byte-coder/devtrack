@@ -188,15 +188,15 @@ DevTrack server load and GitHub API calls:
 ```markdown
 <!-- ✅ Good — links to your profile -->
 
-[![DevTrack Streak](https://devtrack-silk-kappa.vercel.app/api/badge/streak-shield?user=YOUR_USERNAME)](https://devtrack-silk-kappa.vercel.app/u/YOUR_USERNAME)
-[![DevTrack Commits](https://devtrack-silk-kappa.vercel.app/api/badge/commits?user=YOUR_USERNAME)](https://devtrack-silk-kappa.vercel.app/u/YOUR_USERNAME)
+[![DevTrack Streak](https://devtrack.live/api/badge/streak-shield?user=YOUR_USERNAME)](https://devtrack.live/u/YOUR_USERNAME)
+[![DevTrack Commits](https://devtrack.live/api/badge/commits?user=YOUR_USERNAME)](https://devtrack.live/u/YOUR_USERNAME)
 ```
 
 ### Avoid hammering the API in CI
 
 ```yaml
 # ❌ Bad — fetches badge on every CI run
-- run: curl https://devtrack-silk-kappa.vercel.app/api/badge/commits?user=me
+- run: curl https://devtrack.live/api/badge/commits?user=me
 # ✅ Good — use cached badge URLs from README, don't fetch in CI
 ```
 

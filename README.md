@@ -19,7 +19,7 @@ self-hostable dashboard — no enterprise plan, no vendor lock-in, your data sta
 
 <br />
 
-[**Live Demo**](https://devtrack-silk-kappa.vercel.app) · [**Documentation**](#documentation) · [**Contributing**](#contributing) · [**Report a Bug**](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=bug_report.yml) · [**Request a Feature**](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=feature_request.yml) · [**Discussions**](https://github.com/Priyanshu-byte-coder/devtrack/discussions)
+[**Live Demo**](https://devtrack.live) · [**Documentation**](#documentation) · [**Contributing**](#contributing) · [**Report a Bug**](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=bug_report.yml) · [**Request a Feature**](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=feature_request.yml) · [**Discussions**](https://github.com/Priyanshu-byte-coder/devtrack/discussions)
 
 <br />
 
@@ -149,7 +149,7 @@ If DevTrack looks useful to you, **[star the repository](https://github.com/Priy
 
 There are three ways to use DevTrack, from zero effort to full control:
 
-**1. Try the hosted demo** — no setup at all: [devtrack-silk-kappa.vercel.app](https://devtrack-silk-kappa.vercel.app)
+**1. Try the hosted demo** — no setup at all: [devtrack.live](https://devtrack.live)
 
 **2. Deploy your own in one click** — the Vercel button above walks you through the required environment variables. You'll need a free [Supabase](https://supabase.com) project and a [GitHub OAuth App](https://github.com/settings/applications/new).
 
@@ -289,7 +289,7 @@ Thanks to everyone who has helped build DevTrack. Want to see your avatar here? 
 
 <br /><br />
 
-Built by the DevTrack community · [devtrack-silk-kappa.vercel.app](https://devtrack-silk-kappa.vercel.app)
+Built by the DevTrack community · [devtrack.live](https://devtrack.live)
 
 **If DevTrack is useful to you, a star goes a long way.**
 

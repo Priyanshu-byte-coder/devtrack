@@ -6,7 +6,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development server
-  - url: https://devtrack.vercel.app
+  - url: https://devtrack.live
     description: Production server
 security:
   - cookieAuth: []
