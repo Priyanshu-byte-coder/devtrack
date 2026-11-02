@@ -1,7 +1,9 @@
 import { ImageResponse } from "next/og";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
 import { getRankBadgeRow } from "@/lib/gamification/queries";
-import { getUserByUsername } from "@/lib/supabase";
+import { getGuestProfile, getRegistration } from "@/lib/guest-profile";
+import { estimateGuestRank } from "@/lib/guest-profile-model";
+import { getLeaderboardData } from "@/lib/leaderboard";
 import { rankMovement } from "@/lib/gamification/ranking";
 import { levelFromXp } from "@/lib/gamification/scoring";
 import {
@@ -46,16 +48,48 @@ async function cardData(rawLogin: string): Promise<ShareCardData> {
     };
   }
 
-  // Public but not on the leaderboard: name and avatar, no stats. Private or
-  // unknown: the brand card, so the image never confirms an account exists.
-  const isPlaywright = process.env.PLAYWRIGHT_TEST === "true";
-  const publicUser = isPlaywright
-    ? null
-    : await getUserByUsername(login).catch(() => null);
-  return {
-    state: "unranked",
-    login: publicUser ? publicUser.github_login : "",
-  };
+  // Public but not on the leaderboard: name and avatar, no stats. Private:
+  // the brand card, so the image never confirms a private account exists.
+  const registration = await getRegistration(login).catch(() => undefined);
+  if (registration === undefined) return { state: "unranked", login: "" };
+  if (registration) {
+    return { state: "unranked", login: registration.isPublic ? login : "" };
+  }
+  return (await guestCard(login)) ?? { state: "unranked", login: "" };
+}
+
+/** Not on DevTrack: where they'd land if they joined. */
+async function guestCard(login: string): Promise<ShareCardData | null> {
+  try {
+    const guest = await getGuestProfile(login);
+    if (!guest) return null;
+    const board = await getLeaderboardData(false, { period: "all" });
+    if (!board) return { state: "unranked", login: guest.login };
+    const estimate = estimateGuestRank(
+      guest,
+      Object.values(board.leaders).flat()
+    );
+    const level = levelFromXp(estimate.xp);
+    return {
+      state: "ranked",
+      estimated: true,
+      login: guest.login,
+      boardLabel: "GLOBAL",
+      rank: estimate.rank,
+      total: estimate.total,
+      tier: estimate.tier,
+      scoreV2: estimate.scoreV2,
+      level: level.level,
+      xp: estimate.xp,
+      levelProgress: level.fraction,
+      movement: { kind: "none" },
+      streak: guest.streak.current,
+      commits: guest.lifetime.commits,
+      prs: guest.lifetime.prs,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export default async function Image({

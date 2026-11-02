@@ -16,7 +16,18 @@ import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
-import { getPublicProfileForPage } from "@/lib/public-profile-cache";
+import {
+  getProfileForPage,
+  getPublicProfileForPage,
+} from "@/lib/public-profile-cache";
+import { getLeaderboardData } from "@/lib/leaderboard";
+import {
+  estimateGuestRank,
+  isIndexableGuest,
+  type GuestProfile,
+  type GuestRankEstimate,
+} from "@/lib/guest-profile-model";
+import GuestProfileView from "@/components/profile/GuestProfileView";
 import {
   getProgressForLogin,
   getRankBadgeRow,
@@ -95,16 +106,16 @@ export async function generateMetadata({
   const { username } = await params;
   const canonicalPath = `/u/${username.toLowerCase()}`;
 
-  let profile: PublicProfileData | null;
+  let lookup: Awaited<ReturnType<typeof getProfileForPage>>;
   try {
-    profile = await getPublicProfileForPage(username);
+    lookup = await getProfileForPage(username);
   } catch {
     // Upstream outage: keep the metadata neutral. A noindex here would drop a
     // real profile from search because GitHub had a bad minute.
     return { title: username };
   }
 
-  if (!profile) {
+  if (!lookup) {
     return {
       title: "Profile not found",
       description: "This profile is not available or is private.",
@@ -112,7 +123,9 @@ export async function generateMetadata({
     };
   }
 
-  const displayName = profile.username;
+  if (lookup.kind === "guest") return guestMetadata(lookup.profile);
+
+  const displayName = lookup.profile.username;
   const title = `${displayName} — GitHub stats, streak & rank`;
   const description = `${displayName}'s coding activity on DevTrack: contribution streak, commits, pull requests, top languages and global rank.`;
 
@@ -137,12 +150,98 @@ export async function generateMetadata({
     },
   };
 }
+function guestMetadata(guest: GuestProfile): Metadata {
+  const canonicalPath = `/u/${guest.login.toLowerCase()}`;
+  const title = `${guest.login} — GitHub stats, streak & rank`;
+  const description = `${guest.login}'s GitHub activity: ${guest.yearContributions.toLocaleString("en-US")} contributions in the last year, a ${guest.streak.longest}-day best streak, top languages and where they'd rank on DevTrack.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+    // Thin pages stay out of the index but still pass link equity on.
+    robots: isIndexableGuest(guest)
+      ? undefined
+      : { index: false, follow: true },
+    openGraph: {
+      title,
+      description,
+      url: canonicalPath,
+      siteName: "DevTrack",
+      type: "profile",
+      username: guest.login,
+    },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
+
+async function guestEstimate(
+  guest: GuestProfile
+): Promise<GuestRankEstimate | null> {
+  try {
+    const board = await getLeaderboardData(false, { period: "all" });
+    if (!board) return null;
+    return estimateGuestRank(guest, Object.values(board.leaders).flat());
+  } catch {
+    return null;
+  }
+}
+
+async function GuestProfilePage({ guest }: { guest: GuestProfile }) {
+  const canonical = guest.login.toLowerCase();
+  const [estimate, viewerLogin] = await Promise.all([
+    guestEstimate(guest),
+    getLoggedInGitHubUsername(),
+  ]);
+  const indexable = isIndexableGuest(guest);
+
+  return (
+    <ProfileThemeWrapper>
+      {indexable && (
+        <JsonLd
+          data={[
+            profilePageJsonLd({
+              username: guest.login,
+              bio: guest.bio,
+              memberSince: null,
+              topLanguages: guest.topLanguages,
+            }),
+            breadcrumbJsonLd([
+              { name: "DevTrack", path: "/" },
+              { name: "Leaderboard", path: "/leaderboard" },
+              { name: guest.login, path: `/u/${canonical}` },
+            ]),
+          ]}
+        />
+      )}
+      <GuestProfileView
+        profile={guest}
+        estimate={estimate}
+        profileUrl={getProfileUrl(canonical)}
+        viewerLogin={
+          viewerLogin && viewerLogin.toLowerCase() !== canonical
+            ? viewerLogin
+            : null
+        }
+      />
+    </ProfileThemeWrapper>
+  );
+}
+
 export default async function PublicProfilePage({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
+  const lookup = await getProfileForPage(username);
+  if (!lookup) notFound();
+
+  if (lookup.kind === "guest") {
+    const canonical = lookup.profile.login.toLowerCase();
+    if (username !== canonical) permanentRedirect(`/u/${canonical}`);
+    return <GuestProfilePage guest={lookup.profile} />;
+  }
+
   const [profile, loggedInUsername, progress, globalRank] = await Promise.all([
     loadProfile(username),
     getLoggedInGitHubUsername(),

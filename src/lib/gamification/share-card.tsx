@@ -31,6 +31,8 @@ export type ShareCardData =
       streak: number;
       commits: number;
       prs: number;
+      /** A guest's would-be rank: they haven't joined, so it's an estimate. */
+      estimated?: boolean;
     }
   /** Login is empty for private or unknown profiles: brand card only. */
   | { state: "unranked"; login: string };
@@ -279,7 +281,7 @@ function RankedPanel({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
       <Pixel
-        text={`${data.boardLabel} RANK OUT OF ${fmt.format(data.total)}`}
+        text={`${data.estimated ? "ESTIMATED " : ""}${data.boardLabel} RANK OUT OF ${fmt.format(data.total)}`}
         scale={3}
         color={MUTED}
       />
