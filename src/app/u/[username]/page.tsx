@@ -8,7 +8,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { getServerSession } from "@/lib/server-session";
 import BadgeSection from "@/components/BadgeSection";
 import GitHubAchievements from "@/components/GitHubAchievements";
-import StatsCard from "@/components/StatsCard";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
@@ -32,8 +31,9 @@ import {
   getProgressForLogin,
   getRankBadgeRow,
 } from "@/lib/gamification/queries";
-import TierBadge from "@/components/gamification/TierBadge";
-import XpBar from "@/components/gamification/XpBar";
+import RankMovementBadge from "@/components/gamification/RankMovementBadge";
+import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";
+import { rankMovement } from "@/lib/gamification/ranking";
 import { JsonLd, breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo/json-ld";
 
 // Extend tracking structures to forward gamification flags seamlessly downstream
@@ -257,8 +257,6 @@ export default async function PublicProfilePage({
     permanentRedirect(`/u/${canonicalUsername}`);
   }
 
-  const avatarUrl = `https://avatars.githubusercontent.com/${profile.username}`;
-  const topRepo = profile.repos[0]?.name ?? "";
   const gistsUrl = `https://gist.github.com/${profile.username}`;
   const githubUrl = `https://github.com/${profile.username}`;
   const isOwner =
@@ -269,9 +267,6 @@ export default async function PublicProfilePage({
   const compareHref = showCompareButton
     ? `/compare/${encodeURIComponent(loggedInUsername)}-vs-${encodeURIComponent(profile.username)}`
     : null;
-  const signInToCompareHref = `/auth/signin?callbackUrl=${encodeURIComponent(
-    `/u/${profile.username}`
-  )}`;
 
   const widgets = profile.publicWidgets ?? ["streak", "contributions"];
   const showStreak = widgets.includes("streak");
@@ -285,6 +280,41 @@ export default async function PublicProfilePage({
         year: "numeric",
       })
     : null;
+
+  // Headline stats, in priority order; hidden widgets never make the HUD.
+  const hudCandidates: Array<HudStat | false> = [
+    globalRank
+      ? {
+          label: "Global rank",
+          value: globalRank.rank,
+          prefix: "#",
+          sub: (
+            <RankMovementBadge
+              movement={rankMovement(
+                globalRank.rank,
+                globalRank.previousRank ?? undefined,
+                globalRank.hasPrevious
+              )}
+            />
+          ),
+        }
+      : { label: "Global rank", value: "—" },
+    showStreak && {
+      label: "Streak",
+      value: profile.streak.current,
+      suffix: "D",
+    },
+    progress !== null && { label: "Level", value: progress.level },
+    showContributions && {
+      label: "Commits 30d",
+      value: profile.contributions.total,
+    },
+    showPRs && { label: "PRs", value: profile.pullRequests },
+    { label: "Gists", value: profile.publicGists },
+  ];
+  const hud = hudCandidates
+    .filter((stat): stat is HudStat => Boolean(stat))
+    .slice(0, 3);
 
   return (
     <ProfileThemeWrapper>
@@ -304,63 +334,35 @@ export default async function PublicProfilePage({
         ]}
       />
       <div className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
-        {/* ── Header: Avatar + Identity ── */}
-        <div className="mb-6 flex flex-wrap items-start gap-5">
-          {/* GitHub avatar */}
-          <div className="shrink-0">
-            <Image
-              src={avatarUrl}
-              alt={`${profile.username}'s GitHub avatar`}
-              width={80}
-              height={80}
-              className="rounded-full border-2 border-[var(--border)] shadow-md"
-              unoptimized
-            />
-          </div>
-
-          {/* Identity block */}
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="flex flex-wrap items-center gap-2 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
-                <span>@{profile.username}</span>
-                {profile.isSponsor && <SponsorBadge />}
-
-                {/* Night Owl / Early Bird badges */}
-                {profile.isNightOwl && (
-                  <span
-                    title="Night Owl Milestone Badge"
-                    className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-bold text-indigo-400"
-                  >
-                    <Moon className="h-3 w-3" />
-                    <span>Night Owl</span>
-                  </span>
-                )}
-                {profile.isEarlyBird && (
-                  <span
-                    title="Early Bird Milestone Badge"
-                    className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-xs font-bold text-amber-400"
-                  >
-                    <Sun className="h-3 w-3" />
-                    <span>Early Bird</span>
-                  </span>
-                )}
-              </h1>
-            </div>
-
-            <p className="mt-1 text-[var(--muted-foreground)]">
-              GitHub activity and coding stats
-            </p>
-
-            {/* Only people on the leaderboard have a tier and XP yet. */}
-            {progress && (
-              <div className="mt-3 flex max-w-md flex-wrap items-center gap-3">
-                <TierBadge tier={progress.tier} />
-                <XpBar xp={progress.xp} className="min-w-[12rem] flex-1" />
-              </div>
-            )}
-
-            {/* Member since + View on GitHub */}
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">
+        <PlayerCard
+          login={profile.username}
+          eyebrow={isOwner ? "Player 1 · you" : "Player · DevTrack member"}
+          subtitle="GitHub activity and coding stats"
+          bio={profile.bio}
+          tier={progress?.tier ?? globalRank?.tier ?? null}
+          xp={progress?.xp ?? null}
+          hud={hud}
+          meta={
+            <>
+              {profile.isSponsor && <SponsorBadge />}
+              {profile.isNightOwl && (
+                <span
+                  title="Night Owl Milestone Badge"
+                  className="inline-flex items-center gap-1 border border-indigo-500/40 bg-indigo-500/10 px-2 py-0.5 font-bold text-indigo-400"
+                >
+                  <Moon className="h-3 w-3" aria-hidden="true" />
+                  Night Owl
+                </span>
+              )}
+              {profile.isEarlyBird && (
+                <span
+                  title="Early Bird Milestone Badge"
+                  className="inline-flex items-center gap-1 border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-bold text-amber-400"
+                >
+                  <Sun className="h-3 w-3" aria-hidden="true" />
+                  Early Bird
+                </span>
+              )}
               {memberSinceFormatted && (
                 <span>Member since {memberSinceFormatted}</span>
               )}
@@ -368,7 +370,7 @@ export default async function PublicProfilePage({
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)] hover:border-[var(--accent)]"
+                className="inline-flex items-center gap-1.5 border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -385,46 +387,35 @@ export default async function PublicProfilePage({
                   href={gistsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
+                  className="inline-flex items-center border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
                 >
                   {profile.publicGists} Gists
                 </a>
               )}
-            </div>
-
-            {/* Compare buttons */}
-            <div className="mt-3 flex flex-wrap gap-2">
-              {compareHref && (
-                <Link
-                  href={compareHref}
-                  className={buttonVariants({ size: "sm" })}
-                >
-                  Compare with me
+            </>
+          }
+          actions={
+            <>
+              {compareHref ? (
+                <Link href={compareHref} className="px-btn">
+                  Challenge to a duel
                 </Link>
+              ) : (
+                !isOwner && (
+                  <Link
+                    href={`/compare?vs=${encodeURIComponent(canonicalUsername)}`}
+                    className="px-btn"
+                  >
+                    Duel @{profile.username}
+                  </Link>
+                )
               )}
-              {!loggedInUsername && (
-                <Link
-                  href={signInToCompareHref}
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                >
-                  Sign in to compare
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Stats card download */}
-          <div className="shrink-0">
-            <StatsCard
-              username={profile.username}
-              avatarUrl={avatarUrl}
-              currentStreak={profile.streak.current}
-              longestStreak={profile.streak.longest}
-              totalCommits={profile.contributions.total}
-              topRepo={topRepo}
-            />
-          </div>
-        </div>
+              <Link href="/leaderboard" className="px-btn px-btn-ghost">
+                Leaderboard
+              </Link>
+            </>
+          }
+        />
 
         {/* Share section */}
         <div className="mb-8">
@@ -519,7 +510,7 @@ export default async function PublicProfilePage({
             href="https://devtrack.live"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--accent)]"
+            className="inline-flex items-center gap-2 border-2 border-dashed border-[var(--border)] bg-[var(--card)] px-4 py-2 font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--accent)]"
           >
             <svg
               viewBox="0 0 24 24"
@@ -551,10 +542,10 @@ function PublicContributionGraph({
     .map(([day, commits]) => ({ day, commits }));
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Commit Activity ({contributionData.days} days)
           </h2>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">
@@ -576,7 +567,7 @@ function PublicContributionGraph({
             {data.map((day) => (
               <div
                 key={day.day}
-                className="aspect-square rounded-sm"
+                className="aspect-square"
                 style={{
                   backgroundColor:
                     day.commits > 0 ? "var(--accent)" : "var(--control)",
@@ -637,8 +628,8 @@ function PublicStreakTracker({
   ];
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Commit Streaks
       </h2>
       {streak.complete === false && (
@@ -650,7 +641,7 @@ function PublicStreakTracker({
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className={`rounded-lg border p-3 ${
+            className={`border-2 p-3 ${
               stat.highlight
                 ? "border-[var(--accent)] bg-accent/10"
                 : "border-[var(--border)] bg-[var(--control)]"
@@ -659,7 +650,7 @@ function PublicStreakTracker({
             <div className="text-xs font-medium text-[var(--muted-foreground)]">
               {stat.icon} {stat.label}
             </div>
-            <div className="mt-1 text-lg font-bold text-[var(--card-foreground)]">
+            <div className="mt-1 font-pixel text-lg tabular-nums text-[var(--card-foreground)]">
               {stat.value}
             </div>
             {stat.unit && (
@@ -680,8 +671,8 @@ function PublicLanguageBreakdown({
   languages: Array<{ name: string; count: number; percentage: number }>;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Top Languages
       </h2>
       <div className="space-y-3">
@@ -695,9 +686,9 @@ function PublicLanguageBreakdown({
                 {lang.percentage}%
               </span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[var(--control)]">
+            <div className="h-2 overflow-hidden bg-[var(--control)]">
               <div
-                className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                className="h-full bg-[var(--accent)] transition-all duration-500"
                 style={{ width: `${lang.percentage}%` }}
               />
             </div>
@@ -710,12 +701,12 @@ function PublicLanguageBreakdown({
 
 function PublicPRCount({ pullRequests }: { pullRequests: number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-2 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-2 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Pull Requests
       </h2>
       <div className="flex items-end gap-2">
-        <span className="text-4xl font-bold text-[var(--accent)]">
+        <span className="font-pixel text-4xl tabular-nums text-[var(--accent)]">
           {pullRequests.toLocaleString()}
         </span>
         <span className="mb-1 text-sm text-[var(--muted-foreground)]">
@@ -732,8 +723,8 @@ function PublicWeeklyGoalProgress({
   progress: { completed: number; total: number; percentage: number };
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Weekly Goal Progress
       </h2>
       <div className="flex items-center gap-4">
@@ -781,8 +772,8 @@ function PublicTopRepos({
   const maxCommits = repos[0]?.commits ?? 1;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Top Repositories
       </h2>
 
@@ -817,9 +808,9 @@ function PublicTopRepos({
                     {repo.commits} commit{repo.commits !== 1 ? "s" : ""}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[var(--control)]">
+                <div className="h-1.5 overflow-hidden bg-[var(--control)]">
                   <div
-                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                    className="h-full bg-[var(--accent)] transition-all duration-500"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>

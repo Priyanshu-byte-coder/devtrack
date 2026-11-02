@@ -22,7 +22,7 @@ interface ShareProfileSectionProps {
 }
 
 const BUTTON =
-  "inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-control/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
+  "inline-flex items-center gap-2 border-2 border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-control/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
 
 /**
  * Share a profile. The card shown here is the profile's Open Graph image, so
@@ -87,7 +87,7 @@ export default function ShareProfileSection({
 
   return (
     <>
-      <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm md:p-5">
+      <section className="px-frame bg-[var(--card)] p-4 md:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
           {/* eslint-disable-next-line @next/next/no-img-element -- server-rendered PNG, already sized */}
           <img
@@ -100,11 +100,11 @@ export default function ShareProfileSection({
             width={1200}
             height={630}
             loading="lazy"
-            className="aspect-[1200/630] w-full rounded-lg border border-[var(--border)] bg-[#05070f] lg:w-[340px] lg:shrink-0"
+            className="aspect-[1200/630] w-full border-2 border-[var(--border)] bg-[#05070f] lg:w-[340px] lg:shrink-0"
           />
 
           <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--card-foreground)]">
+            <h2 className="font-pixel text-sm uppercase tracking-[0.14em] text-[var(--card-foreground)]">
               {isOwner ? "Share your card" : "Share this profile"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
@@ -117,7 +117,7 @@ export default function ShareProfileSection({
                   type="button"
                   onClick={handleNativeShare}
                   aria-label={`Share ${username}'s profile using the device share sheet`}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-colors hover:opacity-90"
+                  className="inline-flex items-center gap-2 border-2 border-[var(--border)] bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-colors hover:opacity-90"
                 >
                   Share
                 </button>

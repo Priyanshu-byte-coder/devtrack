@@ -1,10 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import TierBadge from "@/components/gamification/TierBadge";
-import LevelChip from "@/components/gamification/LevelChip";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
+import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import { levelFromXp } from "@/lib/gamification/scoring";
 import type {
@@ -12,8 +9,7 @@ import type {
   GuestRankEstimate,
 } from "@/lib/guest-profile-model";
 
-const CARD =
-  "rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[var(--shadow-soft)] sm:p-6";
+const CARD = "px-frame bg-[var(--card)] p-5 sm:p-6";
 
 const fmt = new Intl.NumberFormat("en-US");
 
@@ -60,70 +56,69 @@ export default function GuestProfileView({
     { label: "Followers", value: profile.followers },
   ];
 
+  const hud: HudStat[] = [
+    estimate
+      ? { label: "Est. rank", value: estimate.rank, prefix: "~#" }
+      : { label: "Est. rank", value: "—" },
+    { label: "Streak", value: profile.streak.current, suffix: "D" },
+    {
+      label: "Level",
+      value: estimate ? levelFromXp(estimate.xp).level : "—",
+    },
+  ];
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
-      {/* Identity */}
-      <header className="mb-6 flex flex-wrap items-start gap-5">
-        <Image
-          src={`https://avatars.githubusercontent.com/${profile.login}`}
-          alt={`${profile.login}'s GitHub avatar`}
-          width={80}
-          height={80}
-          className="shrink-0 rounded-full border-2 border-[var(--border)] shadow-md"
-          unoptimized
-        />
-        <div className="min-w-0 flex-1">
-          <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            <span className="truncate">@{profile.login}</span>
-            <span className="rounded-full border border-dashed border-[var(--border)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">
-              Not on DevTrack yet
-            </span>
-          </h1>
-          {profile.name && (
-            <p className="mt-1 text-[var(--muted-foreground)]">
-              {profile.name}
-            </p>
-          )}
-          {profile.bio && (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--card-foreground)]">
-              {profile.bio}
-            </p>
-          )}
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">
+      <PlayerCard
+        login={profile.login}
+        eyebrow="Not on DevTrack yet"
+        subtitle={profile.name}
+        bio={profile.bio}
+        tier={estimate?.tier ?? null}
+        xp={estimate?.xp ?? null}
+        hud={hud}
+        meta={
+          <>
             <span>On GitHub since {githubSince}</span>
             <a
               href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              className="inline-flex items-center border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
             >
               View on GitHub
             </a>
-            {compareHref && (
-              <Link
-                href={compareHref}
-                className={buttonVariants({ size: "sm", variant: "outline" })}
-              >
-                Compare with me
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+          </>
+        }
+        actions={
+          compareHref ? (
+            <Link href={compareHref} className="px-btn">
+              Challenge to a duel
+            </Link>
+          ) : (
+            <Link
+              href={`/compare?vs=${encodeURIComponent(profile.login.toLowerCase())}`}
+              className="px-btn px-btn-ghost"
+            >
+              Duel @{profile.login}
+            </Link>
+          )
+        }
+      />
 
       {/* Claim: the estimate is the hook */}
       <section
         aria-labelledby="claim-heading"
-        className="mb-6 overflow-hidden rounded-2xl border-2 border-[var(--accent)] bg-[var(--card)] p-5 sm:p-6"
+        className="px-frame px-frame-accent mb-8 bg-[var(--card)] p-5 sm:p-6"
       >
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+            <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
               Unclaimed profile
             </p>
             <h2
               id="claim-heading"
-              className="mt-2 font-display text-2xl font-bold text-[var(--card-foreground)] sm:text-3xl"
+              className="mt-2 font-pixel text-2xl uppercase leading-tight text-[var(--card-foreground)] sm:text-3xl"
             >
               {estimate ? (
                 <>
@@ -136,28 +131,17 @@ export default function GuestProfileView({
                 "Climb the DevTrack leaderboard"
               )}
             </h2>
-            {estimate && (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <TierBadge tier={estimate.tier} score={estimate.scoreV2} />
-                <LevelChip level={levelFromXp(estimate.xp).level} />
-                <span className="text-sm text-[var(--muted-foreground)]">
-                  {fmt.format(estimate.xp)} XP waiting
-                </span>
-              </div>
-            )}
             <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]">
-              Is this you? Claim it to join the leaderboard, keep your XP and
-              tier, count private contributions, and get README badges.
+              Is this you? Claim it to join the leaderboard, keep your
+              {estimate ? ` ${fmt.format(estimate.xp)} XP` : " XP"} and tier,
+              count private contributions, and get README badges.
             </p>
           </div>
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">
-            <Link href={claimHref} className={buttonVariants({ size: "lg" })}>
+          <div className="-m-1 flex shrink-0 flex-wrap gap-2 md:flex-col">
+            <Link href={claimHref} className="px-btn">
               Claim this profile
             </Link>
-            <Link
-              href="/leaderboard"
-              className={buttonVariants({ size: "lg", variant: "outline" })}
-            >
+            <Link href="/leaderboard" className="px-btn px-btn-ghost">
               See the leaderboard
             </Link>
           </div>
@@ -170,14 +154,11 @@ export default function GuestProfileView({
         className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
       >
         {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-          >
-            <div className="text-xs font-medium text-[var(--muted-foreground)]">
+          <div key={stat.label} className="px-frame bg-[var(--card)] p-4">
+            <div className="font-pixel text-[9px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
               {stat.label}
             </div>
-            <div className="mt-1 font-display text-2xl font-bold text-[var(--card-foreground)]">
+            <div className="mt-1 font-pixel text-2xl tabular-nums text-[var(--card-foreground)]">
               <AnimatedNumber value={stat.value} />
               {stat.unit && (
                 <span className="ml-1 text-sm font-medium text-[var(--muted-foreground)]">
@@ -193,7 +174,7 @@ export default function GuestProfileView({
       <section className={`${CARD} mb-6`} aria-labelledby="calendar-heading">
         <h2
           id="calendar-heading"
-          className="text-lg font-semibold text-[var(--card-foreground)]"
+          className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]"
         >
           {fmt.format(profile.yearContributions)} contributions in the last year
         </h2>
@@ -207,7 +188,7 @@ export default function GuestProfileView({
         >
           <h2
             id="repos-heading"
-            className="mb-4 text-lg font-semibold text-[var(--card-foreground)]"
+            className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]"
           >
             Top repositories
           </h2>
@@ -220,7 +201,7 @@ export default function GuestProfileView({
               {profile.topRepos.map((repo) => (
                 <li
                   key={repo.name}
-                  className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3"
+                  className="min-w-0 border-2 border-dashed border-[var(--border)] bg-[var(--background)] p-3"
                 >
                   <a
                     href={repo.url}
@@ -251,7 +232,7 @@ export default function GuestProfileView({
         <section className={CARD} aria-labelledby="languages-heading">
           <h2
             id="languages-heading"
-            className="mb-4 text-lg font-semibold text-[var(--card-foreground)]"
+            className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]"
           >
             Top languages
           </h2>
@@ -271,9 +252,9 @@ export default function GuestProfileView({
                       {lang.percentage}%
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[var(--control)]">
+                  <div className="h-2 overflow-hidden bg-[var(--control)]">
                     <div
-                      className="h-full rounded-full bg-[var(--accent)]"
+                      className="h-full bg-[var(--accent)]"
                       style={{ width: `${lang.percentage}%` }}
                     />
                   </div>
@@ -341,7 +322,7 @@ function ContributionCalendar({ days }: { days: GuestProfile["calendar"] }) {
           <span
             key={d.date}
             title={`${d.date}: ${d.count} contribution${d.count === 1 ? "" : "s"}`}
-            className={`h-[11px] w-[11px] rounded-[2px] ${LEVELS[level(d.count, max)]}`}
+            className={`h-[11px] w-[11px] ${LEVELS[level(d.count, max)]}`}
           />
         ))}
       </div>

@@ -16,8 +16,8 @@ export default function GitHubAchievements({
   const t = useTranslations("achievements");
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         {t("title")}
       </h2>
 
@@ -42,9 +42,7 @@ export default function GitHubAchievements({
           {t("loadFailed")}
         </p>
       ) : achievements.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          {t("empty")}
-        </p>
+        <p className="text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {achievements.map((achievement) => (

@@ -5,6 +5,7 @@ import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { getLeaderboardData } from "@/lib/leaderboard";
 import { rankEntriesByScoreV2 } from "@/lib/gamification/ranking";
 import { ROUNDS, duelPath } from "@/lib/duel";
+import { normalizeGitHubUsername } from "@/lib/validate-github-username";
 
 export const metadata: Metadata = {
   title: "Compare GitHub profiles side by side",
@@ -43,7 +44,14 @@ async function featuredDuels(): Promise<Array<[string, string]>> {
   }
 }
 
-export default async function ComparePage() {
+export default async function ComparePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ vs?: string | string[] }>;
+}) {
+  const { vs } = await searchParams;
+  // "Duel @x" on a profile lands here with Player 2 filled in.
+  const opponent = normalizeGitHubUsername(Array.isArray(vs) ? vs[0] : vs);
   const duels = await featuredDuels();
   return (
     <div className="pb-10">
@@ -62,7 +70,7 @@ export default async function ComparePage() {
         aria-label="Start a duel"
         className="px-frame px-frame-accent mt-8 bg-[var(--card)] p-5 sm:p-6"
       >
-        <RematchForm />
+        <RematchForm defaultRight={opponent ?? ""} />
       </section>
 
       {duels.length > 0 && (
