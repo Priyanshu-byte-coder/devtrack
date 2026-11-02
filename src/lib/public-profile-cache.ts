@@ -8,6 +8,8 @@ import {
 } from "@/lib/public-profile-data";
 import { isValidGitHubUsername } from "@/lib/validate-github-username";
 import { publicProfileTag } from "@/lib/public-profile-tags";
+import { getGuestProfile, getRegistration } from "@/lib/guest-profile";
+import type { GuestProfile } from "@/lib/guest-profile-model";
 
 const PROFILE_TTL_SECONDS = 300;
 
@@ -43,5 +45,31 @@ export const getPublicProfileForPage = cache(
       ["public-profile-page", key],
       { revalidate: PROFILE_TTL_SECONDS, tags: [publicProfileTag(key)] }
     )();
+  }
+);
+
+export type ProfileLookup =
+  | { kind: "member"; profile: PublicProfileData }
+  | { kind: "guest"; profile: GuestProfile }
+  | null;
+
+/**
+ * Any GitHub login's profile page: members who made their profile public get
+ * the full DevTrack profile; people who never signed up get a guest profile
+ * from public GitHub data. Private members and unknown logins get null.
+ */
+export const getProfileForPage = cache(
+  async (username: string): Promise<ProfileLookup> => {
+    if (!isValidGitHubUsername(username)) return null;
+
+    const registration = await getRegistration(username);
+    if (registration) {
+      if (!registration.isPublic) return null;
+      const profile = await getPublicProfileForPage(username);
+      return profile ? { kind: "member", profile } : null;
+    }
+
+    const guest = await getGuestProfile(username);
+    return guest ? { kind: "guest", profile: guest } : null;
   }
 );
