@@ -1,14 +1,21 @@
 /**
  * The README rank badge: an arcade-style SVG ("#1 GLOBAL · LEGEND · LV 54").
  *
- * Pure: data in, SVG string out. Text is drawn with the pixel font as shapes,
- * because GitHub serves README images through its proxy where web fonts can't
- * load. Animation uses SMIL, which survives that proxy, and every animation is
- * finite and has a correct final frame, so renderers that skip animation (and
- * anyone watching after a few seconds) see the right badge.
+ * Pure: data in, SVG string out. Drawing primitives are in pixel-badge.ts.
  */
 
-import { pixelTextPath, pixelTextWidth, GLYPH_HEIGHT } from "./pixel-font";
+import { pixelTextWidth, GLYPH_HEIGHT } from "./pixel-font";
+import {
+  DOWN,
+  MUTED,
+  UP,
+  WHITE,
+  frame,
+  gem,
+  sheen,
+  text,
+  wrap,
+} from "./pixel-badge";
 import { TIER_STYLE } from "./tier-palette";
 import type { Tier } from "./scoring";
 import type { RankMovement } from "./ranking";
@@ -35,95 +42,6 @@ const BOARD_LABEL: Record<BadgeBoard, string> = {
   month: "SEASON",
   week: "THIS WEEK",
 };
-
-const BG = "#0b1020";
-const PANEL_EDGE = "#000000";
-const BEVEL_LIGHT = "#2b3a5c";
-const BEVEL_DARK = "#05070f";
-const MUTED = "#8a9bc0";
-const WHITE = "#f5f7fb";
-const UP = "#4ade80";
-const DOWN = "#fb7185";
-
-const GEM = [
-  "..XXX..",
-  ".XHHXX.",
-  "XHHXXXX",
-  "XXXXXXX",
-  ".XXXXX.",
-  "..XXX..",
-  "...X...",
-];
-
-function escapeXml(text: string): string {
-  return text.replace(/[<>&"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}
-
-function gem(
-  x: number,
-  y: number,
-  px: number,
-  body: string,
-  shine: string,
-  sparkle: boolean
-): string {
-  let bodyPath = "";
-  let shinePath = "";
-  GEM.forEach((row, ry) =>
-    [...row].forEach((c, rx) => {
-      if (c === ".") return;
-      const seg = `M${x + rx * px} ${y + ry * px}h${px}v${px}h${-px}z`;
-      if (c === "H") shinePath += seg;
-      else bodyPath += seg;
-    })
-  );
-  const twinkle = sparkle
-    ? `<animate attributeName="opacity" values="1;0.25;1" dur="1.2s" begin="0.8s" repeatCount="3"/>`
-    : "";
-  return `<path d="${bodyPath}" fill="${body}"/><path d="${shinePath}" fill="${shine}">${twinkle}</path>`;
-}
-
-function text(
-  t: string,
-  x: number,
-  y: number,
-  scale: number,
-  fill: string
-): string {
-  return `<path d="${pixelTextPath(t, x, y, scale)}" fill="${fill}"/>`;
-}
-
-/** Bevelled pixel panel: dark outline, light top-left edge, dark bottom-right edge. */
-function frame(w: number, h: number): string {
-  return [
-    `<rect x="0" y="0" width="${w}" height="${h}" fill="${PANEL_EDGE}"/>`,
-    `<rect x="2" y="2" width="${w - 4}" height="${h - 4}" fill="${BG}"/>`,
-    `<rect x="2" y="2" width="${w - 4}" height="2" fill="${BEVEL_LIGHT}"/>`,
-    `<rect x="2" y="2" width="2" height="${h - 4}" fill="${BEVEL_LIGHT}"/>`,
-    `<rect x="2" y="${h - 4}" width="${w - 4}" height="2" fill="${BEVEL_DARK}"/>`,
-    `<rect x="${w - 4}" y="2" width="2" height="${h - 4}" fill="${BEVEL_DARK}"/>`,
-  ].join("");
-}
-
-/** One bright diagonal sheen that sweeps across twice, then rests off-panel. */
-function sheen(w: number, h: number): string {
-  return (
-    `<g clip-path="url(#panel)"><rect x="-60" y="0" width="22" height="${h}" fill="#ffffff" opacity="0.07" transform="skewX(-20)">` +
-    `<animate attributeName="x" from="-60" to="${w + 40}" dur="1.4s" begin="0.3s" repeatCount="2" fill="freeze"/>` +
-    `</rect></g>`
-  );
-}
-
-function wrap(w: number, h: number, title: string, body: string): string {
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" ` +
-    `role="img" aria-label="${escapeXml(title)}" shape-rendering="crispEdges">` +
-    `<title>${escapeXml(title)}</title>` +
-    `<defs><clipPath id="panel"><rect x="4" y="4" width="${w - 8}" height="${h - 8}"/></clipPath></defs>` +
-    body +
-    `</svg>`
-  );
-}
 
 export function renderRankBadge(data: RankBadgeData): string {
   const H = 64;

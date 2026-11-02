@@ -11,8 +11,7 @@
  * not GitHub API calls.
  */
 
-import { createHash } from "node:crypto";
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
 import {
   getRankBadgeRow,
@@ -24,34 +23,11 @@ import {
 } from "@/lib/gamification/rank-badge";
 import { rankMovement } from "@/lib/gamification/ranking";
 import { levelFromXp } from "@/lib/gamification/scoring";
+import { svgBadgeResponse } from "@/lib/gamification/badge-response";
 
 export const dynamic = "force-dynamic";
 
 const BOARDS: BadgeBoardPeriod[] = ["all", "month", "week"];
-
-const CACHE_CONTROL =
-  "public, max-age=300, s-maxage=1800, stale-while-revalidate=86400";
-
-function svgResponse(
-  svg: string,
-  req: NextRequest,
-  status = 200
-): NextResponse {
-  const etag = `"${createHash("sha1").update(svg).digest("base64url").slice(0, 27)}"`;
-  const headers = {
-    "Content-Type": "image/svg+xml; charset=utf-8",
-    "Cache-Control": CACHE_CONTROL,
-    ETag: etag,
-    "X-Content-Type-Options": "nosniff",
-    // An SVG opened directly must not run anything.
-    "Content-Security-Policy":
-      "default-src 'none'; style-src 'unsafe-inline'; sandbox",
-  };
-  if (status === 200 && req.headers.get("if-none-match") === etag) {
-    return new NextResponse(null, { status: 304, headers });
-  }
-  return new NextResponse(svg, { status, headers });
-}
 
 export async function GET(req: NextRequest) {
   const login = normalizeGitHubUsername(req.nextUrl.searchParams.get("user"));
@@ -61,11 +37,14 @@ export async function GET(req: NextRequest) {
     : "all";
 
   if (!login) {
-    return svgResponse(renderRankBadge({ state: "unranked" }), req, 400);
+    return svgBadgeResponse(renderRankBadge({ state: "unranked" }), req, {
+      status: 400,
+    });
   }
 
   const row = await getRankBadgeRow(login, board);
-  if (!row) return svgResponse(renderRankBadge({ state: "unranked" }), req);
+  if (!row)
+    return svgBadgeResponse(renderRankBadge({ state: "unranked" }), req);
 
   const data: RankBadgeData = {
     state: "ranked",
@@ -82,5 +61,5 @@ export async function GET(req: NextRequest) {
       row.hasPrevious
     ),
   };
-  return svgResponse(renderRankBadge(data), req);
+  return svgBadgeResponse(renderRankBadge(data), req);
 }

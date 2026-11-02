@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 
 interface BadgeSectionProps {
   username: string;
@@ -146,14 +145,13 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
             <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
               Streak Badge
             </h3>
-            <div className="mb-2">
-              <Image
+            <div className="mb-2 overflow-x-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element -- live SVG, its size depends on the content */}
+              <img
                 src={streakBadgePreviewUrl}
                 alt="DevTrack Streak"
-                width={150}
-                height={20}
-                className="w-auto h-auto"
-                unoptimized
+                height={64}
+                className="h-16 w-auto max-w-none"
               />
             </div>
             <CopyableCodeBlock
@@ -167,14 +165,13 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
             <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
               Commits Badge
             </h3>
-            <div className="mb-2">
-              <Image
+            <div className="mb-2 overflow-x-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element -- live SVG, its size depends on the content */}
+              <img
                 src={commitsBadgePreviewUrl}
                 alt="DevTrack Commits"
-                width={150}
-                height={20}
-                className="w-auto h-auto"
-                unoptimized
+                height={64}
+                className="h-16 w-auto max-w-none"
               />
             </div>
             <CopyableCodeBlock
@@ -188,22 +185,20 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
             <h3 className="mb-2 font-medium text-[var(--card-foreground)] text-sm">
               Combined (Both Badges)
             </h3>
-            <div className="mb-2 flex gap-1">
-              <Image
+            <div className="mb-2 flex flex-wrap gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element -- live SVG, its size depends on the content */}
+              <img
                 src={streakBadgePreviewUrl}
                 alt="DevTrack Streak"
-                width={150}
-                height={20}
-                className="w-auto h-auto"
-                unoptimized
+                height={64}
+                className="h-16 w-auto max-w-none"
               />
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element -- live SVG, its size depends on the content */}
+              <img
                 src={commitsBadgePreviewUrl}
                 alt="DevTrack Commits"
-                width={150}
-                height={20}
-                className="w-auto h-auto"
-                unoptimized
+                height={64}
+                className="h-16 w-auto max-w-none"
               />
             </div>
             <CopyableCodeBlock
