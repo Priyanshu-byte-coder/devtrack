@@ -53,7 +53,7 @@ export default function DevLookup({ className = "" }: { className?: string }) {
             spellCheck={false}
             aria-describedby={hintId}
             aria-invalid={error ? true : undefined}
-            className="min-w-0 flex-1 bg-transparent px-2 py-3 font-mono text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none"
+            className="w-0 min-w-0 flex-1 bg-transparent px-2 py-3 font-mono text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none"
           />
         </div>
         <button type="submit" className="px-btn ml-2 shrink-0">

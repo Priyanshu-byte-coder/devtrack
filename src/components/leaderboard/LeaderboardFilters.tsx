@@ -1,10 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  segmentedGroupClass,
-  segmentedItemClass,
-} from "@/components/ui/segmented";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 import { useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -137,7 +134,7 @@ export default function LeaderboardFilters() {
         id="leaderboard-language"
         value={language}
         onChange={(event) => updateFilters({ lang: event.target.value })}
-        className="h-9 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+        className="px-frame h-9 bg-[var(--card)] px-2.5 font-mono text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
       >
         <option value="">All languages</option>
         {languages.map((item) => (
@@ -147,14 +144,14 @@ export default function LeaderboardFilters() {
         ))}
       </select>
 
-      <div role="group" aria-label="Time range" className={segmentedGroupClass}>
+      <div role="group" aria-label="Time range" className={arcadeTabGroupClass}>
         {periods.map((item) => (
           <button
             key={item.value}
             type="button"
             aria-pressed={item.value === period}
             onClick={() => updateFilters({ period: item.value })}
-            className={segmentedItemClass(item.value === period)}
+            className={arcadeTabClass(item.value === period)}
           >
             {item.label}
           </button>
