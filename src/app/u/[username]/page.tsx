@@ -17,7 +17,10 @@ import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
 import { getPublicProfileForPage } from "@/lib/public-profile-cache";
-import { getProgressForLogin } from "@/lib/gamification/queries";
+import {
+  getProgressForLogin,
+  getRankBadgeRow,
+} from "@/lib/gamification/queries";
 import TierBadge from "@/components/gamification/TierBadge";
 import XpBar from "@/components/gamification/XpBar";
 import { JsonLd, breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo/json-ld";
@@ -140,10 +143,11 @@ export default async function PublicProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const [profile, loggedInUsername, progress] = await Promise.all([
+  const [profile, loggedInUsername, progress, globalRank] = await Promise.all([
     loadProfile(username),
     getLoggedInGitHubUsername(),
     getProgressForLogin(username),
+    getRankBadgeRow(username, "all"),
   ]);
   const profileUrl = getProfileUrl(username);
 
@@ -329,6 +333,17 @@ export default async function PublicProfilePage({
             username={profile.username}
             streak={profile.streak.current}
             profileUrl={profileUrl}
+            isOwner={isOwner}
+            rank={
+              globalRank
+                ? {
+                    rank: globalRank.rank,
+                    total: globalRank.total,
+                    tier: globalRank.tier,
+                    level: globalRank.level,
+                  }
+                : null
+            }
           />
         </div>
 

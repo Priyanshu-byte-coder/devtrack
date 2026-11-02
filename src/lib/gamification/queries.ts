@@ -212,6 +212,10 @@ export interface RankBadgeRow {
   hasPrevious: boolean;
   level: number | null;
   xp: number | null;
+  /** Activity behind the rank, from the same snapshot. */
+  streak: number;
+  commits: number;
+  prs: number;
 }
 
 /**
@@ -234,6 +238,9 @@ export const getRankBadgeRow = (login: string, board: BadgeBoardPeriod) =>
               hasPrevious: true,
               level: 54,
               xp: 39185,
+              streak: 42,
+              commits: 1284,
+              prs: 96,
             }
           : null;
       }
@@ -250,7 +257,7 @@ export const getRankBadgeRow = (login: string, board: BadgeBoardPeriod) =>
 
         const { data: latest } = await supabaseAdmin
           .from("leaderboard_snapshots")
-          .select("captured_on, rank, tier, score_v2")
+          .select("captured_on, rank, tier, score_v2, streak, commits, prs")
           .eq("user_id", user.id)
           .eq("period", board)
           .order("captured_on", { ascending: false })
@@ -281,6 +288,9 @@ export const getRankBadgeRow = (login: string, board: BadgeBoardPeriod) =>
           hasPrevious: previous !== null,
           level: progress.data?.level ?? null,
           xp: progress.data ? Number(progress.data.xp) : null,
+          streak: current.streak,
+          commits: current.commits,
+          prs: current.prs,
         };
       } catch {
         return null;
