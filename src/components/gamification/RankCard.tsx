@@ -93,12 +93,20 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
         >
           {season} season
         </p>
-        <Link
-          href="/leaderboard"
-          className="text-xs font-medium text-[var(--accent)] hover:underline"
-        >
-          View leaderboard →
-        </Link>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link
+            href={`/u/${me.username.toLowerCase()}#readme-badges`}
+            className="text-xs font-medium text-[var(--accent)] hover:underline"
+          >
+            Add to your README →
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="text-xs font-medium text-[var(--accent)] hover:underline"
+          >
+            View leaderboard →
+          </Link>
+        </div>
       </div>
 
       <div className="mt-3 grid gap-4 sm:grid-cols-[auto_auto_1fr] sm:items-center sm:gap-6">

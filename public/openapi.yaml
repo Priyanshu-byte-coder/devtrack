@@ -288,6 +288,17 @@ paths:
           description: User not found
       operationId: get_api_badge_commits
       security: []
+  /api/badge/rank:
+    get:
+      operationId: get_api_badge_rank
+      summary: GET /api/badge/rank
+      tags:
+        - badge
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
   /api/badge/streak-shield:
     get:
       tags:
