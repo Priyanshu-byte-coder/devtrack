@@ -34,6 +34,42 @@ function verifyPatches() {
       const ast = { type: "root", nodes: [] };
       ast.nodes.push(ast);
       assert.throws(() => braces.compile(ast), /safe complexity/);
+    } else if (item.package === "deepmerge") {
+      // GHSA-gcqx-w48m-w2h4: mergeObject() assigned with `destination[key] =`,
+      // so a source key of "__proto__" hit the prototype setter and poisoned
+      // the returned object. The patch assigns via Object.defineProperty.
+      for (const file of ["dist/cjs.js", "dist/umd.js"]) {
+        const deepmerge = require(module + "/" + file);
+        const payload = () => JSON.parse('{"__proto__":{"polluted":"yes"}}');
+
+        // A null-prototype target is the reachable vector: "__proto__" is not
+        // on the target, so the existing propertyIsUnsafe() guard lets it past.
+        const bare = Object.create(null);
+        bare.a = 1;
+        const merged = deepmerge(bare, payload());
+        assert.equal(Object.getPrototypeOf(merged), Object.prototype);
+        assert.equal(merged.polluted, undefined);
+        assert.ok(Object.prototype.hasOwnProperty.call(merged, "__proto__"));
+
+        // Same vector one level down.
+        const nested = deepmerge({ cfg: Object.create(null) }, { cfg: payload() });
+        assert.equal(Object.getPrototypeOf(nested.cfg), Object.prototype);
+        assert.equal(nested.cfg.polluted, undefined);
+
+        // Nothing leaks to the global prototype.
+        assert.equal({}.polluted, undefined);
+
+        // Ordinary merging is unchanged.
+        assert.deepEqual(deepmerge({ a: 1, b: { c: 2 } }, { b: { d: 3 }, e: 4 }), {
+          a: 1,
+          b: { c: 2, d: 3 },
+          e: 4,
+        });
+        assert.deepEqual(deepmerge([1, 2], [3]), [1, 2, 3]);
+        assert.deepEqual(Object.keys(deepmerge({ a: 1 }, payload())), ["a"]);
+        const symbol = Symbol("copied");
+        assert.equal(deepmerge({}, { [symbol]: "v" })[symbol], "v");
+      }
     } else {
       for (const file of ["src/sprintf.js", "dist/sprintf.min.js"]) {
         const { sprintf } = require(module + "/" + file);
