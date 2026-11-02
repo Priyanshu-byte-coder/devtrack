@@ -540,7 +540,12 @@ export async function buildLeaderboard(
 
   const rankBy = (metric: LeaderboardMetric) =>
     [...rows]
-      .sort((a, b) => b[metric] - a[metric] || b.score - a.score)
+      .sort(
+        (a, b) =>
+          b[metric] - a[metric] ||
+          (b.scoreV2 ?? 0) - (a.scoreV2 ?? 0) ||
+          b.score - a.score
+      )
       .slice(0, 50)
       .map((entry, i) => ({ ...entry, rank: i + 1 }));
 
@@ -602,15 +607,18 @@ export const getCachedLeaderboard = (filters: LeaderboardFilters = {}) => {
  * untested. Mirrors the fixture hook in `public-profile-data.ts`.
  */
 function playwrightLeaderboard(): LeaderboardPayload {
-  const people: Array<[string, number, number, number, boolean]> = [
-    ["playwright-user", 42, 1284, 96, true],
-    ["octocat", 31, 980, 74, false],
-    ["a-very-long-github-username-here", 27, 845, 61, false],
-    ["dev-three", 18, 612, 44, false],
-    ["dev-four", 12, 403, 29, false],
-  ];
+  // One of each tier, and movement against the fixture baseline in
+  // gamification/queries.ts covering same, up, down and new.
+  const people: Array<[string, number, number, number, boolean, number, Tier]> =
+    [
+      ["playwright-user", 42, 1284, 96, true, 929, "legend"],
+      ["octocat", 31, 980, 74, false, 794, "diamond"],
+      ["a-very-long-github-username-here", 27, 845, 61, false, 710, "platinum"],
+      ["dev-three", 18, 612, 44, false, 512, "gold"],
+      ["dev-four", 12, 403, 29, false, 265, "silver"],
+    ];
   const entries = people.map(
-    ([username, streak, commits, prs, isSponsor], i) => ({
+    ([username, streak, commits, prs, isSponsor, scoreV2, tier], i) => ({
       id: `fixture-${i + 1}`,
       rank: i + 1,
       username,
@@ -621,6 +629,8 @@ function playwrightLeaderboard(): LeaderboardPayload {
       prs,
       score: 1000 - i * 90,
       isSponsor,
+      scoreV2,
+      tier,
     })
   );
   return {

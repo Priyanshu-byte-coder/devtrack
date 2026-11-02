@@ -135,7 +135,7 @@ export default function Footer() {
       <div
         aria-hidden
         className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 select-none text-[clamp(4rem,12vw,10rem)] font-black uppercase tracking-tighter text-[var(--foreground)] opacity-[0.025] whitespace-nowrap"
-        style={{ fontFamily: "var(--font-syne, system-ui, sans-serif)" }}
+        style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
       >
         DEVTRACK
       </div>
@@ -151,7 +151,7 @@ export default function Footer() {
             <h2
               className="mt-5 text-2xl font-extrabold text-[var(--foreground)] sm:text-3xl"
               style={{
-                fontFamily: "var(--font-syne, system-ui, sans-serif)",
+                fontFamily: "var(--font-syne), system-ui, sans-serif",
                 letterSpacing: "-0.03em",
               }}
             >
@@ -162,7 +162,7 @@ export default function Footer() {
             <p
               className="mt-4 max-w-sm text-[14px] leading-relaxed text-[var(--muted-foreground)]"
               style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+                fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
               }}
             >
               Track GitHub contributions, PR velocity, streaks, goals, and
@@ -191,7 +191,7 @@ export default function Footer() {
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
               style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+                fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
               }}
             >
               Product
@@ -227,7 +227,7 @@ export default function Footer() {
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
               style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+                fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
               }}
             >
               Community
@@ -248,7 +248,7 @@ export default function Footer() {
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
               style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+                fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
               }}
             >
               Legal Links
@@ -267,7 +267,7 @@ export default function Footer() {
             <h3
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
               style={{
-                fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+                fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
               }}
             >
               Built with
@@ -298,7 +298,7 @@ export default function Footer() {
         <div
           className="mt-6 flex flex-col gap-3 text-[12px] text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between"
           style={{
-            fontFamily: "var(--font-jetbrains, ui-monospace, monospace)",
+            fontFamily: "var(--font-jetbrains), ui-monospace, monospace",
           }}
         >
           <p>© {year} DevTrack. Built for open-source contributors.</p>

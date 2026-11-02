@@ -9,6 +9,12 @@ const mocks = vi.hoisted(() => ({
     options: unknown;
   }>,
   failTable: null as string | null,
+  revalidateTag: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidateTag: mocks.revalidateTag,
+  unstable_cache: (fn: unknown) => fn,
 }));
 
 vi.mock("@/lib/leaderboard", () => ({
@@ -196,6 +202,16 @@ describe("captureGamification", () => {
       await import("@/lib/gamification/persistence");
     const summary = await captureGamification(new Date("2027-01-01T00:15:00Z"));
     expect(summary.seasonClosed).toBe("2026-12");
+  });
+
+  it("refreshes cached rank movement and progress once everything is written", async () => {
+    mocks.revalidateTag.mockClear();
+    const { captureGamification } =
+      await import("@/lib/gamification/persistence");
+    await captureGamification(new Date("2026-11-02T00:15:00Z"));
+    expect(mocks.revalidateTag).toHaveBeenCalledWith("gamification", {
+      expire: 0,
+    });
   });
 
   it("fails loudly when a write fails, so the cron reports an error", async () => {

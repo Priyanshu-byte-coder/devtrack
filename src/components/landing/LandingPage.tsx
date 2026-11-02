@@ -55,8 +55,8 @@ const MC = [
   "var(--accent)",
 ];
 
-const MONO = "var(--font-jetbrains, ui-monospace, monospace)";
-const DISP = "var(--font-syne, system-ui, sans-serif)";
+const MONO = "var(--font-jetbrains), ui-monospace, monospace";
+const DISP = "var(--font-syne), system-ui, sans-serif";
 
 /* ═══════════════════════════════════════════════════════════
    PRE-SEEDED DATA  (deterministic → no hydration mismatch)

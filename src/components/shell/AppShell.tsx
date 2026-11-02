@@ -30,7 +30,7 @@ function Brand() {
     <Link
       href="/dashboard"
       className="flex items-center gap-2 px-2 text-sm font-bold tracking-[0.18em] text-[var(--foreground)]"
-      style={{ fontFamily: "var(--font-jetbrains, ui-monospace, monospace)" }}
+      style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace" }}
     >
       <span className="text-[var(--accent)]" aria-hidden="true">
         ▲

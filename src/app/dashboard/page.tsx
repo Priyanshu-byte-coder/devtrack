@@ -17,6 +17,8 @@ import { decode } from "next-auth/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
+import RankCard from "@/components/gamification/RankCard";
+import { Suspense } from "react";
 
 export default async function DashboardPage() {
   // In the production standalone Playwright build, getServerSession can fail to
@@ -74,6 +76,9 @@ export default async function DashboardPage() {
         <ThrottleBanner />
         <StreakAtRiskBanner />
         <StatStrip />
+        <Suspense fallback={null}>
+          <RankCard githubId={(session as { githubId?: string }).githubId} />
+        </Suspense>
         <WrappedSpotlight />
 
         <div className="grid gap-4 xl:grid-cols-3">

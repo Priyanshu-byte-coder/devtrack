@@ -1,19 +1,16 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { revalidateTag } from "next/cache";
 import {
   refreshLeaderboardCache,
-  type LeaderboardEntry,
-  type LeaderboardPayload,
   type LeaderboardPeriod,
 } from "@/lib/leaderboard";
+import { rankByScoreV2, type RankedEntry } from "@/lib/gamification/ranking";
+
+export { rankByScoreV2 } from "@/lib/gamification/ranking";
+import { GAMIFICATION_CACHE_TAG } from "@/lib/gamification/queries";
 
 const PERIODS: LeaderboardPeriod[] = ["week", "month", "all"];
-
-export interface RankedEntry extends LeaderboardEntry {
-  scoreV2: number;
-  tier: NonNullable<LeaderboardEntry["tier"]>;
-  rankV2: number;
-}
 
 /** UTC calendar date, YYYY-MM-DD. */
 export function utcDay(date: Date): string {
@@ -23,31 +20,6 @@ export function utcDay(date: Date): string {
 /** Monthly season id, YYYY-MM, in UTC. */
 export function seasonFor(date: Date): string {
   return date.toISOString().slice(0, 7);
-}
-
-/**
- * Every user on a payload, ranked by score v2 (legacy score breaks ties).
- * Each metric board lists the same users in a different order, so they are
- * merged by id; entries from caches built before score v2 are skipped.
- */
-export function rankByScoreV2(payload: LeaderboardPayload): RankedEntry[] {
-  const byId = new Map<string, LeaderboardEntry>();
-  for (const board of Object.values(payload.leaders)) {
-    for (const entry of board)
-      if (!byId.has(entry.id)) byId.set(entry.id, entry);
-  }
-  return [...byId.values()]
-    .filter(
-      (e): e is LeaderboardEntry & Pick<RankedEntry, "scoreV2" | "tier"> =>
-        typeof e.scoreV2 === "number" && typeof e.tier === "string"
-    )
-    .sort(
-      (a, b) =>
-        b.scoreV2 - a.scoreV2 ||
-        b.score - a.score ||
-        a.username.localeCompare(b.username)
-    )
-    .map((entry, i) => ({ ...entry, rankV2: i + 1 }));
 }
 
 export interface CaptureSummary {
@@ -150,6 +122,9 @@ export async function captureGamification(
       );
     seasonResults = results.length;
   }
+
+  // Rank movement and progress shown on pages read through this tag.
+  revalidateTag(GAMIFICATION_CACHE_TAG, { expire: 0 });
 
   return {
     capturedOn,

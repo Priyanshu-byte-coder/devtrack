@@ -17,6 +17,9 @@ import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
 import { getPublicProfileForPage } from "@/lib/public-profile-cache";
+import { getProgressForLogin } from "@/lib/gamification/queries";
+import TierBadge from "@/components/gamification/TierBadge";
+import XpBar from "@/components/gamification/XpBar";
 import { JsonLd, breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo/json-ld";
 
 // Extend tracking structures to forward gamification flags seamlessly downstream
@@ -137,9 +140,10 @@ export default async function PublicProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const [profile, loggedInUsername] = await Promise.all([
+  const [profile, loggedInUsername, progress] = await Promise.all([
     loadProfile(username),
     getLoggedInGitHubUsername(),
+    getProgressForLogin(username),
   ]);
   const profileUrl = getProfileUrl(username);
 
@@ -243,6 +247,14 @@ export default async function PublicProfilePage({
             <p className="mt-1 text-[var(--muted-foreground)]">
               GitHub activity and coding stats
             </p>
+
+            {/* Only people on the leaderboard have a tier and XP yet. */}
+            {progress && (
+              <div className="mt-3 flex max-w-md flex-wrap items-center gap-3">
+                <TierBadge tier={progress.tier} />
+                <XpBar xp={progress.xp} className="min-w-[12rem] flex-1" />
+              </div>
+            )}
 
             {/* Member since + View on GitHub */}
             <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">

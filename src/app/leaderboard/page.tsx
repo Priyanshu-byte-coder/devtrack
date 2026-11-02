@@ -17,8 +17,17 @@ import {
 import {
   getLeaderboardData,
   filterLeaderboardByLanguage,
+  type LeaderboardEntry,
   type LeaderboardPayload,
 } from "@/lib/leaderboard";
+import { rankEntriesByScoreV2, rankMovement } from "@/lib/gamification/ranking";
+import {
+  getBaselineRanks,
+  getProgressByUserIds,
+} from "@/lib/gamification/queries";
+import TierBadge from "@/components/gamification/TierBadge";
+import LevelChip from "@/components/gamification/LevelChip";
+import RankMovementBadge from "@/components/gamification/RankMovementBadge";
 import { JsonLd, leaderboardJsonLd } from "@/lib/seo/json-ld";
 
 export const metadata: Metadata = {
@@ -35,23 +44,11 @@ export const metadata: Metadata = {
   },
 };
 
-type LeaderboardTab = "streak" | "commits" | "prs";
+type LeaderboardTab = "overall" | "streak" | "commits" | "prs";
 type LeaderboardPeriod = "week" | "month" | "all";
 
-interface LeaderboardEntry {
-  id: string;
-  rank: number;
-  username: string;
-  avatarUrl: string;
-  profileUrl: string;
-  streak: number;
-  commits: number;
-  prs: number;
-  score: number;
-  isSponsor: boolean;
-}
-
 const tabs: Array<{ id: LeaderboardTab; label: string; metric: string }> = [
+  { id: "overall", label: "Overall", metric: "score" },
   { id: "streak", label: "Streak", metric: "days" },
   { id: "commits", label: "Commits", metric: "commits" },
   { id: "prs", label: "PRs", metric: "pull requests" },
@@ -87,6 +84,7 @@ function leaderboardHref(
 }
 
 function getMetricValue(entry: LeaderboardEntry, tab: LeaderboardTab): number {
+  if (tab === "overall") return entry.scoreV2 ?? 0;
   if (tab === "streak") return entry.streak;
   if (tab === "commits") return entry.commits;
   return entry.prs;
@@ -109,9 +107,47 @@ async function LeaderboardTable({
   }
 
   const activeMeta = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
-  const rows = leaderboard?.leaders[activeTab] ?? [];
+
+  // Overall ranks everyone by score v2. A cached board built before score v2
+  // existed has nothing to rank by, so it falls back to the commits board
+  // rather than showing an empty table until the cache refreshes.
+  const overall = leaderboard
+    ? rankEntriesByScoreV2(Object.values(leaderboard.leaders).flat()).map(
+        (e) => ({
+          ...e,
+          rank: e.rankV2,
+        })
+      )
+    : [];
+  const rows: LeaderboardEntry[] = !leaderboard
+    ? []
+    : activeTab === "overall"
+      ? overall.length > 0
+        ? overall
+        : leaderboard.leaders.commits
+      : leaderboard.leaders[activeTab];
   const metricLabel =
-    activeTab === "streak" ? activeMeta.metric : periods[filters.period];
+    activeTab === "streak" || activeTab === "overall"
+      ? activeMeta.metric
+      : periods[filters.period];
+
+  // Movement compares overall ranks with the last daily snapshot. A language
+  // filter re-ranks a subset, which isn't comparable to the global snapshot.
+  const showMovement =
+    activeTab === "overall" && overall.length > 0 && !filters.lang;
+  const [baseline, progress] = await Promise.all([
+    showMovement
+      ? getBaselineRanks(filters.period, new Date().toISOString().slice(0, 10))
+      : Promise.resolve({ date: null, ranks: {} as Record<string, number> }),
+    getProgressByUserIds(rows.map((r) => r.id)),
+  ]);
+  const baselineLabel = baseline.date
+    ? new Date(`${baseline.date}T00:00:00Z`).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+      })
+    : undefined;
 
   return (
     <>
@@ -168,7 +204,7 @@ async function LeaderboardTable({
                 {activeMeta.label}
               </span>
               <span className="hidden w-16 shrink-0 text-right md:block">
-                Score
+                Level
               </span>
               <span className="w-[4.5rem] shrink-0 text-right">Profile</span>
             </div>
@@ -185,8 +221,20 @@ async function LeaderboardTable({
                   // appear as they scroll into view, without a growing delay.
                   delay={index < 15 ? index * stagger.tight : 0}
                 >
-                  <span className="w-7 shrink-0 text-sm font-semibold tabular-nums text-[var(--muted-foreground)] sm:w-10 sm:text-base">
-                    #{entry.rank}
+                  <span className="flex w-7 shrink-0 flex-col items-start gap-1 sm:w-10">
+                    <span className="text-sm font-semibold tabular-nums text-[var(--muted-foreground)] sm:text-base">
+                      #{entry.rank}
+                    </span>
+                    {showMovement && (
+                      <RankMovementBadge
+                        movement={rankMovement(
+                          entry.rank,
+                          baseline.ranks[entry.id],
+                          baseline.date !== null
+                        )}
+                        since={baselineLabel}
+                      />
+                    )}
                   </span>
 
                   <Image
@@ -208,6 +256,13 @@ async function LeaderboardTable({
                       >
                         @{entry.username}
                       </span>
+                      {entry.tier && (
+                        <TierBadge
+                          tier={entry.tier}
+                          score={entry.scoreV2}
+                          compact
+                        />
+                      )}
                       {entry.isSponsor && (
                         <SponsorBadge
                           className="shrink-0"
@@ -237,8 +292,13 @@ async function LeaderboardTable({
                     </div>
                   </div>
 
-                  <div className="hidden w-16 shrink-0 text-right text-sm font-medium tabular-nums text-[var(--card-foreground)] md:block">
-                    {entry.score}
+                  <div className="hidden w-16 shrink-0 justify-end md:flex">
+                    {(progress[entry.id]?.level ?? entry.level) !==
+                      undefined && (
+                      <LevelChip
+                        level={progress[entry.id]?.level ?? entry.level!}
+                      />
+                    )}
                   </div>
 
                   <Link
@@ -270,7 +330,7 @@ export default async function LeaderboardPage({
   const resolvedSearchParams = await searchParams;
   const activeTab = tabs.some((tab) => tab.id === resolvedSearchParams.tab)
     ? (resolvedSearchParams.tab as LeaderboardTab)
-    : "streak";
+    : "overall";
   const period = isLeaderboardPeriod(resolvedSearchParams.period)
     ? resolvedSearchParams.period
     : "all";
@@ -280,7 +340,7 @@ export default async function LeaderboardPage({
     <>
       <PageHeader
         title="Leaderboard"
-        description="Developers who made their profile public, ranked by streak, commits and pull requests."
+        description="Public developers ranked by DevTrack score: consistency, impact, volume and breadth. Switch tabs to rank by a single stat."
       />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
