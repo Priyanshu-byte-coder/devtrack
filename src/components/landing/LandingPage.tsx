@@ -125,12 +125,20 @@ const ABOUT_HIGHLIGHTS: Array<{
    ═══════════════════════════════════════════════════════════ */
 function useScrollReveal(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const [vis, setVis] = useState(prefersReducedMotion);
+  // Always start hidden, on the server and the client alike. Reading
+  // matchMedia during render made the client's first render differ from the
+  // server HTML; React keeps the server's styles on hydration, and with the
+  // effect then bailing out, reduced-motion visitors were left with every
+  // section stuck hidden.
+  const [vis, setVis] = useState(false);
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (reduced || typeof IntersectionObserver === "undefined") {
+      setVis(true);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -144,7 +152,7 @@ function useScrollReveal(threshold = 0.15) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold, prefersReducedMotion]);
+  }, [threshold]);
   return [ref, vis] as const;
 }
 
