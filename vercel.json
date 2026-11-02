@@ -15,6 +15,10 @@
     {
       "path": "/api/notifications/discord-sync",
       "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/gamification",
+      "schedule": "15 0 * * *"
     }
   ]
 }

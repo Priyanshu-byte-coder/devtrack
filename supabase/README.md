@@ -2,9 +2,19 @@
 
 The active migration is `migrations/20261011000000_canonical_schema.sql`. Its SQL is identical to `schema.sql`. It creates the full 32-table schema, service-only functions, indexes and browser access restrictions. Historical migrations are preserved byte-for-byte in `legacy-migrations/`; the old bootstrap at commit `a20e51d` is preserved in `legacy-schema.sql`. Those files are provenance and test fixtures, not an active migration chain. Their duplicate versions and incompatible UUID references prevented deterministic replay.
 
+## Migrations after the baseline
+
+`schema.sql` stays byte-identical to the baseline migration, because the baseline has already been applied to production. Schema changes since then live only in later files in `migrations/` (14-digit version, after `20261011000000`), applied in version order:
+
+| Version                           | Adds                                                                                                                            |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `20261102000000_gamification.sql` | `leaderboard_snapshots`, `user_progress` (with a trigger so XP, level, best tier and best rank never regress), `season_results` |
+
+Each later migration must be safe to run twice and must give every new table RLS, revoked browser grants and service-role access; `pnpm run test:db` enforces both. The checks, type generator and route-contract checker all build the schema as baseline + later migrations.
+
 ## New installations
 
-Run the active migration with Supabase CLI against a new database, or run **all** of `schema.sql` as one transaction in the Supabase SQL editor. The Supabase roles `anon`, `authenticated` and `service_role` must exist. Then run the application with its service role credential configured only on the server.
+Run the active migration with Supabase CLI against a new database, or run **all** of `schema.sql` as one transaction in the Supabase SQL editor, followed by each later migration in version order. The Supabase roles `anon`, `authenticated` and `service_role` must exist. Then run the application with its service role credential configured only on the server.
 
 NextAuth does not mint Supabase user JWTs. Every personal-data table has RLS enabled and grants revoked from both browser roles. Authenticated server APIs enforce ownership and room membership before the service role accesses data. Browser realtime subscriptions have been replaced by authenticated polling. Never grant the browser service-role access to restore subscriptions.
 

@@ -1,6 +1,6 @@
 // Generate contracts from the canonical schema in disposable PostgreSQL.
 const fs = require("node:fs");
-const { createTestDatabase } = require("./check-database.cjs");
+const { createTestDatabase, applySchema } = require("./check-database.cjs");
 const map = (type) =>
   ({
     jsonb: "Json",
@@ -16,7 +16,7 @@ const map = (type) =>
 async function main() {
   const db = await createTestDatabase();
   try {
-    await db.exec(fs.readFileSync("supabase/schema.sql", "utf8"));
+    await applySchema(db);
     const { rows } = await db.query(
       `SELECT table_name,column_name,data_type,is_nullable,column_default,is_generated,is_identity FROM information_schema.columns WHERE table_schema='public' ORDER BY table_name,ordinal_position`
     );

@@ -405,6 +405,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      leaderboard_snapshots: {
+        Row: {
+          user_id: string;
+          period: string;
+          captured_on: string;
+          rank: number;
+          score_v2: number;
+          tier: string;
+          streak: number;
+          commits: number;
+          prs: number;
+          reviews: number;
+          active_days: number;
+          repos: number;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          period: string;
+          captured_on: string;
+          rank: number;
+          score_v2: number;
+          tier: string;
+          streak?: number;
+          commits?: number;
+          prs?: number;
+          reviews?: number;
+          active_days?: number;
+          repos?: number;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          period?: string;
+          captured_on?: string;
+          rank?: number;
+          score_v2?: number;
+          tier?: string;
+          streak?: number;
+          commits?: number;
+          prs?: number;
+          reviews?: number;
+          active_days?: number;
+          repos?: number;
+          created_at?: string;
+        };
+        Relationships: [{"foreignKeyName":"leaderboard_snapshots_user_id_fkey","columns":["user_id"],"isOneToOne":false,"referencedRelation":"users","referencedColumns":["id"]}];
+      };
       local_coding_api_keys: {
         Row: {
           id: string;
@@ -654,6 +702,33 @@ export type Database = {
         };
         Relationships: [{"foreignKeyName":"room_messages_room_id_fkey","columns":["room_id"],"isOneToOne":false,"referencedRelation":"collaboration_rooms","referencedColumns":["id"]}];
       };
+      season_results: {
+        Row: {
+          season: string;
+          user_id: string;
+          rank: number;
+          score_v2: number;
+          tier: string;
+          finalized_at: string;
+        };
+        Insert: {
+          season: string;
+          user_id: string;
+          rank: number;
+          score_v2: number;
+          tier: string;
+          finalized_at?: string;
+        };
+        Update: {
+          season?: string;
+          user_id?: string;
+          rank?: number;
+          score_v2?: number;
+          tier?: string;
+          finalized_at?: string;
+        };
+        Relationships: [{"foreignKeyName":"season_results_user_id_fkey","columns":["user_id"],"isOneToOne":false,"referencedRelation":"users","referencedColumns":["id"]}];
+      };
       streak_freezes: {
         Row: {
           id: string;
@@ -788,6 +863,36 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [{"foreignKeyName":"user_github_orgs_user_id_fkey","columns":["user_id"],"isOneToOne":false,"referencedRelation":"users","referencedColumns":["id"]}];
+      };
+      user_progress: {
+        Row: {
+          user_id: string;
+          xp: number;
+          level: number;
+          tier: string;
+          best_tier: string;
+          best_rank: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          xp?: number;
+          level?: number;
+          tier?: string;
+          best_tier?: string;
+          best_rank?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          xp?: number;
+          level?: number;
+          tier?: string;
+          best_tier?: string;
+          best_rank?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [{"foreignKeyName":"user_progress_user_id_fkey","columns":["user_id"],"isOneToOne":true,"referencedRelation":"users","referencedColumns":["id"]}];
       };
       user_sponsor_metrics: {
         Row: {
