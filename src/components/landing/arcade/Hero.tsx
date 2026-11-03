@@ -1,9 +1,10 @@
+import { Suspense } from "react";
 import { Github, Star } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import FallingBlocks from "./FallingBlocks";
 import HeroStage from "./ScoreAttack";
-import HiScoreBoard from "./HiScoreBoard";
-import { REPO_URL, SIGN_IN_HREF, type LandingLeader } from "./types";
+import HiScoreBoard, { HiScoreBoardSkeleton } from "./HiScoreBoard";
+import { REPO_URL, SIGN_IN_HREF, type LandingBoard } from "./types";
 
 const TICKER = [
   "+10 XP per commit",
@@ -16,13 +17,12 @@ const TICKER = [
   "Free and open source",
 ];
 
-export default function Hero({
-  leaders,
-  playerCount,
-}: {
-  leaders: LandingLeader[];
-  playerCount: number;
-}) {
+async function LiveHiScoreBoard({ board }: { board: Promise<LandingBoard> }) {
+  const { leaders, playerCount } = await board;
+  return <HiScoreBoard leaders={leaders} playerCount={playerCount} />;
+}
+
+export default function Hero({ board }: { board: Promise<LandingBoard> }) {
   return (
     <section
       aria-labelledby="hero-heading"
@@ -37,7 +37,9 @@ export default function Hero({
         <HeroStage
           board={
             <Reveal delay={0.15}>
-              <HiScoreBoard leaders={leaders} playerCount={playerCount} />
+              <Suspense fallback={<HiScoreBoardSkeleton />}>
+                <LiveHiScoreBoard board={board} />
+              </Suspense>
             </Reveal>
           }
           intro={

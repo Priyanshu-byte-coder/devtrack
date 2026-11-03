@@ -154,7 +154,14 @@ export default async function RootLayout({
             <NextIntlClientProvider locale={locale} messages={messages}>
               <Providers>
                 <AppNavbar />
-                <div id="main-content" tabIndex={-1} className="outline-none">
+                {/* At least a screen tall, so the footer starts below the
+                    fold: streamed content replacing a shorter skeleton
+                    then can't shove a visible footer down (layout shift). */}
+                <div
+                  id="main-content"
+                  tabIndex={-1}
+                  className="min-h-[100svh] outline-none"
+                >
                   {children}
                 </div>
                 <Footer />

@@ -31,5 +31,12 @@ export default async function Image({
     ) : (
       <ShareCard data={{ state: "unranked", login: "" }} />
     );
-  return new ImageResponse(body, { ...SHARE_CARD_SIZE });
+  return new ImageResponse(body, {
+    ...SHARE_CARD_SIZE,
+    // `revalidate` doesn't reach the CDN for a dynamic segment.
+    headers: {
+      "Cache-Control":
+        "public, max-age=300, s-maxage=1800, stale-while-revalidate=86400",
+    },
+  });
 }
