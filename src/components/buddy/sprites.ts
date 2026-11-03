@@ -86,19 +86,22 @@ export interface PixelRun {
  * Turns a frame into horizontal runs of same-coloured pixels, so a sprite
  * is a few dozen <rect>s rather than one per pixel.
  */
-export function frameToRuns(rows: readonly string[]): PixelRun[] {
+export function frameToRuns(
+  rows: readonly string[],
+  palette: Record<string, string> = PALETTE
+): PixelRun[] {
   const runs: PixelRun[] = [];
   rows.forEach((row, y) => {
     let x = 0;
     while (x < row.length) {
       const ch = row[x];
-      if (ch === "." || !PALETTE[ch]) {
+      if (ch === "." || !palette[ch]) {
         x += 1;
         continue;
       }
       let end = x + 1;
       while (end < row.length && row[end] === ch) end += 1;
-      runs.push({ x, y, width: end - x, color: PALETTE[ch] });
+      runs.push({ x, y, width: end - x, color: palette[ch] });
       x = end;
     }
   });
