@@ -47,7 +47,8 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
   ),
   title: {
-    default: "DevTrack — GitHub stats, streaks & global developer rankings",
+    // Short: this is the browser tab. Search snippets use `description`.
+    default: "DevTrack · GitHub stats & rankings",
     template: "%s · DevTrack",
   },
   description:
@@ -67,7 +68,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 
   icons: {
-    icon: "/favicon.ico",
+    // Bit, drawn by scripts/generate-icons.mjs. The SVG stays crisp at any
+    // size; the .ico is for browsers that don't take SVG icons.
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+    ],
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
