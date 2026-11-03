@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PixelSprite from "@/components/buddy/PixelSprite";
 
 const BOOTED_KEY = "devtrack:booted";
 
@@ -44,8 +45,22 @@ export default function BootIntro() {
         <p className="boot-intro__logo font-pixel">
           <span className="text-[var(--accent)]">▲</span> DEVTRACK
         </p>
-        <div className="boot-intro__bar">
-          <span />
+        <div className="boot-intro__track">
+          <span className="boot-intro__runner">
+            <PixelSprite
+              frame="runA"
+              scale={2}
+              className="pixel-loader__frame-a"
+            />
+            <PixelSprite
+              frame="runB"
+              scale={2}
+              className="pixel-loader__frame-b"
+            />
+          </span>
+          <div className="boot-intro__bar">
+            <span />
+          </div>
         </div>
         <p className="boot-intro__press font-pixel">Press start</p>
       </div>
