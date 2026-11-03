@@ -30,7 +30,8 @@
     "settings": "Settings",
     "signInCta": "Sign in",
     "signOutCta": "Sign out",
-    "openDashboard": "Open dashboard"
+    "openDashboard": "Open dashboard",
+    "compare": "Compare"
   },
   "dashboard": {
     "overviewEyebrow": "Dashboard overview",
