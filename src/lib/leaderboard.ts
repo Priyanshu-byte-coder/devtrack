@@ -189,8 +189,10 @@ export async function clearLeaderboardCache(): Promise<void> {
   // 2. Drop all leaderboard shared keys in metrics memory map and Redis/Upstash.
   await invalidateLeaderboardCache();
 
-  // 3. Invalidate Next.js unstable_cache
-  revalidateTag("leaderboard", {});
+  // 3. Invalidate Next.js unstable_cache. `expire: 0` drops it outright: an
+  // object without `expire` is stale-while-revalidate, which served the old
+  // board to the first visitor after someone joined or left.
+  revalidateTag("leaderboard", { expire: 0 });
 }
 
 async function mapWithConcurrency<T, R>(
@@ -573,7 +575,7 @@ export async function refreshLeaderboardCache(
   const cacheKey = getLeaderboardCacheKey(period);
   await cacheSet(cacheKey, payload, CACHE_STALE_SECONDS);
   setMemoryCachedLeaderboard(payload, period);
-  revalidateTag("leaderboard", {});
+  revalidateTag("leaderboard", { expire: 0 });
   return payload;
 }
 
