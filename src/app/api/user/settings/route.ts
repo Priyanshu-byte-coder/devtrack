@@ -51,7 +51,7 @@ async function fetchUserSettings(userId: string) {
   const res1 = await supabaseAdmin
     .from("users")
     .select(
-      "id, github_login, bio, is_public, public_since, show_weekly_goals, leaderboard_opt_in, pinned_repos, wakatime_api_key_encrypted, wakatime_api_key_iv, weekly_digest_opt_in, discord_webhook_url, timezone, webhook_url, discord_muted_until, public_widgets, preferred_locale"
+      "id, github_login, bio, is_public, public_since, show_weekly_goals, leaderboard_opt_in, pinned_repos, wakatime_api_key_encrypted, wakatime_api_key_iv, weekly_digest_opt_in, discord_webhook_url, timezone, webhook_url, discord_muted_until, public_widgets, preferred_locale, seen_onboarding"
     )
     .eq("id", userId)
     .single();
@@ -232,6 +232,7 @@ export async function GET(req: NextRequest) {
     discord_muted_until: result.discord_muted_until ?? null,
     public_widgets: result.public_widgets,
     preferred_locale: result.preferred_locale,
+    seen_onboarding: result.data?.seen_onboarding === true,
   };
 
   await cacheSet(cacheKey, responseData, SETTINGS_TTL);
