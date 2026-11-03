@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { isSupabaseAdminAvailable, supabaseAdmin } from "@/lib/supabase-admin";
+import { TOP_LANGUAGES } from "@/lib/top-developers";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live";
 
@@ -14,6 +15,12 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/leaderboard`, changeFrequency: "daily", priority: 0.9 },
   { url: `${BASE_URL}/compare`, changeFrequency: "weekly", priority: 0.7 },
   { url: `${BASE_URL}/sponsor`, changeFrequency: "monthly", priority: 0.4 },
+  { url: `${BASE_URL}/top`, changeFrequency: "weekly", priority: 0.7 },
+  ...TOP_LANGUAGES.map((l) => ({
+    url: `${BASE_URL}/top/${l.slug}`,
+    changeFrequency: "daily" as const,
+    priority: 0.6,
+  })),
   { url: `${BASE_URL}/wrapped`, changeFrequency: "monthly", priority: 0.6 },
   { url: `${BASE_URL}/guidelines`, changeFrequency: "yearly", priority: 0.3 },
   {
