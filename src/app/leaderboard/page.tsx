@@ -20,7 +20,12 @@ import {
   filterLeaderboardByLanguage,
   type LeaderboardEntry,
 } from "@/lib/leaderboard";
-import { rankEntriesByScoreV2, rankMovement } from "@/lib/gamification/ranking";
+import {
+  biggestClimbers,
+  rankEntriesByScoreV2,
+  rankMovement,
+  type Climber,
+} from "@/lib/gamification/ranking";
 import {
   getBaselineRanks,
   getProgressByUserIds,
@@ -185,6 +190,9 @@ async function LeaderboardTable({
     isYou: isYou(entry),
   }));
   const rest = rows.slice(3);
+  const climbers = showMovement
+    ? biggestClimbers(rows, baseline.ranks, baseline.date !== null)
+    : [];
   const viewerOnBoard = rows.some(isYou);
 
   return (
@@ -226,6 +234,10 @@ async function LeaderboardTable({
       ) : (
         <>
           <Podium places={podium} />
+
+          {climbers.length > 0 && (
+            <Climbers climbers={climbers} since={baselineLabel} />
+          )}
 
           {rest.length > 0 && (
             <section
@@ -377,6 +389,49 @@ async function LeaderboardTable({
 
       {!viewerOnBoard && <JoinPanel signedIn={viewer !== null} />}
     </>
+  );
+}
+
+/** Who moved up the most since the last daily snapshot. */
+function Climbers({
+  climbers,
+  since,
+}: {
+  climbers: Climber[];
+  since?: string;
+}) {
+  return (
+    <section
+      aria-labelledby="climbers-heading"
+      className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-2 border-dashed border-[var(--border)] px-4 py-3"
+    >
+      <h2
+        id="climbers-heading"
+        className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]"
+      >
+        Biggest climbers{since ? ` since ${since}` : ""}
+      </h2>
+      <ul className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        {climbers.map((c) => (
+          <li key={c.username} className="flex items-center gap-2 text-sm">
+            <span className="font-pixel text-sm text-[var(--success)]">
+              <span aria-hidden="true">▲</span>
+              <span className="sr-only">Up </span>
+              {c.places}
+            </span>
+            <Link
+              href={`/u/${c.username.toLowerCase()}`}
+              className="font-mono font-semibold text-[var(--card-foreground)] hover:text-[var(--accent)]"
+            >
+              @{c.username}
+            </Link>
+            <span className="text-xs text-[var(--muted-foreground)]">
+              now #{c.rank}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
