@@ -7,16 +7,6 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import PRStatusDonutChart from "./PRStatusDonutChart";
-import MiniPRTrendChart from "./MiniPRTrendChart";
 import { SkeletonBlock } from "./WidgetSkeleton";
 import { safeExternalHref } from "@/lib/safe-url";
 import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
@@ -360,72 +350,30 @@ export default function PRMetrics() {
                 })
                 .map(renderStat)}
             </div>
-            {prFilter !== "open" && <MiniPRTrendChart />}
           </div>
 
-          {/* PR Status Donut Chart */}
-          {metrics && (
-            <div>
-              <p className="mb-2 text-sm font-medium text-[var(--muted-foreground)]">
-                PR Status Distribution
-              </p>
-              <PRStatusDonutChart
-                open={prFilter === "merged" ? 0 : metrics.open || 0}
-                merged={prFilter === "open" ? 0 : metrics.merged || 0}
-                closed={prFilter === "all" ? metrics.closed || 0 : 0}
-              />
+          {metrics?.slowestRepos && metrics.slowestRepos.length > 0 && (
+            <div className="bg-[var(--control)] p-4">
+              <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
+                Slowest Review Repos
+              </h3>
+              <div className="space-y-2">
+                {metrics.slowestRepos.map((r) => (
+                  <div
+                    key={r.repo}
+                    className="flex justify-between items-center bg-[var(--card)] p-2 rounded"
+                  >
+                    <span className="text-sm text-[var(--muted-foreground)] truncate">
+                      {r.repo}
+                    </span>
+                    <span className="text-sm font-bold text-[var(--accent)]">
+                      {r.avgHours}h
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-
-          {/* Cycle Time Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {metrics?.weeklyTrend && metrics.weeklyTrend.length > 0 && (
-              <div className="bg-[var(--control)] p-4">
-                <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-                  Review Cycle Trend
-                </h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={metrics.weeklyTrend}>
-                    <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} unit="h" />
-                    <Tooltip
-                      formatter={(val) => [`${val}h`, "Avg Cycle Time"]}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="avgHours"
-                      stroke="var(--accent)"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-
-            {metrics?.slowestRepos && metrics.slowestRepos.length > 0 && (
-              <div className="bg-[var(--control)] p-4">
-                <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-                  Slowest Review Repos
-                </h3>
-                <div className="space-y-2">
-                  {metrics.slowestRepos.map((r) => (
-                    <div
-                      key={r.repo}
-                      className="flex justify-between items-center bg-[var(--card)] p-2 rounded"
-                    >
-                      <span className="text-sm text-[var(--muted-foreground)] truncate">
-                        {r.repo}
-                      </span>
-                      <span className="text-sm font-bold text-[var(--accent)]">
-                        {r.avgHours}h
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
 
           {/* GitLab MRs Section */}
           {metrics?.gitlab && (

@@ -59,11 +59,9 @@ const ContributionHeatmapChart = lazy(
 const RepoContributionDistributionChart = lazy(
   () => import("@/components/RepoContributionDistribution")
 );
-const ActivityRingChart = lazy(() => import("@/components/ActivityRingChart"));
 const CodingActivityInsightsCard = lazy(
   () => import("@/components/CodingActivityInsightsCard")
 );
-const CommitTimeChart = lazy(() => import("@/components/CommitTimeChart"));
 const ProductiveHoursChart = lazy(
   () => import("@/components/ProductiveHoursWidget")
 );
@@ -71,10 +69,6 @@ const PRMetricsChart = lazy(() => import("@/components/PRMetrics"));
 const PRBreakdownChart = lazy(() => import("@/components/PRBreakdownChart"));
 const PRReviewTrendChart = lazy(
   () => import("@/components/PRReviewTrendChart")
-);
-const FriendComparisonWidget = lazy(
-  () => import("@/components/FriendComparison"),
-  false
 );
 const AchievementProgress = lazy(
   () => import("@/components/GitHubAchievementProgress"),
@@ -165,22 +159,10 @@ export const ConsistencyScore = slot(
   () => <ConsistencyScoreWidget />,
   true
 );
-export const ActivityRing = slot(
-  "activity-ring",
-  "Activity Ring",
-  () => <ActivityRingChart />,
-  true
-);
 export const CodingActivityInsights = slot(
   "coding-activity-insights",
   "Coding Activity Insights",
   () => <CodingActivityInsightsCard />,
-  true
-);
-export const CommitTime = slot(
-  "commit-time",
-  "Commit Time",
-  () => <CommitTimeChart />,
   true
 );
 export const ProductiveHours = slot(
@@ -296,12 +278,6 @@ export const CommunityMetrics = slot(
   "community-metrics",
   "Community Metrics",
   () => <CommunityMetricsWidget />
-);
-export const FriendComparison = slot(
-  "friend-comparison",
-  "Friend Comparison",
-  () => <FriendComparisonWidget />,
-  true
 );
 export const SponsorAnalytics = slot(
   "sponsor-analytics",
