@@ -5,7 +5,7 @@ const ROWS = 8;
 /** Mirrors the real row layout in `page.tsx`, including its `sm` breakpoint. */
 export default function LeaderboardSkeleton() {
   return (
-    <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
+    <section className="px-frame bg-[var(--card)]">
       <div
         aria-hidden="true"
         className="hidden border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] sm:flex sm:items-center sm:gap-3"

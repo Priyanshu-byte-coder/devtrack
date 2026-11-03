@@ -8,17 +8,16 @@ import { stagger } from "@/lib/motion";
 import LeaderboardFilters from "@/components/leaderboard/LeaderboardFilters";
 import LeaderboardSkeleton from "@/app/leaderboard/LeaderboardSkeleton";
 import SponsorBadge from "@/components/SponsorBadge";
-import PageHeader from "@/components/shell/PageHeader";
-import { buttonVariants } from "@/components/ui/button";
-import {
-  segmentedGroupClass,
-  segmentedItemClass,
-} from "@/components/ui/segmented";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
+import Podium, { type PodiumPlace } from "@/components/leaderboard/Podium";
+import DevLookup from "@/components/landing/arcade/DevLookup";
+import { SIGN_IN_HREF } from "@/components/landing/arcade/types";
+import { getServerSession } from "@/lib/server-session";
+import { authOptions } from "@/lib/auth";
 import {
   getLeaderboardData,
   filterLeaderboardByLanguage,
   type LeaderboardEntry,
-  type LeaderboardPayload,
 } from "@/lib/leaderboard";
 import { rankEntriesByScoreV2, rankMovement } from "@/lib/gamification/ranking";
 import {
@@ -60,6 +59,8 @@ const periods: Record<LeaderboardPeriod, string> = {
   all: "all time",
 };
 
+const fmt = new Intl.NumberFormat("en-US");
+
 function isLeaderboardPeriod(
   value: string | undefined
 ): value is LeaderboardPeriod {
@@ -90,14 +91,35 @@ function getMetricValue(entry: LeaderboardEntry, tab: LeaderboardTab): number {
   return entry.prs;
 }
 
-// New: async sub-component that does the actual data fetching + rendering.
-// This is the part that gets suspended while data loads.
+/** Days left in the current monthly season, counting today. */
+function seasonDaysLeft(now = new Date()) {
+  const last = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)
+  ).getUTCDate();
+  return last - now.getUTCDate() + 1;
+}
+
+async function viewerLogin(): Promise<string | null> {
+  const session = await getServerSession(authOptions);
+  return typeof session?.githubLogin === "string"
+    ? session.githubLogin.toLowerCase()
+    : null;
+}
+
+/** Larger avatar for the podium; leaderboard avatars are requested at 96px. */
+function podiumAvatar(url: string) {
+  return url.replace(/([?&])s=\d+/, "$1s=144");
+}
+
+// The part that suspends while data loads.
 async function LeaderboardTable({
   activeTab,
   filters,
+  viewer,
 }: {
   activeTab: LeaderboardTab;
   filters: { lang?: string; period: LeaderboardPeriod };
+  viewer: string | null;
 }) {
   const hasFilters = Boolean(filters.lang) || filters.period !== "all";
 
@@ -149,31 +171,41 @@ async function LeaderboardTable({
       })
     : undefined;
 
+  const isYou = (entry: LeaderboardEntry) =>
+    viewer !== null && entry.username.toLowerCase() === viewer;
+  const podium: PodiumPlace[] = rows.slice(0, 3).map((entry) => ({
+    username: entry.username,
+    avatarUrl: podiumAvatar(entry.avatarUrl),
+    profileUrl: entry.profileUrl,
+    value: fmt.format(getMetricValue(entry, activeTab)),
+    valueLabel: metricLabel,
+    tier: entry.tier,
+    scoreV2: entry.scoreV2,
+    isYou: isYou(entry),
+  }));
+  const rest = rows.slice(3);
+  const viewerOnBoard = rows.some(isYou);
+
   return (
     <>
       {!hasFilters && rows.length > 0 && (
         <JsonLd data={leaderboardJsonLd(rows.slice(0, 50))} />
       )}
-      {leaderboard && (
-        <p className="mb-2 text-right text-xs text-[var(--muted-foreground)]">
-          Updated {new Date(leaderboard.generatedAt).toLocaleString()}
-        </p>
-      )}
 
-      <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
-        {!leaderboard ? (
-          <div className="px-4 py-12 text-center">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Leaderboard data is temporarily unavailable.
-            </p>
-            <Link
-              href="/leaderboard"
-              className="mt-4 inline-block text-sm font-medium text-[var(--accent)] hover:underline"
-            >
-              Retry
-            </Link>
-          </div>
-        ) : rows.length === 0 ? (
+      {!leaderboard ? (
+        <div className="px-frame bg-[var(--card)] px-4 py-12 text-center">
+          <p className="font-pixel text-sm uppercase text-[var(--card-foreground)]">
+            Connection lost
+          </p>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            Leaderboard data is temporarily unavailable.
+          </p>
+          <Link href="/leaderboard" className="px-btn mt-6">
+            Retry
+          </Link>
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="px-frame bg-[var(--card)]">
           <EmptyState
             icon="🏆"
             title={
@@ -189,136 +221,195 @@ async function LeaderboardTable({
             actionLabel="Go to Settings"
             actionHref="/dashboard/settings"
           />
-        ) : (
-          <>
-            {/* Column headings only make sense once the row is a real table;
-                below `sm` each row reads as a card instead. */}
-            <div
-              aria-hidden="true"
-              className="hidden border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] sm:flex sm:items-center sm:gap-3"
+        </div>
+      ) : (
+        <>
+          <Podium places={podium} />
+
+          {rest.length > 0 && (
+            <section
+              aria-label={`Ranks 4 to ${rows.length}`}
+              className="px-frame bg-[var(--card)]"
             >
-              <span className="w-10 shrink-0">Rank</span>
-              <span className="w-10 shrink-0" />
-              <span className="min-w-0 flex-1">Contributor</span>
-              <span className="w-24 shrink-0 text-right">
-                {activeMeta.label}
-              </span>
-              <span className="hidden w-16 shrink-0 text-right md:block">
-                Level
-              </span>
-              <span className="w-[4.5rem] shrink-0 text-right">Profile</span>
-            </div>
+              {/* Column headings only make sense once the row is a real
+                  table; below `sm` each row reads as a card instead. */}
+              <div
+                aria-hidden="true"
+                className="hidden border-b-4 border-dotted border-[var(--border)] px-4 py-3 font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)] sm:flex sm:items-center sm:gap-3"
+              >
+                <span className="w-12 shrink-0">Rank</span>
+                <span className="w-9 shrink-0" />
+                <span className="min-w-0 flex-1">Player</span>
+                <span className="w-24 shrink-0 text-right">
+                  {activeMeta.label}
+                </span>
+                <span className="hidden w-16 shrink-0 text-right md:block">
+                  Level
+                </span>
+              </div>
 
-            <ul className="divide-y divide-[var(--border)]">
-              {rows.map((entry, index) => (
-                <Reveal
-                  as="li"
-                  key={entry.id}
-                  className="flex items-center gap-3 px-4 py-3"
-                  y={8}
-                  amount={0}
-                  // The first screenful cascades in; rows further down just
-                  // appear as they scroll into view, without a growing delay.
-                  delay={index < 15 ? index * stagger.tight : 0}
-                >
-                  <span className="flex w-7 shrink-0 flex-col items-start gap-1 sm:w-10">
-                    <span className="text-sm font-semibold tabular-nums text-[var(--muted-foreground)] sm:text-base">
-                      #{entry.rank}
-                    </span>
-                    {showMovement && (
-                      <RankMovementBadge
-                        movement={rankMovement(
-                          entry.rank,
-                          baseline.ranks[entry.id],
-                          baseline.date !== null
+              <ul className="divide-y-2 divide-dashed divide-[var(--border)]">
+                {rest.map((entry, index) => {
+                  const you = isYou(entry);
+                  return (
+                    <Reveal
+                      as="li"
+                      key={entry.id}
+                      className={`relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--control)] ${
+                        you
+                          ? "bg-accent/10 shadow-[inset_4px_0_0_0_var(--accent)]"
+                          : ""
+                      }`}
+                      y={8}
+                      amount={0}
+                      // The first screenful cascades in; rows further down
+                      // just appear as they scroll into view.
+                      delay={index < 15 ? index * stagger.tight : 0}
+                    >
+                      <span className="flex w-9 shrink-0 flex-col items-start gap-1 sm:w-12">
+                        <span className="font-pixel text-sm tabular-nums text-[var(--muted-foreground)] sm:text-base">
+                          {String(entry.rank).padStart(2, "0")}
+                        </span>
+                        {showMovement && (
+                          <RankMovementBadge
+                            movement={rankMovement(
+                              entry.rank,
+                              baseline.ranks[entry.id],
+                              baseline.date !== null
+                            )}
+                            since={baselineLabel}
+                          />
                         )}
-                        since={baselineLabel}
-                      />
-                    )}
-                  </span>
-
-                  <Image
-                    src={entry.avatarUrl}
-                    alt=""
-                    width={40}
-                    height={40}
-                    unoptimized
-                    className="h-10 w-10 shrink-0 rounded-full border border-[var(--border)]"
-                  />
-
-                  {/* min-w-0 lets the long usernames actually truncate instead
-                      of forcing the row wider than the screen. */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        title={entry.username}
-                        className="truncate font-semibold text-[var(--card-foreground)]"
-                      >
-                        @{entry.username}
                       </span>
-                      {entry.tier && (
-                        <TierBadge
-                          tier={entry.tier}
-                          score={entry.scoreV2}
-                          compact
-                        />
-                      )}
-                      {entry.isSponsor && (
-                        <SponsorBadge
-                          className="shrink-0"
-                          labelClassName="hidden sm:inline"
-                        />
-                      )}
-                    </div>
 
-                    {/* On a phone the metric has no column of its own, so it
-                        leads the secondary line instead. */}
-                    <p className="truncate text-xs text-[var(--muted-foreground)]">
-                      <span className="font-semibold text-[var(--card-foreground)] sm:hidden">
-                        {getMetricValue(entry, activeTab)} {metricLabel}
-                        {" · "}
-                      </span>
-                      {entry.commits} commits · {entry.prs} PRs · {entry.streak}
-                      d streak
-                    </p>
-                  </div>
-
-                  <div className="hidden w-24 shrink-0 text-right sm:block">
-                    <div className="text-base font-semibold tabular-nums text-[var(--card-foreground)]">
-                      {getMetricValue(entry, activeTab)}
-                    </div>
-                    <div className="truncate text-xs text-[var(--muted-foreground)]">
-                      {metricLabel}
-                    </div>
-                  </div>
-
-                  <div className="hidden w-16 shrink-0 justify-end md:flex">
-                    {(progress[entry.id]?.level ?? entry.level) !==
-                      undefined && (
-                      <LevelChip
-                        level={progress[entry.id]?.level ?? entry.level!}
+                      <Image
+                        src={entry.avatarUrl}
+                        alt=""
+                        width={36}
+                        height={36}
+                        unoptimized
+                        className="h-9 w-9 shrink-0 bg-[var(--control)]"
                       />
-                    )}
-                  </div>
 
-                  <Link
-                    href={entry.profileUrl}
-                    aria-label={`View ${entry.username}'s profile`}
-                    className={buttonVariants({
-                      variant: "outline",
-                      size: "sm",
-                      className: "w-[4.5rem] shrink-0 justify-center",
-                    })}
-                  >
-                    View
-                  </Link>
-                </Reveal>
-              ))}
-            </ul>
-          </>
-        )}
-      </section>
+                      {/* min-w-0 lets long usernames truncate instead of
+                          forcing the row wider than the screen. */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          {/* The whole row is the link, via the overlay. */}
+                          <Link
+                            href={entry.profileUrl}
+                            title={entry.username}
+                            className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none"
+                          >
+                            @{entry.username}
+                          </Link>
+                          {you && (
+                            <span className="shrink-0 font-pixel text-[10px] uppercase text-[var(--accent)]">
+                              You
+                            </span>
+                          )}
+                          {entry.tier && (
+                            <TierBadge
+                              tier={entry.tier}
+                              score={entry.scoreV2}
+                              compact
+                            />
+                          )}
+                          {entry.isSponsor && (
+                            <SponsorBadge
+                              className="shrink-0"
+                              labelClassName="hidden sm:inline"
+                            />
+                          )}
+                        </div>
+
+                        {/* On a phone the metric has no column of its own,
+                            so it leads the secondary line instead. */}
+                        <p className="truncate text-xs text-[var(--muted-foreground)]">
+                          <span className="font-semibold text-[var(--card-foreground)] sm:hidden">
+                            {fmt.format(getMetricValue(entry, activeTab))}{" "}
+                            {metricLabel}
+                            {" · "}
+                          </span>
+                          {fmt.format(entry.commits)} commits ·{" "}
+                          {fmt.format(entry.prs)} PRs · {entry.streak}d streak
+                        </p>
+                      </div>
+
+                      <div className="hidden w-24 shrink-0 text-right sm:block">
+                        <div className="font-pixel text-base tabular-nums text-[var(--card-foreground)]">
+                          {fmt.format(getMetricValue(entry, activeTab))}
+                        </div>
+                        <div className="truncate text-xs text-[var(--muted-foreground)]">
+                          {metricLabel}
+                        </div>
+                      </div>
+
+                      <div className="hidden w-16 shrink-0 justify-end md:flex">
+                        {(progress[entry.id]?.level ?? entry.level) !==
+                          undefined && (
+                          <LevelChip
+                            level={progress[entry.id]?.level ?? entry.level!}
+                          />
+                        )}
+                      </div>
+                    </Reveal>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+
+          <p className="mt-3 text-right font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+            Updated{" "}
+            {new Date(leaderboard.generatedAt).toLocaleString("en-US", {
+              timeZone: "UTC",
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}{" "}
+            UTC
+          </p>
+        </>
+      )}
+
+      {!viewerOnBoard && <JoinPanel signedIn={viewer !== null} />}
     </>
+  );
+}
+
+/** For anyone not on the board: how to get on it, or where they'd land. */
+function JoinPanel({ signedIn }: { signedIn: boolean }) {
+  return (
+    <section
+      aria-labelledby="join-heading"
+      className="px-frame px-frame-accent mt-10 grid gap-8 bg-[var(--card)] p-6 md:grid-cols-2 md:items-center"
+    >
+      <div className="min-w-0">
+        <h2
+          id="join-heading"
+          className="font-pixel text-2xl uppercase leading-none text-[var(--card-foreground)]"
+        >
+          Not on the board?
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
+          {signedIn
+            ? "Make your profile public and join in one click. Your rank appears with the next daily update."
+            : "Sign in with GitHub and join in one click. Your rank, tier and XP come from the activity you already have."}
+        </p>
+        <div className="-m-1 mt-5">
+          {signedIn ? (
+            <Link href="/claim" className="px-btn">
+              Join the leaderboard
+            </Link>
+          ) : (
+            <a href={SIGN_IN_HREF} className="px-btn">
+              Press start
+            </a>
+          )}
+        </div>
+      </div>
+      <DevLookup className="min-w-0" />
+    </section>
   );
 }
 
@@ -335,16 +426,44 @@ export default async function LeaderboardPage({
     ? resolvedSearchParams.period
     : "all";
   const filters = { lang: resolvedSearchParams.lang, period };
+  const viewer = await viewerLogin();
+  const daysLeft = seasonDaysLeft();
+  const seasonName = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 
   return (
     <>
-      <PageHeader
-        title="Leaderboard"
-        description="Public developers ranked by DevTrack score: consistency, impact, volume and breadth. Switch tabs to rank by a single stat."
-      />
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+            Hi-scores · worldwide
+          </p>
+          <h1 className="mt-2 font-pixel text-[clamp(2rem,5vw,3.25rem)] uppercase leading-none text-[var(--foreground)]">
+            Leaderboard
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">
+            Public developers ranked by DevTrack score: consistency, impact,
+            volume and breadth. Switch tabs to rank by a single stat.
+          </p>
+        </div>
+        <Link
+          href={leaderboardHref(activeTab, { ...filters, period: "month" })}
+          className="px-frame bg-[var(--card)] px-4 py-3 text-right transition-colors hover:bg-[var(--control)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        >
+          <span className="block font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+            Season · {seasonName}
+          </span>
+          <span className="mt-1 block font-pixel text-lg uppercase text-[var(--card-foreground)]">
+            {daysLeft} {daysLeft === 1 ? "day" : "days"} left
+          </span>
+        </Link>
+      </header>
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <nav aria-label="Ranking" className={segmentedGroupClass}>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
+        <nav aria-label="Ranking" className={arcadeTabGroupClass}>
           {tabs.map((tab) => {
             const active = tab.id === activeTab;
             return (
@@ -352,7 +471,7 @@ export default async function LeaderboardPage({
                 key={tab.id}
                 href={leaderboardHref(tab.id, filters)}
                 aria-current={active ? "page" : undefined}
-                className={segmentedItemClass(active)}
+                className={arcadeTabClass(active)}
               >
                 {tab.label}
               </Link>
@@ -369,7 +488,11 @@ export default async function LeaderboardPage({
         key={`${activeTab}-${filters.lang ?? ""}-${filters.period}`}
         fallback={<LeaderboardSkeleton />}
       >
-        <LeaderboardTable activeTab={activeTab} filters={filters} />
+        <LeaderboardTable
+          activeTab={activeTab}
+          filters={filters}
+          viewer={viewer}
+        />
       </Suspense>
     </>
   );
