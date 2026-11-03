@@ -972,3 +972,24 @@ html.booted .boot-intro {
     display: none;
   }
 }
+
+/* Profile commit bars grow up in pixel steps. */
+.profile-bar {
+  animation: profile-bar-grow 0.5s steps(6, end) both;
+}
+
+@keyframes profile-bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-bar {
+    animation: none;
+  }
+}
