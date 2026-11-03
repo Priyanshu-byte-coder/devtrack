@@ -322,7 +322,7 @@ export default function PersonalRecords() {
           {records.map((rec) => (
             <div
               key={rec.label}
-              className="h-full rounded-lg bg-[var(--control)] p-4 text-center flex flex-col justify-between border border-transparent stat-cell animate-fade-in-up hover:border-accent/30"
+              className="stat-cell flex h-full flex-col justify-between p-4 text-center animate-fade-in-up"
             >
               <div>
                 <div className="text-xl mb-2 flex justify-center">
@@ -332,7 +332,7 @@ export default function PersonalRecords() {
                     aria-hidden="true"
                   />
                 </div>
-                <div className="text-3xl font-extrabold text-[var(--accent)] tracking-tight mb-1">
+                <div className="stat-value mb-1 text-2xl">
                   {rec.value}
                   <span className="ml-1 text-xs font-normal text-[var(--muted-foreground)] tracking-normal">
                     {rec.unit}

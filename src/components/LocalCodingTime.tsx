@@ -156,24 +156,22 @@ export default function LocalCodingTime() {
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-6 stagger-children">
-        <div className="text-center stat-cell rounded-lg p-2 animate-fade-in-up">
-          <div className="text-2xl font-bold text-[var(--card-foreground)]">
+        <div className="stat-cell p-3 text-center animate-fade-in-up">
+          <div className="stat-value text-xl">
             {formatDuration(data.totals.totalSeconds)}
           </div>
           <div className="text-xs text-[var(--muted-foreground)]">
             Total time
           </div>
         </div>
-        <div className="text-center stat-cell rounded-lg p-2 animate-fade-in-up">
-          <div className="text-2xl font-bold text-[var(--card-foreground)]">
-            {data.totals.totalDays}
-          </div>
+        <div className="stat-cell p-3 text-center animate-fade-in-up">
+          <div className="stat-value text-xl">{data.totals.totalDays}</div>
           <div className="text-xs text-[var(--muted-foreground)]">
             Active days
           </div>
         </div>
-        <div className="text-center stat-cell rounded-lg p-2 animate-fade-in-up">
-          <div className="text-2xl font-bold text-[var(--card-foreground)]">
+        <div className="stat-cell p-3 text-center animate-fade-in-up">
+          <div className="stat-value text-xl">
             {formatDuration(data.totals.avgSecondsPerDay)}
           </div>
           <div className="text-xs text-[var(--muted-foreground)]">

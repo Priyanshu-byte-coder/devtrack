@@ -3,7 +3,7 @@
 import { metricCount, metricWithUnit } from "@/lib/format-metric";
 import SectionHeader from "./SectionHeader";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
@@ -19,6 +19,7 @@ import PRStatusDonutChart from "./PRStatusDonutChart";
 import MiniPRTrendChart from "./MiniPRTrendChart";
 import { SkeletonBlock } from "./WidgetSkeleton";
 import { safeExternalHref } from "@/lib/safe-url";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 
 interface PRMetricsSummary {
   open: number;
@@ -57,6 +58,16 @@ function formatReviewCycle(hours: number | null | undefined): string {
   if (hours < 24) return `${hours}h`;
   return `${Math.round((hours / 24) * 10) / 10}d`;
 }
+
+/** Colour keys for the stat tiles, in the HUD palette. */
+const STAT_COLORS = [
+  "#6ba8ff",
+  "#34d399",
+  "#c77dff",
+  "#fb923c",
+  "#f2c14e",
+  "#22d3ee",
+];
 
 export default function PRMetrics() {
   const { selectedAccount } = useAccount();
@@ -184,25 +195,22 @@ export default function PRMetrics() {
       })
     : [];
 
-  const renderStat = (stat: PRStat) => {
+  const renderStat = (stat: PRStat, index: number) => {
     const content = (
       <>
-        <div
-          className={`truncate text-xl font-bold ${stat.warning ? "text-orange-300" : "text-[var(--accent)]"}`}
-        >
-          {stat.value}
-        </div>
-        <div className="truncate mt-1 text-sm text-[var(--muted-foreground)]">
+        <div className="stat-value truncate text-xl">{stat.value}</div>
+        <div className="truncate mt-1 text-xs text-[var(--muted-foreground)]">
           {stat.label}
         </div>
       </>
     );
 
-    const className = `rounded-lg p-4 text-center min-w-0 border border-transparent transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-md ${
-      stat.warning
-        ? "border-orange-400/30 bg-orange-500/10 hover:bg-orange-500/15 hover:border-orange-400/50"
-        : "bg-[var(--control)] hover:bg-[var(--control-hover)] hover:border-[var(--border)]"
-    }`;
+    const className = "stat-cell block min-w-0 p-4 text-center";
+    const style = {
+      "--stat-c": stat.warning
+        ? "#fb923c"
+        : STAT_COLORS[index % STAT_COLORS.length],
+    } as CSSProperties;
 
     return stat.href ? (
       <a
@@ -211,12 +219,18 @@ export default function PRMetrics() {
         target="_blank"
         rel="noopener noreferrer"
         className={className}
+        style={style}
         title={stat.title}
       >
         {content}
       </a>
     ) : (
-      <div key={stat.label} className={className} title={stat.title}>
+      <div
+        key={stat.label}
+        className={className}
+        style={style}
+        title={stat.title}
+      >
         {content}
       </div>
     );
@@ -227,57 +241,41 @@ export default function PRMetrics() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4">
         <SectionHeader title="PR Analytics" />
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex gap-2">
+          <div
+            className={arcadeTabGroupClass}
+            role="group"
+            aria-label="Time range"
+          >
             {(["7d", "30d", "90d"] as const).map((option) => (
               <button
                 key={option}
+                type="button"
                 onClick={() => setRange(option)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  range === option
-                    ? "bg-[var(--accent)] text-white"
-                    : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
-                }`}
+                aria-pressed={range === option}
+                className={arcadeTabClass(range === option)}
               >
                 {option}
               </button>
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className={arcadeTabGroupClass} role="group" aria-label="View">
             <button
+              type="button"
               onClick={() => setActiveTab("authored")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                activeTab === "authored"
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
-              }`}
+              aria-pressed={activeTab === "authored"}
+              className={arcadeTabClass(activeTab === "authored")}
             >
-              PRs Authored
+              Authored
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab("reviews")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                activeTab === "reviews"
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--control)] text-[var(--muted-foreground)] hover:bg-[var(--card-muted)]"
-              }`}
+              aria-pressed={activeTab === "reviews"}
+              className={arcadeTabClass(activeTab === "reviews")}
             >
-              Reviews Given
+              Reviews
             </button>
           </div>
-          <label className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
-            Range
-            <select
-              value={range}
-              onChange={(event) =>
-                setRange(event.target.value as "7d" | "30d" | "90d")
-              }
-              className="rounded-md border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] transition-colors"
-            >
-              <option value="7d">7d</option>
-              <option value="30d">30d</option>
-              <option value="90d">90d</option>
-            </select>
-          </label>
           <label className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
             Stale after
             <select
@@ -337,11 +335,8 @@ export default function PRMetrics() {
                   <button
                     key={filter}
                     onClick={() => setPrFilter(filter)}
-                    className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition-colors ${
-                      prFilter === filter
-                        ? "bg-[var(--accent)] text-white"
-                        : "bg-[var(--control)] text-[var(--muted-foreground)]"
-                    }`}
+                    aria-pressed={prFilter === filter}
+                    className={arcadeTabClass(prFilter === filter)}
                   >
                     {filter}
                   </button>
@@ -470,15 +465,18 @@ export default function PRMetrics() {
                 label: "Approval Rate",
                 value: metrics?.reviews?.approvalRate ?? "0%",
               },
-            ].map((stat) => (
+            ].map((stat, index) => (
               <div
                 key={stat.label}
-                className="rounded-lg bg-[var(--control)] p-4 text-center"
+                className="stat-cell p-4 text-center"
+                style={
+                  {
+                    "--stat-c": STAT_COLORS[index % STAT_COLORS.length],
+                  } as CSSProperties
+                }
               >
-                <div className="text-2xl font-bold text-[var(--accent)]">
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-sm text-[var(--muted-foreground)]">
+                <div className="stat-value text-2xl">{stat.value}</div>
+                <div className="mt-1 text-xs text-[var(--muted-foreground)]">
                   {stat.label}
                 </div>
               </div>

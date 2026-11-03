@@ -36,7 +36,7 @@ export default function RepoAnalyticsExplorer() {
     <section className="mt-6 min-w-0 overflow-hidden px-frame bg-[var(--card)] p-4 md:p-6 fade-up">
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Repo Analytics
           </h2>
           <p className="text-sm text-[var(--muted-foreground)] mt-1">

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 
 const DEFAULT_DAYS = 90;
 
@@ -305,18 +306,16 @@ export default function ProductiveHoursWidget() {
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Preset range pills */}
-          <div className="flex gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1">
+          <div className={arcadeTabGroupClass} role="group" aria-label="Range">
             {PRESET_RANGES.map((r) => (
               <button
                 key={r.days}
                 onClick={() => handleRangeChange(r.days)}
                 aria-label={`Show ${r.days}-day range`}
                 aria-pressed={selectedDays === r.days && !customLabel}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                className={arcadeTabClass(
                   selectedDays === r.days && !customLabel
-                    ? "bg-[var(--accent)] text-[var(--background)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
+                )}
               >
                 {r.label}
               </button>
@@ -326,11 +325,7 @@ export default function ProductiveHoursWidget() {
           <div className="relative" ref={popoverRef}>
             <button
               onClick={() => setShowPopover((v) => !v)}
-              className={`rounded-md border border-[var(--border)] px-3 py-1 text-xs font-medium transition-colors ${
-                customLabel
-                  ? "bg-[var(--accent)] text-[var(--background)]"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
+              className={arcadeTabClass(Boolean(customLabel))}
             >
               {customLabel ?? "Custom…"}
             </button>
@@ -390,7 +385,7 @@ export default function ProductiveHoursWidget() {
                 ? { backgroundColor: themeConfig.accent, color: "#fff" }
                 : undefined
             }
-            className="rounded px-2 py-1 text-xs"
+            className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
             Default
           </button>
@@ -402,7 +397,7 @@ export default function ProductiveHoursWidget() {
                 ? { backgroundColor: themeConfig.accent, color: "#fff" }
                 : undefined
             }
-            className="rounded px-2 py-1 text-xs"
+            className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
             Colour-blind
           </button>

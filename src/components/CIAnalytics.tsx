@@ -221,19 +221,17 @@ export default function CIAnalytics() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg bg-[var(--control)] p-4 text-center stat-cell animate-fade-in-up"
+                className="stat-cell p-4 text-center animate-fade-in-up"
               >
-                <div className="text-2xl font-bold text-[var(--accent)]">
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-sm text-[var(--muted-foreground)]">
+                <div className="stat-value text-2xl">{stat.value}</div>
+                <div className="mt-1 text-xs text-[var(--muted-foreground)]">
                   {stat.label}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="rounded-lg bg-[var(--control)] p-4 stat-cell">
+          <div className="stat-cell p-4 [--stat-c:#f2c14e]">
             <p className="text-sm font-medium text-[var(--card-foreground)]">
               Flakiest workflow
             </p>
