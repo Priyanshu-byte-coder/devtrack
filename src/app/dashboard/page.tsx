@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
 import ThrottleBanner from "@/components/ThrottleBanner";
 import TodayFocusHero from "@/components/TodayFocusHero";
@@ -19,6 +20,8 @@ import { redirect } from "next/navigation";
 import DashboardSSEProvider from "@/components/DashboardSSEProvider";
 import RankCard from "@/components/gamification/RankCard";
 import { Suspense } from "react";
+
+export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   // In the production standalone Playwright build, getServerSession can fail to

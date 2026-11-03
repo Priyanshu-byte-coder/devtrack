@@ -3,7 +3,7 @@ import Link from "next/link";
 import { GUIDES } from "@/content/guides";
 
 export const metadata: Metadata = {
-  title: "Guides: GitHub stats, streaks and profiles",
+  title: "GitHub stats guides",
   description:
     "Short, practical guides: add GitHub stats to your README, keep a GitHub streak, compare two GitHub profiles, and how the DevTrack score works.",
   alternates: { canonical: "/guides" },

@@ -8,7 +8,7 @@ import { ROUNDS, duelPath } from "@/lib/duel";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
 
 export const metadata: Metadata = {
-  title: "Compare GitHub profiles side by side",
+  title: "Compare GitHub profiles",
   description:
     "Put any two GitHub users head to head: streaks, contributions, commits, pull requests and code reviews, scored round by round. Free, no sign-up.",
   alternates: { canonical: "/compare" },

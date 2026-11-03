@@ -36,7 +36,7 @@ import RankMovementBadge from "@/components/gamification/RankMovementBadge";
 import { JsonLd, leaderboardJsonLd } from "@/lib/seo/json-ld";
 
 export const metadata: Metadata = {
-  title: "Global developer leaderboard",
+  title: "Leaderboard",
   description:
     "See who leads DevTrack worldwide by coding streak, commits and merged pull requests. Filter by language and time period.",
   // Tab and filter query strings are views of the same page.

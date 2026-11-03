@@ -46,7 +46,7 @@ function buildAtomFeed(
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>DevTrack activity — ${escapeXml(username)}</title>
+  <title>DevTrack activity · ${escapeXml(username)}</title>
   <link href="${escapeXml(profileUrl)}" />
   <link rel="self" href="${escapeXml(feedUrl)}" />
   <id>${escapeXml(feedUrl)}</id>

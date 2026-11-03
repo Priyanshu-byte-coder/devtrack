@@ -8,7 +8,7 @@ import { getPublicSupporters } from "@/lib/supporters";
 import { SPONSOR_LINKS } from "@/lib/sponsor-links";
 
 export const metadata: Metadata = {
-  title: "Sponsor DevTrack",
+  title: "Sponsor",
   description:
     "DevTrack is free and open source. Sponsor it on GitHub, buy the team a chai, or put your developer tool in front of developers who ship.",
   alternates: { canonical: "/sponsor" },

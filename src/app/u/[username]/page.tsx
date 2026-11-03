@@ -128,7 +128,9 @@ export async function generateMetadata({
   if (lookup.kind === "guest") return guestMetadata(lookup.profile);
 
   const displayName = lookup.profile.username;
-  const title = `${displayName} — GitHub stats, streak & rank`;
+  // The tab title stays short; link previews get the longer one.
+  const title = `${displayName}'s GitHub stats`;
+  const shareTitle = `${displayName}'s GitHub stats, streak & rank`;
   const description = `${displayName}'s coding activity on DevTrack: contribution streak, commits, pull requests, top languages and global rank.`;
 
   // No `images` here on purpose: the segment's opengraph-image.tsx renders the
@@ -138,7 +140,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical: canonicalPath },
     openGraph: {
-      title,
+      title: shareTitle,
       description,
       url: canonicalPath,
       siteName: "DevTrack",
@@ -147,14 +149,15 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: shareTitle,
       description,
     },
   };
 }
 function guestMetadata(guest: GuestProfile): Metadata {
   const canonicalPath = `/u/${guest.login.toLowerCase()}`;
-  const title = `${guest.login} — GitHub stats, streak & rank`;
+  const title = `${guest.login}'s GitHub stats`;
+  const shareTitle = `${guest.login}'s GitHub stats, streak & rank`;
   const description = `${guest.login}'s GitHub activity: ${guest.yearContributions.toLocaleString("en-US")} contributions in the last year, a ${guest.streak.longest}-day best streak, top languages and where they'd rank on DevTrack.`;
   return {
     title,
@@ -165,14 +168,14 @@ function guestMetadata(guest: GuestProfile): Metadata {
       ? undefined
       : { index: false, follow: true },
     openGraph: {
-      title,
+      title: shareTitle,
       description,
       url: canonicalPath,
       siteName: "DevTrack",
       type: "profile",
       username: guest.login,
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title: shareTitle, description },
   };
 }
 

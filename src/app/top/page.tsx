@@ -4,7 +4,7 @@ import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { TOP_COUNTRIES, TOP_LANGUAGES } from "@/lib/top-developers";
 
 export const metadata: Metadata = {
-  title: "Top developers on GitHub by language and country",
+  title: "Top GitHub developers",
   description:
     "The most-followed GitHub developers for JavaScript, TypeScript, Python, Go, Rust and more, and in India, the US, Germany, Brazil and beyond, with their streaks, contributions and DevTrack rank.",
   alternates: { canonical: "/top" },
