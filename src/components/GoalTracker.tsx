@@ -497,9 +497,17 @@ export default function GoalTracker() {
     <div className="h-full px-frame bg-[var(--card)] p-4 sm:p-6">
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-          Goals
-        </h2>
+        <div>
+          <p
+            aria-hidden="true"
+            className="font-pixel text-[9px] uppercase tracking-[0.16em] text-[var(--accent)]"
+          >
+            Quest log
+          </p>
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+            Goals
+          </h2>
+        </div>
         <button
           onClick={handleSync}
           disabled={syncing}
@@ -709,7 +717,10 @@ export default function GoalTracker() {
                           )}
                         </div>
                         {completed ? (
-                          <span className="text-xs font-medium text-emerald-500">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500">
+                            <span className="bg-emerald-500/15 px-1.5 py-0.5 font-pixel text-[9px] uppercase tracking-[0.12em]">
+                              ★ Quest complete
+                            </span>
                             {completionLabel}
                           </span>
                         ) : completionLabel ? (
@@ -812,10 +823,15 @@ export default function GoalTracker() {
                     </div>
 
                     <div
-                      className={`h-2 overflow-hidden rounded-full bg-[var(--control)] ${isSurpassed ? "ring-1 ring-emerald-500/40" : ""}`}
+                      className={`relative h-3 overflow-hidden bg-[var(--control)] ${isSurpassed ? "ring-1 ring-emerald-500/40" : ""}`}
                     >
+                      {/* Notches split the bar into pixel segments. */}
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 z-10 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--card)_10px_12px)]"
+                      />
                       <div
-                        className={`h-full rounded-full transition-all ${
+                        className={`h-full transition-all duration-700 ${
                           isSurpassed
                             ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
                             : completed

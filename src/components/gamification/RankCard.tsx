@@ -41,12 +41,12 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
   if (!me) {
     return (
       <section className={CARD} aria-labelledby="rank-card-title">
-        <p className="font-mono text-eyebrow uppercase text-[var(--muted-foreground)]">
+        <p className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
           This season
         </p>
         <h2
           id="rank-card-title"
-          className="mt-1 text-title text-[var(--card-foreground)]"
+          className="mt-1 font-pixel text-xl uppercase text-[var(--card-foreground)]"
         >
           You&apos;re not on the leaderboard yet
         </h2>
@@ -91,7 +91,7 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p
           id="rank-card-title"
-          className="font-mono text-eyebrow uppercase text-[var(--muted-foreground)]"
+          className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]"
         >
           {season} season
         </p>
@@ -114,7 +114,7 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
       <div className="mt-3 grid gap-4 sm:grid-cols-[auto_auto_1fr] sm:items-center sm:gap-6">
         <div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-stat text-[var(--card-foreground)]">
+            <span className="font-pixel text-5xl leading-none text-[var(--card-foreground)]">
               #<AnimatedNumber value={me.rankV2} />
             </span>
             <RankMovementBadge movement={movement} />
