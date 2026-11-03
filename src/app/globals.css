@@ -1052,3 +1052,343 @@ html.booted .boot-intro {
     animation: none;
   }
 }
+
+/* ── Bit, the pixel mascot (components/buddy) ── */
+.buddy-bob {
+  animation: buddy-bob 1.2s steps(2, end) infinite;
+}
+
+.buddy-jump {
+  animation: buddy-jump 0.42s steps(6, end) both;
+}
+
+.buddy-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 24px;
+  height: 4px;
+  translate: -50% 0;
+  background: rgb(0 0 0 / 0.22);
+}
+
+.buddy-dust {
+  position: absolute;
+  bottom: 0;
+  left: -6px;
+  width: 4px;
+  height: 4px;
+  background: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
+  box-shadow:
+    -6px -3px 0 0 color-mix(in srgb, var(--muted-foreground) 40%, transparent),
+    44px 0 0 0 color-mix(in srgb, var(--muted-foreground) 40%, transparent);
+  animation: buddy-dust 0.3s steps(3, end) infinite;
+}
+
+.buddy-coin {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: #f2c14e;
+  pointer-events: none;
+  animation: buddy-coin 0.9s steps(6, end) forwards;
+}
+
+.buddy-coin::before {
+  content: "";
+  width: 8px;
+  height: 10px;
+  background: #facc15;
+  box-shadow:
+    inset -2px 0 0 #c98a14,
+    0 0 0 2px #141a2e;
+}
+
+.buddy-bubble {
+  transform-origin: bottom right;
+  animation: buddy-pop 0.18s steps(3, end) both;
+}
+
+.buddy-peek {
+  transition: height 0.15s steps(3, end);
+}
+
+.buddy-peek:hover,
+.buddy-peek:focus-visible {
+  height: 1.75rem;
+}
+
+@keyframes buddy-bob {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes buddy-jump {
+  40% {
+    transform: translateY(-16px);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes buddy-dust {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes buddy-coin {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+}
+
+@keyframes buddy-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Loading screen: Bit runs, jumps, bumps a "?" block for a coin ── */
+.pixel-loader {
+  position: relative;
+  width: 176px;
+  height: 124px;
+  overflow: hidden;
+}
+
+.pixel-loader__runner {
+  position: absolute;
+  left: 70px;
+  bottom: 14px;
+  width: 36px;
+  height: 48px;
+  animation: pl-jump 1.4s steps(14, end) infinite;
+}
+
+.pixel-loader__runner svg,
+.boot-intro__runner svg {
+  position: absolute;
+  inset: 0;
+}
+
+.pixel-loader__frame-a {
+  animation: pl-frame 0.24s steps(1, end) infinite;
+}
+
+.pixel-loader__frame-b {
+  animation: pl-frame 0.24s steps(1, end) 0.12s infinite;
+}
+
+.pixel-loader__block {
+  position: absolute;
+  left: 77px;
+  top: 10px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #7c4a03;
+  background: #f2c14e;
+  box-shadow:
+    inset -3px -3px 0 #c98a14,
+    0 0 0 2px #141a2e;
+  animation: pl-bump 1.4s steps(1, end) infinite;
+}
+
+.pixel-loader__coin {
+  position: absolute;
+  left: 83px;
+  top: 14px;
+  width: 10px;
+  height: 14px;
+  background: #facc15;
+  box-shadow:
+    inset -3px 0 0 #c98a14,
+    0 0 0 2px #141a2e;
+  opacity: 0;
+  animation: pl-coin 1.4s steps(14, end) infinite;
+}
+
+.pixel-loader__ground {
+  position: absolute;
+  inset: auto 0 0;
+  height: 14px;
+  background:
+    linear-gradient(#22c55e 0 4px, transparent 4px),
+    repeating-linear-gradient(90deg, #8b5a2b 0 14px, #6b4423 14px 16px);
+  background-size:
+    100% 100%,
+    16px 100%;
+  animation: pl-ground 0.24s steps(4, end) infinite;
+}
+
+.pixel-loader__dots::after {
+  content: "";
+  animation: pl-dots 1.2s steps(1, end) infinite;
+}
+
+@keyframes pl-frame {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes pl-jump {
+  0%,
+  50% {
+    transform: none;
+  }
+
+  62%,
+  70% {
+    transform: translateY(-30px);
+  }
+
+  85%,
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes pl-bump {
+  0%,
+  62% {
+    transform: none;
+  }
+
+  64% {
+    transform: translateY(-4px);
+  }
+
+  72% {
+    transform: none;
+  }
+}
+
+@keyframes pl-coin {
+  0%,
+  62% {
+    opacity: 0;
+    transform: none;
+  }
+
+  66% {
+    opacity: 1;
+    transform: translateY(-12px);
+  }
+
+  86% {
+    opacity: 1;
+    transform: translateY(-26px);
+  }
+
+  92%,
+  100% {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
+}
+
+@keyframes pl-ground {
+  to {
+    background-position:
+      0 0,
+      -16px 0;
+  }
+}
+
+@keyframes pl-dots {
+  0% {
+    content: "";
+  }
+
+  25% {
+    content: ".";
+  }
+
+  50% {
+    content: "..";
+  }
+
+  75% {
+    content: "...";
+  }
+}
+
+/* The boot screen: Bit runs along the load bar as it fills. */
+.boot-intro__track {
+  position: relative;
+}
+
+.boot-intro__runner {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  width: 24px;
+  height: 32px;
+  animation: boot-run 1s steps(10, end) 0.25s both;
+}
+
+@keyframes boot-run {
+  to {
+    left: calc(100% - 24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy-bob,
+  .buddy-jump,
+  .buddy-dust,
+  .buddy-coin,
+  .buddy-bubble,
+  .pixel-loader__runner,
+  .pixel-loader__frame-a,
+  .pixel-loader__block,
+  .pixel-loader__ground,
+  .pixel-loader__dots::after {
+    animation: none;
+  }
+
+  .pixel-loader__frame-b,
+  .pixel-loader__coin {
+    display: none;
+  }
+}
