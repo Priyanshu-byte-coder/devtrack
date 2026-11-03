@@ -170,6 +170,23 @@ function SignInContent() {
             >
               {starting ? "Connecting to GitHub" : "Insert coin"}
             </p>
+            <p className="mt-3 text-[11px] leading-5 text-[var(--muted-foreground)]">
+              By continuing you agree to the{" "}
+              <Link
+                href="/terms"
+                className="text-[var(--accent)] hover:underline"
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy-policy"
+                className="text-[var(--accent)] hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </div>
 
           <div className="mt-8 border-t-2 border-dashed border-[var(--border)] pt-5">
@@ -191,11 +208,43 @@ function SignInContent() {
             </ul>
           </div>
 
-          <p className="mt-6 text-[11px] leading-5 text-[var(--muted-foreground)]">
-            Free and open source (MIT). GitHub shows exactly what DevTrack can
-            access before you approve. New players get a public profile and a
-            spot on the leaderboard; you can hide both any time in Settings.
-          </p>
+          <section
+            aria-labelledby="how-signin-works"
+            className="mt-6 border-2 border-[var(--border)] bg-[var(--background)] p-4 text-left"
+          >
+            <h2
+              id="how-signin-works"
+              className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--card-foreground)]"
+            >
+              How sign-in works
+            </h2>
+            <ul className="mt-2 list-disc space-y-1 pl-4 text-[11px] leading-5 text-[var(--muted-foreground)]">
+              <li>
+                You approve DevTrack on <strong>github.com</strong>. DevTrack
+                never sees your GitHub password.
+              </li>
+              <li>
+                GitHub lists exactly what DevTrack can access before you
+                approve, and you can revoke it any time in your GitHub settings.
+              </li>
+              <li>
+                New players get a public profile and a spot on the leaderboard;
+                hide both any time in Settings.
+              </li>
+              <li>
+                Free and open source (MIT):{" "}
+                <a
+                  href="https://github.com/Priyanshu-byte-coder/devtrack"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--accent)] hover:underline"
+                >
+                  read the code
+                </a>
+                .
+              </li>
+            </ul>
+          </section>
         </div>
       </div>
     </main>

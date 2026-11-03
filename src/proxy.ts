@@ -7,6 +7,7 @@ import {
   AUTH_LIMIT,
 } from "@/lib/auth-rate-limit";
 import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
+import { canonicalRedirectUrl } from "@/lib/canonical-host";
 
 const isDev = process.env.NODE_ENV === "development";
 const memoryBuckets = new Map<string, number[]>();
@@ -241,6 +242,12 @@ async function checkRateLimit(identifier: string, limit: number) {
 }
 
 export async function proxy(req: NextRequest) {
+  const canonical = canonicalRedirectUrl(
+    req.headers.get("host") ?? "",
+    req.nextUrl.pathname + req.nextUrl.search
+  );
+  if (canonical) return NextResponse.redirect(canonical, 308);
+
   const pathname = req.nextUrl.pathname;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const csp = [

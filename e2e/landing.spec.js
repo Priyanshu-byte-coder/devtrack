@@ -137,3 +137,19 @@ test("[Landing E2E] landing shows footer", async ({ page }) => {
     page.getByText(/DevTrack. Built for open-source contributors/i)
   ).toBeVisible();
 });
+
+test("sign-in explains GitHub sign-in and links the terms", async ({
+  page,
+}) => {
+  await page.goto("/auth/signin");
+  await expect(
+    page.getByRole("heading", { name: "How sign-in works" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Terms of Service" }).first()
+  ).toHaveAttribute("href", "/terms");
+  await page.goto("/terms");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Terms of Service"
+  );
+});
