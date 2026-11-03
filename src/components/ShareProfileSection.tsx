@@ -99,7 +99,9 @@ export default function ShareProfileSection({
             }
             width={1200}
             height={630}
-            loading="lazy"
+            // Usually the largest thing in view, so the page's LCP: fetch it
+            // straight away instead of waiting for layout to say it's visible.
+            fetchPriority="high"
             className="aspect-[1200/630] w-full border-2 border-[var(--border)] bg-[#05070f] lg:w-[340px] lg:shrink-0"
           />
 

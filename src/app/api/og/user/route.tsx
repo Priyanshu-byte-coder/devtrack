@@ -198,6 +198,13 @@ export async function GET(req: NextRequest) {
         <span>· devtrack.live/u/{username}</span>
       </div>
     </div>,
-    { width: 1200, height: 630 }
+    {
+      width: 1200,
+      height: 630,
+      // Drawn only from the query string, so the same URL is the same image.
+      headers: {
+        "Cache-Control": "public, max-age=86400, s-maxage=31536000, immutable",
+      },
+    }
   );
 }

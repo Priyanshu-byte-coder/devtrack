@@ -100,5 +100,11 @@ export default async function Image({
   const { username } = await params;
   return new ImageResponse(<ShareCard data={await cardData(username)} />, {
     ...SHARE_CARD_SIZE,
+    // `revalidate` above doesn't reach the CDN for a dynamic segment, so
+    // without this every profile view and link preview drew a fresh PNG.
+    headers: {
+      "Cache-Control":
+        "public, max-age=300, s-maxage=1800, stale-while-revalidate=86400",
+    },
   });
 }

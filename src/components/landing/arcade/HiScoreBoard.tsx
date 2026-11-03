@@ -11,6 +11,56 @@ const PLACE_COLOR = ["#f2c14e", "#a9b4c4", "#d9955c"].map(
   (c) => `color-mix(in srgb, ${c} 55%, var(--card-foreground))`
 );
 
+/**
+ * Stands in while the board loads: the same frame and row heights, so the
+ * hero doesn't move when the scores arrive.
+ */
+export function HiScoreBoardSkeleton() {
+  return (
+    <div
+      aria-busy="true"
+      className="px-frame px-frame-accent px-scanlines bg-[var(--card)] p-4 sm:p-6"
+    >
+      <div className="flex items-baseline justify-between gap-3 border-b-4 border-dotted border-[var(--border)] pb-3">
+        <h2 className="font-pixel text-lg uppercase tracking-[0.08em] text-[var(--card-foreground)]">
+          Hi-scores
+        </h2>
+        <span className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--accent)]">
+          Global · live
+        </span>
+      </div>
+      <ol className="mt-3 space-y-1" aria-label="Loading the top five">
+        {PLACE.map((place, i) => (
+          <li
+            key={place}
+            className="grid grid-cols-[3rem_1fr_auto] items-center gap-3 px-2 py-2"
+          >
+            <span
+              className="font-pixel text-sm"
+              style={{ color: PLACE_COLOR[i] ?? "var(--muted-foreground)" }}
+            >
+              {place}
+            </span>
+            <span className="h-6 animate-pulse bg-[var(--control)] motion-reduce:animate-none" />
+            <span className="font-pixel text-sm tabular-nums text-[var(--muted-foreground)]">
+              ----
+            </span>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-3 flex items-center justify-between gap-3 border-t-4 border-dotted border-[var(--border)] pt-3 font-pixel text-[10px] uppercase tracking-[0.12em]">
+        <span className="text-[var(--muted-foreground)]">Loading players…</span>
+        <Link
+          href="/leaderboard"
+          className="text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none"
+        >
+          Full board →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 /** The live top five, styled as an arcade cabinet's high-score table. */
 export default function HiScoreBoard({
   leaders,

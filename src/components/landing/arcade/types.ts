@@ -24,5 +24,11 @@ export interface LandingLeader {
   streak: number;
 }
 
+/** The hi-score table's data: the top five and how many players are ranked. */
+export interface LandingBoard {
+  leaders: LandingLeader[];
+  playerCount: number;
+}
+
 export const SIGN_IN_HREF = "/api/auth/signin/github?callbackUrl=/dashboard";
 export const REPO_URL = "https://github.com/Priyanshu-byte-coder/devtrack";
