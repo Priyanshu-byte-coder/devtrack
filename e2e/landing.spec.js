@@ -59,7 +59,9 @@ test("[Landing E2E] looking up a developer opens their profile", async ({
   page,
 }) => {
   await page.goto("/");
-  const lookup = page.getByRole("search").first();
+  const lookup = page
+    .getByRole("search")
+    .filter({ has: page.getByLabel("Look up any developer") });
   await lookup.getByLabel("Look up any developer").fill("@Playwright-Guest");
   await lookup.getByRole("button", { name: "Go" }).click();
   // The profile route may compile on first visit in dev.
@@ -68,11 +70,48 @@ test("[Landing E2E] looking up a developer opens their profile", async ({
 
 test("[Landing E2E] lookup rejects invalid usernames", async ({ page }) => {
   await page.goto("/");
-  const lookup = page.getByRole("search").first();
+  const lookup = page
+    .getByRole("search")
+    .filter({ has: page.getByLabel("Look up any developer") });
   await lookup.getByLabel("Look up any developer").fill("not a user!");
   await lookup.getByRole("button", { name: "Go" }).click();
   await expect(lookup.getByRole("alert")).toHaveText(/valid GitHub username/);
   await expect(page).toHaveURL(/\/$/);
+});
+
+test("[Landing E2E] score attack shows where any developer would rank", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const attack = page
+    .getByRole("search")
+    .filter({ has: page.getByLabel(/Score attack/) });
+  await attack.getByLabel(/Score attack/).fill("playwright-guest");
+  await attack.getByRole("button", { name: "Play ▶" }).click();
+  const card = page.getByRole("region", { name: "@playwright-guest's score" });
+  await expect(card).toBeVisible({ timeout: 15_000 });
+  await expect(card).toContainText("Would rank");
+  await expect(card.getByRole("link", { name: /Claim it/ })).toHaveAttribute(
+    "href",
+    "/claim?login=playwright-guest"
+  );
+  await card.getByRole("button", { name: /Back to hi-scores/ }).click();
+  await expect(page.getByRole("heading", { name: "Hi-scores" })).toBeVisible();
+});
+
+test("[Landing E2E] score attack explains unknown players", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const attack = page
+    .getByRole("search")
+    .filter({ has: page.getByLabel(/Score attack/) });
+  await attack.getByLabel(/Score attack/).fill("nobody-here-12345");
+  await attack.getByRole("button", { name: "Play ▶" }).click();
+  await expect(attack.getByRole("alert")).toContainText(
+    "No public GitHub user",
+    { timeout: 15_000 }
+  );
 });
 
 test("[Landing E2E] features and FAQ sections are present", async ({

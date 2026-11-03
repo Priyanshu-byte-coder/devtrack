@@ -880,3 +880,95 @@ body:has(.app-shell) .site-footer {
 .driver-popover.devtrack-tour .driver-popover-arrow {
   display: none;
 }
+
+/* ── Landing boot intro: plays once per session, hides itself in CSS ── */
+.boot-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #05070f;
+  color: #f5f7fb;
+  cursor: pointer;
+  animation: boot-out 0.35s steps(4, end) 1.45s forwards;
+}
+
+.boot-intro__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.boot-intro__logo {
+  font-size: clamp(2rem, 7vw, 4rem);
+  letter-spacing: 0.08em;
+  animation: boot-drop 0.5s steps(5, end) both;
+}
+
+.boot-intro__bar {
+  width: min(60vw, 260px);
+  height: 14px;
+  padding: 3px;
+  background: #000;
+  box-shadow: 0 0 0 2px #2b3a5c;
+}
+
+.boot-intro__bar span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #6ba8ff;
+  transform-origin: left;
+  animation: boot-load 1s steps(10, end) 0.25s both;
+}
+
+.boot-intro__press {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a9bc0;
+  animation: px-blink 0.5s steps(1, end) infinite;
+}
+
+@keyframes boot-drop {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes boot-load {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes boot-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+html.booted .boot-intro {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-intro {
+    display: none;
+  }
+}
