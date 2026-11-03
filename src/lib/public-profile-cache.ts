@@ -11,7 +11,9 @@ import { publicProfileTag } from "@/lib/public-profile-tags";
 import { getGuestProfile, getRegistration } from "@/lib/guest-profile";
 import type { GuestProfile } from "@/lib/guest-profile-model";
 
-const PROFILE_TTL_SECONDS = 300;
+// Settings changes invalidate the tag at once, so this only bounds how
+// stale GitHub activity can get. Each refresh is one GraphQL request.
+const PROFILE_TTL_SECONDS = 30 * 60;
 
 /**
  * Public profile data for server rendering, with hidden widgets already removed.
