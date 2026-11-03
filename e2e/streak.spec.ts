@@ -179,10 +179,10 @@ test.describe("[Streak E2E]", () => {
       .first();
     await expect(streakHeading).toBeVisible({ timeout: 15_000 });
 
-    // Now scope to the nearest rounded-xl ancestor — the containerRef div
+    // Now scope to the nearest px-frame ancestor — the containerRef div
     // that wraps both the heading and the stats grid.
     const section = page
-      .locator("div.rounded-xl")
+      .locator("div.px-frame")
       .filter({
         has: page.getByRole("heading", { name: "Commit Streaks" }),
       })

@@ -107,7 +107,7 @@ export default function RoomClient({
   }
 
   return (
-    <div className="flex h-[calc(100dvh-7.5rem)] min-h-[480px] flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)]">
+    <div className="flex h-[calc(100dvh-7.5rem)] min-h-[480px] flex-col overflow-hidden px-frame bg-[var(--card)] text-[var(--foreground)]">
       <header className="border-b border-[var(--border)] px-4 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <Link

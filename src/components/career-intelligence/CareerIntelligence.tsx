@@ -286,10 +286,7 @@ export default function CareerIntelligence() {
               aria-busy="true"
             />
           ) : step === "analyzing" ? (
-            <div
-              className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5"
-              aria-live="polite"
-            >
+            <div className="px-frame bg-[var(--card)] p-5" aria-live="polite">
               <div className="mb-2 flex justify-between text-sm">
                 <span className="text-[var(--foreground)]">{progressText}</span>
                 <span className="tabular-nums text-[var(--muted-foreground)]">
@@ -311,7 +308,7 @@ export default function CareerIntelligence() {
               <ContributionAnalysisPanel analysis={analysis} />
             </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-4 px-frame bg-[var(--card)] p-5">
               <div className="max-w-xl">
                 <p className="text-sm font-medium text-[var(--foreground)]">
                   Scan your repositories and merged pull requests
@@ -335,7 +332,7 @@ export default function CareerIntelligence() {
             <div id="resume-step-2">
               <StepHeading n={2} title="Target role" done={hasResume} />
             </div>
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+            <div className="px-frame bg-[var(--card)] p-5">
               <p className="mb-4 text-sm text-[var(--muted-foreground)]">
                 Wording, skills and projects are picked to match the role you
                 choose.

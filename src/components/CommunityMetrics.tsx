@@ -65,10 +65,10 @@ export default function CommunityMetrics() {
     metrics.commentsPosted === 0;
 
   return (
-    <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="h-full px-frame bg-[var(--card)] p-4 sm:p-6">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Community Discussions
           </h2>
           <p className="mt-1 max-w-md text-sm text-[var(--muted-foreground)]">

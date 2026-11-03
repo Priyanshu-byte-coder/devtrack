@@ -35,7 +35,7 @@ function Skeleton({ tall = false }: { tall?: boolean }) {
     <div
       role="status"
       aria-busy="true"
-      className={`rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 ${tall ? "min-h-[320px]" : "min-h-[200px]"}`}
+      className={`px-frame bg-[var(--card)] p-4 ${tall ? "min-h-[320px]" : "min-h-[200px]"}`}
     >
       <div className="mb-4 h-4 w-40 rounded bg-[var(--card-muted)] animate-pulse" />
       <div

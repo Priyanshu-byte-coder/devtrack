@@ -37,7 +37,7 @@ function SkeletonCard() {
       role="status"
       aria-busy="true"
       aria-live="polite"
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm animate-pulse transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+      className="px-frame bg-[var(--card)] p-6 animate-pulse"
     >
       <span className="sr-only">Loading AI Mentor insights</span>
       <div className="flex items-center justify-between mb-4">
@@ -107,7 +107,7 @@ export function AIMentorWidget() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+      <div className="px-frame bg-[var(--card)] p-6">
         <p className="text-sm text-[var(--muted-foreground)]">{error}</p>
       </div>
     );
@@ -115,7 +115,7 @@ export function AIMentorWidget() {
 
   if (!data) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="flex h-[200px] flex-col items-center justify-center text-center">
           <Sparkles
             className="mb-3 h-8 w-8 text-[var(--muted-foreground)]"
@@ -138,10 +138,10 @@ export function AIMentorWidget() {
     : "";
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)] flex items-center gap-2">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] flex items-center gap-2">
             <span aria-hidden="true" className="text-purple-500">
               ✦
             </span>

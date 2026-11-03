@@ -275,14 +275,11 @@ export default function ProductiveHoursWidget() {
   } as const;
 
   return (
-    <div
-      ref={containerRef}
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
-    >
+    <div ref={containerRef} className="px-frame bg-[var(--card)] p-6">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+            <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
               Most Productive Hours
             </h2>
             <div className="group relative">

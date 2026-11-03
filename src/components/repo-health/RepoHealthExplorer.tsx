@@ -102,7 +102,7 @@ const DetailPanel = memo(function DetailPanel({ health }: DetailPanelProps) {
       {/* ── Gauge + Grade card ──────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3">
         {/* Gauge */}
-        <div className="flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+        <div className="flex items-center justify-center px-frame bg-[var(--card)] p-4">
           <RepoHealthGauge score={health.score} grade={health.grade} />
         </div>
 
@@ -135,7 +135,7 @@ const DetailPanel = memo(function DetailPanel({ health }: DetailPanelProps) {
 
       {/* ── Radar chart ─────────────────────────────────────────────── */}
       <div
-        className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
+        className="px-frame bg-[var(--card)] p-4"
         aria-label="Health score radar chart"
       >
         <h3 className="mb-2 text-sm font-semibold text-[var(--card-foreground)]">
@@ -148,12 +148,12 @@ const DetailPanel = memo(function DetailPanel({ health }: DetailPanelProps) {
       </div>
 
       {/* ── Score breakdown ─────────────────────────────────────────── */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+      <div className="px-frame bg-[var(--card)] p-4">
         <RepoHealthBreakdown rows={breakdown} />
       </div>
 
       {/* ── Recommendations ─────────────────────────────────────────── */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+      <div className="px-frame bg-[var(--card)] p-4">
         <RepoHealthInsights insights={insights} />
       </div>
     </div>
@@ -370,7 +370,7 @@ export default function RepoHealthExplorer() {
           ) : selectedHealth ? (
             <DetailPanel health={selectedHealth} />
           ) : (
-            <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-center p-8">
+            <div className="flex h-64 flex-col items-center justify-center px-frame bg-[var(--card)] text-center p-8">
               <div className="mb-3 text-3xl" aria-hidden="true">
                 📊
               </div>

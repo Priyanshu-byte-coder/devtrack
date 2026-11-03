@@ -494,10 +494,10 @@ export default function GoalTracker() {
   }
 
   return (
-    <div className="h-full rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
+    <div className="h-full px-frame bg-[var(--card)] p-4 sm:p-6">
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Goals
         </h2>
         <button

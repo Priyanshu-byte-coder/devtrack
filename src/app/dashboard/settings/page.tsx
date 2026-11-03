@@ -148,7 +148,7 @@ function SettingsPageFallback() {
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
       <div className="max-w-2xl mx-auto">
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+        <div className="px-frame bg-[var(--card)] p-6">
           <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)]">
             Settings
           </h1>
@@ -898,7 +898,7 @@ function SettingsPageContent() {
     return (
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
         <div className="max-w-2xl mx-auto">
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+          <div className="px-frame bg-[var(--card)] p-6">
             <div className="h-8 w-48 bg-[var(--card-muted)] rounded animate-pulse mb-4" />
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -969,7 +969,7 @@ function SettingsPageContent() {
         )}
 
         {/* Public Profile Section */}
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="px-frame bg-[var(--card)] p-6">
           <div className="flex items-start justify-between mb-2 gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1315,7 +1315,7 @@ function SettingsPageContent() {
           )}
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
             {t("appearanceTitle")}
           </h2>
@@ -1327,7 +1327,7 @@ function SettingsPageContent() {
           <ThemePresetPicker />
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1368,7 +1368,7 @@ function SettingsPageContent() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1416,7 +1416,7 @@ function SettingsPageContent() {
         </div>
 
         {/* Repository Spotlight Section */}
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
             Repository Spotlight 🚀
           </h2>
@@ -1558,7 +1558,7 @@ function SettingsPageContent() {
           )}
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1597,7 +1597,7 @@ function SettingsPageContent() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1665,7 +1665,7 @@ function SettingsPageContent() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1760,7 +1760,7 @@ function SettingsPageContent() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1870,7 +1870,7 @@ function SettingsPageContent() {
           )}
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
@@ -1925,7 +1925,7 @@ function SettingsPageContent() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+        <div className="mt-6 px-frame bg-[var(--card)] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
             <div>
               <h2 className="text-xl font-semibold text-[var(--card-foreground)]">

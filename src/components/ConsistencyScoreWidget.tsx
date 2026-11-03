@@ -90,7 +90,7 @@ function ConsistencyScoreSkeleton() {
       role="status"
       aria-busy="true"
       aria-label="Loading consistency score"
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full"
+      className="px-frame bg-[var(--card)] p-6 flex flex-col h-full"
     >
       <div
         className="h-6 w-40 bg-[var(--card-muted)] rounded mb-6 animate-pulse"
@@ -166,7 +166,7 @@ export default function ConsistencyScoreWidget() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="px-frame bg-[var(--card)] p-6">
         <SectionHeader title="Consistency Score" />
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
@@ -184,7 +184,7 @@ export default function ConsistencyScoreWidget() {
 
   if (!data) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="px-frame bg-[var(--card)] p-6">
         <SectionHeader title="Consistency Score" />
         <div className="flex h-[320px] flex-col items-center justify-center text-center">
           <BarChart3
@@ -219,7 +219,7 @@ export default function ConsistencyScoreWidget() {
   ];
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="mb-4 flex items-center justify-between">
         <SectionHeader title="Consistency Score" />
         <span

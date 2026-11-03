@@ -102,9 +102,9 @@ export default function CommitTimeChart() {
   }, [fetchContributions]);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="px-frame bg-[var(--card)] p-6 flex flex-col h-full">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Commits by Time of Day
         </h2>
         <select

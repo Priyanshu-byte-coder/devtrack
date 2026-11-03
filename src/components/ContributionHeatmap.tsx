@@ -498,7 +498,7 @@ export default function ContributionHeatmap({
   const heatmapSummary = `Contribution heatmap showing ${formatCommitCount(totalCommits)} across ${displayDays} days.`;
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
+    <div className="w-full overflow-hidden px-frame bg-[var(--card)] p-4 sm:p-6">
       <div className="mb-4 flex flex-col items-start justify-between gap-3">
         <div className="w-full">
           <h2 className="text-base font-semibold text-[var(--card-foreground)] dark:text-white">
@@ -858,7 +858,7 @@ export default function ContributionHeatmap({
                     </span>
                   </div>
                   <div>
-                    <span className="text-lg font-semibold text-[var(--card-foreground)] dark:text-white">
+                    <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
                       {insights.mostProductiveWeekday}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
@@ -879,7 +879,7 @@ export default function ContributionHeatmap({
                     </span>
                   </div>
                   <div>
-                    <span className="text-lg font-semibold text-[var(--card-foreground)] dark:text-white">
+                    <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
                       {insights.averageWeeklyContributions.toFixed(1)}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
@@ -900,7 +900,7 @@ export default function ContributionHeatmap({
                     </span>
                   </div>
                   <div>
-                    <span className="text-lg font-semibold text-[var(--card-foreground)] dark:text-white">
+                    <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
                       {insights.longestStreak}{" "}
                       {insights.longestStreak === 1 ? "day" : "days"}
                     </span>
@@ -922,7 +922,7 @@ export default function ContributionHeatmap({
                     </span>
                   </div>
                   <div>
-                    <span className="text-lg font-semibold text-[var(--card-foreground)] dark:text-white">
+                    <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
                       {insights.longestInactivePeriod}{" "}
                       {insights.longestInactivePeriod === 1 ? "day" : "days"}
                     </span>
@@ -973,7 +973,7 @@ export default function ContributionHeatmap({
                     </span>
                   </div>
                   <div>
-                    <span className="text-lg font-semibold text-[var(--card-foreground)] dark:text-white truncate block">
+                    <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white truncate block">
                       {insights.bestMonth}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">

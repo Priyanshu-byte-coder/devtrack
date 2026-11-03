@@ -33,7 +33,7 @@ export default function RepoAnalyticsExplorer() {
   }, [fetchRepos]);
 
   return (
-    <section className="mt-6 min-w-0 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm md:p-6 fade-up">
+    <section className="mt-6 min-w-0 overflow-hidden px-frame bg-[var(--card)] p-4 md:p-6 fade-up">
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-[var(--card-foreground)]">

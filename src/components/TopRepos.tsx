@@ -567,7 +567,7 @@ export default function TopRepos() {
   ]);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="px-frame bg-[var(--card)] p-6">
       {partialReason && (
         <p
           role="status"

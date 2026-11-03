@@ -18,7 +18,7 @@ export default function DashboardError({ error, reset }: ErrorBoundaryProps) {
       role="alert"
       aria-live="assertive"
     >
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-sm text-center max-w-md w-full">
+      <div className="px-frame bg-[var(--card)] p-8 text-center max-w-md w-full">
         <div className="mb-4 text-4xl" aria-hidden="true">
           ⚠️
         </div>

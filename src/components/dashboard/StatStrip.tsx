@@ -120,10 +120,7 @@ export default function StatStrip() {
       className="grid grid-cols-2 gap-3 lg:grid-cols-4"
     >
       {tiles.map(({ label, icon: Icon, value, note }) => (
-        <div
-          key={label}
-          className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-        >
+        <div key={label} className="px-frame bg-[var(--card)] p-4">
           <div className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
             <Icon className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="truncate">{label}</span>

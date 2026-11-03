@@ -151,7 +151,7 @@ export default function SponsorAnalytics() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm animate-pulse space-y-6">
+      <div className="px-frame bg-[var(--card)] p-6 animate-pulse space-y-6">
         <div className="flex items-center justify-between">
           <div className="h-6 w-48 rounded bg-[var(--card-muted)]" />
           <div className="h-8 w-24 rounded bg-[var(--card-muted)]" />
@@ -169,9 +169,9 @@ export default function SponsorAnalytics() {
 
   if (githubAuthInvalid) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm text-center space-y-4">
+      <div className="px-frame bg-[var(--card)] p-6 text-center space-y-4">
         <Heart className="mx-auto h-12 w-12 text-[var(--muted-foreground)] opacity-50" />
-        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h3 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           GitHub Sponsor Analytics
         </h3>
         <p className="text-sm text-[var(--muted-foreground)] max-w-md mx-auto">
@@ -185,9 +185,9 @@ export default function SponsorAnalytics() {
 
   if (error || !data) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm text-center space-y-4">
+      <div className="px-frame bg-[var(--card)] p-6 text-center space-y-4">
         <Heart className="mx-auto h-12 w-12 text-red-500/50" />
-        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h3 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           GitHub Sponsor Analytics
         </h3>
         <p className="text-sm text-red-500/80 max-w-md mx-auto">{error}</p>
@@ -202,12 +202,12 @@ export default function SponsorAnalytics() {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm space-y-6">
+    <div className="px-frame bg-[var(--card)] p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Heart className="h-5 w-5 text-red-500 fill-red-500" />
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Sponsors Analytics
           </h2>
         </div>

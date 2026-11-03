@@ -29,8 +29,7 @@ function Brand() {
   return (
     <Link
       href="/dashboard"
-      className="flex items-center gap-2 px-2 text-sm font-bold tracking-[0.18em] text-[var(--foreground)]"
-      style={{ fontFamily: "var(--font-jetbrains), ui-monospace, monospace" }}
+      className="flex items-center gap-2 px-2 font-pixel text-sm uppercase tracking-[0.14em] text-[var(--foreground)]"
     >
       <span className="text-[var(--accent)]" aria-hidden="true">
         ▲
@@ -49,7 +48,7 @@ function SidebarNav({ pathname }: { pathname: string }) {
       {APP_NAV.map((section, index) => (
         <div key={section.label ?? index}>
           {section.label && (
-            <p className="mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+            <p className="mb-1.5 px-2 font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
               {section.label}
             </p>
           )}
@@ -62,9 +61,9 @@ function SidebarNav({ pathname }: { pathname: string }) {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors ${
+                    className={`group flex items-center gap-2.5 px-2 py-1.5 text-sm transition-colors ${
                       active
-                        ? "bg-accent/10 font-medium text-[var(--accent)]"
+                        ? "bg-accent/10 font-medium text-[var(--accent)] shadow-[inset_3px_0_0_0_var(--accent)]"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--foreground)]"
                     }`}
                   >
@@ -74,7 +73,7 @@ function SidebarNav({ pathname }: { pathname: string }) {
                     />
                     <span className="truncate">{item.label}</span>
                     {item.highlight && (
-                      <span className="ml-auto rounded bg-violet-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-400">
+                      <span className="ml-auto bg-violet-500/15 px-1.5 py-0.5 font-pixel text-[9px] uppercase tracking-[0.08em] text-violet-400">
                         New
                       </span>
                     )}

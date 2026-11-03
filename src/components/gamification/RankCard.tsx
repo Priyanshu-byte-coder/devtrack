@@ -13,8 +13,7 @@ import RankMovementBadge from "./RankMovementBadge";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { buttonVariants } from "@/components/ui/button";
 
-const CARD =
-  "rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5";
+const CARD = "px-frame bg-[var(--card)] p-4 sm:p-5";
 
 /**
  * The signed-in user's season standing: rank on the month board (that's what

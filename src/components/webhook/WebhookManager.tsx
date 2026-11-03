@@ -320,7 +320,7 @@ export default function WebhookManager() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="h-6 w-40 bg-[var(--card-muted)] rounded animate-pulse mb-4" />
         <div className="space-y-3">
           {[1, 2].map((i) => (
@@ -342,10 +342,10 @@ export default function WebhookManager() {
   );
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Outbound Webhooks
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">

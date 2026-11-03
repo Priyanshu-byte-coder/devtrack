@@ -83,9 +83,9 @@ export default function BadgeSection({ username }: BadgeSectionProps) {
     <>
       <div
         id="readme-badges"
-        className="scroll-mt-24 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
+        className="scroll-mt-24 px-frame bg-[var(--card)] p-6"
       >
-        <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Show it off on GitHub
         </h2>
         <p className="mb-4 text-sm text-[var(--muted-foreground)]">

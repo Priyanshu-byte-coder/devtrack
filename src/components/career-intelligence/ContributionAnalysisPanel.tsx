@@ -100,7 +100,7 @@ export default function ContributionAnalysisPanel({
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Engineering Domains */}
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
+        <div className="px-frame bg-[var(--card)] p-6 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Award className="h-5 w-5 text-[var(--accent)]" />
             <h3 className="text-base font-semibold text-[var(--foreground)]">
@@ -140,7 +140,7 @@ export default function ContributionAnalysisPanel({
         </div>
 
         {/* Technology Stack */}
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
+        <div className="px-frame bg-[var(--card)] p-6 space-y-6">
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Sparkles className="h-5 w-5 text-[var(--accent)]" />
             <h3 className="text-base font-semibold text-[var(--foreground)]">
@@ -216,7 +216,7 @@ export default function ContributionAnalysisPanel({
       </div>
 
       {/* Top Repositories */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-6">
+      <div className="px-frame bg-[var(--card)] p-6 space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
           <FolderKanban className="h-5 w-5 text-[var(--accent)]" />
           <h3 className="text-base font-semibold text-[var(--foreground)]">

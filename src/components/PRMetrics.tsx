@@ -223,7 +223,7 @@ export default function PRMetrics() {
   };
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm space-y-6">
+    <div className="px-frame bg-[var(--card)] p-6 space-y-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4">
         <SectionHeader title="PR Analytics" />
         <div className="flex flex-wrap items-center gap-2">

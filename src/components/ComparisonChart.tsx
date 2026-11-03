@@ -25,7 +25,20 @@ interface ComparisonChartProps {
 
 function shortWeek(isoDate: string): string {
   const [, month, day] = isoDate.split("-");
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   return `${months[parseInt(month, 10) - 1]} ${parseInt(day, 10)}`;
 }
 
@@ -36,7 +49,10 @@ export default function ComparisonChart({
   friendWeeklyCommits,
 }: ComparisonChartProps) {
   // Merge both datasets on week key
-  const weekMap = new Map<string, { week: string; me: number; friend: number }>();
+  const weekMap = new Map<
+    string,
+    { week: string; me: number; friend: number }
+  >();
 
   for (const w of myWeeklyCommits) {
     weekMap.set(w.week, { week: w.week, me: w.commits, friend: 0 });
@@ -55,7 +71,7 @@ export default function ComparisonChart({
     .map((d) => ({ ...d, week: shortWeek(d.week) }));
 
   return (
-    <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+    <div className="mt-4 px-frame bg-[var(--card)] p-4">
       <p className="mb-4 text-sm font-semibold text-[var(--card-foreground)]">
         Weekly Commit Activity
       </p>
@@ -99,8 +115,18 @@ export default function ComparisonChart({
             }
             wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
           />
-          <Bar dataKey="me" fill="var(--accent)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-          <Bar dataKey="friend" fill="var(--accent-secondary)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+          <Bar
+            dataKey="me"
+            fill="var(--accent)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={28}
+          />
+          <Bar
+            dataKey="friend"
+            fill="var(--accent-secondary)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={28}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
