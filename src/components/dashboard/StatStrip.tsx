@@ -8,6 +8,7 @@ import {
   GitMerge,
 } from "lucide-react";
 import { useAccount } from "@/components/AccountContext";
+import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 
 type WeeklySummary = {
   commits: { current: number; previous: number };
@@ -30,16 +31,29 @@ function isWeeklySummary(value: unknown): value is WeeklySummary {
 
 function Delta({ now, before }: { now: number; before: number }) {
   if (now === before)
-    return (
-      <span className="text-[var(--muted-foreground)]">same as last week</span>
-    );
+    return <span className="text-[var(--muted-foreground)]">= last week</span>;
   const up = now > before;
   return (
     <span
       className={up ? "text-emerald-500" : "text-[var(--muted-foreground)]"}
     >
-      {up ? "+" : "−"}
+      <span aria-hidden="true">{up ? "▲" : "▼"}</span>
+      <span className="sr-only">{up ? "up" : "down"}</span>{" "}
       {Math.abs(now - before)} vs last week
+    </span>
+  );
+}
+
+/** Seven pixel segments, one per day of the week. */
+function WeekMeter({ days }: { days: number }) {
+  return (
+    <span className="mt-2 flex gap-1" aria-hidden="true">
+      {Array.from({ length: 7 }, (_, i) => (
+        <span
+          key={i}
+          className={`h-2 flex-1 ${i < days ? "bg-emerald-500" : "bg-[var(--control)]"}`}
+        />
+      ))}
     </span>
   );
 }
@@ -71,11 +85,12 @@ export default function StatStrip() {
 
   const tiles = [
     {
-      label: "Current streak",
+      label: "Streak",
       icon: Flame,
-      value: data
-        ? `${data.streak} ${data.streak === 1 ? "day" : "days"}`
-        : null,
+      color: "#fb923c",
+      value: data?.streak,
+      unit: "D",
+      glow: Boolean(data && data.streak > 0),
       note: data
         ? data.streak > 0
           ? "keep it going"
@@ -83,16 +98,18 @@ export default function StatStrip() {
         : null,
     },
     {
-      label: "Commits this week",
+      label: "Commits",
       icon: GitCommitHorizontal,
+      color: "#6ba8ff",
       value: data?.commits.current,
       note: data ? (
         <Delta now={data.commits.current} before={data.commits.previous} />
       ) : null,
     },
     {
-      label: "PRs merged this week",
+      label: "PRs merged",
       icon: GitMerge,
+      color: "#c77dff",
       value: data?.prs.thisWeek.merged,
       note: data ? (
         <Delta
@@ -104,7 +121,10 @@ export default function StatStrip() {
     {
       label: "Active days",
       icon: CalendarCheck,
-      value: data ? `${data.activeDays.thisWeek}/7` : null,
+      color: "#34d399",
+      value: data?.activeDays.thisWeek,
+      unit: "/7",
+      meter: data?.activeDays.thisWeek,
       note: data ? (
         <Delta
           now={data.activeDays.thisWeek}
@@ -119,29 +139,60 @@ export default function StatStrip() {
       aria-label="This week"
       className="grid grid-cols-2 gap-3 lg:grid-cols-4"
     >
-      {tiles.map(({ label, icon: Icon, value, note }) => (
-        <div key={label} className="px-frame bg-[var(--card)] p-4">
-          <div className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
-            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="truncate">{label}</span>
+      {tiles.map((tile) => {
+        const Icon = tile.icon;
+        return (
+          <div
+            key={tile.label}
+            className="px-frame relative overflow-hidden bg-[var(--card)] p-4"
+          >
+            {/* Colour key along the top edge. */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-1"
+              style={{ background: tile.color }}
+            />
+            <div className="flex items-center justify-between gap-2">
+              <span className="truncate font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+                {tile.label}
+                <span className="sr-only"> this week</span>
+              </span>
+              <span
+                className={`flex h-7 w-7 shrink-0 items-center justify-center ${
+                  tile.glow ? "animate-pulse" : ""
+                }`}
+                style={{
+                  background: `color-mix(in srgb, ${tile.color} 16%, transparent)`,
+                  color: tile.color,
+                }}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+              </span>
+            </div>
+            {failed && !data ? (
+              <p
+                className="mt-2 font-pixel text-3xl text-[var(--muted-foreground)]"
+                title="Unavailable right now"
+              >
+                —
+              </p>
+            ) : tile.value === null || tile.value === undefined ? (
+              <div className="mt-3 h-8 w-16 animate-pulse bg-[var(--card-muted)]" />
+            ) : (
+              <p className="mt-2 font-pixel text-3xl tabular-nums leading-none text-[var(--card-foreground)]">
+                <AnimatedNumber value={tile.value} />
+                {tile.unit && (
+                  <span className="ml-0.5 text-base text-[var(--muted-foreground)]">
+                    {tile.unit}
+                  </span>
+                )}
+              </p>
+            )}
+            {tile.meter !== undefined && <WeekMeter days={tile.meter} />}
+            <p className="mt-2 truncate text-xs">{tile.note}</p>
           </div>
-          {failed && !data ? (
-            <p
-              className="mt-1.5 text-2xl font-semibold text-[var(--muted-foreground)]"
-              title="Unavailable right now"
-            >
-              —
-            </p>
-          ) : value === null || value === undefined ? (
-            <div className="mt-2 h-7 w-16 rounded bg-[var(--card-muted)] animate-pulse" />
-          ) : (
-            <p className="mt-1.5 text-2xl font-semibold tabular-nums text-[var(--card-foreground)]">
-              {value}
-            </p>
-          )}
-          <p className="mt-0.5 truncate text-xs">{note}</p>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
