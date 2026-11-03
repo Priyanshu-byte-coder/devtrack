@@ -1,4 +1,5 @@
 import { JsonLd } from "@/lib/seo/json-ld";
+import BootIntro from "./BootIntro";
 import Hero from "./Hero";
 import { HowToPlay, TierLadder } from "./Gameplay";
 import { FlexBadges, PowerUps } from "./Flex";
@@ -17,6 +18,7 @@ export default function ArcadeLanding({
 }) {
   return (
     <div className="bg-[var(--background)] text-[var(--foreground)]">
+      <BootIntro />
       <JsonLd data={faqJsonLd()} />
       <Hero leaders={leaders} playerCount={playerCount} />
       <HowToPlay />

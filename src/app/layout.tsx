@@ -124,6 +124,12 @@ export default async function RootLayout({
                   document.documentElement.classList.toggle('dark', isDark);
                   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
                 } catch (e) {}
+                // The landing page's boot intro plays once per session.
+                try {
+                  if (sessionStorage.getItem('devtrack:booted')) {
+                    document.documentElement.classList.add('booted');
+                  }
+                } catch (e) {}
               })();
             `,
           }}
