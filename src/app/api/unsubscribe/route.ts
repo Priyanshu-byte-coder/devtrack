@@ -81,7 +81,7 @@ export async function GET(req: Request) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Unsubscribed — DevTrack</title>
+  <title>Unsubscribed · DevTrack</title>
   <style>
     body { font-family: system-ui, sans-serif; margin: 0; padding: 40px 20px;
            background: #f1f5f9; color: #0f172a; display: flex;
