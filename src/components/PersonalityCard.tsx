@@ -66,7 +66,7 @@ export default function PersonalityCard({ report, username }: Props) {
               Code Personality Report
             </span>
             <span className="text-xs font-medium text-[var(--muted-foreground)]">
-              devtrack.app/u/{username}
+              devtrack.live/u/{username}
             </span>
           </div>
 

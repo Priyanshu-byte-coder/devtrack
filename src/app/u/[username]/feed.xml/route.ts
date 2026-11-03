@@ -6,7 +6,7 @@ import type { RawEvent } from "@/lib/activity-formatter";
 export const dynamic = "force-dynamic";
 
 const GITHUB_API = "https://api.github.com";
-const SITE_URL = process.env.NEXTAUTH_URL ?? "https://devtrack.dev";
+const SITE_URL = process.env.NEXTAUTH_URL ?? "https://devtrack.live";
 
 function escapeXml(str: string): string {
   return str
@@ -19,7 +19,12 @@ function escapeXml(str: string): string {
 
 function buildAtomFeed(
   username: string,
-  items: Array<{ title: string; url: string; summary: string; published: string }>
+  items: Array<{
+    title: string;
+    url: string;
+    summary: string;
+    published: string;
+  }>
 ): string {
   const feedUrl = `${SITE_URL}/u/${username}/feed.xml`;
   const profileUrl = `${SITE_URL}/u/${username}`;
