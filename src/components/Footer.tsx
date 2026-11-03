@@ -28,6 +28,7 @@ const COMMUNITY_LINKS = [
     label: "GitHub Repository",
     href: "https://github.com/Priyanshu-byte-coder/devtrack",
   },
+  { label: "Sponsor DevTrack", href: "/sponsor" },
   {
     label: "Contributing Guide",
     href: "https://github.com/Priyanshu-byte-coder/devtrack/blob/main/CONTRIBUTING.md",
@@ -208,7 +209,11 @@ export default function Footer() {
               className="mt-6 flex flex-col gap-3"
             >
               {COMMUNITY_LINKS.map(({ label, href }) => (
-                <FooterLink key={label} href={href} external>
+                <FooterLink
+                  key={label}
+                  href={href}
+                  external={href.startsWith("http")}
+                >
                   {label}
                 </FooterLink>
               ))}
