@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   ExternalLink,
   LogOut,
   Menu,
+  Search,
   Settings,
   UserRound,
   X,
@@ -24,6 +25,7 @@ import {
   isNavItemActive,
 } from "@/components/shell/nav";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
+import { normalizeGitHubUsername } from "@/lib/validate-github-username";
 
 function Brand() {
   return (
@@ -43,16 +45,15 @@ function SidebarNav({ pathname }: { pathname: string }) {
   return (
     <nav
       aria-label="Dashboard"
-      className="flex-1 space-y-5 overflow-y-auto px-3 py-4"
+      className="flex-1 space-y-4 overflow-y-auto px-3 py-3"
     >
-      {APP_NAV.map((section, index) => (
-        <div key={section.label ?? index}>
-          {section.label && (
-            <p className="mb-1.5 px-2 font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
-              {section.label}
-            </p>
-          )}
-          <ul className="space-y-0.5">
+      {APP_NAV.map((section) => (
+        <div key={section.label} className={section.accent}>
+          <p className="mb-1 flex items-center gap-2 px-2 font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+            <span aria-hidden="true" className="h-2 w-2 bg-[var(--nav-c)]" />
+            {section.label}
+          </p>
+          <ul className="space-y-px">
             {section.items.map((item) => {
               const active = isNavItemActive(item, pathname);
               const Icon = item.icon;
@@ -61,20 +62,33 @@ function SidebarNav({ pathname }: { pathname: string }) {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`group flex items-center gap-2.5 px-2 py-1.5 text-sm transition-colors ${
+                    className={`group flex items-center gap-2 px-2 py-1.5 text-[13px] transition-colors ${
                       active
-                        ? "bg-accent/10 font-medium text-[var(--accent)] shadow-[inset_3px_0_0_0_var(--accent)]"
+                        ? "bg-[var(--control)] font-semibold text-[var(--foreground)] shadow-[inset_3px_0_0_0_var(--nav-c)]"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--foreground)]"
                     }`}
                   >
+                    <span
+                      aria-hidden="true"
+                      className={`w-2 shrink-0 font-pixel text-[9px] text-[var(--nav-c)] ${
+                        active
+                          ? "px-blink"
+                          : "opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
+                      ▶
+                    </span>
                     <Icon
-                      className={`h-4 w-4 shrink-0 ${item.highlight ? "text-violet-400" : ""}`}
+                      className={`h-4 w-4 shrink-0 ${active || item.highlight ? "text-[var(--nav-c)]" : ""}`}
                       aria-hidden="true"
                     />
                     <span className="truncate">{item.label}</span>
                     {item.highlight && (
-                      <span className="ml-auto bg-violet-500/15 px-1.5 py-0.5 font-pixel text-[9px] uppercase tracking-[0.08em] text-violet-400">
-                        New
+                      <span
+                        aria-label="Featured"
+                        className="ml-auto font-pixel text-[10px] text-[#f2c14e]"
+                      >
+                        ★
                       </span>
                     )}
                   </Link>
@@ -85,6 +99,102 @@ function SidebarNav({ pathname }: { pathname: string }) {
         </div>
       ))}
     </nav>
+  );
+}
+
+/** "Player 1": your login, linking to your public card (or to going public). */
+function PlayerChip({ publicLogin }: { publicLogin: string | null }) {
+  const { data: session } = useSession();
+  const login = session?.githubLogin;
+  if (!login) return null;
+  const href = publicLogin
+    ? `/u/${publicLogin.toLowerCase()}`
+    : "/dashboard/settings#settings-profile";
+  return (
+    <Link
+      href={href}
+      className="px-frame group mx-3 mt-3 flex items-center gap-3 bg-[var(--background)] p-2.5 transition-colors hover:bg-[var(--control)]"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- GitHub avatar, sized by the URL */}
+      <img
+        src={`https://avatars.githubusercontent.com/${encodeURIComponent(login)}?s=64`}
+        alt=""
+        width={32}
+        height={32}
+        className="h-8 w-8 shrink-0 bg-[var(--control)] [image-rendering:pixelated]"
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block font-pixel text-[9px] uppercase tracking-[0.16em] text-[var(--accent)]">
+          Player 1
+        </span>
+        <span className="block truncate font-mono text-[13px] font-semibold text-[var(--foreground)]">
+          @{login}
+        </span>
+        <span className="block text-[11px] text-[var(--muted-foreground)]">
+          {publicLogin ? "View your player card" : "Go public to get a card"}
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+/** Jump to anyone's player card from anywhere in the dashboard. */
+function SidebarLookup() {
+  const router = useRouter();
+  const [value, setValue] = useState("");
+  const [invalid, setInvalid] = useState(false);
+  return (
+    <form
+      role="search"
+      aria-label="Look up a developer"
+      className="mx-3 mt-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const login = normalizeGitHubUsername(value.replace(/^@/, ""));
+        if (!login) {
+          setInvalid(true);
+          return;
+        }
+        setInvalid(false);
+        setValue("");
+        router.push(`/u/${login.toLowerCase()}`);
+      }}
+    >
+      <label htmlFor="sidebar-lookup" className="sr-only">
+        GitHub username to look up
+      </label>
+      <div className="flex border-2 border-[var(--border)] bg-[var(--background)] focus-within:border-[var(--accent)]">
+        <Search
+          className="ml-2 h-3.5 w-3.5 shrink-0 self-center text-[var(--muted-foreground)]"
+          aria-hidden="true"
+        />
+        <input
+          id="sidebar-lookup"
+          value={value}
+          onChange={(event) => {
+            setValue(event.target.value);
+            setInvalid(false);
+          }}
+          placeholder="Look up a dev"
+          autoComplete="off"
+          spellCheck={false}
+          aria-invalid={invalid || undefined}
+          className="w-0 min-w-0 flex-1 bg-transparent px-2 py-1.5 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none"
+        />
+        <button
+          type="submit"
+          aria-label="Look up"
+          className="px-2 font-pixel text-[10px] text-[var(--accent)] hover:bg-[var(--control)]"
+        >
+          ▶
+        </button>
+      </div>
+      {invalid && (
+        <p role="alert" className="mt-1 text-[11px] text-[var(--destructive)]">
+          That isn&apos;t a valid GitHub username.
+        </p>
+      )}
+    </form>
   );
 }
 
@@ -188,6 +298,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <div className="flex h-14 items-center border-b border-[var(--border)] px-3">
         <Brand />
       </div>
+      <PlayerChip publicLogin={publicLogin} />
+      <SidebarLookup />
       <SidebarNav pathname={pathname} />
       <div className="border-t border-[var(--border)] p-3">
         <ThemeToggle />
