@@ -62,7 +62,8 @@ test("[Landing E2E] looking up a developer opens their profile", async ({
   const lookup = page.getByRole("search").first();
   await lookup.getByLabel("Look up any developer").fill("@Playwright-Guest");
   await lookup.getByRole("button", { name: "Go" }).click();
-  await expect(page).toHaveURL(/\/u\/playwright-guest$/);
+  // The profile route may compile on first visit in dev.
+  await expect(page).toHaveURL(/\/u\/playwright-guest$/, { timeout: 15_000 });
 });
 
 test("[Landing E2E] lookup rejects invalid usernames", async ({ page }) => {
