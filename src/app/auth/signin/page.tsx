@@ -1,13 +1,13 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Github } from "lucide-react";
 import { toast } from "sonner";
-
-const MONO = "var(--font-jetbrains), ui-monospace, monospace";
-const DISP = "var(--font-syne), system-ui, sans-serif";
+import PixelSprite from "@/components/buddy/PixelSprite";
+import PixelArt, { type PixelIconName } from "@/components/pixel/PixelArt";
 
 /** Maps NextAuth error codes → user-facing messages. */
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
@@ -31,79 +31,28 @@ function getErrorMessage(error: string): string {
   return AUTH_ERROR_MESSAGES[error] ?? AUTH_ERROR_MESSAGES.Default;
 }
 
+/** What signing in unlocks, as arcade pickups. */
+const UNLOCKS: Array<{ icon: PixelIconName; label: string }> = [
+  { icon: "heart", label: "Streak" },
+  { icon: "star", label: "Global rank" },
+  { icon: "coin", label: "XP & levels" },
+  { icon: "gem", label: "README badges" },
+];
+
 function AuthErrorBanner({ error }: { error: string }) {
   return (
     <div
       role="alert"
       aria-live="assertive"
-      style={{
-        width: "100%",
-        marginBottom: 24,
-        padding: "12px 16px",
-        borderRadius: 8,
-        background: "var(--destructive-muted)",
-        border: `1px solid var(--destructive-muted-border)`,
-        textAlign: "left",
-      }}
+      className="mb-6 w-full border-2 border-[var(--destructive)] bg-[var(--destructive-muted)] px-4 py-3 text-left"
     >
-      <p
-        style={{
-          fontFamily: MONO,
-          fontSize: 12,
-          fontWeight: 700,
-          color: "var(--destructive)",
-          margin: "0 0 4px",
-          letterSpacing: "0.04em",
-          textTransform: "uppercase",
-        }}
-      >
-        ⚠ Sign-in failed
+      <p className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--destructive)]">
+        Game over · sign-in failed
       </p>
-      <p
-        style={{
-          fontFamily: MONO,
-          fontSize: 12,
-          color: "var(--destructive)",
-          margin: 0,
-          lineHeight: 1.65,
-          opacity: 0.85,
-        }}
-      >
+      <p className="mt-1 text-xs leading-5 text-[var(--destructive)]">
         {getErrorMessage(error)}
       </p>
     </div>
-  );
-}
-
-function MouseSpotlight() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const fn = (e: MouseEvent) => {
-      if (ref.current) {
-        ref.current.style.transform = `translate3d(calc(${e.clientX}px - 50%), calc(${e.clientY}px - 50%), 0)`;
-      }
-    };
-    window.addEventListener("mousemove", fn, { passive: true });
-    return () => window.removeEventListener("mousemove", fn);
-  }, []);
-  return (
-    <div
-      ref={ref}
-      aria-hidden
-      style={{
-        position: "fixed",
-        pointerEvents: "none",
-        zIndex: 0,
-        left: 0,
-        top: 0,
-        width: 600,
-        height: 600,
-        background:
-          "radial-gradient(circle, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 70%)",
-        transform: "translate3d(-50%, -50%, 0)",
-        willChange: "transform",
-      }}
-    />
   );
 }
 
@@ -114,6 +63,7 @@ function MouseSpotlight() {
 function SignInContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const [starting, setStarting] = useState(false);
 
   // Clear the ?error= param from the URL immediately after reading it so
   // that refreshing the page or navigating back doesn't show a stale error
@@ -126,159 +76,126 @@ function SignInContent() {
     }
   }, [error]);
 
+  const start = async () => {
+    setStarting(true);
+    try {
+      const res = await signIn("github", {
+        callbackUrl: "/dashboard",
+        redirect: false,
+      });
+
+      if (res?.error) {
+        toast.error(getErrorMessage(res.error));
+        setStarting(false);
+        return;
+      }
+
+      if (res?.url) {
+        const url = new URL(res.url, window.location.origin);
+        // NextAuth redirects to ?csrf=true or back to the signin page if environment mismatch occurs
+        if (
+          url.searchParams.get("csrf") === "true" ||
+          url.pathname === "/auth/signin"
+        ) {
+          toast.error(
+            "Sign-in failed due to a security mismatch. If you're running locally, ensure you access the app via localhost (or the exact NEXTAUTH_URL) and not 127.0.0.1.",
+            { duration: 10000 }
+          );
+          setStarting(false);
+        } else {
+          window.location.assign(res.url);
+        }
+      }
+    } catch {
+      toast.error("An unexpected error occurred during sign in.");
+      setStarting(false);
+    }
+  };
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[var(--background)] px-4">
-      <MouseSpotlight />
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 520,
-          border: "1px solid var(--border)",
-          borderRadius: 12,
-          padding: "clamp(28px,5vw,48px) clamp(24px,5vw,40px)",
-          background: "var(--card)",
-          textAlign: "center",
-          position: "relative",
-          zIndex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          boxShadow: "var(--shadow-medium)",
-        }}
-      >
-        {/* Accent glow blob */}
-        <div
-          aria-hidden
-          style={{
-            pointerEvents: "none",
-            position: "absolute",
-            right: -48,
-            top: -48,
-            width: 144,
-            height: 144,
-            borderRadius: "50%",
-            background: "color-mix(in srgb, var(--accent) 20%, transparent)",
-            filter: "blur(24px)",
-          }}
-        />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] px-4 py-10">
+      <div aria-hidden="true" className="px-grid-bg absolute inset-0" />
 
-        {/* BACK TO HOME */}
-        <div
-          style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
+      <div className="relative w-full max-w-md">
+        <Link
+          href="/"
+          className="mb-4 inline-block font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)] hover:text-[var(--accent)]"
         >
-          <Link
-            href="/"
-            style={{
-              fontFamily: MONO,
-              color: "var(--muted-foreground)",
-              textDecoration: "none",
-              fontSize: 12,
-            }}
-          >
-            ← Back to home
-          </Link>
-        </div>
+          ◀ Back to home
+        </Link>
 
-        <div style={{ marginBottom: 36 }}>
-          <span
-            style={{
-              fontFamily: MONO,
-              fontWeight: 700,
-              fontSize: 13,
-              color: "var(--foreground)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            <span style={{ color: "var(--accent)" }}>▲</span> DEVTRACK
-          </span>
-        </div>
+        <div className="px-frame relative bg-[var(--card)] px-6 pb-8 pt-6 text-center sm:px-9">
+          <div className="flex items-center justify-between font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+            <span>
+              <span className="text-[var(--accent)]">▲</span> DevTrack
+            </span>
+            <span>Credits: free play</span>
+          </div>
 
-        <h1
-          style={{
-            fontFamily: DISP,
-            fontWeight: 800,
-            fontSize: "clamp(34px,6vw,35px)",
-            letterSpacing: "-0.04em",
-            lineHeight: 1.25,
-            color: "var(--foreground)",
-            margin: "0 0 16px",
-          }}
-        >
-          WELCOME
-          <br />
-          <span style={{ color: "var(--accent)" }}>BACK.</span>
-        </h1>
+          <div className="mt-8 flex justify-center">
+            <span className="buddy-bob block">
+              <PixelSprite frame="idle" scale={5} />
+            </span>
+          </div>
 
-        <p
-          style={{
-            fontSize: 14,
-            color: "var(--muted-foreground)",
-            lineHeight: 1.65,
-            margin: "0 0 36px",
-            fontFamily: MONO,
-          }}
-        >
-          Track streaks, PR velocity &amp; coding growth.
-        </p>
+          <p className="mt-5 font-pixel text-[11px] uppercase tracking-[0.22em] text-[var(--accent)]">
+            Player 1
+          </p>
+          <h1 className="mt-2 font-pixel text-[clamp(1.9rem,7vw,2.5rem)] uppercase leading-none text-[var(--card-foreground)]">
+            <span className="sr-only">Sign in to DevTrack: </span>
+            Press start
+          </h1>
+          <p className="mx-auto mt-4 max-w-xs text-sm leading-6 text-[var(--muted-foreground)]">
+            Sign in with GitHub and your player card is built from your real
+            activity, ready in seconds.
+          </p>
 
-        {error && <AuthErrorBanner error={error} />}
+          <div className="mt-7">
+            {error && <AuthErrorBanner error={error} />}
+            <div className="-m-1">
+              <button
+                type="button"
+                onClick={start}
+                disabled={starting}
+                aria-label="Sign in with GitHub"
+                className="px-btn w-full justify-center py-3.5 text-sm disabled:cursor-wait disabled:opacity-80"
+              >
+                <Github className="h-4 w-4" aria-hidden="true" />
+                {starting ? "Loading…" : "Continue with GitHub"}
+              </button>
+            </div>
+            <p
+              aria-hidden="true"
+              className={`mt-3 font-pixel text-[10px] uppercase tracking-[0.2em] text-[var(--muted-foreground)] ${starting ? "" : "px-blink"}`}
+            >
+              {starting ? "Connecting to GitHub" : "Insert coin"}
+            </p>
+          </div>
 
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              const res = await signIn("github", {
-                callbackUrl: "/dashboard",
-                redirect: false,
-              });
+          <div className="mt-8 border-t-2 border-dashed border-[var(--border)] pt-5">
+            <p className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+              Unlocks
+            </p>
+            <ul className="mt-3 grid grid-cols-2 gap-2 text-left sm:grid-cols-4 sm:text-center">
+              {UNLOCKS.map((item) => (
+                <li
+                  key={item.label}
+                  className="flex items-center gap-2 bg-[var(--control)] px-2 py-2 sm:flex-col sm:gap-1.5"
+                >
+                  <PixelArt icon={item.icon} scale={2} />
+                  <span className="text-[11px] leading-tight text-[var(--card-foreground)]">
+                    {item.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              if (res?.error) {
-                toast.error(getErrorMessage(res.error));
-                return;
-              }
-
-              if (res?.url) {
-                const url = new URL(res.url, window.location.origin);
-                // NextAuth redirects to ?csrf=true or back to the signin page if environment mismatch occurs
-                if (
-                  url.searchParams.get("csrf") === "true" ||
-                  url.pathname === "/auth/signin"
-                ) {
-                  toast.error(
-                    "Sign-in failed due to a security mismatch. If you're running locally, ensure you access the app via localhost (or the exact NEXTAUTH_URL) and not 127.0.0.1.",
-                    { duration: 10000 }
-                  );
-                } else {
-                  window.location.assign(res.url);
-                }
-              }
-            } catch (err) {
-              toast.error("An unexpected error occurred during sign in.");
-            }
-          }}
-          aria-label="Sign in with GitHub"
-          className="primary-button relative w-full inline-flex items-center justify-center gap-3 rounded-xl py-3 font-semibold"
-        >
-          Sign in with GitHub
-        </button>
-
-        <div
-          style={{
-            fontFamily: MONO,
-            fontSize: 11,
-            color: "var(--muted-foreground)",
-            letterSpacing: "0.06em",
-            lineHeight: 1.8,
-            marginTop: 24,
-          }}
-        >
-          MIT License · Self-hostable · Free forever
+          <p className="mt-6 text-[11px] leading-5 text-[var(--muted-foreground)]">
+            Free and open source (MIT). GitHub shows exactly what DevTrack can
+            access before you approve, and your profile stays private until you
+            make it public.
+          </p>
         </div>
       </div>
     </main>
