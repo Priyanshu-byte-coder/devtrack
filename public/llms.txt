@@ -13,7 +13,7 @@ DevTrack is built with Next.js and is developed in the open on GitHub, where con
 
 ## How rankings work
 
-- Only developers who opt in to a public profile appear on the leaderboard.
+- New accounts appear on the leaderboard by default; anyone can hide their profile or leave the board in Settings.
 - Rankings are computed from public GitHub activity: current contribution streak, commits and pull requests in the selected period.
 - Data refreshes about hourly.
 

@@ -27,6 +27,11 @@ export default function PrivacyPolicyPage() {
                 "DevTrack may collect information required for authentication, account management, and platform functionality. This can include GitHub profile information, contribution statistics, repository activity, and user preferences.",
             },
             {
+              title: "Public Profile and Leaderboard",
+              content:
+                "When you sign in for the first time, DevTrack creates a public profile for you and lists you on the public leaderboard. These show your score, tier, level, streak and contribution totals. Totals can include private contributions, but private repository names and code are never shown. You can make your profile private and leave the leaderboard at any time in Settings; accounts created before this default keep the visibility they chose.",
+            },
+            {
               title: "How Information Is Used",
               content:
                 "Information is used to provide dashboard features, generate analytics, improve user experience, and maintain platform reliability and security.",

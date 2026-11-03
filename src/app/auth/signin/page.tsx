@@ -193,8 +193,8 @@ function SignInContent() {
 
           <p className="mt-6 text-[11px] leading-5 text-[var(--muted-foreground)]">
             Free and open source (MIT). GitHub shows exactly what DevTrack can
-            access before you approve, and your profile stays private until you
-            make it public.
+            access before you approve. New players get a public profile and a
+            spot on the leaderboard; you can hide both any time in Settings.
           </p>
         </div>
       </div>
