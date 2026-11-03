@@ -4,6 +4,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { groqChatCompletion } from "@/lib/groq";
 import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
+import {
+  upstashRateLimitFixedWindow,
+  getUpstashConfig,
+} from "@/lib/upstash-rest";
+import { createMemoryFixedWindowRateLimiter } from "@/lib/rate-limit";
+
+const TUTOR_LIMIT = 20;
+const TUTOR_WINDOW_SECONDS = 60 * 60; // 1 hour
+
+// In-memory fallback used only when Upstash Redis is not configured.
+const memoryLimiter = createMemoryFixedWindowRateLimiter({
+  windowMs: TUTOR_WINDOW_SECONDS * 1000,
+  maxEntries: 10_000,
+});
 
 async function callGroq(prompt: string): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
@@ -61,6 +75,28 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Every call is a paid model request: cap it per player.
+  const who = `project-tutor:${session.githubLogin ?? session.user?.email ?? "unknown"}`;
+  const limited = getUpstashConfig()
+    ? await upstashRateLimitFixedWindow({
+        key: who,
+        limit: TUTOR_LIMIT,
+        windowSeconds: TUTOR_WINDOW_SECONDS,
+      }).then((r) =>
+        r.allowed ? null : (r.retryAfter ?? TUTOR_WINDOW_SECONDS)
+      )
+    : (() => {
+        const r = memoryLimiter.check(who, TUTOR_LIMIT);
+        return r.allowed
+          ? null
+          : Math.max(r.reset - Math.floor(Date.now() / 1000), 1);
+      })();
+  if (limited !== null)
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again later." },
+      { status: 429, headers: { "Retry-After": String(limited) } }
+    );
 
   try {
     const { repoUrl, action, question } = await req.json();
