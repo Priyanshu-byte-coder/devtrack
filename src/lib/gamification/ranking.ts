@@ -62,3 +62,32 @@ export function rankMovement(
   if (previous < current) return { kind: "down", places: current - previous };
   return { kind: "same" };
 }
+
+export interface Climber {
+  username: string;
+  rank: number;
+  places: number;
+}
+
+/**
+ * The people who moved up the most since the baseline snapshot: biggest
+ * jump first, then the higher current rank. Nobody climbs on the first day.
+ */
+export function biggestClimbers(
+  entries: Array<{ id: string; username: string; rank: number }>,
+  baselineRanks: Record<string, number>,
+  hasBaseline: boolean,
+  limit = 3
+): Climber[] {
+  if (!hasBaseline) return [];
+  return entries
+    .map((e) => ({ e, move: rankMovement(e.rank, baselineRanks[e.id], true) }))
+    .filter(({ move }) => move.kind === "up")
+    .map(({ e, move }) => ({
+      username: e.username,
+      rank: e.rank,
+      places: move.kind === "up" ? move.places : 0,
+    }))
+    .sort((a, b) => b.places - a.places || a.rank - b.rank)
+    .slice(0, limit);
+}
