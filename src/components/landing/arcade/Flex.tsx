@@ -111,50 +111,69 @@ export function FlexBadges() {
   );
 }
 
+// `accent` is a literal class so Tailwind generates it.
 const POWER_UPS = [
   {
     icon: Activity,
     title: "Activity & streaks",
+    effect: "+ Combo",
+    accent: "[--pu-c:#fb923c]",
     body: "Contribution heatmap, streaks with freezes, a consistency score and the hours you code best.",
   },
   {
     icon: GitPullRequest,
     title: "Pull requests",
+    effect: "+ Impact",
+    accent: "[--pu-c:#c77dff]",
     body: "Merge rate, review speed, cycle time and what your PRs are made of, week over week.",
   },
   {
     icon: FolderGit2,
     title: "Repositories",
+    effect: "+ Breadth",
+    accent: "[--pu-c:#6ba8ff]",
     body: "Where your commits go, your language mix, repo health and the projects that need attention.",
   },
   {
     icon: Target,
     title: "Goals",
+    effect: "+ Focus",
+    accent: "[--pu-c:#34d399]",
     body: "Weekly and monthly targets that update themselves from your GitHub activity.",
   },
   {
     icon: BrainCircuit,
     title: "Code personality",
+    effect: "+ Insight",
+    accent: "[--pu-c:#22d3ee]",
     body: "Your developer archetype, read from commit times, streaks and PR habits.",
   },
   {
     icon: FileText,
     title: "AI resume",
+    effect: "+ Hireable",
+    accent: "[--pu-c:#f472b6]",
     body: "An ATS-friendly resume for a target role, built from your merged PRs and real impact.",
   },
   {
     icon: Trophy,
     title: "Leaderboard",
+    effect: "+ Glory",
+    accent: "[--pu-c:#f2c14e]",
     body: "Global, monthly and weekly boards, with tiers, levels and daily rank changes.",
   },
   {
     icon: Share2,
     title: "Public profile",
+    effect: "+ Flex",
+    accent: "[--pu-c:#a3e635]",
     body: "A shareable page with the stats you choose, an arcade share card and README badges.",
   },
   {
     icon: BarChart3,
     title: "Year in Code",
+    effect: "+ Nostalgia",
+    accent: "[--pu-c:#f87171]",
     body: "Your year as a set of slides you can share: commits, streaks, languages and peak hours.",
     href: "/wrapped",
   },
@@ -177,21 +196,46 @@ export function PowerUps() {
           with no configuration.
         </SectionHeading>
 
+        {/* Item-select HUD bar. */}
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-2 border-b-2 border-dashed border-[var(--border)] pb-3 font-pixel text-[10px] uppercase tracking-[0.16em]">
+          <span className="text-[var(--card-foreground)]">
+            <span
+              aria-hidden="true"
+              className="px-blink mr-2 text-[var(--accent)]"
+            >
+              ▶
+            </span>
+            Select your power-ups
+          </span>
+          <span className="text-[var(--muted-foreground)]">
+            {POWER_UPS.length}/{POWER_UPS.length} unlocked · free
+          </span>
+        </div>
+
         <RevealGroup
           as="ul"
-          className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
           stagger={0.05}
         >
-          {POWER_UPS.map((item) => {
+          {POWER_UPS.map((item, index) => {
             const body = (
               <>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[var(--control)] text-[var(--accent)]">
-                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                <span
+                  className="pu-box relative flex h-12 w-12 shrink-0 items-center justify-center text-white"
+                  style={{ animationDelay: `${(index % 3) * 220}ms` }}
+                >
+                  <item.icon className="relative h-6 w-6" aria-hidden="true" />
+                  <span className="pu-spark" aria-hidden="true" />
                 </span>
-                <span className="min-w-0">
-                  <span className="block font-semibold text-[var(--card-foreground)]">
-                    {item.title}
-                    {item.href && <span aria-hidden="true"> →</span>}
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="font-semibold text-[var(--card-foreground)]">
+                      {item.title}
+                      {item.href && <span aria-hidden="true"> →</span>}
+                    </span>
+                    <span className="pu-effect font-pixel text-[9px] uppercase tracking-[0.12em]">
+                      {item.effect}
+                    </span>
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-[var(--muted-foreground)]">
                     {item.body}
@@ -199,14 +243,13 @@ export function PowerUps() {
                 </span>
               </>
             );
-            const cls =
-              "flex h-full gap-4 border-2 border-dashed border-[var(--border)] bg-[var(--background)] p-5 transition-colors";
+            const cls = `pu-card ${item.accent} flex h-full gap-4 bg-[var(--background)] p-5`;
             return (
               <RevealItem as="li" key={item.title}>
                 {item.href ? (
                   <Link
                     href={item.href}
-                    className={`${cls} hover:border-[var(--accent)] focus-visible:border-[var(--accent)] focus-visible:outline-none`}
+                    className={`${cls} focus-visible:outline-none`}
                   >
                     {body}
                   </Link>

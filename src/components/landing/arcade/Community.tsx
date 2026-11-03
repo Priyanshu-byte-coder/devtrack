@@ -1,17 +1,44 @@
 import { Github } from "lucide-react";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
+import PixelArt, { type PixelIconName } from "@/components/pixel/PixelArt";
 import { TIER_THRESHOLDS, XP_PER } from "@/lib/gamification/scoring";
 import DevLookup from "./DevLookup";
 import SectionHeading from "./SectionHeading";
 import { REPO_URL, SIGN_IN_HREF, type RepoStats } from "./types";
 
 export function CoOp({ stats }: { stats: RepoStats }) {
-  const counters = [
-    { label: "Commits", value: stats.totalCommits },
-    { label: "PRs merged", value: stats.mergedPRs },
-    { label: "Contributors", value: stats.contributorCount },
-    { label: "GitHub stars", value: stats.stars },
+  const counters: Array<{
+    label: string;
+    value: number;
+    icon: PixelIconName;
+    /** A literal class so Tailwind sees it. */
+    accent: string;
+  }> = [
+    {
+      label: "Commits",
+      value: stats.totalCommits,
+      icon: "coin",
+      accent: "[--hud-c:#facc15]",
+    },
+    {
+      label: "PRs merged",
+      value: stats.mergedPRs,
+      icon: "gem",
+      accent: "[--hud-c:#34d399]",
+    },
+    {
+      label: "Contributors",
+      value: stats.contributorCount,
+      icon: "heart",
+      accent: "[--hud-c:#f43f5e]",
+    },
+    {
+      label: "GitHub stars",
+      value: stats.stars,
+      icon: "star",
+      accent: "[--hud-c:#eab308]",
+    },
   ];
   const goodFirstIssues = `${REPO_URL}/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22`;
 
@@ -36,17 +63,36 @@ export function CoOp({ stats }: { stats: RepoStats }) {
         className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-4"
         stagger={0.08}
       >
-        {counters.map((c) => (
+        {counters.map((c, index) => (
           <RevealItem
             as="li"
             key={c.label}
-            className="px-frame bg-[var(--card)] p-5"
+            className={`hud-counter px-frame relative overflow-hidden bg-[var(--card)] p-5 ${c.accent}`}
           >
-            <span className="block font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
-              {c.label}
+            {/* Colour key along the top, like the dashboard HUD. */}
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-1 bg-[var(--hud-c)]"
+            />
+            <span className="flex items-center gap-3">
+              <span
+                className={`hud-counter__icon hud-icon-${c.icon} shrink-0`}
+                style={{ animationDelay: `${index * 180}ms` }}
+              >
+                <PixelArt icon={c.icon} scale={4} />
+              </span>
+              <span className="min-w-0 font-pixel text-3xl tabular-nums text-[var(--card-foreground)] sm:text-4xl">
+                <span
+                  aria-hidden="true"
+                  className="mr-1 text-base text-[var(--muted-foreground)]"
+                >
+                  ×
+                </span>
+                <AnimatedNumber value={c.value} />
+              </span>
             </span>
-            <span className="mt-2 block font-pixel text-3xl tabular-nums text-[var(--card-foreground)]">
-              <AnimatedNumber value={c.value} />
+            <span className="mt-3 block font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+              {c.label}
             </span>
           </RevealItem>
         ))}
