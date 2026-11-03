@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import PageHeader, { SectionTitle } from "@/components/shell/PageHeader";
 import {
-  ActivityRing,
   CodingActivityInsights,
   CodingTime,
-  CommitTime,
   ConsistencyScore,
   ContributionHeatmap,
   LocalCodingTime,
@@ -39,8 +37,6 @@ export default function ActivityPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <ProductiveHours />
         <CodingActivityInsights />
-        <CommitTime />
-        <ActivityRing />
       </div>
 
       <SectionTitle>Coding time</SectionTitle>

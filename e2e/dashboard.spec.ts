@@ -488,8 +488,8 @@ const METRICS_REQUEST_BOUNDS: Record<
   "/api/metrics/repo-explorer": { min: 1, max: 2 },
   "/api/metrics/prs": { min: 1, max: 2 },
   "/api/metrics/pr-breakdown": { min: 1, max: 2 },
-  // MiniPRTrendChart (inside PR Metrics) + PR Review Trend widget both call this route.
-  "/api/metrics/pr-review-time": { min: 1, max: 4 },
+  // The PR Review Trend widget is the only caller now.
+  "/api/metrics/pr-review-time": { min: 1, max: 2 },
 };
 
 function countMetricRequests(urls: string[], endpoint: string): number {
