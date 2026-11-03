@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import EmptyState from "@/components/EmptyState";
 import { Reveal } from "@/components/motion/Reveal";
 import { stagger } from "@/lib/motion";
@@ -66,6 +66,12 @@ const periods: Record<LeaderboardPeriod, string> = {
 };
 
 const fmt = new Intl.NumberFormat("en-US");
+
+/**
+ * Rows the table renders. The board ranks everyone; past this a signed-in
+ * player still sees their own row, after a gap.
+ */
+const SHOWN_ROWS = 100;
 
 function isLeaderboardPeriod(
   value: string | undefined
@@ -163,11 +169,20 @@ async function LeaderboardTable({
   // filter re-ranks a subset, which isn't comparable to the global snapshot.
   const showMovement =
     activeTab === "overall" && overall.length > 0 && !filters.lang;
+  const isYou = (entry: LeaderboardEntry) =>
+    viewer !== null && entry.username.toLowerCase() === viewer;
+  const shown = rows.slice(0, SHOWN_ROWS);
+  const viewerRow = rows.find(isYou);
+  const viewerBelow =
+    viewerRow && !shown.includes(viewerRow) ? viewerRow : null;
+
   const [baseline, progress] = await Promise.all([
     showMovement
       ? getBaselineRanks(filters.period, new Date().toISOString().slice(0, 10))
       : Promise.resolve({ date: null, ranks: {} as Record<string, number> }),
-    getProgressByUserIds(rows.map((r) => r.id)),
+    getProgressByUserIds(
+      (viewerBelow ? [...shown, viewerBelow] : shown).map((r) => r.id)
+    ),
   ]);
   const baselineLabel = baseline.date
     ? new Date(`${baseline.date}T00:00:00Z`).toLocaleDateString("en-US", {
@@ -177,8 +192,6 @@ async function LeaderboardTable({
       })
     : undefined;
 
-  const isYou = (entry: LeaderboardEntry) =>
-    viewer !== null && entry.username.toLowerCase() === viewer;
   const podium: PodiumPlace[] = rows.slice(0, 3).map((entry) => ({
     username: entry.username,
     avatarUrl: podiumAvatar(entry.avatarUrl),
@@ -189,7 +202,7 @@ async function LeaderboardTable({
     scoreV2: entry.scoreV2,
     isYou: isYou(entry),
   }));
-  const rest = rows.slice(3);
+  const rest = viewerBelow ? [...shown.slice(3), viewerBelow] : shown.slice(3);
   const climbers = showMovement
     ? biggestClimbers(rows, baseline.ranks, baseline.date !== null)
     : [];
@@ -241,7 +254,7 @@ async function LeaderboardTable({
 
           {rest.length > 0 && (
             <section
-              aria-label={`Ranks 4 to ${rows.length}`}
+              aria-label={`Ranks 4 to ${shown.length}`}
               className="px-frame bg-[var(--card)]"
             >
               {/* Column headings only make sense once the row is a real
@@ -265,112 +278,129 @@ async function LeaderboardTable({
                 {rest.map((entry, index) => {
                   const you = isYou(entry);
                   return (
-                    <Reveal
-                      as="li"
-                      key={entry.id}
-                      className={`relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--control)] ${
-                        you
-                          ? "bg-accent/10 shadow-[inset_4px_0_0_0_var(--accent)]"
-                          : ""
-                      }`}
-                      y={8}
-                      amount={0}
-                      // The first screenful cascades in; rows further down
-                      // just appear as they scroll into view.
-                      delay={index < 15 ? index * stagger.tight : 0}
-                    >
-                      <span className="flex w-9 shrink-0 flex-col items-start gap-1 sm:w-12">
-                        <span className="font-pixel text-sm tabular-nums text-[var(--muted-foreground)] sm:text-base">
-                          {String(entry.rank).padStart(2, "0")}
-                        </span>
-                        {showMovement && (
-                          <RankMovementBadge
-                            movement={rankMovement(
-                              entry.rank,
-                              baseline.ranks[entry.id],
-                              baseline.date !== null
-                            )}
-                            since={baselineLabel}
-                          />
-                        )}
-                      </span>
-
-                      <Image
-                        src={entry.avatarUrl}
-                        alt=""
-                        width={36}
-                        height={36}
-                        unoptimized
-                        className="h-9 w-9 shrink-0 bg-[var(--control)]"
-                      />
-
-                      {/* min-w-0 lets long usernames truncate instead of
-                          forcing the row wider than the screen. */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          {/* The whole row is the link, via the overlay. */}
-                          <Link
-                            href={entry.profileUrl}
-                            title={entry.username}
-                            className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none"
-                          >
-                            @{entry.username}
-                          </Link>
-                          {you && (
-                            <span className="shrink-0 font-pixel text-[10px] uppercase text-[var(--accent)]">
-                              You
-                            </span>
-                          )}
-                          {entry.tier && (
-                            <TierBadge
-                              tier={entry.tier}
-                              score={entry.scoreV2}
-                              compact
-                            />
-                          )}
-                          {entry.isSponsor && (
-                            <SponsorBadge
-                              className="shrink-0"
-                              labelClassName="hidden sm:inline"
-                            />
-                          )}
-                        </div>
-
-                        {/* On a phone the metric has no column of its own,
-                            so it leads the secondary line instead. */}
-                        <p className="truncate text-xs text-[var(--muted-foreground)]">
-                          <span className="font-semibold text-[var(--card-foreground)] sm:hidden">
-                            {fmt.format(getMetricValue(entry, activeTab))}{" "}
-                            {metricLabel}
-                            {" · "}
+                    <Fragment key={entry.id}>
+                      {entry === viewerBelow && (
+                        <li
+                          aria-label={`${fmt.format(entry.rank - shown.length - 1)} more players`}
+                          className="px-4 py-2 text-center font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]"
+                        >
+                          · · · {fmt.format(entry.rank - shown.length - 1)} more
+                          · · ·
+                        </li>
+                      )}
+                      <Reveal
+                        as="li"
+                        className={`relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--control)] ${
+                          you
+                            ? "bg-accent/10 shadow-[inset_4px_0_0_0_var(--accent)]"
+                            : ""
+                        }`}
+                        y={8}
+                        amount={0}
+                        // The first screenful cascades in; rows further down
+                        // just appear as they scroll into view.
+                        delay={index < 15 ? index * stagger.tight : 0}
+                      >
+                        <span className="flex w-9 shrink-0 flex-col items-start gap-1 sm:w-12">
+                          <span className="font-pixel text-sm tabular-nums text-[var(--muted-foreground)] sm:text-base">
+                            {String(entry.rank).padStart(2, "0")}
                           </span>
-                          {fmt.format(entry.commits)} commits ·{" "}
-                          {fmt.format(entry.prs)} PRs · {entry.streak}d streak
-                        </p>
-                      </div>
+                          {showMovement && (
+                            <RankMovementBadge
+                              movement={rankMovement(
+                                entry.rank,
+                                baseline.ranks[entry.id],
+                                baseline.date !== null
+                              )}
+                              since={baselineLabel}
+                            />
+                          )}
+                        </span>
 
-                      <div className="hidden w-24 shrink-0 text-right sm:block">
-                        <div className="font-pixel text-base tabular-nums text-[var(--card-foreground)]">
-                          {fmt.format(getMetricValue(entry, activeTab))}
-                        </div>
-                        <div className="truncate text-xs text-[var(--muted-foreground)]">
-                          {metricLabel}
-                        </div>
-                      </div>
+                        <Image
+                          src={entry.avatarUrl}
+                          alt=""
+                          width={36}
+                          height={36}
+                          unoptimized
+                          className="h-9 w-9 shrink-0 bg-[var(--control)]"
+                        />
 
-                      <div className="hidden w-16 shrink-0 justify-end md:flex">
-                        {(progress[entry.id]?.level ?? entry.level) !==
-                          undefined && (
-                          <LevelChip
-                            level={progress[entry.id]?.level ?? entry.level!}
-                          />
-                        )}
-                      </div>
-                    </Reveal>
+                        {/* min-w-0 lets long usernames truncate instead of
+                          forcing the row wider than the screen. */}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            {/* The whole row is the link, via the overlay. */}
+                            <Link
+                              href={entry.profileUrl}
+                              title={entry.username}
+                              className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none"
+                            >
+                              @{entry.username}
+                            </Link>
+                            {you && (
+                              <span className="shrink-0 font-pixel text-[10px] uppercase text-[var(--accent)]">
+                                You
+                              </span>
+                            )}
+                            {entry.tier && (
+                              <TierBadge
+                                tier={entry.tier}
+                                score={entry.scoreV2}
+                                compact
+                              />
+                            )}
+                            {entry.isSponsor && (
+                              <SponsorBadge
+                                className="shrink-0"
+                                labelClassName="hidden sm:inline"
+                              />
+                            )}
+                          </div>
+
+                          {/* On a phone the metric has no column of its own,
+                            so it leads the secondary line instead. */}
+                          <p className="truncate text-xs text-[var(--muted-foreground)]">
+                            <span className="font-semibold text-[var(--card-foreground)] sm:hidden">
+                              {fmt.format(getMetricValue(entry, activeTab))}{" "}
+                              {metricLabel}
+                              {" · "}
+                            </span>
+                            {fmt.format(entry.commits)} commits ·{" "}
+                            {fmt.format(entry.prs)} PRs · {entry.streak}d streak
+                          </p>
+                        </div>
+
+                        <div className="hidden w-24 shrink-0 text-right sm:block">
+                          <div className="font-pixel text-base tabular-nums text-[var(--card-foreground)]">
+                            {fmt.format(getMetricValue(entry, activeTab))}
+                          </div>
+                          <div className="truncate text-xs text-[var(--muted-foreground)]">
+                            {metricLabel}
+                          </div>
+                        </div>
+
+                        <div className="hidden w-16 shrink-0 justify-end md:flex">
+                          {(progress[entry.id]?.level ?? entry.level) !==
+                            undefined && (
+                            <LevelChip
+                              level={progress[entry.id]?.level ?? entry.level!}
+                            />
+                          )}
+                        </div>
+                      </Reveal>
+                    </Fragment>
                   );
                 })}
               </ul>
             </section>
+          )}
+
+          {rows.length > shown.length && (
+            <p className="mt-3 font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+              Top {fmt.format(shown.length)} of {fmt.format(rows.length)}{" "}
+              players
+            </p>
           )}
 
           <p className="mt-3 text-right font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">

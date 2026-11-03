@@ -176,4 +176,39 @@ describe("buildLeaderboard with score v2", () => {
     expect(steady.xp).toBe(600 + 480 + 150);
     expect(steady.level).toBeGreaterThan(1);
   });
+
+  it("ranks every player, not just the first fifty", async () => {
+    mocks.users = Array.from({ length: 60 }, (_, i) => ({
+      id: `u-${i}`,
+      github_login: i % 2 ? "steady" : "spammer",
+      is_sponsor: false,
+    }));
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const payload = await buildLeaderboard({ period: "month" });
+    for (const board of Object.values(payload.leaders)) {
+      expect(board).toHaveLength(60);
+      expect(board.at(-1)!.rank).toBe(60);
+    }
+  });
+
+  it("never has more GitHub requests in flight than the concurrency limit", async () => {
+    mocks.users = Array.from({ length: 30 }, (_, i) => ({
+      id: `u-${i}`,
+      github_login: "steady",
+      is_sponsor: false,
+    }));
+    let inFlight = 0;
+    let peak = 0;
+    mocks.githubRequest.mockImplementation(async () => {
+      peak = Math.max(peak, ++inFlight);
+      await new Promise((r) => setTimeout(r, 2));
+      inFlight--;
+      return graphqlResponse(profiles.steady);
+    });
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    await buildLeaderboard({ period: "month" });
+    // LEADERBOARD_USER_CONCURRENCY defaults to 5.
+    expect(peak).toBeLessThanOrEqual(5);
+    expect(peak).toBeGreaterThan(1);
+  });
 });
