@@ -144,9 +144,9 @@ export default function CommunityMetrics() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg bg-[var(--control)] p-4 text-center min-w-0 sm:min-h-24 stat-cell animate-fade-in-up"
+                className="stat-cell min-w-0 p-4 text-center sm:min-h-24 animate-fade-in-up"
               >
-                <div className="text-[clamp(1.5rem,5vw,1.75rem)] font-bold leading-none text-[var(--accent)]">
+                <div className="stat-value text-[clamp(1.5rem,5vw,1.75rem)] leading-none">
                   {stat.value}
                 </div>
                 <div className="mt-2 text-[clamp(0.75rem,2.4vw,0.875rem)] leading-snug text-[var(--muted-foreground)] break-words hyphens-auto">

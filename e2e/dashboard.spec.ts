@@ -229,7 +229,12 @@ async function injectMockSession(page: import("@playwright/test").Page) {
     route.fulfill({
       contentType: "application/json",
       body: JSON.stringify({
-        languages: [{ language: "TypeScript", count: 20 }],
+        languages: [
+          { name: "TypeScript", bytes: 61000, percentage: 61 },
+          { name: "Python", bytes: 22000, percentage: 22 },
+          { name: "CSS", bytes: 11000, percentage: 11 },
+          { name: "Shell", bytes: 6000, percentage: 6 },
+        ],
       }),
     })
   );

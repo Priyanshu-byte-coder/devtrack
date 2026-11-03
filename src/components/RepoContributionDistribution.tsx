@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 
 type RepoChartItem = {
   name: string;
@@ -244,26 +245,24 @@ export default function RepoContributionDistribution({
           </p>
         </div>
 
-        <div className="flex w-fit rounded-lg border border-[var(--border)] bg-[var(--control)] p-1 text-sm">
+        <div
+          className={arcadeTabGroupClass}
+          role="group"
+          aria-label="Chart type"
+        >
           <button
             type="button"
             onClick={() => setChartType("pie")}
-            className={`rounded-md px-3 py-1 transition ${
-              chartType === "pie"
-                ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                : "text-[var(--muted-foreground)]"
-            }`}
+            aria-pressed={chartType === "pie"}
+            className={arcadeTabClass(chartType === "pie")}
           >
             Pie
           </button>
           <button
             type="button"
             onClick={() => setChartType("bar")}
-            className={`rounded-md px-3 py-1 transition ${
-              chartType === "bar"
-                ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                : "text-[var(--muted-foreground)]"
-            }`}
+            aria-pressed={chartType === "bar"}
+            className={arcadeTabClass(chartType === "bar")}
           >
             Bar
           </button>

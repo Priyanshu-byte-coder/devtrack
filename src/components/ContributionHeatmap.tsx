@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAccount } from "@/components/AccountContext";
 import { SkeletonBlock } from "./WidgetSkeleton";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 
 interface ContributionHeatmapProps {
   days?: number;
@@ -501,7 +502,7 @@ export default function ContributionHeatmap({
     <div className="w-full overflow-hidden px-frame bg-[var(--card)] p-4 sm:p-6">
       <div className="mb-4 flex flex-col items-start justify-between gap-3">
         <div className="w-full">
-          <h2 className="text-base font-semibold text-[var(--card-foreground)] dark:text-white">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Contribution Heatmap
           </h2>
           <p className="text-xs text-[var(--muted-foreground)] dark:text-gray-300">
@@ -513,18 +514,16 @@ export default function ContributionHeatmap({
 
         <div className="flex w-full flex-wrap items-center gap-2">
           {/* Range buttons */}
-          <div className="flex flex-wrap gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1">
+          <div className={arcadeTabGroupClass} role="group" aria-label="Range">
             {PRESET_RANGES.map((r) => (
               <button
                 key={r.days}
                 onClick={() => handleRangeChange(r.days)}
                 aria-label={`Show ${r.days}-day range`}
                 aria-pressed={selectedDays === r.days && !customLabel}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={arcadeTabClass(
                   selectedDays === r.days && !customLabel
-                    ? "bg-[var(--accent)] text-[var(--background)]"
-                    : "text-[var(--muted-foreground)] dark:text-gray-300 hover:text-[var(--foreground)] dark:hover:text-white"
-                }`}
+                )}
               >
                 {r.label}
               </button>
@@ -541,11 +540,7 @@ export default function ContributionHeatmap({
                   : "Select custom date range"
               }
               aria-expanded={showPopover}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors border border-[var(--border)] ${
-                customLabel
-                  ? "bg-[var(--accent)] text-[var(--background)]"
-                  : "text-[var(--muted-foreground)] dark:text-gray-300 hover:text-[var(--foreground)] dark:hover:text-white"
-              }`}
+              className={arcadeTabClass(Boolean(customLabel))}
             >
               {customLabel ?? "Custom..."}
             </button>
@@ -605,7 +600,7 @@ export default function ContributionHeatmap({
                 ? { backgroundColor: themeConfig.accent, color: "#fff" }
                 : undefined
             }
-            className="rounded px-2 py-1 text-xs dark:text-gray-300"
+            className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
             Default
           </button>
@@ -617,7 +612,7 @@ export default function ContributionHeatmap({
                 ? { backgroundColor: themeConfig.accent, color: "#fff" }
                 : undefined
             }
-            className="rounded px-2 py-1 text-xs dark:text-gray-300"
+            className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
             Colour-blind
           </button>
@@ -781,7 +776,7 @@ export default function ContributionHeatmap({
                       }
                       disabled={isFuture}
                       onClick={() => !isFuture && setSelectedDate(cell.dateKey)}
-                      className={`group relative z-0 h-4 w-4 rounded-[3px] border transition-transform hover:z-20 hover:scale-110 focus:z-20 focus-visible:ring-2 focus-visible:ring-[var(--heatmap-focus-ring)] disabled:cursor-default disabled:opacity-20 ${
+                      className={`group relative z-0 h-4 w-4 border transition-transform hover:z-20 hover:scale-110 focus:z-20 focus-visible:ring-2 focus-visible:ring-[var(--heatmap-focus-ring)] disabled:cursor-default disabled:opacity-20 ${
                         cell.inRange ? "opacity-100" : "opacity-40"
                       }`}
                       style={{
@@ -832,7 +827,7 @@ export default function ContributionHeatmap({
 
           {/* Contribution Insights section */}
           <div className="mt-6 border-t border-[var(--border)] pt-6">
-            <h3 className="text-sm font-semibold text-[var(--card-foreground)] dark:text-white mb-4">
+            <h3 className="mb-4 font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
               Contribution Insights
             </h3>
 
@@ -847,7 +842,7 @@ export default function ContributionHeatmap({
                 aria-label="Contribution Insights Panel"
               >
                 {/* Most Productive Weekday */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 shadow-sm flex flex-col justify-between">
+                <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#6ba8ff]">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar
                       className="h-4 w-4 text-blue-500"
@@ -868,7 +863,7 @@ export default function ContributionHeatmap({
                 </div>
 
                 {/* Average Weekly Contributions */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 shadow-sm flex flex-col justify-between">
+                <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#34d399]">
                   <div className="flex items-center gap-2 mb-2">
                     <BarChart2
                       className="h-4 w-4 text-green-500"
@@ -889,7 +884,7 @@ export default function ContributionHeatmap({
                 </div>
 
                 {/* Longest Contribution Streak */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 shadow-sm flex flex-col justify-between">
+                <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#fb923c]">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap
                       className="h-4 w-4 text-amber-500"
@@ -911,7 +906,7 @@ export default function ContributionHeatmap({
                 </div>
 
                 {/* Longest Inactive Period */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 shadow-sm flex flex-col justify-between">
+                <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#f87171]">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock
                       className="h-4 w-4 text-red-500"
@@ -933,7 +928,7 @@ export default function ContributionHeatmap({
                 </div>
 
                 {/* Monthly Contribution Trends */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 shadow-sm flex flex-col justify-between">
+                <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#c77dff]">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp
                       className="h-4 w-4 text-purple-500"
@@ -962,7 +957,7 @@ export default function ContributionHeatmap({
                 </div>
 
                 {/* Best Contribution Month */}
-                <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-4 shadow-sm flex flex-col justify-between">
+                <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#f2c14e]">
                   <div className="flex items-center gap-2 mb-2">
                     <Award
                       className="h-4 w-4 text-indigo-500"

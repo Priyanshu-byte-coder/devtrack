@@ -12,6 +12,7 @@ import {
   getCodebaseSizeFromLanguages,
   type CodebaseSize,
 } from "@/lib/codebase-size";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 
 interface RepoItemProps {
   repo: Repo;
@@ -598,28 +599,28 @@ export default function TopRepos() {
         </select>
       </div>
 
-      <div className="flex p-1 space-x-1 rounded-lg bg-[var(--control)] w-fit mb-4 border border-[var(--border)]">
+      <div
+        className={`${arcadeTabGroupClass} mb-4`}
+        role="group"
+        aria-label="Repositories to show"
+      >
         <button
+          type="button"
           onClick={() => setActiveTab("all")}
-          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-            activeTab === "all"
-              ? "bg-[var(--card)] text-[var(--card-foreground)] shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
-          }`}
+          aria-pressed={activeTab === "all"}
+          className={arcadeTabClass(activeTab === "all")}
         >
           All Recommended
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("saved")}
-          className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all flex items-center space-x-2 ${
-            activeTab === "saved"
-              ? "bg-[var(--card)] text-[var(--card-foreground)] shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
-          }`}
+          aria-pressed={activeTab === "saved"}
+          className={arcadeTabClass(activeTab === "saved")}
         >
           <span>Saved Projects</span>
           {bookmarkedRepos.length > 0 && (
-            <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-[var(--card-muted)] text-[var(--card-foreground)]">
+            <span className="bg-[var(--accent)] px-1.5 py-0.5 text-[10px] text-white">
               {bookmarkedRepos.length}
             </span>
           )}

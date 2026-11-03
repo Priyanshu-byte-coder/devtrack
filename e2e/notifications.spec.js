@@ -36,7 +36,14 @@ function mockMetricResponse(url) {
       ],
     };
   if (url.includes("/api/metrics/languages"))
-    return { languages: [{ language: "TypeScript", count: 12 }] };
+    return {
+      languages: [
+        { name: "TypeScript", bytes: 61000, percentage: 61 },
+        { name: "Python", bytes: 22000, percentage: 22 },
+        { name: "CSS", bytes: 11000, percentage: 11 },
+        { name: "Shell", bytes: 6000, percentage: 6 },
+      ],
+    };
   if (url.includes("/api/metrics/streak"))
     return {
       current: 3,
@@ -48,7 +55,13 @@ function mockMetricResponse(url) {
   if (url.includes("/api/streak/freeze"))
     return { hasFreeze: false, freezeDate: null };
   if (url.includes("/api/metrics/sponsors"))
-    return { mrr: 15000, activeCount: 12, growthTrend: 15, sponsors: [], sparklineData: [] };
+    return {
+      mrr: 15000,
+      activeCount: 12,
+      growthTrend: 15,
+      sponsors: [],
+      sparklineData: [],
+    };
   if (url.includes("/api/metrics/weekly-summary"))
     return {
       commits: { current: 10, previous: 7, delta: 3, trend: "up" },
@@ -56,9 +69,9 @@ function mockMetricResponse(url) {
         thisWeek: { opened: 3, merged: 2 },
         lastWeek: { opened: 1, merged: 1 },
       },
-      issues: { 
-        thisWeek: { opened: 4, closed: 2 }, 
-        lastWeek: { opened: 3, closed: 1 } 
+      issues: {
+        thisWeek: { opened: 4, closed: 2 },
+        lastWeek: { opened: 3, closed: 1 },
       },
       productivityScore: { current: 85, previous: 80 },
       activeDays: { thisWeek: 5, lastWeek: 4 },
@@ -66,7 +79,7 @@ function mockMetricResponse(url) {
       topRepo: "demo/repo",
       repoBreakdown: [],
       dailyCommits: [],
-      mostActiveDay: "2023-10-07"
+      mostActiveDay: "2023-10-07",
     };
   if (url.includes("/api/metrics/compare"))
     return { user: { commits: 10 }, friend: { commits: 8 } };
@@ -168,7 +181,10 @@ test.beforeEach(async ({ page }) => {
   });
 
   await page.route("**/api/notifications**", async (route) => {
-    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ notifications: [], unreadCount: 0 }) });
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ notifications: [], unreadCount: 0 }),
+    });
   });
 
   await page.route("**/api/milestones**", async (route) => {
@@ -298,7 +314,10 @@ test.beforeEach(async ({ page }) => {
   }
 
   await page.route("**/api/streak/freeze**", async (route) => {
-    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ hasFreeze: false, freezeDate: null }) });
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ hasFreeze: false, freezeDate: null }),
+    });
   });
 
   await page.route("**/api/stream**", async (route) => {
@@ -311,14 +330,23 @@ test.beforeEach(async ({ page }) => {
 
   await page.route("**/api/user/dashboard-layout**", async (route) => {
     if (route.request().method() === "GET") {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ layout: null }) });
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ layout: null }),
+      });
     } else {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ ok: true }) });
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
+      });
     }
   });
 
   await page.route("**/api/daily-note**", async (route) => {
-    await route.fulfill({ contentType: "application/json", body: JSON.stringify({ note: null }) });
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ note: null }),
+    });
   });
 });
 
@@ -344,10 +372,14 @@ test("notification bell opens and closes drawer", async ({ page }) => {
   await page.goto("/dashboard", { waitUntil: "load" });
 
   // Wait for the dashboard to fully render
-  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(
+    page.getByRole("heading", { name: "Dashboard", exact: true })
+  ).toBeVisible({ timeout: 30000 });
 
   // Find and click the notification bell
-  const bellButton = page.getByRole("button", { name: /Notifications/ }).first();
+  const bellButton = page
+    .getByRole("button", { name: /Notifications/ })
+    .first();
   await expect(bellButton).toBeVisible({ timeout: 10000 });
 
   await bellButton.click();
@@ -362,7 +394,9 @@ test("notification bell opens and closes drawer", async ({ page }) => {
   await expect(drawerHeading).not.toBeVisible({ timeout: 5000 });
 });
 
-test("notification search filters and highlights correctly", async ({ page }) => {
+test("notification search filters and highlights correctly", async ({
+  page,
+}) => {
   await page.route("**/api/notifications**", async (route) => {
     await route.fulfill({
       contentType: "application/json",
@@ -391,10 +425,14 @@ test("notification search filters and highlights correctly", async ({ page }) =>
   await page.goto("/dashboard", { waitUntil: "load" });
 
   // Wait for the dashboard to fully render
-  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible({ timeout: 30000 });
+  await expect(
+    page.getByRole("heading", { name: "Dashboard", exact: true })
+  ).toBeVisible({ timeout: 30000 });
 
   // Open the notifications drawer
-  const bellButton = page.getByRole("button", { name: /Notifications/ }).first();
+  const bellButton = page
+    .getByRole("button", { name: /Notifications/ })
+    .first();
   await bellButton.click();
 
   // Verify both notifications are visible initially

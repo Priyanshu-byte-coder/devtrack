@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
@@ -45,11 +45,18 @@ export default function IssueMetrics() {
 
   const stats = metrics
     ? [
-        { label: "Issues Opened (30d)", value: metrics.opened },
-        { label: "Issues Closed (30d)", value: metrics.closed },
-        { label: "Currently Open", value: metrics.currentlyOpen },
-        { label: "Avg Close Time", value: `${metrics.avgCloseTimeDays}d` },
-        { label: "Most Active Repo", value: metrics.mostActiveRepo ?? "—" },
+        { label: "Opened (30d)", value: metrics.opened, color: "#6ba8ff" },
+        { label: "Closed (30d)", value: metrics.closed, color: "#34d399" },
+        {
+          label: "Still open",
+          value: metrics.currentlyOpen,
+          color: "#fb923c",
+        },
+        {
+          label: "Avg close time",
+          value: `${metrics.avgCloseTimeDays}d`,
+          color: "#c77dff",
+        },
       ]
     : [];
 
@@ -84,11 +91,11 @@ export default function IssueMetrics() {
           role="status"
           aria-live="polite"
           aria-busy="true"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           <span className="sr-only">Loading issue analytics</span>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <SkeletonBlock key={i} className="h-24 rounded-lg" />
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonBlock key={i} className="h-24" />
           ))}
         </div>
       ) : error ? (
@@ -124,30 +131,37 @@ export default function IssueMetrics() {
           </a>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 stagger-children">
-          {stats.map((stat, idx) => (
-            <div
-              key={stat.label}
-              className="rounded-lg bg-[var(--control)] p-4 text-center stat-cell animate-fade-in-up"
-            >
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 stagger-children">
+            {stats.map((stat, idx) => (
               <div
-                className="text-2xl font-bold text-[var(--accent)] truncate"
-                title={String(stat.value)}
+                key={stat.label}
+                className="stat-cell min-w-0 p-4 text-center animate-fade-in-up"
+                style={{ "--stat-c": stat.color } as CSSProperties}
               >
-                {stat.value}
-              </div>
-
-              <div className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {stat.label}
-              </div>
-
-              {idx === 0 && trendLabel && (
-                <div className={`mt-1 text-xs font-medium ${trendColor}`}>
-                  {trendLabel}
+                <div className="stat-value text-2xl">{stat.value}</div>
+                <div className="mt-1 text-xs text-[var(--muted-foreground)]">
+                  {stat.label}
                 </div>
-              )}
-            </div>
-          ))}
+                {idx === 0 && trendLabel && (
+                  <div className={`mt-1 text-xs font-medium ${trendColor}`}>
+                    {trendLabel}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-3 border border-dashed border-[var(--border)] px-4 py-3 text-sm">
+            <span className="shrink-0 font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+              Most active repo
+            </span>
+            <span
+              className="min-w-0 truncate font-medium text-[var(--card-foreground)]"
+              title={metrics?.mostActiveRepo ?? undefined}
+            >
+              {metrics?.mostActiveRepo ?? "—"}
+            </span>
+          </div>
         </div>
       )}
     </div>

@@ -1,16 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  type TooltipProps,
-} from "recharts";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface Language {
@@ -46,20 +38,6 @@ const FALLBACK_COLOR = "#6b7280";
 
 function getColor(name: string): string {
   return LANG_COLORS[name] ?? FALLBACK_COLOR;
-}
-
-function LanguageTooltip({ active, payload }: TooltipProps<number, string>) {
-  if (!active || !payload || payload.length === 0) return null;
-  const entry = payload[0];
-  if (!entry) return null;
-  return (
-    <div className="rounded-md border border-[var(--border)] bg-[var(--tooltip)] px-3 py-2 text-sm text-[var(--tooltip-foreground)] shadow-lg">
-      <div className="font-medium">{entry.name}</div>
-      <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">
-        {entry.value}%
-      </div>
-    </div>
-  );
 }
 
 export default function LanguageBreakdown() {
@@ -144,9 +122,16 @@ export default function LanguageBreakdown() {
 
   return (
     <div className="px-frame bg-[var(--card)] p-6">
-      <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] mb-4">
-        Language Breakdown
-      </h2>
+      <div className="mb-4 flex items-baseline justify-between gap-3">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+          Language Breakdown
+        </h2>
+        {!loading && languages.length > 0 && (
+          <span className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+            {languages.length} language{languages.length === 1 ? "" : "s"}
+          </span>
+        )}
+      </div>
 
       {loading ? (
         <div
@@ -156,7 +141,7 @@ export default function LanguageBreakdown() {
           className="space-y-3"
         >
           <span className="sr-only">Loading language breakdown</span>
-          <SkeletonBlock className="mx-auto h-[180px] w-[180px] rounded-full" />
+          <SkeletonBlock className="h-6" />
           <div
             aria-hidden="true"
             className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3"
@@ -193,73 +178,68 @@ export default function LanguageBreakdown() {
           </a>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-8">
-          {/* Donut chart */}
+        <div className="space-y-5">
+          {/* Loadout bar: every language's share, side by side. */}
           <div
-            className="relative shrink-0"
+            className="relative flex h-6 w-full overflow-hidden bg-[var(--control)]"
             role="img"
-            aria-label="Donut chart showing language distribution"
+            aria-label={chartData
+              .map((lang) => `${lang.name} ${lang.percentage}%`)
+              .join(", ")}
           >
-            <ResponsiveContainer width={180} height={180}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="percentage"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={2}
-                  startAngle={90}
-                  endAngle={-270}
-                  strokeWidth={0}
-                >
-                  {chartData.map((entry) => (
-                    <Cell
-                      key={entry.name}
-                      fill={getColor(entry.name)}
-                      opacity={0.9}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<LanguageTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-            {/* Centre label — shows the true total, not the capped display count */}
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xs font-medium text-[var(--muted-foreground)]">
-                Languages
-              </span>
-              <span className="text-lg font-bold text-[var(--card-foreground)]">
-                {languages.length}
-              </span>
-            </div>
+            {chartData.map((lang, index) => (
+              <span
+                key={lang.name}
+                className="lang-seg h-full"
+                title={`${lang.name} ${lang.percentage}%`}
+                style={
+                  {
+                    width: `${lang.percentage}%`,
+                    backgroundColor: getColor(lang.name),
+                    animationDelay: `${index * 90}ms`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--card)_10px_12px)]"
+            />
           </div>
 
-          {/* Legend */}
-          <div className="flex w-full flex-col gap-2 sm:flex-1">
-            {chartData.map((lang) => (
-              <div key={lang.name} className="flex items-center gap-2 text-sm">
-                <span
-                  className="h-3 w-3 shrink-0 rounded-full"
-                  style={{
-                    backgroundColor: getColor(lang.name),
-                    minWidth: "12px",
-                    minHeight: "12px",
-                  }}
-                  role="img"
-                  aria-label={lang.name}
-                />
-                <span className="min-w-0 flex-1 truncate text-[var(--card-foreground)]">
-                  {lang.name}
+          {/* One row per language, scaled to the top one. */}
+          <ul className="space-y-2.5">
+            {chartData.map((lang, index) => (
+              <li
+                key={lang.name}
+                className="grid grid-cols-[minmax(0,7rem)_1fr_3.5rem] items-center gap-3 text-sm"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="h-2.5 w-2.5 shrink-0"
+                    style={{ backgroundColor: getColor(lang.name) }}
+                  />
+                  <span className="truncate text-[var(--card-foreground)]">
+                    {lang.name}
+                  </span>
                 </span>
-                <span className="shrink-0 tabular-nums text-[var(--muted-foreground)]">
+                <span aria-hidden="true" className="h-2 bg-[var(--control)]">
+                  <span
+                    className="lang-seg block h-full"
+                    style={{
+                      width: `${Math.max(2, (lang.percentage / (chartData[0]?.percentage || 1)) * 100)}%`,
+                      backgroundColor: getColor(lang.name),
+                      animationDelay: `${index * 90}ms`,
+                    }}
+                  />
+                </span>
+                <span className="text-right font-pixel text-xs tabular-nums text-[var(--muted-foreground)]">
                   {lang.percentage}%
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
     </div>
