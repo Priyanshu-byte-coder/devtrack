@@ -17,6 +17,18 @@ DevTrack is built with Next.js and is developed in the open on GitHub, where con
 - Rankings are computed from public GitHub activity: current contribution streak, commits and pull requests in the selected period.
 - Data refreshes about hourly.
 
+## Guides
+
+- [Add GitHub stats to your profile README](https://devtrack.live/guides/github-stats-readme): live rank, streak and monthly commit badges, with copy-paste Markdown.
+- [GitHub streaks](https://devtrack.live/guides/github-streak): GitHub removed streak counters in 2016; how streaks are counted now and how to keep one.
+- [Compare two GitHub profiles](https://devtrack.live/guides/compare-github-profiles): side-by-side duels on streaks, contributions, commits, PRs and reviews.
+- [How the DevTrack score works](https://devtrack.live/guides/devtrack-score): the 0-1000 score, six tiers, XP and levels.
+
+## Top developers
+
+- [By language](https://devtrack.live/top): the most-followed GitHub developers for 20 languages, updated daily.
+- [By country](https://devtrack.live/top/country/india): the most-followed GitHub developers in 28 countries, e.g. India, the United States, Germany, Brazil.
+
 ## For developers and contributors
 
 - [Source code](https://github.com/Priyanshu-byte-coder/devtrack)
