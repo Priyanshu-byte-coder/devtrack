@@ -211,7 +211,7 @@ export default function ProjectTutorClient() {
           </div>
 
           {activeTab === "analysis" && (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
+            <div className="px-frame bg-[var(--card)] p-5">
               {analysis ? (
                 <div className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--card-foreground)]">
                   {analysis}
@@ -228,10 +228,7 @@ export default function ProjectTutorClient() {
             <div className="grid gap-4">
               {questions ? (
                 LEVELS.map(({ id, label, dot }) => (
-                  <section
-                    key={id}
-                    className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5"
-                  >
+                  <section key={id} className="px-frame bg-[var(--card)] p-5">
                     <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
                       <span
                         className={cn("h-2 w-2 rounded-full", dot)}
@@ -255,7 +252,7 @@ export default function ProjectTutorClient() {
           )}
 
           {activeTab === "chat" && (
-            <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)]">
+            <div className="overflow-hidden px-frame bg-[var(--card)]">
               <div
                 className="flex h-[360px] flex-col gap-3 overflow-y-auto p-4"
                 aria-live="polite"

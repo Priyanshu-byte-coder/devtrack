@@ -147,7 +147,7 @@ export default function TodayFocusHero() {
   return (
     <section
       aria-labelledby="today-focus-title"
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
+      className="px-frame bg-[var(--card)] p-4"
     >
       <div className="mb-3 flex items-center gap-2">
         <Target className="h-4 w-4 text-[var(--accent)]" aria-hidden="true" />

@@ -240,9 +240,9 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
   })();
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           This Week
         </h2>
         <div className="flex items-center gap-2">

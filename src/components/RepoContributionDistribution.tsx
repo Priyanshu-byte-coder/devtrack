@@ -233,10 +233,10 @@ export default function RepoContributionDistribution({
   );
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+    <section className="px-frame bg-[var(--card)] p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Repository Contribution Distribution
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
@@ -289,7 +289,7 @@ export default function RepoContributionDistribution({
               <p className="text-xs text-[var(--muted-foreground)]">
                 Repositories
               </p>
-              <p className="text-lg font-semibold text-[var(--card-foreground)] sm:text-xl">
+              <p className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] sm:text-xl">
                 {data.length}
               </p>
             </div>
@@ -297,14 +297,14 @@ export default function RepoContributionDistribution({
               <p className="text-xs text-[var(--muted-foreground)]">
                 Total commits
               </p>
-              <p className="text-lg font-semibold text-[var(--card-foreground)] sm:text-xl">
+              <p className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] sm:text-xl">
                 {totalCommits}
               </p>
             </div>
             <div className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--control)] p-3">
               <p className="text-xs text-[var(--muted-foreground)]">Top repo</p>
               <p
-                className="truncate text-lg font-semibold text-[var(--card-foreground)] sm:text-xl"
+                className="truncate font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] sm:text-xl"
                 title={data[0]?.name}
               >
                 {data[0]?.name.split("/").pop()}

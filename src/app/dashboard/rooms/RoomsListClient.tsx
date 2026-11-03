@@ -58,7 +58,7 @@ export default function RoomsListClient({
             <Link
               key={room.id}
               href={`/dashboard/rooms/${room.id}`}
-              className="block rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 transition-colors hover:border-[var(--accent)]"
+              className="block px-frame bg-[var(--card)] p-4 transition-colors hover:border-[var(--accent)]"
             >
               <div className="flex items-start justify-between">
                 <div>

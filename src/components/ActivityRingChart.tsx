@@ -42,10 +42,10 @@ export default function ActivityRingChart() {
   }, [days]);
 
   const maxCommits = Math.max(...data.map((d) => d.commits), 1);
-  const peakHour = data.reduce(
-    (a, b) => (b.commits > a.commits ? b : a),
-    { hour: 0, commits: 0 }
-  );
+  const peakHour = data.reduce((a, b) => (b.commits > a.commits ? b : a), {
+    hour: 0,
+    commits: 0,
+  });
 
   const cx = 150;
   const cy = 150;
@@ -81,9 +81,9 @@ export default function ActivityRingChart() {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm flex flex-col h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="px-frame bg-[var(--card)] p-6 flex flex-col h-full">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Activity Ring
         </h2>
         <select
@@ -140,9 +140,10 @@ export default function ActivityRingChart() {
                 const isPeak = d.hour === peakHour.hour && d.commits > 0;
                 const isHovered = hoveredHour?.hour === d.hour;
                 const ratio = d.commits / maxCommits;
-                const targetR = d.commits === 0
-                  ? innerR + 4
-                  : innerR + (outerMaxR - innerR) * ratio;
+                const targetR =
+                  d.commits === 0
+                    ? innerR + 4
+                    : innerR + (outerMaxR - innerR) * ratio;
                 const currentR =
                   !prefersReduced.current && !animated ? innerR : targetR;
 
@@ -154,15 +155,15 @@ export default function ActivityRingChart() {
                       isPeak || isHovered
                         ? "var(--accent)"
                         : d.commits === 0
-                        ? "var(--card-muted)"
-                        : "var(--accent)"
+                          ? "var(--card-muted)"
+                          : "var(--accent)"
                     }
                     opacity={
                       d.commits === 0
                         ? 0.15
                         : isPeak || isHovered
-                        ? 1
-                        : 0.5 + 0.5 * ratio
+                          ? 1
+                          : 0.5 + 0.5 * ratio
                     }
                     style={{
                       transition: prefersReduced.current
@@ -185,7 +186,9 @@ export default function ActivityRingChart() {
                 fontWeight="bold"
                 fill="var(--card-foreground)"
               >
-                {hoveredHour ? hoveredHour.commits : data.reduce((s, d) => s + d.commits, 0)}
+                {hoveredHour
+                  ? hoveredHour.commits
+                  : data.reduce((s, d) => s + d.commits, 0)}
               </text>
               <text
                 x={cx}
@@ -203,5 +206,3 @@ export default function ActivityRingChart() {
     </div>
   );
 }
-
-

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 const DATA_WINDOW_DAYS = 90;
 const dataWindowLabel = `Last ${DATA_WINDOW_DAYS} days`;
 
-
 interface DailyData {
   date: string;
   totalSeconds: number;
@@ -63,43 +62,43 @@ export default function LocalCodingTime() {
   }, [days]);
 
   if (loading) {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className="h-6 w-40 rounded bg-[var(--card-muted)] animate-pulse" />
-        <div className="h-8 w-28 rounded bg-[var(--card-muted)] animate-pulse" />
-      </div>
+    return (
+      <div className="px-frame bg-[var(--card)] p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="h-6 w-40 rounded bg-[var(--card-muted)] animate-pulse" />
+          <div className="h-8 w-28 rounded bg-[var(--card-muted)] animate-pulse" />
+        </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-16 rounded bg-[var(--card-muted)] animate-pulse"
-          />
-        ))}
-      </div>
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-16 rounded bg-[var(--card-muted)] animate-pulse"
+            />
+          ))}
+        </div>
 
-      <div className="space-y-2">
-        {Array.from({ length: 14 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-4 rounded bg-[var(--card-muted)] animate-pulse"
-          />
-        ))}
-      </div>
+        <div className="space-y-2">
+          {Array.from({ length: 14 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-4 rounded bg-[var(--card-muted)] animate-pulse"
+            />
+          ))}
+        </div>
 
-      <div className="mt-4 pt-4 border-t border-[var(--border)]">
-        <div className="mx-auto h-3 w-52 rounded bg-[var(--card-muted)] animate-pulse" />
+        <div className="mt-4 pt-4 border-t border-[var(--border)]">
+          <div className="mx-auto h-3 w-52 rounded bg-[var(--card-muted)] animate-pulse" />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   if (!data || !data.hasData) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Local Coding Time
           </h2>
           <select
@@ -140,9 +139,9 @@ export default function LocalCodingTime() {
   const maxSeconds = Math.max(...data.dailyData.map((d) => d.totalSeconds), 1);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Local Coding Time
         </h2>
         <select

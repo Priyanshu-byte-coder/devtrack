@@ -59,7 +59,7 @@ export default function DailyNoteWidget() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="h-5 w-40 bg-[var(--card-muted)] rounded animate-pulse mb-4" />
         <div className="space-y-2">
           <div className="h-4 bg-[var(--card-muted)] rounded animate-pulse w-3/4" />
@@ -70,9 +70,9 @@ export default function DailyNoteWidget() {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="m-3 w-40 rounded mb-4 ml-0">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Today&apos;s Plan
         </h2>
 

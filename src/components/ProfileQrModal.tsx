@@ -106,7 +106,7 @@ export function ProfileQrModal({
       onClick={handleBackdropClick}
     >
       {/* Panel */}
-      <div className="relative mx-4 flex w-full max-w-sm flex-col items-center rounded-2xl border border-[var(--border)] bg-[var(--card)] px-8 py-8 shadow-2xl">
+      <div className="relative mx-4 flex w-full max-w-sm flex-col items-center px-frame bg-[var(--card)] px-8 py-8">
         {/* Close button */}
         <button
           onClick={onClose}

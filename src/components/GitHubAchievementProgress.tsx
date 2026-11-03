@@ -98,8 +98,8 @@ export default function GitHubAchievementProgress() {
   }, []);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-      <h2 className="mb-1 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-1 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Achievement Progress
       </h2>
       <p className="mb-4 text-xs text-[var(--muted-foreground)]">

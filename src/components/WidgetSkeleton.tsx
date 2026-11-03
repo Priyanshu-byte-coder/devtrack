@@ -13,7 +13,7 @@ export default function WidgetSkeleton({
 }: WidgetSkeletonProps) {
   return (
     <div
-      className={`rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm ${className}`}
+      className={`px-frame bg-[var(--card)] p-4 sm:p-6 ${className}`}
       role="status"
       aria-live="polite"
       aria-busy="true"

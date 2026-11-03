@@ -191,7 +191,7 @@ export default function RepoCarousel({
               <circle cx="12" cy="12" r="3" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h3 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             No repositories found
           </h3>
           <p className="mt-2 text-sm text-[var(--muted-foreground)] max-w-sm">

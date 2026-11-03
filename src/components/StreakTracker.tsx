@@ -144,7 +144,7 @@ export default function StreakTracker() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="px-frame bg-[var(--card)] p-6">
         <SectionHeader title="Commit Streaks" />
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
@@ -165,7 +165,7 @@ export default function StreakTracker() {
     Object.keys(contributionData.data).length === 0
   ) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm min-h-[420px]">
+      <div className="px-frame bg-[var(--card)] p-6 min-h-[420px]">
         <div className="flex h-full flex-col items-center justify-center text-center">
           <div className="mb-4 text-4xl">📉</div>
 
@@ -302,7 +302,7 @@ export default function StreakTracker() {
         <div
           ref={containerRef}
           data-testid="streak-widget"
-          className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
+          className="px-frame bg-[var(--card)] p-6"
         >
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -658,7 +658,7 @@ function StreakCalendar({
     <div className="mt-6 pt-6 border-t border-[var(--border)]">
       {/* Calendar Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h3 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           {monthName}
         </h3>
         <div className="flex gap-2">

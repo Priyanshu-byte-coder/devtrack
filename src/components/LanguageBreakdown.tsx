@@ -143,8 +143,8 @@ export default function LanguageBreakdown() {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] mb-4">
         Language Breakdown
       </h2>
 

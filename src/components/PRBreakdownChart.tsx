@@ -79,8 +79,8 @@ export default function PRBreakdownChart() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-        <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+      <div className="px-frame bg-[var(--card)] p-6">
+        <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           PR Breakdown
         </h2>
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
@@ -109,8 +109,8 @@ export default function PRBreakdownChart() {
     : [];
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         PR Breakdown
       </h2>
       {partialReason && (

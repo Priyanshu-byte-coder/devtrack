@@ -212,10 +212,10 @@ export default function RecentActivity() {
   }, [fetchActivity]);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             Recent Activity
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">

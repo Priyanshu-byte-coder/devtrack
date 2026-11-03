@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { Clock } from "lucide-react";
 
 interface CodingTimeData {
@@ -51,7 +58,7 @@ export default function CodingTimeWidget() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="h-5 w-40 bg-[var(--card-muted)] rounded animate-pulse mb-4" />
         <div className="h-48 bg-[var(--card-muted)] rounded animate-pulse w-full" />
       </div>
@@ -60,8 +67,8 @@ export default function CodingTimeWidget() {
 
   if (!data || data.not_configured || !data.hasData) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">
+      <div className="px-frame bg-[var(--card)] p-6">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] mb-4">
           Wakatime Coding Activity (7 Days)
         </h2>
         <div className="flex h-[240px] flex-col items-center justify-center text-center">
@@ -78,11 +85,11 @@ export default function CodingTimeWidget() {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="text-lg font-semibold text-[var(--card-foreground)] mb-4">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] mb-4">
         Wakatime Coding Activity (7 Days)
       </h2>
-      
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div>
           <div className="text-2xl font-bold text-[var(--card-foreground)]">
@@ -94,46 +101,61 @@ export default function CodingTimeWidget() {
           <div className="text-2xl font-bold text-[var(--card-foreground)]">
             {formatDuration(data.totalSeconds7Days)}
           </div>
-          <div className="text-xs text-[var(--muted-foreground)]">Last 7 Days</div>
+          <div className="text-xs text-[var(--muted-foreground)]">
+            Last 7 Days
+          </div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-[var(--card-foreground)] truncate" title={data.topLanguage}>
+          <div
+            className="text-2xl font-bold text-[var(--card-foreground)] truncate"
+            title={data.topLanguage}
+          >
             {data.topLanguage}
           </div>
-          <div className="text-xs text-[var(--muted-foreground)]">Top Language</div>
+          <div className="text-xs text-[var(--muted-foreground)]">
+            Top Language
+          </div>
         </div>
         <div>
-          <div className="text-2xl font-bold text-[var(--card-foreground)] truncate" title={data.topProject}>
+          <div
+            className="text-2xl font-bold text-[var(--card-foreground)] truncate"
+            title={data.topProject}
+          >
             {data.topProject}
           </div>
-          <div className="text-xs text-[var(--muted-foreground)]">Top Project</div>
+          <div className="text-xs text-[var(--muted-foreground)]">
+            Top Project
+          </div>
         </div>
       </div>
 
       <div className="h-48 w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data.chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-            <XAxis 
-              dataKey="date" 
+          <BarChart
+            data={data.chartData}
+            margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+          >
+            <XAxis
+              dataKey="date"
               tickFormatter={formatDate}
               tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               axisLine={false}
               tickLine={false}
             />
-            <YAxis 
+            <YAxis
               tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               axisLine={false}
               tickLine={false}
             />
-            <Tooltip 
+            <Tooltip
               cursor={{ fill: "var(--control)" }}
-              contentStyle={{ 
-                backgroundColor: "var(--card)", 
+              contentStyle={{
+                backgroundColor: "var(--card)",
                 border: "1px solid var(--border)",
                 borderRadius: "8px",
                 color: "var(--card-foreground)",
               }}
-              formatter={(value: any) => [`${value} hrs`, 'Time']}
+              formatter={(value: any) => [`${value} hrs`, "Time"]}
               labelFormatter={(label) => formatDate(label as string)}
             />
             <Bar dataKey="hours" fill="var(--accent)" radius={[4, 4, 0, 0]} />

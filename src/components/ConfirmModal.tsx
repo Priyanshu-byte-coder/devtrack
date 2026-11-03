@@ -61,7 +61,7 @@ export default function ConfirmModal({
         ref={modalRef}
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-md transform overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl transition-all animate-in fade-in zoom-in duration-200"
+        className="relative w-full max-w-md transform overflow-hidden px-frame bg-[var(--card)] p-6 transition-all animate-in fade-in zoom-in duration-200"
       >
         <div className="mb-4">
           <h3 className="text-lg font-bold text-[var(--foreground)]">

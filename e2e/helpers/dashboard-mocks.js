@@ -83,7 +83,7 @@ export function mockMetricResponse(url) {
       topRepo: "demo/devtrack",
       repoBreakdown: [
         { repoName: "demo/devtrack", commits: 10 },
-        { repoName: "demo/other", commits: 2 }
+        { repoName: "demo/other", commits: 2 },
       ],
       dailyCommits: [
         { date: "2023-10-07", commits: 5 },
@@ -92,9 +92,9 @@ export function mockMetricResponse(url) {
         { date: "2023-10-04", commits: 0 },
         { date: "2023-10-03", commits: 0 },
         { date: "2023-10-02", commits: 0 },
-        { date: "2023-10-01", commits: 0 }
+        { date: "2023-10-01", commits: 0 },
       ],
-      mostActiveDay: "2023-10-07"
+      mostActiveDay: "2023-10-07",
     };
   }
   if (url.includes("/api/metrics/compare")) {
@@ -121,7 +121,10 @@ export function mockMetricResponse(url) {
     return { weeks: [] };
   }
   if (url.includes("/api/metrics/inactive-repos")) return { repos: [] };
-  if (url.includes("/api/metrics/coding-time") || url.includes("/api/wakatime")) {
+  if (
+    url.includes("/api/metrics/coding-time") ||
+    url.includes("/api/wakatime")
+  ) {
     return {
       hasData: false,
       not_configured: true,
@@ -268,7 +271,11 @@ export async function installDashboardApiMocks(page, options = {}) {
     if (route.request().method() === "POST") {
       return route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify({ ...freeze, hasFreeze: true, freezeDate: "2026-05-18" }),
+        body: JSON.stringify({
+          ...freeze,
+          hasFreeze: true,
+          freezeDate: "2026-05-18",
+        }),
       });
     }
     return route.fulfill({
@@ -379,5 +386,5 @@ export function streakSection(page) {
   return page
     .getByRole("heading", { name: "Commit Streaks" })
     .first()
-    .locator("xpath=ancestor::div[contains(@class,'rounded-xl')][1]");
+    .locator("xpath=ancestor::div[contains(@class,'px-frame')][1]");
 }
