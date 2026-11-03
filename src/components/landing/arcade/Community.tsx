@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Github } from "lucide-react";
+import PixelSprite from "@/components/buddy/PixelSprite";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import PixelArt, { type PixelIconName } from "@/components/pixel/PixelArt";
@@ -191,34 +193,81 @@ export function Faq() {
       aria-labelledby="faq-heading"
       className="border-y-4 border-[var(--border)] bg-[var(--card)]"
     >
-      <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeading
-          id="faq-heading"
-          eyebrow="FAQ"
-          title="Questions"
-          center
-        />
-        <div className="mt-10 space-y-3">
-          {FAQ.map((item) => (
-            <details
-              key={item.q}
-              className="group border-2 border-[var(--border)] bg-[var(--background)] open:border-[var(--accent)]"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 font-semibold text-[var(--card-foreground)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] [&::-webkit-details-marker]:hidden">
-                <h3 className="text-base">{item.q}</h3>
-                <span
-                  aria-hidden="true"
-                  className="font-pixel text-lg text-[var(--accent)] transition-transform group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <p className="px-4 pb-4 text-sm leading-6 text-[var(--muted-foreground)]">
-                {item.a}
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:px-8">
+        {/* "How to play" card: Bit, plus a way into the longer guides. */}
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <SectionHeading id="faq-heading" eyebrow="How to play" title="FAQ" />
+          <div className="px-frame mt-8 bg-[var(--background)] p-5">
+            <div className="flex items-end gap-3">
+              <span className="buddy-bob block shrink-0">
+                <PixelSprite frame="talk" scale={3} />
+              </span>
+              <p className="relative border-2 border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs leading-5 text-[var(--card-foreground)]">
+                Stuck on a level? Most answers are here. The rest are in the
+                strategy guides.
               </p>
-            </details>
+            </div>
+            <ul className="mt-5 space-y-1.5 text-sm">
+              {[
+                ["/guides/devtrack-score", "How the score works"],
+                ["/guides/github-stats-readme", "README badges"],
+                ["/guides/github-streak", "GitHub streaks"],
+              ].map(([href, label]) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="group flex items-center gap-2 text-[var(--accent)] hover:underline"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="font-pixel text-[10px] transition-transform group-hover:translate-x-0.5"
+                    >
+                      ▶
+                    </span>
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/guides"
+              className="mt-4 inline-block font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)] hover:text-[var(--accent)]"
+            >
+              All guides →
+            </Link>
+          </div>
+        </aside>
+
+        <ol className="min-w-0 space-y-3">
+          {FAQ.map((item, index) => (
+            <li key={item.q}>
+              <details className="faq-item group border-2 border-[var(--border)] bg-[var(--background)] open:border-[var(--accent)]">
+                <summary className="flex cursor-pointer list-none items-center gap-4 p-4 text-[var(--card-foreground)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] [&::-webkit-details-marker]:hidden">
+                  <span
+                    aria-hidden="true"
+                    className="w-8 shrink-0 font-pixel text-xs text-[var(--muted-foreground)] group-open:text-[var(--accent)]"
+                  >
+                    Q{String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="min-w-0 flex-1 text-base font-semibold">
+                    {item.q}
+                  </h3>
+                  <span
+                    aria-hidden="true"
+                    className="shrink-0 font-pixel text-xs text-[var(--accent)] transition-transform duration-150 group-open:rotate-90"
+                  >
+                    ▶
+                  </span>
+                </summary>
+                <div className="faq-answer mx-4 mb-4 border-l-4 border-[var(--accent)] bg-[var(--card)] px-4 py-3">
+                  <p className="text-sm leading-6 text-[var(--muted-foreground)]">
+                    {item.a}
+                  </p>
+                </div>
+              </details>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );
@@ -238,31 +287,77 @@ export function faqJsonLd() {
 
 export function Continue() {
   return (
-    <section aria-labelledby="continue-heading" className="px-grid-bg">
-      <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:px-6 lg:px-8">
-        <p
-          aria-hidden="true"
-          className="px-blink font-pixel text-6xl text-[var(--accent)] sm:text-7xl"
-        >
-          9
-        </p>
-        <h2
-          id="continue-heading"
-          className="mt-4 font-pixel text-[clamp(2rem,5vw,3.4rem)] uppercase leading-none text-[var(--foreground)]"
-        >
-          Continue?
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[var(--muted-foreground)]">
-          Your history is already on GitHub. Sign in and see your rank, your
-          tier and your streak in under a minute.
-        </p>
-        <div className="-m-1 mt-8 flex flex-wrap justify-center gap-2">
-          <a href={SIGN_IN_HREF} className="px-btn">
-            <Github className="h-4 w-4" aria-hidden="true" />
-            Sign in with GitHub
-          </a>
+    <section
+      aria-labelledby="continue-heading"
+      className="px-grid-bg px-4 py-20 sm:px-6 lg:px-8"
+    >
+      {/* The cabinet screen stays dark in every theme, like the boot screen. */}
+      <div className="continue-screen px-frame relative mx-auto max-w-3xl overflow-hidden px-6 py-14 text-center sm:px-12">
+        <div aria-hidden="true" className="px-scanlines absolute inset-0" />
+
+        <div className="relative">
+          <h2
+            id="continue-heading"
+            className="font-pixel text-[clamp(2.2rem,6vw,3.8rem)] uppercase leading-none text-white"
+          >
+            Continue?
+          </h2>
+          <p
+            aria-hidden="true"
+            className="continue-count mt-4 font-pixel text-7xl leading-none text-[#f2c14e] sm:text-8xl"
+          />
+
+          <p className="mx-auto mt-6 max-w-md text-base leading-7 text-[#aab6d3]">
+            Your history is already on GitHub. Sign in and see your rank, tier
+            and streak in under a minute.
+          </p>
+
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:items-stretch">
+            <a
+              href={SIGN_IN_HREF}
+              className="continue-choice group flex min-w-[15rem] items-center justify-center gap-3 border-2 border-[#6ba8ff] bg-[#6ba8ff] px-5 py-3 font-pixel text-sm uppercase tracking-[0.1em] text-[#05070f] hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#6ba8ff]/50"
+            >
+              <span aria-hidden="true" className="px-blink">
+                ▶
+              </span>
+              <span>
+                Yes <span className="sr-only">, </span>
+                <span className="normal-case tracking-normal">
+                  · Sign in with GitHub
+                </span>
+              </span>
+              <Github className="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a
+              href="#continue-lookup"
+              className="continue-choice flex min-w-[15rem] items-center justify-center gap-3 border-2 border-[#3a4a70] px-5 py-3 font-pixel text-sm uppercase tracking-[0.1em] text-[#aab6d3] hover:border-white hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30"
+            >
+              No{" "}
+              <span className="normal-case tracking-normal">
+                · Look someone up
+              </span>
+            </a>
+          </div>
+
+          <div
+            aria-hidden="true"
+            className="mt-10 flex items-center justify-center gap-3 font-pixel text-[10px] uppercase tracking-[0.2em] text-[#8a9bc0]"
+          >
+            <span className="continue-slot relative inline-flex h-9 w-7 items-start justify-center overflow-hidden">
+              <span className="continue-coin">
+                <PixelArt icon="coin" scale={2} />
+              </span>
+            </span>
+            Insert coin · free play
+          </div>
+
+          <div
+            id="continue-lookup"
+            className="mx-auto mt-10 max-w-md scroll-mt-28 text-left"
+          >
+            <DevLookup />
+          </div>
         </div>
-        <DevLookup className="mx-auto mt-10 max-w-md text-left" />
       </div>
     </section>
   );

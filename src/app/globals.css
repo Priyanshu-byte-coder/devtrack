@@ -1578,3 +1578,110 @@ html.booted .boot-intro {
     translate: none;
   }
 }
+
+/* ── Landing "Continue?" cabinet screen: always dark, like the boot intro ── */
+.continue-screen {
+  --px-c: #2b3a5c;
+  background: radial-gradient(ellipse at center, #0d1430 0%, #05070f 75%);
+}
+
+.continue-count::after {
+  content: "9";
+  animation: continue-count 10s steps(1, end) infinite;
+}
+
+.continue-slot {
+  background: #000;
+  box-shadow:
+    inset 0 0 0 2px #2b3a5c,
+    inset 0 4px 0 0 #000;
+}
+
+.continue-slot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 4px;
+  height: 14px;
+  margin-left: -2px;
+  background: #f2c14e;
+  opacity: 0.6;
+}
+
+.continue-coin {
+  animation: continue-coin 2s steps(8, end) infinite;
+}
+
+.faq-item[open] .faq-answer {
+  animation: buddy-pop 0.18s steps(3, end) both;
+  transform-origin: top left;
+}
+
+@keyframes continue-count {
+  0% {
+    content: "9";
+  }
+
+  10% {
+    content: "8";
+  }
+
+  20% {
+    content: "7";
+  }
+
+  30% {
+    content: "6";
+  }
+
+  40% {
+    content: "5";
+  }
+
+  50% {
+    content: "4";
+  }
+
+  60% {
+    content: "3";
+  }
+
+  70% {
+    content: "2";
+  }
+
+  80% {
+    content: "1";
+  }
+
+  90% {
+    content: "0";
+  }
+}
+
+@keyframes continue-coin {
+  0% {
+    opacity: 1;
+    transform: translateY(-20px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(14px);
+  }
+
+  61%,
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .continue-count::after,
+  .continue-coin,
+  .faq-item[open] .faq-answer {
+    animation: none;
+  }
+}

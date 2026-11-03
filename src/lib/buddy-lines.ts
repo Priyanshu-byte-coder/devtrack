@@ -90,7 +90,7 @@ const SCRIPTS: Array<[prefix: string, script: BuddyScript]> = [
       stage: "Character select",
       lines: [
         "Sign in with GitHub and your score goes live on the board.",
-        "It's read-only and takes ten seconds. I timed it. Nine, actually.",
+        "One click with GitHub and you're on the board. I timed it: nine seconds.",
       ],
     },
   ],

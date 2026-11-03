@@ -72,9 +72,9 @@ export const GUIDES: Guide[] = [
         <h2>2. Put your stats on DevTrack</h2>
         <p>
           The badges below are rendered from your real GitHub activity.{" "}
-          <A href="/claim">Sign in with GitHub</A> (read-only) and your profile,
-          streak and rank are built for you. The rank badge needs you on the
-          public leaderboard, which you can turn on in Settings.
+          <A href="/claim">Sign in with GitHub</A> and your profile, streak and
+          rank are built for you. The rank badge needs you on the public
+          leaderboard, which you can turn on in Settings.
         </p>
         <h2>3. Paste the badges</h2>
         <p>
