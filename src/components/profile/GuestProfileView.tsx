@@ -106,6 +106,13 @@ export default function GuestProfileView({
         }
       />
 
+      {/* Plain statement of what this page is, for visitors and reviewers. */}
+      <p className="mb-6 border-l-4 border-[var(--border)] pl-3 text-xs leading-5 text-[var(--muted-foreground)]">
+        This page is generated automatically from @{profile.login}&apos;s public
+        GitHub activity. It is not run, verified or endorsed by @{profile.login}{" "}
+        or by GitHub, and DevTrack never asks for a GitHub password.
+      </p>
+
       {/* Claim: the estimate is the hook */}
       <section
         aria-labelledby="claim-heading"
@@ -132,14 +139,16 @@ export default function GuestProfileView({
               )}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]">
-              Is this you? Claim it to join the leaderboard, keep your
+              If you are @{profile.login}, sign in with GitHub as @
+              {profile.login} to claim it: join the leaderboard, keep your
               {estimate ? ` ${fmt.format(estimate.xp)} XP` : " XP"} and tier,
-              count private contributions, and get README badges.
+              count private contributions, and get README badges. Only the owner
+              of the GitHub account can claim it.
             </p>
           </div>
           <div className="-m-1 flex shrink-0 flex-wrap gap-2 md:flex-col">
             <Link href={claimHref} className="px-btn">
-              Claim this profile
+              Is this you? Sign in to claim
             </Link>
             <Link href="/leaderboard" className="px-btn px-btn-ghost">
               See the leaderboard

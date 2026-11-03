@@ -241,6 +241,11 @@ export default function Footer() {
           <p>© {year} DevTrack. Built for open-source contributors.</p>
           <p>MIT License · Self-hostable</p>
         </div>
+        <p className="mt-3 text-[11px] leading-5 text-[var(--muted-foreground)]">
+          DevTrack is an independent open-source project and is not affiliated
+          with, endorsed by or sponsored by GitHub, Inc. Stats are built from
+          GitHub&apos;s public API; sign-in happens on github.com.
+        </p>
       </div>
     </footer>
   );
