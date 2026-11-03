@@ -11,6 +11,7 @@ import SponsorBadge from "@/components/SponsorBadge";
 import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 import Podium, { type PodiumPlace } from "@/components/leaderboard/Podium";
 import DevLookup from "@/components/landing/arcade/DevLookup";
+import SponsorSlot from "@/components/sponsor/SponsorSlot";
 import { SIGN_IN_HREF } from "@/components/landing/arcade/types";
 import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
@@ -371,6 +372,8 @@ async function LeaderboardTable({
           </p>
         </>
       )}
+
+      <SponsorSlot className="mt-8" />
 
       {!viewerOnBoard && <JoinPanel signedIn={viewer !== null} />}
     </>
