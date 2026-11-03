@@ -5,6 +5,41 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.3.0] — 2026-11-03 — Arcade
+
+DevTrack becomes a game: a score, tiers, levels, seasons and a pixel-art look, plus ways to look up, duel and show off any developer.
+
+### Added
+
+- **Gamification:** DevTrack score v2 (0–1000), six tiers (Bronze → Legend), XP and levels, daily rank snapshots, monthly and weekly seasons, level-up celebrations.
+- **Player cards for any GitHub user** at `/u/<username>`, with estimated rank for non-members and a `/claim` flow.
+- **Duels** at `/compare/<a>-vs-<b>`: eight rounds and a shareable result card.
+- **Top developers** by language (`/top/<language>`) and by country (`/top/country/<country>`).
+- **Score attack** on the home page (`/api/score-preview`): see where anyone would rank.
+- **Pixel README badges:** rank (`/api/badge/rank`), streak and monthly commits, plus Open Graph share cards for profiles, duels and Year in Code.
+- **Bit**, the pixel mascot: page tips, leaderboard trash talk, and pixel loading screens.
+- **Guides** at `/guides`, **Terms of Service** at `/terms`, and a sponsor page at `/sponsor`.
+- **SEO:** sitemap with guides and country pages, structured data, IndexNow pings, `llms.txt`.
+
+### Changed
+
+- **Arcade redesign** of the landing page, leaderboard (podium, climbers, season clock), duels, profiles, dashboard (HUD, quest log, stat tiles, menu), settings (options menu), sign-in and Year in Code.
+- **New players start on the public leaderboard**, disclosed on sign-in with a one-click "Hide me". Existing accounts keep their choice.
+- Member profiles load from one GitHub GraphQL request instead of a dozen REST and search calls.
+- Production `*.vercel.app` aliases redirect to devtrack.live.
+
+### Removed
+
+- Duplicate dashboard charts (commit time, activity ring, and the second PR donut and review trends) and the duplicate friend-comparison box.
+
+### Fixed
+
+- The leaderboard showed the old board to the first visitor after someone joined or left.
+- The onboarding tour reappeared on every visit.
+- Share images and the RSS feed pointed at the wrong domain.
+
+---
+
 ## [0.2.0] — 2025-05-10
 
 ### Changed — Breaking

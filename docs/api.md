@@ -188,11 +188,12 @@ The `/api/public/{username}` endpoint is rate-limited. It only returns data for 
 
 ### Leaderboard
 
-| Method | Route                      | Description                                                     |
-| ------ | -------------------------- | --------------------------------------------------------------- |
-| GET    | `/api/leaderboard`         | Public leaderboard rankings                                     |
-| POST   | `/api/leaderboard/refresh` | Trigger leaderboard refresh                                     |
-| POST   | `/api/leaderboard/rebuild` | Full leaderboard rebuild (requires `LEADERBOARD_REBUILD_TOKEN`) |
+| Method | Route                      | Description                                                                                                           |
+| ------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/api/leaderboard`         | Public leaderboard rankings                                                                                           |
+| GET    | `/api/score-preview`       | Where any GitHub user would rank (`?user=`); powers the home-page score attack. 12 requests/min per IP, cached 30 min |
+| POST   | `/api/leaderboard/refresh` | Trigger leaderboard refresh                                                                                           |
+| POST   | `/api/leaderboard/rebuild` | Full leaderboard rebuild (requires `LEADERBOARD_REBUILD_TOKEN`)                                                       |
 
 #### Query Parameters for GET /api/leaderboard
 
@@ -205,10 +206,13 @@ The `/api/public/{username}` endpoint is rate-limited. It only returns data for 
 
 ### Badges
 
-| Method | Route                      | Description                                     |
-| ------ | -------------------------- | ----------------------------------------------- |
-| GET    | `/api/badge/commits`       | SVG commit-count badge for embedding in READMEs |
-| GET    | `/api/badge/streak-shield` | shields.io-compatible streak badge              |
+| Method | Route                      | Description                                                                               |
+| ------ | -------------------------- | ----------------------------------------------------------------------------------------- |
+| GET    | `/api/badge/rank`          | Pixel rank badge: rank, tier, score, level (`?user=`, optional `&board=all\|month\|week`) |
+| GET    | `/api/badge/streak-shield` | Pixel streak badge: current and best streak, last seven days                              |
+| GET    | `/api/badge/commits`       | Pixel commits-this-month badge                                                            |
+
+See [BADGE_API.md](../BADGE_API.md) for embedding, caching and rate limits.
 
 ---
 

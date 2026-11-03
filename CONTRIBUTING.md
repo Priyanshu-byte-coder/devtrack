@@ -491,6 +491,27 @@ pnpm run type-check
 - Ensure proper semantic HTML.
 - Follow accessibility (a11y) standards.
 
+### UI: the arcade design system
+
+DevTrack has a pixel/arcade look. New UI should use the shared pieces instead of one-off styles:
+
+| Use                                               | For                                                                     |
+| ------------------------------------------------- | ----------------------------------------------------------------------- |
+| `.px-frame` (`--px-c` sets the colour)            | Cards and panels: square, notched pixel border                          |
+| `.px-btn`, `.px-btn-sm`, `.px-btn-ghost`          | Buttons and button-styled links                                         |
+| `font-pixel`                                      | Headings, HUD labels, numbers and tabs. **Never** for body text         |
+| `.stat-cell` + `--stat-c`, `.stat-value`          | Stat tiles with a colour key and a pixel number                         |
+| `arcadeTabClass()` from `components/ui/arcade.ts` | Tab and toggle groups                                                   |
+| `PixelArt`, `PixelSprite`                         | Pixel icons and Bit the mascot (`components/pixel`, `components/buddy`) |
+| `PageHeader`, `SectionTitle`                      | Dashboard page titles and section labels                                |
+
+A few rules keep it consistent:
+
+- Square corners: avoid `rounded-*` on cards, tiles and buttons.
+- Use theme variables (`var(--card)`, `var(--foreground)`, `var(--accent)`...) instead of fixed colours, so every theme works.
+- Animation uses `steps()` for a pixel feel, and every animation needs a `prefers-reduced-motion` fallback in `globals.css`.
+- Each chart or stat should appear once: check whether a page already shows it before adding a widget.
+
 ---
 
 ## Branch Naming Conventions

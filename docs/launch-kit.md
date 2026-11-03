@@ -5,32 +5,40 @@ keeps each one fresh and lets you reuse momentum ("we hit the dev.to front page 
 
 ---
 
+## 0. Before anything: preflight
+
+- **Google Safe Browsing must be clear.** If Search Console → Security issues lists anything, don't post: visitors would land on a red warning. Wait for the review to pass.
+- Check https://devtrack.live in a fresh browser profile: no warning, sign-in works, the score attack works.
+- Have the README GIF and screenshots ready to reuse (`.github/assets/readme/`).
+
+---
+
 ## 1. Hacker News — Show HN
 
 **Title (pick one):**
 
-- Show HN: DevTrack – open-source dashboard for your GitHub activity and streaks
-- Show HN: I built a self-hostable GitHub analytics dashboard with 270 contributors
+- Show HN: DevTrack – turn your GitHub activity into an arcade high score
+- Show HN: A global leaderboard and pixel player cards for GitHub, built by 280 contributors
 
 **First comment (post immediately after submitting — this is what people actually read):**
 
-> Hi HN. DevTrack started as a weekend project to see my commit streaks and PR review
-> times in one place, and grew into a community project with 270+ contributors and 800+
-> merged PRs, many of them first-time open-source contributions.
+> Hi HN. DevTrack turns your GitHub activity into a game: a 0–1000 score from consistency,
+> impact, volume and breadth, six tiers from Bronze to Legend, XP and levels, and a global
+> leaderboard with weekly and monthly seasons.
 >
-> It pulls your GitHub activity into a dashboard: contribution heatmap with repo/language
-> filters, PR analytics (review time, merge rate), streak tracking with freezes, goals that
-> auto-sync from real activity, and some AI tools (resume generator from your actual GitHub
-> history, weekly insights).
+> You don't need an account to try it: type any username into the "score attack" on the home
+> page to see where they'd rank, or duel two developers round by round. Signed in, you get a
+> dashboard (streaks, PR and review analytics, goals) and live pixel badges for your README.
 >
-> Stack: Next.js 16, TypeScript, Supabase, deployable free on Vercel — one-click deploy in
-> the README. Fully self-hostable, full data export, MIT.
+> It started as a weekend streak tracker and grew into a community project: 280+ contributors
+> and 1,100+ merged PRs, many of them first-time open-source contributions. Next.js 16,
+> TypeScript, Supabase, MIT, self-hostable on free tiers.
 >
-> Live demo: https://devtrack.live
+> Live: https://devtrack.live
 > Repo: https://github.com/Priyanshu-byte-coder/devtrack
 >
-> Happy to answer anything about the build or about running a high-volume open-source
-> project as a student maintainer.
+> Happy to talk about the scoring (it mixes log-scaled progress with percentiles so a few
+> huge accounts can't dominate) or about maintaining a high-volume open-source project.
 
 **Rules that matter:** post 8-11am US Eastern on a weekday, never ask for upvotes or stars
 in the post, reply to every comment fast for the first 3 hours.
@@ -39,24 +47,24 @@ in the post, reply to every comment fast for the first 3 hours.
 
 ## 2. Reddit
 
-**r/opensource / r/selfhosted / r/coolgithubprojects (adapt per sub):**
+**r/github / r/opensource / r/coolgithubprojects (adapt per sub):**
 
-Title: `DevTrack — open-source, self-hostable GitHub analytics dashboard (270+ contributors, MIT)`
+Title: `I turned GitHub activity into an arcade game: score, tiers, seasons and a global leaderboard (open source, MIT)`
 
-> I maintain DevTrack, an MIT-licensed dashboard that turns your GitHub activity into
-> something actually readable: contribution heatmap with filters, PR review-time analytics,
-> commit streaks with freezes, coding goals that sync from real activity, plus an AI resume
-> generator that builds a resume from your merge history instead of what you type into it.
+> DevTrack gives every GitHub user a player card: a 0–1000 score, a tier from Bronze to
+> Legend, XP, and a rank on a global leaderboard with weekly and monthly seasons. Try any
+> username in the score attack on the home page, no sign-up needed, or duel a friend.
 >
-> Runs entirely on free tiers (Vercel + Supabase), one-click deploy, full data export.
-> It's been built by 270+ contributors — a lot of them made their first open-source PR here.
+> If you sign in you also get a full dashboard (streaks, PR review analytics, goals) and
+> live pixel badges for your profile README.
 >
-> Demo: https://devtrack.live
+> 280+ contributors have built it, a lot of them with their first open-source PR.
+>
+> Play: https://devtrack.live
 > Code: https://github.com/Priyanshu-byte-coder/devtrack
->
-> Feedback welcome — especially from self-hosters, the Docker path is newer.
 
-**r/webdev — Showoff Saturday only.** Same body, lead with a screenshot.
+**r/webdev — Showoff Saturday only.** Lead with the score-attack GIF.
+**r/selfhosted** — lead with the self-hosting angle (Vercel + Supabase free tiers, Docker guide).
 
 ---
 
@@ -64,32 +72,30 @@ Title: `DevTrack — open-source, self-hostable GitHub analytics dashboard (270+
 
 **Title options:**
 
-- What I learned merging 800+ PRs from 270 contributors as a student maintainer
-- We built an open-source GitHub analytics dashboard — here's the architecture
+- What I learned merging 1,100 PRs from 280 contributors as a student maintainer
+- I turned GitHub stats into an arcade game: the scoring, the pixel art and the leaderboard
 
 The maintainer-story angle outperforms the product angle on dev.to. Outline:
 
-1. Hook: the fork-to-star gap (430 forks, 169 stars) and what it taught you about OSS funnels
-2. How GSSoC flooded the repo with PRs and how you triaged (labels, CI gates, AI-slop policy)
-3. The code-quality freeze decision (link discussion #2651) — pausing features to pay debt
-4. Architecture tour: Next.js App Router + Supabase RLS + rate limiting + metrics cache
-5. Close: what you'd do differently, link demo + repo
+1. Hook: the fork-to-star gap (430+ forks, 270+ stars) and what it taught you about OSS funnels
+2. How Hacktoberfest-style waves flooded the repo with PRs and how you triaged (labels, CI gates, AI-slop policy)
+3. Designing a fair score: log-scaled targets plus percentiles, tiers and seasons
+4. Building an arcade UI in Next.js: pixel sprites from character grids, `steps()` animation, reduced motion
+5. Close: what you'd do differently, link the site and repo
 
 ---
 
 ## 4. LinkedIn / X post
 
-> DevTrack just crossed 270 contributors and 800 merged pull requests.
+> DevTrack just crossed 280 contributors and 1,100 merged pull requests.
 >
-> It's an open-source dashboard that turns your GitHub activity into insight: streaks,
-> PR analytics, contribution heatmaps, goals, and an AI resume generator built from your
-> actual commit history.
+> It turns your GitHub activity into an arcade game: a score, tiers, XP, seasons and a
+> global leaderboard. Look up any developer, duel your friends, and put a live rank badge
+> in your README.
 >
-> Built with Next.js and Supabase. Self-hostable in one click. MIT licensed.
->
-> Live demo and repo in the comments. If you've contributed — thank you. You built this.
+> Built with Next.js and Supabase. MIT licensed. If you've contributed — thank you. You built this.
 
-(Repo link in first comment, not the post body — LinkedIn suppresses posts with links.)
+(Site and repo links in the first comment, not the post body — LinkedIn suppresses posts with links.)
 
 ---
 
@@ -115,8 +121,9 @@ directly to you, and DevTrack's curated good-first-issue label is exactly what i
 
 ## 6. The badge loop (your built-in viral channel)
 
-DevTrack ships embeddable SVG badges (`/api/badge/streak-shield`, `/api/badge/commits`).
-Every contributor who adds one to their GitHub profile README becomes a permanent backlink.
+DevTrack ships live pixel badges for the README (`/api/badge/rank`, `/api/badge/streak-shield`,
+`/api/badge/commits`; see BADGE_API.md). Every player who adds one to their GitHub profile
+README becomes a permanent backlink, and the rank badge makes people want to climb.
 
 Do:
 
@@ -135,8 +142,8 @@ actively looking for repos to contribute to. Post in Hacktoberfest-adjacent spac
 Twitter/X with #hacktoberfest) once issues are labeled and the star-gate / contributing
 guide are in good shape:
 
-> DevTrack is participating in Hacktoberfest! Open-source GitHub analytics dashboard
-> (streaks, PR analytics, goals, AI resume generator) — self-hostable, MIT licensed.
+> DevTrack is participating in Hacktoberfest! It turns GitHub activity into an arcade
+> game (score, tiers, seasons, duels), MIT licensed. `pnpm dev:demo` runs it with zero accounts.
 > We've curated `good first issue` and `hacktoberfest` labeled issues across frontend,
 > backend, and docs. PRs reviewed within 48 hours.
 >
@@ -165,6 +172,7 @@ near the deadline.
 | Day     | Action                                                                                  |
 | ------- | --------------------------------------------------------------------------------------- |
 | 1       | Upload social preview image (Settings → Social preview, use cover_image.png)            |
+| 0       | Preflight: Safe Browsing clear, site checked in a fresh browser                         |
 | 1       | Cut release v0.3.0 with contributor shoutouts — notifies all watchers                   |
 | 2       | Hacktoberfest channel post + badge Discussion pinned                                    |
 | 3       | dev.to article                                                                          |

@@ -17,80 +17,78 @@ export async function GET(req: NextRequest) {
   const repo = getParam(req, "repo", "DevTrack");
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          background: "#0b1020",
-          color: "#f8fafc",
-          padding: "58px 64px",
-          fontFamily: "Inter, Arial, sans-serif",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div
-              style={{
-                color: "#67e8f9",
-                fontSize: 24,
-                fontWeight: 800,
-                letterSpacing: 3,
-                textTransform: "uppercase",
-              }}
-            >
-              DevTrack Wrapped
-            </div>
-            <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 0.95 }}>
-              {`@${username}`}
-            </div>
-          </div>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        background: "#0b1020",
+        color: "#f8fafc",
+        padding: "58px 64px",
+        fontFamily: "Inter, Arial, sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div
             style={{
-              border: "2px solid rgba(248,250,252,0.2)",
-              borderRadius: 18,
-              padding: "18px 24px",
-              fontSize: 32,
+              color: "#67e8f9",
+              fontSize: 24,
               fontWeight: 800,
-              color: "#fde68a",
-              height: 72,
+              letterSpacing: 3,
+              textTransform: "uppercase",
             }}
           >
-            {year}
+            DevTrack Wrapped
+          </div>
+          <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 0.95 }}>
+            {`@${username}`}
           </div>
         </div>
-
         <div
           style={{
-            display: "flex",
-            gap: 22,
-            width: "100%",
+            border: "2px solid rgba(248,250,252,0.2)",
+            borderRadius: 18,
+            padding: "18px 24px",
+            fontSize: 32,
+            fontWeight: 800,
+            color: "#fde68a",
+            height: 72,
           }}
         >
-          <Stat label="Commits" value={commits} color="#67e8f9" />
-          <Stat label="Longest streak" value={`${streak}d`} color="#a7f3d0" />
-          <Stat label="Top language" value={language} color="#fde68a" />
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderTop: "1px solid rgba(248,250,252,0.16)",
-            paddingTop: 24,
-          }}
-        >
-          <div style={{ fontSize: 28, color: "#cbd5e1" }}>
-            {`Most contributed repo: ${repo}`}
-          </div>
-          <div style={{ fontSize: 24, color: "#94a3b8" }}>devtrack.app</div>
+          {year}
         </div>
       </div>
-    ),
+
+      <div
+        style={{
+          display: "flex",
+          gap: 22,
+          width: "100%",
+        }}
+      >
+        <Stat label="Commits" value={commits} color="#67e8f9" />
+        <Stat label="Longest streak" value={`${streak}d`} color="#a7f3d0" />
+        <Stat label="Top language" value={language} color="#fde68a" />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderTop: "1px solid rgba(248,250,252,0.16)",
+          paddingTop: 24,
+        }}
+      >
+        <div style={{ fontSize: 28, color: "#cbd5e1" }}>
+          {`Most contributed repo: ${repo}`}
+        </div>
+        <div style={{ fontSize: 24, color: "#94a3b8" }}>devtrack.live</div>
+      </div>
+    </div>,
     {
       width: 1200,
       height: 630,
