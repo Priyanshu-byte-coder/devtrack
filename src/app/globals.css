@@ -1,4 +1,25 @@
 @tailwind base;
+
+/*
+ * Stand-in for Silkscreen (font-pixel) while it loads: Arial (or a
+ * metric-compatible clone) scaled to Silkscreen's uppercase word widths, with
+ * its vertical metrics. Measured so the hero heading wraps identically at
+ * 360-1920px wide and the leaderboard tabs too, so nothing shifts when
+ * the real font swaps in. A monospace stand-in can't match: Silkscreen's
+ * I, space and full stop are narrow.
+ */
+@font-face {
+  font-family: "Pixel Fallback";
+  src:
+    local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo"),
+    local("Helvetica Neue"), local("Helvetica"), local("Roboto");
+  font-weight: 100 900;
+  size-adjust: 107%;
+  ascent-override: 96.3%;
+  descent-override: 23.4%;
+  line-gap-override: 0%;
+}
+
 @tailwind components;
 @tailwind utilities;
 

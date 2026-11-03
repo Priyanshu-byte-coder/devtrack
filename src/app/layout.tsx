@@ -30,11 +30,16 @@ const jetbrains = JetBrains_Mono({
 });
 
 // The arcade display face: headings, HUD labels and scores. Never body text.
+// Its fallback is "Pixel Fallback" in globals.css, not the generated one: that
+// is Arial at 150%, about 40% too wide for this uppercase text,
+// so the hero re-wrapped when the font arrived and the page jumped.
 const pixel = Silkscreen({
   subsets: ["latin"],
   variable: "--font-pixel",
   weight: ["400", "700"],
   display: "swap",
+  adjustFontFallback: false,
+  fallback: ["Pixel Fallback", "ui-monospace", "monospace"],
 });
 
 export const metadata: Metadata = {
