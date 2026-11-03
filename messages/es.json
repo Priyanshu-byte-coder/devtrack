@@ -30,7 +30,8 @@
     "settings": "Configuración",
     "signInCta": "Iniciar sesión",
     "signOutCta": "Cerrar sesión",
-    "openDashboard": "Abrir panel"
+    "openDashboard": "Abrir panel",
+    "compare": "Comparar"
   },
   "dashboard": {
     "overviewEyebrow": "Resumen del panel",

@@ -63,6 +63,7 @@ export default function AppNavbar() {
     () => [
       { href: "/#features", label: t("features") },
       { href: "/leaderboard", label: t("leaderboard") },
+      { href: "/compare", label: t("compare") },
     ],
     [t]
   );
@@ -71,16 +72,12 @@ export default function AppNavbar() {
   if (pathname === "/wrapped" || pathname.startsWith("/dashboard")) return null;
 
   const primaryAction = isAuthenticated ? (
-    <Link href="/dashboard" className={buttonVariants({ size: "sm" })}>
+    <Link href="/dashboard" className="px-btn px-btn-sm">
       {t("openDashboard")}
-      <ArrowRight aria-hidden="true" />
+      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
     </Link>
   ) : isPublicProfileRoute ? null : (
-    <Link
-      href={SIGN_IN_HREF}
-      prefetch={false}
-      className={buttonVariants({ size: "sm" })}
-    >
+    <Link href={SIGN_IN_HREF} prefetch={false} className="px-btn px-btn-sm">
       {t("signInCta")}
     </Link>
   );
@@ -97,9 +94,9 @@ export default function AppNavbar() {
       <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href={isAuthenticated ? "/dashboard" : "/"}
-          className="inline-flex select-none items-center gap-2 text-sm font-bold tracking-[0.18em] text-[var(--foreground)]"
+          className="inline-flex select-none items-center gap-2 font-pixel text-sm uppercase tracking-[0.14em] text-[var(--foreground)]"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/10 text-sm text-[var(--accent)]">
+          <span className="flex h-7 w-7 items-center justify-center bg-accent/10 text-sm text-[var(--accent)]">
             ▲
           </span>
           DEVTRACK
@@ -118,9 +115,9 @@ export default function AppNavbar() {
                 onClick={(e) => handleAnchorClick(e, item.href)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  "px-3 py-1.5 font-pixel text-xs uppercase tracking-[0.1em] transition-colors",
                   active
-                    ? "text-[var(--foreground)]"
+                    ? "text-[var(--accent)]"
                     : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 )}
               >
@@ -162,7 +159,7 @@ export default function AppNavbar() {
                 key={item.href}
                 href={item.href}
                 onClick={(e) => handleAnchorClick(e, item.href)}
-                className="rounded-md px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--foreground)]"
+                className="px-3 py-2 font-pixel text-xs uppercase tracking-[0.1em] text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--foreground)]"
               >
                 {item.label}
               </Link>

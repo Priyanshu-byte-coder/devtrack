@@ -732,6 +732,11 @@ body:has(.app-shell) .site-footer {
     outline-offset: 6px;
   }
 
+  .px-btn-sm {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.72rem;
+  }
+
   .px-btn-ghost {
     background: var(--card);
     color: var(--card-foreground);
