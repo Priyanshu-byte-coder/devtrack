@@ -48,6 +48,8 @@ export const metadata: Metadata = {
   description:
     "Track your GitHub activity, keep your coding streak alive, and see how you rank against developers worldwide. Free and open source.",
   applicationName: "DevTrack",
+  // Search engine ownership checks. Google is verified by DNS.
+  verification: { yandex: "cf0315371c223923" },
   openGraph: {
     type: "website",
     siteName: "DevTrack",
