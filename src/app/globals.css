@@ -818,3 +818,65 @@ body:has(.app-shell) .site-footer {
     transform: none;
   }
 }
+
+/* ── Onboarding tour (driver.js) in the arcade style ── */
+.driver-popover.devtrack-tour {
+  border-radius: 0;
+  background: var(--card);
+  color: var(--card-foreground);
+  padding: 18px 18px 14px;
+  max-width: 340px;
+  box-shadow:
+    0 -4px 0 0 var(--accent),
+    0 4px 0 0 var(--accent),
+    -4px 0 0 0 var(--accent),
+    4px 0 0 0 var(--accent),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+.driver-popover.devtrack-tour .driver-popover-title {
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--card-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-description {
+  margin-top: 6px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-progress-text {
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-footer button {
+  border-radius: 0;
+  border: 2px solid var(--border);
+  background: var(--control);
+  color: var(--card-foreground);
+  text-shadow: none;
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+
+.driver-popover.devtrack-tour .driver-popover-footer .driver-popover-next-btn {
+  background: var(--accent);
+  border-color: #05070f;
+  color: var(--accent-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-close-btn {
+  color: var(--muted-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-arrow {
+  display: none;
+}

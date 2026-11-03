@@ -75,18 +75,24 @@ export default async function DashboardPage() {
       <div className="space-y-4">
         <ThrottleBanner />
         <StreakAtRiskBanner />
-        <StatStrip />
-        <Suspense fallback={null}>
-          <RankCard githubId={(session as { githubId?: string }).githubId} />
-        </Suspense>
+        <div data-tour="stats">
+          <StatStrip />
+        </div>
+        <div data-tour="rank">
+          <Suspense fallback={null}>
+            <RankCard githubId={(session as { githubId?: string }).githubId} />
+          </Suspense>
+        </div>
         <WrappedSpotlight />
 
         <div className="grid gap-4 xl:grid-cols-3">
-          <div className="min-w-0 xl:col-span-2">
+          <div className="min-w-0 xl:col-span-2" data-tour="activity">
             <ContributionGraph />
           </div>
           <div className="min-w-0 space-y-4">
-            <TodayFocusHero />
+            <div data-tour="focus">
+              <TodayFocusHero />
+            </div>
             <AIMentor />
           </div>
         </div>

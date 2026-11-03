@@ -197,7 +197,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[var(--border)] bg-[var(--card)] lg:flex">
+      <aside
+        data-tour="nav"
+        className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-[var(--border)] bg-[var(--card)] lg:flex"
+      >
         {sidebar}
       </aside>
 
