@@ -33,7 +33,7 @@ test("GitHub users who haven't joined get a guest profile with a claim link", as
   );
   await expect(page.getByText("Not on DevTrack yet")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Claim this profile" })
+    page.getByRole("link", { name: "Is this you? Sign in to claim" })
   ).toHaveAttribute("href", "/claim?login=playwright-guest");
   await expect(
     page.getByRole("heading", { name: /would rank #\d+/i })
