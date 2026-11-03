@@ -179,7 +179,7 @@ export const FAQ: Array<{ q: string; a: string }> = [
   },
   {
     q: "What access does DevTrack need to my GitHub account?",
-    a: "Signing in uses GitHub OAuth so your private activity can count toward your own stats. Your public profile only shows the widgets you choose, you can make it private at any time, and you can revoke access from your GitHub settings.",
+    a: "Signing in uses GitHub OAuth so your private activity can count toward your own stats. New accounts get a public profile and appear on the leaderboard, showing totals only (never private repository names or code). Your profile only shows the widgets you choose, you can make it private or leave the leaderboard at any time in Settings, and you can revoke access from your GitHub settings.",
   },
   {
     q: "Is DevTrack free?",

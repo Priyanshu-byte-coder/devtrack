@@ -18,8 +18,8 @@ export const metadata: Metadata = {
 
 /**
  * Where "Claim this profile" on a guest page leads. Signing in creates the
- * account; this page then asks before publishing anything, because new
- * accounts start private.
+ * account, which now starts public and on the leaderboard; for accounts
+ * that were made private, this page publishes them again.
  */
 export default async function ClaimPage({
   searchParams,

@@ -17,6 +17,7 @@ import AccountToggle from "@/components/AccountToggle";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import NotificationBell from "@/components/NotificationBell";
 import OnboardingTour from "@/components/OnboardingTour";
+import BoardWelcome from "@/components/dashboard/BoardWelcome";
 import SyncDataButton from "@/components/SyncDataButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
@@ -266,6 +267,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<{
     isPublic: boolean;
     seenOnboarding: boolean;
+    onLeaderboard: boolean;
+    publicSince: string | null;
   } | null>(null);
 
   useEffect(() => setDrawerOpen(false), [pathname]);
@@ -280,6 +283,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
           setSettings({
             isPublic: data.is_public === true,
             seenOnboarding: data.seen_onboarding === true,
+            onLeaderboard:
+              data.is_public === true && data.leaderboard_opt_in === true,
+            publicSince:
+              typeof data.public_since === "string" ? data.public_since : null,
           });
       })
       .catch(() => {});
@@ -380,6 +387,18 @@ export default function AppShell({ children }: { children: ReactNode }) {
           id="dashboard-main"
           className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8"
         >
+          {settings?.onLeaderboard && pathname.startsWith("/dashboard") && (
+            <BoardWelcome
+              publicSince={settings.publicSince}
+              onHidden={() =>
+                setSettings((prev) =>
+                  prev
+                    ? { ...prev, isPublic: false, onLeaderboard: false }
+                    : prev
+                )
+              }
+            />
+          )}
           <DashboardWidgetA11yProvider>{children}</DashboardWidgetA11yProvider>
         </main>
       </div>
