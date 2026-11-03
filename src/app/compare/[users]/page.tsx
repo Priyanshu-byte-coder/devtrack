@@ -1,56 +1,32 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
-import PageHeader from "@/components/shell/PageHeader";
-import { buttonVariants } from "@/components/ui/button";
-import { Scale, Trophy } from "lucide-react";
-import Image from "next/image";
-import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import { notFound, permanentRedirect } from "next/navigation";
+import TierBadge from "@/components/gamification/TierBadge";
+import LevelChip from "@/components/gamification/LevelChip";
+import DuelRounds from "@/components/compare/DuelRounds";
+import RematchForm from "@/components/compare/RematchForm";
+import CopyLinkButton from "@/components/CopyLinkButton";
+import { isValidGitHubUsername } from "@/lib/validate-github-username";
 import {
-  fetchPublicProfile,
-  type PublicLanguage,
-  type PublicProfileData,
-  type TopRepo,
-} from "@/lib/public-profile-data";
+  duelPath,
+  duelShareText,
+  parseDuelSlug,
+  scoreDuel,
+  type DuelFighter,
+  type Side,
+} from "@/lib/duel";
+import { getDuelFighter } from "@/lib/duel-data";
 
 export const dynamic = "force-dynamic";
 
-type Winner = "left" | "right" | "tie";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live";
+const SIDE_COLOR: Record<Side, string> = {
+  left: "var(--accent)",
+  right: "#fb7185",
+};
 
-async function parseUsers(
-  params: Promise<{ users: string }>
-): Promise<[string, string] | null> {
-  let decoded: string;
-  try {
-    const { users } = await params;
-    decoded = decodeURIComponent(users);
-  } catch (e) {
-    return null;
-  }
-
-  const match = decoded.match(/^(.+)-vs-(.+)$/);
-  if (!match) return null;
-
-  const left = normalizeGitHubUsername(match[1]);
-  const right = normalizeGitHubUsername(match[2]);
-
-  if (!left || !right || left.toLowerCase() === right.toLowerCase()) {
-    return null;
-  }
-
-  return [left, right];
-}
-
-function compareNumbers(left: number, right: number): Winner {
-  if (left === right) return "tie";
-  return left > right ? "left" : "right";
-}
-
-function topLanguage(languages: PublicLanguage[]): string {
-  return languages[0]?.name ?? "No public data";
-}
-
-function repoCommitTotal(repos: TopRepo[]): number {
-  return repos.reduce((sum, repo) => sum + repo.commits, 0);
+function parse(slug: string) {
+  return parseDuelSlug(slug, isValidGitHubUsername);
 }
 
 export async function generateMetadata({
@@ -58,387 +34,261 @@ export async function generateMetadata({
 }: {
   params: Promise<{ users: string }>;
 }): Promise<Metadata> {
-  const parsed = await parseUsers(params);
+  const { users } = await params;
+  const parsed = parse(users);
   if (!parsed) {
     return {
-      title: "Compare Public Profiles",
-      description: "Compare public DevTrack profile stats.",
+      title: "Compare developers",
       robots: { index: false, follow: true },
     };
   }
-
   const [left, right] = parsed;
+  const title = `${left} vs ${right}: GitHub stats duel`;
+  const description = `Who wins? ${left} and ${right} go head to head on streaks, contributions, pull requests and reviews on DevTrack.`;
   return {
-    title: `${left} vs ${right}`,
-    description: `Side-by-side public DevTrack stats comparison for ${left} and ${right}.`,
-    // Every pair is its own URL; indexing them would flood search with thin
+    title,
+    description,
+    // Every pair is its own URL; indexing them would flood search with
     // near-duplicates. They exist to be shared, and still pass link equity.
     robots: { index: false, follow: true },
+    alternates: { canonical: duelPath(left, right) },
+    openGraph: { title, description, url: duelPath(left, right) },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
-export default async function PublicProfileComparePage({
+export default async function DuelPage({
   params,
 }: {
   params: Promise<{ users: string }>;
 }) {
   const { users } = await params;
-  const parsed = await parseUsers(params);
+  const parsed = parse(users);
+  if (!parsed) notFound();
 
-  if (!parsed) {
-    return <CompareUnavailable title="Invalid compare URL" />;
-  }
+  const canonical = duelPath(parsed[0], parsed[1]);
+  if (`/compare/${users}` !== canonical) permanentRedirect(canonical);
 
-  const [leftUsername, rightUsername] = parsed;
-  const [leftProfile, rightProfile] = await Promise.all([
-    fetchPublicProfile(leftUsername),
-    fetchPublicProfile(rightUsername),
-  ]);
-
-  if (!leftProfile || !rightProfile) {
+  const [left, right] = await Promise.all(parsed.map(getDuelFighter));
+  if (!left || !right) {
     return (
-      <CompareUnavailable
-        title="Comparison unavailable"
-        message="One of these profiles does not exist, is private, or cannot be loaded right now."
+      <DuelUnavailable
+        missing={[!left && parsed[0], !right && parsed[1]].filter(
+          (x): x is string => Boolean(x)
+        )}
       />
     );
   }
 
+  const result = scoreDuel(left, right);
+  const url = `${BASE_URL}${canonical}`;
+  const shareText = duelShareText(left, right, result);
+  const xHref = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(`${url}?utm_source=x&utm_medium=social&utm_campaign=duel`)}`;
+  const winner = result.winner
+    ? result.winner === "left"
+      ? left
+      : right
+    : null;
+
   return (
-    <div>
-      <div>
-        <PageHeader
-          title={`@${leftProfile.username} vs @${rightProfile.username}`}
-          description="Shareable comparison built only from public DevTrack stats."
-          actions={
-            <Link
-              href={`/u/${encodeURIComponent(rightProfile.username)}`}
-              className={buttonVariants({ variant: "outline", size: "sm" })}
+    <div className="pb-10">
+      <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+        Duel
+      </p>
+      <h1 className="sr-only">
+        @{left.login} vs @{right.login}
+      </h1>
+
+      {/* Fighters */}
+      <section
+        aria-label="Fighters"
+        className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-6"
+      >
+        <Fighter fighter={left} side="left" />
+        <span
+          aria-hidden="true"
+          className="font-pixel text-4xl text-[var(--foreground)] [text-shadow:3px_3px_0_var(--accent),-3px_-3px_0_#fb7185] sm:text-6xl"
+        >
+          VS
+        </span>
+        <Fighter fighter={right} side="right" />
+      </section>
+
+      {/* Verdict */}
+      <section
+        aria-label="Result"
+        className="px-frame px-scanlines mt-8 bg-[var(--card)] px-4 py-6 text-center"
+        style={
+          winner
+            ? { ["--px-c" as string]: SIDE_COLOR[result.winner as Side] }
+            : undefined
+        }
+      >
+        <p className="font-pixel text-xs uppercase tracking-[0.2em] text-[var(--muted-foreground)]">
+          {result.flawless ? "Flawless victory" : winner ? "Winner" : "Result"}
+        </p>
+        <p className="mt-2 font-pixel text-3xl uppercase leading-none text-[var(--card-foreground)] sm:text-5xl">
+          {winner ? (
+            <>
+              <span style={{ color: SIDE_COLOR[result.winner as Side] }}>
+                @{winner.login}
+              </span>{" "}
+              wins
+            </>
+          ) : (
+            "Draw"
+          )}
+        </p>
+        <p className="mt-3 font-pixel text-2xl tabular-nums text-[var(--card-foreground)]">
+          <span style={{ color: SIDE_COLOR.left }}>{result.wins.left}</span>
+          <span className="mx-3 text-[var(--muted-foreground)]">–</span>
+          <span style={{ color: SIDE_COLOR.right }}>{result.wins.right}</span>
+        </p>
+        <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+          rounds won · from public GitHub activity
+        </p>
+      </section>
+
+      {/* Rounds */}
+      <section aria-labelledby="rounds-heading" className="mt-8">
+        <h2
+          id="rounds-heading"
+          className="mb-3 font-pixel text-sm uppercase tracking-[0.14em] text-[var(--muted-foreground)]"
+        >
+          Round by round
+        </h2>
+        <div className="px-frame bg-[var(--border)]">
+          <DuelRounds
+            rounds={result.rounds}
+            leftLogin={left.login}
+            rightLogin={right.login}
+          />
+        </div>
+        <p className="mt-3 text-center text-sm text-[var(--muted-foreground)]">
+          Main language:{" "}
+          <strong className="text-[var(--card-foreground)]">
+            {left.topLanguage ?? "—"}
+          </strong>{" "}
+          vs{" "}
+          <strong className="text-[var(--card-foreground)]">
+            {right.topLanguage ?? "—"}
+          </strong>
+        </p>
+      </section>
+
+      {/* Share and rematch */}
+      <section
+        aria-labelledby="rematch-heading"
+        className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.4fr]"
+      >
+        <div className="min-w-0">
+          <h2
+            id="rematch-heading"
+            className="font-pixel text-xl uppercase text-[var(--foreground)]"
+          >
+            Call it out
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+            {shareText}
+          </p>
+          <div className="-m-1 mt-4 flex flex-wrap items-center gap-2">
+            <a
+              href={xHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-btn"
             >
-              View @{rightProfile.username}
-            </Link>
-          }
-        />
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
-          <ProfileHeader profile={leftProfile} />
-          <div className="hidden items-center justify-center md:flex">
-            <div className="rounded-full border border-[var(--border)] bg-[var(--card)] p-3 text-[var(--muted-foreground)] shadow-[var(--shadow-soft)]">
-              <Scale size={22} />
-            </div>
+              Post on X
+            </a>
+            <CopyLinkButton url={url} />
           </div>
-          <ProfileHeader profile={rightProfile} align="right" />
         </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 md:p-5">
-          <div className="mb-4 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm font-medium text-[var(--muted-foreground)]">
-            <div>@{leftProfile.username}</div>
-            <div className="text-center text-xs uppercase tracking-wide">
-              Metric
-            </div>
-            <div className="text-right">@{rightProfile.username}</div>
-          </div>
-
-          <div className="space-y-3">
-            <MetricRow
-              label="Current streak"
-              left={leftProfile.streak.current}
-              right={rightProfile.streak.current}
-              suffix=" days"
-            />
-            <MetricRow
-              label="Longest streak"
-              left={leftProfile.streak.longest}
-              right={rightProfile.streak.longest}
-              suffix=" days"
-            />
-            <MetricRow
-              label="Commits (30d)"
-              left={leftProfile.contributions.total}
-              right={rightProfile.contributions.total}
-            />
-            <MetricRow
-              label="Pull requests"
-              left={leftProfile.pullRequests}
-              right={rightProfile.pullRequests}
-            />
-            <MetricRow
-              label="Top repo commits"
-              left={repoCommitTotal(leftProfile.repos)}
-              right={repoCommitTotal(rightProfile.repos)}
-            />
-            <LanguageRow
-              left={topLanguage(leftProfile.topLanguages)}
-              right={topLanguage(rightProfile.topLanguages)}
+        <div className="min-w-0">
+          <h2 className="font-pixel text-xl uppercase text-[var(--foreground)]">
+            Rematch
+          </h2>
+          <div className="mt-3">
+            <RematchForm
+              defaultLeft={left.login}
+              defaultRight=""
+              submitLabel="New duel"
             />
           </div>
         </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <LanguageCard
-            username={leftProfile.username}
-            languages={leftProfile.topLanguages}
-          />
-          <LanguageCard
-            username={rightProfile.username}
-            languages={rightProfile.topLanguages}
-          />
-          <ReposCard
-            username={leftProfile.username}
-            repos={leftProfile.repos}
-          />
-          <ReposCard
-            username={rightProfile.username}
-            repos={rightProfile.repos}
-          />
-        </div>
-      </div>
+      </section>
     </div>
   );
 }
 
-function CompareUnavailable({
-  title,
-  message = "Use /compare/user1-vs-user2 with two public DevTrack profiles.",
-}: {
-  title: string;
-  message?: string;
-}) {
-  return (
-    <div className="flex justify-center py-16">
-      <div className="max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
-        <h1 className="mb-2 text-xl font-semibold">{title}</h1>
-        <p className="mb-6 text-sm text-[var(--muted-foreground)]">{message}</p>
-        <Link href="/leaderboard" className={buttonVariants({ size: "sm" })}>
-          Browse the leaderboard
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function ProfileHeader({
-  profile,
-  align = "left",
-}: {
-  profile: PublicProfileData;
-  align?: "left" | "right";
-}) {
+function Fighter({ fighter, side }: { fighter: DuelFighter; side: Side }) {
+  const right = side === "right";
+  const rank =
+    fighter.rank === null
+      ? fighter.member && fighter.tier === null
+        ? "Not on the board"
+        : "Unranked"
+      : `${fighter.rankEstimated ? "~" : ""}#${fighter.rank} global${fighter.rankEstimated ? " (est.)" : ""}`;
   return (
     <div
-      className={`rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 ${
-        align === "right" ? "md:text-right" : ""
+      className={`flex min-w-0 flex-col items-center gap-2 text-center sm:flex-row sm:gap-4 ${
+        right ? "sm:flex-row-reverse sm:text-right" : "sm:text-left"
       }`}
     >
-      <div
-        className={`flex items-center gap-4 ${
-          align === "right" ? "md:flex-row-reverse" : ""
-        }`}
-      >
-        <Image
-          src={`https://avatars.githubusercontent.com/${profile.username}`}
-          alt={`${profile.username} avatar`}
-          width={56}
-          height={56}
-          unoptimized
-          className="h-14 w-14 rounded-full border border-[var(--border)]"
-        />
-        <div className="min-w-0">
-          <Link
-            href={`/u/${encodeURIComponent(profile.username)}`}
-            className="truncate text-xl font-bold text-[var(--card-foreground)] hover:text-[var(--accent)]"
-          >
-            @{profile.username}
-          </Link>
-          <p className="text-sm text-[var(--muted-foreground)]">
-            {profile.streak.current} day streak - {profile.contributions.total}{" "}
-            commits
-          </p>
+      {/* eslint-disable-next-line @next/next/no-img-element -- GitHub avatar, sized by the URL */}
+      <img
+        src={`https://avatars.githubusercontent.com/${encodeURIComponent(fighter.login)}?s=192`}
+        alt=""
+        width={96}
+        height={96}
+        className="px-frame h-16 w-16 shrink-0 bg-[var(--control)] sm:h-24 sm:w-24"
+        style={{ ["--px-c" as string]: SIDE_COLOR[side] }}
+      />
+      <div className="min-w-0 max-w-full">
+        <p
+          className="font-pixel text-[10px] uppercase tracking-[0.16em]"
+          style={{ color: SIDE_COLOR[side] }}
+        >
+          Player {right ? 2 : 1}
+        </p>
+        <Link
+          href={`/u/${fighter.login.toLowerCase()}`}
+          className="block truncate font-mono text-base font-bold text-[var(--foreground)] hover:text-[var(--accent)] sm:text-xl"
+        >
+          @{fighter.login}
+        </Link>
+        <div
+          className={`mt-1 flex flex-wrap items-center justify-center gap-1.5 ${
+            right ? "sm:justify-end" : "sm:justify-start"
+          }`}
+        >
+          {fighter.tier && <TierBadge tier={fighter.tier} compact />}
+          <LevelChip level={fighter.level} />
         </div>
-      </div>
-    </div>
-  );
-}
-
-function MetricRow({
-  label,
-  left,
-  right,
-  suffix = "",
-}: {
-  label: string;
-  left: number;
-  right: number;
-  suffix?: string;
-}) {
-  const winner = compareNumbers(left, right);
-
-  return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-lg bg-[var(--control)] p-3">
-      <Value
-        value={`${left}${suffix}`}
-        state={winner === "tie" ? "tie" : winner === "left" ? "win" : "neutral"}
-      />
-      <div className="text-center text-xs font-medium text-[var(--muted-foreground)]">
-        {label}
-      </div>
-      <Value
-        value={`${right}${suffix}`}
-        state={
-          winner === "tie" ? "tie" : winner === "right" ? "win" : "neutral"
-        }
-        align="right"
-      />
-    </div>
-  );
-}
-
-function LanguageRow({ left, right }: { left: string; right: string }) {
-  const tied = left === right;
-
-  return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-lg bg-[var(--control)] p-3">
-      <Value value={left} state={tied ? "tie" : "neutral"} />
-      <div className="text-center text-xs font-medium text-[var(--muted-foreground)]">
-        Top language
-      </div>
-      <Value value={right} state={tied ? "tie" : "neutral"} align="right" />
-    </div>
-  );
-}
-
-function Value({
-  value,
-  state,
-  align = "left",
-}: {
-  value: string;
-  state: "win" | "tie" | "neutral";
-  align?: "left" | "right";
-}) {
-  const className =
-    state === "win"
-      ? "border-success/30 bg-success/10 text-[var(--success)]"
-      : state === "tie"
-        ? "border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)]"
-        : "border-transparent text-[var(--foreground)]";
-
-  return (
-    <div className={`min-w-0 ${align === "right" ? "text-right" : ""}`}>
-      <span
-        className={`inline-flex max-w-full items-center gap-1 rounded-md border px-2 py-1 text-sm font-bold ${className}`}
-      >
-        {state === "win" && <Trophy size={14} aria-hidden="true" />}
-        <span className="truncate">{value}</span>
-        {state === "tie" && <span className="text-xs font-medium">Tie</span>}
-      </span>
-    </div>
-  );
-}
-
-function LanguageCard({
-  username,
-  languages,
-}: {
-  username: string;
-  languages: PublicLanguage[];
-}) {
-  const total = languages.reduce((sum, language) => sum + language.count, 0);
-
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
-        @{username} Top Languages
-      </h2>
-      {languages.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          No public language data available.
+        <p className="mt-1 truncate text-xs text-[var(--muted-foreground)]">
+          {rank}
         </p>
-      ) : (
-        <ul className="space-y-3">
-          {languages.map((language) => (
-            <li key={language.name}>
-              <div className="mb-1 flex items-center justify-between text-sm">
-                <span className="font-medium text-[var(--card-foreground)]">
-                  {language.name}
-                </span>
-                <span className="text-[var(--muted-foreground)]">
-                  {language.count} repo{language.count !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--control)]">
-                <div
-                  className="h-full rounded-full bg-[var(--accent)]"
-                  style={{
-                    width: `${Math.max((language.count / total) * 100, 4)}%`,
-                  }}
-                />
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      </div>
     </div>
   );
 }
 
-function ReposCard({
-  username,
-  repos,
-}: {
-  username: string;
-  repos: TopRepo[];
-}) {
-  const maxCommits = repos[0]?.commits ?? 1;
-
+function DuelUnavailable({ missing }: { missing: string[] }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-5">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
-        @{username} Top Repositories
-      </h2>
-      {repos.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          No public repository data available.
-        </p>
-      ) : (
-        <ul className="space-y-3">
-          {repos.map((repo, index) => {
-            const shortName = repo.name.split("/")[1] ?? repo.name;
-            const width = Math.max(
-              Math.round((repo.commits / maxCommits) * 100),
-              4
-            );
-
-            return (
-              <li key={repo.name}>
-                <div className="mb-1 flex items-center justify-between gap-3 text-sm">
-                  <a
-                    href={repo.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="min-w-0 truncate font-medium text-[var(--card-foreground)] hover:text-[var(--accent)]"
-                    title={repo.name}
-                  >
-                    <span className="mr-1 text-[var(--muted-foreground)]">
-                      #{index + 1}
-                    </span>
-                    {shortName}
-                  </a>
-                  <span className="shrink-0 text-[var(--muted-foreground)]">
-                    {repo.commits} commit{repo.commits !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[var(--control)]">
-                  <div
-                    className="h-full rounded-full bg-[var(--accent)]"
-                    style={{ width: `${width}%` }}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+    <div className="mx-auto max-w-xl py-12 text-center">
+      <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[var(--destructive)]">
+        Player not found
+      </p>
+      <h1 className="mt-3 font-pixel text-3xl uppercase text-[var(--foreground)]">
+        No contest
+      </h1>
+      <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
+        {missing.map((m) => `@${m}`).join(" and ")}{" "}
+        {missing.length === 1 ? "isn't" : "aren't"} on GitHub, or made their
+        DevTrack profile private.
+      </p>
+      <div className="mt-8 text-left">
+        <RematchForm />
+      </div>
     </div>
   );
 }

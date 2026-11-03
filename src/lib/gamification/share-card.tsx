@@ -37,17 +37,17 @@ export type ShareCardData =
   /** Login is empty for private or unknown profiles: brand card only. */
   | { state: "unranked"; login: string };
 
-const BG = "#05070f";
+export const BG = "#05070f";
 const PANEL = "#0b1020";
-const MUTED = "#8a9bc0";
-const WHITE = "#f5f7fb";
-const ACCENT = "#6ba8ff";
+export const MUTED = "#8a9bc0";
+export const WHITE = "#f5f7fb";
+export const ACCENT = "#6ba8ff";
 const UP = "#4ade80";
 const DOWN = "#fb7185";
 
 const fmt = new Intl.NumberFormat("en-US");
 
-function Pixel({
+export function Pixel({
   text,
   scale,
   color,
@@ -105,7 +105,7 @@ function Gem({ px, body, shine }: { px: number; body: string; shine: string }) {
 }
 
 /** Faint CRT scanlines and a bevelled pixel frame, as one background SVG. */
-function Backdrop() {
+export function Backdrop() {
   const { width: W, height: H } = SHARE_CARD_SIZE;
   let lines = "";
   for (let y = 0; y < H; y += 4) lines += `M0 ${y}h${W}v1h-${W}z`;
@@ -154,7 +154,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Header() {
+export function Header() {
   return (
     <div
       style={{

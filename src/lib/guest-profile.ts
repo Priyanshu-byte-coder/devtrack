@@ -201,7 +201,19 @@ export async function getGuestProfile(
 ): Promise<GuestProfile | null> {
   const key = login.toLowerCase();
   if (process.env.PLAYWRIGHT_TEST === "true") {
-    return key === PLAYWRIGHT_GUEST ? playwrightGuest() : null;
+    if (key === PLAYWRIGHT_GUEST) return playwrightGuest();
+    // The member fixture's public GitHub data, for compare duels.
+    if (key === "playwright-user") {
+      return {
+        ...playwrightGuest(),
+        login: "playwright-user",
+        name: "Playwright User",
+        streak: { current: 42, longest: 61 },
+        lifetime: { commits: 5400, prs: 380, reviews: 120 },
+        topLanguages: [{ name: "Rust", count: 4, percentage: 100 }],
+      };
+    }
+    return null;
   }
   return unstable_cache(() => fetchGuestProfile(key), ["guest-profile", key], {
     revalidate: GUEST_TTL_SECONDS,
