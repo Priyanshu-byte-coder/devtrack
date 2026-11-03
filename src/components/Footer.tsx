@@ -39,6 +39,7 @@ const COMMUNITY_LINKS = [
 
 const LEGAL_LINKS = [
   { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms of Service", href: "/terms" },
   { label: "Guidelines", href: "/guidelines" },
   { label: "Documentation", href: "/api-docs" },
 ];

@@ -41,6 +41,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     changeFrequency: "yearly",
     priority: 0.2,
   },
+  { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.2 },
   { url: `${BASE_URL}/contact`, changeFrequency: "yearly", priority: 0.2 },
 ];
 
