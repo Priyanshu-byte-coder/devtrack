@@ -1880,6 +1880,17 @@ paths:
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/score-preview:
+    get:
+      operationId: get_api_score_preview
+      summary: GET /api/score-preview
+      tags:
+        - score-preview
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
   /api/sponsors/sync:
     get:
       operationId: get_api_sponsors_sync
