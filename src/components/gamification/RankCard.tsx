@@ -10,6 +10,7 @@ import { TIER_STYLE } from "./tier-style";
 import TierBadge from "./TierBadge";
 import XpBar from "./XpBar";
 import RankMovementBadge from "./RankMovementBadge";
+import LevelUpCelebration from "./LevelUpCelebration";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -54,10 +55,7 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
           XP and see how you rank against developers worldwide.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link
-            href="/dashboard/settings"
-            className={buttonVariants({ size: "sm" })}
-          >
+          <Link href="/claim" className={buttonVariants({ size: "sm" })}>
             Join the leaderboard
           </Link>
           <Link
@@ -85,6 +83,11 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
 
   return (
     <section className={CARD} aria-labelledby="rank-card-title">
+      <LevelUpCelebration
+        login={me.username}
+        level={progress?.level ?? null}
+        tier={me.tier}
+      />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p
           id="rank-card-title"
