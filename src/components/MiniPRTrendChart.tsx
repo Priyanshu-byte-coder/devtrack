@@ -43,7 +43,8 @@ function CustomTooltip({
         <p className="mt-1 text-xs text-[var(--muted-foreground)]">No PRs</p>
       ) : (
         <p className="mt-1 text-xs text-[var(--card-foreground)]">
-          {formatDays(point.avgReviewDays)} ({point.mergedCount} PR{point.mergedCount > 1 ? "s" : ""})
+          {formatDays(point.avgReviewDays)} ({point.mergedCount} PR
+          {point.mergedCount > 1 ? "s" : ""})
         </p>
       )}
     </div>
@@ -63,7 +64,7 @@ export default function MiniPRTrendChart() {
         : "/api/metrics/pr-review-time";
 
     fetch(url)
-      .then((r) => r.ok ? r.json() : { weeks: [] })
+      .then((r) => (r.ok ? r.json() : { weeks: [] }))
       .then((res: PRReviewTrendResponse) => setData(res.weeks ?? []))
       .catch(() => setData([]))
       .finally(() => setLoading(false));
@@ -85,7 +86,8 @@ export default function MiniPRTrendChart() {
     let trendText = "Stable";
 
     if (latestValid && previousValid) {
-      const diff = (latestValid.avgReviewDays ?? 0) - (previousValid.avgReviewDays ?? 0);
+      const diff =
+        (latestValid.avgReviewDays ?? 0) - (previousValid.avgReviewDays ?? 0);
       if (Math.abs(diff) < 0.01) {
         trendText = "Stable";
       } else if (diff < 0) {
@@ -103,17 +105,17 @@ export default function MiniPRTrendChart() {
   }, [data]);
 
   if (loading) {
-  return (
-    <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
-      <div className="flex flex-col gap-1 w-24">
-        <div className="h-3 w-16 rounded bg-[var(--card-muted)] animate-pulse" />
-        <div className="h-4 w-20 rounded bg-[var(--card-muted)] animate-pulse" />
-      </div>
+    return (
+      <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 border border-[var(--border)] bg-[var(--control)] p-3">
+        <div className="flex flex-col gap-1 w-24">
+          <div className="h-3 w-16 rounded bg-[var(--card-muted)] animate-pulse" />
+          <div className="h-4 w-20 rounded bg-[var(--card-muted)] animate-pulse" />
+        </div>
 
-      <div className="flex-1 h-full rounded bg-[var(--card-muted)] animate-pulse" />
-    </div>
-  );
-}
+        <div className="flex-1 h-full rounded bg-[var(--card-muted)] animate-pulse" />
+      </div>
+    );
+  }
 
   if (stats.totalMerged < 5) {
     return (
@@ -130,18 +132,32 @@ export default function MiniPRTrendChart() {
   if (stats.trendText === "Degrading") strokeColor = "var(--destructive)";
 
   return (
-    <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 rounded-lg bg-[var(--control)] p-3 border border-[var(--border)] transition-colors duration-200 hover:bg-[var(--card-muted)]">
+    <div className="mt-4 flex h-16 w-full items-center justify-between gap-4 bg-[var(--control)] p-3 border border-[var(--border)] transition-colors duration-200 hover:bg-[var(--card-muted)]">
       <div className="flex flex-col gap-1 w-24">
-        <span className="text-xs font-medium text-[var(--muted-foreground)]">12w Trend</span>
-        <span className={`inline-flex w-fit items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${stats.trendBg} ${stats.trendColor}`}>
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          12w Trend
+        </span>
+        <span
+          className={`inline-flex w-fit items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${stats.trendBg} ${stats.trendColor}`}
+        >
           {stats.trendText}
         </span>
       </div>
       <div className="h-full flex-1 min-w-0">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+          <LineChart
+            data={data}
+            margin={{ top: 2, right: 2, left: 2, bottom: 2 }}
+          >
             <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} hide />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "var(--border)", strokeWidth: 1, strokeDasharray: "4 4" }} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{
+                stroke: "var(--border)",
+                strokeWidth: 1,
+                strokeDasharray: "4 4",
+              }}
+            />
             <Line
               type="monotone"
               dataKey="avgReviewDays"

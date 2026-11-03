@@ -394,7 +394,7 @@ export default function WebhookManager() {
       {showCreateForm && (
         <form
           onSubmit={handleCreate}
-          className="mb-6 rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 space-y-4"
+          className="mb-6 border border-[var(--border)] bg-[var(--control)] p-4 space-y-4"
         >
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
@@ -593,7 +593,7 @@ export default function WebhookManager() {
       )}
 
       {webhooks.length === 0 ? (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-6 text-center">
+        <div className="border border-[var(--border)] bg-[var(--control)] p-6 text-center">
           <p className="text-sm text-[var(--muted-foreground)]">
             No webhooks configured yet
           </p>
@@ -603,7 +603,7 @@ export default function WebhookManager() {
           {webhooks.map((webhook) => (
             <div
               key={webhook.id}
-              className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4"
+              className="border border-[var(--border)] bg-[var(--control)] p-4"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">

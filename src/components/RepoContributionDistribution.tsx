@@ -274,7 +274,7 @@ export default function RepoContributionDistribution({
           Loading repository distribution...
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-[var(--destructive)] bg-[var(--card)] p-4 text-sm text-[var(--destructive)]">
+        <div className="border border-[var(--destructive)] bg-[var(--card)] p-4 text-sm text-[var(--destructive)]">
           {error}
         </div>
       ) : data.length === 0 ? (
@@ -284,7 +284,7 @@ export default function RepoContributionDistribution({
       ) : (
         <>
           <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-3">
+            <div className="border border-[var(--border)] bg-[var(--control)] p-3">
               <p className="text-xs text-[var(--muted-foreground)]">
                 Repositories
               </p>
@@ -292,7 +292,7 @@ export default function RepoContributionDistribution({
                 {data.length}
               </p>
             </div>
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--control)] p-3">
+            <div className="border border-[var(--border)] bg-[var(--control)] p-3">
               <p className="text-xs text-[var(--muted-foreground)]">
                 Total commits
               </p>
@@ -300,7 +300,7 @@ export default function RepoContributionDistribution({
                 {totalCommits}
               </p>
             </div>
-            <div className="min-w-0 rounded-xl border border-[var(--border)] bg-[var(--control)] p-3">
+            <div className="min-w-0 border border-[var(--border)] bg-[var(--control)] p-3">
               <p className="text-xs text-[var(--muted-foreground)]">Top repo</p>
               <p
                 className="truncate font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] sm:text-xl"

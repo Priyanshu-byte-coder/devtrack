@@ -153,7 +153,7 @@ export default function TodayFocusHero() {
         <Target className="h-4 w-4 text-[var(--accent)]" aria-hidden="true" />
         <h2
           id="today-focus-title"
-          className="text-sm font-semibold text-[var(--card-foreground)]"
+          className="font-pixel text-xs uppercase tracking-[0.12em] text-[var(--card-foreground)]"
         >
           Today&apos;s focus
         </h2>

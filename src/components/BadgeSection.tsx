@@ -264,7 +264,7 @@ function CopyableCodeBlock({
   };
 
   return (
-    <div className="flex items-center justify-between rounded-lg bg-[var(--control)] p-3 border border-[var(--border)]">
+    <div className="flex items-center justify-between bg-[var(--control)] p-3 border border-[var(--border)]">
       <code className="flex-1 text-xs text-[var(--card-foreground)] overflow-auto scrollbar-thin">
         {code}
       </code>

@@ -116,7 +116,7 @@ export default function StreakTracker() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--card)] rounded-xl p-6 min-h-[700px]">
+      <div className="bg-[var(--card)] p-6 min-h-[700px]">
         {data?.complete === false && (
           <p
             role="status"

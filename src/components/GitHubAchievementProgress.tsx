@@ -29,7 +29,7 @@ function ProgressBar({ percent }: { percent: number }) {
 
 function AchievementCard({ item }: { item: AchievementProgressInfo }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4">
+    <div className="border border-[var(--border)] bg-[var(--control)] p-4">
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="text-sm font-medium text-[var(--card-foreground)]">
           {item.title}

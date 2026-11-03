@@ -307,7 +307,7 @@ export default function RecentActivity() {
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 transition-colors hover:border-[var(--accent)]"
+                  className="block border border-[var(--border)] bg-[var(--control)] p-4 transition-colors hover:border-[var(--accent)]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">
