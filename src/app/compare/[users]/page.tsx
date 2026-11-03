@@ -16,6 +16,8 @@ import {
   type Side,
 } from "@/lib/duel";
 import { getDuelFighter } from "@/lib/duel-data";
+import GitHubBusy from "@/components/GitHubBusy";
+import { isGitHubBusyError } from "@/lib/github-busy";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +71,14 @@ export default async function DuelPage({
   const canonical = duelPath(parsed[0], parsed[1]);
   if (`/compare/${users}` !== canonical) permanentRedirect(canonical);
 
-  const [left, right] = await Promise.all(parsed.map(getDuelFighter));
+  let fighters: Awaited<ReturnType<typeof getDuelFighter>>[];
+  try {
+    fighters = await Promise.all(parsed.map(getDuelFighter));
+  } catch (error) {
+    if (!isGitHubBusyError(error)) throw error;
+    return <GitHubBusy retryHref={canonical} what="this duel" />;
+  }
+  const [left, right] = fighters;
   if (!left || !right) {
     return (
       <DuelUnavailable

@@ -142,6 +142,8 @@ export default async function TopLanguagePage({
             </div>
             <Link
               href={`/compare?vs=${encodeURIComponent(dev.login.toLowerCase())}`}
+              // Keep crawlers on profiles: every duel is two GitHub fetches.
+              rel="nofollow"
               className="relative z-10 shrink-0 border-2 border-[var(--border)] px-2 py-1 font-pixel text-[10px] uppercase text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
               aria-label={`Duel @${dev.login}`}
             >

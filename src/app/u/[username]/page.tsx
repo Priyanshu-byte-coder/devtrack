@@ -27,6 +27,8 @@ import {
   type GuestRankEstimate,
 } from "@/lib/guest-profile-model";
 import GuestProfileView from "@/components/profile/GuestProfileView";
+import GitHubBusy from "@/components/GitHubBusy";
+import { isGitHubBusyError } from "@/lib/github-busy";
 import {
   getProgressForLogin,
   getRankBadgeRow,
@@ -233,7 +235,20 @@ export default async function PublicProfilePage({
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const lookup = await getProfileForPage(username);
+  let lookup: Awaited<ReturnType<typeof getProfileForPage>>;
+  try {
+    lookup = await getProfileForPage(username);
+  } catch (error) {
+    if (!isGitHubBusyError(error)) throw error;
+    return (
+      <ProfileThemeWrapper>
+        <GitHubBusy
+          retryHref={`/u/${encodeURIComponent(username)}`}
+          what={`@${username}'s profile`}
+        />
+      </ProfileThemeWrapper>
+    );
+  }
   if (!lookup) notFound();
 
   if (lookup.kind === "guest") {
