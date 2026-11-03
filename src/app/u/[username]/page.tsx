@@ -552,50 +552,98 @@ function PublicContributionGraph({
     data: Record<string, number>;
   };
 }) {
-  const data = Object.entries(contributionData.data ?? {})
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, commits]) => ({ day, commits }));
+  // Every day in the window, zeros included, so gaps show as gaps.
+  const today = Date.parse(new Date().toISOString().slice(0, 10));
+  const days = Array.from({ length: contributionData.days }, (_, i) => {
+    const day = new Date(today - (contributionData.days - 1 - i) * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    return { day, commits: contributionData.data?.[day] ?? 0 };
+  });
+  const max = Math.max(1, ...days.map((d) => d.commits));
+  const active = days.filter((d) => d.commits > 0).length;
+  const best = days.reduce((a, b) => (b.commits > a.commits ? b : a), days[0]);
+  const label = (day: string) =>
+    new Date(`${day}T00:00:00Z`).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
 
   return (
     <div className="px-frame bg-[var(--card)] p-6">
-      <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
-        <div>
-          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Commit Activity ({contributionData.days} days)
-          </h2>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Total commits: {contributionData.total}
-          </p>
-        </div>
-      </div>
+      <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+        Commit Activity ({contributionData.days} days)
+      </h2>
+      <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+        {[
+          { label: "Total commits", value: contributionData.total },
+          { label: "Active days", value: active },
+          {
+            label: "Best day",
+            value: best && best.commits > 0 ? best.commits : 0,
+          },
+        ].map((stat) => (
+          <div key={stat.label}>
+            <dt className="font-pixel text-[9px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+              {stat.label}
+            </dt>
+            <dd className="font-pixel text-xl tabular-nums text-[var(--card-foreground)]">
+              {stat.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
 
-      {data.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          No commit data available.
+      {contributionData.total === 0 ? (
+        <p className="mt-4 text-sm text-[var(--muted-foreground)]">
+          No public commits in the last {contributionData.days} days.
         </p>
       ) : (
-        <div className="space-y-2">
-          <div className="text-sm text-[var(--muted-foreground)]">
-            {data.length} active days
+        <>
+          <div
+            role="img"
+            aria-label={`Commits per day over the last ${contributionData.days} days: ${contributionData.total} in total, best day ${best.commits} on ${label(best.day)}.`}
+            className="mt-5 flex h-36 items-end gap-[3px]"
+          >
+            {days.map((d, i) => {
+              const steps =
+                d.commits === 0
+                  ? 0
+                  : Math.max(1, Math.round((d.commits / max) * 12));
+              const isBest = d === best && d.commits > 0;
+              return (
+                <div
+                  key={d.day}
+                  title={`${label(d.day)}: ${d.commits} commit${d.commits === 1 ? "" : "s"}`}
+                  className="flex h-full min-w-0 flex-1 flex-col justify-end"
+                >
+                  <div
+                    className="profile-bar w-full origin-bottom"
+                    style={{
+                      height: steps === 0 ? "3px" : `${(steps / 12) * 100}%`,
+                      background:
+                        steps === 0
+                          ? "var(--control)"
+                          : isBest
+                            ? "#f2c14e"
+                            : "var(--accent)",
+                      opacity: steps === 0 ? 1 : 0.45 + 0.55 * (steps / 12),
+                      animationDelay: `${i * 18}ms`,
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
-          <div className="grid grid-cols-7 gap-1">
-            {data.map((day) => (
-              <div
-                key={day.day}
-                className="aspect-square"
-                style={{
-                  backgroundColor:
-                    day.commits > 0 ? "var(--accent)" : "var(--control)",
-                  opacity:
-                    day.commits > 0
-                      ? Math.max(0.2, Math.min(day.commits / 10, 1))
-                      : 1,
-                }}
-                title={`${day.day}: ${day.commits} commits`}
-              />
-            ))}
+          <div className="mt-2 flex justify-between font-pixel text-[9px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+            <span>{label(days[0].day)}</span>
+            <span>
+              <span className="text-[#f2c14e]">■</span> best day
+            </span>
+            <span>Today</span>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
