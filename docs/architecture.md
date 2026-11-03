@@ -178,7 +178,7 @@ DevTrack uses the Next.js App Router under `src/app`.
 
 | Area                | Files                                                                                  | Purpose                                                              |
 | ------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Landing             | `src/app/page.tsx`, `src/components/landing/LandingPage.tsx`                           | Public marketing and product entry point                             |
+| Landing             | `src/app/page.tsx`, `src/components/landing/arcade/*`                                  | Arcade landing: score attack, hi-scores, power-ups, FAQ              |
 | Auth                | `src/app/auth/signin/page.tsx`, `src/app/auth/layout.tsx`                              | GitHub sign-in UI                                                    |
 | Dashboard           | `src/app/dashboard/page.tsx`, `src/app/dashboard/layout.tsx`                           | Authenticated developer dashboard                                    |
 | Settings            | `src/app/dashboard/settings/page.tsx`                                                  | Public profile, WakaTime, Discord, pinned repo, and privacy settings |
@@ -186,16 +186,20 @@ DevTrack uses the Next.js App Router under `src/app`.
 | Repo views          | `src/app/dashboard/repo-health/page.tsx`, `src/app/dashboard/repo-comparison/page.tsx` | Repository analysis experiences                                      |
 | AI Personality      | `src/app/dashboard/personality/page.tsx`                                               | AI Code Personality Report page                                      |
 | Career Intelligence | `src/app/dashboard/career-intelligence/page.tsx`                                       | Career intelligence and CV generation                                |
-| Community           | `src/app/leaderboard/page.tsx`, `src/app/rooms/*`                                      | Public leaderboard and collaborative rooms                           |
-| Friend comparison   | `src/app/friend-compare/page.tsx`                                                      | Side-by-side friend comparison                                       |
-| Project Tutor       | `src/app/project-tutor/page.tsx`                                                       | AI-powered project tutor                                             |
-| Year in Code        | `src/app/wrapped/page.tsx`                                                             | Spotify Wrapped–style year-in-review experience                      |
-| Compare             | `src/app/compare/[users]/page.tsx`                                                     | Direct URL-based user comparison                                     |
+| Leaderboard         | `src/app/leaderboard/page.tsx`                                                         | Public leaderboard: podium, seasons, climbers, sponsor slot          |
+| Community           | `src/app/dashboard/community/page.tsx`, `src/app/dashboard/rooms/*`                    | Discussions, sponsors and collaborative rooms                        |
+| Friends             | `src/app/dashboard/friends/page.tsx`                                                   | Overlay a friend's commit graph on yours                             |
+| Project Tutor       | `src/app/dashboard/project-tutor/page.tsx`                                             | AI-powered project tutor                                             |
+| Year in Code        | `src/app/wrapped/page.tsx`                                                             | Year-in-review as a run of levels, with a share card                 |
+| Duels               | `src/app/compare/page.tsx`, `src/app/compare/[users]/page.tsx`                         | Any two GitHub users, round by round, with a share card              |
+| Top developers      | `src/app/top/*`                                                                        | Most-followed developers by language and by country                  |
+| Guides              | `src/app/guides/*`, `src/content/guides.tsx`                                           | SEO/AEO guides with FAQ structured data                              |
 
-The dashboard is composed from reusable widgets in `src/components`, especially
-`src/components/dashboard/CustomizableDashboard.tsx`. Widgets call focused API
-routes rather than sharing a large client-side data store. The dashboard layout
-is user-customizable and persisted via `/api/user/dashboard-layout`.
+The dashboard pages are composed from widgets registered in
+`src/components/dashboard/widgets.tsx` (`slot()` adds the error boundary, lazy
+loading and accessible region). Widgets call focused API routes rather than
+sharing a large client-side data store. The menu lives in
+`src/components/shell/nav.ts`.
 
 ## API Routes
 
@@ -333,19 +337,24 @@ Components in `src/components/` are organized by feature subdirectory:
 
 | Directory                             | Contents                                                                                                |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `src/components/dashboard/`           | `CustomizableDashboard`, `DashboardWidgetShell`, `SortableDashboardWidget`, layout toolbar              |
+| `src/components/dashboard/`           | `widgets.tsx` registry, `StatStrip` HUD, `BoardWelcome`, `WrappedSpotlight`, `WidgetRegion`             |
+| `src/components/shell/`               | `AppShell` (sidebar menu, player chip, lookup), `nav.ts`, `PageHeader`                                  |
+| `src/components/buddy/`               | Bit the mascot (`Buddy`, `PixelSprite`, `sprites.ts`) and `PixelLoader`                                 |
+| `src/components/pixel/`               | `PixelArt` icons                                                                                        |
+| `src/components/profile/`             | `PlayerCard`, `GuestProfileView`                                                                        |
+| `src/components/top/`                 | `TopBoardView`                                                                                          |
 | `src/components/career-intelligence/` | `CareerIntelligence`, `ContributionAnalysisPanel`, `ResumePreview`, `RoleSelector`, `ExportPanel`       |
 | `src/components/personality/`         | `PersonalityReport`                                                                                     |
 | `src/components/repo-health/`         | `RepoHealthCard`, `RepoHealthGauge`, `RepoHealthRadar`, `RepoHealthInsights`, `RepoHealthExplorer`      |
 | `src/components/repo-analytics/`      | `RepoAnalyticsExplorer`, `RepoCard`, `RepoGrid`, `RepoCarousel`, `RepoTimelineChart`, `RepoLanguagePie` |
 | `src/components/rooms/`               | `CreateRoomModal`, `InviteModal`, `MembersPanel`, `MessageFeed`, `MessageInput`                         |
 | `src/components/leaderboard/`         | `LeaderboardFilters`                                                                                    |
-| `src/components/landing/`             | `LandingPage`                                                                                           |
+| `src/components/landing/arcade/`      | `ArcadeLanding`, `Hero`, `ScoreAttack`, `BootIntro`, `FallingBlocks`, `Flex` (power-ups), `Community`   |
 | `src/components/webhook/`             | `WebhookManager`                                                                                        |
 | `src/components/ui/`                  | Primitive components: `button`, `card`, `badge`, `progress`, `select`, `tabs`, `skeleton`, `textarea`   |
 | `src/components/*.tsx`                | Shared widget components used on the dashboard and public profile                                       |
 
-Key shared components include: `AIMentorWidget`, `ContributionGraph`, `ContributionHeatmap`, `StreakTracker`, `PRMetrics`, `GoalTracker`, `MilestonePlanner`, `LocalCodingTime`, `CodingTimeWidget`, `WeeklySummaryCard`, `PersonalRecords`, `CommunityMetrics`, `ConsistencyScoreWidget`, `ProductiveHoursWidget`, `CommitTimeChart`, `DiscussionsWidget`, `InactiveRepositoriesCard`, `DashboardSSEProvider`, `SSEListener`, `NotificationBell`, `WebhookManager`, and more.
+Key shared components include: `AIMentorWidget`, `ContributionGraph`, `ContributionHeatmap`, `StreakTracker`, `PRMetrics`, `GoalTracker`, `MilestonePlanner`, `LocalCodingTime`, `CodingTimeWidget`, `WeeklySummaryCard`, `PersonalRecords`, `CommunityMetrics`, `ConsistencyScoreWidget`, `ProductiveHoursWidget`, `DiscussionsWidget`, `InactiveRepositoriesCard`, `DashboardSSEProvider`, `SSEListener`, `NotificationBell`, `WebhookManager`, and more.
 
 ## Lib Utilities
 
@@ -358,6 +367,11 @@ Key files in `src/lib/`:
 | `leaderboard-cache.ts`    | TTL helper functions for leaderboard cache entries                      |
 | `response-cache.ts`       | `privateCacheHeaders` / `publicCacheHeaders` for HTTP `Cache-Control`   |
 | `redis-cache-helper.ts`   | Simple Upstash Redis `getCachedData` / `setCachedData` helpers          |
+| `gamification/*`          | Score v2, tiers, XP/levels, rank snapshots, badges and share cards      |
+| `guest-profile.ts`        | Player cards and estimated ranks for any GitHub user (one GraphQL call) |
+| `top-developers.ts`       | Top developers by language and country (cached daily)                   |
+| `indexnow.ts`             | Notifies search engines when a profile goes public                      |
+| `canonical-host.ts`       | Redirects production `*.vercel.app` aliases to the canonical domain     |
 | `personality-analysis.ts` | Deterministic personality dimension scoring from GitHub metrics         |
 | `ai-mentor.ts`            | AI mentor prompt orchestration                                          |
 | `ai-prompts.ts`           | Shared prompt templates for Groq/Anthropic calls                        |
