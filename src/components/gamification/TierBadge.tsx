@@ -16,12 +16,20 @@ const GEM = [
   "...X...",
 ];
 
-function PixelGem({ color, shine }: { color: string; shine: string }) {
+export function PixelGem({
+  color,
+  shine,
+  size = 10,
+}: {
+  color: string;
+  shine: string;
+  size?: number;
+}) {
   return (
     <svg
       viewBox="0 0 7 7"
-      width="10"
-      height="10"
+      width={size}
+      height={size}
       shapeRendering="crispEdges"
       aria-hidden="true"
       className="shrink-0"
