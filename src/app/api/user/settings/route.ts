@@ -1,7 +1,7 @@
 import type { Database } from "@/types/supabase";
 import { isSafeUrl } from "@/lib/ssrf-protection";
 import { getServerSession } from "@/lib/server-session";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -9,6 +9,7 @@ import { encryptToken } from "@/lib/crypto";
 import { validateTextInput } from "@/lib/sanitize";
 import { clearLeaderboardCache } from "@/lib/leaderboard";
 import { invalidatePublicProfile } from "@/lib/public-profile-tags";
+import { submitToIndexNow } from "@/lib/indexnow";
 import { cacheGet, cacheSet, cacheDelete } from "@/lib/metrics-cache";
 import {
   defaultLocale,
@@ -477,6 +478,16 @@ export async function PATCH(req: NextRequest) {
     } catch (err) {
       // The settings write already succeeded; a cache miss is not worth a 500.
       console.error("[settings] Failed to clear leaderboard cache:", err);
+    }
+  }
+
+  // A profile that just went public is new to search engines; tell them
+  // after the response is sent.
+  if (updates.is_public === true && profileLogin) {
+    try {
+      after(() => submitToIndexNow([`/u/${profileLogin.toLowerCase()}`]));
+    } catch {
+      // Outside a request scope (tests): nothing to notify.
     }
   }
 

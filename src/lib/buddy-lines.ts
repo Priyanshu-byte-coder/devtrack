@@ -54,11 +54,21 @@ const SCRIPTS: Array<[prefix: string, script: BuddyScript]> = [
     },
   ],
   [
+    "/guides",
+    {
+      stage: "Strategy guide",
+      lines: [
+        "Every good game has a strategy guide. This is ours. No cheat codes, sorry.",
+        "Short on time? Each guide ends with quick answers.",
+      ],
+    },
+  ],
+  [
     "/top",
     {
       stage: "Hall of legends",
       lines: [
-        "The most-followed devs on GitHub, by language. Study their moves.",
+        "The most-followed devs on GitHub, by language and country. Study their moves.",
         "Click a legend to see their player card, or duel them. Bold.",
       ],
     },

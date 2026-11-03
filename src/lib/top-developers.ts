@@ -33,6 +33,70 @@ export function findTopLanguage(slug: string): TopLanguage | undefined {
   return TOP_LANGUAGES.find((l) => l.slug === slug);
 }
 
+/**
+ * Countries with a "Top developers in ..." page. `location` is what GitHub's
+ * user search matches against the free-text location people set.
+ */
+export const TOP_COUNTRIES = [
+  { slug: "india", name: "India", location: "India" },
+  {
+    slug: "united-states",
+    name: "the United States",
+    location: "United States",
+  },
+  { slug: "china", name: "China", location: "China" },
+  { slug: "brazil", name: "Brazil", location: "Brazil" },
+  { slug: "germany", name: "Germany", location: "Germany" },
+  {
+    slug: "united-kingdom",
+    name: "the United Kingdom",
+    location: "United Kingdom",
+  },
+  { slug: "canada", name: "Canada", location: "Canada" },
+  { slug: "france", name: "France", location: "France" },
+  { slug: "japan", name: "Japan", location: "Japan" },
+  { slug: "indonesia", name: "Indonesia", location: "Indonesia" },
+  { slug: "nigeria", name: "Nigeria", location: "Nigeria" },
+  { slug: "pakistan", name: "Pakistan", location: "Pakistan" },
+  { slug: "bangladesh", name: "Bangladesh", location: "Bangladesh" },
+  { slug: "vietnam", name: "Vietnam", location: "Vietnam" },
+  { slug: "spain", name: "Spain", location: "Spain" },
+  { slug: "italy", name: "Italy", location: "Italy" },
+  { slug: "netherlands", name: "the Netherlands", location: "Netherlands" },
+  { slug: "poland", name: "Poland", location: "Poland" },
+  { slug: "ukraine", name: "Ukraine", location: "Ukraine" },
+  { slug: "turkey", name: "Turkey", location: "Turkey" },
+  { slug: "south-korea", name: "South Korea", location: "South Korea" },
+  { slug: "australia", name: "Australia", location: "Australia" },
+  { slug: "egypt", name: "Egypt", location: "Egypt" },
+  { slug: "kenya", name: "Kenya", location: "Kenya" },
+  { slug: "mexico", name: "Mexico", location: "Mexico" },
+  { slug: "argentina", name: "Argentina", location: "Argentina" },
+  { slug: "philippines", name: "the Philippines", location: "Philippines" },
+  { slug: "singapore", name: "Singapore", location: "Singapore" },
+] as const;
+
+export type TopCountry = (typeof TOP_COUNTRIES)[number];
+
+export function findTopCountry(slug: string): TopCountry | undefined {
+  return TOP_COUNTRIES.find((c) => c.slug === slug);
+}
+
+/** A language board or a country board. */
+export type TopBoard = TopLanguage | TopCountry;
+
+function isCountry(board: TopBoard): board is TopCountry {
+  return "location" in board;
+}
+
+/** GitHub search query for a board. Exported for tests. */
+export function boardQuery(board: TopBoard) {
+  const filter = isCountry(board)
+    ? `location:${quoteQualifier(board.location)}`
+    : `language:${quoteQualifier(board.name)}`;
+  return `${filter} type:user followers:>100 sort:followers-desc`;
+}
+
 export interface TopDeveloper {
   login: string;
   name: string | null;
@@ -43,9 +107,9 @@ export interface TopDeveloper {
 
 const LIMIT = 30;
 
-/** GitHub's search qualifier value; names with symbols must be quoted. */
-function languageQualifier(name: string) {
-  return /^[A-Za-z]+$/.test(name) ? name : `"${name}"`;
+/** GitHub's search qualifier value; anything but plain letters is quoted. */
+function quoteQualifier(value: string) {
+  return /^[A-Za-z]+$/.test(value) ? value : `"${value}"`;
 }
 
 const QUERY = `
@@ -63,9 +127,7 @@ query TopDevelopers($q: String!, $first: Int!) {
   }
 }`;
 
-async function fetchTopDevelopers(
-  language: TopLanguage
-): Promise<TopDeveloper[]> {
+async function fetchTopDevelopers(board: TopBoard): Promise<TopDeveloper[]> {
   const token = await resolveServerGitHubToken();
   if (!token) throw new Error("GitHub token unavailable");
 
@@ -78,7 +140,7 @@ async function fetchTopDevelopers(
     body: JSON.stringify({
       query: QUERY,
       variables: {
-        q: `language:${languageQualifier(language.name)} type:user followers:>100 sort:followers-desc`,
+        q: boardQuery(board),
         first: LIMIT,
       },
     }),
@@ -112,24 +174,27 @@ async function fetchTopDevelopers(
     .sort((a, b) => b.followers - a.followers);
 }
 
-function fixture(language: TopLanguage): TopDeveloper[] {
+function fixture(board: TopBoard): TopDeveloper[] {
   return ["playwright-user", "playwright-guest", "octocat"].map((login, i) => ({
     login,
     name: i === 0 ? "Playwright User" : null,
     followers: 3000 - i * 1000,
     location: i === 1 ? "Internet" : null,
-    bio: i === 0 ? `Writes a lot of ${language.name}` : null,
+    bio: i === 0 ? `Big in ${board.name}` : null,
   }));
 }
 
-/** Most-followed GitHub users for a language, refreshed daily. */
+/** Most-followed GitHub users for a language or country, refreshed daily. */
 export async function getTopDevelopers(
-  language: TopLanguage
+  board: TopBoard
 ): Promise<TopDeveloper[]> {
-  if (process.env.PLAYWRIGHT_TEST === "true") return fixture(language);
+  if (process.env.PLAYWRIGHT_TEST === "true") return fixture(board);
   return unstable_cache(
-    () => fetchTopDevelopers(language),
-    ["top-developers", language.slug],
+    () => fetchTopDevelopers(board),
+    // Language keys stay as they were so existing cache entries still hit.
+    isCountry(board)
+      ? ["top-developers", "country", board.slug]
+      : ["top-developers", board.slug],
     { revalidate: 24 * 60 * 60, tags: ["top-developers"] }
   )();
 }

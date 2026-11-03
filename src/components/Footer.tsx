@@ -11,6 +11,7 @@ const PRODUCT_LINKS = [
   { label: "Leaderboard", href: "/leaderboard" },
   { label: "Compare developers", href: "/compare" },
   { label: "Top developers", href: "/top" },
+  { label: "Guides", href: "/guides" },
   { label: "Year in Code", href: "/wrapped" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "Contact", href: "/contact" },
