@@ -380,7 +380,7 @@ export default function PRMetrics() {
           {/* Cycle Time Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {metrics?.weeklyTrend && metrics.weeklyTrend.length > 0 && (
-              <div className="rounded-lg bg-[var(--control)] p-4">
+              <div className="bg-[var(--control)] p-4">
                 <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
                   Review Cycle Trend
                 </h3>
@@ -404,7 +404,7 @@ export default function PRMetrics() {
             )}
 
             {metrics?.slowestRepos && metrics.slowestRepos.length > 0 && (
-              <div className="rounded-lg bg-[var(--control)] p-4">
+              <div className="bg-[var(--control)] p-4">
                 <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
                   Slowest Review Repos
                 </h3>

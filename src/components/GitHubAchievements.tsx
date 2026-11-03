@@ -52,7 +52,7 @@ export default function GitHubAchievements({
               target="_blank"
               rel="noopener noreferrer"
               title={achievement.description}
-              className="group rounded-lg border border-[var(--border)] bg-[var(--control)] p-3 text-center transition-colors hover:border-[var(--accent)]"
+              className="group border border-[var(--border)] bg-[var(--control)] p-3 text-center transition-colors hover:border-[var(--accent)]"
             >
               <Image
                 src={achievement.imageUrl}

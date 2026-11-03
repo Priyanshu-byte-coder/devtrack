@@ -330,7 +330,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 role="status"
                 aria-live="polite"
                 aria-busy="true"
-                className="flex items-center gap-2 rounded-lg bg-[var(--control)] p-4"
+                className="flex items-center gap-2 bg-[var(--control)] p-4"
               >
                 <Sparkles className="h-4 w-4 animate-pulse text-[var(--muted-foreground)]" />
                 <span className="text-sm text-[var(--muted-foreground)]">
@@ -346,13 +346,13 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             )}
 
             {rateLimitMessage && !ai.loading && (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)]">
+              <div className="border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)]">
                 {rateLimitMessage}
               </div>
             )}
 
             {ai.text && !ai.loading && (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4">
+              <div className="border border-[var(--border)] bg-[var(--control)] p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)]">
                     <Sparkles className="h-3.5 w-3.5" />
@@ -385,7 +385,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             )}
 
             {/* Commits Comparison */}
-            <div className="rounded-lg bg-[var(--control)] p-4">
+            <div className="bg-[var(--control)] p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">
                   Commits
@@ -443,7 +443,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             </div>
 
             {/* PRs Comparison */}
-            <div className="rounded-lg bg-[var(--control)] p-4">
+            <div className="bg-[var(--control)] p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">
                   PRs Merged
@@ -488,7 +488,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
 
             {/* Issues Resolved */}
             {summary.issues && (
-              <div className="rounded-lg bg-[var(--control)] p-4">
+              <div className="bg-[var(--control)] p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-sm text-[var(--muted-foreground)]">
                     Issues Resolved
@@ -533,7 +533,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             )}
 
             {/* Active Days Comparison */}
-            <div className="rounded-lg bg-[var(--control)] p-4">
+            <div className="bg-[var(--control)] p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">
                   Active Days
@@ -578,7 +578,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
 
             {/* Productivity Score */}
             {summary.productivityScore && (
-              <div className="rounded-lg bg-[var(--control)] p-4">
+              <div className="bg-[var(--control)] p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-[var(--muted-foreground)]">
                     Productivity Score
@@ -610,7 +610,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
 
             {/* Streak & Top Repo */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-lg bg-[var(--control)] p-4">
+              <div className="flex items-center justify-between bg-[var(--control)] p-4">
                 <span className="text-sm text-[var(--muted-foreground)]">
                   Streak
                 </span>
@@ -618,7 +618,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                   {summary.streak} day streak
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-3 rounded-lg bg-[var(--control)] p-4">
+              <div className="flex items-center justify-between gap-3 bg-[var(--control)] p-4">
                 <span className="shrink-0 text-sm text-[var(--muted-foreground)]">
                   Top repo
                 </span>

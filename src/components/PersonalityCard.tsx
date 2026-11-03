@@ -55,7 +55,7 @@ export default function PersonalityCard({ report, username }: Props) {
     <div className="space-y-4">
       <div
         ref={cardRef}
-        className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 md:p-10 shadow-xl"
+        className="px-frame relative overflow-hidden bg-[var(--card)] p-8 md:p-10"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-transparent pointer-events-none" />
 

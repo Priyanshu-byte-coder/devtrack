@@ -173,7 +173,7 @@ export default function InactiveRepositoriesCard() {
                   href={repo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 transition-all duration-200 hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-md"
+                  className="block border border-[var(--border)] bg-[var(--control)] p-4 transition-all duration-200 hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">

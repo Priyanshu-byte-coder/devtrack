@@ -849,7 +849,7 @@ export default function GoalTracker() {
                       />
                     </div>
 
-                    <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
+                    <div className="mt-3 border border-[var(--border)] bg-[var(--control)] p-3">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-medium text-[var(--card-foreground)]">

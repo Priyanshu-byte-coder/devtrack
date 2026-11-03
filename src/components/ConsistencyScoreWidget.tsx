@@ -235,10 +235,7 @@ export default function ConsistencyScoreWidget() {
 
       <div className="mb-6 grid grid-cols-2 gap-3">
         {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-lg bg-[var(--control)] p-4 text-center"
-          >
+          <div key={stat.label} className="bg-[var(--control)] p-4 text-center">
             <div className="text-lg font-bold text-[var(--accent)]">
               {stat.value}
             </div>

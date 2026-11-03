@@ -226,7 +226,7 @@ export default function SponsorAnalytics() {
       {/* Overview Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Stat 1: Active Sponsors */}
-        <div className="rounded-lg bg-[var(--control)] p-4 flex flex-col justify-between">
+        <div className="bg-[var(--control)] p-4 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
             <span>Active Sponsors</span>
             <Users className="h-4 w-4 text-[var(--accent)]" />
@@ -251,7 +251,7 @@ export default function SponsorAnalytics() {
         </div>
 
         {/* Stat 2: MRR */}
-        <div className="rounded-lg bg-[var(--control)] p-4 flex flex-col justify-between">
+        <div className="bg-[var(--control)] p-4 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
             <span>Estimated MRR</span>
             <DollarSign className="h-4 w-4 text-[var(--accent)]" />
@@ -267,7 +267,7 @@ export default function SponsorAnalytics() {
         </div>
 
         {/* Stat 3: Goal progress */}
-        <div className="rounded-lg bg-[var(--control)] p-4 flex flex-col justify-between">
+        <div className="bg-[var(--control)] p-4 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
             <span>Goal: ${goalProgress.next}/mo</span>
             <Trophy className="h-4 w-4 text-yellow-500" />
