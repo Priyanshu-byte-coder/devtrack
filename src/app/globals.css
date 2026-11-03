@@ -664,103 +664,107 @@ body:has(.app-shell) .site-footer {
    the corners notched like a sprite. Colours come from the theme tokens so
    every theme keeps its own palette.
    ───────────────────────────────────────── */
-.px-frame {
-  --px: 4px;
-  --px-c: var(--border);
-  margin: var(--px);
-  box-shadow:
-    0 calc(-1 * var(--px)) 0 0 var(--px-c),
-    0 var(--px) 0 0 var(--px-c),
-    calc(-1 * var(--px)) 0 0 0 var(--px-c),
-    var(--px) 0 0 0 var(--px-c);
-}
+/* In the components layer so Tailwind utilities still win: without it the
+   frame's margin overrides spacing like mt-10 on the same element. */
+@layer components {
+  .px-frame {
+    --px: 4px;
+    --px-c: var(--border);
+    margin: var(--px);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(-1 * var(--px)) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c);
+  }
 
-.px-frame-accent {
-  --px-c: var(--accent);
-}
+  .px-frame-accent {
+    --px-c: var(--accent);
+  }
 
-/* Chunky arcade button: notched outline, top highlight, bottom shade, and a
-   press that drops it into its own shadow. */
-.px-btn {
-  --px: 4px;
-  --px-c: #05070f;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin: var(--px);
-  padding: 0.85rem 1.4rem;
-  font-family: var(--font-pixel), ui-monospace, monospace;
-  font-size: 0.9rem;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--accent);
-  color: var(--accent-foreground);
-  box-shadow:
-    0 calc(-1 * var(--px)) 0 0 var(--px-c),
-    0 var(--px) 0 0 var(--px-c),
-    calc(-1 * var(--px)) 0 0 0 var(--px-c),
-    var(--px) 0 0 0 var(--px-c),
-    inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.28),
-    inset 0 calc(-1 * var(--px)) 0 0 rgba(0, 0, 0, 0.3);
-  transition:
-    transform var(--duration-instant) var(--ease-out),
-    filter var(--duration-fast) var(--ease-out);
-}
+  /* Chunky arcade button: notched outline, top highlight, bottom shade, and a
+     press that drops it into its own shadow. */
+  .px-btn {
+    --px: 4px;
+    --px-c: #05070f;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: var(--px);
+    padding: 0.85rem 1.4rem;
+    font-family: var(--font-pixel), ui-monospace, monospace;
+    font-size: 0.9rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--accent);
+    color: var(--accent-foreground);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(-1 * var(--px)) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c),
+      inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.28),
+      inset 0 calc(-1 * var(--px)) 0 0 rgba(0, 0, 0, 0.3);
+    transition:
+      transform var(--duration-instant) var(--ease-out),
+      filter var(--duration-fast) var(--ease-out);
+  }
 
-.px-btn:hover {
-  filter: brightness(1.08);
-}
+  .px-btn:hover {
+    filter: brightness(1.08);
+  }
 
-.px-btn:active {
-  transform: translateY(2px);
-  box-shadow:
-    0 calc(-1 * var(--px)) 0 0 var(--px-c),
-    0 var(--px) 0 0 var(--px-c),
-    calc(-1 * var(--px)) 0 0 0 var(--px-c),
-    var(--px) 0 0 0 var(--px-c),
-    inset 0 var(--px) 0 0 rgba(0, 0, 0, 0.3);
-}
+  .px-btn:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(-1 * var(--px)) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c),
+      inset 0 var(--px) 0 0 rgba(0, 0, 0, 0.3);
+  }
 
-.px-btn:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 6px;
-}
+  .px-btn:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 6px;
+  }
 
-.px-btn-ghost {
-  background: var(--card);
-  color: var(--card-foreground);
-  --px-c: var(--border);
-}
+  .px-btn-ghost {
+    background: var(--card);
+    color: var(--card-foreground);
+    --px-c: var(--border);
+  }
 
-/* Faint CRT scanlines over a panel. Purely decorative. */
-.px-scanlines {
-  position: relative;
-  isolation: isolate;
-}
+  /* Faint CRT scanlines over a panel. Purely decorative. */
+  .px-scanlines {
+    position: relative;
+    isolation: isolate;
+  }
 
-.px-scanlines::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0 3px,
-    color-mix(in srgb, var(--foreground) 4%, transparent) 3px 4px
-  );
-}
+  .px-scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 3px,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 3px 4px
+    );
+  }
 
-/* Dotted pixel grid backdrop for hero areas. */
-.px-grid-bg {
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--foreground) 9%, transparent) 1px,
-    transparent 1px
-  );
-  background-size: 16px 16px;
+  /* Dotted pixel grid backdrop for hero areas. */
+  .px-grid-bg {
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--foreground) 9%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+  }
 }
 
 /* "PRESS START" style blink: hard on/off, no fade. */
@@ -776,8 +780,10 @@ body:has(.app-shell) .site-footer {
   }
 }
 
-.px-blink {
-  animation: px-blink 1.1s steps(1, end) infinite;
+@layer components {
+  .px-blink {
+    animation: px-blink 1.1s steps(1, end) infinite;
+  }
 }
 
 /* Endless marquee for the arcade ticker. */
@@ -791,8 +797,10 @@ body:has(.app-shell) .site-footer {
   }
 }
 
-.px-marquee {
-  animation: px-marquee 45s linear infinite;
+@layer components {
+  .px-marquee {
+    animation: px-marquee 45s linear infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
