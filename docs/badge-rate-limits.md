@@ -164,12 +164,12 @@ The commits endpoint returns `0` commits in this case.
 DevTrack badge endpoints use aggressive CDN caching to reduce both
 DevTrack server load and GitHub API calls:
 
-| Endpoint                   | `Cache-Control`                               | Effective cache duration      |
-| -------------------------- | --------------------------------------------- | ----------------------------- |
-| `/api/badge/commits`       | `s-maxage=3600, stale-while-revalidate=86400` | 1 hour fresh · 24 hours stale |
-| `/api/badge/streak-shield` | `s-maxage=3600, stale-while-revalidate=86400` | 1 hour fresh · 24 hours stale |
-| `/api/badge/streak`        | `max-age=3600, public`                        | 1 hour                        |
-| Error responses            | `max-age=60, public`                          | 1 minute                      |
+| Endpoint                   | `Cache-Control`                                            | Effective cache duration                                      |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------- |
+| `/api/badge/commits`       | `max-age=300, s-maxage=3600, stale-while-revalidate=86400` | 5 min in browsers and GitHub's proxy · 1 hour on the CDN      |
+| `/api/badge/streak-shield` | `max-age=300, s-maxage=3600, stale-while-revalidate=86400` | 5 min in browsers and GitHub's proxy · 1 hour on the CDN      |
+| `/api/badge/rank`          | `max-age=300, s-maxage=1800, stale-while-revalidate=86400` | 5 min · 30 min on the CDN; not rate limited (reads snapshots) |
+| Error responses            | `max-age=60` to `max-age=300`                              | 1–5 minutes                                                   |
 
 ### What this means for contributors
 
@@ -244,7 +244,7 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 | `src/lib/badge-rate-limit.ts`              | `checkBadgeRateLimit()` and `getBadgeClientIp()` — core rate limiting logic |
 | `src/app/api/badge/commits/route.ts`       | Commits badge endpoint                                                      |
 | `src/app/api/badge/streak-shield/route.ts` | Streak shield badge endpoint                                                |
-| `src/app/api/badge/streak/route.ts`        | Streak badge endpoint                                                       |
+| `src/app/api/badge/rank/route.ts`          | Rank badge endpoint (no per-IP limit; reads leaderboard snapshots)          |
 | `src/app/api/badge/badge-utils.ts`         | `generateBadgeSVG()` — SVG generation shared utility                        |
 | `BADGE_API.md`                             | High-level badge API overview (user-facing)                                 |
 

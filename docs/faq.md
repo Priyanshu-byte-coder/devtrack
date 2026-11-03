@@ -39,6 +39,22 @@ If the issue persists, check your browser console and terminal logs for the spec
 - If you're self-hosting behind a proxy or firewall, confirm outbound requests to `api.github.com` aren't being blocked.
 - Look at the server logs/terminal for the specific API error (403 usually means rate-limited; 401 means a token problem).
 
+## Am I on the leaderboard automatically?
+
+Yes, if your account was created after November 3, 2026: new players start with a public profile and a spot on the public leaderboard, and the dashboard shows a one-time banner with a **Hide me** button. Accounts created earlier keep whatever they chose. You can switch either setting any time in **Settings → Profile** and **Settings → Leaderboard**. The board shows totals only (score, tier, streak, contribution counts); private repository names and code are never shown.
+
+## I turned the leaderboard on but don't see myself
+
+Your entry appears on the next request after the change. If you still see the old board, hard-refresh the page (Ctrl+Shift+R / Cmd+Shift+R). The rank on your README badge and share card comes from the daily snapshot, so it can lag the live board by up to a day.
+
+## How is the score calculated?
+
+See the [score guide](https://devtrack.live/guides/devtrack-score): a 0–1000 blend of consistency (30%), impact (30%), volume (25%) and breadth (15%), plus six tiers and XP-based levels.
+
+## How do I add DevTrack badges to my README?
+
+See [BADGE_API.md](../BADGE_API.md) or the [README stats guide](https://devtrack.live/guides/github-stats-readme).
+
 ## How do I run tests?
 
 ```bash
@@ -73,11 +89,11 @@ Questions are welcome anytime in [Discussions](https://github.com/Priyanshu-byte
 
 ## Which Node.js and pnpm versions are supported?
 
-| Tool | Version | Check |
-|------|---------|-------|
-| Node.js | >= 20 | `node -v` |
-| pnpm | >= 9 | `pnpm -v` |
-| Git | any | `git --version` |
+| Tool    | Version | Check           |
+| ------- | ------- | --------------- |
+| Node.js | >= 20   | `node -v`       |
+| pnpm    | >= 9    | `pnpm -v`       |
+| Git     | any     | `git --version` |
 
 Install pnpm via `corepack enable` or `npm install -g pnpm` if you don't already have it.
 
@@ -87,13 +103,13 @@ If your local versions differ and you hit install/build errors, aligning your No
 
 DevTrack ships a Playwright-based end-to-end suite covering the full user journey — OAuth sign-in, dashboard rendering, and API correctness. No real credentials needed; all external calls are mocked via `page.route()`.
 
-| Spec file | Coverage |
-|-----------|----------|
-| `e2e/auth.spec.ts` | Landing page, sign-in button, OAuth redirect, unauthenticated redirects |
-| `e2e/dashboard.spec.ts` | All 6 dashboard widgets render after mock login, no console errors |
-| `e2e/goals.spec.ts` | Goal create/delete lifecycle with API payload verification |
-| `e2e/streak.spec.ts` | Streak values display, freeze button triggers API call |
-| `e2e/api.spec.ts` | Auth-gated API routes return 200/401 correctly |
+| Spec file               | Coverage                                                                |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `e2e/auth.spec.ts`      | Landing page, sign-in button, OAuth redirect, unauthenticated redirects |
+| `e2e/dashboard.spec.ts` | All 6 dashboard widgets render after mock login, no console errors      |
+| `e2e/goals.spec.ts`     | Goal create/delete lifecycle with API payload verification              |
+| `e2e/streak.spec.ts`    | Streak values display, freeze button triggers API call                  |
+| `e2e/api.spec.ts`       | Auth-gated API routes return 200/401 correctly                          |
 
 The test server is configured in `playwright.config.mjs` and auto-starts on `http://127.0.0.1:3002` with placeholder credentials — no `.env.local` required.
 
