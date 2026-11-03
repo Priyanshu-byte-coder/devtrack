@@ -1685,3 +1685,49 @@ html.booted .boot-intro {
     animation: none;
   }
 }
+
+/* ── Year in Code: an always-dark cabinet, one coloured level per slide ── */
+.wrapped-screen {
+  background: radial-gradient(ellipse at top, #0d1430 0%, #05070f 70%);
+  box-shadow: inset 0 0 0 2px #1c2744;
+}
+
+.wrapped-level {
+  border-color: var(--level-c, #6ba8ff);
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      color-mix(in srgb, var(--level-c, #6ba8ff) 22%, transparent),
+      transparent 55%
+    ),
+    #070b1c;
+  box-shadow: 6px 6px 0 0
+    color-mix(in srgb, var(--level-c, #6ba8ff) 35%, transparent);
+}
+
+/* Each new slide wipes in from the left, in pixel steps. */
+.wrapped-wipe {
+  animation: wrapped-wipe 0.4s steps(8, end) both;
+}
+
+.wrapped-pickup {
+  display: inline-flex;
+  animation: hud-bob 1.2s steps(2, end) infinite;
+}
+
+@keyframes wrapped-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapped-wipe,
+  .wrapped-pickup {
+    animation: none;
+  }
+}
