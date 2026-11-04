@@ -6,7 +6,8 @@
 
 **Turn your GitHub into a high score.**
 
-Streaks, XP, tiers and a global leaderboard, built from the GitHub activity you already have.<br />
+One ranking for every developer. Your commits, PRs, reviews and streaks become one score,<br />
+one tier and one spot on a global leaderboard, built from the GitHub activity you already have.<br />
 Look anyone up, duel your friends, flex it in your README. Free, open source and self-hostable.
 
 <br />
@@ -24,9 +25,9 @@ Look anyone up, duel your friends, flex it in your README. Free, open source and
 
 <br />
 
-<img src="./.github/assets/readme/score-attack.gif" alt="Typing a GitHub username into DevTrack's score attack shows where that developer would rank, then Bit the mascot pops up with a tip" width="90%" />
+<a href="https://github.com/Priyanshu-byte-coder/devtrack/raw/main/.github/assets/readme/devtrack-trailer.mp4"><img src="./.github/assets/readme/trailer.png" alt="Watch the 41-second DevTrack trailer: look up a score, climb the leaderboard, duel a friend, flex your README badges" width="90%" /></a>
 
-<sub><b>Score attack:</b> type any GitHub username and see where they'd rank. No sign-up needed.</sub>
+<sub><b>▶ Watch the trailer</b> (0:41): score, leaderboard, duels, README badges and more. Or just type any GitHub username at <a href="https://devtrack.live">devtrack.live</a> and see where they'd rank. No sign-up needed.</sub>
 
 <br /><br />
 
