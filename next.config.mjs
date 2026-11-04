@@ -12,12 +12,17 @@ const withPWA = withPWAInit({
     document: "/offline.html",
   },
   customWorkerSrc: "src/service-worker",
-  publicExcludes: ["!noprecache/**/*", "!assets/**/*", "!openapi.yaml", "!llms.txt"],
+  publicExcludes: ["!noprecache/**/*", "!assets/**/*", "!openapi.yaml", "!*.txt"],
   cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
   cacheStartUrl: false,
   dynamicStartUrl: false,
   workboxOptions: {
+    // Precache only the public files (offline page, icons). Build chunks were
+    // precached too, so every first visit downloaded all ~240 of them, server
+    // route code included: ~1.2 MB and 30 s of background traffic. Chunks a
+    // page actually uses are cached at runtime instead (devtrack-static-v2).
+    exclude: [/./],
     skipWaiting: true,
     cleanupOutdatedCaches: true,
     runtimeCaching: [

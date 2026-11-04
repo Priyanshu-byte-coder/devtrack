@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { encode } from "next-auth/jwt";
 
+// These tests exercise the service worker, which playwright.config blocks by
+// default so it cannot bypass API mocks elsewhere.
+test.use({ serviceWorkers: "allow" });
+
 test("session endpoint keeps provider credentials inside the HttpOnly cookie", async ({
   page,
 }) => {
