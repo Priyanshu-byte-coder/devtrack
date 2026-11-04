@@ -19,7 +19,7 @@ const TICKER = [
 
 async function LiveHiScoreBoard({ board }: { board: Promise<LandingBoard> }) {
   const { leaders, playerCount } = await board;
-  return <HiScoreBoard leaders={leaders} playerCount={playerCount} />;
+  return <HiScoreBoard leaders={leaders} playerCount={playerCount} bare />;
 }
 
 export default function Hero({ board }: { board: Promise<LandingBoard> }) {
@@ -37,7 +37,7 @@ export default function Hero({ board }: { board: Promise<LandingBoard> }) {
         <HeroStage
           board={
             <Reveal delay={0.15}>
-              <Suspense fallback={<HiScoreBoardSkeleton />}>
+              <Suspense fallback={<HiScoreBoardSkeleton bare />}>
                 <LiveHiScoreBoard board={board} />
               </Suspense>
             </Reveal>

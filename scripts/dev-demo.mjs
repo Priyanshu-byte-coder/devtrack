@@ -16,6 +16,8 @@ const env = {
   ...process.env,
   // Switches data loaders to their deterministic fixtures.
   PLAYWRIGHT_TEST: "true",
+  // Any username works in the lookups, with made-up sample stats.
+  DEVTRACK_DEMO: "true",
   NEXTAUTH_SECRET: "devtrack-demo-secret-not-for-production",
   NEXTAUTH_URL: url,
   NEXT_PUBLIC_APP_URL: url,
@@ -26,8 +28,12 @@ const env = {
   SUPABASE_SERVICE_ROLE_KEY: "demo",
 };
 
-console.log(`\n  ▲ DevTrack demo mode: built-in sample data, no accounts needed`);
-console.log(`  ▶ Open ${url}  (try ${url}/leaderboard and ${url}/u/playwright-user)\n`);
+console.log(
+  `\n  ▲ DevTrack demo mode: built-in sample data, no accounts needed`
+);
+console.log(
+  `  ▶ Open ${url}  (try ${url}/leaderboard and ${url}/u/playwright-user)\n`
+);
 
 const child = spawn(
   process.execPath,
