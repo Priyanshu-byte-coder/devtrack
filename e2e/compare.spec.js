@@ -11,10 +11,14 @@ test("a duel scores two developers round by round", async ({ page }) => {
   );
   const result = page.getByRole("region", { name: "Result" });
   await expect(result).toContainText("@playwright-user wins");
-  // Members' hidden widgets sit their rounds out.
+  // Members' hidden widgets sit their rounds out. Only the visible copy:
+  // after the redirect to the lowercase URL, Next can keep the previous
+  // render in the DOM, hidden, for a moment.
   await expect(
-    page.getByText("Pull requests: @playwright-user Hidden")
-  ).toBeAttached();
+    page
+      .getByText("Pull requests: @playwright-user Hidden")
+      .filter({ visible: true })
+  ).toHaveCount(1);
   await expect(page.getByRole("link", { name: "Post on X" })).toHaveAttribute(
     "href",
     /x\.com\/intent\/tweet/
