@@ -35,7 +35,7 @@ export default function ArcadeLanding({
   board: Promise<LandingBoard>;
 }) {
   return (
-    <div className="bg-[var(--background)] text-[var(--foreground)]">
+    <main className="bg-[var(--background)] text-[var(--foreground)]">
       <BootIntro />
       <JsonLd data={faqJsonLd()} />
       <Hero board={board} />
@@ -48,6 +48,6 @@ export default function ArcadeLanding({
       </Suspense>
       <Faq />
       <Continue />
-    </div>
+    </main>
   );
 }

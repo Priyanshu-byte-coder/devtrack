@@ -39,7 +39,7 @@ export default async function SponsorPage() {
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-12 text-[var(--foreground)] sm:px-6 lg:px-8">
+    <main className="mx-auto w-full max-w-5xl px-4 py-12 text-[var(--foreground)] sm:px-6 lg:px-8">
       <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
         Insert coin
       </p>
@@ -176,6 +176,6 @@ export default async function SponsorPage() {
           </ul>
         )}
       </section>
-    </div>
+    </main>
   );
 }
