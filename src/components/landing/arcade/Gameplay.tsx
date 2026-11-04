@@ -173,25 +173,29 @@ export function TierLadder() {
             {SIGNALS.map((signal) => {
               const pct = Math.round(SCORE_WEIGHTS[signal.key] * 100);
               return (
-                <div key={signal.key}>
-                  <div className="flex items-baseline justify-between gap-4">
-                    <dt className="font-pixel text-sm uppercase text-[var(--card-foreground)]">
-                      {signal.name}
-                    </dt>
-                    <dd className="font-pixel text-sm text-[var(--accent)]">
-                      {pct}%
-                    </dd>
-                  </div>
-                  <div aria-hidden="true" className="mt-2 flex gap-1">
-                    {Array.from({ length: 20 }, (_, i) => (
-                      <span
-                        key={i}
-                        className={`h-3 flex-1 ${i < pct / 5 ? "bg-[var(--accent)]" : "bg-[var(--control)]"}`}
-                      />
-                    ))}
-                  </div>
-                  <dd className="mt-2 text-sm text-[var(--muted-foreground)]">
-                    {signal.body}
+                // A <dl> group may only hold <dt> and <dd>, so the row is a
+                // grid rather than a wrapper div, and the meter sits in the
+                // description.
+                <div
+                  key={signal.key}
+                  className="grid grid-cols-[1fr_auto] items-baseline gap-x-4"
+                >
+                  <dt className="font-pixel text-sm uppercase text-[var(--card-foreground)]">
+                    {signal.name}
+                  </dt>
+                  <dd className="font-pixel text-sm text-[var(--accent)]">
+                    {pct}%
+                  </dd>
+                  <dd className="col-span-2 mt-2 text-sm text-[var(--muted-foreground)]">
+                    <span aria-hidden="true" className="flex gap-1">
+                      {Array.from({ length: 20 }, (_, i) => (
+                        <span
+                          key={i}
+                          className={`h-3 flex-1 ${i < pct / 5 ? "bg-[var(--accent)]" : "bg-[var(--control)]"}`}
+                        />
+                      ))}
+                    </span>
+                    <span className="mt-2 block">{signal.body}</span>
                   </dd>
                 </div>
               );

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] px-4 text-center">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] px-4 text-center">
       <div className="w-full max-w-lg">
         {/* Branding */}
         <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-[var(--accent)]">
@@ -46,6 +46,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

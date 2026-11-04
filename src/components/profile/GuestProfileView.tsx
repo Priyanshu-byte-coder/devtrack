@@ -68,7 +68,7 @@ export default function GuestProfileView({
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
       <PlayerCard
         login={profile.login}
         eyebrow="Not on DevTrack yet"
@@ -288,7 +288,7 @@ export default function GuestProfileView({
         Built from public GitHub data and refreshed every few hours. Not
         affiliated with @{profile.login}.
       </p>
-    </div>
+    </main>
   );
 }
 

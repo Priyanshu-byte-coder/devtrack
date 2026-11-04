@@ -351,7 +351,7 @@ export default async function PublicProfilePage({
           ]),
         ]}
       />
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
         <PlayerCard
           login={profile.username}
           eyebrow={isOwner ? "Player 1 · you" : "Player · DevTrack member"}
@@ -541,7 +541,7 @@ export default async function PublicProfilePage({
             Powered by DevTrack
           </a>
         </div>
-      </div>
+      </main>
     </ProfileThemeWrapper>
   );
 }
