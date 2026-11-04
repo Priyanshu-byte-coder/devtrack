@@ -65,6 +65,16 @@ assert.doesNotMatch(
   /url:"\/assets\//,
   "Documentation demos and exports must not enter precache"
 );
+assert.doesNotMatch(
+  file,
+  /url:"\/_next\/static\/(?:chunks|css|media)\//,
+  "Build chunks must not enter precache: they are runtime cached as pages use them"
+);
+assert.match(
+  file,
+  /url:"\/offline\.html"/,
+  "The offline fallback page must be precached"
+);
 assert.match(
   file,
   /importScripts\([^)]*worker-/,
