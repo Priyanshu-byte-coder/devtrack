@@ -25,9 +25,9 @@ Look anyone up, duel your friends, flex it in your README. Free, open source and
 
 <br />
 
-<a href="https://github.com/Priyanshu-byte-coder/devtrack/raw/main/.github/assets/readme/devtrack-trailer.mp4"><img src="./.github/assets/readme/trailer.png" alt="Watch the 41-second DevTrack trailer: look up a score, climb the leaderboard, duel a friend, flex your README badges" width="90%" /></a>
+<a href="https://youtube.com/shorts/RuArlADjlmQ"><img src="./.github/assets/readme/trailer.png" alt="Watch the 41-second DevTrack trailer: look up a score, climb the leaderboard, duel a friend, flex your README badges" width="90%" /></a>
 
-<sub><b>▶ Watch the trailer</b> (0:41): score, leaderboard, duels, README badges and more. Or just type any GitHub username at <a href="https://devtrack.live">devtrack.live</a> and see where they'd rank. No sign-up needed.</sub>
+<sub><b>▶ <a href="https://youtube.com/shorts/RuArlADjlmQ">Watch the trailer</a></b> (0:41, YouTube): score, leaderboard, duels, README badges and more. Or just type any GitHub username at <a href="https://devtrack.live">devtrack.live</a> and see where they'd rank. No sign-up needed.</sub>
 
 <br /><br />
 
