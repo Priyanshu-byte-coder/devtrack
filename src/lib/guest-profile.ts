@@ -195,6 +195,37 @@ function playwrightGuest(): GuestProfile {
   };
 }
 
+/**
+ * `pnpm dev:demo` has no GitHub connection, so any other username gets a
+ * sample player built from the name: the same numbers every time, different
+ * per name. Only with DEVTRACK_DEMO; end-to-end tests still see unknown
+ * names as unknown.
+ */
+function demoGuest(login: string): GuestProfile {
+  let seed = 0;
+  for (const ch of login) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const pick = (min: number, max: number) => {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    return min + (seed % (max - min + 1));
+  };
+  const base = playwrightGuest();
+  const longest = pick(5, 120);
+  return {
+    ...base,
+    login,
+    name: null,
+    bio: "Sample player: demo mode makes up stats for any username",
+    followers: pick(3, 900),
+    streak: { current: pick(0, longest), longest },
+    lifetime: {
+      commits: pick(200, 9000),
+      prs: pick(10, 700),
+      reviews: pick(0, 400),
+    },
+    reposContributed: pick(2, 60),
+  };
+}
+
 /** Cached guest profile; tagged like member profiles so a claim drops it at once. */
 export async function getGuestProfile(
   login: string
@@ -213,6 +244,7 @@ export async function getGuestProfile(
         topLanguages: [{ name: "Rust", count: 4, percentage: 100 }],
       };
     }
+    if (process.env.DEVTRACK_DEMO === "true") return demoGuest(key);
     return null;
   }
   return unstable_cache(() => fetchGuestProfile(key), ["guest-profile", key], {
