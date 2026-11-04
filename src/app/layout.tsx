@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Syne, JetBrains_Mono, Silkscreen } from "next/font/google";
 import AppNavbar from "@/components/AppNavbar";
 import Footer from "@/components/Footer";
+import ClarityScript from "@/components/analytics/ClarityScript";
 import DeferredVercelMetrics from "@/components/DeferredVercelMetrics";
 import Providers from "./providers";
 import OfflineBanner from "@/components/OfflineBanner";
@@ -182,6 +183,7 @@ export default async function RootLayout({
 
           <Toaster richColors position="top-right" />
         </div>
+        <ClarityScript nonce={nonce} />
         <DeferredVercelMetrics
           enabled={
             process.env.VERCEL === "1" ||

@@ -385,6 +385,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
         <main
           id="dashboard-main"
+          // Private repository names live here: keep them out of Clarity
+          // session replays (see ClarityScript).
+          data-clarity-mask="True"
           className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8"
         >
           {settings?.onLeaderboard && pathname.startsWith("/dashboard") && (
