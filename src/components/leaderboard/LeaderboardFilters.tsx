@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
-import { useEffect, useMemo } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Period = "week" | "month" | "all";
@@ -37,6 +37,22 @@ function isPeriod(value: string | null): value is Period {
   return value === "week" || value === "month" || value === "all";
 }
 
+type StoredFilters = { lang?: string; period?: string };
+
+function readStoredFilters(): StoredFilters | null {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as StoredFilters) : null;
+  } catch {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage blocked: nothing to restore.
+    }
+    return null;
+  }
+}
+
 export default function LeaderboardFilters() {
   const router = useRouter();
   const pathname = usePathname();
@@ -48,51 +64,47 @@ export default function LeaderboardFilters() {
 
   const hasFilters = searchParams.has("lang") || searchParams.has("period");
 
-  const currentFilters = useMemo(
-    () => ({ lang: language, period }),
-    [language, period]
-  );
-
+  // Bring back the last filters once, when the page opens without any.
+  // Only then: "All time" and "All languages" are the defaults, so picking
+  // them removes the params, and restoring on every change used to put the
+  // saved "This week" straight back.
+  const restored = useRef(false);
   useEffect(() => {
-    const hasUrlFilters =
-      searchParams.has("lang") || searchParams.has("period");
+    if (restored.current) return;
+    restored.current = true;
+    if (searchParams.has("lang") || searchParams.has("period")) return;
 
-    if (!hasUrlFilters) {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        return;
-      }
+    const stored = readStoredFilters();
+    if (!stored) return;
 
-      try {
-        const parsed = JSON.parse(stored) as {
-          lang?: string;
-          period?: string;
-        };
-        const nextParams = new URLSearchParams(searchParams.toString());
-
-        if (parsed.lang) {
-          nextParams.set("lang", parsed.lang);
-        }
-
-        const storedPeriod = parsed.period ?? null;
-        if (isPeriod(storedPeriod) && storedPeriod !== "all") {
-          nextParams.set("period", storedPeriod);
-        }
-
-        const query = nextParams.toString();
-        if (query) {
-          router.replace(`${pathname}?${query}`, { scroll: false });
-        }
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
-      return;
+    const nextParams = new URLSearchParams(searchParams.toString());
+    if (stored.lang) nextParams.set("lang", stored.lang);
+    const storedPeriod = stored.period ?? null;
+    if (isPeriod(storedPeriod) && storedPeriod !== "all") {
+      nextParams.set("period", storedPeriod);
     }
+    const query = nextParams.toString();
+    if (query) router.replace(`${pathname}?${query}`, { scroll: false });
+  }, [pathname, router, searchParams]);
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentFilters));
-  }, [currentFilters, pathname, router, searchParams]);
+  /** Remember the choice, including going back to the defaults. */
+  function saveFilters(next: { lang: string; period: Period }) {
+    try {
+      if (!next.lang && next.period === "all") {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } else {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      }
+    } catch {
+      // Storage blocked: the URL still holds the filters.
+    }
+  }
 
   function updateFilters(next: Partial<{ lang: string; period: Period }>) {
+    saveFilters({
+      lang: next.lang ?? language,
+      period: next.period ?? period,
+    });
     const params = new URLSearchParams(searchParams.toString());
 
     if (next.lang !== undefined) {
@@ -119,7 +131,7 @@ export default function LeaderboardFilters() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("lang");
     params.delete("period");
-    window.localStorage.removeItem(STORAGE_KEY);
+    saveFilters({ lang: "", period: "all" });
 
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
