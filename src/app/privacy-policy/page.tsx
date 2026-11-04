@@ -42,6 +42,11 @@ export default function PrivacyPolicyPage() {
                 "DevTrack integrates with services such as GitHub, Supabase, and other tools required for authentication, data storage, and analytics. These services operate under their own privacy policies.",
             },
             {
+              title: "Analytics",
+              content:
+                "To see which pages work and where people get stuck, devtrack.live uses Vercel Analytics and Microsoft Clarity. Clarity records how visitors use the site (clicks, scrolling and anonymised session replays) and sets cookies to recognise a returning browser. Form inputs are masked, and the signed-in dashboard is masked entirely, so private repository names are never recorded. Microsoft processes this data under the Microsoft Privacy Statement (privacy.microsoft.com). Blocking cookies or using a tracker blocker turns Clarity off without affecting DevTrack.",
+            },
+            {
               title: "Data Protection",
               content:
                 "Reasonable technical and organizational measures are implemented to protect user information from unauthorized access, disclosure, or misuse.",
