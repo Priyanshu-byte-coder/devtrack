@@ -10,7 +10,8 @@ export default function BackToTopButton() {
   const handleScroll = () => {
     if (typeof window !== "undefined") {
       const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
       const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
       setIsVisible(scrollTop > 300);
       setScrollProgress(progress);
@@ -44,12 +45,9 @@ export default function BackToTopButton() {
   return (
     <>
       {isVisible && (
-        <div className="fixed bottom-8 right-8 z-50">
+        <div className="back-to-top fixed bottom-8 right-8 z-50">
           <div className="relative flex items-center justify-center">
-            <svg
-              className="absolute h-14 w-14 -rotate-90"
-              viewBox="0 0 56 56"
-            >
+            <svg className="absolute h-14 w-14 -rotate-90" viewBox="0 0 56 56">
               <circle
                 cx="28"
                 cy="28"
@@ -69,7 +67,10 @@ export default function BackToTopButton() {
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
-                style={{ filter: "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent))" }}
+                style={{
+                  filter:
+                    "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent))",
+                }}
                 className="transition-[stroke-dashoffset] duration-100"
               />
             </svg>

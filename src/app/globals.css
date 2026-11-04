@@ -1752,3 +1752,126 @@ html.booted .boot-intro {
     animation: none;
   }
 }
+
+/* ─────────────────────────────────────────
+   MOBILE: the pause menu, swipe rows and tap feedback
+   ───────────────────────────────────────── */
+
+/* The phone menu drops in from the header in pixel steps; its tiles pop in
+   one after another (delays set inline). */
+.mobile-menu-panel {
+  animation: menu-drop 0.22s steps(4, end) both;
+}
+
+.mobile-menu-backdrop {
+  animation: menu-fade 0.18s ease-out both;
+}
+
+.mobile-menu-tile {
+  animation: menu-pop 0.24s steps(3, end) both;
+}
+
+/* A stage tile: its icon sits on a chip in the stage colour, and a press
+   drops the tile into its frame like an arcade button. */
+/* --stage-c is set per tile; the fallback is the theme accent. Not declared
+   here: an unlayered default would beat the per-tile utility class. */
+.stage-tile {
+  transition: transform var(--duration-instant) var(--ease-out);
+}
+
+.stage-tile__icon {
+  color: color-mix(
+    in srgb,
+    var(--stage-c, var(--accent)) 75%,
+    var(--card-foreground)
+  );
+  background: color-mix(
+    in srgb,
+    var(--stage-c, var(--accent)) 16%,
+    transparent
+  );
+  box-shadow: inset 0 -3px 0 0
+    color-mix(in srgb, var(--stage-c, var(--accent)) 35%, transparent);
+}
+
+.stage-tile:active {
+  transform: translateY(2px);
+}
+
+.stage-tile:active .stage-tile__icon,
+.stage-tile:hover .stage-tile__icon {
+  color: #05070f;
+  background: var(--stage-c, var(--accent));
+}
+
+@keyframes menu-drop {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Cards that are links or buttons press in on touch, so taps feel physical. */
+@media (hover: none) {
+  a.px-frame:active,
+  button.px-frame:active {
+    transform: translateY(2px);
+  }
+}
+
+/* Horizontal swipe rows on phones: cards snap into place, with the next one
+   peeking in so it's clear there's more. */
+.swipe-row {
+  scrollbar-width: none;
+  scroll-padding-inline: 1rem;
+}
+
+.swipe-row::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-panel,
+  .mobile-menu-backdrop,
+  .mobile-menu-tile {
+    animation: none;
+  }
+
+  .stage-tile,
+  a.px-frame:active,
+  button.px-frame:active {
+    transform: none;
+  }
+}
+
+/* Above the signed-in app's bottom tab bar on phones and tablets. */
+@media (max-width: 1023px) {
+  body:has(.mobile-tabbar) .back-to-top {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    right: 1rem;
+  }
+
+  body:has(.mobile-tabbar) .buddy-dock {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  body:has(.mobile-tabbar) .buddy-peek {
+    bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+}

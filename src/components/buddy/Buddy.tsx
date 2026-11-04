@@ -247,7 +247,7 @@ export default function Buddy() {
         : "";
 
   return (
-    <div className="fixed bottom-4 right-24 z-40 flex flex-col items-end">
+    <div className="buddy-dock fixed bottom-4 right-24 z-40 flex flex-col items-end">
       {open && (
         <div
           role="dialog"

@@ -102,7 +102,7 @@ function StatusBadge({
   const config = STATUS_CONFIG[status];
   return (
     <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 font-pixel text-[9px] uppercase tracking-[0.1em]"
+      className="inline-flex items-center gap-1 px-2 py-0.5 font-pixel text-[10px] uppercase tracking-[0.1em]"
       style={{ background: `${config.color}22`, color: config.color }}
     >
       {config.icon} {config.label}

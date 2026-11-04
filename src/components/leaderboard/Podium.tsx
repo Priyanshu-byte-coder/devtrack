@@ -97,7 +97,7 @@ function Step({ place, index }: { place: PodiumPlace; index: number }) {
         <span className="mt-1 font-pixel text-lg tabular-nums text-[var(--foreground)] sm:text-2xl">
           {place.value}
         </span>
-        <span className="font-pixel text-[9px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+        <span className="font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
           {place.valueLabel}
         </span>
         {place.tier && (

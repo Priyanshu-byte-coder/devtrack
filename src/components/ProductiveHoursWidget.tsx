@@ -447,7 +447,7 @@ export default function ProductiveHoursWidget() {
                 {HOURS.map((h) => (
                   <div key={h} className="text-center">
                     {h % 3 === 0 ? (
-                      <span className="text-[9px] font-medium text-[var(--muted-foreground)]">
+                      <span className="text-[10px] font-medium text-[var(--muted-foreground)]">
                         {formatHour(h)}
                       </span>
                     ) : null}

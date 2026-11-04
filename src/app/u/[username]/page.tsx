@@ -588,7 +588,7 @@ function PublicContributionGraph({
           },
         ].map((stat) => (
           <div key={stat.label}>
-            <dt className="font-pixel text-[9px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+            <dt className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
               {stat.label}
             </dt>
             <dd className="font-pixel text-xl tabular-nums text-[var(--card-foreground)]">
@@ -639,7 +639,7 @@ function PublicContributionGraph({
               );
             })}
           </div>
-          <div className="mt-2 flex justify-between font-pixel text-[9px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+          <div className="mt-2 flex justify-between font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
             <span>{label(days[0].day)}</span>
             <span>
               <span className="text-[#f2c14e]">■</span> best day

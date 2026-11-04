@@ -27,6 +27,7 @@ import {
 } from "@/components/shell/nav";
 import { DashboardWidgetA11yProvider } from "@/components/dashboard/DashboardWidgetA11yContext";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import MobileTabBar from "@/components/shell/MobileTabBar";
 
 function Brand() {
   return (
@@ -71,7 +72,7 @@ function SidebarNav({ pathname }: { pathname: string }) {
                   >
                     <span
                       aria-hidden="true"
-                      className={`w-2 shrink-0 font-pixel text-[9px] text-[var(--nav-c)] ${
+                      className={`w-2 shrink-0 font-pixel text-[10px] text-[var(--nav-c)] ${
                         active
                           ? "px-blink"
                           : "opacity-0 group-hover:opacity-100"
@@ -125,7 +126,7 @@ function PlayerChip({ publicLogin }: { publicLogin: string | null }) {
         className="h-8 w-8 shrink-0 bg-[var(--control)] [image-rendering:pixelated]"
       />
       <span className="min-w-0 flex-1">
-        <span className="block font-pixel text-[9px] uppercase tracking-[0.16em] text-[var(--accent)]">
+        <span className="block font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
           Player 1
         </span>
         <span className="block truncate font-mono text-[13px] font-semibold text-[var(--foreground)]">
@@ -388,7 +389,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
           // Private repository names live here: keep them out of Clarity
           // session replays (see ClarityScript).
           data-clarity-mask="True"
-          className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8"
+          // Bottom padding on phones keeps content clear of the tab bar.
+          className="mx-auto w-full max-w-[1400px] px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-6"
         >
           {settings?.onLeaderboard && pathname.startsWith("/dashboard") && (
             <BoardWelcome
@@ -405,6 +407,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <DashboardWidgetA11yProvider>{children}</DashboardWidgetA11yProvider>
         </main>
       </div>
+
+      <MobileTabBar
+        pathname={pathname}
+        menuOpen={drawerOpen}
+        onMenu={() => setDrawerOpen(true)}
+      />
 
       {settings && !settings.seenOnboarding && <OnboardingTour />}
     </div>

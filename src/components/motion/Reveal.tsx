@@ -97,6 +97,7 @@ interface RevealGroupProps {
   delay?: number;
   amount?: number;
   "aria-label"?: string;
+  id?: string;
 }
 
 /**
@@ -111,11 +112,13 @@ export function RevealGroup({
   delay = 0,
   amount = 0.1,
   "aria-label": ariaLabel,
+  id,
 }: RevealGroupProps) {
   const Element = elements[as];
 
   return (
     <Element
+      id={id}
       className={className}
       aria-label={ariaLabel}
       variants={{
