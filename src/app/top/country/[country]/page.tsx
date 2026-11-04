@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CountryFlag } from "@/components/pixel/TopIcons";
 import TopBoardView from "@/components/top/TopBoardView";
 import {
   TOP_COUNTRIES,
@@ -55,6 +56,7 @@ export default async function TopCountryPage({
           them to a duel.
         </>
       }
+      icon={<CountryFlag slug={country.slug} scale={4} />}
       developers={developers}
       others={{
         heading: "Other countries",
@@ -62,6 +64,7 @@ export default async function TopCountryPage({
           (c) => ({
             href: `/top/country/${c.slug}`,
             label: c.name.replace(/^the /, ""),
+            icon: <CountryFlag slug={c.slug} scale={1} />,
           })
         ),
       }}

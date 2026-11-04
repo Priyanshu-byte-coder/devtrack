@@ -15,8 +15,13 @@ interface TopBoardViewProps {
   /** Visible h1 and the ItemList name. */
   title: string;
   intro: ReactNode;
+  /** Pixel icon or flag shown beside the title. */
+  icon?: ReactNode;
   developers: TopDeveloper[];
-  others: { heading: string; links: Array<{ href: string; label: string }> };
+  others: {
+    heading: string;
+    links: Array<{ href: string; label: string; icon?: ReactNode }>;
+  };
   footer?: ReactNode;
 }
 
@@ -26,6 +31,7 @@ export default function TopBoardView({
   path,
   title,
   intro,
+  icon,
   developers,
   others,
   footer,
@@ -64,9 +70,12 @@ export default function TopBoardView({
         </Link>{" "}
         / <span className="text-[var(--accent)]">{crumb}</span>
       </nav>
-      <h1 className="mt-2 font-pixel text-[clamp(1.8rem,4.5vw,3rem)] uppercase leading-none text-[var(--foreground)]">
-        {title}
-      </h1>
+      <div className="mt-2 flex items-center gap-4">
+        {icon && <span className="shrink-0">{icon}</span>}
+        <h1 className="font-pixel text-[clamp(1.8rem,4.5vw,3rem)] uppercase leading-none text-[var(--foreground)]">
+          {title}
+        </h1>
+      </div>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">
         {intro}
       </p>
@@ -140,8 +149,9 @@ export default function TopBoardView({
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="block border-2 border-[var(--border)] px-3 py-1.5 text-sm text-[var(--card-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                className="group flex items-center gap-2 border-2 border-[var(--border)] px-3 py-1.5 text-sm text-[var(--card-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
               >
+                {link.icon}
                 {link.label}
               </Link>
             </li>

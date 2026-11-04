@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { LanguageIcon } from "@/components/pixel/TopIcons";
 import TopBoardView from "@/components/top/TopBoardView";
 import {
   TOP_LANGUAGES,
@@ -54,11 +55,16 @@ export default async function TopLanguagePage({
           they&apos;d rank on DevTrack, or challenge them to a duel.
         </>
       }
+      icon={<LanguageIcon slug={language.slug} scale={4} />}
       developers={developers}
       others={{
         heading: "Other languages",
         links: TOP_LANGUAGES.filter((l) => l.slug !== language.slug).map(
-          (l) => ({ href: `/top/${l.slug}`, label: l.name })
+          (l) => ({
+            href: `/top/${l.slug}`,
+            label: l.name,
+            icon: <LanguageIcon slug={l.slug} scale={2} />,
+          })
         ),
       }}
       footer={
