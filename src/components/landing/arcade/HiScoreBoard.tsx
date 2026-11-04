@@ -15,12 +15,15 @@ const PLACE_COLOR = ["#f2c14e", "#a9b4c4", "#d9955c"].map(
  * Stands in while the board loads: the same frame and row heights, so the
  * hero doesn't move when the scores arrive.
  */
-export function HiScoreBoardSkeleton() {
+/** Framed on its own; bare when it sits on the hero cabinet screen. */
+const boardClass = (bare: boolean) =>
+  bare
+    ? "p-4 sm:p-5"
+    : "px-frame px-frame-accent px-scanlines bg-[var(--card)] p-4 sm:p-6";
+
+export function HiScoreBoardSkeleton({ bare = false }: { bare?: boolean }) {
   return (
-    <div
-      aria-busy="true"
-      className="px-frame px-frame-accent px-scanlines bg-[var(--card)] p-4 sm:p-6"
-    >
+    <div aria-busy="true" className={boardClass(bare)}>
       <div className="flex items-baseline justify-between gap-3 border-b-4 border-dotted border-[var(--border)] pb-3">
         <h2 className="font-pixel text-lg uppercase tracking-[0.08em] text-[var(--card-foreground)]">
           Hi-scores
@@ -65,12 +68,14 @@ export function HiScoreBoardSkeleton() {
 export default function HiScoreBoard({
   leaders,
   playerCount,
+  bare = false,
 }: {
   leaders: LandingLeader[];
   playerCount: number;
+  bare?: boolean;
 }) {
   return (
-    <div className="px-frame px-frame-accent px-scanlines bg-[var(--card)] p-4 sm:p-6">
+    <div className={boardClass(bare)}>
       <div className="flex items-baseline justify-between gap-3 border-b-4 border-dotted border-[var(--border)] pb-3">
         <h2 className="font-pixel text-lg uppercase tracking-[0.08em] text-[var(--card-foreground)]">
           Hi-scores

@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Flame, Swords, UserRound } from "lucide-react";
 import TierBadge from "@/components/gamification/TierBadge";
@@ -11,7 +18,7 @@ import { normalizeGitHubUsername } from "@/lib/validate-github-username";
 import { TIER_STYLE } from "@/lib/gamification/tier-palette";
 import type { Tier } from "@/lib/gamification/scoring";
 import type { ScorePreview } from "@/lib/score-preview";
-import { spring } from "@/lib/motion";
+import ArcadeCabinet from "./ArcadeCabinet";
 
 type State =
   | { kind: "idle" }
@@ -29,11 +36,19 @@ const ERRORS: Record<string, string> = {
 
 const fmt = new Intl.NumberFormat("en-US");
 
+/** Switching what the cabinet screen shows: a quick CRT flick. */
+const crt = {
+  initial: { opacity: 0, scaleY: 0.03 },
+  animate: { opacity: 1, scaleY: 1 },
+  exit: { opacity: 0, scaleY: 0.03 },
+  transition: { duration: 0.18 },
+};
+
 /**
- * The hero's playable part. Type any GitHub username and the hi-score table
- * on the right flips into that player's arcade card: estimated rank, tier,
- * level and streak, with a nudge to claim it or start a duel. Nobody has to
- * sign up to get the payoff.
+ * The hero's playable part. Type any GitHub username and the arcade
+ * cabinet's screen switches from the hi-score table to that player's card:
+ * estimated rank, tier, level and streak, with a nudge to claim it or start a
+ * duel. Nobody has to sign up to get the payoff.
  */
 export default function HeroStage({
   intro,
@@ -49,6 +64,25 @@ export default function HeroStage({
   const inputId = useId();
   const hintId = useId();
   const request = useRef(0);
+  const [coins, setCoins] = useState(0);
+  const screenRef = useRef<HTMLDivElement>(null);
+
+  // On a phone the cabinet sits below the form: bring its screen into view
+  // when it starts showing the lookup.
+  const showing = state.kind === "loading" || state.kind === "result";
+  useEffect(() => {
+    const screen = screenRef.current;
+    if (!showing || !screen || window.innerWidth >= 1024) return;
+    const { top, bottom } = screen.getBoundingClientRect();
+    if (top >= 0 && bottom <= window.innerHeight) return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    screen.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "center",
+    });
+  }, [showing]);
 
   async function play(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,6 +92,7 @@ export default function HeroStage({
       return;
     }
     const id = ++request.current;
+    setCoins((c) => c + 1);
     setState({ kind: "loading", login });
     try {
       const res = await fetch(
@@ -142,40 +177,83 @@ export default function HeroStage({
       </div>
 
       <div className="min-w-0" aria-live="polite">
-        <AnimatePresence mode="wait" initial={false}>
-          {state.kind === "result" ? (
-            <ResultCard
-              key={`result-${state.preview.login}`}
-              preview={state.preview}
-              onReset={() => setState({ kind: "idle" })}
-            />
-          ) : state.kind === "loading" ? (
-            <Scanning key="loading" login={state.login} />
-          ) : (
-            <m.div
-              key="board"
-              initial={{ opacity: 0, rotateY: -90 }}
-              animate={{ opacity: 1, rotateY: 0 }}
-              exit={{ opacity: 0, rotateY: 90 }}
-              transition={{ duration: 0.25 }}
-            >
-              {board}
-            </m.div>
-          )}
-        </AnimatePresence>
+        <ArcadeCabinet
+          coins={coins}
+          busy={state.kind === "loading"}
+          glow={
+            state.kind === "error"
+              ? "#f87171"
+              : state.kind === "result" && state.preview.tier
+                ? TIER_STYLE[state.preview.tier as Tier].accent
+                : undefined
+          }
+          screenRef={screenRef}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {state.kind === "result" ? (
+              <ResultCard
+                key={`result-${state.preview.login}`}
+                preview={state.preview}
+                onReset={() => setState({ kind: "idle" })}
+              />
+            ) : state.kind === "loading" ? (
+              <Scanning key="loading" login={state.login} />
+            ) : state.kind === "error" ? (
+              <GameOver
+                key="error"
+                message={state.message}
+                onReset={() => setState({ kind: "idle" })}
+              />
+            ) : (
+              <m.div key="board" {...crt}>
+                {board}
+              </m.div>
+            )}
+          </AnimatePresence>
+        </ArcadeCabinet>
       </div>
     </div>
+  );
+}
+
+/** A lookup that went wrong, shown big on the cabinet screen. */
+function GameOver({
+  message,
+  onReset,
+}: {
+  message: string;
+  onReset: () => void;
+}) {
+  return (
+    <m.div
+      {...crt}
+      className="flex min-h-[22rem] flex-col items-center justify-center gap-4 p-8 text-center"
+    >
+      <p className="font-pixel text-3xl uppercase leading-none text-[#f87171] [text-shadow:3px_3px_0_rgba(248,113,113,0.25)] sm:text-4xl">
+        Game over
+      </p>
+      <p className="max-w-xs text-sm text-[var(--muted-foreground)]">
+        {message}
+      </p>
+      <p className="px-blink font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
+        Insert coin to try again
+      </p>
+      <button
+        type="button"
+        onClick={onReset}
+        className="inline-flex min-h-8 items-center font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)] hover:text-[var(--accent)]"
+      >
+        ◀ Back to hi-scores
+      </button>
+    </m.div>
   );
 }
 
 function Scanning({ login }: { login: string }) {
   return (
     <m.div
-      initial={{ opacity: 0, rotateY: -90 }}
-      animate={{ opacity: 1, rotateY: 0 }}
-      exit={{ opacity: 0, rotateY: 90 }}
-      transition={{ duration: 0.2 }}
-      className="px-frame px-frame-accent px-scanlines bg-[var(--card)] p-8 text-center"
+      {...crt}
+      className="flex min-h-[22rem] flex-col items-center justify-center p-8 text-center"
     >
       <p className="font-pixel text-sm uppercase tracking-[0.14em] text-[var(--card-foreground)]">
         Scanning @{login}
@@ -211,12 +289,8 @@ function ResultCard({
   return (
     <m.section
       aria-label={`@${preview.login}'s score`}
-      initial={{ opacity: 0, rotateY: -90, scale: 0.9 }}
-      animate={{ opacity: 1, rotateY: 0, scale: 1 }}
-      exit={{ opacity: 0, rotateY: 90 }}
-      transition={spring.bouncy}
-      className="px-frame px-scanlines bg-[var(--card)] p-5 sm:p-6"
-      style={{ ["--px-c" as string]: frame }}
+      {...crt}
+      className="p-5 sm:p-6"
     >
       <div className="flex items-center gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element -- GitHub avatar, sized by the URL */}

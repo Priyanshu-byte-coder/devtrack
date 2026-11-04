@@ -1875,3 +1875,699 @@ html.booted .boot-intro {
     bottom: calc(4.25rem + env(safe-area-inset-bottom));
   }
 }
+
+/* ─────────────────────────────────────────
+   HERO ARCADE CABINET (ArcadeCabinet.tsx)
+   Drawn like the DevTrack poster: seen from the front-left, so the right
+   side panel shows as a band, the control deck juts out with a sloped top
+   and the screen sits deep in a thick bezel. Every part is a chunky
+   outlined block with pixel-rounded corners, at its own width, which gives
+   the stepped silhouette. Navy in dark mode, white in light mode.
+   ───────────────────────────────────────── */
+.cabinet {
+  --u: 4px;
+  --side-w: 56px;
+  --round: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px),
+    0 8px,
+    4px 8px,
+    4px 4px,
+    8px 4px
+  );
+  /* Dark-mode machine. */
+  --ol: #4d8dff;
+  --body: #12285f;
+  --body-2: #0c1b45;
+  --side: #081431;
+  --side-2: #0d1e4a;
+  --sign: #0a1430;
+  --sign-text: #f5f7fb;
+  --sign-glow: rgba(107, 168, 255, 0.75);
+  --logo-bg: rgba(107, 168, 255, 0.2);
+  --logo: #6ba8ff;
+  --bezel: #050b1c;
+  --deck-top: #2c5fd0;
+  --deck-top-2: #1f4aae;
+  --deck-lip: #163276;
+  --low: #11265a;
+  --low-2: #0b1a42;
+  --vent: #06102a;
+  --door: #0b1736;
+  --floor-line: rgba(77, 141, 255, 0.45);
+  --floor-glow: rgba(77, 141, 255, 0.5);
+  --bevel: rgba(255, 255, 255, 0.12);
+  --shade: rgba(0, 0, 0, 0.22);
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 30rem;
+  flex-direction: column;
+  margin-inline: auto;
+  padding-right: var(--side-w);
+  padding-bottom: 18px;
+}
+
+/* Light-mode machine: white body, blue outline, dark bezel. */
+html:not(.dark) .cabinet {
+  --ol: #2563eb;
+  --body: #ffffff;
+  --body-2: #f1f5fc;
+  --side: #d6e1f4;
+  --side-2: #e6edf9;
+  --sign: #ffffff;
+  --sign-text: #0f172a;
+  --sign-glow: transparent;
+  --logo-bg: #dbe6fb;
+  --logo: #2563eb;
+  --bezel: #13265a;
+  --deck-top: #ffffff;
+  --deck-top-2: #eef3fb;
+  --deck-lip: #dbe4f4;
+  --low: #f7f9fd;
+  --low-2: #eaf0fa;
+  --vent: #13265a;
+  --door: #e6edf9;
+  --floor-line: rgba(37, 99, 235, 0.28);
+  --floor-glow: rgba(37, 99, 235, 0.14);
+  --bevel: rgba(255, 255, 255, 0.9);
+  --shade: rgba(37, 99, 235, 0.1);
+}
+
+/* A front part: the outline is the part's own background, and a fill sits
+   one pixel-unit inside it, both clipped to the same rounded shape. */
+.cab-part {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  background: var(--ol);
+  clip-path: var(--round);
+}
+
+.cab-part::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  z-index: -1;
+  background: linear-gradient(180deg, var(--body), var(--body-2));
+  clip-path: var(--round);
+  /* A lit bevel along the top and left, a shaded one along the right. */
+  box-shadow:
+    inset 0 4px 0 0 var(--bevel),
+    inset 4px 0 0 0 var(--bevel),
+    inset -4px 0 0 0 var(--shade);
+}
+
+/* The right side panel, behind the fronts: it shows wherever a front part
+   sits further back, and carries two racing stripes. */
+.cab-side {
+  position: absolute;
+  top: 26px;
+  right: 0;
+  bottom: 14px;
+  z-index: 0;
+  width: calc(var(--side-w) + 48px);
+  background: var(--ol);
+  clip-path: var(--round);
+}
+
+.cab-side::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  background: linear-gradient(90deg, var(--side-2), var(--side));
+  clip-path: var(--round);
+  box-shadow: inset 0 4px 0 0 var(--bevel);
+}
+
+.cab-side__stripes {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 34px;
+  height: 150px;
+}
+
+.cab-side__stripes::before,
+.cab-side__stripes::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 70px;
+  clip-path: polygon(0 48%, 100% 0, 100% 42%, 0 90%);
+}
+
+.cab-side__stripes::before {
+  top: 0;
+  background: #facc15;
+}
+
+.cab-side__stripes::after {
+  top: 54px;
+  background: #22c55e;
+}
+
+/* Marquee housing with the lit sign. */
+.cab-head {
+  padding: 18px 18px 16px;
+}
+
+.cab-sign {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  background: var(--ol);
+  clip-path: var(--round);
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: clamp(1.05rem, 3.4vw, 1.5rem);
+  letter-spacing: 0.3em;
+  color: var(--sign-text);
+  text-shadow: 0 0 10px var(--sign-glow);
+}
+
+.cab-sign::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  z-index: -1;
+  background: var(--sign);
+  clip-path: var(--round);
+}
+
+.cab-sign__logo {
+  display: inline-flex;
+  width: 2.2rem;
+  height: 2.2rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--logo-bg);
+  color: var(--logo);
+  font-size: 1.1rem;
+  letter-spacing: 0;
+  text-shadow: none;
+}
+
+/* Screen section: the cabinet narrows here, and the screen sits deep in a
+   thick rounded bezel. */
+.cab-mid {
+  margin: calc(-1 * var(--u)) 6px 0 12px;
+  padding: 16px 16px 20px;
+}
+
+.cab-bezel {
+  position: relative;
+  padding: 10px;
+  background: var(--bezel);
+  clip-path: var(--round);
+}
+
+.cabinet-screen {
+  --screen-glow: #6ba8ff;
+  position: relative;
+  isolation: isolate;
+  min-height: 22rem;
+  overflow: hidden;
+  clip-path: var(--round);
+  color: var(--card-foreground);
+  background: #ffffff;
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--screen-glow) 60%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--screen-glow) 22%, transparent);
+  transition: box-shadow 0.3s ease-out;
+}
+
+/* In dark mode the screen is a dark CRT. */
+html.dark .cabinet-screen {
+  --background: #070d1c;
+  --card: #070d1c;
+  --card-foreground: #f5f7fb;
+  --foreground: #f5f7fb;
+  --muted-foreground: #94a3b8;
+  --border: #1e2b40;
+  --control: #111c33;
+  --accent: #6ba8ff;
+  --accent-foreground: #05070f;
+  background: radial-gradient(120% 90% at 50% 40%, #0b1630, #050a16);
+}
+
+/* CRT scanlines over everything on the screen. */
+.cabinet-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.035) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+html.dark .cabinet-screen::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.035) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* The control deck juts out to the left: a sloped top surface, lit, over a
+   darker front lip. The joystick and buttons stand on the slope, so they
+   live outside the clipped shapes. */
+.cab-deck {
+  position: relative;
+  z-index: 2;
+  height: 74px;
+  margin: calc(-1 * var(--u)) 20px 0 -14px;
+}
+
+.cab-deck__top,
+.cab-deck__lip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--ol);
+}
+
+.cab-deck__top {
+  top: 0;
+  height: 40px;
+  clip-path: polygon(20px 0, calc(100% - 10px) 0, 100% 100%, 0 100%);
+}
+
+.cab-deck__top::before {
+  content: "";
+  position: absolute;
+  inset: var(--u) var(--u) 0;
+  background: linear-gradient(180deg, var(--deck-top-2), var(--deck-top));
+  clip-path: polygon(18px 0, calc(100% - 9px) 0, 100% 100%, 0 100%);
+}
+
+.cab-deck__lip {
+  top: 40px;
+  bottom: 0;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
+}
+
+.cab-deck__lip::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  background: var(--deck-lip);
+}
+
+.cab-stick {
+  position: absolute;
+  left: 22%;
+  bottom: 40px;
+  display: block;
+  width: 38px;
+  height: 58px;
+  transform-origin: 50% 100%;
+}
+
+/* Base plate and shaft. */
+.cab-stick::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 38px;
+  height: 10px;
+  background: #0b1430;
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% 100%,
+    0 100%,
+    0 4px
+  );
+}
+
+.cab-stick::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  bottom: 8px;
+  width: 10px;
+  height: 24px;
+  background: #1b2a52;
+}
+
+.cab-stick__ball {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  z-index: 1;
+  width: 34px;
+  height: 30px;
+  background: #facc15;
+  box-shadow:
+    inset -4px -4px 0 0 #c98a14,
+    inset 4px 4px 0 0 #fff2a8;
+  clip-path: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px),
+    0 8px,
+    4px 8px,
+    4px 4px,
+    8px 4px
+  );
+}
+
+.cab-buttons {
+  position: absolute;
+  right: 12%;
+  top: 12px;
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* Attract mode: the buttons light up one after another. */
+.cab-button {
+  width: 34px;
+  height: 20px;
+  background: var(--btn);
+  box-shadow:
+    inset 0 -5px 0 0 rgba(0, 0, 0, 0.32),
+    inset 0 4px 0 0 rgba(255, 255, 255, 0.4);
+  clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px),
+    0 6px
+  );
+  filter: brightness(0.8);
+  animation: cabinet-attract 2.4s steps(1, end) infinite;
+}
+
+.cab-button:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+.cab-button:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+.cabinet[data-busy] .cab-stick {
+  animation: cabinet-wiggle 0.36s steps(2, end) infinite alternate;
+}
+
+/* Lower cabinet: set back again, with a coin door between two vents. */
+.cab-low {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  margin: calc(-1 * var(--u)) 30px 0 14px;
+  padding: 26px 0 24px;
+}
+
+.cab-low::before {
+  background: linear-gradient(180deg, var(--low-2), var(--low));
+}
+
+.cab-vent {
+  width: 3.4rem;
+  height: 30px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--vent) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.cab-door {
+  position: relative;
+  isolation: isolate;
+  width: 76px;
+  height: 68px;
+  background: var(--ol);
+  clip-path: var(--round);
+}
+
+.cab-door::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  z-index: -1;
+  background: var(--door);
+  clip-path: var(--round);
+}
+
+.cab-door__slot {
+  position: absolute;
+  right: 20px;
+  top: 14px;
+  width: 12px;
+  height: 30px;
+  background: #facc15;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.65);
+}
+
+.cab-door__key {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  width: 7px;
+  height: 7px;
+  background: var(--vent);
+}
+
+/* Each Play drops a coin into the slot. */
+.cab-coin {
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  background: #facc15;
+  box-shadow:
+    inset -3px -3px 0 0 #c98a14,
+    inset 3px 3px 0 0 #fff2a8;
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 4px
+  );
+  animation: cabinet-coin 0.6s steps(6, end) forwards;
+}
+
+/* A grid floor in perspective, lit under the machine. */
+.cab-floor {
+  position: absolute;
+  left: -40%;
+  right: -20%;
+  bottom: -14px;
+  z-index: 0;
+  height: 96px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--floor-line) 2px, transparent 2px),
+    linear-gradient(90deg, var(--floor-line) 2px, transparent 2px);
+  background-size: 40px 24px;
+  transform: perspective(260px) rotateX(52deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: radial-gradient(
+    ellipse at 50% 90%,
+    #000 25%,
+    transparent 70%
+  );
+  mask-image: radial-gradient(ellipse at 50% 90%, #000 25%, transparent 70%);
+}
+
+.cab-floor::after {
+  content: "";
+  position: absolute;
+  inset: 0 25%;
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    var(--floor-glow),
+    transparent 70%
+  );
+}
+
+/* Bit hangs out by the machine where there is room. */
+.cabinet-bit {
+  position: absolute;
+  left: -76px;
+  bottom: 6px;
+  z-index: 3;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .cabinet-bit {
+    display: block;
+  }
+}
+
+/* Phones: a narrower side panel and tighter parts, so the screen keeps
+   its width. */
+@media (max-width: 639px) {
+  .cabinet {
+    --side-w: 32px;
+  }
+
+  .cab-head {
+    padding: 14px 14px 12px;
+  }
+
+  .cab-mid {
+    margin-left: 8px;
+    margin-right: 4px;
+    padding: 12px 12px 16px;
+  }
+
+  .cab-bezel {
+    padding: 7px;
+  }
+
+  .cab-deck {
+    margin-left: -8px;
+    margin-right: 12px;
+  }
+
+  .cab-low {
+    margin-left: 10px;
+    margin-right: 18px;
+    gap: 1rem;
+  }
+
+  .cab-vent {
+    width: 2.6rem;
+  }
+
+  .cab-side__stripes {
+    right: 4px;
+    width: 20px;
+    height: 110px;
+  }
+
+  .cab-side__stripes::before,
+  .cab-side__stripes::after {
+    height: 50px;
+  }
+
+  .cab-side__stripes::after {
+    top: 40px;
+  }
+
+  .cab-button {
+    width: 28px;
+    height: 18px;
+  }
+}
+
+@keyframes cabinet-attract {
+  0%,
+  33% {
+    filter: brightness(1.3);
+  }
+
+  34%,
+  100% {
+    filter: brightness(0.8);
+  }
+}
+
+@keyframes cabinet-wiggle {
+  from {
+    transform: rotate(-12deg);
+  }
+
+  to {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes cabinet-coin {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  70% {
+    transform: translateY(46px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(52px) scaleX(0.3);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cab-button,
+  .cabinet[data-busy] .cab-stick,
+  .cab-coin {
+    animation: none;
+  }
+
+  .cab-button {
+    filter: none;
+  }
+
+  .cab-coin {
+    display: none;
+  }
+}
