@@ -340,7 +340,7 @@ export default function ResumePreview({
                             <span className="text-[10px] font-bold text-[var(--accent)] uppercase">
                               {bullet.repository || "general contribution"}
                             </span>
-                            <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-mono border border-emerald-500/20">
+                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-mono border border-emerald-500/20">
                               {bullet.confidence}% AI confidence
                             </span>
                           </div>
@@ -355,7 +355,7 @@ export default function ResumePreview({
                         {bullet.technologies.map((tech) => (
                           <span
                             key={tech}
-                            className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)]"
+                            className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)]"
                           >
                             {tech}
                           </span>
@@ -508,7 +508,7 @@ export default function ResumePreview({
                         {proj.technologies.map((tech) => (
                           <span
                             key={tech}
-                            className="text-[9px] font-mono px-2 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)]"
+                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)]"
                           >
                             {tech}
                           </span>

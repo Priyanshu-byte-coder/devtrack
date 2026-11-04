@@ -75,7 +75,8 @@ export default function Hero({ board }: { board: Promise<LandingBoard> }) {
                 >
                   ▶ Press start
                 </p>
-                <div className="-m-1 flex flex-wrap items-center gap-2">
+                {/* Stacked, full-width buttons on phones: an easy thumb target. */}
+                <div className="-m-1 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                   <a href={SIGN_IN_HREF} className="px-btn">
                     <Github className="h-4 w-4" aria-hidden="true" />
                     Sign in with GitHub

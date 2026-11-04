@@ -551,7 +551,12 @@ export default async function LeaderboardPage({
       </header>
 
       <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
-        <nav aria-label="Ranking" className={arcadeTabGroupClass}>
+        <nav
+          aria-label="Ranking"
+          // One row on phones: it scrolls sideways rather than wrapping "PRs"
+          // onto a line of its own.
+          className={`${arcadeTabGroupClass} swipe-row max-sm:-mx-1 max-sm:w-[calc(100%+0.5rem)] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-1`}
+        >
           {tabs.map((tab) => {
             const active = tab.id === activeTab;
             return (

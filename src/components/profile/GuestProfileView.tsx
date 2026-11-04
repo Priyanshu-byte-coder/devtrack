@@ -164,7 +164,7 @@ export default function GuestProfileView({
       >
         {stats.map((stat) => (
           <div key={stat.label} className="px-frame bg-[var(--card)] p-4">
-            <div className="font-pixel text-[9px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+            <div className="font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
               {stat.label}
             </div>
             <div className="mt-1 font-pixel text-2xl tabular-nums text-[var(--card-foreground)]">

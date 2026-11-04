@@ -1,3 +1,4 @@
+import SwipeDots from "@/components/ui/SwipeDots";
 import { LogIn, TrendingUp, Trophy } from "lucide-react";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { PixelGem } from "@/components/gamification/TierBadge";
@@ -46,16 +47,18 @@ export function HowToPlay() {
         win: a streak to protect, XP to bank and a rank to defend.
       </SectionHeading>
 
+      {/* Phones swipe through the steps; wider screens see all three. */}
       <RevealGroup
         as="ol"
-        className="mt-12 grid gap-6 md:grid-cols-3"
+        id="how-steps"
+        className="swipe-row -mx-4 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 py-2 md:mx-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0 md:py-0"
         stagger={0.1}
       >
         {STEPS.map((step, i) => (
           <RevealItem
             as="li"
             key={step.label}
-            className="px-frame bg-[var(--card)] p-6"
+            className="px-frame w-[80%] shrink-0 snap-center bg-[var(--card)] p-6 md:w-auto"
           >
             <div className="flex items-center justify-between">
               <span className="font-pixel text-xs uppercase tracking-[0.16em] text-[var(--accent)]">
@@ -81,6 +84,7 @@ export function HowToPlay() {
           </RevealItem>
         ))}
       </RevealGroup>
+      <SwipeDots targetId="how-steps" count={STEPS.length} label="Steps" />
     </section>
   );
 }

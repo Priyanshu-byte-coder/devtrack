@@ -87,7 +87,7 @@ export default function ContributionAnalysisPanel({
     return (
       <span
         className={cn(
-          "text-[9px] px-1.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider",
+          "text-[10px] px-1.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider",
           styles[confidence]
         )}
       >

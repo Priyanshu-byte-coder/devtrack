@@ -36,7 +36,7 @@ export default function RankMovementBadge({
         <span
           title={`New on the board${when}`}
           aria-label="New on the board"
-          className="font-mono text-[9px] font-bold uppercase leading-none tracking-wide text-[var(--accent)]"
+          className="font-mono text-[10px] font-bold uppercase leading-none tracking-wide text-[var(--accent)]"
         >
           New
         </span>

@@ -19,7 +19,7 @@ export default function SponsorSlot({
         className={`px-frame flex flex-wrap items-center justify-between gap-3 bg-[var(--card)] px-4 py-3 ${className}`}
       >
         <div className="min-w-0">
-          <p className="font-pixel text-[9px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+          <p className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
             Sponsored
           </p>
           <p className="mt-1 truncate text-sm text-[var(--card-foreground)]">
@@ -44,7 +44,7 @@ export default function SponsorSlot({
       className={`flex flex-wrap items-center justify-between gap-3 border-2 border-dashed border-[var(--border)] px-4 py-3 ${className}`}
     >
       <div className="min-w-0">
-        <p className="font-pixel text-[9px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+        <p className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
           Sponsor slot open
         </p>
         <p className="mt-1 text-sm text-[var(--card-foreground)]">

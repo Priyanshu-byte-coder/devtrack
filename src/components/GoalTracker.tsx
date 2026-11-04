@@ -500,7 +500,7 @@ export default function GoalTracker() {
         <div>
           <p
             aria-hidden="true"
-            className="font-pixel text-[9px] uppercase tracking-[0.16em] text-[var(--accent)]"
+            className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]"
           >
             Quest log
           </p>
@@ -718,7 +718,7 @@ export default function GoalTracker() {
                         </div>
                         {completed ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500">
-                            <span className="bg-emerald-500/15 px-1.5 py-0.5 font-pixel text-[9px] uppercase tracking-[0.12em]">
+                            <span className="bg-emerald-500/15 px-1.5 py-0.5 font-pixel text-[10px] uppercase tracking-[0.12em]">
                               ★ Quest complete
                             </span>
                             {completionLabel}

@@ -543,7 +543,7 @@ function MiniStat({
         className="absolute inset-x-0 top-0 h-1"
         style={{ background: color }}
       />
-      <p className="font-pixel text-[9px] uppercase tracking-[0.18em] text-slate-400">
+      <p className="font-pixel text-[10px] uppercase tracking-[0.18em] text-slate-400">
         {label}
       </p>
       <p className="mt-2 break-words font-pixel text-xl text-white">{value}</p>

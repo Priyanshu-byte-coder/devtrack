@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
-import { Github, Linkedin, Mail, ExternalLink } from "lucide-react";
+import { useId, useState } from "react";
+import {
+  ChevronDown,
+  Github,
+  Linkedin,
+  Mail,
+  ExternalLink,
+} from "lucide-react";
 
 const year = new Date().getFullYear();
 
@@ -79,7 +86,7 @@ function FooterLink({
   onClick?: () => void;
 }) {
   const baseClass =
-    "group relative w-fit text-[14px] text-[var(--muted-foreground)] transition-colors duration-200 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 text-left";
+    "group relative w-fit text-[14px] text-[var(--muted-foreground)] max-sm:w-full max-sm:py-2.5 transition-colors duration-200 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 text-left";
 
   const underline = (
     <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--accent)] transition-all duration-300 group-hover:w-full" />
@@ -116,6 +123,51 @@ function FooterLink({
   );
 }
 
+const heading =
+  "font-pixel text-[11px] uppercase tracking-[0.16em] text-[var(--foreground)]";
+
+/**
+ * One column of footer links. On phones it folds behind a tappable heading,
+ * so the footer is a few rows instead of two screens of links.
+ */
+function FooterGroup({
+  title,
+  label,
+  children,
+}: {
+  title: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const id = useId();
+  return (
+    <div className="border-b-2 border-dashed border-[var(--border)] sm:border-0">
+      <h3 className={`${heading} hidden sm:block`}>{title}</h3>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls={id}
+        className="flex min-h-12 w-full items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:hidden"
+      >
+        <span className={heading}>{title}</span>
+        <ChevronDown
+          aria-hidden="true"
+          className={`h-4 w-4 text-[var(--muted-foreground)] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <nav
+        id={id}
+        aria-label={label}
+        className={`${open ? "flex" : "hidden"} flex-col pb-3 sm:mt-6 sm:flex sm:gap-3 sm:pb-0`}
+      >
+        {children}
+      </nav>
+    </div>
+  );
+}
+
 export default function Footer() {
   const pathname = usePathname();
   const isLanding = pathname === "/";
@@ -123,9 +175,6 @@ export default function Footer() {
   const isAuthenticated = status === "authenticated";
 
   if (pathname === "/wrapped" || pathname.startsWith("/dashboard")) return null;
-
-  const heading =
-    "font-pixel text-[11px] uppercase tracking-[0.16em] text-[var(--foreground)]";
 
   return (
     <footer
@@ -145,9 +194,9 @@ export default function Footer() {
       </div>
 
       <div className="relative mx-auto w-full max-w-7xl px-6 py-12 sm:px-8 lg:px-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1fr]">
+        <div className="grid sm:grid-cols-2 sm:gap-10 lg:grid-cols-[1.8fr_1fr_1fr_1fr]">
           {/* Brand column */}
-          <div>
+          <div className="mb-6 sm:mb-0">
             <p className="font-pixel text-[10px] uppercase tracking-[0.18em] text-[var(--accent)]">
               Open source · MIT licensed
             </p>
@@ -177,62 +226,47 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <h3 className={heading}>Play</h3>
-            <nav
-              aria-label="Product links"
-              className="mt-6 flex flex-col gap-3"
-            >
-              {PRODUCT_LINKS.map(({ label, href }) => {
-                if (label === "Dashboard" && !isAuthenticated) {
-                  return (
-                    <FooterLink
-                      key={label}
-                      onClick={() =>
-                        signIn("github", { callbackUrl: "/dashboard" })
-                      }
-                    >
-                      {label}
-                    </FooterLink>
-                  );
-                }
+          <FooterGroup title="Play" label="Product links">
+            {PRODUCT_LINKS.map(({ label, href }) => {
+              if (label === "Dashboard" && !isAuthenticated) {
                 return (
-                  <FooterLink key={label} href={href}>
+                  <FooterLink
+                    key={label}
+                    onClick={() =>
+                      signIn("github", { callbackUrl: "/dashboard" })
+                    }
+                  >
                     {label}
                   </FooterLink>
                 );
-              })}
-            </nav>
-          </div>
-
-          <div>
-            <h3 className={heading}>Community</h3>
-            <nav
-              aria-label="Community links"
-              className="mt-6 flex flex-col gap-3"
-            >
-              {COMMUNITY_LINKS.map(({ label, href }) => (
-                <FooterLink
-                  key={label}
-                  href={href}
-                  external={href.startsWith("http")}
-                >
-                  {label}
-                </FooterLink>
-              ))}
-            </nav>
-          </div>
-
-          <div>
-            <h3 className={heading}>Legal</h3>
-            <nav aria-label="Legal links" className="mt-6 flex flex-col gap-3">
-              {LEGAL_LINKS.map(({ label, href }) => (
+              }
+              return (
                 <FooterLink key={label} href={href}>
                   {label}
                 </FooterLink>
-              ))}
-            </nav>
-          </div>
+              );
+            })}
+          </FooterGroup>
+
+          <FooterGroup title="Community" label="Community links">
+            {COMMUNITY_LINKS.map(({ label, href }) => (
+              <FooterLink
+                key={label}
+                href={href}
+                external={href.startsWith("http")}
+              >
+                {label}
+              </FooterLink>
+            ))}
+          </FooterGroup>
+
+          <FooterGroup title="Legal" label="Legal links">
+            {LEGAL_LINKS.map(({ label, href }) => (
+              <FooterLink key={label} href={href}>
+                {label}
+              </FooterLink>
+            ))}
+          </FooterGroup>
         </div>
 
         <div className="mt-12 border-t-4 border-dotted border-[var(--border)]" />

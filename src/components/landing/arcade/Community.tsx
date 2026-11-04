@@ -216,7 +216,7 @@ export function Faq() {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="group flex items-center gap-2 text-[var(--accent)] hover:underline"
+                    className="group flex min-h-8 items-center gap-2 text-[var(--accent)] hover:underline"
                   >
                     <span
                       aria-hidden="true"
@@ -231,7 +231,7 @@ export function Faq() {
             </ul>
             <Link
               href="/guides"
-              className="mt-4 inline-block font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)] hover:text-[var(--accent)]"
+              className="mt-2 inline-flex min-h-10 items-center font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)] hover:text-[var(--accent)]"
             >
               All guides →
             </Link>

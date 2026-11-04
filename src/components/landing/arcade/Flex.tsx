@@ -1,3 +1,4 @@
+import SwipeDots from "@/components/ui/SwipeDots";
 import {
   Activity,
   BarChart3,
@@ -212,9 +213,11 @@ export function PowerUps() {
           </span>
         </div>
 
+        {/* Phones swipe through the power-ups like an item carousel. */}
         <RevealGroup
           as="ul"
-          className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          id="power-ups"
+          className="swipe-row -mx-4 mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 py-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:py-0 lg:grid-cols-3"
           stagger={0.05}
         >
           {POWER_UPS.map((item, index) => {
@@ -233,7 +236,7 @@ export function PowerUps() {
                       {item.title}
                       {item.href && <span aria-hidden="true"> →</span>}
                     </span>
-                    <span className="pu-effect font-pixel text-[9px] uppercase tracking-[0.12em]">
+                    <span className="pu-effect font-pixel text-[10px] uppercase tracking-[0.12em]">
                       {item.effect}
                     </span>
                   </span>
@@ -245,7 +248,11 @@ export function PowerUps() {
             );
             const cls = `pu-card ${item.accent} flex h-full gap-4 bg-[var(--background)] p-5`;
             return (
-              <RevealItem as="li" key={item.title}>
+              <RevealItem
+                as="li"
+                key={item.title}
+                className="w-[82%] shrink-0 snap-center sm:w-auto"
+              >
                 {item.href ? (
                   <Link
                     href={item.href}
@@ -260,6 +267,12 @@ export function PowerUps() {
             );
           })}
         </RevealGroup>
+        <SwipeDots
+          targetId="power-ups"
+          count={POWER_UPS.length}
+          label="Power-ups"
+          className="sm:hidden"
+        />
       </div>
     </section>
   );

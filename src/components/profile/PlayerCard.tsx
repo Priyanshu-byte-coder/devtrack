@@ -90,7 +90,7 @@ export default function PlayerCard({
               key={stat.label}
               className="min-w-[5.5rem] bg-[var(--background)] px-3 py-3 text-center"
             >
-              <dt className="font-pixel text-[9px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+              <dt className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
                 {stat.label}
               </dt>
               <dd className="mt-1 font-pixel text-xl tabular-nums text-[var(--card-foreground)] sm:text-2xl">

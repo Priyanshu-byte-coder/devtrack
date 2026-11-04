@@ -52,7 +52,7 @@ export function HiScoreBoardSkeleton() {
         <span className="text-[var(--muted-foreground)]">Loading players…</span>
         <Link
           href="/leaderboard"
-          className="text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none"
+          className="-my-2 inline-flex min-h-8 items-center py-2 text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none"
         >
           Full board →
         </Link>
@@ -148,7 +148,7 @@ export default function HiScoreBoard({
         </span>
         <Link
           href="/leaderboard"
-          className="text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none"
+          className="-my-2 inline-flex min-h-8 items-center py-2 text-[var(--accent)] hover:underline focus-visible:underline focus-visible:outline-none"
         >
           Full board →
         </Link>

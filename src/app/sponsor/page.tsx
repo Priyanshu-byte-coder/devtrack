@@ -124,7 +124,7 @@ export default async function SponsorPage() {
             { label: "Good first issues", value: stats.goodFirstIssues },
           ].map((s) => (
             <div key={s.label} className="bg-[var(--background)] p-4">
-              <dt className="font-pixel text-[9px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+              <dt className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
                 {s.label}
               </dt>
               <dd className="mt-1 font-pixel text-2xl tabular-nums">
