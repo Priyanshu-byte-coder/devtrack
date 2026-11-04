@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
+import { CountryFlag, LanguageIcon } from "@/components/pixel/TopIcons";
 import { TOP_COUNTRIES, TOP_LANGUAGES } from "@/lib/top-developers";
 
 export const metadata: Metadata = {
@@ -43,12 +44,21 @@ export default function TopDevelopersHub() {
           <RevealItem as="li" key={language.slug} className="min-w-0">
             <Link
               href={`/top/${language.slug}`}
-              className="px-frame flex items-center justify-between gap-2 bg-[var(--card)] px-4 py-4 transition-colors hover:bg-[var(--control)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="group px-frame flex flex-col items-center gap-2 bg-[var(--card)] px-3 py-3 text-center sm:flex-row sm:gap-3 sm:px-4 sm:text-left transition-colors hover:bg-[var(--control)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
-              <span className="truncate font-pixel text-sm uppercase text-[var(--card-foreground)]">
+              <span className="flex h-10 w-11 shrink-0 items-center justify-center">
+                <LanguageIcon
+                  slug={language.slug}
+                  className="transition-transform duration-150 motion-safe:group-hover:-translate-y-1"
+                />
+              </span>
+              <span className="w-full min-w-0 flex-1 truncate font-pixel text-sm uppercase text-[var(--card-foreground)]">
                 {language.name}
               </span>
-              <span aria-hidden="true" className="text-[var(--accent)]">
+              <span
+                aria-hidden="true"
+                className="hidden text-[var(--accent)] sm:inline"
+              >
                 →
               </span>
             </Link>
@@ -59,18 +69,34 @@ export default function TopDevelopersHub() {
       <h2 className="mt-12 font-pixel text-sm uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
         By country
       </h2>
-      <ul className="mt-4 flex flex-wrap gap-2">
+      <RevealGroup
+        as="ul"
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+        stagger={0.03}
+      >
         {TOP_COUNTRIES.map((country) => (
-          <li key={country.slug}>
+          <RevealItem as="li" key={country.slug} className="min-w-0">
             <Link
               href={`/top/country/${country.slug}`}
-              className="block border-2 border-[var(--border)] px-3 py-1.5 text-sm text-[var(--card-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              className="group px-frame flex flex-col items-center gap-2 bg-[var(--card)] px-3 py-3 text-center sm:flex-row sm:gap-3 sm:px-4 sm:text-left transition-colors hover:bg-[var(--control)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
-              {country.name.replace(/^the /, "")}
+              <CountryFlag
+                slug={country.slug}
+                className="shrink-0 transition-transform duration-150 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:-rotate-3"
+              />
+              <span className="w-full min-w-0 flex-1 truncate text-sm font-semibold text-[var(--card-foreground)]">
+                {country.name.replace(/^the /, "")}
+              </span>
+              <span
+                aria-hidden="true"
+                className="hidden text-[var(--accent)] sm:inline"
+              >
+                →
+              </span>
             </Link>
-          </li>
+          </RevealItem>
         ))}
-      </ul>
+      </RevealGroup>
     </div>
   );
 }
