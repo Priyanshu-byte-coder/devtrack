@@ -518,11 +518,17 @@ const lastGoodKey = (login: string, period: LeaderboardPeriod) =>
 
 type SavedStats = { stats: UserStats; savedAt: number };
 
-/** Entries saved before savedAt existed are plain stats: usable, but stale. */
+/**
+ * Entries written before savedAt existed are plain stats. All of them were
+ * saved after that version went live, so dating them from then spreads their
+ * refreshes out instead of making every player due at once after this deploy.
+ */
+const PLAIN_STATS_SAVED_AT = Date.parse("2026-11-05T14:20:00Z");
+
 function readSaved(value: unknown): SavedStats | null {
   if (!value || typeof value !== "object") return null;
   if ("stats" in value && "savedAt" in value) return value as SavedStats;
-  return { stats: value as UserStats, savedAt: 0 };
+  return { stats: value as UserStats, savedAt: PLAIN_STATS_SAVED_AT };
 }
 
 /**
