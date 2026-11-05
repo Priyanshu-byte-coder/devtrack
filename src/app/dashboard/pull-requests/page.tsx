@@ -3,9 +3,7 @@ import PageHeader, { SectionTitle } from "@/components/shell/PageHeader";
 import {
   CIAnalytics,
   IssueMetrics,
-  PRBreakdown,
   PRMetrics,
-  PRReviewTrend,
 } from "@/components/dashboard/widgets";
 
 export const metadata: Metadata = { title: "Pull requests" };
@@ -15,16 +13,10 @@ export default function PullRequestsPage() {
     <>
       <PageHeader
         title="Pull requests"
-        description="Throughput, review speed and what your PRs are made of."
+        description="What you shipped, how fast it merged, what's still waiting and the reviews you gave."
       />
 
       <PRMetrics />
-
-      <SectionTitle>Breakdown &amp; reviews</SectionTitle>
-      <div className="grid gap-4 xl:grid-cols-2">
-        <PRBreakdown />
-        <PRReviewTrend />
-      </div>
 
       <SectionTitle>Issues &amp; CI</SectionTitle>
       <div className="grid gap-4 xl:grid-cols-2">

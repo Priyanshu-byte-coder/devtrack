@@ -29,11 +29,22 @@ export default function IssueMetrics() {
         : "/api/metrics/issues";
 
     fetch(url)
-      .then((r) => r.json())
-      .then((data: IssueData) => setMetrics(data))
-      .catch(() =>
+      .then(async (r) => {
+        // A rate-limited or failed response is JSON too; rendering it showed
+        // "undefined" and "NaN fewer than last month".
+        if (r.status === 429)
+          throw new Error(
+            "GitHub is rate limiting your account right now. Try again in a few minutes."
+          );
+        const data = (await r.json()) as Partial<IssueData>;
+        if (!r.ok || typeof data.opened !== "number") throw new Error();
+        return data as IssueData;
+      })
+      .then((data) => setMetrics(data))
+      .catch((e: Error) =>
         setError(
-          "We couldn't load your Issues analytics right now. Please try again in a moment."
+          e.message ||
+            "We couldn't load your Issues analytics right now. Please try again in a moment."
         )
       )
       .finally(() => setLoading(false));
@@ -54,14 +65,14 @@ export default function IssueMetrics() {
         },
         {
           label: "Avg close time",
-          value: `${metrics.avgCloseTimeDays}d`,
+          value: `${metrics.avgCloseTimeDays ?? 0}d`,
           color: "#c77dff",
         },
       ]
     : [];
 
   const trendLabel =
-    metrics && metrics.trend !== 0
+    metrics && Number.isFinite(metrics.trend) && metrics.trend !== 0
       ? metrics.trend > 0
         ? `↑ ${metrics.trend} more than last month`
         : `↓ ${Math.abs(metrics.trend)} fewer than last month`

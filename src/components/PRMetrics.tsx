@@ -1,236 +1,240 @@
 "use client";
 
-import { metricCount, metricWithUnit } from "@/lib/format-metric";
-import SectionHeader from "./SectionHeader";
-
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import {
+  ExternalLink,
+  GitMerge,
+  GitPullRequest,
+  RefreshCw,
+} from "lucide-react";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useAccount } from "@/components/AccountContext";
-import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
 import { SkeletonBlock } from "./WidgetSkeleton";
 import { safeExternalHref } from "@/lib/safe-url";
-import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
+import {
+  arcadeTabClass,
+  arcadeTabGroupClass,
+  hudLabelClass,
+} from "@/components/ui/arcade";
+import type { PullRequestRange, PullRequestSummary } from "@/lib/pull-requests";
 
-interface PRMetricsSummary {
-  open: number;
-  merged: number;
-  closed: number;
-  total: number;
-  totalAdditions?: number;
-  totalDeletions?: number;
-  avgReviewHours: number;
-  avgFirstReviewHours: number | null;
-  mergeRate: string;
-  avgCycleTime?: number;
-  weeklyTrend?: { week: string; avgHours: number }[];
-  slowestRepos?: { repo: string; avgHours: number }[];
-}
+const OPENED = "#6ba8ff";
+const MERGED = "#34d399";
+const CLOSED = "#94a3b8";
+const STALE = "#fb923c";
+const REVIEW_COLORS = {
+  approved: "#34d399",
+  changesRequested: "#fb923c",
+  commented: "#c77dff",
+};
 
-interface PRData extends PRMetricsSummary {
-  gitlab?: PRMetricsSummary;
-  reviews?: {
-    totalReviews: number;
-    approvalRate: string;
-    topRepos: { repo: string; count: number }[];
-  };
-}
-
-interface PRStat {
-  label: string;
-  value: string | number;
-  title?: string;
-  warning?: boolean;
-  href?: string;
-}
-
-function formatReviewCycle(hours: number | null | undefined): string {
-  if (typeof hours !== "number" || !Number.isFinite(hours)) return "—";
-  if (hours < 24) return `${hours}h`;
+/** Hours as the shortest readable duration: "<1h", "5h", "2.5d". */
+export function formatDuration(hours: number | null): string {
+  if (hours === null || !Number.isFinite(hours)) return "—";
+  if (hours < 1) return "<1h";
+  if (hours < 48) return `${Math.round(hours)}h`;
   return `${Math.round((hours / 24) * 10) / 10}d`;
 }
 
-/** Colour keys for the stat tiles, in the HUD palette. */
-const STAT_COLORS = [
-  "#6ba8ff",
-  "#34d399",
-  "#c77dff",
-  "#fb923c",
-  "#f2c14e",
-  "#22d3ee",
-];
+function timeAgo(iso: string): string {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  return `${days}d ago`;
+}
+
+function weekLabel(weekStart: string): string {
+  return new Date(`${weekStart}T00:00:00Z`).toLocaleDateString("en", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function Panel({
+  title,
+  aside,
+  children,
+}: {
+  title: string;
+  aside?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="min-w-0 bg-[var(--control)] p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h3 className={hudLabelClass}>{title}</h3>
+        {aside}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function StatTile({
+  label,
+  value,
+  hint,
+  color,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  color: string;
+}) {
+  return (
+    <div
+      className="stat-cell min-w-0 p-3 sm:p-4"
+      style={{ "--stat-c": color } as CSSProperties}
+      title={hint}
+    >
+      <div className={hudLabelClass}>{label}</div>
+      <div className="stat-value mt-2 truncate text-lg sm:text-xl">{value}</div>
+      {hint && (
+        <div className="mt-1 truncate text-[11px] text-[var(--muted-foreground)]">
+          {hint}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
+  const peak = Math.max(1, ...weeks.flatMap((w) => [w.opened, w.merged]));
+  return (
+    <div>
+      <div
+        className="flex h-32 items-end gap-1.5 border-b-2 border-[var(--border)] sm:gap-3"
+        role="img"
+        aria-label={`PRs opened and merged per week: ${weeks
+          .map(
+            (w) =>
+              `${weekLabel(w.weekStart)} ${w.opened} opened, ${w.merged} merged`
+          )
+          .join("; ")}`}
+      >
+        {weeks.map((w) => (
+          <div
+            key={w.weekStart}
+            className="flex h-full min-w-0 flex-1 items-end justify-center gap-0.5 sm:gap-1"
+            title={`Week of ${weekLabel(w.weekStart)}: ${w.opened} opened, ${w.merged} merged`}
+          >
+            {[
+              [w.opened, OPENED],
+              [w.merged, MERGED],
+            ].map(([count, color], i) => (
+              <div
+                key={i}
+                className="w-full max-w-4 transition-[height] duration-500"
+                style={{
+                  height: `${Math.max(Number(count) > 0 ? 6 : 2, (Number(count) / peak) * 100)}%`,
+                  background:
+                    Number(count) > 0
+                      ? String(color)
+                      : "color-mix(in srgb, var(--border) 70%, transparent)",
+                }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="mt-1.5 flex gap-1.5 sm:gap-3">
+        {weeks.map((w, i) => (
+          <div
+            key={w.weekStart}
+            className="min-w-0 flex-1 truncate text-center text-[10px] text-[var(--muted-foreground)]"
+          >
+            {/* Every label on short ranges; every other one on 90 days. */}
+            {weeks.length <= 6 || i % 2 === 0 ? weekLabel(w.weekStart) : ""}
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex gap-4 text-xs text-[var(--muted-foreground)]">
+        {[
+          ["Opened", OPENED],
+          ["Merged", MERGED],
+        ].map(([label, color]) => (
+          <span key={label} className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5" style={{ background: color }} />
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Empty({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="py-6 text-center text-sm text-[var(--muted-foreground)]">
+      {children}
+    </p>
+  );
+}
 
 export default function PRMetrics() {
   const { selectedAccount } = useAccount();
-  const [metrics, setMetrics] = useState<PRData | null>(null);
+  const [summary, setSummary] = useState<PullRequestSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [minutesAgo, setMinutesAgo] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = usePersistentState<"authored" | "reviews">(
-    "devtrack:pr-metrics:activeTab",
-    "authored"
-  );
-  const [prFilter, setPrFilter] = usePersistentState<"all" | "merged" | "open">(
-    "devtrack:pr-metrics:prFilter",
-    "all"
-  );
-  const [range, setRange] = usePersistentState<"7d" | "30d" | "90d">(
+  const [range, setRange] = usePersistentState<PullRequestRange>(
     "devtrack:pr-metrics:range",
     "30d"
   );
-  const [staleThresholdDays, setStaleThresholdDays] = usePersistentState(
+  const [staleDays, setStaleDays] = usePersistentState(
     "devtrack:pr-metrics:staleThreshold",
     14
   );
 
-  const fetchMetrics = useCallback(() => {
-    setLoading(true);
-    setError(null);
-
-    const url =
-      selectedAccount !== null
-        ? `/api/metrics/prs?accountId=${encodeURIComponent(selectedAccount)}&range=${range}`
-        : `/api/metrics/prs?range=${range}`;
-
-    fetch(url)
-      .then((r) => {
-        if (!r.ok) throw new Error("API error");
-        return r.json();
+  const load = useCallback(
+    (refresh = false) => {
+      setLoading(true);
+      setError(null);
+      const params = new URLSearchParams({ range });
+      if (selectedAccount !== null) params.set("accountId", selectedAccount);
+      fetch(`/api/metrics/prs?${params}`, {
+        headers: refresh ? { "x-devtrack-cache-bypass": "1" } : undefined,
       })
-      .then((data: PRData) => {
-        setMetrics(data);
-        setLastUpdated(new Date());
-        setMinutesAgo(0);
-      })
-      .catch(() =>
-        setError(
-          "We couldn't load your PR analytics right now. Please try again in a moment."
-        )
-      )
-      .finally(() => setLoading(false));
-  }, [selectedAccount, range]);
+        .then(async (r) => {
+          if (r.status === 429)
+            throw new Error(
+              "GitHub is rate limiting your account right now. Try again in a few minutes."
+            );
+          if (!r.ok) throw new Error("We couldn't load your pull requests.");
+          return r.json();
+        })
+        .then((data: { summary?: PullRequestSummary }) => {
+          if (!data.summary)
+            throw new Error("We couldn't load your pull requests.");
+          setSummary(data.summary);
+        })
+        .catch((e: Error) => setError(e.message))
+        .finally(() => setLoading(false));
+    },
+    [range, selectedAccount]
+  );
 
-  useEffect(() => {
-    fetchMetrics();
-  }, [fetchMetrics]);
+  useEffect(() => load(), [load]);
 
-  useEffect(() => {
-    if (!lastUpdated) return;
-    const interval = setInterval(() => {
-      const diff = Math.floor((Date.now() - lastUpdated.getTime()) / 60000);
-      setMinutesAgo(diff);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
-
-  const buildStats = (
-    source: PRMetricsSummary,
-    labels: {
-      open: string;
-      merged: string;
-      avgReview: string;
-      avgFirstReview: string;
-      mergeRate: string;
-      avgCycleTime?: string;
-    }
-  ) => {
-    const baseStats: PRStat[] = [
-      { label: labels.open, value: metricCount(source.open) },
-      { label: labels.merged, value: metricCount(source.merged) },
-      {
-        label: "Lines Changed",
-        value: `+${(source.totalAdditions ?? 0).toLocaleString()} / -${(source.totalDeletions ?? 0).toLocaleString()}`,
-      },
-      {
-        label: `${labels.avgReview} ⓘ`,
-        value: metricWithUnit(source.avgReviewHours, "h"),
-        title:
-          "Average time from PR creation to close, based on your last 30 closed PRs",
-      },
-      {
-        label: labels.avgFirstReview,
-        value: formatReviewCycle(source.avgFirstReviewHours),
-        title: "Average time from PR open to first review comment or approval",
-      },
-      { label: labels.mergeRate, value: source.mergeRate ?? "—" },
-    ];
-
-    if (labels.avgCycleTime && source.avgCycleTime !== undefined) {
-      baseStats.push({
-        label: labels.avgCycleTime,
-        value: metricWithUnit(source.avgCycleTime, "h"),
-      });
-    }
-    return baseStats;
-  };
-
-  const githubStats = metrics
-    ? buildStats(metrics, {
-        open: "Open PRs",
-        merged: `Merged (${range})`,
-        avgReview: "Avg Review Time",
-        avgFirstReview: "Avg First Review",
-        mergeRate: "Merge Rate",
-        avgCycleTime: "Avg Cycle Time",
-      })
-    : [];
-
-  const gitlabStats = metrics?.gitlab
-    ? buildStats(metrics.gitlab, {
-        open: "Open MRs",
-        merged: `Merged (${range})`,
-        avgReview: "Avg Review Time",
-        avgFirstReview: "Avg First Review",
-        mergeRate: "Merge Rate",
-      })
-    : [];
-
-  const renderStat = (stat: PRStat, index: number) => {
-    const content = (
-      <>
-        <div className="stat-value truncate text-xl">{stat.value}</div>
-        <div className="truncate mt-1 text-xs text-[var(--muted-foreground)]">
-          {stat.label}
-        </div>
-      </>
-    );
-
-    const className = "stat-cell block min-w-0 p-4 text-center";
-    const style = {
-      "--stat-c": stat.warning
-        ? "#fb923c"
-        : STAT_COLORS[index % STAT_COLORS.length],
-    } as CSSProperties;
-
-    return stat.href ? (
-      <a
-        key={stat.label}
-        href={safeExternalHref(stat.href)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
-        style={style}
-        title={stat.title}
-      >
-        {content}
-      </a>
-    ) : (
-      <div
-        key={stat.label}
-        className={className}
-        style={style}
-        title={stat.title}
-      >
-        {content}
-      </div>
-    );
-  };
+  const s = summary;
+  const reviewTotal = s
+    ? s.reviews.approved + s.reviews.changesRequested + s.reviews.commented
+    : 0;
+  const repoPeak = s ? Math.max(1, ...s.repos.map((r) => r.opened)) : 1;
 
   return (
-    <div className="px-frame bg-[var(--card)] p-6 space-y-6">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4">
-        <SectionHeader title="PR Analytics" />
-        <div className="flex flex-wrap items-center gap-2">
+    <div className="px-frame space-y-5 bg-[var(--card)] p-4 sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+            Your pull requests
+          </h2>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+            PRs you opened in the last {range.replace("d", " days")}, plus
+            everything still open.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
           <div
             className={arcadeTabGroupClass}
             role="group"
@@ -248,198 +252,337 @@ export default function PRMetrics() {
               </button>
             ))}
           </div>
-          <div className={arcadeTabGroupClass} role="group" aria-label="View">
-            <button
-              type="button"
-              onClick={() => setActiveTab("authored")}
-              aria-pressed={activeTab === "authored"}
-              className={arcadeTabClass(activeTab === "authored")}
-            >
-              Authored
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("reviews")}
-              aria-pressed={activeTab === "reviews"}
-              className={arcadeTabClass(activeTab === "reviews")}
-            >
-              Reviews
-            </button>
-          </div>
-          <label className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
-            Stale after
-            <select
-              value={staleThresholdDays}
-              onChange={(event) =>
-                setStaleThresholdDays(Number(event.target.value))
-              }
-              className="rounded-md border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] transition-colors"
-            >
-              {[7, 14, 30].map((days) => (
-                <option key={days} value={days}>
-                  {days} days
-                </option>
-              ))}
-            </select>
-          </label>
+          <button
+            type="button"
+            onClick={() => load(true)}
+            disabled={loading}
+            aria-label="Refresh pull requests"
+            className="p-2 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--foreground)] disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              aria-hidden="true"
+            />
+          </button>
         </div>
       </div>
 
-      {loading ? (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-          className="space-y-4"
-        >
-          <span className="sr-only">Loading PR analytics</span>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <SkeletonBlock key={i} className="h-24 rounded-lg" />
+      {loading && !s ? (
+        <div role="status" aria-busy="true" className="space-y-4">
+          <span className="sr-only">Loading pull requests</span>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+            {Array.from({ length: 6 }, (_, i) => (
+              <SkeletonBlock key={i} className="h-[92px]" />
             ))}
           </div>
-          <SkeletonBlock className="h-[270px] rounded-lg" />
-          <SkeletonBlock className="h-[220px] rounded-lg" />
+          <SkeletonBlock className="h-48" />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SkeletonBlock className="h-56" />
+            <SkeletonBlock className="h-56" />
+          </div>
         </div>
-      ) : error ? (
-        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
-          <p>{error}</p>
-          <button
-            onClick={fetchMetrics}
-            className="mt-3 rounded-md px-3 py-1.5 text-xs text-red-300 hover:bg-red-500/10 border border-red-500/30"
-          >
+      ) : error && !s ? (
+        <div className="border-2 border-red-500/40 p-4 text-sm">
+          <p className="text-[var(--card-foreground)]">{error}</p>
+          <button type="button" onClick={() => load()} className="px-btn mt-3">
             Try again
           </button>
         </div>
-      ) : activeTab === "authored" ? (
-        <div className="space-y-6">
-          {/* GitHub Stats */}
-          <div>
-            <div className="flex flex-wrap items-center justify-between mb-4">
-              <p className="text-sm font-medium text-[var(--muted-foreground)]">
-                GitHub PRs
-              </p>
-              <div className="flex items-center gap-2">
-                {(["all", "merged", "open"] as const).map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setPrFilter(filter)}
-                    aria-pressed={prFilter === filter}
-                    className={arcadeTabClass(prFilter === filter)}
+      ) : s ? (
+        <div
+          className={`space-y-4 ${loading ? "opacity-60" : ""}`}
+          aria-busy={loading}
+        >
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+            <StatTile
+              label="Opened"
+              value={String(s.opened)}
+              color={OPENED}
+              hint={s.sampled ? "Latest 100 in range" : undefined}
+            />
+            <StatTile
+              label="Merged"
+              value={String(s.merged)}
+              color={MERGED}
+              hint={s.closed ? `${s.closed} closed unmerged` : undefined}
+            />
+            <StatTile
+              label="Merge rate"
+              value={
+                s.mergeRate === null ? "—" : `${Math.round(s.mergeRate * 100)}%`
+              }
+              color="#c77dff"
+              hint="Of PRs merged or closed"
+            />
+            <StatTile
+              label="Time to merge"
+              value={formatDuration(s.medianHoursToMerge)}
+              color="#22d3ee"
+              hint="Median"
+            />
+            <StatTile
+              label="First review"
+              value={formatDuration(s.medianHoursToFirstReview)}
+              color="#f2c14e"
+              hint="Median, by others"
+            />
+            <StatTile
+              label="Lines"
+              value={`+${s.additions.toLocaleString()}`}
+              color={STALE}
+              hint={`−${s.deletions.toLocaleString()} removed`}
+            />
+          </div>
+
+          <Panel title="Weekly activity">
+            {s.opened === 0 ? (
+              <Empty>No pull requests in this range yet.</Empty>
+            ) : (
+              <WeeklyChart weeks={s.weeks} />
+            )}
+          </Panel>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Panel
+              title={`Open now · ${s.openNow}${s.draftsNow ? ` (${s.draftsNow} draft)` : ""}`}
+              aside={
+                <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                  Stale after
+                  <select
+                    value={staleDays}
+                    onChange={(e) => setStaleDays(Number(e.target.value))}
+                    className="border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)]"
                   >
-                    {filter}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
-              {githubStats
-                .filter((stat) => {
-                  if (prFilter === "all") return true;
-                  const lbl = stat.label.toLowerCase();
-                  if (prFilter === "open")
-                    return lbl.includes("open") || lbl.includes("stale");
-                  if (prFilter === "merged")
+                    {[7, 14, 30].map((d) => (
+                      <option key={d} value={d}>
+                        {d} days
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              }
+            >
+              {s.openList.length === 0 ? (
+                <Empty>Nothing open. Clean slate.</Empty>
+              ) : (
+                <ul className="space-y-1.5">
+                  {s.openList.map((p) => {
+                    const stale = p.ageDays >= staleDays;
                     return (
-                      lbl.includes("merged") ||
-                      lbl.includes("review") ||
-                      lbl.includes("merge rate")
+                      <li key={p.url}>
+                        <a
+                          href={safeExternalHref(p.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
+                        >
+                          <GitPullRequest
+                            className="h-4 w-4 shrink-0"
+                            style={{ color: p.isDraft ? CLOSED : OPENED }}
+                            aria-hidden="true"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent)]">
+                              {p.title}
+                            </span>
+                            <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
+                              {p.repo} #{p.number}
+                              {p.isDraft
+                                ? " · draft"
+                                : p.reviewed
+                                  ? " · reviewed"
+                                  : " · awaiting review"}
+                            </span>
+                          </span>
+                          <span
+                            className="shrink-0 font-pixel text-[10px] uppercase"
+                            style={{
+                              color: stale ? STALE : "var(--muted-foreground)",
+                            }}
+                            title={
+                              stale
+                                ? `Open longer than ${staleDays} days`
+                                : undefined
+                            }
+                          >
+                            {p.ageDays}d{stale ? " ⚠" : ""}
+                          </span>
+                        </a>
+                      </li>
                     );
-                  return true;
-                })
-                .map(renderStat)}
-            </div>
+                  })}
+                </ul>
+              )}
+            </Panel>
+
+            <Panel title="Recently merged">
+              {s.recentMerged.length === 0 ? (
+                <Empty>No merges in this range yet.</Empty>
+              ) : (
+                <ul className="space-y-1.5">
+                  {s.recentMerged.map((p) => (
+                    <li key={p.url}>
+                      <a
+                        href={safeExternalHref(p.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
+                      >
+                        <GitMerge
+                          className="h-4 w-4 shrink-0"
+                          style={{ color: MERGED }}
+                          aria-hidden="true"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent)]">
+                            {p.title}
+                          </span>
+                          <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
+                            {p.repo} #{p.number} · {timeAgo(p.mergedAt)}
+                          </span>
+                        </span>
+                        <span
+                          className="shrink-0 font-pixel text-[10px] uppercase text-[var(--muted-foreground)]"
+                          title="Time from opening to merge"
+                        >
+                          {formatDuration(p.hoursToMerge)}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
           </div>
 
-          {metrics?.slowestRepos && metrics.slowestRepos.length > 0 && (
-            <div className="bg-[var(--control)] p-4">
-              <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-                Slowest Review Repos
-              </h3>
-              <div className="space-y-2">
-                {metrics.slowestRepos.map((r) => (
-                  <div
-                    key={r.repo}
-                    className="flex justify-between items-center bg-[var(--card)] p-2 rounded"
-                  >
-                    <span className="text-sm text-[var(--muted-foreground)] truncate">
-                      {r.repo}
-                    </span>
-                    <span className="text-sm font-bold text-[var(--accent)]">
-                      {r.avgHours}h
-                    </span>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Panel title="Where you ship">
+              {s.repos.length === 0 ? (
+                <Empty>No repositories in this range.</Empty>
+              ) : (
+                <ul className="space-y-3">
+                  {s.repos.map((r) => (
+                    <li key={r.repo}>
+                      <div className="flex items-baseline justify-between gap-3 text-xs">
+                        <span className="truncate text-[var(--card-foreground)]">
+                          {r.repo}
+                        </span>
+                        <span className="shrink-0 text-[var(--muted-foreground)]">
+                          {r.merged}/{r.opened} merged
+                        </span>
+                      </div>
+                      <div className="mt-1 h-2.5 bg-[var(--card)]">
+                        <div
+                          className="relative h-full"
+                          style={{
+                            width: `${(r.opened / repoPeak) * 100}%`,
+                            background: OPENED,
+                          }}
+                        >
+                          <div
+                            className="absolute inset-y-0 left-0"
+                            style={{
+                              width: `${(r.merged / r.opened) * 100}%`,
+                              background: MERGED,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
+
+            <Panel
+              title={`Reviews you gave · last ${range.replace("d", " days")}`}
+            >
+              {s.reviews.total === 0 ? (
+                <Empty>
+                  No reviews yet. Reviewing PRs boosts your DevTrack score.
+                </Empty>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-end justify-between gap-3">
+                    <div>
+                      <div className="stat-value text-3xl">
+                        {s.reviews.total}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        reviews submitted
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* GitLab MRs Section */}
-          {metrics?.gitlab && (
-            <div className="space-y-4 border-t border-[var(--border)] pt-4">
-              <p className="text-sm font-medium text-[var(--muted-foreground)]">
-                GitLab MRs
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {gitlabStats
-                  .filter((stat) => {
-                    if (prFilter === "all") return true;
-                    const lbl = stat.label.toLowerCase();
-                    if (prFilter === "open")
-                      return lbl.includes("open") || lbl.includes("stale");
-                    if (prFilter === "merged")
-                      return (
-                        lbl.includes("merged") ||
-                        lbl.includes("review") ||
-                        lbl.includes("merge rate")
-                      );
-                    return true;
-                  })
-                  .map(renderStat)}
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              {
-                label: "Total Reviews Given",
-                value: metrics?.reviews?.totalReviews ?? 0,
-              },
-              {
-                label: "Approval Rate",
-                value: metrics?.reviews?.approvalRate ?? "0%",
-              },
-            ].map((stat, index) => (
-              <div
-                key={stat.label}
-                className="stat-cell p-4 text-center"
-                style={
-                  {
-                    "--stat-c": STAT_COLORS[index % STAT_COLORS.length],
-                  } as CSSProperties
-                }
-              >
-                <div className="stat-value text-2xl">{stat.value}</div>
-                <div className="mt-1 text-xs text-[var(--muted-foreground)]">
-                  {stat.label}
+                  {reviewTotal > 0 && (
+                    <div>
+                      <div className="flex h-3 overflow-hidden bg-[var(--card)]">
+                        {(
+                          ["approved", "changesRequested", "commented"] as const
+                        ).map((k) =>
+                          s.reviews[k] > 0 ? (
+                            <div
+                              key={k}
+                              style={{
+                                width: `${(s.reviews[k] / reviewTotal) * 100}%`,
+                                background: REVIEW_COLORS[k],
+                              }}
+                            />
+                          ) : null
+                        )}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--muted-foreground)]">
+                        {(
+                          [
+                            ["approved", "Approved"],
+                            ["changesRequested", "Changes requested"],
+                            ["commented", "Commented"],
+                          ] as const
+                        ).map(([k, label]) => (
+                          <span
+                            key={k}
+                            className="inline-flex items-center gap-1.5"
+                          >
+                            <span
+                              className="h-2.5 w-2.5"
+                              style={{ background: REVIEW_COLORS[k] }}
+                            />
+                            {label} {s.reviews[k]}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {s.reviews.topRepos.length > 0 && (
+                    <ul className="space-y-1 text-xs">
+                      {s.reviews.topRepos.map((r) => (
+                        <li key={r.repo} className="flex justify-between gap-3">
+                          <a
+                            href={safeExternalHref(
+                              `https://github.com/${r.repo}`
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex min-w-0 items-center gap-1 truncate text-[var(--card-foreground)] hover:text-[var(--accent)]"
+                          >
+                            <span className="truncate">{r.repo}</span>
+                            <ExternalLink
+                              className="h-3 w-3 shrink-0 opacity-60"
+                              aria-hidden="true"
+                            />
+                          </a>
+                          <span className="shrink-0 text-[var(--muted-foreground)]">
+                            {r.count}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              </div>
-            ))}
+              )}
+            </Panel>
           </div>
         </div>
-      )}
-
-      {lastUpdated && (
-        <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
-          {minutesAgo === 0
-            ? "Updated just now"
-            : `Updated ${minutesAgo} min ago`}
-        </p>
-      )}
+      ) : null}
     </div>
   );
 }

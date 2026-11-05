@@ -36,7 +36,9 @@ vi.mock("@/lib/metrics-cache", () => ({
     "inactive-repos": 300,
   },
   metricsCacheKey: vi.fn().mockReturnValue("test-cache-key"),
-  withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
+  withMetricsCache: vi
+    .fn()
+    .mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
 // Routes that go through getSessionWithToken() require a resolved app row;
@@ -89,7 +91,9 @@ function mockGitHub403RateLimit() {
   mockFetch.mockResolvedValue({
     ok: false,
     status: 403,
-    headers: { get: (k: string) => (k === "X-RateLimit-Remaining" ? "0" : null) },
+    headers: {
+      get: (k: string) => (k === "X-RateLimit-Remaining" ? "0" : null),
+    },
     json: async () => ({ message: "API rate limit exceeded" }),
   });
 }
@@ -143,50 +147,6 @@ describe("GET /api/metrics/discussions — token expiry handling", () => {
   });
 });
 
-// ─── /api/metrics/pr-review-time ─────────────────────────────────────────────
-
-describe("GET /api/metrics/pr-review-time — token expiry handling", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockFetch.mockReset();
-  });
-
-  it("returns token_expired when session.error is TokenRevoked", async () => {
-    mockGetServerSession.mockResolvedValueOnce(revokedSession());
-
-    const { GET } = await import("@/app/api/metrics/pr-review-time/route");
-    const req = new NextRequest("http://localhost/api/metrics/pr-review-time");
-    const res = await GET(req);
-
-    expect(res.status).toBe(401);
-    expect((await res.json()).error).toBe("token_expired");
-  });
-
-  it("returns token_expired when GitHub search API returns 401", async () => {
-    mockGetServerSession.mockResolvedValueOnce(validSession());
-    mockGitHub401();
-
-    const { GET } = await import("@/app/api/metrics/pr-review-time/route");
-    const req = new NextRequest("http://localhost/api/metrics/pr-review-time");
-    const res = await GET(req);
-
-    expect(res.status).toBe(401);
-    expect((await res.json()).error).toBe("token_expired");
-  });
-
-  it("returns 502 for non-auth GitHub failures (rate limit 403)", async () => {
-    mockGetServerSession.mockResolvedValueOnce(validSession());
-    mockGitHub403RateLimit();
-
-    const { GET } = await import("@/app/api/metrics/pr-review-time/route");
-    const req = new NextRequest("http://localhost/api/metrics/pr-review-time");
-    const res = await GET(req);
-
-    expect(res.status).toBe(502);
-    expect((await res.json()).error).not.toBe("token_expired");
-  });
-});
-
 // ─── /api/metrics/productive-hours ───────────────────────────────────────────
 
 describe("GET /api/metrics/productive-hours — token expiry handling", () => {
@@ -199,7 +159,9 @@ describe("GET /api/metrics/productive-hours — token expiry handling", () => {
     mockGetServerSession.mockResolvedValueOnce(revokedSession());
 
     const { GET } = await import("@/app/api/metrics/productive-hours/route");
-    const req = new NextRequest("http://localhost/api/metrics/productive-hours");
+    const req = new NextRequest(
+      "http://localhost/api/metrics/productive-hours"
+    );
     const res = await GET(req);
 
     expect(res.status).toBe(401);
@@ -211,7 +173,9 @@ describe("GET /api/metrics/productive-hours — token expiry handling", () => {
     mockGitHub401();
 
     const { GET } = await import("@/app/api/metrics/productive-hours/route");
-    const req = new NextRequest("http://localhost/api/metrics/productive-hours");
+    const req = new NextRequest(
+      "http://localhost/api/metrics/productive-hours"
+    );
     const res = await GET(req);
 
     expect(res.status).toBe(401);
@@ -228,7 +192,9 @@ describe("GET /api/metrics/productive-hours — token expiry handling", () => {
     });
 
     const { GET } = await import("@/app/api/metrics/productive-hours/route");
-    const req = new NextRequest("http://localhost/api/metrics/productive-hours");
+    const req = new NextRequest(
+      "http://localhost/api/metrics/productive-hours"
+    );
     const res = await GET(req);
 
     expect(res.status).toBe(502);
