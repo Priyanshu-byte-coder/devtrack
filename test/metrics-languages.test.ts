@@ -338,31 +338,31 @@ describe("Language Metrics Endpoint", () => {
     const originalEnv = process.env.NODE_ENV;
     (process.env as Record<string, string>).NODE_ENV = "development";
 
-    fetchMock
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          total_count: 1,
-          items: [
-            {
-              repository: { full_name: "user/repo1" },
-              commit: { author: { date: new Date().toISOString() } },
-            },
-            {
-              repository: { full_name: "user/repo-broken" },
-              commit: { author: { date: new Date().toISOString() } },
-            },
-          ],
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ TypeScript: 50000 }),
-      })
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-      });
+    // The two repositories' languages are fetched in parallel, so answer by
+    // URL rather than call order: which request lands first isn't fixed.
+    fetchMock.mockImplementation(async (input: string | URL | Request) => {
+      const url = String(input instanceof Request ? input.url : input);
+      if (url.includes("/search/commits"))
+        return {
+          ok: true,
+          json: async () => ({
+            total_count: 1,
+            items: [
+              {
+                repository: { full_name: "user/repo1" },
+                commit: { author: { date: new Date().toISOString() } },
+              },
+              {
+                repository: { full_name: "user/repo-broken" },
+                commit: { author: { date: new Date().toISOString() } },
+              },
+            ],
+          }),
+        };
+      if (url.includes("/repos/user/repo-broken/"))
+        return { ok: false, status: 403 };
+      return { ok: true, json: async () => ({ TypeScript: 50000 }) };
+    });
 
     const req = new NextRequest("http://localhost/api/metrics/languages");
     const res = await GET(req);
