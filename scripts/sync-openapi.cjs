@@ -66,11 +66,6 @@ spec.components.securitySchemes.cronAuth = {
   description:
     "CRON_SECRET supplied by the scheduler; all environments enforce it.",
 };
-spec.components.securitySchemes.localCodingKey = {
-  type: "http",
-  scheme: "bearer",
-  description: "Personal DevTrack local coding API key.",
-};
 spec.components.securitySchemes.leaderboardRebuild = {
   type: "apiKey",
   in: "header",
@@ -149,8 +144,6 @@ for (const file of walk("src/app/api")
     else if (source.includes("getServerSession"))
       operation.security = [{ cookieAuth: [] }];
     else operation.security = [];
-    if (url === "/api/local-coding/sync")
-      operation.security = [{ localCodingKey: [] }];
     if (url === "/api/leaderboard/rebuild")
       operation.security = [{ leaderboardRebuild: [] }];
     if (source.includes("x-hub-signature-256"))

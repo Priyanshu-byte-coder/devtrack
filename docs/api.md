@@ -273,30 +273,6 @@ If `GROQ_API_KEY` is not configured, a complete fallback report is returned from
 
 ---
 
-### Local Coding
-
-| Method | Route                     | Description                                   |
-| ------ | ------------------------- | --------------------------------------------- |
-| GET    | `/api/local-coding/keys`  | List local coding API keys                    |
-| POST   | `/api/local-coding/keys`  | Create a new API key                          |
-| DELETE | `/api/local-coding/keys`  | Revoke an API key                             |
-| GET    | `/api/local-coding/stats` | Aggregated local coding statistics            |
-| POST   | `/api/local-coding/sync`  | Ingest coding sessions from the editor plugin |
-
-The local coding plugin authenticates using an API key issued by `/api/local-coding/keys`.
-
----
-
-### WakaTime Integration
-
-| Method | Route                | Description                    |
-| ------ | -------------------- | ------------------------------ |
-| GET    | `/api/wakatime`      | Get WakaTime connection status |
-| DELETE | `/api/wakatime`      | Disconnect WakaTime            |
-| POST   | `/api/wakatime/sync` | Trigger a WakaTime data sync   |
-
----
-
 ### Jira Integration
 
 | Method | Route                                | Description                               |
@@ -397,7 +373,7 @@ The SSE connection is per-user. The server pushes `metrics_updated` events when 
 
 | Method | Route                     | Auth                                  | Description                                   |
 | ------ | ------------------------- | ------------------------------------- | --------------------------------------------- |
-| POST   | `/api/cron/sync`          | `Authorization: Bearer <CRON_SECRET>` | Refresh GitHub achievements and WakaTime data |
+| POST   | `/api/cron/sync`          | `Authorization: Bearer <CRON_SECRET>` | Refresh GitHub achievements                   |
 | POST   | `/api/cron/weekly-digest` | `Authorization: Bearer <CRON_SECRET>` | Send weekly digest emails to subscribed users |
 
 ---

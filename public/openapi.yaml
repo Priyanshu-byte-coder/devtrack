@@ -23,10 +23,6 @@ components:
       type: http
       scheme: bearer
       description: CRON_SECRET supplied by the scheduler; all environments enforce it.
-    localCodingKey:
-      type: http
-      scheme: bearer
-      description: Personal DevTrack local coding API key.
     leaderboardRebuild:
       type: apiKey
       in: header
@@ -745,75 +741,6 @@ paths:
           description: Rate limit exceeded
       operationId: get_api_leaderboard
       security: []
-  /api/local-coding/keys:
-    delete:
-      operationId: delete_api_local_coding_keys
-      summary: DELETE /api/local-coding/keys
-      tags:
-        - local-coding
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-    get:
-      operationId: get_api_local_coding_keys
-      summary: GET /api/local-coding/keys
-      tags:
-        - local-coding
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-    post:
-      operationId: post_api_local_coding_keys
-      summary: POST /api/local-coding/keys
-      tags:
-        - local-coding
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-  /api/local-coding/stats:
-    get:
-      operationId: get_api_local_coding_stats
-      summary: GET /api/local-coding/stats
-      tags:
-        - local-coding
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-  /api/local-coding/sync:
-    get:
-      operationId: get_api_local_coding_sync
-      summary: GET /api/local-coding/sync
-      tags:
-        - local-coding
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - localCodingKey: []
-    post:
-      operationId: post_api_local_coding_sync
-      summary: POST /api/local-coding/sync
-      tags:
-        - local-coding
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - localCodingKey: []
   /api/metrics/achievement-progress:
     get:
       operationId: get_api_metrics_achievement_progress
@@ -2158,35 +2085,6 @@ paths:
           description: Successful response. See the route contract for the returned JSON fields.
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security: []
-  /api/wakatime:
-    get:
-      tags:
-        - Integrations
-      summary: Get WakaTime connection status
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: WakaTime connection status
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-      operationId: get_api_wakatime
-  /api/wakatime/sync:
-    get:
-      operationId: get_api_wakatime_sync
-      summary: GET /api/wakatime/sync
-      tags:
-        - wakatime
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cronAuth: []
   /api/webhooks/activity-alerts:
     get:
       operationId: get_api_webhooks_activity_alerts

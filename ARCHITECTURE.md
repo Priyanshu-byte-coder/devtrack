@@ -130,12 +130,6 @@ Browser → Next.js route handler → GitHub REST/GraphQL API (with user's OAuth
 - `/api/webhooks/custom/*` — User-configured outbound webhooks: create, update, delete, test, rotate secret, view deliveries, retry delivery
 - `/api/webhooks/dispatch/metrics` — Internal dispatch endpoint for triggering SSE pushes
 
-### Local Coding
-
-- `/api/local-coding/keys` — API key management for the local editor plugin
-- `/api/local-coding/stats` — Aggregated local coding stats from `local_coding_sessions`
-- `/api/local-coding/sync` — Ingest coding sessions from the editor plugin
-
 ### AI Features
 
 - `/api/personality` — AI Code Personality Report (deterministic scoring in `src/lib/personality-analysis.ts`, Groq for prose)
@@ -175,7 +169,5 @@ Browser → Next.js route handler → GitHub REST/GraphQL API (with user's OAuth
 | `UPSTASH_REDIS_REST_TOKEN`      | Optional | Upstash Redis token                                       |
 | `LEADERBOARD_REBUILD_TOKEN`     | Optional | Auth token for the leaderboard rebuild endpoint           |
 | `LEADERBOARD_USER_CONCURRENCY`  | Optional | Concurrent fetches during leaderboard builds (default: 5) |
-| `WAKATIME_CLIENT_ID`            | Optional | WakaTime OAuth Client ID                                  |
-| `WAKATIME_CLIENT_SECRET`        | Optional | WakaTime OAuth Client Secret                              |
 
 See `.env.example` for a ready-to-fill template with detailed descriptions.

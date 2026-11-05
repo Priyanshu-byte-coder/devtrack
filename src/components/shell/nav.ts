@@ -12,7 +12,6 @@ import {
   Swords,
   Target,
   Trophy,
-  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -75,18 +74,6 @@ export const APP_NAV: NavSection[] = [
         match: ["/dashboard/repo-health", "/dashboard/repo-comparison"],
       },
       { href: "/dashboard/goals", label: "Goals", icon: Target },
-    ],
-  },
-  {
-    label: "Social",
-    accent: "[--nav-c:#34d399]",
-    items: [
-      {
-        href: "/dashboard/community",
-        label: "Community",
-        icon: Users,
-        match: ["/dashboard/friends", "/dashboard/rooms"],
-      },
     ],
   },
   {

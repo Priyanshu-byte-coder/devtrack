@@ -55,8 +55,6 @@ DevTrack uses `@supabase/supabase-js` which relies on the Supabase REST API, so 
 | `UPSTASH_REDIS_REST_TOKEN`      | Optional                        | Upstash Redis REST token                                                         | `AXxx...`                        |
 | `LEADERBOARD_REBUILD_TOKEN`     | Optional                        | Auth token for the `/api/leaderboard/rebuild` endpoint                           | Run `openssl rand -hex 32`       |
 | `LEADERBOARD_USER_CONCURRENCY`  | Optional                        | Concurrent user fetches during leaderboard builds (default: `5`)                 | `5`                              |
-| `WAKATIME_CLIENT_ID`            | Optional                        | WakaTime OAuth Client ID (for WakaTime integration)                              | `waka_...`                       |
-| `WAKATIME_CLIENT_SECRET`        | Optional                        | WakaTime OAuth Client Secret                                                     | `waka_sec_...`                   |
 | `ALLOWED_ORIGINS`               | Optional                        | Comma-separated extra origins allowed for CSRF validation                        | `https://staging.example.com`    |
 
 ---

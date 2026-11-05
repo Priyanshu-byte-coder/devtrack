@@ -87,9 +87,10 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/settings", destination: "/dashboard/settings", permanent: true },
-      { source: "/friend-compare", destination: "/dashboard/friends", permanent: true },
-      { source: "/rooms", destination: "/dashboard/rooms", permanent: true },
-      { source: "/rooms/:roomId", destination: "/dashboard/rooms/:roomId", permanent: true },
+      { source: "/friend-compare", destination: "/compare", permanent: true },
+      // The social pages were retired; old links land on the dashboard.
+      { source: "/rooms/:path*", destination: "/dashboard", permanent: false },
+      { source: "/dashboard/:page(community|friends|rooms)/:path*", destination: "/dashboard", permanent: false },
       { source: "/project-tutor", destination: "/dashboard/project-tutor", permanent: true },
       { source: "/profile-card", destination: "/dashboard/settings", permanent: true },
     ];

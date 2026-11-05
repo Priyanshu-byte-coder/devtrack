@@ -10,18 +10,14 @@ import type { ReactNode } from "react";
 import LazyWidget from "@/components/LazyWidget";
 import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 import WidgetRegion from "@/components/dashboard/WidgetRegion";
-import CommunityMetricsWidget from "@/components/CommunityMetrics";
 import ConsistencyScoreWidget from "@/components/ConsistencyScoreWidget";
 import DailyNoteWidget from "@/components/DailyNoteWidget";
 import GoalTrackerWidget from "@/components/GoalTracker";
 import InactiveRepositoriesCard from "@/components/InactiveRepositoriesCard";
 import IssueMetricsWidget from "@/components/IssueMetrics";
 import LanguageBreakdownWidget from "@/components/LanguageBreakdown";
-import LocalCodingTimeWidget from "@/components/LocalCodingTime";
-import CodingTimeWidget from "@/components/CodingTimeWidget";
 import PersonalRecordsWidget from "@/components/PersonalRecords";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import RecentActivityWidget from "@/components/RecentActivity";
 import RepoAnalyticsExplorer from "@/components/repo-analytics/RepoAnalyticsExplorer";
 import StreakTrackerWidget from "@/components/StreakTracker";
 import TopReposWidget from "@/components/TopRepos";
@@ -72,10 +68,6 @@ const PRReviewTrendChart = lazy(
 );
 const AchievementProgress = lazy(
   () => import("@/components/GitHubAchievementProgress"),
-  false
-);
-const SponsorAnalyticsWidget = lazy(
-  () => import("@/components/SponsorAnalytics"),
   false
 );
 
@@ -144,12 +136,6 @@ export const AIMentor = slot(
   () => <AIMentorWidget />,
   true
 );
-export const RecentActivity = slot(
-  "recent-activity",
-  "Recent Activity",
-  () => <RecentActivityWidget />,
-  true
-);
 export const StreakTracker = slot("streak-tracker", "Streak Tracker", () => (
   <StreakTrackerWidget />
 ));
@@ -169,18 +155,6 @@ export const ProductiveHours = slot(
   "productive-hours",
   "Productive Hours",
   () => <ProductiveHoursChart />,
-  true
-);
-export const LocalCodingTime = slot(
-  "local-coding-time",
-  "Local Coding Time",
-  () => <LocalCodingTimeWidget />,
-  true
-);
-export const CodingTime = slot(
-  "coding-time",
-  "Coding Time",
-  () => <CodingTimeWidget />,
   true
 );
 
@@ -270,18 +244,5 @@ export const Achievements = slot(
   "achievements",
   "Achievements",
   () => <AchievementProgress />,
-  true
-);
-
-// Community
-export const CommunityMetrics = slot(
-  "community-metrics",
-  "Community Metrics",
-  () => <CommunityMetricsWidget />
-);
-export const SponsorAnalytics = slot(
-  "sponsor-analytics",
-  "Sponsor Analytics",
-  () => <SponsorAnalyticsWidget />,
   true
 );
