@@ -97,7 +97,7 @@ export default function StreakAtRiskBanner({
     <div
       role="status"
       aria-live="polite"
-      className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-warning/30 bg-warning/10 p-4 text-[var(--warning)] shadow-sm transition-all animate-in fade-in slide-in-from-top-4"
+      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-warning/40 bg-[color-mix(in_srgb,var(--warning)_12%,var(--card))] p-4 text-[var(--warning)] shadow-lg animate-in fade-in slide-in-from-bottom-4"
     >
       <div className="flex items-start sm:items-center gap-3">
         <AlertTriangle
