@@ -3,24 +3,53 @@
 import Image from "next/image";
 import { RepoContributorData } from "@/lib/repo-analytics-types";
 
-export default function ContributorStats({ contributors }: { contributors: RepoContributorData[] }) {
-  const total = contributors.reduce((acc, c) => acc + c.contributions, 0);
+export default function ContributorStats({
+  contributors,
+}: {
+  contributors: RepoContributorData[];
+}) {
+  if (contributors.length === 0) {
+    return (
+      <p className="text-sm text-[var(--muted-foreground)]">
+        No contributor data yet.
+      </p>
+    );
+  }
+  const top = Math.max(1, ...contributors.map((c) => c.contributions));
   return (
-    <div className="space-y-3">
+    <ul className="space-y-2.5">
       {contributors.map((contributor) => (
-        <div key={contributor.login} className="flex items-center gap-3">
-          <Image src={contributor.avatarUrl} alt={contributor.login} width={28} height={28} className="h-7 w-7 rounded-full" />
+        <li key={contributor.login} className="flex items-center gap-3">
+          <Image
+            src={contributor.avatarUrl}
+            alt=""
+            width={28}
+            height={28}
+            className="h-7 w-7 shrink-0 border-2 border-[var(--border)]"
+          />
           <div className="min-w-0 flex-1">
-            <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
-              <span className="truncate">{contributor.login}</span>
-              <span>{contributor.contributions} commits</span>
+            <div className="flex justify-between gap-3 text-xs">
+              <a
+                href={`https://github.com/${encodeURIComponent(contributor.login)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate text-[var(--card-foreground)] hover:text-[var(--accent)]"
+              >
+                {contributor.login}
+              </a>
+              <span className="shrink-0 text-[var(--muted-foreground)]">
+                {contributor.contributions.toLocaleString()} commits
+              </span>
             </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--border)]">
-              <div className="h-full rounded-full" style={{ width: `${total > 0 ? (contributor.contributions / total) * 100 : 0}%`, backgroundColor: "var(--accent)" }} />
+            <div className="mt-1 h-2 bg-[var(--card)]">
+              <div
+                className="h-full bg-[var(--accent)]"
+                style={{ width: `${(contributor.contributions / top) * 100}%` }}
+              />
             </div>
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

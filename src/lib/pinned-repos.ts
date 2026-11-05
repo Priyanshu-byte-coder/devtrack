@@ -1,16 +1,5 @@
 import { githubRequest } from "@/lib/github-request";
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6",
-  JavaScript: "#f7df1e",
-  Python: "#3572A5",
-  Go: "#00ADD8",
-  Rust: "#dea584",
-  Java: "#b07219",
-  CSS: "#563d7c",
-  HTML: "#e34c26",
-  Ruby: "#701516",
-  Shell: "#89e051",
-};
+import { LANGUAGE_COLORS } from "@/lib/language-colors";
 
 export interface PinnedRepoDetails {
   name: string;
@@ -36,13 +25,16 @@ export async function fetchPinnedRepoDetails(
     pinnedRepos.map(async (repoFullName) => {
       try {
         // 1. Fetch basic repository metadata
-        const repoRes = await githubRequest(`${GITHUB_API}/repos/${repoFullName}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-          },
-          cache: "no-store",
-        });
+        const repoRes = await githubRequest(
+          `${GITHUB_API}/repos/${repoFullName}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github+json",
+            },
+            cache: "no-store",
+          }
+        );
 
         if (!repoRes.ok) {
           // Gracefully skip private/deleted/not found repos
@@ -99,7 +91,10 @@ export async function fetchPinnedRepoDetails(
           sparkline,
         };
       } catch (err) {
-        console.error(`Failed to fetch spotlight details for ${repoFullName}:`, err);
+        console.error(
+          `Failed to fetch spotlight details for ${repoFullName}:`,
+          err
+        );
         return null;
       }
     })

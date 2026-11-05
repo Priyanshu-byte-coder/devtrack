@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import RepoCarousel from "./RepoCarousel";
 import { ExplorerRepoCardData } from "@/lib/repo-analytics-types";
-import { toast } from "sonner";
+import { SkeletonBlock } from "@/components/WidgetSkeleton";
 
 export default function RepoAnalyticsExplorer() {
   const [repos, setRepos] = useState<ExplorerRepoCardData[]>([]);
@@ -14,17 +14,18 @@ export default function RepoAnalyticsExplorer() {
     setError(null);
     fetch("/api/metrics/repo-explorer")
       .then((res) => {
-        if (!res.ok) throw new Error("Failed");
+        if (res.status === 429)
+          throw new Error(
+            "GitHub is rate limiting your account right now. Try again in a few minutes."
+          );
+        if (!res.ok)
+          throw new Error("Could not load your repositories right now.");
         return res.json();
       })
-      .then((json: { repos: ExplorerRepoCardData[] }) =>
+      .then((json: { repos?: ExplorerRepoCardData[] }) =>
         setRepos(json.repos ?? [])
       )
-      .catch((err) => {
-        console.error("Failed to fetch repo analytics:", err);
-        setError("Could not load repo analytics right now.");
-        toast.error("Failed to load repo analytics");
-      })
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -33,35 +34,35 @@ export default function RepoAnalyticsExplorer() {
   }, [fetchRepos]);
 
   return (
-    <section className="mt-6 min-w-0 overflow-hidden px-frame bg-[var(--card)] p-4 md:p-6 fade-up">
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div>
-          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Repo Analytics
-          </h2>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Explore repository health, contributors, timeline, consistency and
-            tech stack signals.
-          </p>
-        </div>
+    <section className="px-frame min-w-0 bg-[var(--card)] p-4 sm:p-6">
+      <div className="mb-4">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+          Repo analytics
+        </h2>
+        <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+          Your repositories by recent activity. Open one for contributors,
+          timeline, health and languages.
+        </p>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-3xl bg-card-muted/50 border border-[var(--border)]"
-            />
-          ))}
+        <div role="status" aria-busy="true" className="space-y-4">
+          <span className="sr-only">Loading repositories</span>
+          <div className="grid grid-cols-3 gap-3">
+            {[1, 2, 3].map((i) => (
+              <SkeletonBlock key={i} className="h-[72px]" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <SkeletonBlock key={i} className="h-64" />
+            ))}
+          </div>
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-[var(--destructive-muted-border)] bg-[var(--destructive-muted)] p-5 text-sm text-[var(--destructive)] flex flex-col items-center justify-center text-center">
-          <p className="font-medium mb-3">{error}</p>
-          <button
-            onClick={fetchRepos}
-            className="rounded-xl border border-[var(--destructive-muted-border)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)] hover:text-white"
-          >
+        <div className="border-2 border-red-500/40 p-4 text-sm">
+          <p className="text-[var(--card-foreground)]">{error}</p>
+          <button type="button" onClick={fetchRepos} className="px-btn mt-3">
             Try again
           </button>
         </div>

@@ -1,52 +1,42 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import RepoCard from "./RepoCard";
 import RepoAnalyticsSheet from "./RepoAnalyticsSheet";
 import { ExplorerRepoCardData } from "@/lib/repo-analytics-types";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
+
+const PAGE_SIZE = 6;
+
+const controlClass =
+  "border-2 border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--card-foreground)] focus-visible:border-[var(--accent)] focus-visible:outline-none";
 
 export default function RepoCarousel({
   repos,
 }: {
   repos: ExplorerRepoCardData[];
 }) {
-  const PAGE_SIZE = 3;
   const [page, setPage] = useState(1);
   const [selectedRepo, setSelectedRepo] = useState<ExplorerRepoCardData | null>(
     null
   );
-
   const [query, setQuery] = useState("");
   const [languageFilter, setLanguageFilter] = useState("all");
   const [sortBy, setSortBy] = useState<"activity" | "updated">("activity");
 
-  const hasActiveFilters =
-    query !== "" || languageFilter !== "all" || sortBy !== "activity";
-
-  const resetFilters = () => {
-    setQuery("");
-    setLanguageFilter("all");
-    setSortBy("activity");
-    setPage(1);
-  };
-
   const languages = useMemo(
-    () => [
-      "all",
-      ...Array.from(
+    () =>
+      Array.from(
         new Set(repos.map((r) => r.primaryLanguage).filter(Boolean) as string[])
-      ),
-    ],
+      ).sort(),
     [repos]
   );
 
   const filteredRepos = useMemo(() => {
+    const q = query.trim().toLowerCase();
     return repos
-      .filter(
-        (repo) =>
-          repo.name.toLowerCase().includes(query.toLowerCase()) ||
-          repo.fullName.toLowerCase().includes(query.toLowerCase())
-      )
+      .filter((repo) => !q || repo.fullName.toLowerCase().includes(q))
       .filter(
         (repo) =>
           languageFilter === "all" || repo.primaryLanguage === languageFilter
@@ -60,157 +50,151 @@ export default function RepoCarousel({
 
   const totalPages = Math.max(1, Math.ceil(filteredRepos.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const pageRepos = useMemo(() => {
-    const start = (safePage - 1) * PAGE_SIZE;
-    return filteredRepos.slice(start, start + PAGE_SIZE);
-  }, [filteredRepos, safePage]);
+  const pageRepos = filteredRepos.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  );
+
+  const activeRepos = repos.filter((r) =>
+    (r.activity7d ?? []).some((d) => d.commits > 0)
+  ).length;
+  const monthCommits = repos.reduce((sum, r) => sum + r.commitCount, 0);
 
   return (
-    <div className="space-y-6">
-      {/* Modern Top Navigation Bar */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center justify-between rounded-2xl bg-card-muted/30 p-3 border border-[var(--border)]">
-        <div className="flex flex-1 flex-wrap items-center gap-3">
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        {[
+          ["Repositories", repos.length, "#6ba8ff"],
+          ["Active this week", activeRepos, "#34d399"],
+          ["Commits, 30 days", monthCommits, "#c77dff"],
+        ].map(([label, value, color]) => (
+          <div
+            key={String(label)}
+            className="stat-cell p-3"
+            style={{ "--stat-c": color } as CSSProperties}
+          >
+            <div className="font-pixel text-[9px] uppercase tracking-[0.12em] text-[var(--muted-foreground)] sm:text-[10px]">
+              {label}
+            </div>
+            <div className="stat-value mt-1 text-lg sm:text-xl">
+              {Number(value).toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+        <label className="relative min-w-0 flex-1">
+          <span className="sr-only">Search repositories</span>
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]"
+            aria-hidden="true"
+          />
           <input
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setPage(1);
             }}
-            placeholder="Search repos..."
-            className="w-full sm:w-auto rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] transition-all flex-1 min-w-0 sm:min-w-[200px]"
+            placeholder="Search repositories"
+            className={`${controlClass} w-full pl-9`}
           />
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+        </label>
+        <div className="flex items-center gap-2">
+          <label className="min-w-0 flex-1 lg:flex-none">
+            <span className="sr-only">Language</span>
             <select
               value={languageFilter}
               onChange={(e) => {
                 setLanguageFilter(e.target.value);
                 setPage(1);
               }}
-              className="rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus:border-[var(--accent)] transition-all cursor-pointer min-w-0 flex-1"
+              className={`${controlClass} w-full cursor-pointer`}
             >
+              <option value="all">All languages</option>
               {languages.map((language) => (
                 <option key={language} value={language}>
-                  {language === "all" ? "All Languages" : language}
+                  {language}
                 </option>
               ))}
             </select>
-            <select
-              value={sortBy}
-              onChange={(e) => {
-                setSortBy(e.target.value as "activity" | "updated");
-                setPage(1);
-              }}
-              className="rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus:border-[var(--accent)] transition-all cursor-pointer min-w-0 flex-1"
-            >
-              <option value="activity">Most Active</option>
-              <option value="updated">Recently Updated</option>
-            </select>
-            {hasActiveFilters && (
+          </label>
+          <div
+            className={arcadeTabGroupClass}
+            role="group"
+            aria-label="Sort by"
+          >
+            {(
+              [
+                ["activity", "Active"],
+                ["updated", "Recent"],
+              ] as const
+            ).map(([value, label]) => (
               <button
+                key={value}
                 type="button"
-                onClick={resetFilters}
-                className="rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] hover:border-[var(--accent)] transition-all"
+                onClick={() => {
+                  setSortBy(value);
+                  setPage(1);
+                }}
+                aria-pressed={sortBy === value}
+                className={arcadeTabClass(sortBy === value)}
               >
-                Reset filters
+                {label}
               </button>
-            )}
+            ))}
           </div>
         </div>
-
-        {/* Pagination Arrows */}
-        {filteredRepos.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between lg:justify-end gap-4 w-full lg:w-auto">
-            <span className="text-sm font-medium text-[var(--muted-foreground)] ml-1 lg:ml-0">
-              <span className="text-[var(--card-foreground)]">{safePage}</span>{" "}
-              / {totalPages}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={safePage === 1}
-                aria-label="Previous page"
-                className="group flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)] disabled:opacity-40 disabled:hover:bg-[var(--card)] disabled:hover:text-inherit disabled:hover:border-[var(--border)] transition-all duration-300 shadow-sm"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform group-hover:-translate-x-0.5"
-                >
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={safePage === totalPages}
-                aria-label="Next page"
-                className="group flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)] disabled:opacity-40 disabled:hover:bg-[var(--card)] disabled:hover:text-inherit disabled:hover:border-[var(--border)] transition-all duration-300 shadow-sm"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform group-hover:translate-x-0.5"
-                >
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Cards View */}
       {filteredRepos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[var(--border)] bg-card-muted/20 p-16 text-center fade-up mt-4">
-          <div className="rounded-full bg-[var(--card)] p-4 shadow-sm mb-4 border border-[var(--border)] transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-[var(--muted-foreground)]"
-            >
-              <path d="M21 12c0 1.2-4 6-9 6s-9-4.8-9-6c0-1.2 4-6 9-6s9 4.8 9 6Z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </div>
-          <h3 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+        <div className="border-2 border-dashed border-[var(--border)] p-10 text-center">
+          <p className="font-pixel text-xs uppercase tracking-[0.12em] text-[var(--card-foreground)]">
             No repositories found
-          </h3>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)] max-w-sm">
-            Try adjusting your filters or search query to find what you&apos;re
-            looking for.
+          </p>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            Try another search or language.
           </p>
         </div>
       ) : (
-        <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 relative mt-6">
-          {pageRepos.map((repo, idx) => (
-            <div
-              key={`${repo.id}-${safePage}`}
-              className="fade-up transition-all duration-500 hover:-translate-y-1.5"
-              style={{ animationDelay: `${idx * 75}ms` }}
-            >
-              <RepoCard repo={repo} onViewAnalytics={setSelectedRepo} />
-            </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {pageRepos.map((repo) => (
+            <RepoCard
+              key={repo.id}
+              repo={repo}
+              onViewAnalytics={setSelectedRepo}
+            />
           ))}
         </div>
+      )}
+
+      {totalPages > 1 && (
+        <nav
+          className="flex items-center justify-center gap-3"
+          aria-label="Repository pages"
+        >
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage === 1}
+            aria-label="Previous page"
+            className="border-2 border-[var(--border)] p-2 text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-40"
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <span className="font-pixel text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+            Page {safePage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage === totalPages}
+            aria-label="Next page"
+            className="border-2 border-[var(--border)] p-2 text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-40"
+          >
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </nav>
       )}
 
       <RepoAnalyticsSheet
