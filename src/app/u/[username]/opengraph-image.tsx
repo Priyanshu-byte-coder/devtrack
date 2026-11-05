@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
-import { getRankBadgeRow } from "@/lib/gamification/queries";
+import { getRankRow } from "@/lib/gamification/live-rank";
 import { getGuestProfile, getRegistration } from "@/lib/guest-profile";
 import { estimateGuestRank } from "@/lib/guest-profile-model";
 import { getLeaderboardData } from "@/lib/leaderboard";
@@ -24,7 +24,7 @@ async function cardData(rawLogin: string): Promise<ShareCardData> {
   const login = normalizeGitHubUsername(rawLogin);
   if (!login) return { state: "unranked", login: "" };
 
-  const row = await getRankBadgeRow(login, "all");
+  const row = await getRankRow(login, "all");
   if (row) {
     return {
       state: "ranked",
