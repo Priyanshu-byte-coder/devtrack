@@ -29,7 +29,11 @@ const REVALIDATED_MS = 15_000;
 // Only a response with an ETag is worth keeping past its fresh window: a
 // conditional request then costs no rate limit. GraphQL and most search
 // responses have none, and keeping them for a day filled Redis for nothing.
-const ETAG_RETENTION_SECONDS = 86400;
+const ETAG_RETENTION_SECONDS = 6 * 60 * 60;
+// Upstash's free plan holds 256 MB and rejects every write once full, which
+// also breaks cooldowns and the leaderboard's last-good stats. One commit
+// search page can be ~300 KB, so large bodies aren't worth a slot.
+const MAX_CACHED_BODY_BYTES = 256 * 1024;
 
 function retentionSeconds(resource: Resource, stored: StoredResponse): number {
   const hasEtag = stored.headers.some(
@@ -322,7 +326,7 @@ export async function githubRequest(
         cacheable &&
         response.ok &&
         !(resource === "graphql" && /"errors"\s*:/.test(body)) &&
-        body.length < 2 * 1024 * 1024
+        body.length < MAX_CACHED_BODY_BYTES
       )
         await cacheSet(key, stored, retentionSeconds(resource, stored));
       return stored;

@@ -126,7 +126,7 @@ describe("GitHub transport coordination", () => {
       .mock.calls.filter(([key]) => String(key).startsWith("github:response:"))
       .map((call) => call[2]);
     // GraphQL can't be revalidated, so it lives only as long as it is fresh.
-    expect(ttls).toEqual([120, 86400]);
+    expect(ttls).toEqual([120, 6 * 60 * 60]);
   });
   it("conditionally refreshes stale responses with ETag", async () => {
     vi.mocked(fetch)
