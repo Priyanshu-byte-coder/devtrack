@@ -187,7 +187,7 @@ export async function GET(req: NextRequest) {
     // PR merge rate, open issues) change slowly and each load costs one GraphQL
     // request per repo.
     const data = await withMetricsCache(
-      { bypass, key, ttlSeconds: 10 * 60 },
+      { bypass, key, ttlSeconds: 30 * 60 },
       async () => {
         // Step 1: identify the top 6 repos from the shared commit timeline.
         const topRepos = (

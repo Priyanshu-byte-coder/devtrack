@@ -26,6 +26,19 @@ const FRESH_MS: Record<Resource, number> = {
 // A forced refresh fans out to every dashboard widget at once; widgets sharing
 // a query reuse one revalidation instead of each spending a search.
 const REVALIDATED_MS = 15_000;
+// Only a response with an ETag is worth keeping past its fresh window: a
+// conditional request then costs no rate limit. GraphQL and most search
+// responses have none, and keeping them for a day filled Redis for nothing.
+const ETAG_RETENTION_SECONDS = 86400;
+
+function retentionSeconds(resource: Resource, stored: StoredResponse): number {
+  const hasEtag = stored.headers.some(
+    ([name]) => name.toLowerCase() === "etag"
+  );
+  return hasEtag
+    ? ETAG_RETENTION_SECONDS
+    : Math.ceil(FRESH_MS[resource] / 1000);
+}
 // Bounded per-credential concurrency keeps well under GitHub's secondary
 // limits without letting cheap REST calls queue behind slow search pages.
 const CONCURRENCY: Record<Resource, number> = {
@@ -261,7 +274,7 @@ export async function githubRequest(
       }
       if (response.status === 304 && cached) {
         const refreshed = { ...cached, savedAt: Date.now() };
-        await cacheSet(key, refreshed, 86400);
+        await cacheSet(key, refreshed, retentionSeconds(resource, refreshed));
         return refreshed;
       }
       const body = await response.text();
@@ -311,7 +324,7 @@ export async function githubRequest(
         !(resource === "graphql" && /"errors"\s*:/.test(body)) &&
         body.length < 2 * 1024 * 1024
       )
-        await cacheSet(key, stored, 86400);
+        await cacheSet(key, stored, retentionSeconds(resource, stored));
       return stored;
     } finally {
       release();

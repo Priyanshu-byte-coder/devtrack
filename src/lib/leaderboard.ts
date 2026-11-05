@@ -23,6 +23,13 @@ import {
 } from "@/lib/gamification/scoring";
 
 export const CACHE_REFRESH_SECONDS = 3600; // 1 hour
+/**
+ * How long one player's GitHub stats are reused across board rebuilds. Most
+ * players have no stored token, so their stats are fetched with the shared
+ * server token; refreshing every one of them hourly spent it on rankings that
+ * only snapshot once a day. New players are still fetched straight away.
+ */
+const PLAYER_STATS_REFRESH_SECONDS = 6 * 3600;
 export const CACHE_STALE_SECONDS = 6 * 60 * 60; // 6 hours
 export const LEADERBOARD_CACHE_KEY = "leaderboard:v1";
 export const LEADERBOARD_BUILD_LOCK_KEY = "leaderboard:build-lock:v1";
@@ -527,7 +534,7 @@ async function playerStats(
           return stats;
         }),
       ["leaderboard-player", login.toLowerCase(), period],
-      { revalidate: CACHE_REFRESH_SECONDS, tags: ["leaderboard-player"] }
+      { revalidate: PLAYER_STATS_REFRESH_SECONDS, tags: ["leaderboard-player"] }
     )();
   } catch {
     return githubSlots(() => fetchSearchCounts(login, periodStart));
