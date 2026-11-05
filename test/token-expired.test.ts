@@ -38,7 +38,9 @@ vi.mock("@/lib/metrics-cache", () => ({
     streak: 300,
   },
   metricsCacheKey: vi.fn().mockReturnValue("test-cache-key"),
-  withMetricsCache: vi.fn().mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
+  withMetricsCache: vi
+    .fn()
+    .mockImplementation((_opts: unknown, fn: () => unknown) => fn()),
 }));
 
 vi.mock("@/lib/resolve-user", () => ({
@@ -279,7 +281,9 @@ describe("/api/metrics/pinned-repos — token expiry handling", () => {
     } as any);
 
     const { GET } = await import("@/app/api/metrics/pinned-repos/route");
-    const res = await GET(new NextRequest("http://localhost/api/metrics/pinned-repos"));
+    const res = await GET(
+      new NextRequest("http://localhost/api/metrics/pinned-repos")
+    );
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -301,79 +305,13 @@ describe("/api/metrics/pinned-repos — token expiry handling", () => {
     });
 
     const { GET } = await import("@/app/api/metrics/pinned-repos/route");
-    const res = await GET(new NextRequest("http://localhost/api/metrics/pinned-repos"));
+    const res = await GET(
+      new NextRequest("http://localhost/api/metrics/pinned-repos")
+    );
 
     expect(res.status).toBe(401);
     const body = await res.json();
     expect(body.error).toBe("token_expired");
-  });
-});
-
-describe("/api/metrics/pr-breakdown — token expiry handling", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockFetch.mockReset();
-  });
-
-  it("returns token_expired when session.error is TokenRevoked", async () => {
-    mockGetServerSession.mockResolvedValueOnce({
-      accessToken: "old-token",
-      githubLogin: "testuser",
-      githubId: "123",
-      error: "TokenRevoked",
-    } as any);
-
-    const { GET } = await import("@/app/api/metrics/pr-breakdown/route");
-    const req = { nextUrl: { searchParams: { get: () => null } } } as any;
-    const res = await GET(req);
-
-    expect(res.status).toBe(401);
-    const body = await res.json();
-    expect(body.error).toBe("token_expired");
-  });
-
-  it("returns token_expired when GitHub search API returns 401", async () => {
-    mockGetServerSession.mockResolvedValueOnce({
-      accessToken: "revoked-token",
-      githubLogin: "testuser",
-      githubId: "123",
-    } as any);
-
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-      headers: { get: () => null },
-    });
-
-    const { GET } = await import("@/app/api/metrics/pr-breakdown/route");
-    const req = { nextUrl: { searchParams: { get: () => null } } } as any;
-    const res = await GET(req);
-
-    expect(res.status).toBe(401);
-    const body = await res.json();
-    expect(body.error).toBe("token_expired");
-  });
-
-  it("returns 502 for non-auth GitHub failures", async () => {
-    mockGetServerSession.mockResolvedValueOnce({
-      accessToken: "valid-token",
-      githubLogin: "testuser",
-      githubId: "123",
-    } as any);
-
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 422,
-      headers: { get: () => null },
-    });
-
-    const { GET } = await import("@/app/api/metrics/pr-breakdown/route");
-    const req = { nextUrl: { searchParams: { get: () => null } } } as any;
-    const res = await GET(req);
-
-    expect(res.status).toBe(502);
-    const body = await res.json();
-    expect(body.error).not.toBe("token_expired");
   });
 });
 

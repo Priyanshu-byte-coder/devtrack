@@ -1111,48 +1111,6 @@ paths:
                 type: integer
               description: Seconds before retrying.
       operationId: get_api_metrics_pinned_repos
-  /api/metrics/pr-breakdown:
-    get:
-      tags:
-        - Metrics
-      summary: Get detailed PR breakdown
-      security:
-        - cookieAuth: []
-      responses:
-        '200':
-          description: PR breakdown data
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Unauthorized
-        '429':
-          description: GitHub or application rate limit. Retry after the cooldown.
-          headers:
-            Retry-After:
-              schema:
-                type: integer
-              description: Seconds before retrying.
-      operationId: get_api_metrics_pr_breakdown
-  /api/metrics/pr-review-time:
-    get:
-      operationId: get_api_metrics_pr_review_time
-      summary: GET /api/metrics/pr-review-time
-      tags:
-        - metrics
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-        '429':
-          description: GitHub or application rate limit. Retry after the cooldown.
-          headers:
-            Retry-After:
-              schema:
-                type: integer
-              description: Seconds before retrying.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security: []
   /api/metrics/productive-hours:
     get:
       operationId: get_api_metrics_productive_hours

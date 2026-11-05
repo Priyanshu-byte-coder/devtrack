@@ -62,10 +62,6 @@ const ProductiveHoursChart = lazy(
   () => import("@/components/ProductiveHoursWidget")
 );
 const PRMetricsChart = lazy(() => import("@/components/PRMetrics"));
-const PRBreakdownChart = lazy(() => import("@/components/PRBreakdownChart"));
-const PRReviewTrendChart = lazy(
-  () => import("@/components/PRReviewTrendChart")
-);
 const AchievementProgress = lazy(
   () => import("@/components/GitHubAchievementProgress"),
   false
@@ -162,18 +158,6 @@ export const ProductiveHours = slot(
 export const PRMetrics = slot("pr-metrics", "PR Metrics", () => (
   <PRMetricsChart />
 ));
-export const PRBreakdown = slot(
-  "pr-breakdown",
-  "PR Breakdown",
-  () => <PRBreakdownChart />,
-  true
-);
-export const PRReviewTrend = slot(
-  "pr-review-trend",
-  "PR Review Trend",
-  () => <PRReviewTrendChart />,
-  true
-);
 export const IssueMetrics = slot(
   "issue-metrics",
   "Issue Metrics",

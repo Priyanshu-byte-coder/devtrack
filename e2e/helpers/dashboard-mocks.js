@@ -38,10 +38,56 @@ export function mockMetricResponse(url) {
       avgReviewHours: 5,
       avgFirstReviewHours: 2,
       mergeRate: "75%",
+      summary: {
+        range: "30d",
+        opened: 4,
+        merged: 3,
+        closed: 1,
+        stillOpen: 0,
+        mergeRate: 0.75,
+        medianHoursToMerge: 5,
+        medianHoursToFirstReview: 2,
+        additions: 420,
+        deletions: 96,
+        sampled: false,
+        openNow: 1,
+        draftsNow: 0,
+        weeks: [
+          { weekStart: "2026-10-12", opened: 1, merged: 1 },
+          { weekStart: "2026-10-19", opened: 2, merged: 1 },
+          { weekStart: "2026-10-26", opened: 1, merged: 1 },
+        ],
+        repos: [{ repo: "demo/repo", opened: 4, merged: 3 }],
+        openList: [
+          {
+            title: "Add streak freeze",
+            url: "https://github.com/demo/repo/pull/7",
+            repo: "demo/repo",
+            number: 7,
+            ageDays: 3,
+            isDraft: false,
+            reviewed: false,
+          },
+        ],
+        recentMerged: [
+          {
+            title: "Fix login redirect",
+            url: "https://github.com/demo/repo/pull/6",
+            repo: "demo/repo",
+            number: 6,
+            mergedAt: "2026-10-30T10:00:00Z",
+            hoursToMerge: 5,
+          },
+        ],
+        reviews: {
+          total: 2,
+          approved: 1,
+          changesRequested: 0,
+          commented: 1,
+          topRepos: [{ repo: "demo/repo", count: 2 }],
+        },
+      },
     };
-  }
-  if (url.includes("/api/metrics/pr-breakdown")) {
-    return { draft: 1, merged: 9, open: 3, closed: 1 };
   }
   if (url.includes("/api/metrics/issues")) {
     return {
