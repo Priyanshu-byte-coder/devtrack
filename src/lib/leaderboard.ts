@@ -510,12 +510,23 @@ async function loadUserTokens(userIds: string[]): Promise<Map<string, string>> {
   return tokens;
 }
 
+/** Last stats a full lookup returned, kept so one failed lookup can't sink a rank. */
+const LAST_GOOD_SECONDS = 14 * 24 * 60 * 60;
+const lastGoodKey = (login: string, period: LeaderboardPeriod) =>
+  `leaderboard:player:last-good:${period}:${login.toLowerCase()}`;
+
 /**
  * One player's stats for a period, cached on their own. Someone joining
  * expires the board, and the rebuild then only calls GitHub for players it
  * hasn't seen: everyone else comes from here. Stale stats are served while
- * they refresh in the background. Failed lookups throw inside the cache so
- * they are never stored, and fall back to the cheaper search counts.
+ * they refresh in the background.
+ *
+ * A failed lookup must never replace real stats with the search fallback:
+ * that has no active days, streak, reviews or repositories, so a player
+ * near the top dropped ~400 points and a hundred places whenever their
+ * token was briefly rate limited. In order, we try their token, then the
+ * shared token (contribution data is public), then their last good stats,
+ * and only then the search counts.
  */
 async function playerStats(
   login: string,
@@ -523,20 +534,28 @@ async function playerStats(
   period: LeaderboardPeriod,
   periodStart: string | undefined
 ): Promise<UserStats> {
+  const sharedToken = process.env.GITHUB_TOKEN;
   try {
     return await unstable_cache(
       () =>
         githubSlots(async () => {
-          const stats = token
+          let stats = token
             ? await fetchUserStats(login, token, periodStart)
-            : await fetchSearchCounts(login, periodStart);
+            : null;
+          if (!stats && sharedToken && sharedToken !== token)
+            stats = await fetchUserStats(login, sharedToken, periodStart);
           if (!stats) throw new Error("No contribution data");
+          await cacheSet(lastGoodKey(login, period), stats, LAST_GOOD_SECONDS);
           return stats;
         }),
       ["leaderboard-player", login.toLowerCase(), period],
       { revalidate: PLAYER_STATS_REFRESH_SECONDS, tags: ["leaderboard-player"] }
     )();
   } catch {
+    const lastGood = await cacheGet<UserStats>(
+      lastGoodKey(login, period)
+    ).catch(() => null);
+    if (lastGood) return lastGood;
     return githubSlots(() => fetchSearchCounts(login, periodStart));
   }
 }
