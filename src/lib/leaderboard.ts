@@ -13,6 +13,7 @@ import {
   type LeaderboardCacheEntry,
 } from "@/lib/leaderboard-cache";
 import { unstable_cache, revalidateTag } from "next/cache";
+import { resolveServerGitHubToken } from "@/lib/github-app";
 import {
   levelFromXp,
   scoreCohort,
@@ -515,49 +516,76 @@ const LAST_GOOD_SECONDS = 14 * 24 * 60 * 60;
 const lastGoodKey = (login: string, period: LeaderboardPeriod) =>
   `leaderboard:player:last-good:${period}:${login.toLowerCase()}`;
 
+type SavedStats = { stats: UserStats; savedAt: number };
+
+/** Entries saved before savedAt existed are plain stats: usable, but stale. */
+function readSaved(value: unknown): SavedStats | null {
+  if (!value || typeof value !== "object") return null;
+  if ("stats" in value && "savedAt" in value) return value as SavedStats;
+  return { stats: value as UserStats, savedAt: 0 };
+}
+
 /**
- * One player's stats for a period, cached on their own. Someone joining
- * expires the board, and the rebuild then only calls GitHub for players it
- * hasn't seen: everyone else comes from here. Stale stats are served while
- * they refresh in the background.
+ * Spreads refreshes over an extra hour per player, so players fetched in the
+ * same burst don't all come due together again six hours later.
+ */
+function refreshAfterMs(login: string): number {
+  let hash = 0;
+  for (const ch of login.toLowerCase())
+    hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return (PLAYER_STATS_REFRESH_SECONDS + (hash % 3600)) * 1000;
+}
+
+/**
+ * One player's stats for a period. Redis is the cache: unlike Next's data
+ * cache it survives deploys, so a deploy no longer makes the next rebuild
+ * fetch every player at once. That burst tripped GitHub's limits on the
+ * shared token and left players who failed with zeroed stats.
  *
  * A failed lookup must never replace real stats with the search fallback:
  * that has no active days, streak, reviews or repositories, so a player
- * near the top dropped ~400 points and a hundred places whenever their
- * token was briefly rate limited. In order, we try their token, then the
- * shared token (contribution data is public), then their last good stats,
- * and only then the search counts.
+ * near the top dropped ~400 points and a hundred places. In order, we try
+ * their token, then the shared token (contribution data is public), then
+ * their last good stats, and only then the search counts.
  */
 async function playerStats(
   login: string,
   token: string | undefined,
+  sharedToken: string | undefined,
   period: LeaderboardPeriod,
   periodStart: string | undefined
 ): Promise<UserStats> {
-  const sharedToken = process.env.GITHUB_TOKEN;
+  const key = lastGoodKey(login, period);
+  let saved: SavedStats | null = null;
   try {
-    return await unstable_cache(
-      () =>
-        githubSlots(async () => {
-          let stats = token
-            ? await fetchUserStats(login, token, periodStart)
-            : null;
-          if (!stats && sharedToken && sharedToken !== token)
-            stats = await fetchUserStats(login, sharedToken, periodStart);
-          if (!stats) throw new Error("No contribution data");
-          await cacheSet(lastGoodKey(login, period), stats, LAST_GOOD_SECONDS);
-          return stats;
-        }),
-      ["leaderboard-player", login.toLowerCase(), period],
-      { revalidate: PLAYER_STATS_REFRESH_SECONDS, tags: ["leaderboard-player"] }
-    )();
+    saved = readSaved(await cacheGet<unknown>(key));
   } catch {
-    const lastGood = await cacheGet<UserStats>(
-      lastGoodKey(login, period)
-    ).catch(() => null);
-    if (lastGood) return lastGood;
-    return githubSlots(() => fetchSearchCounts(login, periodStart));
+    // Redis down: fall through to GitHub.
   }
+  if (saved && Date.now() - saved.savedAt < refreshAfterMs(login))
+    return saved.stats;
+
+  const fresh = await githubSlots(async () => {
+    let stats = token ? await fetchUserStats(login, token, periodStart) : null;
+    if (!stats && sharedToken && sharedToken !== token)
+      stats = await fetchUserStats(login, sharedToken, periodStart);
+    return stats;
+  }).catch(() => null);
+
+  if (fresh) {
+    try {
+      await cacheSet<SavedStats>(
+        key,
+        { stats: fresh, savedAt: Date.now() },
+        LAST_GOOD_SECONDS
+      );
+    } catch {
+      // Not saved this time; the stats are still good to use.
+    }
+    return fresh;
+  }
+  if (saved) return saved.stats;
+  return githubSlots(() => fetchSearchCounts(login, periodStart));
 }
 
 /**
@@ -586,16 +614,20 @@ export async function buildLeaderboard(
   const now = new Date();
   const safeUsers = (users ?? []) as PublicUser[];
   const userTokens = await loadUserTokens(safeUsers.map((user) => user.id));
+  // The GitHub App installation token when configured (its own rate-limit
+  // bucket), else the GITHUB_TOKEN PAT.
+  const serverToken = await resolveServerGitHubToken();
 
   const rows = await mapWithConcurrency(
     safeUsers,
     CACHE_READ_CONCURRENCY,
     async (user): Promise<LeaderboardEntry> => {
       // Each user's own token spreads the load across their rate limits.
-      const token = userTokens.get(user.id) ?? process.env.GITHUB_TOKEN;
+      const token = userTokens.get(user.id) ?? serverToken;
       const stats = await playerStats(
         user.github_login,
         token,
+        serverToken,
         period,
         periodStart
       );
