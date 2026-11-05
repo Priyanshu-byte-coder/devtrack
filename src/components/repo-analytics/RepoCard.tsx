@@ -1,11 +1,12 @@
 "use client";
 
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-
+import type { CSSProperties } from "react";
+import { BarChart3, ExternalLink } from "lucide-react";
 import { ExplorerRepoCardData } from "@/lib/repo-analytics-types";
-import { formatRelativeDate, formatDate } from "@/lib/date-utils";
+import { formatRelativeDate } from "@/lib/date-utils";
 import { safeExternalHref } from "@/lib/safe-url";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { languageColor } from "@/lib/language-colors";
+import { hudLabelClass } from "@/components/ui/arcade";
 
 interface RepoCardProps {
   repo: ExplorerRepoCardData;
@@ -13,126 +14,99 @@ interface RepoCardProps {
 }
 
 export default function RepoCard({ repo, onViewAnalytics }: RepoCardProps) {
-  const activityData = Array.isArray(repo.activity7d) ? repo.activity7d : [];
-  const activeDays = activityData.filter((day) => day.commits > 0).length;
-  const consistency = activityData.length
-    ? Math.round((activeDays / 7) * 100)
-    : 0;
+  const activity = Array.isArray(repo.activity7d) ? repo.activity7d : [];
+  const activeDays = activity.filter((day) => day.commits > 0).length;
+  const peak = Math.max(1, ...activity.map((d) => d.commits));
+  const color = languageColor(repo.primaryLanguage);
 
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm backdrop-blur-xl animate-slide-up transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      {/* Border Glow */}
-      <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-[var(--border)]" />
+    <article
+      className="stat-cell flex h-full flex-col gap-4 p-4"
+      style={{ "--stat-c": color } as CSSProperties}
+    >
+      <div className="min-w-0">
+        <h3
+          className="truncate text-base font-semibold text-[var(--card-foreground)]"
+          title={repo.fullName}
+        >
+          {repo.name}
+        </h3>
+        <div className="mt-1 flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5" style={{ background: color }} />
+            {repo.primaryLanguage ?? "No language"}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span className="truncate">
+            Updated {formatRelativeDate(repo.updatedAt)}
+          </span>
+        </div>
+      </div>
 
-      <div className="relative flex flex-col gap-5">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h3 className="truncate text-lg font-semibold tracking-tight text-[var(--card-foreground)]">
-              {repo.name}
-            </h3>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-[var(--card)] px-3 py-2">
+          <div className={hudLabelClass}>30-day commits</div>
+          <div className="stat-value mt-1 text-lg">{repo.commitCount}</div>
+        </div>
+        <div className="bg-[var(--card)] px-3 py-2">
+          <div className={hudLabelClass}>Active this week</div>
+          <div className="stat-value mt-1 text-lg">{activeDays}/7</div>
+        </div>
+      </div>
 
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-foreground)]">
-              <span className="rounded-full border border-[var(--border)] bg-[var(--control)] px-2.5 py-1">
-                {repo.commitCount} commits
-              </span>
-
-              <span className="rounded-full border border-[var(--border)] bg-[var(--control)] px-2.5 py-1">
-                Created {formatDate(repo.createdAt)}
-              </span>
-            </div>
-          </div>
-
-          {/* Consistency */}
-          <div className="flex flex-col items-end">
-            <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-              {consistency}%
+      <div>
+        <div
+          className="flex h-14 items-end gap-1"
+          role="img"
+          aria-label={`Commits in the last 7 days: ${activity
+            .map((d) => `${d.day} ${d.commits}`)
+            .join(", ")}`}
+        >
+          {activity.map((d, i) => (
+            <div
+              key={`${d.day}-${i}`}
+              className="flex-1"
+              title={`${d.day}: ${d.commits} commit${d.commits === 1 ? "" : "s"}`}
+              style={{
+                height: `${d.commits > 0 ? Math.max(14, (d.commits / peak) * 100) : 6}%`,
+                background:
+                  d.commits > 0
+                    ? color
+                    : "color-mix(in srgb, var(--border) 70%, transparent)",
+              }}
+            />
+          ))}
+        </div>
+        <div className="mt-1 flex gap-1">
+          {activity.map((d, i) => (
+            <span
+              key={`${d.day}-label-${i}`}
+              className="flex-1 text-center text-[10px] text-[var(--muted-foreground)]"
+            >
+              {d.day.slice(0, 1)}
             </span>
-
-            <span className="text-[11px] text-[var(--muted-foreground)]">
-              Consistency
-            </span>
-          </div>
+          ))}
         </div>
+      </div>
 
-        {/* Activity Graph */}
-        <div className="h-32 w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card-muted)] p-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={activityData}>
-              <defs>
-                <linearGradient
-                  id={`repoActivity-${repo.name}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor="var(--accent)"
-                    stopOpacity={0.7}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="var(--accent)"
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-              </defs>
-
-              <XAxis
-                dataKey="day"
-                axisLine={false}
-                tickLine={false}
-                tick={{
-                  fill: "var(--muted-foreground)",
-                  fontSize: 11,
-                }}
-              />
-
-              <Tooltip
-                cursor={false}
-                contentStyle={{
-                  background: "var(--card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "12px",
-                  color: "var(--card-foreground)",
-                }}
-              />
-
-              <Area
-                type="monotone"
-                dataKey="commits"
-                stroke="var(--accent)"
-                strokeWidth={2.5}
-                fill={`url(#repoActivity-${repo.name})`}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
-          <span>Updated {formatRelativeDate(repo.updatedAt)}</span>
-
-          <span>{repo.primaryLanguage ?? "Unknown"}</span>
-        </div>
-
-        {/* Buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <a
-            href={safeExternalHref(repo.htmlUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={buttonVariants({ variant: "outline" })}
-          >
-            Repo
-          </a>
-
-          <Button variant="outline" onClick={() => onViewAnalytics(repo)}>
-            View
-          </Button>
-        </div>
+      <div className="mt-auto flex gap-2">
+        <button
+          type="button"
+          onClick={() => onViewAnalytics(repo)}
+          className="inline-flex flex-1 items-center justify-center gap-1.5 bg-[var(--accent)] px-3 py-2 font-pixel text-[11px] uppercase tracking-[0.08em] text-[var(--accent-foreground)] hover:opacity-90"
+        >
+          <BarChart3 className="h-3.5 w-3.5" aria-hidden="true" />
+          Analytics
+        </button>
+        <a
+          href={safeExternalHref(repo.htmlUrl)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open ${repo.fullName} on GitHub`}
+          className="inline-flex items-center justify-center border-2 border-[var(--border)] px-3 py-2 text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        </a>
       </div>
     </article>
   );
