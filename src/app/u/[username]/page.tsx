@@ -29,10 +29,8 @@ import {
 import GuestProfileView from "@/components/profile/GuestProfileView";
 import GitHubBusy from "@/components/GitHubBusy";
 import { isGitHubBusyError } from "@/lib/github-busy";
-import {
-  getProgressForLogin,
-  getRankBadgeRow,
-} from "@/lib/gamification/queries";
+import { getProgressForLogin } from "@/lib/gamification/queries";
+import { getRankRow } from "@/lib/gamification/live-rank";
 import RankMovementBadge from "@/components/gamification/RankMovementBadge";
 import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";
 import { rankMovement } from "@/lib/gamification/ranking";
@@ -264,7 +262,7 @@ export default async function PublicProfilePage({
     loadProfile(username),
     getLoggedInGitHubUsername(),
     getProgressForLogin(username),
-    getRankBadgeRow(username, "all"),
+    getRankRow(username, "all"),
   ]);
   const profileUrl = getProfileUrl(username);
 
