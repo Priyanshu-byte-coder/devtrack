@@ -139,6 +139,51 @@ describe("leaderboard player stats when GitHub fails", () => {
     });
   });
 
+  it("serves fresh saved stats without calling GitHub, even after a deploy", async () => {
+    mocks.store.set("leaderboard:player:last-good:month:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 50,
+        prs: 9,
+        activeDays: 12,
+        reviews: 4,
+        repos: 5,
+      },
+      savedAt: Date.now(),
+    });
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "month" })).leaders
+      .commits;
+    expect(entry).toMatchObject({ activeDays: 12, reviews: 4, repos: 5 });
+    expect(
+      mocks.githubRequest.mock.calls.filter(([url]) =>
+        String(url).includes("/graphql")
+      )
+    ).toHaveLength(0);
+  });
+
+  it("refreshes stale saved stats and keeps them if the refresh fails", async () => {
+    mocks.store.set("leaderboard:player:last-good:month:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 50,
+        prs: 9,
+        activeDays: 12,
+        reviews: 4,
+        repos: 5,
+      },
+      savedAt: Date.now() - 8 * 60 * 60 * 1000,
+    });
+    mocks.githubRequest.mockImplementation(async (url: string) =>
+      String(url).includes("/graphql") ? failed : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "month" })).leaders
+      .commits;
+    expect(mocks.githubRequest).toHaveBeenCalled();
+    expect(entry).toMatchObject({ activeDays: 12, reviews: 4, repos: 5 });
+  });
+
   it("only uses the search counts for a player never loaded before", async () => {
     mocks.githubRequest.mockImplementation(async (url: string) =>
       String(url).includes("/graphql") ? failed : searchCount
