@@ -1,6 +1,6 @@
 # DevTrack
 
-> DevTrack is a free, open-source web app that turns a developer's GitHub activity into stats, streaks and a global ranking. Developers sign in with GitHub to see their commits, pull requests, contribution streak and languages, set coding goals, and compare themselves with friends and other developers worldwide.
+> DevTrack is a free, open-source GitHub activity tracker and developer leaderboard: a web app that turns a developer's GitHub activity into stats, streaks and a global ranking. Developers sign in with GitHub to see their commits, pull requests, contribution streak and languages, set coding goals, and compare themselves with friends and other developers worldwide.
 
 DevTrack is built with Next.js and is developed in the open on GitHub, where contributors of every experience level are welcome.
 
@@ -19,6 +19,8 @@ DevTrack is built with Next.js and is developed in the open on GitHub, where con
 
 ## Guides
 
+- [GitHub activity trackers compared](https://devtrack.live/guides/github-activity-tracker): what GitHub shows, WakaTime, README stats cards, OSS Insight and DevTrack, and which to use for what.
+- [Is there a GitHub leaderboard?](https://devtrack.live/guides/github-leaderboard): GitHub doesn't rank users; how developer leaderboards rank people and how to see your rank.
 - [Add GitHub stats to your profile README](https://devtrack.live/guides/github-stats-readme): live rank, streak and monthly commit badges, with copy-paste Markdown.
 - [GitHub streaks](https://devtrack.live/guides/github-streak): GitHub removed streak counters in 2016; how streaks are counted now and how to keep one.
 - [Compare two GitHub profiles](https://devtrack.live/guides/compare-github-profiles): side-by-side duels on streaks, contributions, commits, PRs and reviews.

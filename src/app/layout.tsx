@@ -48,12 +48,12 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
   ),
   title: {
-    // Short: this is the browser tab. Search snippets use `description`.
-    default: "DevTrack · GitHub stats & rankings",
+    // Leads with the words people search for: Google weighs the title most.
+    default: "DevTrack: GitHub Activity Tracker & Developer Leaderboard",
     template: "%s · DevTrack",
   },
   description:
-    "Track your GitHub activity, keep your coding streak alive, and see how you rank against developers worldwide. Free and open source.",
+    "Free GitHub activity tracker. Turn your commits, pull requests and coding streak into a score, and see where you rank on a global developer leaderboard. Open source.",
   applicationName: "DevTrack",
   // Search engine ownership checks. Google is verified by DNS.
   verification: { yandex: "cf0315371c223923" },

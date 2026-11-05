@@ -158,6 +158,10 @@ export const FAQ: Array<{ q: string; a: string }> = [
     a: "DevTrack is a free, open-source dashboard that turns your GitHub activity into stats, a coding streak, XP and a rank on a global developer leaderboard. You sign in with GitHub and everything is built from your real commits, pull requests and reviews.",
   },
   {
+    q: "Is there a leaderboard for GitHub developers?",
+    a: "GitHub itself has no leaderboard. DevTrack ranks developers on one global board by a 0 to 1000 score built from their GitHub activity, with weekly and monthly seasons and filters by language. You can also browse the top GitHub developers by language and by country.",
+  },
+  {
     q: "How is the DevTrack score calculated?",
     a: "Your score runs from 0 to 1000 and blends four signals: consistency (active days and your current streak, 30%), impact (pull requests, with reviews counting half, 30%), volume (commits, 25%) and breadth (repositories you contributed to, 15%). Each signal mixes log-scaled progress toward a fixed target with your percentile among everyone on the board.",
   },
