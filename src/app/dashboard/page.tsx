@@ -75,21 +75,38 @@ export default async function DashboardPage() {
         actions={<ExportButton />}
       />
 
-      <div className="space-y-4">
+      {/* Alerts that arrive after the page has drawn float above the content
+          instead of pushing it down (on phones, above the tab bar). */}
+      <div className="pointer-events-none fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 space-y-2 sm:inset-x-auto sm:right-6 sm:w-[26rem] lg:bottom-6 [&>*]:pointer-events-auto">
         <ThrottleBanner />
         <StreakAtRiskBanner />
+      </div>
+
+      <div className="space-y-4">
         <div data-tour="stats">
           <StatStrip />
         </div>
         <div data-tour="rank">
-          <Suspense fallback={null}>
+          {/* Same height as the card, so nothing moves when it streams in. */}
+          <Suspense
+            fallback={
+              <div
+                aria-hidden="true"
+                className="px-frame h-[257px] animate-pulse bg-[var(--card)] sm:h-[132px]"
+              />
+            }
+          >
             <RankCard githubId={(session as { githubId?: string }).githubId} />
           </Suspense>
         </div>
         <WrappedSpotlight />
 
         <div className="grid gap-4 xl:grid-cols-3">
-          <div className="min-w-0 xl:col-span-2" data-tour="activity">
+          {/* Reserves the loaded chart's height (its header wraps on phones). */}
+          <div
+            className="min-h-[388px] min-w-0 sm:min-h-[330px] xl:col-span-2"
+            data-tour="activity"
+          >
             <ContributionGraph />
           </div>
           <div className="min-w-0 space-y-4">

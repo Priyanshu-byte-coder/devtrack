@@ -39,8 +39,11 @@ export default function ThrottleBanner() {
   if (!visible) return null;
 
   return (
-    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-5 py-3.5 flex items-center justify-between gap-4">
-      <p className="text-sm text-amber-200">
+    <div
+      role="status"
+      className="rounded-xl border border-amber-500/40 bg-[color-mix(in_srgb,#f59e0b_12%,var(--card))] px-5 py-3.5 flex items-center justify-between gap-4 shadow-lg"
+    >
+      <p className="text-sm text-[var(--card-foreground)]">
         Some features are temporarily unavailable due to usage limits. Data may
         be stale or missing — it will recover automatically.
       </p>
