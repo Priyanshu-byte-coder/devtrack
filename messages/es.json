@@ -96,8 +96,6 @@
     "addGitHubAccount": "Agregar cuenta de GitHub",
     "noLinkedAccounts": "Aún no hay cuentas de GitHub vinculadas.",
     "loadingLinkedAccounts": "Cargando cuentas vinculadas...",
-    "wakatimeTitle": "Integración con Wakatime",
-    "wakatimeDescription": "Conecta tu cuenta de Wakatime para mostrar tiempo de programación y uso de lenguajes con precisión.",
     "apiKey": "Clave API",
     "discordTitle": "Integración con Discord",
     "discordDescription": "Recibe recordatorios de rachas y alertas de hitos en tu servidor de Discord.",

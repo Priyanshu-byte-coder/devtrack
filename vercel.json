@@ -5,10 +5,6 @@
       "schedule": "0 9 * * 1"
     },
     {
-      "path": "/api/wakatime/sync",
-      "schedule": "0 0 * * *"
-    },
-    {
       "path": "/api/sponsors/sync",
       "schedule": "0 0 * * *"
     },

@@ -131,7 +131,7 @@ The rank badge also takes `&board=month` or `&board=week`. More in [BADGE_API.md
 - Repositories, language loadout, repo health and comparison
 - Goals as a quest log, milestones and a daily focus
 - AI resume, coding personality, project tutor, weekly insights
-- Themes, English and Spanish, PWA, Discord, Slack and WakaTime
+- Themes, English and Spanish, PWA, Discord and Slack
 
 </td>
 </tr>
@@ -286,7 +286,7 @@ Then follow **[DEVELOPMENT.md](./DEVELOPMENT.md)** for the database migrations a
 
 Everyone is expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Found a security issue? See [SECURITY.md](./SECURITY.md).
 
-DevTrack is built on [Supabase](https://supabase.com), [Vercel](https://vercel.com), [Anthropic](https://anthropic.com), [Groq](https://groq.com) and [WakaTime](https://wakatime.com).
+DevTrack is built on [Supabase](https://supabase.com), [Vercel](https://vercel.com), [Anthropic](https://anthropic.com), and [Groq](https://groq.com).
 
 ## Star history
 

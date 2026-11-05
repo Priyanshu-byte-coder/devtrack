@@ -146,23 +146,6 @@ const SCRIPTS: Array<[prefix: string, script: BuddyScript]> = [
     },
   ],
   [
-    "/dashboard/community",
-    {
-      stage: "Guild hall",
-      lines: [
-        "Discussions, reviews and sponsors: your open-source footprint.",
-        "Compare with a friend. Whoever loses buys the coffee.",
-      ],
-    },
-  ],
-  [
-    "/dashboard/friends",
-    {
-      stage: "Party",
-      lines: ["Type any GitHub username to put your stats side by side."],
-    },
-  ],
-  [
     "/dashboard/settings",
     {
       stage: "Options",

@@ -96,8 +96,6 @@
     "addGitHubAccount": "Add GitHub Account",
     "noLinkedAccounts": "No linked GitHub accounts yet.",
     "loadingLinkedAccounts": "Loading linked accounts...",
-    "wakatimeTitle": "Wakatime Integration",
-    "wakatimeDescription": "Connect your Wakatime account to display accurate coding time and language usage.",
     "apiKey": "API Key",
     "discordTitle": "Discord Integration",
     "discordDescription": "Receive streak reminders and milestone alerts in your Discord server.",

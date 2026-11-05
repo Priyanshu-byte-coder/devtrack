@@ -10,7 +10,6 @@ import {
   AIMentor,
   ContributionGraph,
   PersonalRecords,
-  RecentActivity,
 } from "@/components/dashboard/widgets";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "@/lib/server-session";
@@ -102,27 +101,21 @@ export default async function DashboardPage() {
         <WrappedSpotlight />
 
         <div className="grid gap-4 xl:grid-cols-3">
-          {/* Reserves the loaded chart's height (its header wraps on phones). */}
-          <div
-            className="min-h-[388px] min-w-0 sm:min-h-[330px] xl:col-span-2"
-            data-tour="activity"
-          >
-            <ContributionGraph />
+          <div className="min-w-0 space-y-4 xl:col-span-2">
+            {/* Reserves the loaded chart's height (its header wraps on phones). */}
+            <div
+              className="min-h-[388px] sm:min-h-[330px]"
+              data-tour="activity"
+            >
+              <ContributionGraph />
+            </div>
+            <PersonalRecords />
           </div>
           <div className="min-w-0 space-y-4">
             <div data-tour="focus">
               <TodayFocusHero />
             </div>
             <AIMentor />
-          </div>
-        </div>
-
-        <div className="grid gap-4 xl:grid-cols-2">
-          <div className="min-w-0">
-            <PersonalRecords />
-          </div>
-          <div className="min-w-0">
-            <RecentActivity />
           </div>
         </div>
       </div>

@@ -36,7 +36,6 @@ interface UserSettings {
   public_widgets?: string[];
   leaderboard_opt_in: boolean;
   weekly_digest_opt_in: boolean;
-  has_wakatime_key?: boolean;
   discord_webhook_url?: string;
   timezone?: string;
   pinned_repos?: string[];
@@ -158,7 +157,6 @@ const SETTINGS_SECTIONS: SettingsNavItem[] = [
   { id: "settings-notifications", label: "Notifications" },
   { id: "settings-accounts", label: "Accounts" },
   { id: "settings-organizations", label: "Organizations" },
-  { id: "settings-wakatime", label: "WakaTime" },
   { id: "settings-discord", label: "Discord" },
   { id: "settings-privacy", label: "Privacy & data" },
   { id: "settings-webhooks", label: "Webhooks" },
@@ -206,11 +204,9 @@ function SettingsPageContent() {
   const [removingAccountId, setRemovingAccountId] = useState<string | null>(
     null
   );
-  const [wakatimeKey, setWakatimeKey] = useState("");
   const [bioDraft, setBioDraft] = useState("");
   const [showBioPreview, setShowBioPreview] = useState(false);
   const [savingBio, setSavingBio] = useState(false);
-  const [savingWakatime, setSavingWakatime] = useState(false);
   const [discordWebhook, setDiscordWebhook] = useState("");
   const [timezone, setTimezone] = useState("");
   const [savingDiscord, setSavingDiscord] = useState(false);
@@ -677,37 +673,6 @@ function SettingsPageContent() {
       toast.error("Failed to save widget settings.");
     } finally {
       setSavingWidgets(false);
-    }
-  };
-
-  const handleSaveWakatime = async () => {
-    if (!settings) return;
-    setSavingWakatime(true);
-    try {
-      const res = await fetch("/api/user/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wakatime_api_key: wakatimeKey }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setSettings(updated);
-        setWakatimeKey("");
-        setIsDirty(false);
-        toast.success(
-          wakatimeKey === ""
-            ? "Wakatime key removed"
-            : "Wakatime key saved successfully!"
-        );
-      } else {
-        const errorData = await res.json();
-        toast.error(errorData.error || "Failed to update Wakatime key");
-      }
-    } catch (error) {
-      console.error("Error updating Wakatime key:", error);
-      toast.error("Failed to update Wakatime key");
-    } finally {
-      setSavingWakatime(false);
     }
   };
 
@@ -1901,64 +1866,6 @@ function SettingsPageContent() {
                 )}
               </div>
             )}
-          </div>
-
-          <div
-            id="settings-wakatime"
-            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
-          >
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
-              <div>
-                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-                  Wakatime Integration
-                </h2>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  {t("wakatimeDescription")}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="wakatime-key"
-                  className="block text-sm font-medium text-[var(--card-foreground)] mb-1"
-                >
-                  {t("apiKey")}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="wakatime-key"
-                    type="password"
-                    value={wakatimeKey}
-                    onChange={(e) => {
-                      setWakatimeKey(e.target.value);
-                      setIsDirty(true);
-                    }}
-                    placeholder={
-                      settings.has_wakatime_key
-                        ? "•••••••••••••••• (Configured)"
-                        : "Enter your Wakatime API key"
-                    }
-                    autoComplete="new-password"
-                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSaveWakatime}
-                    disabled={savingWakatime}
-                    className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60 min-w-[80px]"
-                  >
-                    {savingWakatime ? common("saving") : common("save")}
-                  </button>
-                </div>
-                <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                  {settings.has_wakatime_key
-                    ? "Leave blank and click Save to remove your key."
-                    : "You can find your API key in your Wakatime Settings."}
-                </p>
-              </div>
-            </div>
           </div>
 
           <div
