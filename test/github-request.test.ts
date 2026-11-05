@@ -109,6 +109,25 @@ describe("GitHub transport coordination", () => {
     await githubRequest(url, { headers: token(), cache: "no-cache" });
     expect(fetch).toHaveBeenCalledTimes(2);
   });
+  it("keeps only ETag responses past their fresh window", async () => {
+    const { cacheSet } = await import("@/lib/metrics-cache");
+    vi.mocked(cacheSet).mockClear();
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(json({ data: { viewer: { login: "a" } } }))
+      .mockResolvedValueOnce(json({ login: "a" }, { etag: '"v1"' }));
+    await githubRequest("https://api.github.com/graphql", {
+      method: "POST",
+      headers: token(),
+      body: JSON.stringify({ query: "{ viewer { login } }" }),
+    });
+    await githubRequest("https://api.github.com/user", { headers: token() });
+    const ttls = vi
+      .mocked(cacheSet)
+      .mock.calls.filter(([key]) => String(key).startsWith("github:response:"))
+      .map((call) => call[2]);
+    // GraphQL can't be revalidated, so it lives only as long as it is fresh.
+    expect(ttls).toEqual([120, 86400]);
+  });
   it("conditionally refreshes stale responses with ETag", async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(json({ login: "a" }, { etag: '"abc"' }))

@@ -162,7 +162,7 @@ export default function WrappedExperience() {
         title: stats.mostProductiveMonth.name,
         body: `${formatNumber(
           stats.mostProductiveMonth.commits
-        )} commits landed in your busiest month.`,
+        )} contributions landed in your busiest month.`,
         metric: "Most productive month",
         icon: "star",
       },
@@ -185,7 +185,7 @@ export default function WrappedExperience() {
         title: stats.mostContributedRepo.name,
         body: `${formatNumber(
           stats.mostContributedRepo.commits
-        )} sampled commits came from this repository.`,
+        )} of your commits went to this repository.`,
         metric: "Most contributed repo",
         icon: "star",
       },

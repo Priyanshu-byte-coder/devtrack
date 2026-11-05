@@ -5,14 +5,17 @@ import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GITHUB_API, GitHubCommitSearchItem } from "@/lib/github";
 import {
+  isMetricsCacheBypassed,
+  metricsCacheKey,
+  withMetricsCache,
+} from "@/lib/metrics-cache";
+import {
   calculateLanguagePercentages,
   calculateLongestStreak,
   calculatePersonality,
-  getMostContributedRepo,
   getMostProductiveMonth,
   getPeakCodingHour,
   getYearRange,
-  type WrappedCommit,
 } from "@/lib/wrapped";
 
 export const dynamic = "force-dynamic";
@@ -22,9 +25,57 @@ interface GitHubSearchResponse {
   items: GitHubCommitSearchItem[];
 }
 
-interface GitHubLanguageResponse {
-  [language: string]: number;
+interface YearQueryResult {
+  user: {
+    contributionsCollection: {
+      totalCommitContributions: number;
+      contributionCalendar: {
+        weeks: Array<{
+          contributionDays: Array<{ date: string; contributionCount: number }>;
+        }>;
+      };
+      commitContributionsByRepository: Array<{
+        contributions: { totalCount: number };
+        repository: {
+          nameWithOwner: string;
+          isPrivate: boolean;
+          languages: {
+            edges: Array<{ size: number; node: { name: string } }>;
+          };
+        };
+      }>;
+    };
+  } | null;
+  merged: { issueCount: number };
 }
+
+// Everything but the coding clock in one request: the year's calendar,
+// commit total, top repositories with their languages and merged PRs. It used
+// to take ten pages of commit search plus a request per repository.
+const YEAR_QUERY = `
+query YearInCode($login: String!, $from: DateTime!, $to: DateTime!, $merged: String!) {
+  user(login: $login) {
+    contributionsCollection(from: $from, to: $to) {
+      totalCommitContributions
+      contributionCalendar { weeks { contributionDays { date contributionCount } } }
+      commitContributionsByRepository(maxRepositories: 10) {
+        contributions { totalCount }
+        repository {
+          nameWithOwner
+          isPrivate
+          languages(first: 5, orderBy: { field: SIZE, direction: DESC }) {
+            edges { size node { name } }
+          }
+        }
+      }
+    }
+  }
+  merged: search(query: $merged, type: ISSUE, first: 1) { issueCount }
+}`;
+
+// A past year never changes; the current one is fine a few hours stale.
+const PAST_YEAR_TTL_SECONDS = 7 * 24 * 60 * 60;
+const CURRENT_YEAR_TTL_SECONDS = 6 * 60 * 60;
 
 function getRequestedYear(req: NextRequest) {
   const now = new Date();
@@ -38,139 +89,99 @@ function getRequestedYear(req: NextRequest) {
   return Math.min(currentYear, Math.max(2008, parsed));
 }
 
-async function fetchYearCommits(
+async function fetchYearSummary(
   token: string,
   githubLogin: string,
+  start: Date,
+  end: Date,
   startDate: string,
   endDate: string
 ) {
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-  };
-  const commits: WrappedCommit[] = [];
-  const hours: number[] = [];
-  const contributionsByDate: Record<string, number> = {};
-  let totalCommits = 0;
-
-  for (let page = 1; page <= 10; page += 1) {
-    const searchUrl = new URL(`${GITHUB_API}/search/commits`);
-    searchUrl.searchParams.set(
-      "q",
-      `author:${githubLogin} author-date:${startDate}..${endDate}`
-    );
-    searchUrl.searchParams.set("per_page", "100");
-    searchUrl.searchParams.set("page", String(page));
-    searchUrl.searchParams.set("sort", "author-date");
-    searchUrl.searchParams.set("order", "desc");
-
-    const res = await githubRequest(searchUrl.toString(), {
-      headers,
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      // On rate-limit, use whatever we've collected so far (including zero)
-      // rather than failing the entire request.
-      if (res.status === 403 || res.status === 429) {
-        break;
-      }
-
-      throw new Error(`GitHub commit search failed: ${res.status}`);
-    }
-
-    const data = (await res.json()) as GitHubSearchResponse;
-    if (page === 1) {
-      totalCommits = data.total_count;
-    }
-
-    for (const item of data.items) {
-      const date = item.commit.author.date.slice(0, 10);
-      const hour = new Date(item.commit.author.date).getHours();
-      contributionsByDate[date] = (contributionsByDate[date] ?? 0) + 1;
-      commits.push({
-        date,
-        repo: item.repository?.full_name ?? "unknown",
-      });
-      hours.push(hour);
-    }
-
-    if (
-      data.items.length < 100 ||
-      commits.length >= 1000 ||
-      commits.length >= data.total_count
-    ) {
-      break;
-    }
-  }
-
-  return { commits, contributionsByDate, hours, totalCommits };
-}
-
-async function fetchMergedPRCount(
-  token: string,
-  githubLogin: string,
-  startDate: string,
-  endDate: string
-) {
-  const searchUrl = new URL(`${GITHUB_API}/search/issues`);
-  searchUrl.searchParams.set(
-    "q",
-    `type:pr author:${githubLogin} merged:${startDate}..${endDate}`
-  );
-  searchUrl.searchParams.set("per_page", "1");
-
-  const res = await githubRequest(searchUrl.toString(), {
+  const res = await githubRequest("https://api.github.com/graphql", {
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
     },
-    cache: "no-store",
+    body: JSON.stringify({
+      query: YEAR_QUERY,
+      variables: {
+        login: githubLogin,
+        from: start.toISOString(),
+        to: end.toISOString(),
+        merged: `type:pr author:${githubLogin} merged:${startDate}..${endDate}`,
+      },
+    }),
   });
+  if (!res.ok) throw new Error(`GitHub GraphQL failed: ${res.status}`);
+  const json = (await res.json()) as { data?: YearQueryResult };
+  const collection = json.data?.user?.contributionsCollection;
+  if (!collection) throw new Error("GitHub returned no contribution data");
 
-  if (!res.ok) {
-    return 0;
-  }
+  const contributionsByDate: Record<string, number> = {};
+  for (const week of collection.contributionCalendar.weeks)
+    for (const day of week.contributionDays)
+      if (day.date >= startDate && day.date <= endDate)
+        contributionsByDate[day.date] = day.contributionCount;
 
-  const data = (await res.json()) as { total_count: number };
-  return data.total_count;
+  const repos = collection.commitContributionsByRepository;
+  const langTotals: Record<string, number> = {};
+  for (const { repository } of repos)
+    for (const edge of repository.languages.edges)
+      langTotals[edge.node.name] =
+        (langTotals[edge.node.name] ?? 0) + edge.size;
+
+  // The recap is made to be shared, so it never names a private repository.
+  const topPublic = repos
+    .filter((r) => !r.repository.isPrivate)
+    .sort((a, b) => b.contributions.totalCount - a.contributions.totalCount)[0];
+
+  return {
+    totalCommits: collection.totalCommitContributions,
+    contributionsByDate,
+    topLanguages: calculateLanguagePercentages(langTotals, 3),
+    mostContributedRepo: topPublic
+      ? {
+          name: topPublic.repository.nameWithOwner,
+          commits: topPublic.contributions.totalCount,
+        }
+      : { name: "No public repository", commits: 0 },
+    prsMerged: json.data?.merged.issueCount ?? 0,
+  };
 }
 
-async function fetchTopLanguages(token: string, repos: string[]) {
-  const langTotals: Record<string, number> = {};
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Accept: "application/vnd.github+json",
-  };
+/** Hours only come from commit timestamps: one page of the latest commits. */
+async function fetchCommitHours(
+  token: string,
+  githubLogin: string,
+  startDate: string,
+  endDate: string
+): Promise<number[]> {
+  const searchUrl = new URL(`${GITHUB_API}/search/commits`);
+  searchUrl.searchParams.set(
+    "q",
+    `author:${githubLogin} author-date:${startDate}..${endDate}`
+  );
+  searchUrl.searchParams.set("per_page", "100");
+  searchUrl.searchParams.set("sort", "author-date");
+  searchUrl.searchParams.set("order", "desc");
 
-  // Fetch in batches of 5 to avoid GitHub secondary rate limits
-  const repoBatch = repos.slice(0, 10);
-  for (let i = 0; i < repoBatch.length; i += 5) {
-    await Promise.all(
-      repoBatch.slice(i, i + 5).map(async (repo) => {
-      try {
-        const res = await githubRequest(`${GITHUB_API}/repos/${repo}/languages`, {
-          headers,
-          cache: "no-store",
-        });
-
-        if (!res.ok) {
-          return;
-        }
-
-        const languages = (await res.json()) as GitHubLanguageResponse;
-        for (const [language, bytes] of Object.entries(languages)) {
-          langTotals[language] = (langTotals[language] ?? 0) + bytes;
-        }
-      } catch (e) {
-        // Language data is nice-to-have for the recap. The rest of the wrapped
-        // experience should still render if one repository cannot be read.
-      }
-    })
+  try {
+    const res = await githubRequest(searchUrl.toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as GitHubSearchResponse;
+    return data.items.map((item) =>
+      new Date(item.commit.author.date).getHours()
     );
+  } catch {
+    // The coding clock is a nice-to-have; the recap renders without it.
+    return [];
   }
-
-  return calculateLanguagePercentages(langTotals, 3);
 }
 
 export async function GET(req: NextRequest) {
@@ -180,59 +191,68 @@ export async function GET(req: NextRequest) {
   }
 
   const year = getRequestedYear(req);
-  const { startDate, endDate, partial } = getYearRange(year);
+  const { start, end, startDate, endDate, partial } = getYearRange(year);
+
+  const userId = session.githubId ?? session.githubLogin;
+  const key = metricsCacheKey(userId, "wrapped", { year });
 
   try {
-    const { commits, contributionsByDate, hours, totalCommits } =
-      await fetchYearCommits(
-        session.accessToken,
-        session.githubLogin,
-        startDate,
-        endDate
-      );
-    const repos = Array.from(new Set(commits.map((commit) => commit.repo))).filter(
-      (repo) => repo !== "unknown"
+    const stats = await withMetricsCache(
+      {
+        bypass: isMetricsCacheBypassed(req),
+        key,
+        ttlSeconds: partial ? CURRENT_YEAR_TTL_SECONDS : PAST_YEAR_TTL_SECONDS,
+      },
+      async () => {
+        const [summary, hours] = await Promise.all([
+          fetchYearSummary(
+            session.accessToken!,
+            session.githubLogin!,
+            start,
+            end,
+            startDate,
+            endDate
+          ),
+          fetchCommitHours(
+            session.accessToken!,
+            session.githubLogin!,
+            startDate,
+            endDate
+          ),
+        ]);
+        const { contributionsByDate, totalCommits, prsMerged } = summary;
+        const activeDays = Object.values(contributionsByDate).filter(
+          (count) => count > 0
+        ).length;
+        const longestStreak = calculateLongestStreak(contributionsByDate);
+        const peakCodingHour = getPeakCodingHour(hours);
+
+        return {
+          year,
+          username: session.githubLogin!,
+          totalCommits,
+          activeDays,
+          longestStreak,
+          mostProductiveMonth: getMostProductiveMonth(contributionsByDate),
+          topLanguages: summary.topLanguages,
+          prsMerged,
+          mostContributedRepo: summary.mostContributedRepo,
+          peakCodingHour,
+          personality: calculatePersonality(
+            contributionsByDate,
+            totalCommits,
+            prsMerged,
+            peakCodingHour,
+            longestStreak,
+            activeDays
+          ),
+          generatedAt: new Date().toISOString(),
+          partial,
+        };
+      }
     );
-    const [topLanguages, prsMerged] = await Promise.all([
-      fetchTopLanguages(session.accessToken, repos),
-      fetchMergedPRCount(
-        session.accessToken,
-        session.githubLogin,
-        startDate,
-        endDate
-      ),
-    ]);
 
-    const activeDays = Object.values(contributionsByDate).filter(
-      (count) => count > 0
-    ).length;
-    const longestStreak = calculateLongestStreak(contributionsByDate);
-    const peakCodingHourResult = getPeakCodingHour(hours);
-
-    const personality = calculatePersonality(
-      contributionsByDate,
-      totalCommits,
-      prsMerged,
-      peakCodingHourResult,
-      longestStreak,
-      activeDays
-    );
-
-    return Response.json({
-      year,
-      username: session.githubLogin,
-      totalCommits,
-      activeDays,
-      longestStreak,
-      mostProductiveMonth: getMostProductiveMonth(contributionsByDate),
-      topLanguages,
-      prsMerged,
-      mostContributedRepo: getMostContributedRepo(commits),
-      peakCodingHour: peakCodingHourResult,
-      personality,
-      generatedAt: new Date().toISOString(),
-      partial,
-    });
+    return Response.json(stats);
   } catch (e) {
     const githubLimit = githubRateLimitResponse(e);
     if (githubLimit) return githubLimit;
