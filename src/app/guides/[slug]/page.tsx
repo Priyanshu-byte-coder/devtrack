@@ -109,7 +109,7 @@ export default async function GuidePage({
         </time>
       </p>
 
-      <div className="mt-8 text-[15px] leading-7 text-[var(--foreground)] [&_code]:bg-[var(--control)] [&_code]:px-1 [&_code]:font-mono [&_code]:text-[13px] [&_h2]:mt-10 [&_h2]:font-pixel [&_h2]:text-sm [&_h2]:uppercase [&_h2]:tracking-[0.12em] [&_h2]:text-[var(--accent)] [&_li]:mt-1.5 [&_p]:mt-4 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6">
+      <div className="mt-8 text-[15px] leading-7 text-[var(--foreground)] [&_code]:bg-[var(--control)] [&_code]:px-1 [&_code]:font-mono [&_code]:text-[13px] [&_h2]:mt-10 [&_h2]:font-pixel [&_h2]:text-sm [&_h2]:uppercase [&_h2]:tracking-[0.12em] [&_h2]:text-[var(--accent)] [&_li]:mt-1.5 [&_p]:mt-4 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6">
         {guide.body()}
       </div>
 

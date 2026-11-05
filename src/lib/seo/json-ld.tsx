@@ -35,7 +35,7 @@ export function siteJsonLd() {
       // Hints for Google's site name, so results read "DevTrack".
       alternateName: ["DevTrack Live", "devtrack.live"],
       description:
-        "Track your GitHub activity, keep your streak alive, and see how you rank against developers worldwide.",
+        "A free GitHub activity tracker and developer leaderboard: track your GitHub activity, keep your streak alive, and see how you rank against developers worldwide.",
       publisher: { "@id": `${SITE_URL}/#organization` },
     },
     {

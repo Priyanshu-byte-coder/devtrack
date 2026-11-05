@@ -49,6 +49,212 @@ function A({ href, children }: { href: string; children: ReactNode }) {
 
 export const GUIDES: Guide[] = [
   {
+    slug: "github-activity-tracker",
+    title: "GitHub activity trackers: what they track and which to use",
+    description:
+      "The main ways to track your GitHub activity, from GitHub's own contribution graph to WakaTime, README stats cards, OSS Insight and DevTrack, and what each one is for.",
+    published: "2026-11-05",
+    updated: "2026-11-05",
+    body: () => (
+      <>
+        <p>
+          A GitHub activity tracker reads what you do on GitHub (commits, pull
+          requests, reviews, issues) and turns it into something you can follow
+          over time: a streak, a chart, a goal or a rank. GitHub shows some of
+          this itself, and a handful of tools fill the gaps. They measure
+          different things, so the right one depends on what you want to see.
+        </p>
+        <h2>What GitHub shows you</h2>
+        <ul>
+          <li>
+            <strong>The contribution graph</strong> on your profile: a year of
+            daily activity, coloured by volume.
+          </li>
+          <li>
+            <strong>Achievements</strong>: badges for milestones such as merged
+            pull requests and co-authored commits.
+          </li>
+          <li>
+            <strong>Repository Insights</strong>: pulse, contributors and
+            traffic for each repository.
+          </li>
+        </ul>
+        <p>
+          What&apos;s missing: there&apos;s no streak counter (it was removed in
+          2016), no history beyond the graph, no view across all your
+          repositories at once, and no way to see how you compare with anyone
+          else.
+        </p>
+        <h2>The main options</h2>
+        <ul>
+          <li>
+            <strong>WakaTime</strong> measures time spent coding through editor
+            plugins. It tracks your editor rather than GitHub, so it answers
+            &quot;how long did I code?&quot;, not &quot;what did I ship?&quot;.
+            Many developers use it alongside a GitHub tracker.
+          </li>
+          <li>
+            <strong>README stats cards</strong>, such as the open-source
+            github-readme-stats project, render images of your stars, commits
+            and top languages for your profile README. They&apos;re a snapshot:
+            no history, goals or ranking.
+          </li>
+          <li>
+            <strong>OSS Insight</strong> analyses GitHub event data to explore
+            repositories, developers and trends. It&apos;s strongest for
+            researching projects and the open-source ecosystem.
+          </li>
+          <li>
+            <strong>DevTrack</strong> is a free, open-source dashboard for your
+            own activity: contribution heatmap, streaks with freezes, pull
+            request and review analytics, repositories, goals and weekly
+            insights. It also turns your activity into a score from 0 to 1000
+            and a place on a{" "}
+            <A href="/leaderboard">global developer leaderboard</A>, with live
+            badges for your README.
+          </li>
+        </ul>
+        <h2>Which one should you use?</h2>
+        <ul>
+          <li>
+            <strong>To keep a coding streak and track progress</strong>: a
+            dashboard like DevTrack, which counts streaks in your time zone and
+            lets you set goals.
+          </li>
+          <li>
+            <strong>To see where your time goes</strong>: WakaTime.
+          </li>
+          <li>
+            <strong>To decorate your profile README</strong>: stats cards or{" "}
+            <A href="/guides/github-stats-readme">DevTrack badges</A>, which
+            also show your rank.
+          </li>
+          <li>
+            <strong>To compare yourself with other developers</strong>: the{" "}
+            <A href="/leaderboard">DevTrack leaderboard</A>, a{" "}
+            <A href="/compare">head-to-head comparison</A>, or the{" "}
+            <A href="/top">top developers by language and country</A>.
+          </li>
+        </ul>
+        <p>
+          You can try DevTrack without signing up: every GitHub user has a page
+          at <code>devtrack.live/u/username</code>. Sign in with GitHub to{" "}
+          <A href="/claim">claim yours</A> and add private contributions to your
+          stats.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "How can I track my GitHub activity?",
+        a: "GitHub's contribution graph shows a year of daily activity. For streaks, goals, pull request and review analytics, and a ranking against other developers, sign in to a GitHub activity tracker such as DevTrack, which builds everything from your real GitHub data.",
+      },
+      {
+        q: "What is the best GitHub activity tracker?",
+        a: "It depends on what you want to measure. WakaTime tracks time spent in your editor, README stats cards show a snapshot on your profile, OSS Insight explores repositories and trends, and DevTrack tracks your streaks, pull requests and reviews and ranks you on a global developer leaderboard.",
+      },
+      {
+        q: "Does GitHub track how long I spend coding?",
+        a: "No. GitHub records contributions such as commits, pull requests, reviews and issues, not time. Tools like WakaTime measure coding time through editor plugins.",
+      },
+    ],
+  },
+  {
+    slug: "github-leaderboard",
+    title: "Is there a GitHub leaderboard? How to see where you rank",
+    description:
+      "GitHub doesn't rank its users. Here's how developer leaderboards work, what they measure, and how to see where you rank worldwide, by language and by country.",
+    published: "2026-11-05",
+    updated: "2026-11-05",
+    body: () => (
+      <>
+        <p>
+          GitHub has no official ranking of its users. The closest it comes is
+          the Trending page, which lists developers whose repositories are
+          gaining stars right now. That rewards a viral project, not steady
+          work, and it resets every day.
+        </p>
+        <h2>Ways developers get ranked</h2>
+        <ul>
+          <li>
+            <strong>By followers</strong>: easy to measure, but it mostly
+            reflects fame. DevTrack&apos;s <A href="/top">top developers</A>{" "}
+            pages use it to list the best-known developers for each language and
+            country.
+          </li>
+          <li>
+            <strong>By public contributions</strong>: community lists such as
+            committers.top rank the most active users in each country by their
+            public contribution count.
+          </li>
+          <li>
+            <strong>By a combined score</strong>: the{" "}
+            <A href="/leaderboard">DevTrack leaderboard</A> blends consistency,
+            impact from pull requests and reviews, commit volume and breadth
+            across repositories into one score from 0 to 1000, so one huge month
+            or one famous repository can&apos;t dominate.
+          </li>
+        </ul>
+        <h2>How to see your rank</h2>
+        <ol>
+          <li>
+            Look yourself up: every GitHub user has a page at{" "}
+            <code>devtrack.live/u/username</code> showing where they would rank.
+          </li>
+          <li>
+            Sign in with GitHub to join the board. New players are listed
+            straight away, and private contributions can count toward your
+            totals (never your private repository names or code).
+          </li>
+          <li>
+            Filter the board by language, or switch between all-time, monthly
+            and weekly seasons, where newcomers can top the board without years
+            of history.
+          </li>
+        </ol>
+        <p>
+          Your rank changes daily, and you can show it off with a{" "}
+          <A href="/guides/github-stats-readme">live rank badge</A> in your
+          README. You can hide your profile or leave the board at any time in
+          Settings.
+        </p>
+        <h2>How to climb</h2>
+        <ul>
+          <li>
+            Show up often. Consistency is 30% of the score, so a small
+            contribution every day beats a weekend binge.
+          </li>
+          <li>
+            Review pull requests. Reviews count toward impact, and few people do
+            enough of them.
+          </li>
+          <li>
+            Contribute beyond your own repositories. Breadth across projects is
+            part of the score.
+          </li>
+        </ul>
+        <p>
+          The full formula is in{" "}
+          <A href="/guides/devtrack-score">how the DevTrack score works</A>.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "Does GitHub have a leaderboard?",
+        a: "No. GitHub doesn't rank its users. Its Trending page lists developers whose repositories are gaining stars, which changes daily. Developer leaderboards such as DevTrack rank developers by their GitHub activity instead.",
+      },
+      {
+        q: "How can I see my GitHub rank?",
+        a: "Open devtrack.live/u/your-username to see where you would rank on the DevTrack global leaderboard, then sign in with GitHub to join it. You can filter by language and see weekly and monthly seasons.",
+      },
+      {
+        q: "Who are the top GitHub developers in my country?",
+        a: "DevTrack lists the most-followed GitHub developers in 28 countries, including India, the United States, Germany and Brazil, at devtrack.live/top, updated daily.",
+      },
+    ],
+  },
+  {
     slug: "github-stats-readme",
     title: "How to add GitHub stats to your profile README",
     description:

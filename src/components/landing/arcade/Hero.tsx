@@ -49,7 +49,7 @@ export default function Hero({ board }: { board: Promise<LandingBoard> }) {
                   aria-hidden="true"
                   className="px-blink inline-block h-2 w-2 bg-[var(--success)]"
                 />
-                Insert coin · free forever
+                GitHub activity tracker · free forever
               </p>
 
               <h1
