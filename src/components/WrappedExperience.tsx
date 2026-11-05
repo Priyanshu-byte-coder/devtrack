@@ -55,6 +55,8 @@ function getOgImageUrl(stats: WrappedStats) {
     year: String(stats.year),
     commits: String(stats.totalCommits),
     streak: String(stats.longestStreak),
+    prs: String(stats.prsMerged),
+    days: String(stats.activeDays),
     language: stats.topLanguages[0]?.name ?? "Code",
     repo: stats.mostContributedRepo.name,
   });

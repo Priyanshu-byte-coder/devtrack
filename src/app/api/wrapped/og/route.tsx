@@ -1,18 +1,94 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import {
+  Backdrop,
+  Header,
+  MUTED,
+  Pixel,
+  SHARE_CARD_SIZE,
+  WHITE,
+} from "@/lib/gamification/share-card";
 
 export const runtime = "nodejs";
+
+// Gold, as on the Year in Code screens.
+const GOLD = "#f2c14e";
+const fmt = new Intl.NumberFormat("en-US");
 
 function getParam(req: NextRequest, key: string, fallback: string) {
   const value = req.nextUrl.searchParams.get(key);
   return value && value.trim().length > 0 ? value.slice(0, 80) : fallback;
 }
 
+/** Digits only, so a crafted URL can't draw arbitrary text in the pixel font. */
+function getCount(req: NextRequest, key: string): string | null {
+  const value = Number(req.nextUrl.searchParams.get(key));
+  return Number.isFinite(value) && value >= 0
+    ? fmt.format(Math.floor(value))
+    : null;
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        width: 330,
+      }}
+    >
+      <Pixel text={label} scale={3} color={MUTED} />
+      <Pixel text={value} scale={6} color={WHITE} />
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        flex: 1,
+        minWidth: 0,
+      }}
+    >
+      <Pixel text={label} scale={3} color={MUTED} />
+      <div
+        style={{
+          display: "flex",
+          fontSize: 34,
+          fontWeight: 700,
+          color: WHITE,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+          maxWidth: 500,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
 export async function GET(req: NextRequest) {
   const username = getParam(req, "username", "developer");
-  const year = getParam(req, "year", String(new Date().getFullYear()));
-  const commits = getParam(req, "commits", "0");
-  const streak = getParam(req, "streak", "0");
+  const year = String(
+    Math.min(
+      2100,
+      Math.max(
+        2008,
+        Number(getParam(req, "year", "")) || new Date().getFullYear()
+      )
+    )
+  );
+  const commits = getCount(req, "commits") ?? "0";
+  const streak = getCount(req, "streak") ?? "0";
+  const prs = getCount(req, "prs");
+  const days = getCount(req, "days");
   const language = getParam(req, "language", "Code");
   const repo = getParam(req, "repo", "DevTrack");
 
@@ -22,121 +98,105 @@ export async function GET(req: NextRequest) {
         width: "100%",
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        background: "#0b1020",
-        color: "#f8fafc",
-        padding: "58px 64px",
-        fontFamily: "Inter, Arial, sans-serif",
+        position: "relative",
+        fontFamily: "sans-serif",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <Backdrop />
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: SHARE_CARD_SIZE.width,
+          height: SHARE_CARD_SIZE.height,
+          display: "flex",
+          flexDirection: "column",
+          padding: "52px 64px",
+          gap: 26,
+        }}
+      >
+        <Header />
+
+        <div style={{ display: "flex", gap: 56, alignItems: "center" }}>
           <div
             style={{
-              color: "#67e8f9",
-              fontSize: 24,
-              fontWeight: 800,
-              letterSpacing: 3,
-              textTransform: "uppercase",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 14,
             }}
           >
-            DevTrack Wrapped
+            <div style={{ display: "flex", padding: 6, background: "#000000" }}>
+              <div style={{ display: "flex", padding: 6, background: GOLD }}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- rendered by Satori, not the browser */}
+                <img
+                  src={`https://avatars.githubusercontent.com/${encodeURIComponent(username)}?s=360`}
+                  width={180}
+                  height={180}
+                  alt=""
+                  style={{ display: "flex" }}
+                />
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 28,
+                color: WHITE,
+                maxWidth: 240,
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {`@${username}`}
+            </div>
           </div>
-          <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 0.95 }}>
-            {`@${username}`}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 24 }}>
+              <Pixel text={year} scale={12} color={GOLD} />
+              <div style={{ display: "flex", paddingBottom: 6 }}>
+                <Pixel text="YEAR IN CODE" scale={4} color={WHITE} />
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                rowGap: 20,
+                width: 660,
+              }}
+            >
+              <Stat label="COMMITS" value={commits} />
+              <Stat label="BEST STREAK" value={`${streak}D`} />
+              {prs !== null && <Stat label="PRS MERGED" value={prs} />}
+              {days !== null && <Stat label="ACTIVE DAYS" value={days} />}
+            </div>
           </div>
         </div>
+
         <div
           style={{
-            border: "2px solid rgba(248,250,252,0.2)",
-            borderRadius: 18,
-            padding: "18px 24px",
-            fontSize: 32,
-            fontWeight: 800,
-            color: "#fde68a",
-            height: 72,
+            display: "flex",
+            gap: 40,
+            marginTop: "auto",
+            paddingTop: 22,
+            borderTop: "4px solid #1c2740",
           }}
         >
-          {year}
+          <Detail label="TOP LANGUAGE" value={language} />
+          <Detail label="TOP REPO" value={repo} />
         </div>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          gap: 22,
-          width: "100%",
-        }}
-      >
-        <Stat label="Commits" value={commits} color="#67e8f9" />
-        <Stat label="Longest streak" value={`${streak}d`} color="#a7f3d0" />
-        <Stat label="Top language" value={language} color="#fde68a" />
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderTop: "1px solid rgba(248,250,252,0.16)",
-          paddingTop: 24,
-        }}
-      >
-        <div style={{ fontSize: 28, color: "#cbd5e1" }}>
-          {`Most contributed repo: ${repo}`}
-        </div>
-        <div style={{ fontSize: 24, color: "#94a3b8" }}>devtrack.live</div>
       </div>
     </div>,
     {
-      width: 1200,
-      height: 630,
+      ...SHARE_CARD_SIZE,
       // Drawn only from the query string, so the same URL is the same image.
       headers: {
         "Cache-Control": "public, max-age=86400, s-maxage=31536000, immutable",
       },
     }
-  );
-}
-
-function Stat({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: string;
-  color: string;
-}) {
-  return (
-    <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        gap: 14,
-        border: "1px solid rgba(248,250,252,0.16)",
-        borderRadius: 20,
-        background: "rgba(255,255,255,0.06)",
-        padding: 28,
-        minHeight: 168,
-      }}
-    >
-      <div style={{ color, fontSize: 54, fontWeight: 900, lineHeight: 1 }}>
-        {value}
-      </div>
-      <div
-        style={{
-          color: "#cbd5e1",
-          fontSize: 22,
-          fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: 2,
-        }}
-      >
-        {label}
-      </div>
-    </div>
   );
 }
