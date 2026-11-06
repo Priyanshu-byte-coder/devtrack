@@ -39,7 +39,6 @@ query GuestProfile($login: String!) {
     bio
     createdAt
     followers { totalCount }
-    gists(privacy: PUBLIC) { totalCount }
     repositories(ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC, first: 30, orderBy: { field: PUSHED_AT, direction: DESC }) {
       totalCount
       nodes { name url description stargazerCount primaryLanguage { name } }
@@ -125,6 +124,25 @@ async function fetchLifetime(
   }
 }
 
+/**
+ * Public gist count over REST. GraphQL's `gists` field answers a GitHub App
+ * installation token with "Resource not accessible by integration", which
+ * failed the whole profile query. Zero when GitHub can't say.
+ */
+async function fetchPublicGists(login: string, token: string): Promise<number> {
+  try {
+    const res = await githubRequest(
+      `https://api.github.com/users/${encodeURIComponent(login)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!res.ok) return 0;
+    const data = (await res.json()) as { public_gists?: number };
+    return data.public_gists ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 /** A GitHub user's public profile, or null when no such user exists. */
 export async function fetchGuestProfile(
   login: string
@@ -140,12 +158,15 @@ export async function fetchGuestProfile(
   );
   if (!data.user) return null;
 
-  const lifetime = await fetchLifetime(
-    data.user.login,
-    data.user.contributionsCollection.contributionYears,
-    token
-  );
-  return buildGuestProfile(data.user, lifetime);
+  const [lifetime, publicGists] = await Promise.all([
+    fetchLifetime(
+      data.user.login,
+      data.user.contributionsCollection.contributionYears,
+      token
+    ),
+    fetchPublicGists(data.user.login, token),
+  ]);
+  return buildGuestProfile(data.user, lifetime, publicGists);
 }
 
 const PLAYWRIGHT_GUEST = "playwright-guest";
