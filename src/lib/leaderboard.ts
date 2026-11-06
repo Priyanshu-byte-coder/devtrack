@@ -324,7 +324,7 @@ function getPeriodSince(period: LeaderboardPeriod): string | undefined {
   return toDateStr(new Date(Date.now() - days * 86400000));
 }
 
-type UserStats = {
+export type UserStats = {
   streak: number;
   commits: number;
   prs: number;
@@ -529,6 +529,25 @@ function readSaved(value: unknown): SavedStats | null {
   if (!value || typeof value !== "object") return null;
   if ("stats" in value && "savedAt" in value) return value as SavedStats;
   return { stats: value as UserStats, savedAt: PLAIN_STATS_SAVED_AT };
+}
+
+/**
+ * A player's last good leaderboard stats, without fetching. Fetched with the
+ * player's own token where we have one, so they include private-repo work
+ * that public lookups can't see. Null when the player has none saved.
+ */
+export async function getSavedPlayerStats(
+  login: string,
+  period: LeaderboardPeriod
+): Promise<UserStats | null> {
+  try {
+    return (
+      readSaved(await cacheGet<unknown>(lastGoodKey(login, period)))?.stats ??
+      null
+    );
+  } catch {
+    return null;
+  }
 }
 
 /**
