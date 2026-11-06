@@ -53,7 +53,6 @@ export interface GuestUserNode {
   bio: string | null;
   createdAt: string;
   followers: { totalCount: number };
-  gists: { totalCount: number };
   repositories: {
     totalCount: number;
     nodes: Array<{
@@ -87,7 +86,8 @@ export type YearTotals = {
 
 export function buildGuestProfile(
   user: GuestUserNode,
-  lifetimeByYear: YearTotals[] | null
+  lifetimeByYear: YearTotals[] | null,
+  publicGists = 0
 ): GuestProfile {
   const cc = user.contributionsCollection;
   const calendar = cc.contributionCalendar.weeks
@@ -120,7 +120,7 @@ export function buildGuestProfile(
     githubSince: user.createdAt,
     followers: user.followers.totalCount,
     publicRepos: user.repositories.totalCount,
-    publicGists: user.gists.totalCount,
+    publicGists,
     calendar,
     yearContributions: cc.contributionCalendar.totalContributions,
     activeDays: active.length,

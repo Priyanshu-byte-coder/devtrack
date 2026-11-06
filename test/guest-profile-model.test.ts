@@ -19,7 +19,6 @@ function node(overrides: Partial<GuestUserNode> = {}): GuestUserNode {
     bio: "",
     createdAt: "2015-01-01T00:00:00Z",
     followers: { totalCount: 10 },
-    gists: { totalCount: 2 },
     repositories: {
       totalCount: 4,
       nodes: [
