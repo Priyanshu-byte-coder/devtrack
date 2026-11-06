@@ -1,5 +1,12 @@
+import {
+  loadInsightMetrics,
+  InsightMetricsUnavailableError,
+} from "@/lib/insight-metrics";
+import { groqChatCompletion } from "@/lib/groq";
+import { checkAiQuota } from "@/lib/ai-quota";
+import { toDatabaseJson } from "@/lib/database-json";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -88,10 +95,15 @@ export async function GET(request: Request) {
   // type fails with a clear 400 instead of a Supabase constraint-violation 500.
   if (!VALID_INSIGHT_TYPES.has(rawType as InsightType)) {
     return NextResponse.json(
-      { error: `Invalid insight type. Must be one of: ${[...VALID_INSIGHT_TYPES].join(", ")}` },
+      {
+        error: `Invalid insight type. Must be one of: ${[
+          ...VALID_INSIGHT_TYPES,
+        ].join(", ")}`,
+      },
       { status: 400 }
     );
   }
+
   const type = rawType as InsightType;
 
   // Check the cache before touching the rate-limit counter so that repeated
@@ -122,15 +134,23 @@ export async function GET(request: Request) {
       limit: AI_INSIGHTS_LIMIT,
       windowSeconds: AI_INSIGHTS_WINDOW_SECONDS,
     });
+
     if (!result.allowed) {
       rateLimitDenied = true;
       retryAfterSeconds = result.retryAfter ?? AI_INSIGHTS_WINDOW_SECONDS;
     }
   } else {
-    const result = memoryLimiter.check(`ai-insights:${userId}`, AI_INSIGHTS_LIMIT);
+    const result = memoryLimiter.check(
+      `ai-insights:${userId}`,
+      AI_INSIGHTS_LIMIT
+    );
+
     if (!result.allowed) {
       rateLimitDenied = true;
-      retryAfterSeconds = Math.max(result.reset - Math.floor(Date.now() / 1000), 1);
+      retryAfterSeconds = Math.max(
+        result.reset - Math.floor(Date.now() / 1000),
+        1
+      );
     }
   }
 
@@ -144,34 +164,35 @@ export async function GET(request: Request) {
     );
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-  const cookie = request.headers.get("cookie") ?? "";
-  const headers = { Cookie: cookie };
-
-  const [contributionsRes, prsRes, streakRes, reposRes] = await Promise.all([
-    fetch(`${baseUrl}/api/metrics/contributions?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-    fetch(`${baseUrl}/api/metrics/prs`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/streak`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/repos?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-  ]);
-
-  const [contributionsRaw, prsRaw, streakRaw, reposRaw]: [
+  let loaded: Awaited<ReturnType<typeof loadInsightMetrics>>;
+  try {
+    loaded = await loadInsightMetrics(request);
+  } catch (error) {
+    const status =
+      error instanceof InsightMetricsUnavailableError &&
+      error.response.status === 429
+        ? 429
+        : 503;
+    const retryAfter =
+      error instanceof InsightMetricsUnavailableError
+        ? error.response.headers.get("retry-after")
+        : null;
+    return NextResponse.json(
+      {
+        error: "Complete metrics are unavailable; insights were not generated",
+      },
+      {
+        status,
+        ...(retryAfter ? { headers: { "Retry-After": retryAfter } } : {}),
+      }
+    );
+  }
+  const [contributionsRaw, prsRaw, streakRaw, reposRaw] = loaded as [
     ContributionsApiResponse,
     PRsApiResponse,
     StreakApiResponse,
     ReposApiResponse,
-  ] = await Promise.all([
-    contributionsRes.ok ? contributionsRes.json() : {},
-    prsRes.ok ? prsRes.json() : {},
-    streakRes.ok ? streakRes.json() : {},
-    reposRes.ok ? reposRes.json() : {},
-  ]);
+  ];
 
   const commitsByDay: Record<string, number> = contributionsRaw.data ?? {};
   const commitsArray = Object.entries(commitsByDay)
@@ -202,6 +223,8 @@ export async function GET(request: Request) {
   let aiSummary: string | null = null;
 
   if (type === "weekly_summary" && process.env.GROQ_API_KEY) {
+    const quota = await checkAiQuota(session.githubId);
+    if (quota) return quota;
     try {
       const topRepoName = metrics.repos[0]?.name ?? "unknown";
       const totalCommits = metrics.commits.reduce((s, d) => s + d.count, 0);
@@ -221,20 +244,9 @@ export async function GET(request: Request) {
         trendLabel,
       });
 
-      const groqRes = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            max_tokens: 300,
-            messages: [{ role: "user", content: prompt }],
-          }),
-        }
+      const groqRes = await groqChatCompletion(
+        { max_tokens: 300, messages: [{ role: "user", content: prompt }] },
+        { signal: AbortSignal.timeout(15_000) }
       );
 
       if (groqRes.ok) {
@@ -264,7 +276,7 @@ export async function GET(request: Request) {
     {
       user_id: userId,
       insight_type: type,
-      content: payload,
+      content: toDatabaseJson(payload),
       generated_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
     },

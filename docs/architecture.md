@@ -19,10 +19,10 @@ flowchart LR
     careerIntel["/dashboard/career-intelligence"]
     repoHealth["/dashboard/repo-health"]
     repoComparison["/dashboard/repo-comparison"]
-    rooms["/rooms"]
+    rooms["/dashboard/rooms"]
     leaderboard["/leaderboard"]
-    friendCompare["/friend-compare"]
-    projectTutor["/project-tutor"]
+    friendCompare["/dashboard/friends"]
+    projectTutor["/dashboard/project-tutor"]
     wrapped["/wrapped"]
     apiDocs["/api-docs"]
     widgets["Dashboard widgets and shared components"]
@@ -37,8 +37,6 @@ flowchart LR
     publicApi["/api/public/[username]\npublic profile JSON"]
     cron["/api/cron/*\nscheduled sync and weekly digest"]
     webhooks["/api/webhooks/*\nGitHub and custom webhooks"]
-    wakatime["/api/wakatime/*"]
-    localCoding["/api/local-coding/*\nAPI keys, stats, sync"]
     personality_api["/api/personality\nAI Code Personality Report"]
     aiRoutes["/api/ai/*\nroast, weekly-summary"]
     cvRoutes["/api/cv/*\nanalyze, generate, export"]
@@ -61,8 +59,6 @@ flowchart LR
     snapshots[("metric_snapshots")]
     notificationsTable[("notifications")]
     achievements[("user_github_achievements")]
-    wakatimeStats[("wakatime_stats")]
-    localCoding_db[("local_coding_sessions\nlocal_coding_api_keys")]
     webhookTables[("webhook_configs\nwebhook_deliveries")]
     roomsTables[("rooms\nroom_members\nroom_messages")]
     milestones_db[("milestones")]
@@ -72,7 +68,6 @@ flowchart LR
   subgraph external["External services"]
     githubOAuth["GitHub OAuth"]
     githubApi["GitHub REST and GraphQL APIs"]
-    wakatimeApi["WakaTime API optional"]
     discord["Discord webhooks optional"]
     groq["Groq API optional AI features"]
     anthropic["Anthropic API optional AI summaries"]
@@ -121,14 +116,9 @@ flowchart LR
   publicApi --> goalsTable
   cron --> accounts
   cron --> achievements
-  cron --> wakatimeStats
   cron --> githubApi
-  cron --> wakatimeApi
   cron --> resend
   webhooks --> webhookTables
-  wakatime --> wakatimeApi
-  wakatime --> wakatimeStats
-  localCoding --> localCoding_db
   personality_api --> groq
   aiRoutes --> groq
   aiRoutes --> anthropic
@@ -166,71 +156,72 @@ sequenceDiagram
   API->>GitHub: Fetch commits, PRs, repos, discussions, org data
   API->>DB: Read/write cached metrics and user preferences
   API-->>UI: Return normalized widget data
-  Cron->>DB: Load linked GitHub accounts and WakaTime-enabled users
+  Cron->>DB: Load linked GitHub accounts
   Cron->>GitHub: Refresh GitHub achievements
   Cron->>DB: Store user_github_achievements
-  Cron->>DB: Store WakaTime summaries when configured
 ```
 
 ## Frontend
 
 DevTrack uses the Next.js App Router under `src/app`.
 
-| Area | Files | Purpose |
-|---|---|---|
-| Landing | `src/app/page.tsx`, `src/components/landing/LandingPage.tsx` | Public marketing and product entry point |
-| Auth | `src/app/auth/signin/page.tsx`, `src/app/auth/layout.tsx` | GitHub sign-in UI |
-| Dashboard | `src/app/dashboard/page.tsx`, `src/app/dashboard/layout.tsx` | Authenticated developer dashboard |
-| Settings | `src/app/dashboard/settings/page.tsx` | Public profile, WakaTime, Discord, pinned repo, and privacy settings |
-| Public profile | `src/app/u/[username]/page.tsx` | Shareable profile backed by `/api/public/[username]` |
-| Repo views | `src/app/dashboard/repo-health/page.tsx`, `src/app/dashboard/repo-comparison/page.tsx` | Repository analysis experiences |
-| AI Personality | `src/app/dashboard/personality/page.tsx` | AI Code Personality Report page |
-| Career Intelligence | `src/app/dashboard/career-intelligence/page.tsx` | Career intelligence and CV generation |
-| Community | `src/app/leaderboard/page.tsx`, `src/app/rooms/*` | Public leaderboard and collaborative rooms |
-| Friend comparison | `src/app/friend-compare/page.tsx` | Side-by-side friend comparison |
-| Project Tutor | `src/app/project-tutor/page.tsx` | AI-powered project tutor |
-| Year in Code | `src/app/wrapped/page.tsx` | Spotify Wrapped–style year-in-review experience |
-| Compare | `src/app/compare/[users]/page.tsx` | Direct URL-based user comparison |
+| Area                | Files                                                                                  | Purpose                                                     |
+| ------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Landing             | `src/app/page.tsx`, `src/components/landing/arcade/*`                                  | Arcade landing: score attack, hi-scores, power-ups, FAQ     |
+| Auth                | `src/app/auth/signin/page.tsx`, `src/app/auth/layout.tsx`                              | GitHub sign-in UI                                           |
+| Dashboard           | `src/app/dashboard/page.tsx`, `src/app/dashboard/layout.tsx`                           | Authenticated developer dashboard                           |
+| Settings            | `src/app/dashboard/settings/page.tsx`                                                  | Public profile, Discord, pinned repo, and privacy settings  |
+| Public profile      | `src/app/u/[username]/page.tsx`                                                        | Shareable profile backed by `/api/public/[username]`        |
+| Repo views          | `src/app/dashboard/repo-health/page.tsx`, `src/app/dashboard/repo-comparison/page.tsx` | Repository analysis experiences                             |
+| AI Personality      | `src/app/dashboard/personality/page.tsx`                                               | AI Code Personality Report page                             |
+| Career Intelligence | `src/app/dashboard/career-intelligence/page.tsx`                                       | Career intelligence and CV generation                       |
+| Leaderboard         | `src/app/leaderboard/page.tsx`                                                         | Public leaderboard: podium, seasons, climbers, sponsor slot |
+| Community           | `src/app/dashboard/community/page.tsx`, `src/app/dashboard/rooms/*`                    | Discussions, sponsors and collaborative rooms               |
+| Friends             | `src/app/dashboard/friends/page.tsx`                                                   | Overlay a friend's commit graph on yours                    |
+| Project Tutor       | `src/app/dashboard/project-tutor/page.tsx`                                             | AI-powered project tutor                                    |
+| Year in Code        | `src/app/wrapped/page.tsx`                                                             | Year-in-review as a run of levels, with a share card        |
+| Duels               | `src/app/compare/page.tsx`, `src/app/compare/[users]/page.tsx`                         | Any two GitHub users, round by round, with a share card     |
+| Top developers      | `src/app/top/*`                                                                        | Most-followed developers by language and by country         |
+| Guides              | `src/app/guides/*`, `src/content/guides.tsx`                                           | SEO/AEO guides with FAQ structured data                     |
 
-The dashboard is composed from reusable widgets in `src/components`, especially
-`src/components/dashboard/CustomizableDashboard.tsx`. Widgets call focused API
-routes rather than sharing a large client-side data store. The dashboard layout
-is user-customizable and persisted via `/api/user/dashboard-layout`.
+The dashboard pages are composed from widgets registered in
+`src/components/dashboard/widgets.tsx` (`slot()` adds the error boundary, lazy
+loading and accessible region). Widgets call focused API routes rather than
+sharing a large client-side data store. The menu lives in
+`src/components/shell/nav.ts`.
 
 ## API Routes
 
 Route handlers live in `src/app/api`. DevTrack has 90+ routes across the following groups:
 
-| Route group | Responsibility |
-|---|---|
-| `/api/auth/[...nextauth]` | GitHub OAuth through NextAuth, JWT session creation, user upsert, token validation |
-| `/api/auth/link-github` | Link additional GitHub accounts for multi-account metrics |
-| `/api/metrics/*` | 30+ GitHub-derived dashboard metrics: contributions, PRs, repos, issues, languages, streaks, achievements, CI, repo health, repo analytics, repo explorer, discussions, commit times, productive hours, consistency score, community engagement, inactive repos, sponsors, and comparisons |
-| `/api/goals/*` | Goal CRUD, goal history, and GitHub-backed goal progress sync |
-| `/api/user/*` | Settings, linked accounts, pinned repos, organizations, dashboard layout, data export |
-| `/api/notifications/*` | Notification reads, marking read, weekly notifications, Discord sync |
-| `/api/public/[username]` | Public profile payload with rate limiting and visibility checks |
-| `/api/cron/sync` | Scheduled refresh for WakaTime summaries and GitHub achievements |
-| `/api/cron/weekly-digest` | Sends weekly digest emails via Resend |
-| `/api/wakatime/*` | Optional WakaTime connection, sync, and disconnection endpoints |
-| `/api/webhooks/github` | GitHub push webhook receiver — invalidates affected user's metrics cache |
-| `/api/webhooks/custom/*` | User-configured outbound webhooks: CRUD, test, rotate secret, delivery history, retry |
-| `/api/webhooks/dispatch/metrics` | Internal: triggers SSE push for real-time dashboard updates |
-| `/api/local-coding/*` | Local coding session API keys, stats, and session ingestion |
-| `/api/personality` | AI Code Personality Report — deterministic scoring with optional Groq prose |
-| `/api/ai/roast` | AI roast or hype of the user's coding style (Groq) |
-| `/api/ai/weekly-summary` | AI-generated weekly summary (Groq/Anthropic) |
-| `/api/project-tutor` | AI Project Tutor for code and architecture questions (Groq) |
-| `/api/cv/*` | CV/resume analysis, AI generation, and export |
-| `/api/rooms/*` | Collaborative rooms CRUD, messaging, member management, invite links |
-| `/api/milestones/*` | Personal milestone CRUD |
-| `/api/leaderboard/*` | Public leaderboard data plus token-protected rebuild endpoint |
-| `/api/badge/*` | SVG badge endpoints for embedding in READMEs |
-| `/api/og/*` | Open Graph image generation for user profiles and wrapped |
-| `/api/wrapped` | Year in Code wrapped data aggregation |
-| `/api/stream` | Server-Sent Events endpoint for real-time dashboard pushes |
-| `/api/integrations/jira/*` | Jira credential storage and project data fetching |
-| `/api/contact` | Contact form submission via Resend |
+| Route group                      | Responsibility                                                                                                                                                                                                                                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/api/auth/[...nextauth]`        | GitHub OAuth through NextAuth, JWT session creation, user upsert, token validation                                                                                                                                                                                                         |
+| `/api/auth/link-github`          | Link additional GitHub accounts for multi-account metrics                                                                                                                                                                                                                                  |
+| `/api/metrics/*`                 | 30+ GitHub-derived dashboard metrics: contributions, PRs, repos, issues, languages, streaks, achievements, CI, repo health, repo analytics, repo explorer, discussions, commit times, productive hours, consistency score, community engagement, inactive repos, sponsors, and comparisons |
+| `/api/goals/*`                   | Goal CRUD, goal history, and GitHub-backed goal progress sync                                                                                                                                                                                                                              |
+| `/api/user/*`                    | Settings, linked accounts, pinned repos, organizations, dashboard layout, data export                                                                                                                                                                                                      |
+| `/api/notifications/*`           | Notification reads, marking read, weekly notifications, Discord sync                                                                                                                                                                                                                       |
+| `/api/public/[username]`         | Public profile payload with rate limiting and visibility checks                                                                                                                                                                                                                            |
+| `/api/cron/sync`                 | Scheduled refresh for GitHub achievements                                                                                                                                                                                                                                                  |
+| `/api/cron/weekly-digest`        | Sends weekly digest emails via Resend                                                                                                                                                                                                                                                      |
+| `/api/webhooks/github`           | GitHub push webhook receiver — invalidates affected user's metrics cache                                                                                                                                                                                                                   |
+| `/api/webhooks/custom/*`         | User-configured outbound webhooks: CRUD, test, rotate secret, delivery history, retry                                                                                                                                                                                                      |
+| `/api/webhooks/dispatch/metrics` | Internal: triggers SSE push for real-time dashboard updates                                                                                                                                                                                                                                |
+| `/api/personality`               | AI Code Personality Report — deterministic scoring with optional Groq prose                                                                                                                                                                                                                |
+| `/api/ai/roast`                  | AI roast or hype of the user's coding style (Groq)                                                                                                                                                                                                                                         |
+| `/api/ai/weekly-summary`         | AI-generated weekly summary (Groq/Anthropic)                                                                                                                                                                                                                                               |
+| `/api/project-tutor`             | AI Project Tutor for code and architecture questions (Groq)                                                                                                                                                                                                                                |
+| `/api/cv/*`                      | CV/resume analysis, AI generation, and export                                                                                                                                                                                                                                              |
+| `/api/rooms/*`                   | Collaborative rooms CRUD, messaging, member management, invite links                                                                                                                                                                                                                       |
+| `/api/milestones/*`              | Personal milestone CRUD                                                                                                                                                                                                                                                                    |
+| `/api/leaderboard/*`             | Public leaderboard data plus token-protected rebuild endpoint                                                                                                                                                                                                                              |
+| `/api/badge/*`                   | SVG badge endpoints for embedding in READMEs                                                                                                                                                                                                                                               |
+| `/api/og/*`                      | Open Graph image generation for user profiles and wrapped                                                                                                                                                                                                                                  |
+| `/api/wrapped`                   | Year in Code wrapped data aggregation                                                                                                                                                                                                                                                      |
+| `/api/stream`                    | Server-Sent Events endpoint for real-time dashboard pushes                                                                                                                                                                                                                                 |
+| `/api/integrations/jira/*`       | Jira credential storage and project data fetching                                                                                                                                                                                                                                          |
+| `/api/contact`                   | Contact form submission via Resend                                                                                                                                                                                                                                                         |
 
 Most authenticated routes read the NextAuth session with `getServerSession`,
 resolve the DevTrack user via `src/lib/resolve-user.ts`, then use the
@@ -331,64 +322,73 @@ view readable.
 
 Components in `src/components/` are organized by feature subdirectory:
 
-| Directory | Contents |
-|---|---|
-| `src/components/dashboard/` | `CustomizableDashboard`, `DashboardWidgetShell`, `SortableDashboardWidget`, layout toolbar |
-| `src/components/career-intelligence/` | `CareerIntelligence`, `ContributionAnalysisPanel`, `ResumePreview`, `RoleSelector`, `ExportPanel` |
-| `src/components/personality/` | `PersonalityReport` |
-| `src/components/repo-health/` | `RepoHealthCard`, `RepoHealthGauge`, `RepoHealthRadar`, `RepoHealthInsights`, `RepoHealthExplorer` |
-| `src/components/repo-analytics/` | `RepoAnalyticsExplorer`, `RepoCard`, `RepoGrid`, `RepoCarousel`, `RepoTimelineChart`, `RepoLanguagePie` |
-| `src/components/rooms/` | `CreateRoomModal`, `InviteModal`, `MembersPanel`, `MessageFeed`, `MessageInput` |
-| `src/components/leaderboard/` | `LeaderboardFilters` |
-| `src/components/landing/` | `LandingPage` |
-| `src/components/webhook/` | `WebhookManager` |
-| `src/components/ui/` | Primitive components: `button`, `card`, `badge`, `progress`, `select`, `tabs`, `skeleton`, `textarea` |
-| `src/components/*.tsx` | Shared widget components used on the dashboard and public profile |
+| Directory                             | Contents                                                                                                |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `src/components/dashboard/`           | `widgets.tsx` registry, `StatStrip` HUD, `BoardWelcome`, `WrappedSpotlight`, `WidgetRegion`             |
+| `src/components/shell/`               | `AppShell` (sidebar menu, player chip, lookup), `nav.ts`, `PageHeader`                                  |
+| `src/components/buddy/`               | Bit the mascot (`Buddy`, `PixelSprite`, `sprites.ts`) and `PixelLoader`                                 |
+| `src/components/pixel/`               | `PixelArt` icons                                                                                        |
+| `src/components/profile/`             | `PlayerCard`, `GuestProfileView`                                                                        |
+| `src/components/top/`                 | `TopBoardView`                                                                                          |
+| `src/components/career-intelligence/` | `CareerIntelligence`, `ContributionAnalysisPanel`, `ResumePreview`, `RoleSelector`, `ExportPanel`       |
+| `src/components/personality/`         | `PersonalityReport`                                                                                     |
+| `src/components/repo-health/`         | `RepoHealthCard`, `RepoHealthGauge`, `RepoHealthRadar`, `RepoHealthInsights`, `RepoHealthExplorer`      |
+| `src/components/repo-analytics/`      | `RepoAnalyticsExplorer`, `RepoCard`, `RepoGrid`, `RepoCarousel`, `RepoTimelineChart`, `RepoLanguagePie` |
+| `src/components/rooms/`               | `CreateRoomModal`, `InviteModal`, `MembersPanel`, `MessageFeed`, `MessageInput`                         |
+| `src/components/leaderboard/`         | `LeaderboardFilters`                                                                                    |
+| `src/components/landing/arcade/`      | `ArcadeLanding`, `Hero`, `ScoreAttack`, `BootIntro`, `FallingBlocks`, `Flex` (power-ups), `Community`   |
+| `src/components/webhook/`             | `WebhookManager`                                                                                        |
+| `src/components/ui/`                  | Primitive components: `button`, `card`, `badge`, `progress`, `select`, `tabs`, `skeleton`, `textarea`   |
+| `src/components/*.tsx`                | Shared widget components used on the dashboard and public profile                                       |
 
-Key shared components include: `AIMentorWidget`, `ContributionGraph`, `ContributionHeatmap`, `StreakTracker`, `PRMetrics`, `GoalTracker`, `MilestonePlanner`, `LocalCodingTime`, `CodingTimeWidget`, `WeeklySummaryCard`, `PersonalRecords`, `CommunityMetrics`, `ConsistencyScoreWidget`, `ProductiveHoursWidget`, `CommitTimeChart`, `DiscussionsWidget`, `InactiveRepositoriesCard`, `DashboardSSEProvider`, `SSEListener`, `NotificationBell`, `WebhookManager`, and more.
+Key shared components include: `AIMentorWidget`, `ContributionGraph`, `ContributionHeatmap`, `StreakTracker`, `PRMetrics`, `GoalTracker`, `MilestonePlanner`, `WeeklySummaryCard`, `PersonalRecords`, `CommunityMetrics`, `ConsistencyScoreWidget`, `ProductiveHoursWidget`, `DiscussionsWidget`, `InactiveRepositoriesCard`, `DashboardSSEProvider`, `SSEListener`, `NotificationBell`, `WebhookManager`, and more.
 
 ## Lib Utilities
 
 Key files in `src/lib/`:
 
-| File | Purpose |
-|---|---|
-| `auth.ts` | NextAuth config, GitHub scopes, Supabase user upsert on login |
-| `metrics-cache.ts` | Two-tier (memory + Redis) TTL cache with `withMetricsCache` helper |
-| `leaderboard-cache.ts` | TTL helper functions for leaderboard cache entries |
-| `response-cache.ts` | `privateCacheHeaders` / `publicCacheHeaders` for HTTP `Cache-Control` |
-| `redis-cache-helper.ts` | Simple Upstash Redis `getCachedData` / `setCachedData` helpers |
-| `personality-analysis.ts` | Deterministic personality dimension scoring from GitHub metrics |
-| `ai-mentor.ts` | AI mentor prompt orchestration |
-| `ai-prompts.ts` | Shared prompt templates for Groq/Anthropic calls |
-| `cv/` | CV generation: AI generator, classifier, GitHub data fetcher, prompts |
-| `sse.ts` | In-process SSE connection registry; `sendSSEEvent` for webhook dispatch |
-| `rooms.ts` | Room username normalization helpers |
-| `jira-utils.ts` | Jira credential encryption and API helpers |
-| `ssrf-protection.ts` | DNS-based SSRF validation for custom webhook target URLs |
-| `sanitize.ts` | Input sanitization helpers |
-| `crypto.ts` | AES-256-GCM encryption/decryption for OAuth tokens |
-| `supabase.ts` | Supabase admin client (server-only) |
-| `resolve-user.ts` | Resolve NextAuth session to DevTrack Supabase user |
-| `github.ts` | GitHub REST API client helpers |
-| `github-accounts.ts` | Multi-account GitHub API helpers |
-| `repo-health.ts` | Repository health score calculation |
-| `webhooks.ts` | Custom webhook HMAC signing and HTTP dispatch |
+| File                      | Purpose                                                                 |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `auth.ts`                 | NextAuth config, GitHub scopes, Supabase user upsert on login           |
+| `metrics-cache.ts`        | Two-tier (memory + Redis) TTL cache with `withMetricsCache` helper      |
+| `leaderboard-cache.ts`    | TTL helper functions for leaderboard cache entries                      |
+| `response-cache.ts`       | `privateCacheHeaders` / `publicCacheHeaders` for HTTP `Cache-Control`   |
+| `redis-cache-helper.ts`   | Simple Upstash Redis `getCachedData` / `setCachedData` helpers          |
+| `gamification/*`          | Score v2, tiers, XP/levels, rank snapshots, badges and share cards      |
+| `guest-profile.ts`        | Player cards and estimated ranks for any GitHub user (one GraphQL call) |
+| `top-developers.ts`       | Top developers by language and country (cached daily)                   |
+| `indexnow.ts`             | Notifies search engines when a profile goes public                      |
+| `canonical-host.ts`       | Redirects production `*.vercel.app` aliases to the canonical domain     |
+| `personality-analysis.ts` | Deterministic personality dimension scoring from GitHub metrics         |
+| `ai-mentor.ts`            | AI mentor prompt orchestration                                          |
+| `ai-prompts.ts`           | Shared prompt templates for Groq/Anthropic calls                        |
+| `cv/`                     | CV generation: AI generator, classifier, GitHub data fetcher, prompts   |
+| `sse.ts`                  | In-process SSE connection registry; `sendSSEEvent` for webhook dispatch |
+| `rooms.ts`                | Room username normalization helpers                                     |
+| `jira-utils.ts`           | Jira credential encryption and API helpers                              |
+| `ssrf-protection.ts`      | DNS-based SSRF validation for custom webhook target URLs                |
+| `sanitize.ts`             | Input sanitization helpers                                              |
+| `crypto.ts`               | AES-256-GCM encryption/decryption for OAuth tokens                      |
+| `supabase.ts`             | Supabase admin client (server-only)                                     |
+| `resolve-user.ts`         | Resolve NextAuth session to DevTrack Supabase user                      |
+| `github.ts`               | GitHub REST API client helpers                                          |
+| `github-accounts.ts`      | Multi-account GitHub API helpers                                        |
+| `repo-health.ts`          | Repository health score calculation                                     |
+| `webhooks.ts`             | Custom webhook HMAC signing and HTTP dispatch                           |
 
 ## External Services
 
-| Service | Used by | Notes |
-|---|---|---|
-| GitHub OAuth | NextAuth provider in `src/lib/auth.ts` | Primary sign-in and access-token source |
-| GitHub REST/GraphQL APIs | `src/lib/github*.ts`, `/api/metrics/*`, `/api/cron/sync` | Fetches commits, PRs, repos, achievements, discussions, orgs, and profile data |
-| Vercel | App hosting | Runs the Next.js frontend and route handlers |
-| Supabase | Database and RLS | Stores users, preferences, linked accounts, goals, notifications, rooms, and cached data |
-| Upstash Redis | `src/lib/metrics-cache.ts`, `src/lib/redis-cache-helper.ts` | Optional distributed cache for metrics; app degrades gracefully without it |
-| WakaTime | `/api/wakatime/*`, `/api/cron/sync` | Optional coding-time import when a user stores an encrypted API key |
-| Discord | Notification settings | Optional webhook delivery for reminders and alerts |
-| Groq | AI routes | Optional AI summaries, personality reports, project tutor, CV generation |
-| Anthropic | `/api/ai/weekly-summary` | Optional AI-generated weekly summaries |
-| Resend | `/api/contact`, `/api/cron/weekly-digest` | Contact form delivery and weekly digest emails |
+| Service                  | Used by                                                     | Notes                                                                                    |
+| ------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| GitHub OAuth             | NextAuth provider in `src/lib/auth.ts`                      | Primary sign-in and access-token source                                                  |
+| GitHub REST/GraphQL APIs | `src/lib/github*.ts`, `/api/metrics/*`, `/api/cron/sync`    | Fetches commits, PRs, repos, achievements, discussions, orgs, and profile data           |
+| Vercel                   | App hosting                                                 | Runs the Next.js frontend and route handlers                                             |
+| Supabase                 | Database and RLS                                            | Stores users, preferences, linked accounts, goals, notifications, rooms, and cached data |
+| Upstash Redis            | `src/lib/metrics-cache.ts`, `src/lib/redis-cache-helper.ts` | Optional distributed cache for metrics; app degrades gracefully without it               |
+| Discord                  | Notification settings                                       | Optional webhook delivery for reminders and alerts                                       |
+| Groq                     | AI routes                                                   | Optional AI summaries, personality reports, project tutor, CV generation                 |
+| Anthropic                | `/api/ai/weekly-summary`                                    | Optional AI-generated weekly summaries                                                   |
+| Resend                   | `/api/contact`, `/api/cron/weekly-digest`                   | Contact form delivery and weekly digest emails                                           |
 
 ## Operational Notes
 

@@ -38,7 +38,6 @@ test.beforeEach(async ({ page }) => {
         user: { name: "Playwright User", email: "playwright@example.com" },
         githubLogin: "playwright-user",
         githubId: "12345",
-        accessToken: "test-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     });
@@ -230,16 +229,25 @@ test("dashboard widgets render with mocked metrics", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Dashboard", exact: true })
   ).toBeVisible({ timeout: 30000 });
-  await expect(page.getByRole("heading", { name: "Your Commits" }).first()).toBeVisible(
-    { timeout: 10000 }
-  );
-  await expect(page.getByRole("heading", { name: "PR Analytics" })).toHaveCount(1);
-  await expect(page.getByRole("heading", { name: "PR Analytics" })).toBeVisible(
-    { timeout: 10000 }
-  );
+  await expect(
+    page.getByRole("heading", { name: "Your Commits" }).first()
+  ).toBeVisible({ timeout: 10000 });
+
+  await page.goto("/dashboard/pull-requests", { waitUntil: "load" });
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Pull requests" })
+  ).toBeVisible({ timeout: 30000 });
+  await expect(
+    page.getByRole("heading", { name: "Your pull requests" })
+  ).toHaveCount(1);
+  await expect(page.getByText("Add streak freeze")).toBeVisible({
+    timeout: 10000,
+  });
+
+  await page.goto("/dashboard/goals", { waitUntil: "load" });
   await expect(
     page.getByRole("heading", { name: "Goals", exact: true }).first()
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible({ timeout: 30000 });
   await expect(page.getByText("Make 10 commits")).toBeVisible({
     timeout: 10000,
   });
@@ -280,9 +288,9 @@ test("goal form posts a new goal", async ({ page }) => {
     }
   });
 
-  await page.goto("/dashboard", { waitUntil: "load" });
+  await page.goto("/dashboard/goals", { waitUntil: "load" });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Goals" })
   ).toBeVisible({ timeout: 30000 });
   await page.getByLabel("Goal title").fill("Ship one PR");
   await page.getByLabel("Target").fill("1");
@@ -306,10 +314,56 @@ function mockMetricResponse(url) {
       avgReviewHours: 6,
       avgFirstReviewHours: 3,
       mergeRate: "80%",
+      summary: {
+        range: "30d",
+        opened: 4,
+        merged: 3,
+        closed: 1,
+        stillOpen: 0,
+        mergeRate: 0.75,
+        medianHoursToMerge: 5,
+        medianHoursToFirstReview: 2,
+        additions: 420,
+        deletions: 96,
+        sampled: false,
+        openNow: 1,
+        draftsNow: 0,
+        weeks: [
+          { weekStart: "2026-10-12", opened: 1, merged: 1 },
+          { weekStart: "2026-10-19", opened: 2, merged: 1 },
+          { weekStart: "2026-10-26", opened: 1, merged: 1 },
+        ],
+        repos: [{ repo: "demo/repo", opened: 4, merged: 3 }],
+        openList: [
+          {
+            title: "Add streak freeze",
+            url: "https://github.com/demo/repo/pull/7",
+            repo: "demo/repo",
+            number: 7,
+            ageDays: 3,
+            isDraft: false,
+            reviewed: false,
+          },
+        ],
+        recentMerged: [
+          {
+            title: "Fix login redirect",
+            url: "https://github.com/demo/repo/pull/6",
+            repo: "demo/repo",
+            number: 6,
+            mergedAt: "2026-10-30T10:00:00Z",
+            hoursToMerge: 5,
+          },
+        ],
+        reviews: {
+          total: 2,
+          approved: 1,
+          changesRequested: 0,
+          commented: 1,
+          topRepos: [{ repo: "demo/repo", count: 2 }],
+        },
+      },
     };
-  }
-  if (url.includes("/api/metrics/pr-breakdown")) {
-    return { draft: 1, merged: 8, open: 2, closed: 1 };
   }
   if (url.includes("/api/metrics/issues")) {
     return {
@@ -332,7 +386,14 @@ function mockMetricResponse(url) {
     };
   }
   if (url.includes("/api/metrics/languages")) {
-    return { languages: [{ language: "TypeScript", count: 12 }] };
+    return {
+      languages: [
+        { name: "TypeScript", bytes: 61000, percentage: 61 },
+        { name: "Python", bytes: 22000, percentage: 22 },
+        { name: "CSS", bytes: 11000, percentage: 11 },
+        { name: "Shell", bytes: 6000, percentage: 6 },
+      ],
+    };
   }
   if (url.includes("/api/metrics/streak")) {
     return {
@@ -350,9 +411,9 @@ function mockMetricResponse(url) {
         thisWeek: { opened: 3, merged: 2 },
         lastWeek: { opened: 1, merged: 1 },
       },
-      issues: { 
-        thisWeek: { opened: 4, closed: 2 }, 
-        lastWeek: { opened: 3, closed: 1 } 
+      issues: {
+        thisWeek: { opened: 4, closed: 2 },
+        lastWeek: { opened: 3, closed: 1 },
       },
       productivityScore: { current: 85, previous: 80 },
       activeDays: {
@@ -361,13 +422,9 @@ function mockMetricResponse(url) {
       },
       streak: 3,
       topRepo: "demo/repo",
-      repoBreakdown: [
-        { repoName: "demo/devtrack", commits: 10 },
-      ],
-      dailyCommits: [
-        { date: "2023-10-07", commits: 5 },
-      ],
-      mostActiveDay: "2023-10-07"
+      repoBreakdown: [{ repoName: "demo/devtrack", commits: 10 }],
+      dailyCommits: [{ date: "2023-10-07", commits: 5 }],
+      mostActiveDay: "2023-10-07",
     };
   }
   if (url.includes("/api/metrics/compare")) {

@@ -1,3 +1,4 @@
+import { checkedExportQuery } from "@/lib/export-query";
 /**
  * GET /api/user/export
  *
@@ -20,7 +21,7 @@
  *    for forensic purposes.
  */
 
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest, NextResponse } from "next/server";
 import { strToU8, zipSync } from "fflate";
 import { authOptions } from "@/lib/auth";
@@ -79,22 +80,21 @@ function redact(value: unknown): unknown {
 
 async function getRecentExport(userId: string): Promise<Date | null> {
   const since = new Date(Date.now() - RATE_LIMIT_MS).toISOString();
-  const { data } = await supabaseAdmin
-    .from("data_export_audit")
-    .select("created_at")
-    .eq("user_id", userId)
-    .eq("action", "export")
-    .gte("created_at", since)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { data } = checkedExportQuery(
+    await supabaseAdmin
+      .from("data_export_audit")
+      .select("created_at")
+      .eq("user_id", userId)
+      .eq("action", "export")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+  );
   return data ? new Date(data.created_at as string) : null;
 }
 
-async function writeAuditLog(
-  userId: string,
-  req: NextRequest,
-): Promise<void> {
+async function writeAuditLog(userId: string, req: NextRequest): Promise<void> {
   try {
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -119,23 +119,29 @@ async function writeAuditLog(
 
 /** Profile: account settings, preferences.  Secrets are omitted at query level. */
 async function collectProfile(userId: string) {
-  const { data: user } = await supabaseAdmin
-    .from("users")
-    .select(
-      "id, github_login, bio, is_public, leaderboard_opt_in, weekly_digest_opt_in, timezone, created_at",
-    )
-    .eq("id", userId)
-    .single();
+  const { data: user } = checkedExportQuery(
+    await supabaseAdmin
+      .from("users")
+      .select(
+        "id, github_login, bio, is_public, leaderboard_opt_in, weekly_digest_opt_in, timezone, created_at"
+      )
+      .eq("id", userId)
+      .single()
+  );
 
-  const { data: linked } = await supabaseAdmin
-    .from("user_github_accounts")
-    .select("id, github_id, github_login, created_at")
-    .eq("user_id", userId);
+  const { data: linked } = checkedExportQuery(
+    await supabaseAdmin
+      .from("user_github_accounts")
+      .select("id, github_id, github_login, added_at")
+      .eq("user_id", userId)
+  );
 
-  const { data: webhooks } = await supabaseAdmin
-    .from("webhook_configs")
-    .select("id, name, url, events, is_enabled, created_at")
-    .eq("user_id", userId);
+  const { data: webhooks } = checkedExportQuery(
+    await supabaseAdmin
+      .from("webhook_configs")
+      .select("id, name, url, events, is_enabled, created_at")
+      .eq("user_id", userId)
+  );
 
   return redact({
     account: user ?? null,
@@ -146,28 +152,32 @@ async function collectProfile(userId: string) {
 
 /** Goals: current goals + historical periods for recurring goals. */
 async function collectGoals(userId: string) {
-  const { data: goals } = await supabaseAdmin
-    .from("goals")
-    .select(
-      "id, title, target, current, unit, recurrence, deadline, period_start, last_synced_at, created_at",
-    )
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+  const { data: goals } = checkedExportQuery(
+    await supabaseAdmin
+      .from("goals")
+      .select(
+        "id, title, target, current, unit, recurrence, deadline, period_start, last_synced_at, created_at"
+      )
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+  );
 
   // goal_history may not exist in all environments — fail gracefully.
   let history: unknown[] = [];
   try {
-    const { data: h } = await supabaseAdmin
-      .from("goal_history")
-      .select(
-        "id, goal_id, period_start, period_end, target, achieved_value, completed, created_at",
-      )
-      .eq("user_id", userId)
-      .order("period_end", { ascending: false })
-      .limit(500);
+    const { data: h } = checkedExportQuery(
+      await supabaseAdmin
+        .from("goal_history")
+        .select(
+          "id, goal_id, period_start, period_end, target, achieved, completed, created_at"
+        )
+        .eq("user_id", userId)
+        .order("period_end", { ascending: false })
+        .limit(500)
+    );
     history = h ?? [];
-  } catch {
-    // table may not exist in older environments
+  } catch (error) {
+    throw error;
   }
 
   return { goals: goals ?? [], goalHistory: history };
@@ -175,24 +185,30 @@ async function collectGoals(userId: string) {
 
 /** Streaks: freezes, milestones, and metric snapshots used for streak history. */
 async function collectStreaks(userId: string) {
-  const { data: freezes } = await supabaseAdmin
-    .from("streak_freezes")
-    .select("id, freeze_date, created_at")
-    .eq("user_id", userId)
-    .order("freeze_date", { ascending: false });
+  const { data: freezes } = checkedExportQuery(
+    await supabaseAdmin
+      .from("streak_freezes")
+      .select("id, freeze_date, created_at")
+      .eq("user_id", userId)
+      .order("freeze_date", { ascending: false })
+  );
 
-  const { data: milestones } = await supabaseAdmin
-    .from("streak_milestones")
-    .select("id, streak_count, achieved_at")
-    .eq("user_id", userId)
-    .order("achieved_at", { ascending: false });
+  const { data: milestones } = checkedExportQuery(
+    await supabaseAdmin
+      .from("streak_milestones")
+      .select("id, streak_count, achieved_at")
+      .eq("user_id", userId)
+      .order("achieved_at", { ascending: false })
+  );
 
-  const { data: snapshots } = await supabaseAdmin
-    .from("metric_snapshots")
-    .select("snapshot_at, streak_current, streak_longest")
-    .eq("user_id", userId)
-    .order("snapshot_at", { ascending: false })
-    .limit(1000);
+  const { data: snapshots } = checkedExportQuery(
+    await supabaseAdmin
+      .from("metric_snapshots")
+      .select("snapshot_at, commits")
+      .eq("user_id", userId)
+      .order("snapshot_at", { ascending: false })
+      .limit(1000)
+  );
 
   return {
     freezes: freezes ?? [],
@@ -203,22 +219,21 @@ async function collectStreaks(userId: string) {
 
 /** Contributions: metric snapshots flattened for CSV output. */
 async function collectContributions(userId: string) {
-  const { data: snapshots } = await supabaseAdmin
-    .from("metric_snapshots")
-    .select(
-      "snapshot_at, total_commits, total_prs, total_issues, streak_current, streak_longest",
-    )
-    .eq("user_id", userId)
-    .order("snapshot_at", { ascending: false })
-    .limit(1000);
+  const { data: snapshots } = checkedExportQuery(
+    await supabaseAdmin
+      .from("metric_snapshots")
+      .select("snapshot_at, commits, prs_open, prs_merged, issues_closed")
+      .eq("user_id", userId)
+      .order("snapshot_at", { ascending: false })
+      .limit(1000)
+  );
 
   return (snapshots ?? []).map((s) => ({
     snapshot_at: s.snapshot_at as string,
-    total_commits: s.total_commits as number,
-    total_prs: s.total_prs as number,
-    total_issues: s.total_issues as number,
-    streak_current: s.streak_current as number,
-    streak_longest: s.streak_longest as number,
+    commits: s.commits,
+    prs_open: s.prs_open,
+    prs_merged: s.prs_merged,
+    issues_closed: s.issues_closed,
   }));
 }
 
@@ -227,82 +242,95 @@ async function collectContributions(userId: string) {
 // ---------------------------------------------------------------------------
 
 export async function GET(req: NextRequest) {
-  // Authentication
-  const session = await getServerSession(authOptions);
-  if (!session?.githubId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    // Authentication
+    const session = await getServerSession(authOptions);
+    if (!session?.githubId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const user = await resolveAppUser(session.githubId, session.githubLogin);
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+    const user = await resolveAppUser(session.githubId, session.githubLogin);
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-  const userId = user.id;
+    const userId = user.id;
 
-  // Rate limiting
-  const lastExport = await getRecentExport(userId);
-  if (lastExport) {
-    const retryMs = RATE_LIMIT_MS - (Date.now() - lastExport.getTime());
-    const retrySeconds = Math.ceil(retryMs / 1000);
+    // Rate limiting
+    const lastExport = await getRecentExport(userId);
+    if (lastExport) {
+      const retryMs = RATE_LIMIT_MS - (Date.now() - lastExport.getTime());
+      const retrySeconds = Math.ceil(retryMs / 1000);
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded. You may export your data once per hour.",
+          retryAfterSeconds: retrySeconds,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(retrySeconds) },
+        }
+      );
+    }
+
+    // Audit log BEFORE data collection so any crash is still recorded.
+    await writeAuditLog(userId, req);
+
+    // Collect all datasets in parallel for speed.
+    const [profile, goals, streaks, contributionRows] = await Promise.all([
+      collectProfile(userId),
+      collectGoals(userId),
+      collectStreaks(userId),
+      collectContributions(userId),
+    ]);
+
+    const exportedAt = new Date().toISOString();
+
+    const metadata = {
+      version: EXPORT_VERSION,
+      exportedAt,
+      format: "devtrack-portable-export",
+      userId,
+      githubLogin: session.githubLogin ?? null,
+      contents: [
+        "metadata.json",
+        "profile.json",
+        "goals.json",
+        "streaks.json",
+        "contributions.csv",
+      ],
+    };
+
+    // Build ZIP archive in memory.
+    const enc = (s: string) => strToU8(s);
+    const zip = zipSync(
+      {
+        "metadata.json": enc(JSON.stringify(metadata, null, 2)),
+        "profile.json": enc(JSON.stringify(profile, null, 2)),
+        "goals.json": enc(JSON.stringify(goals, null, 2)),
+        "streaks.json": enc(JSON.stringify(streaks, null, 2)),
+        "contributions.csv": enc(toCsv(contributionRows)),
+      },
+      // Level 6 is a good balance between speed and compression ratio.
+      { level: 6 }
+    );
+
+    const dateSlug = exportedAt.slice(0, 10); // YYYY-MM-DD
+    const filename = `devtrack-export-${dateSlug}.zip`;
+
+    return new NextResponse(zip, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": String(zip.byteLength),
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch {
     return NextResponse.json(
-      {
-        error: "Rate limit exceeded. You may export your data once per hour.",
-        retryAfterSeconds: retrySeconds,
-      },
-      {
-        status: 429,
-        headers: { "Retry-After": String(retrySeconds) },
-      },
+      { error: "Export data is unavailable" },
+      { status: 503 }
     );
   }
-
-  // Audit log BEFORE data collection so any crash is still recorded.
-  await writeAuditLog(userId, req);
-
-  // Collect all datasets in parallel for speed.
-  const [profile, goals, streaks, contributionRows] = await Promise.all([
-    collectProfile(userId),
-    collectGoals(userId),
-    collectStreaks(userId),
-    collectContributions(userId),
-  ]);
-
-  const exportedAt = new Date().toISOString();
-
-  const metadata = {
-    version: EXPORT_VERSION,
-    exportedAt,
-    format: "devtrack-portable-export",
-    userId,
-    githubLogin: session.githubLogin ?? null,
-    contents: ["metadata.json", "profile.json", "goals.json", "streaks.json", "contributions.csv"],
-  };
-
-  // Build ZIP archive in memory.
-  const enc = (s: string) => strToU8(s);
-  const zip = zipSync(
-    {
-      "metadata.json": enc(JSON.stringify(metadata, null, 2)),
-      "profile.json": enc(JSON.stringify(profile, null, 2)),
-      "goals.json": enc(JSON.stringify(goals, null, 2)),
-      "streaks.json": enc(JSON.stringify(streaks, null, 2)),
-      "contributions.csv": enc(toCsv(contributionRows)),
-    },
-    // Level 6 is a good balance between speed and compression ratio.
-    { level: 6 },
-  );
-
-  const dateSlug = exportedAt.slice(0, 10); // YYYY-MM-DD
-  const filename = `devtrack-export-${dateSlug}.zip`;
-
-  return new NextResponse(zip, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="${filename}"`,
-      "Content-Length": String(zip.byteLength),
-      "Cache-Control": "no-store",
-    },
-  });
 }

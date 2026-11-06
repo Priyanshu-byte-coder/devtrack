@@ -21,6 +21,7 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { validateCronRequest } from "@/lib/cron-auth";
+import { supabaseQueryStub } from "./supabase-query-stub";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -254,12 +255,12 @@ describe("GET /api/notifications/discord-sync — authentication (#1657)", () =>
   it("proceeds past auth when the correct Bearer token is supplied", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
 
-    // Supabase returns no users — the job completes immediately
-    discordMocks.supabaseFrom.mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        not: vi.fn().mockResolvedValue({ data: [], error: null }),
-      }),
-    });
+    // Supabase returns no users — the job completes immediately.
+    // The query builder is chainable and thenable, so the route can add or
+    // reorder filters without this mock needing to mirror the exact chain.
+    discordMocks.supabaseFrom.mockReturnValue(
+      supabaseQueryStub({ data: [], error: null })
+    );
 
     const { GET } = await import("@/app/api/notifications/discord-sync/route");
     const res = await GET(makeDiscordRequest("Bearer s3cr3t"));

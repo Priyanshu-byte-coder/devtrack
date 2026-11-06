@@ -46,6 +46,18 @@ describe("Developer Persona Utilities", () => {
         "2026-05-03": 1,
       });
     });
+
+    it("should not mutate the original input objects", () => {
+      const a = { "2026-05-01": 5, "2026-05-02": 2 };
+      const b = { "2026-05-02": 3, "2026-05-03": 1 };
+      const aSnapshot = { ...a };
+      const bSnapshot = { ...b };
+
+      mergeCommitCounts(a, b);
+
+      expect(a).toEqual(aSnapshot);
+      expect(b).toEqual(bSnapshot);
+    });
   });
 
   describe("mergeSignals", () => {

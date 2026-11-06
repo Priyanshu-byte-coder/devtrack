@@ -10,8 +10,8 @@ export interface ActivityGoal {
   id: string;
   unit: string;
   repo: string | null;
-  repository: string | null;
-  repo_name: string | null;
+  repository?: string | null;
+  repo_name?: string | null;
 }
 
 /**

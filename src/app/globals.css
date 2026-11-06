@@ -1,13 +1,44 @@
 @tailwind base;
+
+/*
+ * Stand-in for Silkscreen (font-pixel) while it loads: Arial (or a
+ * metric-compatible clone) scaled to Silkscreen's uppercase word widths, with
+ * its vertical metrics. Measured so the hero heading wraps identically at
+ * 360-1920px wide and the leaderboard tabs too, so nothing shifts when
+ * the real font swaps in. A monospace stand-in can't match: Silkscreen's
+ * I, space and full stop are narrow.
+ */
+@font-face {
+  font-family: "Pixel Fallback";
+  src:
+    local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo"),
+    local("Helvetica Neue"), local("Helvetica"), local("Roboto");
+  font-weight: 100 900;
+  size-adjust: 107%;
+  ascent-override: 96.3%;
+  descent-override: 23.4%;
+  line-gap-override: 0%;
+}
+
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* Motion tokens. Mirrors src/lib/motion.ts; keep the two in sync. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --duration-instant: 100ms;
+  --duration-fast: 180ms;
+  --duration-base: 280ms;
+  --duration-slow: 450ms;
+  --duration-slower: 700ms;
+
   color-scheme: dark;
   --background: #050816;
   --foreground: #f5f7fb;
   --muted: #121a2b;
-  --muted-foreground: #91a0b7;
+  --muted-foreground: #94a3b8;
   --card: #0b1220;
   --card-foreground: #f5f7fb;
   --card-muted: #111b2f;
@@ -52,7 +83,7 @@ html[data-theme="modern-light-blue"] {
   --background: #f6f8fc;
   --foreground: #0f172a;
   --muted: #e9eef7;
-  --muted-foreground: #516079;
+  --muted-foreground: #475569;
   --card: #ffffff;
   --card-foreground: #0f172a;
   --card-muted: #eff4fb;
@@ -89,7 +120,7 @@ html[data-theme="nordic-frost"] {
   --background: #07131f;
   --foreground: #eaf4ff;
   --muted: #111f31;
-  --muted-foreground: #8fa6be;
+  --muted-foreground: #9eb6ce;
   --card: #0c1a2a;
   --card-foreground: #eaf4ff;
   --card-muted: #122436;
@@ -126,7 +157,7 @@ html[data-theme="cyberpunk-matrix"] {
   --background: #050608;
   --foreground: #e8ffe8;
   --muted: #0d140d;
-  --muted-foreground: #88a388;
+  --muted-foreground: #98b698;
   --card: #0a100a;
   --card-foreground: #e8ffe8;
   --card-muted: #101810;
@@ -276,12 +307,6 @@ body {
   --shadow-medium: 0 24px 45px -28px rgba(0, 0, 0, 0.85);
 }
 
-/* Strip body background on landing page so the dark bg is visible */
-body:has(.lnd-root) {
-  background: var(--background) !important;
-  background-color: var(--background) !important;
-}
-
 /* Strip body background on Year in Code wrapped page */
 body:has(.wrapped-root) {
   background: var(--background) !important;
@@ -290,44 +315,50 @@ body:has(.wrapped-root) {
 
 body {
   background:
-    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 34%),
-    radial-gradient(circle at 100% 18%, color-mix(in srgb, var(--accent-secondary) 14%, transparent), transparent 30%),
+    radial-gradient(
+      circle at 0% 0%,
+      color-mix(in srgb, var(--accent) 20%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 100% 18%,
+      color-mix(in srgb, var(--accent-secondary) 14%, transparent),
+      transparent 30%
+    ),
     var(--background);
   color: var(--foreground);
-  transition: background-color 200ms ease, color 200ms ease;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
   overscroll-behavior: none;
 }
 
 .surface-card {
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, #ffffff 8%), var(--card));
-  box-shadow: var(--shadow-soft);
+  background: var(--card);
 }
 
+/* Legacy button classes; match <Button> (default / outline). */
 .primary-button {
-  border: 1px solid color-mix(in srgb, var(--accent) 86%, white 14%);
-  background: linear-gradient(140deg, var(--accent), var(--accent-secondary));
+  border: 1px solid transparent;
+  background: var(--accent);
   color: var(--accent-foreground);
-  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  transition: opacity 150ms ease;
 }
 
 .primary-button:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-medium);
-  filter: saturate(1.05);
+  opacity: 0.9;
 }
 
 .secondary-button {
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 88%, white 12%);
+  background: var(--card);
   color: var(--card-foreground);
-  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  transition: background-color 150ms ease;
 }
 
 .secondary-button:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--border) 50%);
-  background: color-mix(in srgb, var(--control) 90%, white 10%);
+  background: var(--control);
 }
 
 /* Custom slim scrollbar for dashboard widgets */
@@ -383,69 +414,116 @@ body {
    ───────────────────────────────────────── */
 
 /* Staggered animation delays for child elements */
-.stagger-children>*:nth-child(1) {
+.stagger-children > *:nth-child(1) {
   animation-delay: 0ms;
 }
 
-.stagger-children>*:nth-child(2) {
+.stagger-children > *:nth-child(2) {
   animation-delay: 50ms;
 }
 
-.stagger-children>*:nth-child(3) {
+.stagger-children > *:nth-child(3) {
   animation-delay: 100ms;
 }
 
-.stagger-children>*:nth-child(4) {
+.stagger-children > *:nth-child(4) {
   animation-delay: 150ms;
 }
 
-.stagger-children>*:nth-child(5) {
+.stagger-children > *:nth-child(5) {
   animation-delay: 200ms;
 }
 
-.stagger-children>*:nth-child(6) {
+.stagger-children > *:nth-child(6) {
   animation-delay: 250ms;
 }
 
-.stagger-children>*:nth-child(7) {
+.stagger-children > *:nth-child(7) {
   animation-delay: 300ms;
 }
 
-.stagger-children>*:nth-child(8) {
+.stagger-children > *:nth-child(8) {
   animation-delay: 350ms;
 }
 
-.stagger-children>*:nth-child(9) {
+.stagger-children > *:nth-child(9) {
   animation-delay: 400ms;
 }
 
-.stagger-children>*:nth-child(10) {
+.stagger-children > *:nth-child(10) {
   animation-delay: 450ms;
 }
 
 /* Shimmer skeleton loading effect */
 .skeleton-shimmer {
-  background: linear-gradient(90deg,
-      var(--card-muted) 0%,
-      color-mix(in srgb, var(--card-muted) 60%, var(--border) 40%) 50%,
-      var(--card-muted) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--card-muted) 0%,
+    color-mix(in srgb, var(--card-muted) 60%, var(--border) 40%) 50%,
+    var(--card-muted) 100%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
 }
 
-/* Interactive stat cell — hover lift + glow */
+/* Stat tile, HUD style: a colour key along the top (set --stat-c), a pixel
+   floor and a hard drop shadow on hover. Uses `translate`, not `transform`,
+   so it still lifts while a fade-in animation holds the transform. */
 .stat-cell {
-  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease;
+  position: relative;
+  border-radius: 0;
+  background-color: var(--control);
+  box-shadow: inset 0 -3px 0 0
+    color-mix(in srgb, var(--border) 80%, transparent);
+  transition:
+    translate 160ms steps(2, end),
+    box-shadow 160ms steps(2, end),
+    background-color 160ms ease;
+}
+
+.stat-cell::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--stat-c, var(--accent));
+  opacity: 0.85;
 }
 
 .stat-cell:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px -4px rgba(96, 165, 250, 0.15);
+  translate: -2px -2px;
+  box-shadow:
+    inset 0 -3px 0 0 color-mix(in srgb, var(--border) 80%, transparent),
+    4px 4px 0 0
+      color-mix(in srgb, var(--stat-c, var(--accent)) 40%, transparent);
+}
+
+/* The number inside a stat tile. */
+.stat-value {
+  font-family: var(--font-pixel);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  /* Mixed toward the text colour so light and dark themes both keep contrast. */
+  color: color-mix(
+    in srgb,
+    var(--stat-c, var(--accent)) 72%,
+    var(--card-foreground)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-cell:hover {
+    translate: none;
+  }
 }
 
 /* Interactive list item — subtle left-border reveal + slide */
 .list-item-hover {
-  transition: transform 200ms ease, background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
   border-left: 3px solid transparent;
 }
 
@@ -461,10 +539,13 @@ body {
 }
 
 /* ─────────────────────────────────────────
-   DARK MODE GLOBAL TYPOGRAPHY
+   PAGE HEADINGS
+   Syne in every theme. This used to be scoped to .dark, but the font
+   variable it reads was never defined, so it did nothing until the root
+   layout started attaching it; then only dark mode changed typeface.
    ───────────────────────────────────────── */
-.dark h1 {
-  font-family: var(--font-syne, system-ui, sans-serif);
+h1 {
+  font-family: var(--font-syne), system-ui, sans-serif;
   letter-spacing: -0.03em;
 }
 
@@ -492,213 +573,8 @@ body {
   background: #9ca3af;
 }
 
-/* ─────────────────────────────────────────
-   LANDING PAGE
-   ───────────────────────────────────────── */
-@keyframes lndHeroIn {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes lndTicker {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.lnd-ticker {
-  animation: lndTicker 40s linear infinite;
-}
-
-.lnd-root ::selection {
-  background: rgba(129, 140, 248, 0.2);
-  color: #fff;
-}
-
-.lnd-nav-link {
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted-foreground);
-  text-decoration: none;
-  padding: 6px 14px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  transition: all 0.2s;
-}
-
-.lnd-nav-link:hover {
-  color: var(--foreground);
-  border-color: var(--muted-foreground);
-}
-
-.lnd-cta-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
-  background: #818cf8;
-  padding: 12px 24px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.lnd-cta-primary {
-  transition: all 0.3s ease;
-}
-
-.lnd-cta-primary:hover {
-  background: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 0 18px rgba(129, 140, 248, 0.5);
-}
-
-.lnd-cta-primary:active {
-  transform: scale(0.97);
-}
-
-.lnd-cta-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--foreground);
-  background: transparent;
-  padding: 11px 22px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.lnd-cta-secondary:hover {
-  background: #818cf8;
-  color: #fff;
-  border-color: #818cf8;
-  transform: translateY(-2px);
-}
-
-.lnd-footer-link {
-  font-family: var(--font-jetbrains, ui-monospace, monospace);
-  font-size: 11px;
-  color: var(--muted-foreground);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.lnd-footer-link:hover {
-  color: var(--foreground);
-}
-
-.lnd-cell {
-  background: color-mix(in srgb, var(--card) 60%, transparent);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    var(--shadow-soft);
-  transition:
-    background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.lnd-cell:hover {
-  background: color-mix(in srgb, var(--card) 85%, transparent);
-  border-color: var(--accent-secondary);
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    var(--shadow-medium);
-}
-
-.lnd-heatmap-cell {
-  cursor: crosshair;
-}
-
-.lnd-about-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 22px;
-  min-height: 210px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.lnd-about-card::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: radial-gradient(
-    250px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
-    rgba(129, 140, 248, 0.5) 0%,
-    transparent 80%
-  );
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 1;
-}
-
-.lnd-about-card:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(129, 140, 248, 0.25);
-  transform: translateY(-3px) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 14px 34px rgba(0, 0, 0, 0.28);
-}
-
-.lnd-about-card:hover::before {
-  opacity: 1;
-}
-
-.lnd-heatmap-cell:hover {
-  transform: scale(1.6) !important;
-  box-shadow: 0 0 8px #818cf8;
-  z-index: 2;
-  position: relative;
-}
-
-
-@media (max-width: 640px) {
-  .lnd-ticker {
-    animation-duration: 20s !important;
-  }
-}
-
 /* --- Accessibility Fix: Respect prefers-reduced-motion (WCAG 2.3.3) --- */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -706,10 +582,6 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .lnd-ticker {
-    animation: none !important;
   }
 
   .fade-up {
@@ -728,42 +600,1974 @@ body {
     transform: none !important;
   }
 
-  .lnd-cta-primary:hover,
-  .lnd-cta-primary:active,
-  .lnd-cta-secondary:hover {
-    transform: none !important;
-  }
-
-  .lnd-ticker {
-    transform: none !important;
-  }
-
   .skeleton-shimmer,
   .animate-shimmer {
     animation: none !important;
   }
+
+  /* Scroll entrances (components/motion/Reveal) start hidden; show them at rest. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @keyframes shimmer {
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Sliding-sheen variant used by overlay skeletons (see Skeleton.tsx),
+   where a translated gradient child sweeps across the placeholder. */
+@keyframes shimmer-slide {
   100% {
     transform: translateX(100%);
   }
 }
 
 .animate-shimmer {
-  animation: shimmer 1.5s infinite;
+  animation: shimmer-slide 1.5s infinite;
 }
-/* Mouse spotlight enhancement for visibility on all backgrounds */
-.lnd-root .mouse-spotlight {
-  pointer-events: none;
-  z-index: 0;
+/* Signed-in pages render inside the app shell, which has its own
+   navigation; hide the marketing header and footer around it. */
+body:has(.app-shell) .site-navbar,
+body:has(.app-shell) .site-footer {
+  display: none;
 }
 
-/* Focus styles for accessibility - landing page specific */
-.lnd-root button:focus-visible,
-.lnd-root a:focus-visible,
-.lnd-root [role="button"]:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* --- Pixel cursors -------------------------------------------------------
+   Sprites live in public/cursors and are generated by
+   scripts/generate-cursors.py. These are native cursors: the OS draws them,
+   so they track the pointer with zero lag and need no JavaScript. The plain
+   url() line is the fallback for browsers without image-set() cursors; the
+   numbers after each image are the hotspot (the tip) in CSS pixels.
+   ------------------------------------------------------------------------ */
+@media (pointer: fine) {
+  html {
+    cursor:
+      url("/cursors/arrow.png") 0 0,
+      auto;
+    cursor:
+      image-set(url("/cursors/arrow.png") 1x, url("/cursors/arrow@2x.png") 2x) 0
+        0,
+      auto;
+  }
+
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="range"],
+  .cursor-pointer {
+    cursor:
+      url("/cursors/pointer.png") 10 0,
+      pointer;
+    cursor:
+      image-set(
+          url("/cursors/pointer.png") 1x,
+          url("/cursors/pointer@2x.png") 2x
+        )
+        10 0,
+      pointer;
+  }
+
+  /* The cursor property inherits, so text entry needs the I-beam back. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not(
+      [type="button"]
+    ):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  [contenteditable="true"],
+  [contenteditable=""] {
+    cursor: text;
+  }
+}
+
+/* Legend tier badge: a slow shimmer across its fill. Every gradient stop
+   keeps white text at 5:1 or better. Stills under reduced motion via the
+   global rule above. */
+.tier-legend {
+  background-image: linear-gradient(
+    110deg,
+    #9b30e0 0%,
+    #c42a7c 35%,
+    #1f6bb0 65%,
+    #9b30e0 100%
+  ) !important;
+  background-size: 250% 100% !important;
+  animation: tier-shimmer 4s linear infinite;
+}
+
+@keyframes tier-shimmer {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 250% 0;
+  }
+}
+
+/* ─────────────────────────────────────────
+   ARCADE PRIMITIVES (Phase 3 visual system)
+   Pixel frames are drawn with box-shadow on four sides only, which leaves
+   the corners notched like a sprite. Colours come from the theme tokens so
+   every theme keeps its own palette.
+   ───────────────────────────────────────── */
+/* In the components layer so Tailwind utilities still win: without it the
+   frame's margin overrides spacing like mt-10 on the same element. */
+@layer components {
+  .px-frame {
+    --px: 4px;
+    --px-c: var(--border);
+    margin: var(--px);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(-1 * var(--px)) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c);
+  }
+
+  .px-frame-accent {
+    --px-c: var(--accent);
+  }
+
+  /* Chunky arcade button: notched outline, top highlight, bottom shade, and a
+     press that drops it into its own shadow. */
+  .px-btn {
+    --px: 4px;
+    --px-c: #05070f;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: var(--px);
+    padding: 0.85rem 1.4rem;
+    font-family: var(--font-pixel), ui-monospace, monospace;
+    font-size: 0.9rem;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--accent);
+    color: var(--accent-foreground);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(-1 * var(--px)) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c),
+      inset 0 var(--px) 0 0 rgba(255, 255, 255, 0.28),
+      inset 0 calc(-1 * var(--px)) 0 0 rgba(0, 0, 0, 0.3);
+    transition:
+      transform var(--duration-instant) var(--ease-out),
+      filter var(--duration-fast) var(--ease-out);
+  }
+
+  .px-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .px-btn:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 calc(-1 * var(--px)) 0 0 var(--px-c),
+      0 var(--px) 0 0 var(--px-c),
+      calc(-1 * var(--px)) 0 0 0 var(--px-c),
+      var(--px) 0 0 0 var(--px-c),
+      inset 0 var(--px) 0 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .px-btn:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 6px;
+  }
+
+  .px-btn-sm {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.72rem;
+  }
+
+  .px-btn-ghost {
+    background: var(--card);
+    color: var(--card-foreground);
+    --px-c: var(--border);
+  }
+
+  /* Faint CRT scanlines over a panel. Purely decorative. */
+  .px-scanlines {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .px-scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 3px,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 3px 4px
+    );
+  }
+
+  /* Dotted pixel grid backdrop for hero areas. */
+  .px-grid-bg {
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--foreground) 9%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 16px 16px;
+  }
+}
+
+/* "PRESS START" style blink: hard on/off, no fade. */
+@keyframes px-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@layer components {
+  .px-blink {
+    animation: px-blink 1.1s steps(1, end) infinite;
+  }
+}
+
+/* Endless marquee for the arcade ticker. */
+@keyframes px-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer components {
+  .px-marquee {
+    animation: px-marquee 45s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px-blink,
+  .px-marquee {
+    animation: none !important;
+  }
+
+  .px-btn:active {
+    transform: none;
+  }
+}
+
+/* ── Onboarding tour (driver.js) in the arcade style ── */
+.driver-popover.devtrack-tour {
+  border-radius: 0;
+  background: var(--card);
+  color: var(--card-foreground);
+  padding: 18px 18px 14px;
+  max-width: 340px;
+  box-shadow:
+    0 -4px 0 0 var(--accent),
+    0 4px 0 0 var(--accent),
+    -4px 0 0 0 var(--accent),
+    4px 0 0 0 var(--accent),
+    0 18px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+.driver-popover.devtrack-tour .driver-popover-title {
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--card-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-description {
+  margin-top: 6px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-progress-text {
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-footer button {
+  border-radius: 0;
+  border: 2px solid var(--border);
+  background: var(--control);
+  color: var(--card-foreground);
+  text-shadow: none;
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+
+.driver-popover.devtrack-tour .driver-popover-footer .driver-popover-next-btn {
+  background: var(--accent);
+  border-color: #05070f;
+  color: var(--accent-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-close-btn {
+  color: var(--muted-foreground);
+}
+
+.driver-popover.devtrack-tour .driver-popover-arrow {
+  display: none;
+}
+
+/* ── Landing boot intro: plays once per session, hides itself in CSS ── */
+.boot-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #05070f;
+  color: #f5f7fb;
+  cursor: pointer;
+  animation: boot-out 0.35s steps(4, end) 1.45s forwards;
+}
+
+.boot-intro__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.boot-intro__logo {
+  font-size: clamp(2rem, 7vw, 4rem);
+  letter-spacing: 0.08em;
+  animation: boot-drop 0.5s steps(5, end) both;
+}
+
+.boot-intro__bar {
+  width: min(60vw, 260px);
+  height: 14px;
+  padding: 3px;
+  background: #000;
+  box-shadow: 0 0 0 2px #2b3a5c;
+}
+
+.boot-intro__bar span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #6ba8ff;
+  transform-origin: left;
+  animation: boot-load 1s steps(10, end) 0.25s both;
+}
+
+.boot-intro__press {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a9bc0;
+  animation: px-blink 0.5s steps(1, end) infinite;
+}
+
+@keyframes boot-drop {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes boot-load {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes boot-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+html.booted .boot-intro {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-intro {
+    display: none;
+  }
+}
+
+/* Profile commit bars grow up in pixel steps. */
+.profile-bar {
+  animation: profile-bar-grow 0.5s steps(6, end) both;
+}
+
+@keyframes profile-bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-bar {
+    animation: none;
+  }
+}
+
+/* Language loadout segments fill left to right in pixel steps. */
+.lang-seg {
+  transform-origin: left;
+  animation: lang-seg-fill 0.6s steps(8, end) both;
+}
+
+@keyframes lang-seg-fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-seg {
+    animation: none;
+  }
+}
+
+/* ── Bit, the pixel mascot (components/buddy) ── */
+.buddy-bob {
+  animation: buddy-bob 1.2s steps(2, end) infinite;
+}
+
+.buddy-jump {
+  animation: buddy-jump 0.42s steps(6, end) both;
+}
+
+.buddy-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 24px;
+  height: 4px;
+  translate: -50% 0;
+  background: rgb(0 0 0 / 0.22);
+}
+
+.buddy-dust {
+  position: absolute;
+  bottom: 0;
+  left: -6px;
+  width: 4px;
+  height: 4px;
+  background: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
+  box-shadow:
+    -6px -3px 0 0 color-mix(in srgb, var(--muted-foreground) 40%, transparent),
+    44px 0 0 0 color-mix(in srgb, var(--muted-foreground) 40%, transparent);
+  animation: buddy-dust 0.3s steps(3, end) infinite;
+}
+
+.buddy-coin {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: #f2c14e;
+  pointer-events: none;
+  animation: buddy-coin 0.9s steps(6, end) forwards;
+}
+
+.buddy-coin::before {
+  content: "";
+  width: 8px;
+  height: 10px;
+  background: #facc15;
+  box-shadow:
+    inset -2px 0 0 #c98a14,
+    0 0 0 2px #141a2e;
+}
+
+.buddy-bubble {
+  transform-origin: bottom right;
+  animation: buddy-pop 0.18s steps(3, end) both;
+}
+
+.buddy-peek {
+  transition: height 0.15s steps(3, end);
+}
+
+.buddy-peek:hover,
+.buddy-peek:focus-visible {
+  height: 1.75rem;
+}
+
+@keyframes buddy-bob {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes buddy-jump {
+  40% {
+    transform: translateY(-16px);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes buddy-dust {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes buddy-coin {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+}
+
+@keyframes buddy-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Loading screen: Bit runs, jumps, bumps a "?" block for a coin ── */
+.pixel-loader {
+  position: relative;
+  width: 176px;
+  height: 124px;
+  overflow: hidden;
+}
+
+.pixel-loader__runner {
+  position: absolute;
+  left: 70px;
+  bottom: 14px;
+  width: 36px;
+  height: 48px;
+  animation: pl-jump 1.4s steps(14, end) infinite;
+}
+
+.pixel-loader__runner svg,
+.boot-intro__runner svg {
+  position: absolute;
+  inset: 0;
+}
+
+.pixel-loader__frame-a {
+  animation: pl-frame 0.24s steps(1, end) infinite;
+}
+
+.pixel-loader__frame-b {
+  animation: pl-frame 0.24s steps(1, end) 0.12s infinite;
+}
+
+.pixel-loader__block {
+  position: absolute;
+  left: 77px;
+  top: 10px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #7c4a03;
+  background: #f2c14e;
+  box-shadow:
+    inset -3px -3px 0 #c98a14,
+    0 0 0 2px #141a2e;
+  animation: pl-bump 1.4s steps(1, end) infinite;
+}
+
+.pixel-loader__coin {
+  position: absolute;
+  left: 83px;
+  top: 14px;
+  width: 10px;
+  height: 14px;
+  background: #facc15;
+  box-shadow:
+    inset -3px 0 0 #c98a14,
+    0 0 0 2px #141a2e;
+  opacity: 0;
+  animation: pl-coin 1.4s steps(14, end) infinite;
+}
+
+.pixel-loader__ground {
+  position: absolute;
+  inset: auto 0 0;
+  height: 14px;
+  background:
+    linear-gradient(#22c55e 0 4px, transparent 4px),
+    repeating-linear-gradient(90deg, #8b5a2b 0 14px, #6b4423 14px 16px);
+  background-size:
+    100% 100%,
+    16px 100%;
+  animation: pl-ground 0.24s steps(4, end) infinite;
+}
+
+.pixel-loader__dots::after {
+  content: "";
+  animation: pl-dots 1.2s steps(1, end) infinite;
+}
+
+@keyframes pl-frame {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes pl-jump {
+  0%,
+  50% {
+    transform: none;
+  }
+
+  62%,
+  70% {
+    transform: translateY(-30px);
+  }
+
+  85%,
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes pl-bump {
+  0%,
+  62% {
+    transform: none;
+  }
+
+  64% {
+    transform: translateY(-4px);
+  }
+
+  72% {
+    transform: none;
+  }
+}
+
+@keyframes pl-coin {
+  0%,
+  62% {
+    opacity: 0;
+    transform: none;
+  }
+
+  66% {
+    opacity: 1;
+    transform: translateY(-12px);
+  }
+
+  86% {
+    opacity: 1;
+    transform: translateY(-26px);
+  }
+
+  92%,
+  100% {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
+}
+
+@keyframes pl-ground {
+  to {
+    background-position:
+      0 0,
+      -16px 0;
+  }
+}
+
+@keyframes pl-dots {
+  0% {
+    content: "";
+  }
+
+  25% {
+    content: ".";
+  }
+
+  50% {
+    content: "..";
+  }
+
+  75% {
+    content: "...";
+  }
+}
+
+/* The boot screen: Bit runs along the load bar as it fills. */
+.boot-intro__track {
+  position: relative;
+}
+
+.boot-intro__runner {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  width: 24px;
+  height: 32px;
+  animation: boot-run 1s steps(10, end) 0.25s both;
+}
+
+@keyframes boot-run {
+  to {
+    left: calc(100% - 24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy-bob,
+  .buddy-jump,
+  .buddy-dust,
+  .buddy-coin,
+  .buddy-bubble,
+  .pixel-loader__runner,
+  .pixel-loader__frame-a,
+  .pixel-loader__block,
+  .pixel-loader__ground,
+  .pixel-loader__dots::after {
+    animation: none;
+  }
+
+  .pixel-loader__frame-b,
+  .pixel-loader__coin {
+    display: none;
+  }
+}
+
+/* ── Landing power-ups: item cards with a floating "?"-block icon ── */
+.pu-card {
+  border: 2px dashed var(--border);
+  transition:
+    translate 140ms steps(2, end),
+    box-shadow 140ms steps(2, end),
+    border-color 140ms steps(2, end);
+}
+
+.pu-card:hover,
+.pu-card:focus-visible {
+  translate: -3px -3px;
+  border-style: solid;
+  border-color: var(--pu-c, var(--accent));
+  box-shadow: 5px 5px 0 0
+    color-mix(in srgb, var(--pu-c, var(--accent)) 45%, transparent);
+}
+
+.pu-box {
+  background: var(--pu-c, var(--accent));
+  box-shadow:
+    inset -4px -4px 0 0 rgb(0 0 0 / 0.25),
+    inset 4px 4px 0 0 rgb(255 255 255 / 0.3),
+    0 0 0 2px #141a2e;
+  animation: pu-float 1.6s steps(2, end) infinite;
+}
+
+.pu-card:hover .pu-box,
+.pu-card:focus-visible .pu-box {
+  animation: pu-bump 0.36s steps(4, end);
+}
+
+.pu-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  opacity: 0;
+  background: var(--pu-c, var(--accent));
+  box-shadow:
+    -22px -18px 0 0 var(--pu-c, var(--accent)),
+    22px -18px 0 0 var(--pu-c, var(--accent)),
+    -26px 6px 0 0 var(--pu-c, var(--accent)),
+    26px 6px 0 0 var(--pu-c, var(--accent)),
+    0 -28px 0 0 #fff;
+  pointer-events: none;
+}
+
+.pu-card:hover .pu-spark,
+.pu-card:focus-visible .pu-spark {
+  animation: pu-spark 0.5s steps(4, end);
+}
+
+.pu-effect {
+  padding: 2px 6px;
+  color: color-mix(in srgb, var(--pu-c, var(--accent)) 70%, var(--foreground));
+  background: color-mix(in srgb, var(--pu-c, var(--accent)) 16%, transparent);
+}
+
+@keyframes pu-float {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes pu-bump {
+  40% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes pu-spark {
+  0% {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+/* ── Landing co-op counters: arcade HUD icons ── */
+.hud-counter__icon {
+  display: inline-flex;
+}
+
+.hud-icon-coin {
+  animation: hud-coin-spin 1.2s steps(1, end) infinite;
+}
+
+.hud-icon-gem,
+.hud-icon-star {
+  animation: hud-bob 1.4s steps(2, end) infinite;
+}
+
+.hud-icon-star {
+  animation-name: hud-twinkle;
+}
+
+.hud-icon-heart {
+  animation: hud-beat 1.2s steps(1, end) infinite;
+}
+
+.hud-counter:hover .hud-counter__icon {
+  animation: pu-bump 0.36s steps(4, end);
+}
+
+@keyframes hud-coin-spin {
+  0% {
+    transform: scaleX(1);
+  }
+
+  25% {
+    transform: scaleX(0.55);
+  }
+
+  50% {
+    transform: scaleX(0.15);
+  }
+
+  75% {
+    transform: scaleX(0.55);
+  }
+}
+
+@keyframes hud-bob {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes hud-twinkle {
+  50% {
+    transform: translateY(-3px);
+    filter: brightness(1.35);
+  }
+}
+
+@keyframes hud-beat {
+  0% {
+    transform: scale(1);
+  }
+
+  15% {
+    transform: scale(1.18);
+  }
+
+  30% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.1);
+  }
+
+  60% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pu-box,
+  .pu-card:hover .pu-box,
+  .pu-card:hover .pu-spark,
+  .hud-icon-coin,
+  .hud-icon-gem,
+  .hud-icon-star,
+  .hud-icon-heart,
+  .hud-counter:hover .hud-counter__icon {
+    animation: none;
+  }
+
+  .pu-card:hover,
+  .pu-card:focus-visible {
+    translate: none;
+  }
+}
+
+/* ── Landing "Continue?" cabinet screen: always dark, like the boot intro ── */
+.continue-screen {
+  --px-c: #2b3a5c;
+  background: radial-gradient(ellipse at center, #0d1430 0%, #05070f 75%);
+}
+
+.continue-count::after {
+  content: "9";
+  animation: continue-count 10s steps(1, end) infinite;
+}
+
+.continue-slot {
+  background: #000;
+  box-shadow:
+    inset 0 0 0 2px #2b3a5c,
+    inset 0 4px 0 0 #000;
+}
+
+.continue-slot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 4px;
+  height: 14px;
+  margin-left: -2px;
+  background: #f2c14e;
+  opacity: 0.6;
+}
+
+.continue-coin {
+  animation: continue-coin 2s steps(8, end) infinite;
+}
+
+.faq-item[open] .faq-answer {
+  animation: buddy-pop 0.18s steps(3, end) both;
+  transform-origin: top left;
+}
+
+@keyframes continue-count {
+  0% {
+    content: "9";
+  }
+
+  10% {
+    content: "8";
+  }
+
+  20% {
+    content: "7";
+  }
+
+  30% {
+    content: "6";
+  }
+
+  40% {
+    content: "5";
+  }
+
+  50% {
+    content: "4";
+  }
+
+  60% {
+    content: "3";
+  }
+
+  70% {
+    content: "2";
+  }
+
+  80% {
+    content: "1";
+  }
+
+  90% {
+    content: "0";
+  }
+}
+
+@keyframes continue-coin {
+  0% {
+    opacity: 1;
+    transform: translateY(-20px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(14px);
+  }
+
+  61%,
+  100% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .continue-count::after,
+  .continue-coin,
+  .faq-item[open] .faq-answer {
+    animation: none;
+  }
+}
+
+/* ── Year in Code: an always-dark cabinet, one coloured level per slide ── */
+.wrapped-screen {
+  background: radial-gradient(ellipse at top, #0d1430 0%, #05070f 70%);
+  box-shadow: inset 0 0 0 2px #1c2744;
+}
+
+.wrapped-level {
+  border-color: var(--level-c, #6ba8ff);
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      color-mix(in srgb, var(--level-c, #6ba8ff) 22%, transparent),
+      transparent 55%
+    ),
+    #070b1c;
+  box-shadow: 6px 6px 0 0
+    color-mix(in srgb, var(--level-c, #6ba8ff) 35%, transparent);
+}
+
+/* Each new slide wipes in from the left, in pixel steps. */
+.wrapped-wipe {
+  animation: wrapped-wipe 0.4s steps(8, end) both;
+}
+
+.wrapped-pickup {
+  display: inline-flex;
+  animation: hud-bob 1.2s steps(2, end) infinite;
+}
+
+@keyframes wrapped-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapped-wipe,
+  .wrapped-pickup {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE: the pause menu, swipe rows and tap feedback
+   ───────────────────────────────────────── */
+
+/* The phone menu drops in from the header in pixel steps; its tiles pop in
+   one after another (delays set inline). */
+.mobile-menu-panel {
+  animation: menu-drop 0.22s steps(4, end) both;
+}
+
+.mobile-menu-backdrop {
+  animation: menu-fade 0.18s ease-out both;
+}
+
+.mobile-menu-tile {
+  animation: menu-pop 0.24s steps(3, end) both;
+}
+
+/* A stage tile: its icon sits on a chip in the stage colour, and a press
+   drops the tile into its frame like an arcade button. */
+/* --stage-c is set per tile; the fallback is the theme accent. Not declared
+   here: an unlayered default would beat the per-tile utility class. */
+.stage-tile {
+  transition: transform var(--duration-instant) var(--ease-out);
+}
+
+.stage-tile__icon {
+  color: color-mix(
+    in srgb,
+    var(--stage-c, var(--accent)) 75%,
+    var(--card-foreground)
+  );
+  background: color-mix(
+    in srgb,
+    var(--stage-c, var(--accent)) 16%,
+    transparent
+  );
+  box-shadow: inset 0 -3px 0 0
+    color-mix(in srgb, var(--stage-c, var(--accent)) 35%, transparent);
+}
+
+.stage-tile:active {
+  transform: translateY(2px);
+}
+
+.stage-tile:active .stage-tile__icon,
+.stage-tile:hover .stage-tile__icon {
+  color: #05070f;
+  background: var(--stage-c, var(--accent));
+}
+
+@keyframes menu-drop {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Cards that are links or buttons press in on touch, so taps feel physical. */
+@media (hover: none) {
+  a.px-frame:active,
+  button.px-frame:active {
+    transform: translateY(2px);
+  }
+}
+
+/* Horizontal swipe rows on phones: cards snap into place, with the next one
+   peeking in so it's clear there's more. */
+.swipe-row {
+  scrollbar-width: none;
+  scroll-padding-inline: 1rem;
+}
+
+.swipe-row::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-panel,
+  .mobile-menu-backdrop,
+  .mobile-menu-tile {
+    animation: none;
+  }
+
+  .stage-tile,
+  a.px-frame:active,
+  button.px-frame:active {
+    transform: none;
+  }
+}
+
+/* Above the signed-in app's bottom tab bar on phones and tablets. */
+@media (max-width: 1023px) {
+  body:has(.mobile-tabbar) .back-to-top {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    right: 1rem;
+  }
+
+  body:has(.mobile-tabbar) .buddy-dock {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  body:has(.mobile-tabbar) .buddy-peek {
+    bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* ─────────────────────────────────────────
+   HERO ARCADE CABINET (ArcadeCabinet.tsx)
+   Drawn like the DevTrack poster: seen from the front-left, so the right
+   side panel shows as a band, the control deck juts out with a sloped top
+   and the screen sits deep in a thick bezel. Every part is a chunky
+   outlined block with pixel-rounded corners, at its own width, which gives
+   the stepped silhouette. Navy in dark mode, white in light mode.
+   ───────────────────────────────────────── */
+.cabinet {
+  --u: 4px;
+  --side-w: 56px;
+  --round: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px),
+    0 8px,
+    4px 8px,
+    4px 4px,
+    8px 4px
+  );
+  /* Dark-mode machine. */
+  --ol: #4d8dff;
+  --body: #12285f;
+  --body-2: #0c1b45;
+  --side: #081431;
+  --side-2: #0d1e4a;
+  --sign: #0a1430;
+  --sign-text: #f5f7fb;
+  --sign-glow: rgba(107, 168, 255, 0.75);
+  --logo-bg: rgba(107, 168, 255, 0.2);
+  --logo: #6ba8ff;
+  --bezel: #050b1c;
+  --deck-top: #2c5fd0;
+  --deck-top-2: #1f4aae;
+  --deck-lip: #163276;
+  --low: #11265a;
+  --low-2: #0b1a42;
+  --vent: #06102a;
+  --door: #0b1736;
+  --floor-line: rgba(77, 141, 255, 0.45);
+  --floor-glow: rgba(77, 141, 255, 0.5);
+  --bevel: rgba(255, 255, 255, 0.12);
+  --shade: rgba(0, 0, 0, 0.22);
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 30rem;
+  flex-direction: column;
+  margin-inline: auto;
+  padding-right: var(--side-w);
+  padding-bottom: 18px;
+}
+
+/* Light-mode machine: white body, blue outline, dark bezel. */
+html:not(.dark) .cabinet {
+  --ol: #2563eb;
+  --body: #ffffff;
+  --body-2: #f1f5fc;
+  --side: #d6e1f4;
+  --side-2: #e6edf9;
+  --sign: #ffffff;
+  --sign-text: #0f172a;
+  --sign-glow: transparent;
+  --logo-bg: #dbe6fb;
+  --logo: #2563eb;
+  --bezel: #13265a;
+  --deck-top: #ffffff;
+  --deck-top-2: #eef3fb;
+  --deck-lip: #dbe4f4;
+  --low: #f7f9fd;
+  --low-2: #eaf0fa;
+  --vent: #13265a;
+  --door: #e6edf9;
+  --floor-line: rgba(37, 99, 235, 0.28);
+  --floor-glow: rgba(37, 99, 235, 0.14);
+  --bevel: rgba(255, 255, 255, 0.9);
+  --shade: rgba(37, 99, 235, 0.1);
+}
+
+/* A front part: the outline is the part's own background, and a fill sits
+   one pixel-unit inside it, both clipped to the same rounded shape. */
+.cab-part {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  background: var(--ol);
+  clip-path: var(--round);
+}
+
+.cab-part::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  z-index: -1;
+  background: linear-gradient(180deg, var(--body), var(--body-2));
+  clip-path: var(--round);
+  /* A lit bevel along the top and left, a shaded one along the right. */
+  box-shadow:
+    inset 0 4px 0 0 var(--bevel),
+    inset 4px 0 0 0 var(--bevel),
+    inset -4px 0 0 0 var(--shade);
+}
+
+/* The right side panel, behind the fronts: it shows wherever a front part
+   sits further back, and carries two racing stripes. */
+.cab-side {
+  position: absolute;
+  top: 26px;
+  right: 0;
+  bottom: 14px;
+  z-index: 0;
+  width: calc(var(--side-w) + 48px);
+  background: var(--ol);
+  clip-path: var(--round);
+}
+
+.cab-side::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  background: linear-gradient(90deg, var(--side-2), var(--side));
+  clip-path: var(--round);
+  box-shadow: inset 0 4px 0 0 var(--bevel);
+}
+
+.cab-side__stripes {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 34px;
+  height: 150px;
+}
+
+.cab-side__stripes::before,
+.cab-side__stripes::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 70px;
+  clip-path: polygon(0 48%, 100% 0, 100% 42%, 0 90%);
+}
+
+.cab-side__stripes::before {
+  top: 0;
+  background: #facc15;
+}
+
+.cab-side__stripes::after {
+  top: 54px;
+  background: #22c55e;
+}
+
+/* Marquee housing with the lit sign. */
+.cab-head {
+  padding: 18px 18px 16px;
+}
+
+.cab-sign {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  background: var(--ol);
+  clip-path: var(--round);
+  font-family: var(--font-pixel), ui-monospace, monospace;
+  font-size: clamp(1.05rem, 3.4vw, 1.5rem);
+  letter-spacing: 0.3em;
+  color: var(--sign-text);
+  text-shadow: 0 0 10px var(--sign-glow);
+}
+
+.cab-sign::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  z-index: -1;
+  background: var(--sign);
+  clip-path: var(--round);
+}
+
+.cab-sign__logo {
+  display: inline-flex;
+  width: 2.2rem;
+  height: 2.2rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--logo-bg);
+  color: var(--logo);
+  font-size: 1.1rem;
+  letter-spacing: 0;
+  text-shadow: none;
+}
+
+/* Screen section: the cabinet narrows here, and the screen sits deep in a
+   thick rounded bezel. */
+.cab-mid {
+  margin: calc(-1 * var(--u)) 6px 0 12px;
+  padding: 16px 16px 20px;
+}
+
+.cab-bezel {
+  position: relative;
+  padding: 10px;
+  background: var(--bezel);
+  clip-path: var(--round);
+}
+
+.cabinet-screen {
+  --screen-glow: #6ba8ff;
+  position: relative;
+  isolation: isolate;
+  min-height: 22rem;
+  overflow: hidden;
+  clip-path: var(--round);
+  color: var(--card-foreground);
+  background: #ffffff;
+  box-shadow:
+    inset 0 0 0 3px color-mix(in srgb, var(--screen-glow) 60%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--screen-glow) 22%, transparent);
+  transition: box-shadow 0.3s ease-out;
+}
+
+/* In dark mode the screen is a dark CRT. */
+html.dark .cabinet-screen {
+  --background: #070d1c;
+  --card: #070d1c;
+  --card-foreground: #f5f7fb;
+  --foreground: #f5f7fb;
+  --muted-foreground: #94a3b8;
+  --border: #1e2b40;
+  --control: #111c33;
+  --accent: #6ba8ff;
+  --accent-foreground: #05070f;
+  background: radial-gradient(120% 90% at 50% 40%, #0b1630, #050a16);
+}
+
+/* CRT scanlines over everything on the screen. */
+.cabinet-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.035) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+html.dark .cabinet-screen::after {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.035) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* The control deck juts out to the left: a sloped top surface, lit, over a
+   darker front lip. The joystick and buttons stand on the slope, so they
+   live outside the clipped shapes. */
+.cab-deck {
+  position: relative;
+  z-index: 2;
+  height: 74px;
+  margin: calc(-1 * var(--u)) 20px 0 -14px;
+}
+
+.cab-deck__top,
+.cab-deck__lip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--ol);
+}
+
+.cab-deck__top {
+  top: 0;
+  height: 40px;
+  clip-path: polygon(20px 0, calc(100% - 10px) 0, 100% 100%, 0 100%);
+}
+
+.cab-deck__top::before {
+  content: "";
+  position: absolute;
+  inset: var(--u) var(--u) 0;
+  background: linear-gradient(180deg, var(--deck-top-2), var(--deck-top));
+  clip-path: polygon(18px 0, calc(100% - 9px) 0, 100% 100%, 0 100%);
+}
+
+.cab-deck__lip {
+  top: 40px;
+  bottom: 0;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px)
+  );
+}
+
+.cab-deck__lip::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  background: var(--deck-lip);
+}
+
+.cab-stick {
+  position: absolute;
+  left: 22%;
+  bottom: 40px;
+  display: block;
+  width: 38px;
+  height: 58px;
+  transform-origin: 50% 100%;
+}
+
+/* Base plate and shaft. */
+.cab-stick::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 38px;
+  height: 10px;
+  background: #0b1430;
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% 100%,
+    0 100%,
+    0 4px
+  );
+}
+
+.cab-stick::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  bottom: 8px;
+  width: 10px;
+  height: 24px;
+  background: #1b2a52;
+}
+
+.cab-stick__ball {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  z-index: 1;
+  width: 34px;
+  height: 30px;
+  background: #facc15;
+  box-shadow:
+    inset -4px -4px 0 0 #c98a14,
+    inset 4px 4px 0 0 #fff2a8;
+  clip-path: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    calc(100% - 8px) 4px,
+    calc(100% - 4px) 4px,
+    calc(100% - 4px) 8px,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 8px),
+    calc(100% - 4px) calc(100% - 4px),
+    calc(100% - 8px) calc(100% - 4px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    8px calc(100% - 4px),
+    4px calc(100% - 4px),
+    4px calc(100% - 8px),
+    0 calc(100% - 8px),
+    0 8px,
+    4px 8px,
+    4px 4px,
+    8px 4px
+  );
+}
+
+.cab-buttons {
+  position: absolute;
+  right: 12%;
+  top: 12px;
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* Attract mode: the buttons light up one after another. */
+.cab-button {
+  width: 34px;
+  height: 20px;
+  background: var(--btn);
+  box-shadow:
+    inset 0 -5px 0 0 rgba(0, 0, 0, 0.32),
+    inset 0 4px 0 0 rgba(255, 255, 255, 0.4);
+  clip-path: polygon(
+    6px 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    0 calc(100% - 6px),
+    0 6px
+  );
+  filter: brightness(0.8);
+  animation: cabinet-attract 2.4s steps(1, end) infinite;
+}
+
+.cab-button:nth-child(2) {
+  animation-delay: 0.8s;
+}
+
+.cab-button:nth-child(3) {
+  animation-delay: 1.6s;
+}
+
+.cabinet[data-busy] .cab-stick {
+  animation: cabinet-wiggle 0.36s steps(2, end) infinite alternate;
+}
+
+/* Lower cabinet: set back again, with a coin door between two vents. */
+.cab-low {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  margin: calc(-1 * var(--u)) 30px 0 14px;
+  padding: 26px 0 24px;
+}
+
+.cab-low::before {
+  background: linear-gradient(180deg, var(--low-2), var(--low));
+}
+
+.cab-vent {
+  width: 3.4rem;
+  height: 30px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--vent) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.cab-door {
+  position: relative;
+  isolation: isolate;
+  width: 76px;
+  height: 68px;
+  background: var(--ol);
+  clip-path: var(--round);
+}
+
+.cab-door::before {
+  content: "";
+  position: absolute;
+  inset: var(--u);
+  z-index: -1;
+  background: var(--door);
+  clip-path: var(--round);
+}
+
+.cab-door__slot {
+  position: absolute;
+  right: 20px;
+  top: 14px;
+  width: 12px;
+  height: 30px;
+  background: #facc15;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.65);
+}
+
+.cab-door__key {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  width: 7px;
+  height: 7px;
+  background: var(--vent);
+}
+
+/* Each Play drops a coin into the slot. */
+.cab-coin {
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  background: #facc15;
+  box-shadow:
+    inset -3px -3px 0 0 #c98a14,
+    inset 3px 3px 0 0 #fff2a8;
+  clip-path: polygon(
+    4px 0,
+    calc(100% - 4px) 0,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    0 calc(100% - 4px),
+    0 4px
+  );
+  animation: cabinet-coin 0.6s steps(6, end) forwards;
+}
+
+/* A grid floor in perspective, lit under the machine. */
+.cab-floor {
+  position: absolute;
+  left: -40%;
+  right: -20%;
+  bottom: -14px;
+  z-index: 0;
+  height: 96px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--floor-line) 2px, transparent 2px),
+    linear-gradient(90deg, var(--floor-line) 2px, transparent 2px);
+  background-size: 40px 24px;
+  transform: perspective(260px) rotateX(52deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: radial-gradient(
+    ellipse at 50% 90%,
+    #000 25%,
+    transparent 70%
+  );
+  mask-image: radial-gradient(ellipse at 50% 90%, #000 25%, transparent 70%);
+}
+
+.cab-floor::after {
+  content: "";
+  position: absolute;
+  inset: 0 25%;
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    var(--floor-glow),
+    transparent 70%
+  );
+}
+
+/* Bit hangs out by the machine where there is room. */
+.cabinet-bit {
+  position: absolute;
+  left: -76px;
+  bottom: 6px;
+  z-index: 3;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .cabinet-bit {
+    display: block;
+  }
+}
+
+/* Phones: a narrower side panel and tighter parts, so the screen keeps
+   its width. */
+@media (max-width: 639px) {
+  .cabinet {
+    --side-w: 32px;
+  }
+
+  .cab-head {
+    padding: 14px 14px 12px;
+  }
+
+  .cab-mid {
+    margin-left: 8px;
+    margin-right: 4px;
+    padding: 12px 12px 16px;
+  }
+
+  .cab-bezel {
+    padding: 7px;
+  }
+
+  .cab-deck {
+    margin-left: -8px;
+    margin-right: 12px;
+  }
+
+  .cab-low {
+    margin-left: 10px;
+    margin-right: 18px;
+    gap: 1rem;
+  }
+
+  .cab-vent {
+    width: 2.6rem;
+  }
+
+  .cab-side__stripes {
+    right: 4px;
+    width: 20px;
+    height: 110px;
+  }
+
+  .cab-side__stripes::before,
+  .cab-side__stripes::after {
+    height: 50px;
+  }
+
+  .cab-side__stripes::after {
+    top: 40px;
+  }
+
+  .cab-button {
+    width: 28px;
+    height: 18px;
+  }
+}
+
+@keyframes cabinet-attract {
+  0%,
+  33% {
+    filter: brightness(1.3);
+  }
+
+  34%,
+  100% {
+    filter: brightness(0.8);
+  }
+}
+
+@keyframes cabinet-wiggle {
+  from {
+    transform: rotate(-12deg);
+  }
+
+  to {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes cabinet-coin {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  70% {
+    transform: translateY(46px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(52px) scaleX(0.3);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cab-button,
+  .cabinet[data-busy] .cab-stick,
+  .cab-coin {
+    animation: none;
+  }
+
+  .cab-button {
+    filter: none;
+  }
+
+  .cab-coin {
+    display: none;
+  }
 }

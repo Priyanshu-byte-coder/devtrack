@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -53,7 +53,7 @@ export async function DELETE(
     .from("user_github_accounts")
     .delete()
     .eq("user_id", userRow.id)
-    .eq("github_login", githubLogin)
+    .ilike("github_login", githubLogin)
     .select("github_login");
 
   if (error) {

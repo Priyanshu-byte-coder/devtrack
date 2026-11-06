@@ -1,0 +1,18 @@
+{
+  "preparedAt": "2026-10-14",
+  "githubAccount": "Priyanshu-byte-coder",
+  "candidateFiles": 515,
+  "secretValueMatches": [],
+  "legacyMigrationsPreserved": 56,
+  "excluded": [
+    ".scannerwork/",
+    ".env",
+    ".env.local",
+    "node_modules/",
+    ".next/",
+    "coverage/",
+    "playwright-report/",
+    "test-results/"
+  ],
+  "requiredPatchHashesVerified": true
+}

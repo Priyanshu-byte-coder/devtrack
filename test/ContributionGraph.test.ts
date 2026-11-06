@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import ContributionGraph from '@/components/ContributionGraph';
 import { get, set } from 'idb-keyval';
@@ -46,7 +46,7 @@ const mockData = {
   },
 };
 
-describe('ContributionGraph - IndexedDB Caching and Background Sync', () => {
+describe('ContributionGraph - private data isolation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -60,32 +60,16 @@ describe('ContributionGraph - IndexedDB Caching and Background Sync', () => {
   });
 
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
   });
 
-  it('performs standard fetch and updates cache when no cache exists', async () => {
-    // get returns undefined (cache miss)
-    vi.mocked(get).mockResolvedValue(undefined);
-
-    const fetchSpy = vi.spyOn(global, 'fetch');
-
+  it('fetches authenticated metrics without reading or persisting browser data', async () => {
     render(React.createElement(ContributionGraph));
-
-    await waitFor(() => {
-      // 1. Checked cache
-      expect(get).toHaveBeenCalled();
-      // 2. Initiated fetch
-      expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/metrics/contributions'));
-      // 3. Stored to cache
-      expect(set).toHaveBeenCalledWith(
-        expect.stringContaining('contrib-graph-mock-account'),
-        expect.objectContaining({
-          data: expect.any(Array),
-          commits: expect.any(Array),
-          timestamp: expect.any(Number),
-        })
-      );
-    });
+    await waitFor(() => expect(screen.getByText('3 commits')).toBeTruthy());
+    expect(get).not.toHaveBeenCalled();
+    expect(set).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/api/metrics/contributions'));
   });
 
   it('renders zero commits instead of NaN for empty contribution ranges', async () => {
@@ -125,81 +109,23 @@ describe('ContributionGraph - IndexedDB Caching and Background Sync', () => {
     expect(screen.queryByText(/NaN commits/i)).toBeNull();
   });
 
-  it('hydrates locally and bypasses network fetch when cache is fresh (< 1 hour)', async () => {
-    const freshTimestamp = Date.now() - 30 * 60 * 1000; // 30 minutes ago (fresh)
-    const cachedEntry = {
-      data: [{ day: '2026-05-30', commits: 3 }],
-      commits: [{ sha: '123', message: 'cached commit', date: '2026-05-30' }],
-      timestamp: freshTimestamp,
-    };
-
-    vi.mocked(get).mockResolvedValue(cachedEntry);
-
-    const fetchSpy = vi.spyOn(global, 'fetch');
-
+  it.each([Date.now(), Date.now() - 90 * 60 * 1000])('ignores another account?s stored data with timestamp %i', async timestamp => {
+    vi.mocked(get).mockResolvedValue({ data: [{day:'2026-05-30',commits:999}], commits:[], timestamp });
     render(React.createElement(ContributionGraph));
-
-    await waitFor(() => {
-      expect(get).toHaveBeenCalled();
-      // Bypasses contributions network fetch since cache is fresh
-      const contributionsCalls = fetchSpy.mock.calls.filter(call => 
-        typeof call[0] === 'string' && call[0].includes('/api/metrics/contributions')
-      );
-      expect(contributionsCalls.length).toBe(0);
-    });
+    await waitFor(() => expect(screen.getByText('3 commits')).toBeTruthy());
+    expect(screen.queryByText('999 commits')).toBeNull();
+    expect(get).not.toHaveBeenCalled();
+    expect(set).not.toHaveBeenCalled();
   });
 
-  it('hydrates locally and runs background sync when cache is expired (> 1 hour)', async () => {
-    const expiredTimestamp = Date.now() - 90 * 60 * 1000; // 1.5 hours ago (expired)
-    const cachedEntry = {
-      data: [{ day: '2026-05-30', commits: 3 }],
-      commits: [{ sha: '123', message: 'cached commit', date: '2026-05-30' }],
-      timestamp: expiredTimestamp,
-    };
-
-    vi.mocked(get).mockResolvedValue(cachedEntry);
-
-    const fetchSpy = vi.spyOn(global, 'fetch');
-
+  it('shows a network error without exposing persisted private history', async () => {
+    vi.mocked(get).mockResolvedValue({data:[{day:'2026-05-30',commits:999}],commits:[],timestamp:Date.now()});
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network unavailable')));
     render(React.createElement(ContributionGraph));
-
-    await waitFor(() => {
-      expect(get).toHaveBeenCalled();
-      // Cache is expired, so network background sync is triggered
-      expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('/api/metrics/contributions'));
-      // Cache is updated with fresh data
-      expect(set).toHaveBeenCalled();
-    });
-  });
-
-  it('suppresses sync errors and retains cached data when background fetch fails', async () => {
-    const expiredTimestamp = Date.now() - 90 * 60 * 1000; // expired
-    const cachedEntry = {
-      data: [{ day: '2026-05-30', commits: 3 }],
-      commits: [{ sha: '123', message: 'cached commit', date: '2026-05-30' }],
-      timestamp: expiredTimestamp,
-    };
-
-    vi.mocked(get).mockResolvedValue(cachedEntry);
-
-    // Background fetch fails
-    vi.stubGlobal('fetch', vi.fn().mockImplementation((url) => {
-      if (typeof url === 'string' && url.includes('/api/metrics/contributions')) {
-        return Promise.reject(new Error('Network Fail'));
-      }
-      return Promise.resolve({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve({ repos: [] }),
-      } as Response);
-    }));
-
-    render(React.createElement(ContributionGraph));
-
-    await waitFor(() => {
-      expect(get).toHaveBeenCalled();
-      // Test finishes cleanly without throwing unhandled exceptions
-    });
+    await waitFor(() => expect(screen.getByText(/Failed to load contribution data/)).toBeTruthy());
+    expect(screen.queryByText('999 commits')).toBeNull();
+    expect(get).not.toHaveBeenCalled();
+    expect(set).not.toHaveBeenCalled();
   });
 });
 

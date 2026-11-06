@@ -2,17 +2,20 @@
 
 Everything you need to run DevTrack locally from scratch in under 10 minutes.
 
+> **Just want to look around or change the public pages?** Skip all of this and run `pnpm install && pnpm dev:demo`. Demo mode serves the landing page, leaderboard, player cards, duels, top developers and guides on built-in sample data, with no Supabase project, GitHub OAuth app or API keys. You only need the steps below to work on the signed-in dashboard.
+
 ---
 
 ## Prerequisites
 
-| Tool    | Version | Check           |
-|---------|---------|-----------------|
-| Node.js | >= 20   | `node -v`       |
-| npm     | >= 10   | `npm -v`        |
-| Git     | any     | `git --version` |
+| Tool    | Version       | Check           |
+| ------- | ------------- | --------------- |
+| Node.js | >= 22.12 < 23 | `node -v`       |
+| pnpm    | 11.13.1       | `pnpm -v`       |
+| Git     | any           | `git --version` |
 
 You also need free accounts on:
+
 - [Supabase](https://supabase.com) — for the database
 - GitHub — for OAuth (you already have this)
 - [Resend](https://resend.com) — for the contact form and weekly digest emails
@@ -22,9 +25,11 @@ You also need free accounts on:
 ## 1. Clone and install
 
 ```bash
-git clone https://github.com/Umbrella-io/devtrack.git
+git clone https://github.com/Priyanshu-byte-coder/devtrack.git
 cd devtrack
-npm install
+corepack enable
+corepack prepare pnpm@11.13.1 --activate
+pnpm install --frozen-lockfile
 ```
 
 ---
@@ -36,7 +41,8 @@ npm install
 3. Wait ~1 minute for project to provision
 4. Go to **SQL Editor** → **New Query**
 5. Paste the full contents of `supabase/schema.sql` and click **Run**
-6. Go to **Project Settings → API** and copy three values:
+6. Then run each file in `supabase/migrations/` **newer than** `20261011000000_canonical_schema.sql`, in filename order (today that's `20261102000000_gamification.sql`, which adds the leaderboard snapshots, XP and seasons). Skipping it breaks the leaderboard, rank badges and seasons. See the [database guide](supabase/README.md).
+7. Go to **Project Settings → API** and copy three values:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
    - **anon / public** key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - **service_role** secret → `SUPABASE_SERVICE_ROLE_KEY`
@@ -52,6 +58,12 @@ The `service_role` key is a **database superkey** — it completely bypasses all
 - **If compromised**, rotate it immediately in the Supabase dashboard — an attacker gains full read/write/delete access to all user data
 
 DevTrack uses this key only in server-side API routes. See `.env.example` for detailed security requirements.
+
+### 🔒 Database Security: Row Level Security (RLS) & Verification
+
+All 32 application tables have RLS enabled. NextAuth sessions do not produce Supabase user JWTs, so browser roles have no direct table grants. Authenticated server APIs enforce ownership before the server service-role client accesses records. Realtime views use authenticated polling.
+
+For an existing deployment, follow the [database adoption guide](supabase/README.md), including staging validation and migration-history reconciliation. Historical SQL under `supabase/legacy-migrations` is archival. New installations use the baseline (`supabase/schema.sql`, identical to the first migration) followed by every later migration in `supabase/migrations/`, in version order.
 
 ---
 
@@ -129,7 +141,7 @@ openssl rand -hex 32      # for ENCRYPTION_KEY and CRON_SECRET
 ## 5. Run the dev server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Click **Sign in with GitHub**.
@@ -138,219 +150,41 @@ Open [http://localhost:3000](http://localhost:3000). Click **Sign in with GitHub
 
 ## Project Structure
 
+A map of the places you'll touch most. For how they fit together, see [ARCHITECTURE.md](./ARCHITECTURE.md); for every API route, the Swagger UI at `/api-docs`.
+
 ```
 src/
 ├── app/
-│   ├── api/
-│   │   ├── ai/                          # AI roast and weekly summary
-│   │   │   ├── roast/
-│   │   │   └── weekly-summary/
-│   │   ├── ai-insights/                 # AI insights endpoint
-│   │   ├── auth/
-│   │   │   ├── [...nextauth]/           # GitHub OAuth via NextAuth
-│   │   │   └── link-github/             # Link additional GitHub accounts
-│   │   │       └── callback/
-│   │   ├── badge/
-│   │   │   ├── commits/                 # GET commit-count SVG badge
-│   │   │   └── streak-shield/           # GET streak shield (shields.io format)
-│   │   ├── contact/                     # POST contact form
-│   │   ├── cron/
-│   │   │   ├── sync/                    # Scheduled GitHub/WakaTime refresh
-│   │   │   └── weekly-digest/           # Scheduled weekly digest emails
-│   │   ├── cv/
-│   │   │   ├── analyze/                 # POST CV analysis
-│   │   │   ├── export/                  # POST CV export
-│   │   │   └── generate/               # POST AI CV generation
-│   │   ├── daily-focus/                 # Daily focus goal
-│   │   ├── daily-note/                  # Daily notes CRUD
-│   │   ├── debug/
-│   │   │   └── health/                  # GET health check
-│   │   ├── goals/
-│   │   │   ├── route.ts                 # GET + POST /api/goals
-│   │   │   ├── [id]/route.ts            # PATCH + DELETE /api/goals/:id
-│   │   │   ├── history/                 # GET goal history
-│   │   │   └── sync/                    # POST sync goal progress
-│   │   ├── integrations/
-│   │   │   └── jira/
-│   │   │       └── credentials/         # GET + POST + DELETE Jira credentials
-│   │   ├── leaderboard/
-│   │   │   ├── route.ts                 # GET public leaderboard
-│   │   │   ├── rebuild/                 # POST trigger leaderboard rebuild
-│   │   │   └── refresh/                 # POST refresh leaderboard
-│   │   ├── local-coding/
-│   │   │   ├── keys/                    # GET + POST + DELETE API keys
-│   │   │   ├── stats/                   # GET local coding stats
-│   │   │   └── sync/                    # POST ingest coding sessions
-│   │   ├── metrics/
-│   │   │   ├── achievement-progress/    # GET GitHub achievement progress
-│   │   │   ├── achievements/            # GET GitHub achievements
-│   │   │   ├── activity/               # GET recent activity feed
-│   │   │   ├── ci/                      # GET CI build analytics
-│   │   │   ├── coding-activity-insights/# GET coding activity insights
-│   │   │   ├── commit-times/           # GET commits by hour of day
-│   │   │   ├── community-engagement/   # GET community engagement score
-│   │   │   ├── compare/                # GET side-by-side user comparison
-│   │   │   ├── consistency-score/      # GET consistency score
-│   │   │   ├── contributions/           # GET contributions
-│   │   │   │   ├── daily/              # GET daily contribution breakdown
-│   │   │   │   └── hourly/             # GET hourly contribution breakdown
-│   │   │   ├── devtrack-badges/        # GET DevTrack badge set
-│   │   │   ├── discussions/            # GET GitHub Discussions stats
-│   │   │   ├── inactive-repos/         # GET inactive repositories
-│   │   │   ├── issues/                 # GET issue metrics
-│   │   │   ├── languages/              # GET language breakdown
-│   │   │   ├── pinned-repos/           # GET pinned repositories
-│   │   │   ├── pr-breakdown/           # GET PR status breakdown
-│   │   │   ├── pr-review-time/         # GET PR review time trend
-│   │   │   ├── productive-hours/       # GET most productive hours
-│   │   │   ├── prs/                    # GET PR summary stats
-│   │   │   ├── repo-analytics/         # GET detailed repo analytics
-│   │   │   ├── repo-explorer/          # GET repo explorer data
-│   │   │   ├── repo-health/            # GET repository health score
-│   │   │   ├── repos/                  # GET top repositories
-│   │   │   │   └── [owner]/[name]/     # GET specific repo data and commits
-│   │   │   ├── sponsors/               # GET GitHub sponsors
-│   │   │   ├── streak/                 # GET commit streak
-│   │   │   └── weekly-summary/         # GET weekly activity digest
-│   │   ├── milestones/
-│   │   │   ├── route.ts                # GET + POST milestones
-│   │   │   └── [id]/route.ts           # PATCH + DELETE /api/milestones/:id
-│   │   ├── notifications/
-│   │   │   ├── route.ts                # GET + PATCH notifications
-│   │   │   ├── [id]/route.ts           # PATCH specific notification
-│   │   │   ├── discord-sync/           # POST sync to Discord webhook
-│   │   │   └── weekly/                 # GET weekly notification summary
-│   │   ├── og/
-│   │   │   └── user/                   # GET OG image for user profile
-│   │   ├── personality/                # POST AI Code Personality Report
-│   │   ├── project-tutor/             # POST AI Project Tutor (Groq)
-│   │   ├── public/
-│   │   │   ├── [username]/             # GET public profile data
-│   │   │   └── privacy/                # GET/PATCH public profile privacy
-│   │   ├── rooms/
-│   │   │   ├── route.ts                # GET + POST rooms
-│   │   │   └── [roomId]/
-│   │   │       ├── route.ts            # GET + PATCH + DELETE room
-│   │   │       ├── invite/             # POST generate invite
-│   │   │       ├── members/            # GET + POST members
-│   │   │       │   └── [username]/     # DELETE member
-│   │   │       └── messages/           # GET + POST messages
-│   │   ├── sponsors/                   # GET sponsors data
-│   │   │   └── sync/                   # POST sync sponsors
-│   │   ├── streak/
-│   │   │   └── freeze/                 # POST activate streak freeze
-│   │   ├── stream/                     # GET SSE stream for real-time pushes
-│   │   ├── unsubscribe/                # POST email unsubscribe
-│   │   ├── user/
-│   │   │   ├── dashboard-layout/       # GET + PATCH dashboard layout
-│   │   │   ├── data-export/            # GET full data export
-│   │   │   ├── export/                 # GET alternative data export
-│   │   │   ├── github-accounts/        # GET + POST linked accounts
-│   │   │   │   └── [githubId]/         # DELETE linked account
-│   │   │   ├── github-orgs/            # GET GitHub org memberships
-│   │   │   ├── orgs/                   # GET org list
-│   │   │   ├── pinned-repos/           # GET + PATCH pinned repos
-│   │   │   │   └── details/            # GET pinned repo details
-│   │   │   └── settings/               # GET + PATCH user settings
-│   │   │       └── discord-test/       # POST test Discord webhook
-│   │   ├── users/
-│   │   │   └── search/                 # GET search users
-│   │   ├── wakatime/                   # GET + DELETE WakaTime connection
-│   │   │   └── sync/                   # POST sync WakaTime data
-│   │   └── webhooks/
-│   │       ├── custom/                 # GET + POST custom webhooks
-│   │       │   └── [id]/               # GET + PATCH + DELETE webhook
-│   │       │       ├── deliveries/     # GET delivery history
-│   │       │       │   └── [deliveryId]/
-│   │       │       │       └── retry/  # POST retry delivery
-│   │       │       ├── rotate-secret/  # POST rotate signing secret
-│   │       │       └── test/           # POST test webhook
-│   │       ├── dispatch/
-│   │       │   └── metrics/            # POST trigger metric SSE push
-│   │       └── github/                 # POST GitHub push webhook receiver
-│   └── wrapped/
-│       ├── route.ts                    # GET Year in Code wrapped data
-│       └── og/                         # GET wrapped OG image
-├── auth/signin/                        # GitHub sign-in page
-├── compare/[users]/                    # Side-by-side user comparison page
-├── contact/                            # Contact form page
-├── dashboard/
-│   ├── page.tsx                        # Main dashboard
-│   ├── layout.tsx                      # Dashboard layout
-│   ├── settings/                       # User settings page
-│   ├── career-intelligence/            # Career Intelligence page
-│   ├── personality/                    # AI Code Personality Report page
-│   ├── repo-comparison/                # Repo comparison page
-│   └── repo-health/                    # Repo health page
-├── friend-compare/                     # Friend comparison page
-├── leaderboard/                        # Public leaderboard page
-├── project-tutor/                      # AI Project Tutor page
-├── rooms/                              # Rooms list page
-│   └── [roomId]/                       # Individual room page
-├── u/[username]/                       # Public profile page
-│   ├── feed.xml/                       # RSS feed for public profile
-│   └── goals/                          # Public goals page
-├── wrapped/                            # Year in Code wrapped page
-├── api-docs/                           # Swagger UI page
-├── error.tsx                           # Global error boundary
-├── layout.tsx                          # Root layout
-├── not-found.tsx                       # 404 page
-├── page.tsx                            # Landing page
-└── providers.tsx                       # Session + theme providers
-components/
-├── dashboard/                          # Customizable dashboard system
-│   ├── CustomizableDashboard.tsx       # Drag-and-drop widget layout
-│   ├── DashboardLayoutToolbar.tsx
-│   ├── DashboardWidgetShell.tsx
-│   └── SortableDashboardWidget.tsx
-├── career-intelligence/                # Career Intelligence feature components
-├── landing/                            # Landing page components
-├── leaderboard/                        # Leaderboard filter components
-├── personality/                        # Personality report components
-├── repo-analytics/                     # Repo analytics explorer components
-├── repo-health/                        # Repo health display components
-├── rooms/                              # Room chat and member components
-├── ui/                                 # Primitive UI components (button, card, etc.)
-├── webhook/                            # Webhook manager component
-└── *.tsx                               # Shared dashboard widget components
-hooks/
-├── useCountUp.ts                       # Animated number count-up hook
-└── useHeatmapTheme.ts                  # Heatmap colour theme hook
-lib/
-├── auth.ts                             # NextAuth config, GitHub scopes, Supabase upsert
-├── ai-mentor.ts                        # AI mentor prompt orchestration
-├── ai-prompts.ts                       # Shared AI prompt templates
-├── crypto.ts                           # AES-256-GCM encryption for OAuth tokens
-├── cv/                                 # CV generation utilities
-│   ├── cv-ai-generator.ts
-│   ├── cv-classifier.ts
-│   ├── cv-github-fetcher.ts
-│   └── cv-prompts.ts
-├── date-utils.ts                       # Date formatting, arithmetic, week ranges, streak utils
-├── github.ts                           # GitHub REST API client
-├── github-accounts.ts                  # Multi-account GitHub helpers
-├── jira-utils.ts                       # Jira credential helpers
-├── leaderboard-cache.ts                # Leaderboard cache TTL helpers
-├── metrics-cache.ts                    # Server-side TTL cache (memory + Redis)
-├── personality-analysis.ts             # Deterministic personality scoring
-├── repo-analytics-types.ts             # Type definitions for repo analytics
-├── repo-health.ts                      # Repository health score logic
-├── resolve-user.ts                     # Resolve session to Supabase user
-├── response-cache.ts                   # Cache-Control header helpers
-├── redis-cache-helper.ts               # Upstash Redis get/set helpers
-├── rooms.ts                            # Room username normalization utilities
-├── sanitize.ts                         # Input sanitization helpers
-├── sse.ts                              # Server-Sent Events connection registry
-├── ssrf-protection.ts                  # SSRF URL validation for webhook targets
-├── supabase.ts                         # Supabase admin client (server-only)
-└── webhooks.ts                         # Webhook HMAC signing and dispatch
-middleware.ts                           # Auth middleware (route protection)
-types/
-├── next-auth.d.ts                      # NextAuth session type extensions
-└── repo-health.ts                      # RepoHealth type definitions
+│   ├── page.tsx                 # Arcade landing page
+│   ├── dashboard/               # Signed-in app: HQ, activity, pull-requests, repositories,
+│   │                            # goals, community, friends, rooms, AI tools, settings
+│   ├── leaderboard/             # Public leaderboard
+│   ├── compare/                 # Duels (/compare and /compare/<a>-vs-<b>)
+│   ├── u/[username]/            # Player cards, share image, RSS feed
+│   ├── top/                     # Top developers by language and country
+│   ├── wrapped/                 # Year in Code
+│   ├── guides/                  # Guides (content in src/content/guides.tsx)
+│   ├── api/                     # Route handlers (metrics, badges, cron, auth, AI...)
+│   └── sitemap.ts, robots.ts
+├── components/
+│   ├── dashboard/widgets.tsx    # Widget registry used by the dashboard pages
+│   ├── landing/arcade/          # Landing sections
+│   ├── buddy/                   # Bit the mascot and the pixel loading screen
+│   ├── pixel/                   # Pixel-art icons
+│   ├── shell/                   # Dashboard shell, menu (nav.ts), PageHeader
+│   └── ui/arcade.ts             # Arcade tab helpers
+├── content/                     # Guide content
+├── lib/
+│   ├── gamification/            # Score, tiers, XP, ranks, badges, share cards
+│   ├── leaderboard.ts           # Leaderboard build and caching
+│   ├── guest-profile.ts         # Player cards for any GitHub user
+│   └── buddy-lines.ts           # What Bit says on each page
+├── proxy.ts                     # CSP nonce, rate limits, CSRF, canonical-domain redirect
+└── types/
+messages/                        # UI translations (en, es)
 supabase/
-├── schema.sql                          # Full DB schema — run once in Supabase SQL Editor
-└── migrations/                         # Incremental migration files
+├── schema.sql                   # Baseline schema (identical to the first migration)
+└── migrations/                  # Baseline + later migrations, applied in order
 ```
 
 ### How data flows
@@ -367,35 +201,40 @@ All GitHub API calls use the signed-in user's OAuth token — stored in the sess
 
 ## Available scripts
 
-| Command                  | What it does                         |
-|--------------------------|--------------------------------------|
-| `npm run dev`            | Start dev server at localhost:3000   |
-| `npm run build`          | Validate env, then production build  |
-| `npm start`              | Start production server              |
-| `npm run lint`           | ESLint across `src/`                 |
-| `npm run type-check`     | TypeScript compiler check (no emit)  |
-| `npm test`               | Run unit tests with Vitest           |
-| `npm run test:coverage`  | Run tests with coverage report       |
-| `npm run test:e2e`       | Run Playwright end-to-end tests      |
+| Command                        | What it does                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
+| `pnpm dev`                     | Start the dev server at localhost:3000                                                |
+| `pnpm dev:demo`                | Dev server on built-in sample data, no accounts needed                                |
+| `pnpm build`                   | Validate env, then production build                                                   |
+| `pnpm start`                   | Start the production server                                                           |
+| `pnpm lint`                    | ESLint                                                                                |
+| `pnpm type-check`              | TypeScript check (no emit)                                                            |
+| `pnpm test`                    | Unit tests with Vitest                                                                |
+| `pnpm test:e2e`                | Playwright end-to-end tests                                                           |
+| `pnpm api:generate`            | Regenerate `public/openapi.yaml` after adding or changing an API route (CI checks it) |
+| `pnpm test:db`                 | Database checks against a disposable PostgreSQL                                       |
+| `pnpm supabase:generate-types` | Regenerate Supabase types from the schema                                             |
 
-Run lint and type-check before pushing:
+Before pushing:
 
 ```bash
-npm run lint && npm run type-check
+pnpm lint && pnpm type-check && pnpm test
 ```
 
 ---
 
 ## Adding a new dashboard widget
 
-1. Create `src/components/MyWidget.tsx` — use `"use client"`, fetch from your API route
-2. Create `src/app/api/metrics/my-widget/route.ts` — add `export const dynamic = "force-dynamic"`, guard with `getServerSession`
-3. Import and place in `src/app/dashboard/page.tsx`
+1. **Check it isn't already shown.** Each chart or stat should appear once; look through the dashboard pages first.
+2. **Build the component** in `src/components/MyWidget.tsx` (`"use client"`), wrapped in `px-frame` with a `font-pixel` title, following the arcade design system in [CONTRIBUTING.md](./CONTRIBUTING.md).
+3. **Add an API route** in `src/app/api/metrics/my-widget/route.ts` if it needs data, then run `pnpm api:generate`.
+4. **Register it** in `src/components/dashboard/widgets.tsx` with `slot(id, title, render)`, which adds the error boundary, lazy loading and accessible region.
+5. **Place it** on the right page in `src/app/dashboard/*/page.tsx`, under a `SectionTitle`.
 
 Pattern for an API route:
 
 ```ts
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -405,7 +244,7 @@ export async function GET() {
   if (!session?.accessToken) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  // fetch from GitHub API using session.accessToken
+  // fetch from the GitHub API using session.accessToken
   // fetch from Supabase using session.githubId
 }
 ```
@@ -493,12 +332,12 @@ On Windows PowerShell:
 Next.js reads `.env.local` only at startup. After any change, stop and restart:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 #### 5. Check the server console for the real error
 
-The browser only shows `error=github` — the actual error is printed to the **terminal running `npm run dev`**. Look for lines starting with `[next-auth]` or `signIn:`.
+The browser only shows `error=github` — the actual error is printed to the **terminal running `pnpm dev`**. Look for lines starting with `[next-auth]` or `signIn:`.
 
 ---
 
@@ -537,38 +376,43 @@ You hit the 30 requests/minute search API limit. Wait 1 minute. In production th
 
 When you add a new Supabase migration under `supabase/migrations/`, you must also update `supabase/schema.sql` so that fresh local setups work without manually running every migration.
 
-A simple rule: append the new migration SQL into `supabase/schema.sql` (including any new columns, tables, indexes, functions, and RLS policies).
+Use a unique 14-digit migration version after `20261011000000`, update `supabase/schema.sql` (including new columns, tables, indexes, functions, and RLS/grants), and run `pnpm test:db` and regenerate types. Do not append historical migrations from the archive.
 
 ---
 
 ## Troubleshooting
 
 ### 1. Invalid or missing `NEXT_PUBLIC_SUPABASE_URL`
-* **Symptom:** Network requests to Supabase fail, or the application throws an error like `Invalid URL` during client initialization.
-* **Likely Cause:** The `NEXT_PUBLIC_SUPABASE_URL` environment variable is not defined in `.env.local` or contains an invalid URL.
-* **Solution:** Confirm your `.env.local` file contains `NEXT_PUBLIC_SUPABASE_URL` set to your Supabase project's API URL (e.g., `https://xyz.supabase.co`). You can retrieve this under **Project Settings > API** in the Supabase Dashboard.
+
+- **Symptom:** Network requests to Supabase fail, or the application throws an error like `Invalid URL` during client initialization.
+- **Likely Cause:** The `NEXT_PUBLIC_SUPABASE_URL` environment variable is not defined in `.env.local` or contains an invalid URL.
+- **Solution:** Confirm your `.env.local` file contains `NEXT_PUBLIC_SUPABASE_URL` set to your Supabase project's API URL (e.g., `https://xyz.supabase.co`). You can retrieve this under **Project Settings > API** in the Supabase Dashboard.
 
 ### 2. Incorrect `NEXT_PUBLIC_SUPABASE_ANON_KEY` or `SUPABASE_SERVICE_ROLE_KEY`
-* **Symptom:** API requests return `401 Unauthorized` or `403 Forbidden` errors, or the database fails to update upon user sign-in with `signIn: supabaseAdmin is not configured` logged to the console.
-* **Likely Cause:** The anon public key or service role secret key is missing, truncated, or set to placeholder values in `.env.local`.
-* **Solution:** Navigate to **Project Settings > API** in the Supabase Dashboard. Copy the `anon` (public) key and the `service_role` (secret) key, and paste them exactly as `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
+
+- **Symptom:** API requests return `401 Unauthorized` or `403 Forbidden` errors, or the database fails to update upon user sign-in with `signIn: supabaseAdmin is not configured` logged to the console.
+- **Likely Cause:** The anon public key or service role secret key is missing, truncated, or set to placeholder values in `.env.local`.
+- **Solution:** Navigate to **Project Settings > API** in the Supabase Dashboard. Copy the `anon` (public) key and the `service_role` (secret) key, and paste them exactly as `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`.
 
 ### 3. Supabase migrations not applied or missing tables
-* **Symptom:** Server console logs show database relation errors (e.g., `relation "users" does not exist`) or client features fail to display data.
-* **Likely Cause:** The required database schema tables and relationships have not been created on the Supabase database.
-* **Solution:** Go to the Supabase **SQL Editor**, click **New Query**, paste the contents of `supabase/schema.sql`, and click **Run** to execute the script and initialize all required database objects.
+
+- **Symptom:** Server console logs show database relation errors (e.g., `relation "users" does not exist`) or client features fail to display data.
+- **Likely Cause:** The required database schema tables and relationships have not been created on the Supabase database.
+- **Solution:** Go to the Supabase **SQL Editor**, click **New Query**, paste the contents of `supabase/schema.sql`, and click **Run** to execute the script and initialize all required database objects.
 
 ### 4. GitHub OAuth callback URL misconfiguration
-* **Symptom:** After initiating GitHub sign-in, the browser gets stuck in a redirect loop, returns to `/auth/signin?error=github`, or displays a redirect URI mismatch error.
-* **Likely Cause:** The **Authorization callback URL** in your GitHub developer settings does not match the URL configured locally.
-* **Solution:** Visit your GitHub account settings, go to **Developer Settings > OAuth Apps**, open your registered application, and verify that the **Authorization callback URL** matches `http://localhost:3000/api/auth/callback/github` exactly.
+
+- **Symptom:** After initiating GitHub sign-in, the browser gets stuck in a redirect loop, returns to `/auth/signin?error=github`, or displays a redirect URI mismatch error.
+- **Likely Cause:** The **Authorization callback URL** in your GitHub developer settings does not match the URL configured locally.
+- **Solution:** Visit your GitHub account settings, go to **Developer Settings > OAuth Apps**, open your registered application, and verify that the **Authorization callback URL** matches `http://localhost:3000/api/auth/callback/github` exactly.
 
 > **Note:** If you are deploying to a platform like Vercel, also add your production callback URL (e.g., `https://your-app.vercel.app/api/auth/callback/github`) in the same GitHub OAuth App settings. GitHub allows multiple callback URLs.
 
 ### 5. `NEXTAUTH_SECRET` not set or invalid
-* **Symptom:** NextAuth throws a `[next-auth][error][NO_SECRET]` error in the terminal, and users cannot log in.
-* **Likely Cause:** The `NEXTAUTH_SECRET` key is missing from `.env.local` or is empty.
-* **Solution:** Generate a random 32-byte secret and add it to `.env.local` as `NEXTAUTH_SECRET`. You can generate it by running:
+
+- **Symptom:** NextAuth throws a `[next-auth][error][NO_SECRET]` error in the terminal, and users cannot log in.
+- **Likely Cause:** The `NEXTAUTH_SECRET` key is missing from `.env.local` or is empty.
+- **Solution:** Generate a random 32-byte secret and add it to `.env.local` as `NEXTAUTH_SECRET`. You can generate it by running:
   ```bash
   # macOS / Linux
   openssl rand -base64 32
@@ -581,22 +425,24 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
   ```
 
 ### 6. Environment variables not loading correctly from `.env.local`
-* **Symptom:** Changes to environment variables in `.env.local` are not recognized, or values behave as if they are missing or outdated.
-* **Likely Cause:** The Next.js development server has not been restarted since the environment variables were modified.
-* **Solution:** Stop the active development server using `Ctrl + C` and start it again using `npm run dev`. Ensure the file is named exactly `.env.local` (not `.env` or `.env.local.txt`) and is in the project root.
+
+- **Symptom:** Changes to environment variables in `.env.local` are not recognized, or values behave as if they are missing or outdated.
+- **Likely Cause:** The Next.js development server has not been restarted since the environment variables were modified.
+- **Solution:** Stop the active development server using `Ctrl + C` and start it again using `pnpm dev`. Ensure the file is named exactly `.env.local` (not `.env` or `.env.local.txt`) and is in the project root.
 
 > **Note:** Only variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Server-only variables like `SUPABASE_SERVICE_ROLE_KEY` must never use this prefix — they should only be accessed in server-side code (API routes, server components). If a client-side feature is not working despite the variable being set, check that it has the `NEXT_PUBLIC_` prefix.
 
 ### 7. Port conflicts while running the development server
-* **Symptom:** Starting the server fails with an `EADDRINUSE: address already in use :::3000` error, or the app is served on a fallback port like `3001`.
-* **Likely Cause:** Another server or process is already listening on port `3000`.
-* **Solution:** Free up port `3000` or run the dev server on a custom port.
-  * To run on a custom port, execute: `npm run dev -- -p 3001`
-  * To kill the existing process on Windows (PowerShell):
+
+- **Symptom:** Starting the server fails with an `EADDRINUSE: address already in use :::3000` error, or the app is served on a fallback port like `3001`.
+- **Likely Cause:** Another server or process is already listening on port `3000`.
+- **Solution:** Free up port `3000` or run the dev server on a custom port.
+  - To run on a custom port, execute: `pnpm dev -p 3001`
+  - To kill the existing process on Windows (PowerShell):
     ```powershell
     Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess -Force
     ```
-  * To kill the existing process on macOS/Linux:
+  - To kill the existing process on macOS/Linux:
     ```bash
     # Option 1 (no extra packages required)
     lsof -ti:3000 | xargs kill -9
@@ -606,61 +452,63 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
     ```
 
 ### 8. Basic steps to verify that the local setup is configured correctly
-* **Symptom:** Need to confirm that your local environment, database schema, and OAuth are completely and correctly integrated.
-* **Likely Cause:** Verifying the initial setup configuration.
-* **Solution:**
-  1. **Run Dev Server:** Start the server with `npm run dev` and ensure there are no startup errors in the console.
+
+- **Symptom:** Need to confirm that your local environment, database schema, and OAuth are completely and correctly integrated.
+- **Likely Cause:** Verifying the initial setup configuration.
+- **Solution:**
+  1. **Run Dev Server:** Start the server with `pnpm dev` and ensure there are no startup errors in the console.
   2. **Page Load:** Open `http://localhost:3000` in your browser and verify the landing page displays correctly.
   3. **Sign In Check:** Click **Sign in with GitHub**, authorize the application, and verify that you are successfully redirected to the dashboard (`http://localhost:3000/dashboard`).
   4. **Database Check:** In the Supabase Dashboard, go to **Table Editor** and confirm that the `users` table exists and is populated after sign-in. If it is empty, re-check that `SUPABASE_SERVICE_ROLE_KEY` is correctly set and the schema migration has been applied.
-  5. **Lint and Type-Check:** Run `npm run lint && npm run type-check` in your terminal and verify both commands pass without errors.
+  5. **Lint and Type-Check:** Run `pnpm lint && pnpm type-check` in your terminal and verify both commands pass without errors.
 
 ### 9. Node.js version incompatibility
-* **Symptom:** `npm install` throws errors like `engine "node" is incompatible with this module`, unexpected syntax errors during `npm run dev`, or certain packages fail to compile.
-* **Likely Cause:** Your system's Node.js version is below the required `>= 20`. Run `node -v` to check your current version.
-* **Solution:** Install Node.js 20 or higher.
-  * **Using nvm (recommended for macOS/Linux):**
+
+- **Symptom:** `pnpm install` throws errors like `engine "node" is incompatible with this module`, unexpected syntax errors during `pnpm dev`, or certain packages fail to compile.
+- **Likely Cause:** Your system's Node.js version is below the required `>= 22.12 < 23`. Run `node -v` to check your current version.
+- **Solution:** Install a supported Node.js 22 release and the pinned pnpm 11.13.1.
+  - **Using nvm (recommended for macOS/Linux):**
     ```bash
-    nvm install 20
-    nvm use 20
-    node -v   # should print v20.x.x or higher
+    nvm install 22
+    nvm use 22
+    node -v   # should print v22.x.x
     ```
-  * **Using nvm-windows (Windows):**
+  - **Using nvm-windows (Windows):**
     ```powershell
-    nvm install 20
-    nvm use 20
+    nvm install 22
+    nvm use 22
     node -v
     ```
-  * **Without nvm:** Download the LTS installer directly from [nodejs.org](https://nodejs.org) and re-run `npm install` after upgrading.
+  - **Without nvm:** Download the LTS installer directly from [nodejs.org](https://nodejs.org) and re-run `pnpm install` after upgrading.
 
-### 10. npm version too old
-* **Symptom:** `npm install` fails with peer dependency errors, lockfile conflicts, or warnings like `npm WARN old lockfile`. Some `npm run` scripts may not work as expected.
-* **Likely Cause:** Your npm version is below the required `>= 10`. Run `npm -v` to check.
-* **Solution:** Upgrade npm without changing your Node.js installation:
+### 10. Wrong pnpm version
+
+- **Symptom:** `pnpm install` fails with lockfile errors such as `ERR_PNPM_LOCKFILE_BREAKING_CHANGE`, or `npm install` / `yarn` was used and `node_modules` is in a strange state.
+- **Likely Cause:** The project is pinned to pnpm 11.13.1 (`packageManager` in `package.json`). Other package managers, or another pnpm major version, resolve dependencies differently.
+- **Solution:** Let Corepack (bundled with Node.js) provide the pinned pnpm:
   ```bash
-  # macOS / Linux
-  npm install -g npm@latest
-
-  # Windows PowerShell (run as Administrator)
-  npm install -g npm@latest
+  corepack enable
+  corepack prepare pnpm@11.13.1 --activate
+  pnpm -v   # should print 11.13.1
   ```
-  After upgrading, verify with `npm -v` and re-run `npm install` in the project directory.
+  If `npm install` was run by mistake, delete `node_modules` and `package-lock.json`, then run `pnpm install`.
 
 ### 11. TypeScript and build errors
-* **Symptom:** `npm run build` or `npm run type-check` fails with TypeScript compiler errors. Common messages include `Type 'X' is not assignable to type 'Y'`, `Property 'X' does not exist on type 'Y'`, or `Cannot find module`.
-* **Likely Cause:** Type errors in the source code, a missing or outdated dependency, or a mismatch between a library's types and its runtime version.
-* **Solution:** Work through the following steps in order:
+
+- **Symptom:** `pnpm build` or `pnpm type-check` fails with TypeScript compiler errors. Common messages include `Type 'X' is not assignable to type 'Y'`, `Property 'X' does not exist on type 'Y'`, or `Cannot find module`.
+- **Likely Cause:** Type errors in the source code, a missing or outdated dependency, or a mismatch between a library's types and its runtime version.
+- **Solution:** Work through the following steps in order:
   1. **Run type-check to see all errors at once:**
      ```bash
-     npm run type-check
+     pnpm type-check
      ```
   2. **Ensure dependencies are fully installed:**
      ```bash
-     npm install
+     pnpm install
      ```
   3. **If the error mentions a missing module or type declaration**, install the relevant `@types` package:
      ```bash
-     npm install --save-dev @types/<package-name>
+     pnpm add -D @types/<package-name>
      ```
   4. **Clear the Next.js build cache** and retry:
      ```bash
@@ -670,19 +518,20 @@ A simple rule: append the new migration SQL into `supabase/schema.sql` (includin
      # Windows PowerShell
      Remove-Item -Recurse -Force .next
 
-     npm run build
+     pnpm build
      ```
   5. **Fix the reported errors** in your source files. If you are unsure about a type, avoid using `any` — check the library's documentation or existing usages in the codebase for the correct type.
   6. **Run lint alongside type-check** before pushing to catch all issues:
      ```bash
-     npm run lint && npm run type-check
+     pnpm lint && pnpm type-check
      ```
 
 ---
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/Umbrella-io/devtrack/discussions) — not an issue.
+Open a [GitHub Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions) — not an issue.
 
 ### Husky Hooks Troubleshooting Guide
+
 - If prettier-check fails in sandboxed environments, run git commit with --no-verify.

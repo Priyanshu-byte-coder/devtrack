@@ -1,11 +1,10 @@
-// @ts-nocheck
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
 import CommitSearchPanel from "@/components/CommitSearchPanel";
 import type { CommitItem } from "@/lib/github";
-import { get, set } from "idb-keyval";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 import {
   BarChart,
   Bar,
@@ -13,7 +12,6 @@ import {
   Line,
   AreaChart,
   Area,
-
   XAxis,
   YAxis,
   CartesianGrid,
@@ -39,6 +37,8 @@ interface ContributionSources {
 }
 
 interface ContributionResponse {
+  complete?: boolean;
+  partialReason?: string;
   data: Record<string, number>;
   commits?: CommitItem[];
   sources?: ContributionSources;
@@ -78,7 +78,10 @@ function normalizeContributionData(data: Record<string, number>): DayData[] {
 }
 
 function getTotalCommits(data: DayData[]): number {
-  return data.reduce((total, day) => total + normalizeCommitCount(day.commits), 0);
+  return data.reduce(
+    (total, day) => total + normalizeCommitCount(day.commits),
+    0
+  );
 }
 
 function mergeContributionData(
@@ -87,7 +90,7 @@ function mergeContributionData(
 ): GraphPoint[] {
   const map = new Map<string, GraphPoint>();
 
-  myData.forEach(d => {
+  myData.forEach((d) => {
     map.set(d.day, {
       date: d.day,
       you: normalizeCommitCount(d.commits),
@@ -95,7 +98,7 @@ function mergeContributionData(
     });
   });
 
-  friendData.forEach(d => {
+  friendData.forEach((d) => {
     if (!map.has(d.day)) {
       map.set(d.day, {
         date: d.day,
@@ -107,9 +110,7 @@ function mergeContributionData(
     }
   });
 
-  return Array.from(map.values()).sort((a, b) =>
-    a.date.localeCompare(b.date)
-  );
+  return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function mergeContributionSources(
@@ -123,7 +124,8 @@ function mergeContributionSources(
   const merged = { ...github };
 
   for (const [day, commits] of Object.entries(gitlab)) {
-    merged[day] = normalizeCommitCount(merged[day]) + normalizeCommitCount(commits);
+    merged[day] =
+      normalizeCommitCount(merged[day]) + normalizeCommitCount(commits);
   }
 
   return merged;
@@ -131,13 +133,19 @@ function mergeContributionSources(
 
 export default function ContributionGraph() {
   const { selectedAccount } = useAccount();
+  const [partialReason, setPartialReason] = useState<string | null>(null);
   const [data, setData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState<number>(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("devtrack:contribution-range");
-        if (stored === "7" || stored === "30" || stored === "90" || stored === "365") {
+        if (
+          stored === "7" ||
+          stored === "30" ||
+          stored === "90" ||
+          stored === "365"
+        ) {
           return Number(stored);
         }
       } catch {}
@@ -174,7 +182,12 @@ export default function ContributionGraph() {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("devtrack:contribution-range");
-        if (stored === "7" || stored === "30" || stored === "90" || stored === "365") {
+        if (
+          stored === "7" ||
+          stored === "30" ||
+          stored === "90" ||
+          stored === "365"
+        ) {
           setDays(Number(stored));
         } else {
           localStorage.setItem("devtrack:contribution-range", "30");
@@ -226,78 +239,41 @@ export default function ContributionGraph() {
         ? `/api/metrics/contributions?from=${customFrom}&to=${customTo}${accountParam}${repoParam}${timezoneParam}`
         : `/api/metrics/contributions?days=${days}${accountParam}${repoParam}${timezoneParam}`;
 
-    const cacheKey = `contrib-graph-${selectedAccount ?? "default"}-${repo}-${days}-${customFrom ?? "none"}-${customTo ?? "none"}`;
-    const CACHE_TTL = 60 * 60 * 1000; // 1 hour
-
     async function processFetch() {
-      // 1. Attempt to load from IndexedDB cache
-      let cached: { data: DayData[]; commits: CommitItem[]; timestamp: number } | undefined;
-      try {
-        cached = await get(cacheKey);
-      } catch (err) {
-        console.warn("Failed to get cache from IndexedDB:", err);
-      }
-
-      if (cached && active) {
-        // Hydrate from cache immediately (Local Hydration)
-        setData(cached.data);
-        setCommits(cached.commits);
-        setLoading(false);
-        setLastUpdated(new Date(cached.timestamp));
-        setMinutesAgo(Math.floor((Date.now() - cached.timestamp) / 60000));
-        setError(null);
-
-        // Check if cache has expired (TTL Strategy)
-        const isExpired = Date.now() - cached.timestamp > CACHE_TTL;
-        if (!isExpired) {
-          // If not expired, skip background fetch
-          return;
-        }
-      } else if (active) {
-        // No cache: show standard loading
+      if (active) {
         setLoading(true);
         setError(null);
+        setData([]);
         setCommits([]);
+        setPartialReason(null);
       }
-
       // 2. Perform background sync / standard fetch
       try {
         const r = await fetch(url);
         if (!r.ok) throw new Error("API error");
         const res: ContributionResponse = await r.json();
-        
+
         if (!active) return;
 
-        const merged = mergeContributionSources(
-          res.sources,
-          res.data ?? {}
-        );
+        const merged = mergeContributionSources(res.sources, res.data ?? {});
         const sorted = normalizeContributionData(merged);
 
         setData(sorted);
+        setPartialReason(
+          res.complete === false
+            ? (res.partialReason ??
+                "Only part of your activity history is available.")
+            : null
+        );
         setCommits(res.commits ?? []);
         setError(null);
         setLastUpdated(new Date());
         setMinutesAgo(0);
-
-        // Update IndexedDB cache
-        try {
-          await set(cacheKey, {
-            data: sorted,
-            commits: res.commits ?? [],
-            timestamp: Date.now(),
-          });
-        } catch (err) {
-          console.warn("Failed to write cache to IndexedDB:", err);
-        }
       } catch (err) {
         if (!active) return;
-        // If we have cached data, suppress fetch error (Offline recovery)
-        if (!cached) {
-          setError("Failed to load contribution data.");
-        }
+        setError("Failed to load contribution data.");
       } finally {
-        if (active && !cached) {
+        if (active) {
           setLoading(false);
         }
       }
@@ -317,7 +293,7 @@ export default function ContributionGraph() {
       .then((d: { repos: { name: string }[] }) =>
         setRepoOptions(d.repos.map((r) => r.name))
       )
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -331,7 +307,9 @@ export default function ContributionGraph() {
     setCompareError(null);
 
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    fetch(`/api/metrics/contributions?days=${days}&username=${encodeURIComponent(compareUser)}&timezone=${encodeURIComponent(timezone)}`)
+    fetch(
+      `/api/metrics/contributions?days=${days}&username=${encodeURIComponent(compareUser)}&timezone=${encodeURIComponent(timezone)}`
+    )
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch friend data");
         return r.json();
@@ -367,12 +345,21 @@ export default function ContributionGraph() {
       setCompareError(null);
     };
 
-    window.addEventListener("devtrack:compare-user", onCompareUser as EventListener);
+    window.addEventListener(
+      "devtrack:compare-user",
+      onCompareUser as EventListener
+    );
     window.addEventListener("devtrack:clear-compare-user", onClearCompareUser);
 
     return () => {
-      window.removeEventListener("devtrack:compare-user", onCompareUser as EventListener);
-      window.removeEventListener("devtrack:clear-compare-user", onClearCompareUser);
+      window.removeEventListener(
+        "devtrack:compare-user",
+        onCompareUser as EventListener
+      );
+      window.removeEventListener(
+        "devtrack:clear-compare-user",
+        onClearCompareUser
+      );
     };
   }, []);
 
@@ -403,7 +390,10 @@ export default function ContributionGraph() {
       if (e.key === "Escape") setShowPopover(false);
     };
     const handleClick = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(e.target as Node)
+      ) {
         setShowPopover(false);
       }
     };
@@ -441,7 +431,8 @@ export default function ContributionGraph() {
     }
     const msPerDay = 1000 * 60 * 60 * 24;
     const diff =
-      (new Date(customTo).getTime() - new Date(customFrom).getTime()) / msPerDay;
+      (new Date(customTo).getTime() - new Date(customFrom).getTime()) /
+      msPerDay;
     if (diff > 365 * 2) {
       setCustomError("Max range is 2 years.");
       return;
@@ -470,25 +461,51 @@ export default function ContributionGraph() {
     ? getTotalCommits(data)
     : getTotalCommits(displayData as DayData[]);
 
+  if (loading) {
+    return (
+      <WidgetSkeleton
+        title="Your Commits"
+        className="transition-all duration-300 fade-in-up"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <SkeletonBlock className="h-6 w-32" />
+          <SkeletonBlock className="h-8 w-64" />
+        </div>
+        <SkeletonBlock className="h-[220px] w-full" />
+      </WidgetSkeleton>
+    );
+  }
+
   return (
     <div
       id="contribution-activity"
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+      className="px-frame bg-[var(--card)] p-6 fade-in-up"
     >
       <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
         <div className="min-w-0">
           <h2 className="text-sm md:text-base lg:text-lg font-semibold text-[var(--foreground)]">
-            {compareMode && compareUser ? `You vs ${compareUser}` : "Your Commits"}
+            {compareMode && compareUser
+              ? `You vs ${compareUser}`
+              : "Your Commits"}
           </h2>
           {compareMode && compareError && (
-            <p className="mt-1 text-xs text-[var(--muted-foreground)]">{compareError}</p>
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+              {compareError}
+            </p>
           )}
           {compareMode && compareLoading && (
-            <p className="text-xs text-[var(--muted-foreground)] mt-1">Loading friend data...</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">
+              Loading friend data...
+            </p>
           )}
           {!compareMode && !loading && !error && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
               {totalCommits} commit{totalCommits === 1 ? "" : "s"}
+              {partialReason && (
+                <span className="block mt-1" role="status">
+                  Partial history: {partialReason}
+                </span>
+              )}
             </p>
           )}
         </div>
@@ -516,10 +533,11 @@ export default function ContributionGraph() {
                 onClick={() => handleRangeChange(r.days)}
                 aria-label={`Show ${r.days}-day range`}
                 aria-pressed={days === r.days && !customLabel}
-                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${days === r.days && !customLabel
-                  ? "bg-[var(--accent)] text-[var(--background)]"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  }`}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  days === r.days && !customLabel
+                    ? "bg-[var(--accent)] text-[var(--background)]"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                }`}
               >
                 {r.label}
               </button>
@@ -530,12 +548,17 @@ export default function ContributionGraph() {
           <div className="relative" ref={popoverRef}>
             <button
               onClick={() => setShowPopover((v) => !v)}
-              aria-label={customLabel ? `Custom date range: ${customLabel}` : "Select custom date range"}
+              aria-label={
+                customLabel
+                  ? `Custom date range: ${customLabel}`
+                  : "Select custom date range"
+              }
               aria-expanded={showPopover}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors border border-[var(--border)] ${customLabel
-                ? "bg-[var(--accent)] text-[var(--background)]"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors border border-[var(--border)] ${
+                customLabel
+                  ? "bg-[var(--accent)] text-[var(--background)]"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
             >
               {customLabel ?? "Custom…"}
             </button>
@@ -572,7 +595,9 @@ export default function ContributionGraph() {
                     />
                   </label>
                   {customError && (
-                    <p className="text-xs text-[var(--destructive)]">{customError}</p>
+                    <p className="text-xs text-[var(--destructive)]">
+                      {customError}
+                    </p>
                   )}
                   {customLabel && (
                     <button
@@ -643,19 +668,7 @@ export default function ContributionGraph() {
         </div>
       </div>
 
-      {loading ? (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-        >
-          <span className="sr-only">Loading contribution graph</span>
-          <div
-            aria-hidden="true"
-            className="h-[220px] rounded border border-[var(--border)] bg-[var(--background)] animate-pulse"
-          />
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="flex h-[220px] items-center rounded-lg border border-[var(--border)] bg-[var(--background)] px-4">
           <p className="text-sm text-[var(--muted-foreground)]">
             {error} Please try refreshing.
@@ -667,52 +680,52 @@ export default function ContributionGraph() {
         </p>
       ) : (
         <div className="h-[220px] w-full overflow-hidden">
-<ResponsiveContainer width="100%" height="100%">
-  {chartType === "bar" ? (
-    <BarChart data={displayData}>
-      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-      <XAxis
-        dataKey={compareMode ? "date" : "day"}
-        hide
-      />
-      <YAxis stroke="var(--muted-foreground)" allowDecimals={false} />
-      <Tooltip
-        trigger={tooltipTrigger}
-        contentStyle={{
-          background: "var(--card)",
-          color: "var(--foreground)",
-          border: "1px solid var(--border)",
-          borderRadius: "8px",
-        }}
-        labelStyle={{
-          color: "var(--foreground)",
-          fontSize: "12px",
-        }}
-        cursor={false}
-      />
-      {hasFriendData && (
-        <Legend
-          wrapperStyle={{ color: "var(--muted-foreground)", fontSize: "12px" }}
-          className="hidden sm:block"
-        />
-      )}
+          <ResponsiveContainer width="100%" height="100%">
+            {chartType === "bar" ? (
+              <BarChart data={displayData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey={compareMode ? "date" : "day"} hide />
+                <YAxis stroke="var(--muted-foreground)" allowDecimals={false} />
+                <Tooltip
+                  trigger={tooltipTrigger}
+                  contentStyle={{
+                    background: "var(--card)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{
+                    color: "var(--foreground)",
+                    fontSize: "12px",
+                  }}
+                  cursor={false}
+                />
+                {hasFriendData && (
+                  <Legend
+                    wrapperStyle={{
+                      color: "var(--muted-foreground)",
+                      fontSize: "12px",
+                    }}
+                    className="hidden sm:block"
+                  />
+                )}
 
-      {compareMode && hasFriendData ? (
-        <>
-          <Bar
-            dataKey="you"
-            fill="var(--accent)"
-            radius={[4, 4, 0, 0]}
-            name="You"
-          />
-          <Bar
-            dataKey="friend"
-            fill="var(--muted-foreground)"
-            radius={[4, 4, 0, 0]}
-            name={`${compareUser}`}
-          />
-        </>
-      )   : (
+                {compareMode && hasFriendData ? (
+                  <>
+                    <Bar
+                      dataKey="you"
+                      fill="var(--accent)"
+                      radius={[4, 4, 0, 0]}
+                      name="You"
+                    />
+                    <Bar
+                      dataKey="friend"
+                      fill="var(--muted-foreground)"
+                      radius={[4, 4, 0, 0]}
+                      name={`${compareUser}`}
+                    />
+                  </>
+                ) : (
                   <Bar
                     dataKey="commits"
                     fill="var(--accent)"
@@ -723,54 +736,55 @@ export default function ContributionGraph() {
             ) : chartType === "line" ? (
               <LineChart data={displayData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis
-                  dataKey={compareMode ? "date" : "day"}
-                  hide
+                <XAxis dataKey={compareMode ? "date" : "day"} hide />
+                <YAxis stroke="var(--muted-foreground)" allowDecimals={false} />
+                <Tooltip
+                  trigger={tooltipTrigger}
+                  contentStyle={{
+                    background: "var(--card)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{
+                    color: "var(--foreground)",
+                    fontSize: "12px",
+                  }}
+                  cursor={false}
                 />
-<YAxis stroke="var(--muted-foreground)" allowDecimals={false} />
-<Tooltip
-  trigger={tooltipTrigger}
-  contentStyle={{
-    background: "var(--card)",
-    color: "var(--foreground)",
-    border: "1px solid var(--border)",
-    borderRadius: "8px",
-  }}
-  labelStyle={{
-    color: "var(--foreground)",
-    fontSize: "12px",
-  }}
-  cursor={false}
-/>
 
-{hasFriendData && (
-  <Legend
-    wrapperStyle={{ color: "var(--muted-foreground)", fontSize: "12px" }}
-    className="hidden sm:block"
-  />
-)}
+                {hasFriendData && (
+                  <Legend
+                    wrapperStyle={{
+                      color: "var(--muted-foreground)",
+                      fontSize: "12px",
+                    }}
+                    className="hidden sm:block"
+                  />
+                )}
 
-{compareMode && hasFriendData ? (
-  <>
-    <Line
-      type="monotone"
-      dataKey="you"
-      stroke="var(--accent)"
-      strokeWidth={2}
-      dot={false}
-      name="You"
-    />
-    <Line
-      type="monotone"
-      dataKey="friend"
-      stroke="var(--muted-foreground)"
-      strokeWidth={2}
-      strokeDasharray="4 4"
-      dot={false}
-      name={`${compareUser}`}
-    />
-  </>
-) : (                  <Line
+                {compareMode && hasFriendData ? (
+                  <>
+                    <Line
+                      type="monotone"
+                      dataKey="you"
+                      stroke="var(--accent)"
+                      strokeWidth={2}
+                      dot={false}
+                      name="You"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="friend"
+                      stroke="var(--muted-foreground)"
+                      strokeWidth={2}
+                      strokeDasharray="4 4"
+                      dot={false}
+                      name={`${compareUser}`}
+                    />
+                  </>
+                ) : (
+                  <Line
                     type="monotone"
                     dataKey="commits"
                     stroke="var(--accent)"
@@ -782,52 +796,53 @@ export default function ContributionGraph() {
             ) : (
               <AreaChart data={displayData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis
-                  dataKey={compareMode ? "date" : "day"}
-                  hide
+                <XAxis dataKey={compareMode ? "date" : "day"} hide />
+                <YAxis stroke="var(--muted-foreground)" allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--card)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{
+                    color: "var(--foreground)",
+                    fontSize: "12px",
+                  }}
+                  cursor={false}
                 />
-<YAxis stroke="var(--muted-foreground)" allowDecimals={false} />
-<Tooltip
-  contentStyle={{
-    background: "var(--card)",
-    color: "var(--foreground)",
-    border: "1px solid var(--border)",
-    borderRadius: "8px",
-  }}
-  labelStyle={{
-    color: "var(--foreground)",
-    fontSize: "12px",
-  }}
-  cursor={false}
-/>
 
-{hasFriendData && (
-  <Legend
-    wrapperStyle={{ color: "var(--muted-foreground)", fontSize: "12px" }}
-    className="hidden sm:block"
-  />
-)}
+                {hasFriendData && (
+                  <Legend
+                    wrapperStyle={{
+                      color: "var(--muted-foreground)",
+                      fontSize: "12px",
+                    }}
+                    className="hidden sm:block"
+                  />
+                )}
 
-{compareMode && hasFriendData ? (
-  <>
-    <Area
-      type="monotone"
-      dataKey="you"
-      stroke="var(--accent)"
-      fill="var(--accent)"
-      fillOpacity={0.3}
-      name="You"
-    />
-    <Area
-      type="monotone"
-      dataKey="friend"
-      stroke="var(--muted-foreground)"
-      fill="var(--muted-foreground)"
-      fillOpacity={0.3}
-      name={`${compareUser}`}
-    />
-  </>
-) : (                  <Area
+                {compareMode && hasFriendData ? (
+                  <>
+                    <Area
+                      type="monotone"
+                      dataKey="you"
+                      stroke="var(--accent)"
+                      fill="var(--accent)"
+                      fillOpacity={0.3}
+                      name="You"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="friend"
+                      stroke="var(--muted-foreground)"
+                      fill="var(--muted-foreground)"
+                      fillOpacity={0.3}
+                      name={`${compareUser}`}
+                    />
+                  </>
+                ) : (
+                  <Area
                     type="monotone"
                     dataKey="commits"
                     stroke="var(--accent)"

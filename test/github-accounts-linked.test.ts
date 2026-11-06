@@ -20,7 +20,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getLinkedAccounts, getAllAccounts, getAccountToken } from '../src/lib/github-accounts';
 
 function mockLinkedAccountsRows(rows: Array<{ github_id?: string; github_login?: string; access_token_encrypted: string; access_token_iv: string }>) {
-  const selectMock = vi.mocked(supabaseAdmin.from('')).select as ReturnType<typeof vi.fn>;
+  const selectMock = vi.mocked(supabaseAdmin.from('user_github_accounts')).select as ReturnType<typeof vi.fn>;
   selectMock.mockReturnValue({
     eq: vi.fn().mockResolvedValue({ data: rows, error: null }),
   } as any);
@@ -128,7 +128,7 @@ describe('getAccountToken', () => {
   });
 
   function mockGetAccountTokenResponse(data: unknown, error: unknown) {
-    const selectMock = vi.mocked(supabaseAdmin.from('')).select as ReturnType<typeof vi.fn>;
+    const selectMock = vi.mocked(supabaseAdmin.from('user_github_accounts')).select as ReturnType<typeof vi.fn>;
     selectMock.mockReturnValue({
       eq: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({

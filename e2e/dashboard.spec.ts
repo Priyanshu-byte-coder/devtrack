@@ -48,7 +48,6 @@ async function injectMockSession(page: import("@playwright/test").Page) {
         },
         githubLogin: "playwright-user",
         githubId: "99001",
-        accessToken: "mock-access-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     })
@@ -185,6 +184,55 @@ async function injectMockSession(page: import("@playwright/test").Page) {
         avgReviewHours: 5,
         avgFirstReviewHours: 2,
         mergeRate: "75%",
+        summary: {
+          range: "30d",
+          opened: 4,
+          merged: 3,
+          closed: 1,
+          stillOpen: 0,
+          mergeRate: 0.75,
+          medianHoursToMerge: 5,
+          medianHoursToFirstReview: 2,
+          additions: 420,
+          deletions: 96,
+          sampled: false,
+          openNow: 1,
+          draftsNow: 0,
+          weeks: [
+            { weekStart: "2026-10-12", opened: 1, merged: 1 },
+            { weekStart: "2026-10-19", opened: 2, merged: 1 },
+            { weekStart: "2026-10-26", opened: 1, merged: 1 },
+          ],
+          repos: [{ repo: "demo/repo", opened: 4, merged: 3 }],
+          openList: [
+            {
+              title: "Add streak freeze",
+              url: "https://github.com/demo/repo/pull/7",
+              repo: "demo/repo",
+              number: 7,
+              ageDays: 3,
+              isDraft: false,
+              reviewed: false,
+            },
+          ],
+          recentMerged: [
+            {
+              title: "Fix login redirect",
+              url: "https://github.com/demo/repo/pull/6",
+              repo: "demo/repo",
+              number: 6,
+              mergedAt: "2026-10-30T10:00:00Z",
+              hoursToMerge: 5,
+            },
+          ],
+          reviews: {
+            total: 2,
+            approved: 1,
+            changesRequested: 0,
+            commented: 1,
+            topRepos: [{ repo: "demo/repo", count: 2 }],
+          },
+        },
       }),
     })
   );
@@ -230,7 +278,12 @@ async function injectMockSession(page: import("@playwright/test").Page) {
     route.fulfill({
       contentType: "application/json",
       body: JSON.stringify({
-        languages: [{ language: "TypeScript", count: 20 }],
+        languages: [
+          { name: "TypeScript", bytes: 61000, percentage: 61 },
+          { name: "Python", bytes: 22000, percentage: 22 },
+          { name: "CSS", bytes: 11000, percentage: 11 },
+          { name: "Shell", bytes: 6000, percentage: 6 },
+        ],
       }),
     })
   );
@@ -245,9 +298,9 @@ async function injectMockSession(page: import("@playwright/test").Page) {
           thisWeek: { opened: 3, merged: 2 },
           lastWeek: { opened: 1, merged: 1 },
         },
-        issues: { 
-          thisWeek: { opened: 5, closed: 0 }, 
-          lastWeek: { opened: 3, closed: 0 } 
+        issues: {
+          thisWeek: { opened: 5, closed: 0 },
+          lastWeek: { opened: 3, closed: 0 },
         },
         productivityScore: { current: 88, previous: 75 },
         activeDays: { thisWeek: 5, lastWeek: 4 },
@@ -255,7 +308,7 @@ async function injectMockSession(page: import("@playwright/test").Page) {
         topRepo: "demo/devtrack",
         repoBreakdown: [],
         dailyCommits: [],
-        mostActiveDay: "2023-10-07"
+        mostActiveDay: "2023-10-07",
       }),
     })
   );
@@ -268,7 +321,7 @@ async function injectMockSession(page: import("@playwright/test").Page) {
         activeCount: 12,
         growthTrend: 15,
         sponsors: [],
-        sparklineData: []
+        sparklineData: [],
       }),
     })
   );
@@ -394,20 +447,25 @@ test("[Dashboard E2E] Commits widget renders", async ({ page }) => {
   await scrollToWidget(page, "Your Commits");
 });
 
-test("[Dashboard E2E] PR Analytics widget renders", async ({ page }) => {
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+test("[Dashboard E2E] pull requests board renders", async ({ page }) => {
+  await page.goto("/dashboard/pull-requests", {
+    waitUntil: "domcontentloaded",
+  });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Pull requests" })
   ).toBeVisible({ timeout: 30_000 });
-  await scrollToWidget(page, "PR Analytics");
+  await scrollToWidget(page, "Your pull requests");
+  await expect(page.getByText("Fix login redirect")).toBeVisible({
+    timeout: 10_000,
+  });
 });
 
 test("[Dashboard E2E] Goals widget renders with mocked goal", async ({
   page,
 }) => {
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/dashboard/goals", { waitUntil: "domcontentloaded" });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Goals" })
   ).toBeVisible({ timeout: 30_000 });
   await scrollToWidget(page, "Goals");
   await expect(page.getByText("Make 10 commits")).toBeVisible({
@@ -456,9 +514,9 @@ test("[Dashboard E2E] no uncaught console errors on dashboard load", async ({
 });
 
 test("[Dashboard E2E] weekly summary widget renders", async ({ page }) => {
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/dashboard/activity", { waitUntil: "domcontentloaded" });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Activity" })
   ).toBeVisible({ timeout: 30_000 });
   // Weekly summary section should appear somewhere on the dashboard.
   await expect(
@@ -469,8 +527,6 @@ test("[Dashboard E2E] weekly summary widget renders", async ({ page }) => {
 const TRACKED_METRICS_ENDPOINTS = [
   "/api/metrics/repo-explorer",
   "/api/metrics/prs",
-  "/api/metrics/pr-breakdown",
-  "/api/metrics/pr-review-time",
 ] as const;
 
 // React Strict Mode in dev double-invokes effects. Duplicate widget instances
@@ -481,9 +537,6 @@ const METRICS_REQUEST_BOUNDS: Record<
 > = {
   "/api/metrics/repo-explorer": { min: 1, max: 2 },
   "/api/metrics/prs": { min: 1, max: 2 },
-  "/api/metrics/pr-breakdown": { min: 1, max: 2 },
-  // MiniPRTrendChart (inside PR Metrics) + PR Review Trend widget both call this route.
-  "/api/metrics/pr-review-time": { min: 1, max: 4 },
 };
 
 function countMetricRequests(urls: string[], endpoint: string): number {
@@ -505,52 +558,39 @@ test("[Dashboard E2E] analytics widgets render once without duplicate metric req
     if (request.method() !== "GET") return;
 
     const url = request.url();
-    if (
-      TRACKED_METRICS_ENDPOINTS.some((endpoint) => url.includes(endpoint))
-    ) {
+    if (TRACKED_METRICS_ENDPOINTS.some((endpoint) => url.includes(endpoint))) {
       requestUrls.push(url);
     }
   });
 
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/dashboard/pull-requests", {
+    waitUntil: "domcontentloaded",
+  });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Pull requests" })
   ).toBeVisible({ timeout: 30_000 });
 
-  const lazyAnalyticsWidgets = [
-    {
-      region: "Repository Analytics",
-      heading: "Repo Analytics",
-    },
-    {
-      region: "PR Breakdown",
-      heading: "PR Breakdown",
-    },
-    {
-      region: "PR Review Trend",
-      heading: "PR Review Time Trend",
-    },
-  ] as const;
-
-  await page.getByRole("region", { name: "PR Metrics" }).scrollIntoViewIfNeeded();
+  await page
+    .getByRole("region", { name: "PR Metrics" })
+    .scrollIntoViewIfNeeded();
   await expect(
-    page.getByRole("heading", { name: "PR Analytics", level: 2 })
+    page.getByRole("heading", { name: "Your pull requests", level: 2 })
   ).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("region", { name: "PR Metrics" })).toHaveCount(1);
   await expect(
-    page.getByRole("heading", { name: "PR Analytics", level: 2 })
+    page.getByRole("heading", { name: "Your pull requests", level: 2 })
   ).toHaveCount(1);
 
-  for (const { region, heading } of lazyAnalyticsWidgets) {
-    await page.getByRole("region", { name: region }).scrollIntoViewIfNeeded();
-    await expect(
-      page.getByRole("heading", { name: heading, level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole("region", { name: region })).toHaveCount(1);
-    await expect(
-      page.getByRole("heading", { name: heading, level: 2 })
-    ).toHaveCount(1);
-  }
+  await page.goto("/dashboard/repositories", { waitUntil: "domcontentloaded" });
+  await page
+    .getByRole("region", { name: "Repository Analytics" })
+    .scrollIntoViewIfNeeded();
+  await expect(
+    page.getByRole("heading", { name: "Repo Analytics", level: 2 })
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.getByRole("region", { name: "Repository Analytics" })
+  ).toHaveCount(1);
 
   for (const endpoint of TRACKED_METRICS_ENDPOINTS) {
     const { min, max } = METRICS_REQUEST_BOUNDS[endpoint];
@@ -560,7 +600,7 @@ test("[Dashboard E2E] analytics widgets render once without duplicate metric req
           const count = countMetricRequests(requestUrls, endpoint);
           return count >= min && count <= max;
         },
-        { timeout: 15_000 },
+        { timeout: 15_000 }
       )
       .toBe(true);
   }

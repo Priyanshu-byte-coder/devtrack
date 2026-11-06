@@ -12,14 +12,14 @@ const SEVERITY_STYLES: Record<
   { border: string; bg: string; text: string; icon: string }
 > = {
   warning: {
-    border: "border-[var(--destructive)]/30",
-    bg: "bg-[var(--destructive)]/8",
+    border: "border-destructive/30",
+    bg: "bg-destructive/8",
     text: "text-[var(--destructive)]",
     icon: "⚠",
   },
   info: {
-    border: "border-[var(--accent)]/30",
-    bg: "bg-[var(--accent)]/8",
+    border: "border-accent/30",
+    bg: "bg-accent/8",
     text: "text-[var(--accent)]",
     icon: "ℹ",
   },
@@ -62,7 +62,7 @@ function RepoHealthInsights({ insights }: Props) {
       <h3 className="mb-3 text-sm font-semibold text-[var(--card-foreground)]">
         Recommendations
         {warnings.length > 0 && (
-          <span className="ml-2 inline-flex items-center rounded-full bg-[var(--destructive)]/15 px-1.5 py-0.5 text-xs font-medium text-[var(--destructive)]">
+          <span className="ml-2 inline-flex items-center rounded-full bg-destructive/15 px-1.5 py-0.5 text-xs font-medium text-[var(--destructive)]">
             {warnings.length} action{warnings.length !== 1 ? "s" : ""}
           </span>
         )}
@@ -90,7 +90,7 @@ function RepoHealthInsights({ insights }: Props) {
                   <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
                     {insight.description}
                   </p>
-                  <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]/70">
+                  <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">
                     {insight.metric}
                   </span>
                 </div>

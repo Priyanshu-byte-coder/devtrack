@@ -5,14 +5,51 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.3.0] — 2026-11-03 — Arcade
+
+DevTrack becomes a game: a score, tiers, levels, seasons and a pixel-art look, plus ways to look up, duel and show off any developer.
+
+### Added
+
+- **Gamification:** DevTrack score v2 (0–1000), six tiers (Bronze → Legend), XP and levels, daily rank snapshots, monthly and weekly seasons, level-up celebrations.
+- **Player cards for any GitHub user** at `/u/<username>`, with estimated rank for non-members and a `/claim` flow.
+- **Duels** at `/compare/<a>-vs-<b>`: eight rounds and a shareable result card.
+- **Top developers** by language (`/top/<language>`) and by country (`/top/country/<country>`).
+- **Score attack** on the home page (`/api/score-preview`): see where anyone would rank.
+- **Pixel README badges:** rank (`/api/badge/rank`), streak and monthly commits, plus Open Graph share cards for profiles, duels and Year in Code.
+- **Bit**, the pixel mascot: page tips, leaderboard trash talk, and pixel loading screens.
+- **Guides** at `/guides`, **Terms of Service** at `/terms`, and a sponsor page at `/sponsor`.
+- **SEO:** sitemap with guides and country pages, structured data, IndexNow pings, `llms.txt`.
+
+### Changed
+
+- **Arcade redesign** of the landing page, leaderboard (podium, climbers, season clock), duels, profiles, dashboard (HUD, quest log, stat tiles, menu), settings (options menu), sign-in and Year in Code.
+- **New players start on the public leaderboard**, disclosed on sign-in with a one-click "Hide me". Existing accounts keep their choice.
+- Member profiles load from one GitHub GraphQL request instead of a dozen REST and search calls.
+- Production `*.vercel.app` aliases redirect to devtrack.live.
+
+### Removed
+
+- Duplicate dashboard charts (commit time, activity ring, and the second PR donut and review trends) and the duplicate friend-comparison box.
+
+### Fixed
+
+- The leaderboard showed the old board to the first visitor after someone joined or left.
+- The onboarding tour reappeared on every visit.
+- Share images and the RSS feed pointed at the wrong domain.
+
+---
+
 ## [0.2.0] — 2025-05-10
 
 ### Changed — Breaking
+
 - **Removed Express backend** — all API logic moved into Next.js Route Handlers (`src/app/api/`)
 - **Replaced Prisma + PostgreSQL** with Supabase JS client — no migration tooling needed, schema in `supabase/schema.sql`
 - **Collapsed monorepo** — `client/` and `server/` removed; project now lives at repo root
 
 ### Added
+
 - `src/app/api/metrics/contributions/route.ts` — live GitHub commit data (was mock)
 - `src/app/api/metrics/prs/route.ts` — live GitHub PR analytics (was mock)
 - `src/app/api/goals/route.ts` — GET + POST weekly goals persisted in Supabase
@@ -22,6 +59,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `signIn` callback in `auth.ts` upserts user into Supabase on first login
 
 ### Removed
+
 - `server/` directory (Express, Prisma, JWT middleware)
 - `client/` directory (moved to root)
 - `NEXT_PUBLIC_API_URL` env var (no separate backend)
@@ -31,6 +69,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [0.1.0] — 2025-05-10
 
 ### Added
+
 - Next.js 14 (App Router) frontend scaffold with TypeScript and Tailwind CSS
 - GitHub OAuth authentication via NextAuth.js
 - `SessionProvider` wrapper and `session.accessToken` exposure via JWT callbacks
@@ -47,43 +86,51 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - MIT License
 
 ### Fixed
+
 - Missing NextAuth API route for App Router (`/api/auth/[...nextauth]/route.ts`) — GitHub sign-in returned 404 (fixes #7, by @Chris8115)
 
 ---
 
 [0.1.0]: https://github.com/Priyanshu-byte-coder/devtrack/releases/tag/v0.1.0
 
-
-### GSSoC Semantic Versioning Policy
+### Semantic Versioning Policy
 
 #### Version Numbering
+
 - **MAJOR** (x.0.0): Breaking changes to public API, database schema, or authentication flow. Requires prior architecture approval.
 - **MINOR** (0.x.0): New features, new API endpoints, new components. Backward-compatible.
 - **PATCH** (0.0.x): Bug fixes, documentation updates, refactoring, performance improvements. Backward-compatible.
 
-#### GSSoC Contribution Guidelines
+#### Contribution Guidelines
+
 - All contributions must follow semantic versioning when updating package.json or CHANGELOG.md
 - Feature additions → MINOR bump
 - Bug fixes → PATCH bump
 - Breaking changes → MAJOR bump (requires architecture review)
 
 #### Changelog Entry Format
+
 When adding your changes to CHANGELOG.md, use the following format:
+
 ```markdown
 ### Added
+
 - Feature description (#issue-number)
 
 ### Fixed
+
 - Bug fix description (#issue-number)
 
 ### Changed
+
 - Refactoring or behavioral changes (#issue-number)
 ```
 
 #### Examples
+
 - New dashboard widget: `0.3.0 → 0.4.0` (MINOR)
 - Fix rate limiting bug: `0.3.0 → 0.3.1` (PATCH)
 - Database migration with breaking schema change: `0.3.0 → 1.0.0` (MAJOR)
 
-Bumps follow minor or patch levels strictly for GSSoC contributions.
+Bumps follow minor or patch levels strictly for routine contributions.
 Major updates require prior architecture approval from maintainers.

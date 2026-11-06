@@ -1,12 +1,25 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { NextRequest, NextResponse } from "next/server";
-import { generateBadgeSVG } from "../badge-utils";
+import { renderCommitsBadge } from "@/lib/gamification/stat-badge";
+import { svgBadgeResponse } from "@/lib/gamification/badge-response";
 import { checkBadgeRateLimit, getBadgeClientIp } from "@/lib/badge-rate-limit";
 import { logError } from "@/lib/error-handler";
 import { normalizeGitHubUsername } from "@/lib/validate-github-username";
+import {
+  isValidGitHubUsername,
+  isRegisteredDevTrackUser,
+  invalidUsernameBadgeResponse,
+  userNotFoundBadgeResponse,
+} from "@/lib/badge-validation";
 
 export const dynamic = "force-dynamic";
 
 const GITHUB_API = "https://api.github.com";
+// Counts come from GitHub search, so the CDN keeps them for an hour; the
+// short max-age stops GitHub's image proxy holding last month's number.
+const COMMITS_CACHE_CONTROL =
+  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
 
 async function fetchGitHubWithToken(
   url: string,
@@ -15,12 +28,10 @@ async function fetchGitHubWithToken(
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
   };
-
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-
-  return fetch(url, { headers, cache: "no-store" });
+  return githubRequest(url, { headers, cache: "no-store" });
 }
 
 async function fetchCommitsThisMonth(
@@ -34,6 +45,7 @@ async function fetchCommitsThisMonth(
   const url = new URL(`${GITHUB_API}/search/commits`);
   url.searchParams.set("q", `author:${username} author-date:>=${sinceStr}`);
   url.searchParams.set("per_page", "1");
+
   const searchRes = await fetchGitHubWithToken(url.toString(), token);
 
   if (!searchRes.ok) {
@@ -46,14 +58,12 @@ async function fetchCommitsThisMonth(
     return 0;
   }
 
-  const data = (await searchRes.json()) as {
-    total_count: number;
-  };
-
+  const data = (await searchRes.json()) as { total_count: number };
   return data.total_count || 0;
 }
 
 export async function GET(req: NextRequest) {
+  // ── 1. Rate limiting ────────────────────────────────────────────────────────
   const ip = getBadgeClientIp(req);
   const rateLimit = checkBadgeRateLimit(ip);
 
@@ -71,60 +81,56 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // ── 2. Input validation ─────────────────────────────────────────────────────
+  const rawUser = req.nextUrl.searchParams.get("user");
+  const username = normalizeGitHubUsername(rawUser);
+
+  if (!username || !isValidGitHubUsername(username)) {
+    return invalidUsernameBadgeResponse();
+  }
+
+  // ── 3. DevTrack user allowlist check ────────────────────────────────────────
+  const isRegistered = await isRegisteredDevTrackUser(username);
+  if (!isRegistered) {
+    return userNotFoundBadgeResponse();
+  }
+
+  // ── 4. Fetch and render ─────────────────────────────────────────────────────
   try {
-    const username = normalizeGitHubUsername(
-      req.nextUrl.searchParams.get("user")
-    );
-
-    if (!username) {
-      return NextResponse.json(
-        { error: "Invalid GitHub username" },
-        { status: 400 }
-      );
-    }
-
     const githubToken = process.env.GITHUB_TOKEN;
     const commits = await fetchCommitsThisMonth(username, githubToken);
 
-    const svg = generateBadgeSVG({
-      label: "📦 Commits",
-      value: `${commits} this month`,
-      color: "#6366f1",
-      labelColor: "#333333",
+    const now = new Date();
+    const daysInMonth = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)
+    ).getUTCDate();
+    const svg = renderCommitsBadge({
+      state: "ok",
+      commits,
+      month: now.getUTCMonth(),
+      year: now.getUTCFullYear(),
+      monthProgress: now.getUTCDate() / daysInMonth,
     });
-
-    return new NextResponse(svg, {
-      status: 200,
-      headers: {
-        "Content-Type": "image/svg+xml;charset=utf-8",
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
-        "X-Content-Type-Options": "nosniff",
+    return svgBadgeResponse(svg, req, {
+      cacheControl: COMMITS_CACHE_CONTROL,
+      extraHeaders: {
         "X-RateLimit-Remaining": String(rateLimit.remaining),
         "X-RateLimit-Reset": String(rateLimit.reset),
       },
     });
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     logError(error, {
       endpoint: "/api/badge/commits",
       operation: "generate_badge",
-      additionalContext: {
-        username: req.nextUrl.searchParams.get("user"),
-      },
+      additionalContext: { username },
     });
 
-    const svg = generateBadgeSVG({
-      label: "Commits",
-      value: "Error",
-      color: "#ef4444",
-      labelColor: "#333333",
-    });
-
-    return new NextResponse(svg, {
+    return svgBadgeResponse(renderCommitsBadge({ state: "error" }), req, {
       status: 500,
-      headers: {
-        "Content-Type": "image/svg+xml;charset=utf-8",
-        "Cache-Control": "max-age=60, public",
-      },
+      cacheControl: "public, max-age=60",
     });
   }
 }

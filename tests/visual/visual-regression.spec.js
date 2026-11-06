@@ -27,7 +27,9 @@ async function stabilize(page) {
       await document.fonts.ready;
     }
   });
-  await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
+  await page
+    .waitForLoadState("networkidle", { timeout: 5_000 })
+    .catch(() => {});
   await page.waitForTimeout(500);
 }
 
@@ -438,33 +440,37 @@ test.describe("visual regression screenshots", () => {
     await expectViewportScreenshot(page, "sign-in-page.png");
   });
 
-  test("dashboard header screenshots in dark and light mode", async ({ page }) => {
+  test("dashboard header screenshots in dark and light mode", async ({
+    page,
+  }) => {
     await mockAuthenticatedSession(page);
     await mockDashboardApis(page);
     await page.addInitScript(() => {
       const fixedTime = new Date(2026, 4, 18, 19, 0, 0).valueOf();
       const RealDate = Date;
-      
-    class MockDate extends RealDate {
-      constructor(...args) {
-        if (args.length === 0) {
-          super(fixedTime);
-          return;
+
+      class MockDate extends RealDate {
+        constructor(...args) {
+          if (args.length === 0) {
+            super(fixedTime);
+            return;
+          }
+          super(...args);
         }
-        super(...args);
-      } 
-      
-      static now() {
-      return fixedTime;
+
+        static now() {
+          return fixedTime;
+        }
       }
-    }
-    
-    globalThis.Date = MockDate;
-  });
-  
+
+      globalThis.Date = MockDate;
+    });
+
     await setTheme(page, "classic-dark");
     await page.goto("/dashboard", { waitUntil: "load" });
-    await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: "Dashboard", exact: true })
+    ).toBeVisible({
       timeout: 30_000,
     });
     await stabilize(page);
@@ -480,9 +486,11 @@ test.describe("visual regression screenshots", () => {
     });
     await page.emulateMedia({ colorScheme: "light" });
     // Re-apply mocks before reload
-    await page.reload({ waitUntil: "load" }); 
+    await page.reload({ waitUntil: "load" });
     await mockDashboardApis(page);
-    await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: "Dashboard", exact: true })
+    ).toBeVisible({
       timeout: 30_000,
     });
     await stabilize(page);
@@ -506,7 +514,44 @@ test.describe("visual regression screenshots", () => {
     await expectViewportScreenshot(page, "public-profile-mock-data.png");
   });
 
-    test("404 page screenshot", async ({ page }) => {
+  // The leaderboard row collapses from a table into a card below `sm`, so it
+  // is captured at both widths: a phone and the standard desktop clip.
+  test("leaderboard screenshot on a phone", async ({ page }) => {
+    await setTheme(page, "classic-dark");
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto("/leaderboard", { waitUntil: "load" });
+    await expect(
+      page.getByRole("heading", { name: "Leaderboard", exact: true })
+    ).toBeVisible({ timeout: 30_000 });
+    // First place is on the podium; the table starts at fourth.
+    await expect(
+      page.getByRole("link", { name: "@playwright-user" })
+    ).toBeVisible();
+    await expect(page.getByTitle("dev-three")).toBeVisible();
+    await stabilize(page);
+
+    await expect(page).toHaveScreenshot("leaderboard-mobile.png", {
+      clip: { x: 0, y: 0, width: 390, height: 900 },
+    });
+  });
+
+  test("leaderboard screenshot on desktop", async ({ page }) => {
+    await setTheme(page, "classic-dark");
+    await page.goto("/leaderboard", { waitUntil: "load" });
+    await expect(
+      page.getByRole("heading", { name: "Leaderboard", exact: true })
+    ).toBeVisible({ timeout: 30_000 });
+    // First place is on the podium; the table starts at fourth.
+    await expect(
+      page.getByRole("link", { name: "@playwright-user" })
+    ).toBeVisible();
+    await expect(page.getByTitle("dev-three")).toBeVisible();
+    await stabilize(page);
+
+    await expectViewportScreenshot(page, "leaderboard-desktop.png");
+  });
+
+  test("404 page screenshot", async ({ page }) => {
     await setTheme(page, "classic-dark");
 
     const response = await page.goto("/visual-regression-missing-page", {

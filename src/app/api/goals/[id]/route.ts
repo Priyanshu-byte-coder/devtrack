@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { extractValidRepoFromGoal } from "@/lib/goals-sync-utils";
+import type { Database } from "@/types/supabase";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -10,7 +12,7 @@ export const dynamic = "force-dynamic";
 // Goals whose progress is derived from verified GitHub activity.
 // The sync endpoint (/api/goals/sync) is the sole authority for these values;
 // client-supplied progress updates must be rejected to prevent fabrication.
-const ACTIVITY_DERIVED_UNITS = new Set(["commits", "prs"]);
+const ACTIVITY_DERIVED_UNITS = new Set(["commits", "prs", "reviews", "issues_closed", "issues_opened", "open_source_prs"]);
 
 // Canonical recurrence values — must stay in sync with the POST route and
 // the GET period-reset logic, neither of which has a branch for "daily".
@@ -65,6 +67,12 @@ export async function PATCH(
     updates.unit = unit;
   }
 
+  if (repo !== undefined) {
+    const safeRepo = repo === null || repo === '' ? null : typeof repo === 'string' ? extractValidRepoFromGoal({id:'',unit:'',repo}) : null;
+    if (repo !== null && repo !== '' && !safeRepo) return Response.json({error:'repo must be owner/repository'}, {status:400});
+    updates.repo = safeRepo;
+  }
+
   if (recurrence !== undefined) {
     updates.recurrence = recurrence;
   }
@@ -95,7 +103,7 @@ export async function PATCH(
   // Block manual progress edits for activity-derived goal types.
   // These goals are synced from GitHub and setting current directly would
   // allow goal completion without any corresponding real activity.
-  if (current !== undefined && ACTIVITY_DERIVED_UNITS.has(existingGoal.unit)) {
+  if (current !== undefined && (ACTIVITY_DERIVED_UNITS.has(existingGoal.unit) || ACTIVITY_DERIVED_UNITS.has(updates.unit ?? existingGoal.unit))) {
     return Response.json(
       {
         error:
@@ -113,6 +121,11 @@ export async function PATCH(
       { error: "current cannot exceed target" },
       { status: 400 }
     );
+  }
+
+  if ((updates.unit && updates.unit !== existingGoal.unit) || (repo !== undefined && updates.repo !== existingGoal.repo)) {
+    updates.current = 0;
+    updates.last_synced_at = null;
   }
 
   const wasCompleted = existingGoal.current >= existingGoal.target;

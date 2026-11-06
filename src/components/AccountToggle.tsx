@@ -18,7 +18,7 @@ function GitHubAvatar({ login, size = 20 }: { login: string; size?: number }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={`https://github.com/${login}.png?size=${size * 2}`}
+      src={`https://avatars.githubusercontent.com/${login}?s=${size * 2}`}
       alt=""
       aria-hidden="true"
       width={size}
@@ -127,8 +127,8 @@ export default function AccountToggle() {
         const avatarLogin = isCombined
           ? null
           : isOrgOption
-          ? option.label
-          : option.label;
+            ? option.label
+            : option.label;
 
         return (
           <button

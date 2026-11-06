@@ -1,0 +1,939 @@
+{
+  "advisories": {
+    "1240091": {
+      "findings": [
+        {
+          "version": "3.1.7",
+          "paths": [
+            ".>@ducanh2912/next-pwa>webpack>schema-utils>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>webpack>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>webpack>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>webpack>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-build>@apideck/better-ajv-errors>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-build>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>schema-utils>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@apideck/better-ajv-errors>ajv>fast-uri",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>ajv>fast-uri",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>schema-utils>ajv>fast-uri",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>babel-loader>webpack>schema-utils>ajv>fast-uri",
+            ".>next-pwa>babel-loader>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>babel-loader>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>babel-loader>webpack>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>next-pwa>babel-loader>webpack>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>babel-loader>webpack>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>clean-webpack-plugin>webpack>schema-utils>ajv>fast-uri",
+            ".>next-pwa>clean-webpack-plugin>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>clean-webpack-plugin>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>clean-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>next-pwa>clean-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>clean-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>next-pwa>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>terser-webpack-plugin>webpack>schema-utils>ajv>fast-uri",
+            ".>next-pwa>terser-webpack-plugin>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>terser-webpack-plugin>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>webpack>schema-utils>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>webpack>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>webpack>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-formats>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>schema-utils>ajv-keywords>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>@apideck/better-ajv-errors>ajv>fast-uri",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>ajv>fast-uri"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240091,
+      "title": "fast-uri vulnerable to inconsistent host case normalization via percent-encoded octets",
+      "module_name": "fast-uri",
+      "vulnerable_versions": ">=3.0.0 <3.1.8",
+      "patched_versions": ">=3.1.8",
+      "severity": "moderate",
+      "cwe": "CWE-178",
+      "github_advisory_id": "GHSA-hrr3-gc8f-f4qj",
+      "url": "https://github.com/advisories/GHSA-hrr3-gc8f-f4qj"
+    },
+    "1240100": {
+      "findings": [
+        {
+          "version": "1.1.18",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>glob>minimatch>brace-expansion",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>globby>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>rimraf>glob>minimatch>brace-expansion",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>glob>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240100,
+      "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": "<1.1.21",
+      "patched_versions": ">=1.1.21",
+      "severity": "moderate",
+      "cwe": "CWE-400, CWE-407",
+      "github_advisory_id": "GHSA-q2hr-2g5m-vwhr",
+      "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr"
+    },
+    "1240101": {
+      "findings": [
+        {
+          "version": "2.1.4",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240101,
+      "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": ">=2.0.0 <2.1.7",
+      "patched_versions": ">=2.1.7",
+      "severity": "moderate",
+      "cwe": "CWE-400, CWE-407",
+      "github_advisory_id": "GHSA-q2hr-2g5m-vwhr",
+      "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr"
+    },
+    "1240103": {
+      "findings": [
+        {
+          "version": "5.0.9",
+          "paths": [
+            ".>@sentry/nextjs>@sentry/bundler-plugin-core>glob>minimatch>brace-expansion",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>@sentry/bundler-plugin-core>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>@types/glob>@types/minimatch>minimatch>brace-expansion",
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240103,
+      "title": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": ">=4.0.0 <5.0.12",
+      "patched_versions": ">=5.0.12",
+      "severity": "moderate",
+      "cwe": "CWE-400, CWE-407",
+      "github_advisory_id": "GHSA-q2hr-2g5m-vwhr",
+      "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr"
+    },
+    "1240104": {
+      "findings": [
+        {
+          "version": "1.1.18",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>glob>minimatch>brace-expansion",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>globby>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>rimraf>glob>minimatch>brace-expansion",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>glob>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240104,
+      "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": "<1.1.20",
+      "patched_versions": ">=1.1.20",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-qhr7-859c-m2p7",
+      "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7"
+    },
+    "1240105": {
+      "findings": [
+        {
+          "version": "2.1.4",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240105,
+      "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": ">=2.0.0 <2.1.6",
+      "patched_versions": ">=2.1.6",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-qhr7-859c-m2p7",
+      "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7"
+    },
+    "1240107": {
+      "findings": [
+        {
+          "version": "5.0.9",
+          "paths": [
+            ".>@sentry/nextjs>@sentry/bundler-plugin-core>glob>minimatch>brace-expansion",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>@sentry/bundler-plugin-core>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>@types/glob>@types/minimatch>minimatch>brace-expansion",
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240107,
+      "title": "brace-expansion: DoS via uncontrolled recursion on nested brace groups causing stack exhaustion",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": ">=4.0.0 <5.0.11",
+      "patched_versions": ">=5.0.11",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-qhr7-859c-m2p7",
+      "url": "https://github.com/advisories/GHSA-qhr7-859c-m2p7"
+    },
+    "1240108": {
+      "findings": [
+        {
+          "version": "1.1.18",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>glob>minimatch>brace-expansion",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>globby>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>rimraf>glob>minimatch>brace-expansion",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>glob>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240108,
+      "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": "<1.1.19",
+      "patched_versions": ">=1.1.19",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-6j4f-fj2g-mc7p",
+      "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p"
+    },
+    "1240109": {
+      "findings": [
+        {
+          "version": "2.1.4",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion",
+            ".>next-pwa>workbox-webpack-plugin>workbox-build>@surma/rollup-plugin-off-main-thread>ejs>jake>filelist>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240109,
+      "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": ">=2.0.0 <2.1.5",
+      "patched_versions": ">=2.1.5",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-6j4f-fj2g-mc7p",
+      "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p"
+    },
+    "1240111": {
+      "findings": [
+        {
+          "version": "5.0.9",
+          "paths": [
+            ".>@sentry/nextjs>@sentry/bundler-plugin-core>glob>minimatch>brace-expansion",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>@sentry/bundler-plugin-core>glob>minimatch>brace-expansion",
+            ".>next-pwa>clean-webpack-plugin>del>@types/glob>@types/minimatch>minimatch>brace-expansion",
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>minimatch>brace-expansion"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240111,
+      "title": "brace-expansion: DoS via uncontrolled recursion in parseCommaParts causing stack exhaustion",
+      "module_name": "brace-expansion",
+      "vulnerable_versions": ">=4.0.0 <5.0.10",
+      "patched_versions": ">=5.0.10",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-6j4f-fj2g-mc7p",
+      "url": "https://github.com/advisories/GHSA-6j4f-fj2g-mc7p"
+    },
+    "1240600": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240600,
+      "title": "Axios: Prototype pollution gadget in fetch adapter can alter outbound requests",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.7.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "moderate",
+      "cwe": "CWE-1321",
+      "github_advisory_id": "GHSA-vh66-26gq-q6x8",
+      "url": "https://github.com/advisories/GHSA-vh66-26gq-q6x8"
+    },
+    "1240601": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240601,
+      "title": "Axios: Prototype-Pollution Gadget in the Default Instance Allows Inherited Object.prototype.method to Override HTTP Method",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.0.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "moderate",
+      "cwe": "CWE-1321",
+      "github_advisory_id": "GHSA-9fr6-4gfg-395g",
+      "url": "https://github.com/advisories/GHSA-9fr6-4gfg-395g"
+    },
+    "1240603": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240603,
+      "title": "Axios: ReDoS in fromDataURI data: URL parser freezes the Node event loop (DoS)",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.16.1 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-1333",
+      "github_advisory_id": "GHSA-c29m-xwm3-cm6r",
+      "url": "https://github.com/advisories/GHSA-c29m-xwm3-cm6r"
+    },
+    "1240604": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240604,
+      "title": "Axios: ReDoS (O(N²)) in shouldBypassProxy host normalization, reachable via untrusted redirect Location",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.15.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-1333",
+      "github_advisory_id": "GHSA-mghh-pgcx-3jjj",
+      "url": "https://github.com/advisories/GHSA-mghh-pgcx-3jjj"
+    },
+    "1240605": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240605,
+      "title": "Axios: Prototype Pollution Gadget in axios toFormData Options",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.15.1 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-1321",
+      "github_advisory_id": "GHSA-x97p-jq2g-jp4f",
+      "url": "https://github.com/advisories/GHSA-x97p-jq2g-jp4f"
+    },
+    "1240607": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240607,
+      "title": "Axios: HTTP/2 adapter bypasses configured DNS lookup and proxy controls",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.13.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "github_advisory_id": "GHSA-3pq3-5fj3-cg6v",
+      "url": "https://github.com/advisories/GHSA-3pq3-5fj3-cg6v"
+    },
+    "1240608": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240608,
+      "title": "Axios: Denial of Service via Unhandled 'error' Event in HTTP/2 ClientHttp2Session Initialization",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.13.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-400",
+      "github_advisory_id": "GHSA-542g-h47m-68v8",
+      "url": "https://github.com/advisories/GHSA-542g-h47m-68v8"
+    },
+    "1240609": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240609,
+      "title": "Next.js: Remote Code Execution in next/og ImageResponse",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.2.0 <16.3.6",
+      "patched_versions": ">=16.3.6",
+      "severity": "critical",
+      "cwe": "CWE-1395",
+      "github_advisory_id": "GHSA-vcvr-r3jv-pc5j",
+      "url": "https://github.com/advisories/GHSA-vcvr-r3jv-pc5j"
+    },
+    "1240621": {
+      "findings": [
+        {
+          "version": "3.4.13",
+          "paths": [
+            ".>dompurify",
+            ".>jspdf>dompurify",
+            ".>jspdf-autotable>jspdf>dompurify",
+            ".>swagger-ui-react>dompurify"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240621,
+      "title": "DOMPurify: IN_PLACE: node-removing afterSanitize hook leaves detached subtree event handlers armed, causing DOM XSS",
+      "module_name": "dompurify",
+      "vulnerable_versions": ">=3.4.13 <=3.4.15",
+      "patched_versions": ">=3.4.16",
+      "severity": "low",
+      "cwe": "CWE-79",
+      "github_advisory_id": "GHSA-p98j-92pf-mc4p",
+      "url": "https://github.com/advisories/GHSA-p98j-92pf-mc4p"
+    },
+    "1240626": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240626,
+      "title": "Axios: Header Injection via Inherited headers After Minimal Interceptor",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.0.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "moderate",
+      "cwe": "CWE-74, CWE-1321",
+      "github_advisory_id": "GHSA-j8rh-479h-cp32",
+      "url": "https://github.com/advisories/GHSA-j8rh-479h-cp32"
+    },
+    "1240627": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240627,
+      "title": "Axios: Fetch Adapter Header Injection via Inherited FormData getHeaders",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.12.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "moderate",
+      "cwe": "CWE-74, CWE-693, CWE-1321",
+      "github_advisory_id": "GHSA-4hqw-qxg8-jxx2",
+      "url": "https://github.com/advisories/GHSA-4hqw-qxg8-jxx2"
+    },
+    "1240628": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240628,
+      "title": "Axios: Node HTTP adapter prototype-pollution gadget allows request socket hijack via inherited createConnection",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.15.2 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-441, CWE-1321",
+      "github_advisory_id": "GHSA-m8m8-qj5v-23w3",
+      "url": "https://github.com/advisories/GHSA-m8m8-qj5v-23w3"
+    },
+    "1240629": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240629,
+      "title": "Axios: CIDR-form NO_PROXY entries are ignored, causing proxy exclusion bypass for internal IP ranges",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.15.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "moderate",
+      "cwe": "CWE-693",
+      "github_advisory_id": "GHSA-44g4-m2mj-wpvx",
+      "url": "https://github.com/advisories/GHSA-44g4-m2mj-wpvx"
+    },
+    "1240634": {
+      "findings": [
+        {
+          "version": "1.18.1",
+          "paths": [
+            ".>swagger-ui-react>swagger-client>@swagger-api/apidom-reference>axios"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240634,
+      "title": "Axios: maxRedirects: 0 is not enforced by the fetch adapter, allowing redirect-based SSRF",
+      "module_name": "axios",
+      "vulnerable_versions": ">=1.17.0 <1.20.0",
+      "patched_versions": ">=1.20.0",
+      "severity": "high",
+      "cwe": "CWE-441, CWE-601",
+      "github_advisory_id": "GHSA-r4gj-5m52-g5wh",
+      "url": "https://github.com/advisories/GHSA-r4gj-5m52-g5wh"
+    },
+    "1240992": {
+      "findings": [
+        {
+          "version": "3.0.3",
+          "paths": [
+            ".>@ducanh2912/next-pwa>fast-glob>micromatch>braces",
+            ".>next-pwa>globby>fast-glob>micromatch>braces"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240992,
+      "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+      "module_name": "braces",
+      "vulnerable_versions": "<=3.0.3",
+      "patched_versions": ">=3.0.4",
+      "severity": "high",
+      "cwe": "CWE-674",
+      "github_advisory_id": "GHSA-vfj7-8cjw-p6xm",
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+    },
+    "1241202": {
+      "findings": [
+        {
+          "version": "1.0.3",
+          "paths": [
+            ".>swagger-ui-react>remarkable>argparse>sprintf-js"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241202,
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "module_name": "sprintf-js",
+      "vulnerable_versions": "<=1.1.3",
+      "patched_versions": ">=1.1.4",
+      "severity": "moderate",
+      "cwe": "CWE-1284",
+      "github_advisory_id": "GHSA-hp3w-g68c-fv3c",
+      "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+    },
+    "1241204": {
+      "findings": [
+        {
+          "version": "3.4.13",
+          "paths": [
+            ".>dompurify",
+            ".>jspdf>dompurify",
+            ".>jspdf-autotable>jspdf>dompurify",
+            ".>swagger-ui-react>dompurify"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241204,
+      "title": "DOMPurify: IN_PLACE returns a force-removed rawtext root whose text carries attacker markup — pure HTML reparse executes",
+      "module_name": "dompurify",
+      "vulnerable_versions": "<=3.4.15",
+      "patched_versions": ">=3.4.16",
+      "severity": "low",
+      "cwe": "CWE-79",
+      "github_advisory_id": "GHSA-6688-9rhm-gjv2",
+      "url": "https://github.com/advisories/GHSA-6688-9rhm-gjv2"
+    },
+    "1241209": {
+      "findings": [
+        {
+          "version": "1.2.1",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next>postcss>source-map-js",
+            ".>@ducanh2912/next-pwa>webpack>terser-webpack-plugin>postcss>source-map-js",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>postcss>source-map-js",
+            ".>@sentry/nextjs>@sentry/webpack-plugin>webpack>terser-webpack-plugin>postcss>source-map-js",
+            ".>@sentry/nextjs>next>postcss>source-map-js",
+            ".>@vercel/analytics>next>postcss>source-map-js",
+            ".>@vercel/speed-insights>next>postcss>source-map-js",
+            ".>next>postcss>source-map-js",
+            ".>next-auth>next>postcss>source-map-js",
+            ".>next-intl>next>postcss>source-map-js",
+            ".>next-pwa>babel-loader>webpack>terser-webpack-plugin>postcss>source-map-js",
+            ".>next-pwa>clean-webpack-plugin>webpack>terser-webpack-plugin>postcss>source-map-js",
+            ".>next-pwa>next>postcss>source-map-js",
+            ".>next-pwa>terser-webpack-plugin>postcss>source-map-js",
+            ".>next-pwa>workbox-webpack-plugin>webpack>terser-webpack-plugin>postcss>source-map-js"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241209,
+      "title": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+      "module_name": "source-map-js",
+      "vulnerable_versions": ">=1.0.0 <1.2.2",
+      "patched_versions": ">=1.2.2",
+      "severity": "high",
+      "cwe": "CWE-1284",
+      "github_advisory_id": "GHSA-68fv-2mgg-jv7q",
+      "url": "https://github.com/advisories/GHSA-68fv-2mgg-jv7q"
+    },
+    "1241331": {
+      "findings": [
+        {
+          "version": "0.35.4",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next>sharp",
+            ".>@sentry/nextjs>next>sharp",
+            ".>@vercel/analytics>next>sharp",
+            ".>@vercel/speed-insights>next>sharp",
+            ".>next>sharp",
+            ".>next-auth>next>sharp",
+            ".>next-intl>next>sharp",
+            ".>next-pwa>next>sharp",
+            ".>sharp"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241331,
+      "title": "sharp : Vulnerability in librsvg dependency CVE-2026-96889",
+      "module_name": "sharp",
+      "vulnerable_versions": "<0.35.5",
+      "patched_versions": ">=0.35.5",
+      "severity": "high",
+      "cwe": "CWE-416, CWE-1395",
+      "github_advisory_id": "GHSA-wq5f-xc86-pv6w",
+      "url": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w"
+    },
+    "1241489": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241489,
+      "title": "Next.js: Pending `use cache` fill can leak Draft Mode content into regular responses and persisted pages",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.3.0 <16.3.8",
+      "patched_versions": ">=16.3.8",
+      "severity": "moderate",
+      "cwe": "CWE-524",
+      "github_advisory_id": "GHSA-3w37-wq28-93x7",
+      "url": "https://github.com/advisories/GHSA-3w37-wq28-93x7"
+    },
+    "1241490": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241490,
+      "title": "Next.js has cache poisoning of SSG and ISR pages in self-hosted applications",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.0.0 <16.3.8",
+      "patched_versions": ">=16.3.8",
+      "severity": "moderate",
+      "cwe": "CWE-524",
+      "github_advisory_id": "GHSA-4jqv-mc3x-m676",
+      "url": "https://github.com/advisories/GHSA-4jqv-mc3x-m676"
+    },
+    "1241492": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241492,
+      "title": "Next.js has information disclosure in development server's Model Context Protocol endpoint",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.0.0 <16.3.8",
+      "patched_versions": ">=16.3.8",
+      "severity": "low",
+      "cwe": "CWE-346",
+      "github_advisory_id": "GHSA-39w2-rjm5-chcv",
+      "url": "https://github.com/advisories/GHSA-39w2-rjm5-chcv"
+    },
+    "1241493": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241493,
+      "title": "Next.js has information disclosure in App Router metadata image routes via dynamicParams bypass",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.0.0 <16.3.8",
+      "patched_versions": ">=16.3.8",
+      "severity": "moderate",
+      "cwe": "CWE-346",
+      "github_advisory_id": "GHSA-f87g-xv8r-7p7x",
+      "url": "https://github.com/advisories/GHSA-f87g-xv8r-7p7x"
+    },
+    "1241495": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241495,
+      "title": "Next.js has cache poisoning in SSG/ISR rendering that leads to cross-user content substitution and persistent denial of service",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.0.0 <16.3.8",
+      "patched_versions": ">=16.3.8",
+      "severity": "moderate",
+      "cwe": "CWE-524",
+      "github_advisory_id": "GHSA-mcj8-r9mp-w47p",
+      "url": "https://github.com/advisories/GHSA-mcj8-r9mp-w47p"
+    },
+    "1241496": {
+      "findings": [
+        {
+          "version": "16.3.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>next",
+            ".>@sentry/nextjs>next",
+            ".>@vercel/analytics>next",
+            ".>@vercel/speed-insights>next",
+            ".>next",
+            ".>next-auth>next",
+            ".>next-intl>next",
+            ".>next-pwa>next"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1241496,
+      "title": "Next.js has Server-Side Request Forgery in Image Optimization",
+      "module_name": "next",
+      "vulnerable_versions": ">=16.0.0 <16.3.8",
+      "patched_versions": ">=16.3.8",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "github_advisory_id": "GHSA-cjq9-62q9-8jv4",
+      "url": "https://github.com/advisories/GHSA-cjq9-62q9-8jv4"
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 3,
+      "moderate": 14,
+      "high": 17,
+      "critical": 1
+    },
+    "dependencies": 837,
+    "devDependencies": 0,
+    "optionalDependencies": 152,
+    "totalDependencies": 989
+  }
+}

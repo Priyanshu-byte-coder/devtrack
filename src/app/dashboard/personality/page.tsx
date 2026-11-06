@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import PersonalityReport from "@/components/personality/PersonalityReport";

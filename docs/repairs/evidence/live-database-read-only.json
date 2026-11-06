@@ -1,0 +1,8 @@
+{
+  "checkedAt": "2026-10-11T14:47:53.240Z",
+  "mode": "read-only: OpenAPI metadata and limit=0 queries",
+  "schema": null,
+  "browserProbes": [],
+  "error": "Metadata probe unavailable",
+  "failureKind": "ENOTFOUND"
+}

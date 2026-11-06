@@ -2,48 +2,46 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const ROWS = 8;
 
+/** Mirrors the real row layout in `page.tsx`, including its `sm` breakpoint. */
 export default function LeaderboardSkeleton() {
   return (
-    <section className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[var(--shadow-soft)]">
-      <div className="grid grid-cols-[72px_1fr_110px_110px] border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] md:grid-cols-[80px_1fr_140px_140px_120px]">
-        <div>Rank</div>
-        <div>Contributor</div>
-        <div>
-          <Skeleton className="h-3 w-12" />
-        </div>
-        <div className="hidden md:block">Score</div>
-        <div>Profile</div>
+    <section className="px-frame bg-[var(--card)]">
+      <div
+        aria-hidden="true"
+        className="hidden border-b border-[var(--border)] bg-[var(--control)] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)] sm:flex sm:items-center sm:gap-3"
+      >
+        <span className="w-10 shrink-0">Rank</span>
+        <span className="w-10 shrink-0" />
+        <span className="min-w-0 flex-1">Contributor</span>
+        <span className="w-24 shrink-0 text-right">
+          <Skeleton className="ml-auto h-3 w-12" />
+        </span>
+        <span className="hidden w-16 shrink-0 text-right md:block">Level</span>
+        <span className="w-[4.5rem] shrink-0 text-right">Profile</span>
       </div>
 
-      {Array.from({ length: ROWS }).map((_, i) => (
-        <div
-          key={i}
-          className="grid grid-cols-[72px_1fr_110px_110px] items-center border-b border-[var(--border)] px-4 py-4 last:border-b-0 md:grid-cols-[80px_1fr_140px_140px_120px]"
-        >
-          <Skeleton className="h-6 w-8" />
-
-          <div className="flex min-w-0 items-center gap-3">
+      <ul className="divide-y divide-[var(--border)]">
+        {Array.from({ length: ROWS }).map((_, i) => (
+          <li key={i} className="flex items-center gap-3 px-4 py-3">
+            <Skeleton className="h-5 w-7 shrink-0 sm:w-10" />
             <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+
             <div className="min-w-0 flex-1 space-y-2">
-              <Skeleton className="h-4 w-28 max-w-[120px] sm:max-w-[180px] md:max-w-none" />
-              <Skeleton className="h-3 w-36" />
+              <Skeleton className="h-4 w-32 max-w-full" />
+              <Skeleton className="h-3 w-44 max-w-full" />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-10" />
-            <Skeleton className="h-3 w-14" />
-          </div>
+            <div className="hidden w-24 shrink-0 space-y-2 sm:block">
+              <Skeleton className="ml-auto h-5 w-10" />
+              <Skeleton className="ml-auto h-3 w-14" />
+            </div>
 
-          <div className="hidden md:block">
-            <Skeleton className="h-4 w-12" />
-          </div>
+            <Skeleton className="hidden h-4 w-12 shrink-0 md:block" />
 
-          <div>
-            <Skeleton className="h-9 w-16 rounded-lg" />
-          </div>
-        </div>
-      ))}
+            <Skeleton className="h-8 w-[4.5rem] shrink-0 rounded-lg" />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -20,12 +20,9 @@ interface AIData {
 }
 
 const severityClasses: Record<Insight["severity"], string> = {
-  positive:
-    "bg-[var(--success)]/10 border-[var(--success)]/30 text-[var(--success)]",
-  neutral:
-    "bg-[var(--accent)]/10 border-[var(--accent)]/30 text-[var(--accent-foreground)]",
-  warning:
-    "bg-[var(--destructive)]/10 border-[var(--destructive)]/30 text-[var(--destructive)]",
+  positive: "bg-success/10 border-success/30 text-[var(--success)]",
+  neutral: "bg-accent/10 border-accent/30 text-[var(--accent-foreground)]",
+  warning: "bg-destructive/10 border-destructive/30 text-[var(--destructive)]",
 };
 
 const severityIcon: Record<Insight["severity"], string> = {
@@ -40,7 +37,7 @@ function SkeletonCard() {
       role="status"
       aria-busy="true"
       aria-live="polite"
-      className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm animate-pulse transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+      className="px-frame bg-[var(--card)] p-6 animate-pulse"
     >
       <span className="sr-only">Loading AI Mentor insights</span>
       <div className="flex items-center justify-between mb-4">
@@ -99,7 +96,9 @@ export function AIMentorWidget() {
       })
       .then((json: { data: AIData }) => setData(json.data))
       .catch(() =>
-        setError("AI insights are unavailable right now. Please try again later.")
+        setError(
+          "AI insights are unavailable right now. Please try again later."
+        )
       )
       .finally(() => setLoading(false));
   }, []);
@@ -108,7 +107,7 @@ export function AIMentorWidget() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+      <div className="px-frame bg-[var(--card)] p-6">
         <p className="text-sm text-[var(--muted-foreground)]">{error}</p>
       </div>
     );
@@ -116,7 +115,7 @@ export function AIMentorWidget() {
 
   if (!data) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="flex h-[200px] flex-col items-center justify-center text-center">
           <Sparkles
             className="mb-3 h-8 w-8 text-[var(--muted-foreground)]"
@@ -139,10 +138,10 @@ export function AIMentorWidget() {
     : "";
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)] flex items-center gap-2">
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] flex items-center gap-2">
             <span aria-hidden="true" className="text-purple-500">
               ✦
             </span>
@@ -187,10 +186,13 @@ export function AIMentorWidget() {
               <p className="text-xs font-semibold text-purple-400 mb-1.5 uppercase tracking-wide">
                 Weekly summary · AI
               </p>
-              <p 
+              <p
                 className="text-sm text-[var(--card-foreground)] leading-relaxed"
                 dangerouslySetInnerHTML={{
-                  __html: mounted && typeof window !== "undefined" ? DOMPurify.sanitize(data.aiSummary) : ""
+                  __html:
+                    mounted && typeof window !== "undefined"
+                      ? DOMPurify.sanitize(data.aiSummary)
+                      : "",
                 }}
               />
             </div>

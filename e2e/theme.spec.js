@@ -40,7 +40,6 @@ test.beforeEach(async ({ page }) => {
         user: { name: "Playwright User", email: "playwright@example.com" },
         githubLogin: "playwright-user",
         githubId: "12345",
-        accessToken: "test-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     });
@@ -106,6 +105,15 @@ test("public profile page theme selector works without authentication", async ({
 }) => {
   // Clear cookies so visitor is unauthenticated
   await page.context().clearCookies();
+
+  // OVERRIDE: Mock the session endpoint to return an unauthenticated state
+  // This prevents the authenticated mock from beforeEach from leaking into this test.
+  await page.route("**/api/auth/session**", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({}), // NextAuth interprets an empty object (or null) as unauthenticated
+    });
+  });
 
   // Navigate to any public profile URL — will show "Profile Not Found"
   // but the full layout (including ThemeToggle) still renders

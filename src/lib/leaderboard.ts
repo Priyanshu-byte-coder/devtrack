@@ -1,13 +1,36 @@
+import { githubRequest } from "@/lib/github-request";
 import { supabaseAdmin } from "@/lib/supabase";
+import { decryptToken } from "@/lib/crypto";
 import { dateDiffDays, toDateStr } from "@/lib/date-utils";
-import { cacheGet, cacheSet, cacheDelete, invalidateLeaderboardCache } from "@/lib/metrics-cache";
+import {
+  cacheGet,
+  cacheSet,
+  cacheDelete,
+  invalidateLeaderboardCache,
+} from "@/lib/metrics-cache";
 import {
   pruneExpiredLeaderboardCache,
   type LeaderboardCacheEntry,
 } from "@/lib/leaderboard-cache";
 import { unstable_cache, revalidateTag } from "next/cache";
+import { resolveServerGitHubToken } from "@/lib/github-app";
+import {
+  levelFromXp,
+  scoreCohort,
+  tierForScore,
+  xpFromTotals,
+  type ActivityStats,
+  type Tier,
+} from "@/lib/gamification/scoring";
 
 export const CACHE_REFRESH_SECONDS = 3600; // 1 hour
+/**
+ * How long one player's GitHub stats are reused across board rebuilds. Most
+ * players have no stored token, so their stats are fetched with the shared
+ * server token; refreshing every one of them hourly spent it on rankings that
+ * only snapshot once a day. New players are still fetched straight away.
+ */
+const PLAYER_STATS_REFRESH_SECONDS = 6 * 3600;
 export const CACHE_STALE_SECONDS = 6 * 60 * 60; // 6 hours
 export const LEADERBOARD_CACHE_KEY = "leaderboard:v1";
 export const LEADERBOARD_BUILD_LOCK_KEY = "leaderboard:build-lock:v1";
@@ -38,6 +61,20 @@ export interface LeaderboardEntry {
   prs: number;
   score: number;
   isSponsor: boolean;
+  /**
+   * Score v2 (0–1000) and its tier, from src/lib/gamification/scoring.ts.
+   * Computed alongside the legacy `score` while both run side by side;
+   * rankings still use the legacy score until the cutover. Optional because
+   * cached payloads built before this field existed may lack it.
+   */
+  scoreV2?: number;
+  tier?: Tier;
+  activeDays?: number;
+  reviews?: number;
+  repos?: number;
+  /** Only on the all-time board, where totals are lifetime. */
+  xp?: number;
+  level?: number;
 }
 
 export interface LeaderboardPayload {
@@ -79,6 +116,43 @@ const USER_CONCURRENCY = validateUserConcurrency(
   process.env.LEADERBOARD_USER_CONCURRENCY
 );
 
+/**
+ * Most players a board is built from, oldest accounts first. A player whose
+ * stats aren't cached costs a GitHub request per period, so this bounds the
+ * work of a cold build rather than who can play.
+ */
+export const MAX_LEADERBOARD_PLAYERS = 1000;
+
+/** Reading cached stats is cheap, so a build walks players faster than it calls GitHub. */
+const CACHE_READ_CONCURRENCY = 25;
+
+/**
+ * Runs at most `max` tasks at once. A finishing task hands its slot straight
+ * to the next one in the queue, so the limit holds under bursts.
+ */
+function createLimiter(max: number) {
+  let active = 0;
+  const queue: Array<() => void> = [];
+  return async function run<T>(task: () => Promise<T>): Promise<T> {
+    if (active < max) active++;
+    else await new Promise<void>((resolve) => queue.push(resolve));
+    try {
+      return await task();
+    } finally {
+      const next = queue.shift();
+      if (next) next();
+      else active--;
+    }
+  };
+}
+
+/**
+ * Every GitHub call a board makes goes through here, including background
+ * refreshes of stale player stats, so many at once can't trip GitHub's
+ * secondary rate limit.
+ */
+const githubSlots = createLimiter(USER_CONCURRENCY);
+
 const DEFAULT_PERIOD: LeaderboardPeriod = "month";
 
 // Module-level in-memory cache shared between the server component and API route
@@ -100,7 +174,9 @@ export function isFresh(payload: LeaderboardPayload): boolean {
  * @param period - The time period (e.g., 'week', 'month', 'all').
  * @returns The cache key string.
  */
-export function getLeaderboardCacheKey(period: LeaderboardPeriod = DEFAULT_PERIOD): string {
+export function getLeaderboardCacheKey(
+  period: LeaderboardPeriod = DEFAULT_PERIOD
+): string {
   return `${LEADERBOARD_CACHE_KEY}:${period}`;
 }
 
@@ -158,8 +234,10 @@ export async function clearLeaderboardCache(): Promise<void> {
   // 2. Drop all leaderboard shared keys in metrics memory map and Redis/Upstash.
   await invalidateLeaderboardCache();
 
-  // 3. Invalidate Next.js unstable_cache
-  revalidateTag("leaderboard", {});
+  // 3. Invalidate Next.js unstable_cache. `expire: 0` drops it outright: an
+  // object without `expire` is stale-while-revalidate, which served the old
+  // board to the first visitor after someone joined or left.
+  revalidateTag("leaderboard", { expire: 0 });
 }
 
 async function mapWithConcurrency<T, R>(
@@ -188,15 +266,17 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
-async function fetchGitHubJson<T>(path: string): Promise<T | null> {
-  const token = process.env.GITHUB_TOKEN;
+async function fetchGitHubJson<T>(
+  path: string,
+  token: string | undefined = process.env.GITHUB_TOKEN
+): Promise<T | null> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   try {
-    const res = await fetch(`${GITHUB_API}${path}`, {
+    const res = await githubRequest(`${GITHUB_API}${path}`, {
       headers,
       next: { revalidate: 3600 },
     });
@@ -244,75 +324,274 @@ function getPeriodSince(period: LeaderboardPeriod): string | undefined {
   return toDateStr(new Date(Date.now() - days * 86400000));
 }
 
-async function fetchCommitStats(username: string, since?: string) {
-  const query = new URLSearchParams({
-    q: [
-      `author:${username}`,
-      since ? `author-date:>=${since}` : "",
-    ]
-      .filter(Boolean)
-      .join(" "),
-    per_page: "100",
-    sort: "author-date",
-    order: "desc",
-  });
-  return fetchGitHubJson<{
-    total_count: number;
-    items: Array<{ commit: { author: { date: string } } }>;
-  }>(`/search/commits?${query}`);
+type UserStats = {
+  streak: number;
+  commits: number;
+  prs: number;
+  /** Days with a contribution since the period start (last 365 days for all time). */
+  activeDays: number;
+  reviews: number;
+  repos: number;
+};
+
+const CONTRIBUTIONS_QUERY = `
+query LeaderboardStats($login: String!, $yearAgo: DateTime!, $from: DateTime!) {
+  user(login: $login) {
+    year: contributionsCollection(from: $yearAgo) {
+      contributionYears
+      contributionCalendar { weeks { contributionDays { date contributionCount } } }
+    }
+    period: contributionsCollection(from: $from) {
+      totalCommitContributions
+      totalPullRequestContributions
+      totalPullRequestReviewContributions
+      totalRepositoriesWithContributedCommits
+    }
+  }
+}`;
+
+type Totals = {
+  totalCommitContributions: number;
+  totalPullRequestContributions: number;
+  totalPullRequestReviewContributions?: number;
+  totalRepositoriesWithContributedCommits?: number;
+};
+
+async function githubGraphQLData<T>(
+  query: string,
+  variables: Record<string, unknown>,
+  token: string
+): Promise<T | null> {
+  try {
+    const res = await githubRequest("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ query, variables }),
+    });
+    if (!res.ok) {
+      console.error("[Leaderboard] GitHub GraphQL failed:", res.status);
+      return null;
+    }
+    const json = (await res.json()) as { data?: T };
+    return json.data ?? null;
+  } catch (err) {
+    console.error("[Leaderboard] GitHub GraphQL error:", err);
+    return null;
+  }
 }
 
-async function fetchAllCommitDatesForStreak(
+/**
+ * Streak, commits and PRs from GitHub's contribution data: two GraphQL
+ * requests at most per user. Paging a year of commit search per user tripped
+ * GitHub's secondary rate limit and left the leaderboard empty.
+ */
+async function fetchUserStats(
   username: string,
-  since: string
-): Promise<string[]> {
-  const PER_PAGE = 100;
-  const seenDays = new Set<string>();
-  let page = 1;
+  token: string,
+  periodStart?: string
+): Promise<UserStats | null> {
+  const yearAgo = new Date(Date.now() - 365 * 86400000).toISOString();
+  const data = await githubGraphQLData<{
+    user: {
+      year: {
+        contributionYears: number[];
+        contributionCalendar: {
+          weeks: Array<{
+            contributionDays: Array<{
+              date: string;
+              contributionCount: number;
+            }>;
+          }>;
+        };
+      };
+      period: Totals;
+    } | null;
+  }>(
+    CONTRIBUTIONS_QUERY,
+    {
+      login: username,
+      yearAgo,
+      from: periodStart ? `${periodStart}T00:00:00Z` : yearAgo,
+    },
+    token
+  );
+  if (!data?.user) return null;
 
-  while (true) {
-    const query = new URLSearchParams({
-      q: `author:${username} author-date:>=${since}`,
-      per_page: String(PER_PAGE),
-      page: String(page),
-      sort: "author-date",
-      order: "desc",
-    });
+  const activeDays = data.user.year.contributionCalendar.weeks
+    .flatMap((week) => week.contributionDays)
+    .filter((day) => day.contributionCount > 0)
+    .map((day) => day.date);
+  const activeDaysInPeriod = periodStart
+    ? activeDays.filter((date) => date >= periodStart).length
+    : activeDays.length;
+  let {
+    totalCommitContributions: commits,
+    totalPullRequestContributions: prs,
+  } = data.user.period;
+  let reviews = data.user.period.totalPullRequestReviewContributions ?? 0;
+  // Repositories over the last year, even for all time: summing per-year
+  // counts would count the same repository once per year.
+  const repos = data.user.period.totalRepositoriesWithContributedCommits ?? 0;
 
-    const data = await fetchGitHubJson<{
-      total_count: number;
-      items: Array<{ commit: { author: { date: string } } }>;
-    }>(`/search/commits?${query}`);
-
-    if (!data || data.items.length === 0) break;
-
-    for (const item of data.items) {
-      seenDays.add(item.commit.author.date.slice(0, 10));
+  // All time: GitHub reports contributions per calendar year.
+  if (!periodStart) {
+    const years = data.user.year.contributionYears;
+    const fields = years
+      .map(
+        (y) =>
+          `y${y}: contributionsCollection(from: "${y}-01-01T00:00:00Z", to: "${y}-12-31T23:59:59Z") { totalCommitContributions totalPullRequestContributions totalPullRequestReviewContributions }`
+      )
+      .join(" ");
+    const all = years.length
+      ? await githubGraphQLData<{ user: Record<string, Totals> | null }>(
+          `query LeaderboardAllTime($login: String!) { user(login: $login) { ${fields} } }`,
+          { login: username },
+          token
+        )
+      : null;
+    if (all?.user) {
+      const totals = Object.values(all.user);
+      commits = totals.reduce((sum, t) => sum + t.totalCommitContributions, 0);
+      prs = totals.reduce((sum, t) => sum + t.totalPullRequestContributions, 0);
+      reviews = totals.reduce(
+        (sum, t) => sum + (t.totalPullRequestReviewContributions ?? 0),
+        0
+      );
     }
-
-    // Stop when we have fetched all available results
-    if (page * PER_PAGE >= data.total_count || data.items.length < PER_PAGE) break;
-    page++;
   }
 
-  return Array.from(seenDays);
+  return {
+    streak: calculateCurrentStreak(activeDays),
+    commits,
+    prs,
+    activeDays: activeDaysInPeriod,
+    reviews,
+    repos,
+  };
 }
 
-async function fetchPrCount(username: string, since?: string): Promise<number> {
-  const query = new URLSearchParams({
-    q: [
-      `author:${username}`,
-      "type:pr",
-      since ? `created:>=${since}` : "",
-    ]
-      .filter(Boolean)
-      .join(" "),
-    per_page: "1",
-  });
-  const data = await fetchGitHubJson<{ total_count: number }>(
-    `/search/issues?${query}`
-  );
-  return data?.total_count ?? 0;
+/** Without any token only cheap count queries are made; streaks need contribution data. */
+async function fetchSearchCounts(
+  username: string,
+  since?: string
+): Promise<UserStats> {
+  const dateFilter = (field: string) => (since ? ` ${field}:>=${since}` : "");
+  const count = async (path: string, q: string) =>
+    (
+      await fetchGitHubJson<{ total_count: number }>(
+        `/search/${path}?${new URLSearchParams({ q, per_page: "1" })}`
+      )
+    )?.total_count ?? 0;
+  const [commits, prs] = await Promise.all([
+    count("commits", `author:${username}${dateFilter("author-date")}`),
+    count("issues", `author:${username} type:pr${dateFilter("created")}`),
+  ]);
+  // Search can't see contribution days, reviews or repositories.
+  return { streak: 0, commits, prs, activeDays: 0, reviews: 0, repos: 0 };
+}
+
+async function loadUserTokens(userIds: string[]): Promise<Map<string, string>> {
+  const tokens = new Map<string, string>();
+  if (userIds.length === 0) return tokens;
+  const { data } = await supabaseAdmin
+    .from("user_tokens")
+    .select("user_id, encrypted_token, token_iv")
+    .in("user_id", userIds);
+  for (const row of data ?? []) {
+    try {
+      const token = decryptToken(row.encrypted_token, row.token_iv);
+      if (token) tokens.set(row.user_id, token);
+    } catch {
+      // Unreadable token: fall back to the shared token for this user.
+    }
+  }
+  return tokens;
+}
+
+/** Last stats a full lookup returned, kept so one failed lookup can't sink a rank. */
+const LAST_GOOD_SECONDS = 14 * 24 * 60 * 60;
+const lastGoodKey = (login: string, period: LeaderboardPeriod) =>
+  `leaderboard:player:last-good:${period}:${login.toLowerCase()}`;
+
+type SavedStats = { stats: UserStats; savedAt: number };
+
+/**
+ * Entries written before savedAt existed are plain stats. All of them were
+ * saved after that version went live, so dating them from then spreads their
+ * refreshes out instead of making every player due at once after this deploy.
+ */
+const PLAIN_STATS_SAVED_AT = Date.parse("2026-11-05T14:20:00Z");
+
+function readSaved(value: unknown): SavedStats | null {
+  if (!value || typeof value !== "object") return null;
+  if ("stats" in value && "savedAt" in value) return value as SavedStats;
+  return { stats: value as UserStats, savedAt: PLAIN_STATS_SAVED_AT };
+}
+
+/**
+ * Spreads refreshes over an extra hour per player, so players fetched in the
+ * same burst don't all come due together again six hours later.
+ */
+function refreshAfterMs(login: string): number {
+  let hash = 0;
+  for (const ch of login.toLowerCase())
+    hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return (PLAYER_STATS_REFRESH_SECONDS + (hash % 3600)) * 1000;
+}
+
+/**
+ * One player's stats for a period. Redis is the cache: unlike Next's data
+ * cache it survives deploys, so a deploy no longer makes the next rebuild
+ * fetch every player at once. That burst tripped GitHub's limits on the
+ * shared token and left players who failed with zeroed stats.
+ *
+ * A failed lookup must never replace real stats with the search fallback:
+ * that has no active days, streak, reviews or repositories, so a player
+ * near the top dropped ~400 points and a hundred places. In order, we try
+ * their token, then the shared token (contribution data is public), then
+ * their last good stats, and only then the search counts.
+ */
+async function playerStats(
+  login: string,
+  token: string | undefined,
+  sharedToken: string | undefined,
+  period: LeaderboardPeriod,
+  periodStart: string | undefined
+): Promise<UserStats> {
+  const key = lastGoodKey(login, period);
+  let saved: SavedStats | null = null;
+  try {
+    saved = readSaved(await cacheGet<unknown>(key));
+  } catch {
+    // Redis down: fall through to GitHub.
+  }
+  if (saved && Date.now() - saved.savedAt < refreshAfterMs(login))
+    return saved.stats;
+
+  const fresh = await githubSlots(async () => {
+    let stats = token ? await fetchUserStats(login, token, periodStart) : null;
+    if (!stats && sharedToken && sharedToken !== token)
+      stats = await fetchUserStats(login, sharedToken, periodStart);
+    return stats;
+  }).catch(() => null);
+
+  if (fresh) {
+    try {
+      await cacheSet<SavedStats>(
+        key,
+        { stats: fresh, savedAt: Date.now() },
+        LAST_GOOD_SECONDS
+      );
+    } catch {
+      // Not saved this time; the stats are still good to use.
+    }
+    return fresh;
+  }
+  if (saved) return saved.stats;
+  return githubSlots(() => fetchSearchCounts(login, periodStart));
 }
 
 /**
@@ -330,7 +609,8 @@ export async function buildLeaderboard(
     .select("id, github_login, is_sponsor")
     .eq("is_public", true)
     .eq("leaderboard_opt_in", true)
-    .limit(50);
+    .order("created_at", { ascending: true })
+    .limit(MAX_LEADERBOARD_PLAYERS);
 
   if (error) {
     console.error("[Leaderboard] Supabase error:", error);
@@ -338,44 +618,73 @@ export async function buildLeaderboard(
   }
 
   const now = new Date();
-  const streakStart = toDateStr(
-    new Date(Date.now() - 365 * 86400000)
-  );
   const safeUsers = (users ?? []) as PublicUser[];
+  const userTokens = await loadUserTokens(safeUsers.map((user) => user.id));
+  // The GitHub App installation token when configured (its own rate-limit
+  // bucket), else the GITHUB_TOKEN PAT.
+  const serverToken = await resolveServerGitHubToken();
 
   const rows = await mapWithConcurrency(
     safeUsers,
-    USER_CONCURRENCY,
-    async (user) => {
-      const [monthlyCommits, streakDates, prs] = await Promise.all([
-        fetchCommitStats(user.github_login, periodStart),
-        fetchAllCommitDatesForStreak(user.github_login, streakStart),
-        fetchPrCount(user.github_login, periodStart),
-      ]);
-
-      const streak = calculateCurrentStreak(streakDates);
-      const commits = monthlyCommits?.total_count ?? 0;
+    CACHE_READ_CONCURRENCY,
+    async (user): Promise<LeaderboardEntry> => {
+      // Each user's own token spreads the load across their rate limits.
+      const token = userTokens.get(user.id) ?? serverToken;
+      const stats = await playerStats(
+        user.github_login,
+        token,
+        serverToken,
+        period,
+        periodStart
+      );
+      const { streak, commits, prs, activeDays, reviews, repos } = stats;
       const score = streak * 5 + commits + prs * 3;
 
       return {
         id: user.id,
         rank: 0,
         username: user.github_login,
-        avatarUrl: `https://github.com/${user.github_login}.png?size=96`,
+        avatarUrl: `https://avatars.githubusercontent.com/${user.github_login}?s=96`,
         profileUrl: `/u/${user.github_login}`,
         streak,
         commits,
         prs,
         score,
         isSponsor: user.is_sponsor ?? false,
+        activeDays,
+        reviews,
+        repos,
       };
     }
   );
 
+  // Score v2 is relative to the cohort, so it's computed once every row is in.
+  const cohort: ActivityStats[] = rows.map((row) => ({
+    activeDays: row.activeDays ?? 0,
+    streak: row.streak,
+    commits: row.commits,
+    prs: row.prs,
+    reviews: row.reviews ?? 0,
+    repos: row.repos ?? 0,
+  }));
+  const scoresV2 = scoreCohort(cohort, period);
+  rows.forEach((row, i) => {
+    row.scoreV2 = scoresV2[i];
+    row.tier = tierForScore(scoresV2[i]);
+    if (period === "all") {
+      row.xp = xpFromTotals(cohort[i]);
+      row.level = levelFromXp(row.xp).level;
+    }
+  });
+
   const rankBy = (metric: LeaderboardMetric) =>
     [...rows]
-      .sort((a, b) => b[metric] - a[metric] || b.score - a.score)
-      .slice(0, 50)
+      .sort(
+        (a, b) =>
+          b[metric] - a[metric] ||
+          (b.scoreV2 ?? 0) - (a.scoreV2 ?? 0) ||
+          b.score - a.score
+      )
       .map((entry, i) => ({ ...entry, rank: i + 1 }));
 
   return {
@@ -402,7 +711,7 @@ export async function refreshLeaderboardCache(
   const cacheKey = getLeaderboardCacheKey(period);
   await cacheSet(cacheKey, payload, CACHE_STALE_SECONDS);
   setMemoryCachedLeaderboard(payload, period);
-  revalidateTag("leaderboard", {});
+  revalidateTag("leaderboard", { expire: 0 });
   return payload;
 }
 
@@ -429,10 +738,52 @@ export const getCachedLeaderboard = (filters: LeaderboardFilters = {}) => {
  * @param filters - Filtering options.
  * @returns A promise resolving to the leaderboard payload.
  */
+/**
+ * Deterministic rows for E2E and visual-regression runs, which have no
+ * Supabase. Without this the page can only ever render its error state, so
+ * the table itself — the part that has to survive narrow screens — goes
+ * untested. Mirrors the fixture hook in `public-profile-data.ts`.
+ */
+function playwrightLeaderboard(): LeaderboardPayload {
+  // One of each tier, and movement against the fixture baseline in
+  // gamification/queries.ts covering same, up, down and new.
+  const people: Array<[string, number, number, number, boolean, number, Tier]> =
+    [
+      ["playwright-user", 42, 1284, 96, true, 929, "legend"],
+      ["octocat", 31, 980, 74, false, 794, "diamond"],
+      ["a-very-long-github-username-here", 27, 845, 61, false, 710, "platinum"],
+      ["dev-three", 18, 612, 44, false, 512, "gold"],
+      ["dev-four", 12, 403, 29, false, 265, "silver"],
+    ];
+  const entries = people.map(
+    ([username, streak, commits, prs, isSponsor, scoreV2, tier], i) => ({
+      id: `fixture-${i + 1}`,
+      rank: i + 1,
+      username,
+      avatarUrl: `https://avatars.githubusercontent.com/${username}?s=96`,
+      profileUrl: `/u/${username}`,
+      streak,
+      commits,
+      prs,
+      score: 1000 - i * 90,
+      isSponsor,
+      scoreV2,
+      tier,
+    })
+  );
+  return {
+    generatedAt: "2026-01-01T00:00:00.000Z",
+    refreshSeconds: 3600,
+    leaders: { streak: entries, commits: entries, prs: entries },
+  };
+}
+
 export async function getLeaderboardData(
   bypass = false,
   filters: LeaderboardFilters = {}
 ): Promise<LeaderboardPayload | null> {
+  if (process.env.PLAYWRIGHT_TEST === "true") return playwrightLeaderboard();
+
   const period = filters.period ?? DEFAULT_PERIOD;
 
   if (bypass) {
@@ -451,12 +802,17 @@ export async function getLeaderboardData(
   try {
     return await getCachedLeaderboard(filters);
   } catch (err) {
-    console.error("[Leaderboard] unstable_cache failed, falling back to custom cache:", err);
+    console.error(
+      "[Leaderboard] unstable_cache failed, falling back to custom cache:",
+      err
+    );
 
     const mem = getMemoryCachedLeaderboard(period);
     if (mem) return mem;
 
-    const cached = await cacheGet<LeaderboardPayload>(getLeaderboardCacheKey(period));
+    const cached = await cacheGet<LeaderboardPayload>(
+      getLeaderboardCacheKey(period)
+    );
     if (cached && isFresh(cached)) {
       setMemoryCachedLeaderboard(cached, period);
       return cached;
@@ -470,7 +826,9 @@ export async function getLeaderboardData(
       return payload;
     } catch (buildErr) {
       console.error("[Leaderboard] Fallback build failed:", buildErr);
-      const stale = await cacheGet<LeaderboardPayload>(getLeaderboardCacheKey(period));
+      const stale = await cacheGet<LeaderboardPayload>(
+        getLeaderboardCacheKey(period)
+      );
       return stale ?? null;
     }
   }
@@ -480,12 +838,13 @@ export async function getLeaderboardData(
  * Fetches the repositories associated with a user for a specific programming language.
  * @param username - The GitHub username.
  * @param language - The programming language to filter by.
- * @returns An array of repository full names.
+ * @returns Repository full names, or null when GitHub could not answer.
  */
 export async function fetchLanguageRepositories(
   username: string,
-  language: string
-): Promise<string[]> {
+  language: string,
+  token?: string
+): Promise<string[] | null> {
   const LANGUAGE_REPO_LIMIT = 8;
   const query = new URLSearchParams({
     q: `user:${username} language:${language}`,
@@ -496,9 +855,9 @@ export async function fetchLanguageRepositories(
 
   const data = await fetchGitHubJson<{
     items: Array<{ full_name: string }>;
-  }>(`/search/repositories?${query.toString()}`);
+  }>(`/search/repositories?${query.toString()}`, token);
 
-  return data?.items.map((repo) => repo.full_name) ?? [];
+  return data ? data.items.map((repo) => repo.full_name) : null;
 }
 
 /**
@@ -516,31 +875,55 @@ export async function filterLeaderboardByLanguage(
     return leaderboard;
   }
 
-  const filterEntries = async (
-    entries: LeaderboardEntry[]
-  ) => {
-    const matches = await Promise.all(
-      entries.map(async (entry) => {
-        const repos = await fetchLanguageRepositories(
-          entry.username,
-          normalizedLanguage
-        );
-        return repos.length > 0 ? entry : null;
-      })
-    );
+  // Each board lists the same players, so look each one up once. Search
+  // allows 30 requests a minute per token: each player's own token keeps a
+  // big board inside that, and results are cached for a few hours.
+  const players = new Map<string, LeaderboardEntry>();
+  for (const entry of Object.values(leaderboard.leaders).flat())
+    if (!players.has(entry.id)) players.set(entry.id, entry);
+  const tokens = await loadUserTokens([...players.keys()]).catch(
+    () => new Map<string, string>()
+  );
 
-    return matches.filter(
-      (entry): entry is LeaderboardEntry => entry !== null
-    );
-  };
+  const matching = new Set<string>();
+  await mapWithConcurrency(
+    [...players.values()],
+    CACHE_READ_CONCURRENCY,
+    async (entry) => {
+      try {
+        const writes = await unstable_cache(
+          () =>
+            githubSlots(async () => {
+              const repos = await fetchLanguageRepositories(
+                entry.username,
+                normalizedLanguage,
+                tokens.get(entry.id) ?? process.env.GITHUB_TOKEN
+              );
+              if (!repos) throw new Error("Repository search failed");
+              return repos.length > 0;
+            }),
+          [
+            "leaderboard-language",
+            entry.username.toLowerCase(),
+            normalizedLanguage,
+          ],
+          { revalidate: CACHE_STALE_SECONDS }
+        )();
+        if (writes) matching.add(entry.id);
+      } catch {
+        // Counts as no match this time; nothing is cached.
+      }
+    }
+  );
 
+  const keep = (entries: LeaderboardEntry[]) =>
+    entries.filter((entry) => matching.has(entry.id));
   return {
     ...leaderboard,
     leaders: {
-      streak: await filterEntries(leaderboard.leaders.streak),
-      commits: await filterEntries(leaderboard.leaders.commits),
-      prs: await filterEntries(leaderboard.leaders.prs),
+      streak: keep(leaderboard.leaders.streak),
+      commits: keep(leaderboard.leaders.commits),
+      prs: keep(leaderboard.leaders.prs),
     },
   };
 }
-

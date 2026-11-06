@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
       await invalidateUserMetricsCache(staleResult.githubId);
     }
 
-    sendSSEEvent(githubLogin, "commit", {
+    sendSSEEvent(staleResult.userId, "commit", {
       repo: payload.repository?.full_name,
       timestamp: new Date().toISOString(),
     });

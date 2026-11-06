@@ -21,7 +21,9 @@ const mocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({
+  getServerSession: mocks.getServerSession,
+}));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/resolve-user", () => ({ resolveAppUser: mocks.resolveAppUser }));
 vi.mock("@/lib/supabase", () => ({
@@ -34,7 +36,10 @@ function makeRequest(headers: Record<string, string> = {}): NextRequest {
   const req = new NextRequest("http://localhost/api/user/data-export");
   for (const [key, value] of Object.entries(headers)) {
     Object.defineProperty(req, "headers", {
-      value: new Headers({ ...Object.fromEntries(req.headers.entries()), [key]: value }),
+      value: new Headers({
+        ...Object.fromEntries(req.headers.entries()),
+        [key]: value,
+      }),
       configurable: true,
     });
   }
@@ -50,9 +55,21 @@ function buildChain(result: unknown) {
     then: (onfulfilled: any) => Promise.resolve(result).then(onfulfilled),
   };
   const resolve = vi.fn().mockResolvedValue(result);
-  const methods = ["select", "eq", "gte", "order", "limit", "maybeSingle", "single", "in"];
+  const methods = [
+    "select",
+    "eq",
+    "gte",
+    "order",
+    "limit",
+    "maybeSingle",
+    "single",
+    "in",
+  ];
   for (const m of methods) {
-    chain[m] = m === "maybeSingle" || m === "single" ? resolve : vi.fn().mockReturnValue(chain);
+    chain[m] =
+      m === "maybeSingle" || m === "single"
+        ? resolve
+        : vi.fn().mockReturnValue(chain);
   }
   (chain.limit as ReturnType<typeof vi.fn>).mockResolvedValue(result);
   return { chain, resolve };
@@ -90,7 +107,9 @@ function setupSupabase(
               gte: vi.fn().mockReturnValue({
                 order: vi.fn().mockReturnValue({
                   limit: vi.fn().mockReturnValue({
-                    maybeSingle: vi.fn().mockResolvedValue({ data: auditRow, error: null }),
+                    maybeSingle: vi
+                      .fn()
+                      .mockResolvedValue({ data: auditRow, error: null }),
                   }),
                 }),
               }),
@@ -172,8 +191,18 @@ describe("GET /api/user/data-export", () => {
 
   it("returns JSON content type and valid JSON body containing streak milestones with real values", async () => {
     const mockMilestones = [
-      { id: "m-1", user_id: "user-1", streak_count: 7, achieved_at: "2026-06-20T00:00:00Z" },
-      { id: "m-2", user_id: "user-1", streak_count: 30, achieved_at: "2026-06-22T00:00:00Z" },
+      {
+        id: "m-1",
+        user_id: "user-1",
+        streak_count: 7,
+        achieved_at: "2026-06-20T00:00:00Z",
+      },
+      {
+        id: "m-2",
+        user_id: "user-1",
+        streak_count: 30,
+        achieved_at: "2026-06-22T00:00:00Z",
+      },
     ];
     setupSupabase(null, mockMilestones);
 
@@ -186,7 +215,20 @@ describe("GET /api/user/data-export", () => {
     expect(payload.userId).toBe("user-1");
     expect(payload.githubLogin).toBe("alice");
     expect(payload.sections).toBeDefined();
-    
+
+    // Gamification data belongs to the user too.
+    expect(payload.sections.progress).toEqual([]);
+    expect(payload.sections.leaderboardSnapshots).toEqual([]);
+    expect(payload.sections.seasonResults).toEqual([]);
+    const queried = mocks.supabaseFrom.mock.calls.map(([table]) => table);
+    expect(queried).toEqual(
+      expect.arrayContaining([
+        "user_progress",
+        "leaderboard_snapshots",
+        "season_results",
+      ])
+    );
+
     // Verify that the streak milestones are correctly queried and exported
     const exportedMilestones = payload.sections.streakMilestones;
     expect(exportedMilestones).toBeDefined();
@@ -215,5 +257,28 @@ describe("GET /api/user/data-export", () => {
     const [row] = auditInsert.mock.calls[0];
     expect(row.user_id).toBe("user-1");
     expect(row.action).toBe("export");
+  });
+});
+
+it("fails explicitly when an export dataset cannot be read", async () => {
+  mocks.getServerSession.mockResolvedValue({
+    githubId: "101",
+    githubLogin: "alice",
+  });
+  mocks.resolveAppUser.mockResolvedValue({ id: "user-1" });
+  setupSupabase();
+  const original = mocks.supabaseFrom.getMockImplementation()!;
+  mocks.supabaseFrom.mockImplementation((table: string) =>
+    table === "goals"
+      ? buildChain({ data: null, error: { message: "column mismatch" } }).chain
+      : original(table)
+  );
+  const { GET } = await import("@/app/api/user/data-export/route");
+  const response = await GET(
+    new NextRequest("http://localhost/api/user/export")
+  );
+  expect(response.status).toBe(503);
+  expect(await response.json()).toEqual({
+    error: "Export data is unavailable",
   });
 });

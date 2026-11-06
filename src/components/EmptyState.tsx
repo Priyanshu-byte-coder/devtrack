@@ -20,7 +20,7 @@ export default function EmptyState({
       <div className="text-6xl mb-6 select-none" role="img" aria-label={title}>
         {icon}
       </div>
-      <h2 className="text-xl font-semibold text-[var(--foreground)] mb-3">
+      <h2 className="mb-2 text-base font-semibold text-[var(--foreground)]">
         {title}
       </h2>
       <p className="text-[var(--muted-foreground)] max-w-sm mb-8 leading-relaxed">

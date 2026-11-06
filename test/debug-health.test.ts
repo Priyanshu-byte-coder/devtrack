@@ -32,7 +32,7 @@ const mocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: { from: mocks.supabaseFrom },

@@ -21,7 +21,7 @@ const mocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
 }));
 
-vi.mock("next-auth", () => ({ getServerSession: mocks.getServerSession }));
+vi.mock("@/lib/server-session", () => ({ getServerSession: mocks.getServerSession }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/resolve-user", () => ({ resolveAppUser: mocks.resolveAppUser }));
 vi.mock("@/lib/supabase", () => ({
@@ -313,4 +313,13 @@ describe("csvCell", () => {
     const { csvCell } = await import("@/lib/csv");
     expect(csvCell(42)).toBe("42");
   });
+});
+
+it('fails explicitly when an export dataset cannot be read', async () => {
+ mocks.getServerSession.mockResolvedValue({githubId:'101',githubLogin:'alice'});mocks.resolveAppUser.mockResolvedValue({id:'user-1'});setupSupabase();
+ const original=mocks.supabaseFrom.getMockImplementation()!;
+ mocks.supabaseFrom.mockImplementation((table:string)=>table==='goals'?buildChain({data:null,error:{message:'column mismatch'}}).chain:original(table));
+ const {GET}=await import('@/app/api/user/export/route');
+ const response=await GET(new NextRequest('http://localhost/api/user/export'));
+ expect(response.status).toBe(503);expect(await response.json()).toEqual({error:'Export data is unavailable'});
 });

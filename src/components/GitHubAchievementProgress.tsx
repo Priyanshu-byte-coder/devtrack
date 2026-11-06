@@ -29,7 +29,7 @@ function ProgressBar({ percent }: { percent: number }) {
 
 function AchievementCard({ item }: { item: AchievementProgressInfo }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4">
+    <div className="border border-[var(--border)] bg-[var(--control)] p-4">
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="text-sm font-medium text-[var(--card-foreground)]">
           {item.title}
@@ -82,7 +82,12 @@ export default function GitHubAchievementProgress() {
         }
         return res.json() as Promise<AchievementProgressInfo[]>;
       })
-      .then((items) => setState({ status: "success", items }))
+      .then((items) =>
+        setState({
+          status: "success",
+          items: Array.isArray(items) ? items : [],
+        })
+      )
       .catch((err: unknown) => {
         setState({
           status: "error",
@@ -93,8 +98,8 @@ export default function GitHubAchievementProgress() {
   }, []);
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-      <h2 className="mb-1 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-1 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Achievement Progress
       </h2>
       <p className="mb-4 text-xs text-[var(--muted-foreground)]">

@@ -1,178 +1,89 @@
-# DevTrack Badge API Documentation
+# DevTrack Badge API
 
-## Overview
+Live, animated pixel badges for your GitHub README. They are SVG images rendered from your current DevTrack data, so they update on their own.
 
-The DevTrack Badge API provides public, shareable SVG badges that contributors can embed in their GitHub README to showcase their DevTrack statistics.
+<p>
+  <img src="https://devtrack.live/api/badge/rank?user=priyanshu-byte-coder" alt="Example rank badge" height="72" />
+  <img src="https://devtrack.live/api/badge/streak-shield?user=priyanshu-byte-coder" alt="Example streak badge" height="72" />
+  <img src="https://devtrack.live/api/badge/commits?user=priyanshu-byte-coder" alt="Example commits badge" height="72" />
+</p>
+
+## Quick start
+
+1. [Sign in to DevTrack](https://devtrack.live/auth/signin) with GitHub. New players start on the public leaderboard, which the rank badge needs.
+2. Paste this into your profile README (the repository named after your username), replacing `YOUR_LOGIN`:
+
+```md
+[![DevTrack rank](https://devtrack.live/api/badge/rank?user=YOUR_LOGIN)](https://devtrack.live/u/YOUR_LOGIN)
+[![Coding streak](https://devtrack.live/api/badge/streak-shield?user=YOUR_LOGIN)](https://devtrack.live/u/YOUR_LOGIN)
+[![Commits this month](https://devtrack.live/api/badge/commits?user=YOUR_LOGIN)](https://devtrack.live/u/YOUR_LOGIN)
+```
+
+3. Commit. Linking each badge to your profile lets visitors open your full player card.
+
+A step-by-step version lives at [devtrack.live/guides/github-stats-readme](https://devtrack.live/guides/github-stats-readme).
 
 ## Endpoints
 
-### 1. Streak Badge
-**Endpoint:** `GET /api/badge/streak?user=<githubLogin>`
+All endpoints are public `GET` requests that return `image/svg+xml`. Usernames are case-insensitive.
 
-Returns an SVG badge displaying the user's current commit streak.
+### Rank badge
 
-**Query Parameters:**
-- `user` (required): GitHub username
+`GET /api/badge/rank?user=<login>[&board=all|month|week]`
 
-**Example:**
-```
-GET /api/badge/streak?user=octocat
-```
+Your rank on the leaderboard, tier, score, level progress and movement since the last daily snapshot.
 
-**Response:**
-- Content-Type: `image/svg+xml;charset=utf-8`
-- SVG showing current streak (orange if active, indigo if none)
-- Cached for 1 hour
+| Parameter | Required | Values                          | Default |
+| --------- | -------- | ------------------------------- | ------- |
+| `user`    | yes      | GitHub username                 |         |
+| `board`   | no       | `all`, `month` (season), `week` | `all`   |
 
-### 2. Commits Badge
-**Endpoint:** `GET /api/badge/commits?user=<githubLogin>`
+- Ranked players get the full badge. Players who aren't on the public leaderboard (or haven't been included in a snapshot yet) get an "unranked" badge.
+- A missing or invalid `user` returns the unranked badge with status `400`.
+- Reads cached leaderboard snapshots, never the GitHub API, so it has no per-IP rate limit (every README view arrives from GitHub's few image-proxy addresses).
 
-Returns an SVG badge displaying commits made this month.
+Implementation: `src/app/api/badge/rank/route.ts`, rendered by `src/lib/gamification/rank-badge.ts`.
 
-**Query Parameters:**
-- `user` (required): GitHub username
+### Streak badge
 
-**Example:**
-```
-GET /api/badge/commits?user=octocat
-```
+`GET /api/badge/streak-shield?user=<login>`
 
-**Response:**
-- Content-Type: `image/svg+xml;charset=utf-8`
-- SVG showing commits count for current month
-- Cached for 1 hour
+Your current streak, your best streak and the last seven days as pixel blocks.
 
-## Usage
+### Commits badge
 
-### Markdown Embedding
+`GET /api/badge/commits?user=<login>`
 
-Add to your GitHub README:
+Commits so far this month, with a bar for how far through the month we are.
 
-```markdown
-<!-- Streak Badge -->
-![DevTrack Streak](https://devtrack.app/api/badge/streak?user=yourname)
+For both the streak and commits badges:
 
-<!-- Commits Badge -->
-![DevTrack Commits](https://devtrack.app/api/badge/commits?user=yourname)
+- The user must have a DevTrack account. Other usernames get a "not on DevTrack" badge; invalid ones get an "invalid username" badge.
+- They call the GitHub API, so they are rate limited per IP (see below).
 
-<!-- Both Together -->
-![DevTrack Streak](https://devtrack.app/api/badge/streak?user=yourname) ![DevTrack Commits](https://devtrack.app/api/badge/commits?user=yourname)
-```
+Implementation: `src/app/api/badge/streak-shield/route.ts`, `src/app/api/badge/commits/route.ts`, rendered by `src/lib/gamification/stat-badge.ts` with the shared pixel primitives in `pixel-badge.ts`.
 
-### Features
+## Caching
 
-- **Public Access**: No authentication required
-- **Real-time Data**: Fetches live data from GitHub API
-- **Caching**: Responses cached for 1 hour to reduce API load
-- **No Auth Required**: Uses publicly available GitHub data
-- **Responsive**: Dynamically sized based on content
-- **Accessible**: Includes proper SVG labels and titles
+GitHub serves README images through its camo proxy and would otherwise keep them for a long time, so every badge sends an explicit, short `Cache-Control` and an `ETag`:
 
-## Color Scheme
+| Badge   | Cache-Control                                                      |
+| ------- | ------------------------------------------------------------------ |
+| Rank    | `public, max-age=300, s-maxage=1800, stale-while-revalidate=86400` |
+| Streak  | `public, max-age=300, s-maxage=3600, stale-while-revalidate=86400` |
+| Commits | `public, max-age=300, s-maxage=3600, stale-while-revalidate=86400` |
 
-- **Streak (Active)**: `#f59e0b` (Orange - active streak)
-- **Streak (Inactive)**: `#6366f1` (Indigo - no active streak)
-- **Commits**: `#6366f1` (Indigo - DevTrack primary)
-- **Error**: `#ef4444` (Red)
+Expect a change to show up within a few minutes on DevTrack, and a little longer inside a GitHub README. Error badges use shorter caches so a fixed problem clears quickly.
 
-## Response Headers
+## Rate limits
 
-All badge endpoints return appropriate caching headers:
+The streak and commits badges allow **20 requests per minute per IP**, then return `429` with a `Retry-After` header. The rank badge has no per-IP limit. Details, headers and environment variables: [docs/badge-rate-limits.md](./docs/badge-rate-limits.md).
 
-```
-Content-Type: image/svg+xml;charset=utf-8
-Cache-Control: max-age=3600, public
-X-Content-Type-Options: nosniff
-```
+## Self-hosting
 
-## Error Handling
-
-- **Missing user parameter**: Returns 400 Bad Request
-- **Invalid username**: Returns 400 Bad Request
-- **User not found**: Returns SVG badge with "N/A" value
-- **API errors**: Returns SVG badge with "Error" value
-
-## Rate Limiting
-
-- The DevTrack badge API itself has no rate limits
-- However, it uses GitHub API internally, which may have rate limits
-- GitHub API: 60 requests/hour (unauthenticated), 5000/hour (authenticated)
-- Using `GITHUB_TOKEN` environment variable increases rate limits
-
-## Performance
-
-- Badge generation is fast (typically <200ms)
-- SVG is optimized for web delivery
-- Caching significantly reduces load on GitHub API
-- Badges are approximately 2-5KB in size
-
-## Getting Your Badge
-
-1. Go to your public DevTrack profile: `https://devtrack.app/u/yourname`
-2. Scroll to "Get Your Badge" section
-3. Copy the markdown for your desired badge(s)
-4. Paste into your GitHub README
-5. Commit and push to your repository
-
-## Technical Details
-
-### Badge Generation
-
-Badges use a shields.io-style design implemented with SVG:
-- Linear gradient background for depth
-- White text with subtle shadow
-- Rounded corners for modern appearance
-- Responsive sizing based on content
-
-### Data Sources
-
-- Streak badge: GitHub API commit search (last 90 days)
-- Commits badge: GitHub API commit search (current month)
-
-### Implementation
-
-- Built with Next.js API routes
-- Uses Supabase for user verification
-- Dynamically generates SVG content
-- Server-side caching with HTTP headers
-
-## Customization
-
-To use a different domain:
-
-```markdown
-![DevTrack Streak](https://your-domain.com/api/badge/streak?user=yourname)
-```
-
-Replace `your-domain.com` with your DevTrack deployment domain.
+Badges work on any DevTrack deployment: swap `https://devtrack.live` for your own domain. The streak and commits badges need a GitHub token (`GITHUB_TOKEN` or a GitHub App) for reasonable API limits; the rank badge needs the daily gamification cron (`/api/cron/gamification`) to have written snapshots.
 
 ## Support
 
-For issues or feature requests related to badges:
-1. Check the DevTrack documentation
-2. Create an issue on GitHub
-3. Contact the DevTrack team
-
-## Examples
-
-### Single Badge
-```markdown
-![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)
-```
-
-### Multiple Badges
-```markdown
-[![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)](https://devtrack.app/u/octocat)
-[![DevTrack Commits](https://devtrack.app/api/badge/commits?user=octocat)](https://devtrack.app/u/octocat)
-```
-
-### With Profile Link
-```markdown
-[
-  ![DevTrack Streak](https://devtrack.app/api/badge/streak?user=octocat)
-](https://devtrack.app/u/octocat)
-```
-
-
-### GSSoC Badge API Rate Limiting
-- Badge requests are restricted to 100 per minute per IP.
+- Bugs: [open an issue](https://github.com/Priyanshu-byte-coder/devtrack/issues/new/choose)
+- Questions: [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)

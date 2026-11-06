@@ -1,4 +1,5 @@
-import { getServerSession } from "next-auth";
+import { extractValidRepoFromGoal } from "@/lib/goals-sync-utils";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
@@ -21,6 +22,7 @@ interface Goal {
   created_at: string;
   goal_reset_version: number;
   is_public: boolean;
+  category: GoalCategory | null;
 }
 
 interface GoalHistory {
@@ -33,8 +35,10 @@ interface GoalHistory {
 }
 
 type Recurrence = "none" | "weekly" | "monthly";
+type GoalCategory = "side-project" | "work" | "dsa" | "open-source";
 
 const VALID_RECURRENCES = ["none", "weekly", "monthly"] as const;
+const VALID_CATEGORIES = ["side-project", "work", "dsa", "open-source"] as const;
 const MAX_TITLE_LEN = 100;
 const MAX_UNIT_LEN = 30;
 const MIN_TARGET = 1;
@@ -56,7 +60,7 @@ function getPeriodStart(recurrence: Recurrence): string {
   if (recurrence === "monthly") {
     return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
   }
-  return new Date(0).toISOString(); // 'none' never resets
+  return now.toISOString(); // Non-recurring goals start at creation and never reset.
 }
 
 function getPreviousPeriodEnd(periodStart: Date): string {
@@ -87,7 +91,7 @@ export async function GET() {
 
   // Reset progress if we're in a new period
   const processedGoals = await Promise.all(
-    (goals ?? []).map(async (goal: Goal) => {
+    (goals ?? []).map(async (goal) => {
       if (goal.recurrence === "none") return goal;
 
       const periodStart = new Date(getPeriodStart(goal.recurrence as Recurrence));
@@ -272,9 +276,11 @@ try {
       title: sanitizedTitle,
       target,
       unit: safeUnit,
+      repo: safeRepo,
       recurrence: safeRecurrence,
       period_start: getPeriodStart(safeRecurrence),
       deadline: safeDeadline,
+      category: safeCategory,
       current: 0,
       goal_reset_version: 0,
     })
@@ -290,6 +296,7 @@ try {
     target: goal.target,
     unit: goal.unit,
     recurrence: goal.recurrence,
+    category: goal.category,
   }).catch(() => {});
 
   return Response.json({ goal }, { status: 201 });

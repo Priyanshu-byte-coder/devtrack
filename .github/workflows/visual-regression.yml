@@ -15,6 +15,14 @@ on:
       - "playwright.visual.config.mjs"
       - ".github/workflows/visual-regression.yml"
   workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: "Regenerate baselines and upload them as an artifact (for intentional UI changes)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
 
 concurrency:
   group: visual-regression-${{ github.ref }}
@@ -42,12 +50,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@11.13.1 --activate
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -62,7 +69,20 @@ jobs:
         run: pnpm run build
 
       - name: Run visual regression tests
+        if: ${{ !inputs.update_snapshots }}
         run: npx playwright test -c playwright.visual.config.mjs
+
+      - name: Regenerate baselines
+        if: ${{ inputs.update_snapshots }}
+        run: npx playwright test -c playwright.visual.config.mjs --update-snapshots=all
+
+      - name: Upload regenerated baselines
+        if: ${{ inputs.update_snapshots }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-baselines
+          path: tests/snapshots/
+          retention-days: 7
 
       - name: Upload visual regression artifacts
         uses: actions/upload-artifact@v7

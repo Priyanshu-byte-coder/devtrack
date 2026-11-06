@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: '0 3 * * 1'
 
+# Default to read-only; the analyze job raises what it needs.
+permissions:
+  contents: read
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})

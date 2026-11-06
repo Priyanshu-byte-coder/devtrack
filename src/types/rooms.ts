@@ -16,6 +16,7 @@ export interface RoomMember {
   id: string;
   room_id: string;
   github_username: string;
+  github_id: string | null;
   role: 'owner' | 'member';
   joined_at: string;
   // From GitHub API
@@ -41,6 +42,18 @@ export interface CreateRoomPayload {
 export interface InvitePayload {
   room_id: string;
   github_username: string;
+}
+export interface RoomInvitation {
+  id: string;
+  room_id: string;
+  invited_by: string;
+  created_at: string;
+  collaboration_rooms: {
+    id: string;
+    name: string;
+    repo_owner: string;
+    repo_name: string;
+  };
 }
 
 export interface SendMessagePayload {

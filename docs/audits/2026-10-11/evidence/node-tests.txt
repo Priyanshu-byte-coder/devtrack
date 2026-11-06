@@ -1,0 +1,245 @@
+TAP version 13
+# Subtest: extractPackageName keeps scoped package names intact
+ok 1 - extractPackageName keeps scoped package names intact
+  ---
+  duration_ms: 1.693
+  ...
+# Subtest: extractImports includes side-effect imports
+ok 2 - extractImports includes side-effect imports
+  ---
+  duration_ms: 1.8986
+  ...
+# Subtest: extractImports handles comments with quotes inside multiline imports
+ok 3 - extractImports handles comments with quotes inside multiline imports
+  ---
+  duration_ms: 0.3575
+  ...
+# Subtest: collectMissingDeps reports undeclared side-effect imports
+ok 4 - collectMissingDeps reports undeclared side-effect imports
+  ---
+  duration_ms: 15.5538
+  ...
+# Subtest: extractPackageName handles @scope packages correctly
+ok 5 - extractPackageName handles @scope packages correctly
+  ---
+  duration_ms: 1.2171
+  ...
+# Subtest: extractPackageName handles unscoped packages correctly
+ok 6 - extractPackageName handles unscoped packages correctly
+  ---
+  duration_ms: 0.2331
+  ...
+# Subtest: extractImports handles various import syntax
+ok 7 - extractImports handles various import syntax
+  ---
+  duration_ms: 0.4168
+  ...
+# Subtest: collectMissingDeps skips relative imports
+ok 8 - collectMissingDeps skips relative imports
+  ---
+  duration_ms: 4.3386
+  ...
+# Subtest: collectMissingDeps skips framework aliases
+ok 9 - collectMissingDeps skips framework aliases
+  ---
+  duration_ms: 7.3939
+  ...
+# Subtest: decryptToken rejects malformed IV before decipher creation
+ok 10 - decryptToken rejects malformed IV before decipher creation
+  ---
+  duration_ms: 133.4231
+  ...
+# Subtest: decryptToken rejects payloads shorter than the auth tag
+ok 11 - decryptToken rejects payloads shorter than the auth tag
+  ---
+  duration_ms: 17.3585
+  ...
+# Subtest: decryptToken still decrypts valid encrypted tokens
+ok 12 - decryptToken still decrypts valid encrypted tokens
+  ---
+  duration_ms: 17.981
+  ...
+# Subtest: safeCompare returns true for identical strings
+ok 13 - safeCompare returns true for identical strings
+  ---
+  duration_ms: 17.3995
+  ...
+# Subtest: safeCompare returns false for different length strings
+ok 14 - safeCompare returns false for different length strings
+  ---
+  duration_ms: 13.1648
+  ...
+# Subtest: safeCompare returns false for non-identical strings of same length
+ok 15 - safeCompare returns false for non-identical strings of same length
+  ---
+  duration_ms: 12.9688
+  ...
+# Subtest: safeCompare returns true for empty strings
+ok 16 - safeCompare returns true for empty strings
+  ---
+  duration_ms: 14.1147
+  ...
+# Subtest: safeCompare returns false for empty vs non-empty
+ok 17 - safeCompare returns false for empty vs non-empty
+  ---
+  duration_ms: 12.3281
+  ...
+# Subtest: verifyGitHubSignature returns true for valid signature
+ok 18 - verifyGitHubSignature returns true for valid signature
+  ---
+  duration_ms: 15.8701
+  ...
+# Subtest: verifyGitHubSignature returns false for invalid signature
+ok 19 - verifyGitHubSignature returns false for invalid signature
+  ---
+  duration_ms: 14.8191
+  ...
+# Subtest: verifyGitHubSignature returns false for null signature
+ok 20 - verifyGitHubSignature returns false for null signature
+  ---
+  duration_ms: 10.817
+  ...
+# Subtest: verifyGitHubSignature returns false for signature without sha256 prefix
+ok 21 - verifyGitHubSignature returns false for signature without sha256 prefix
+  ---
+  duration_ms: 11.6257
+  ...
+# (node:9228) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:9228) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/src/lib/leaderboard-cache.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\package.json.
+# Subtest: pruneExpiredRateLimits removes only expired IP buckets
+ok 22 - pruneExpiredRateLimits removes only expired IP buckets
+  ---
+  duration_ms: 1.847
+  ...
+# Subtest: pruneExpiredLeaderboardCache clears stale leaderboard payloads
+ok 23 - pruneExpiredLeaderboardCache clears stale leaderboard payloads
+  ---
+  duration_ms: 0.2002
+  ...
+# Subtest: pruneExpiredLeaderboardCache clears entries that expire exactly at now
+ok 24 - pruneExpiredLeaderboardCache clears entries that expire exactly at now
+  ---
+  duration_ms: 0.1207
+  ...
+# Subtest: pruneExpiredLeaderboardCache returns null for a missing cache entry
+ok 25 - pruneExpiredLeaderboardCache returns null for a missing cache entry
+  ---
+  duration_ms: 0.1189
+  ...
+# Subtest: pruneExpiredLeaderboardCache keeps fresh leaderboard payloads
+ok 26 - pruneExpiredLeaderboardCache keeps fresh leaderboard payloads
+  ---
+  duration_ms: 0.1486
+  ...
+# Subtest: pruneExpiredLeaderboardCache keeps far-future entries untouched
+ok 27 - pruneExpiredLeaderboardCache keeps far-future entries untouched
+  ---
+  duration_ms: 0.1245
+  ...
+# Subtest: pruneExpiredLeaderboardCache preserves payload shape for primitive values
+ok 28 - pruneExpiredLeaderboardCache preserves payload shape for primitive values
+  ---
+  duration_ms: 0.2094
+  ...
+# (node:21860) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:21860) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Priyanshu/OneDrive/Desktop/All_projects/devtrack/src/lib/upstash-rest.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Priyanshu\\OneDrive\\Desktop\\All_projects\\devtrack\\package.json.
+# Subtest: getUpstashConfig returns null when env is missing
+ok 29 - getUpstashConfig returns null when env is missing
+  ---
+  duration_ms: 1.3814
+  ...
+# Subtest: upstashRateLimitFixedWindow sets expiry for new buckets
+ok 30 - upstashRateLimitFixedWindow sets expiry for new buckets
+  ---
+  duration_ms: 2.2078
+  ...
+# Subtest: upstashRateLimitFixedWindow returns retryAfter from TTL
+ok 31 - upstashRateLimitFixedWindow returns retryAfter from TTL
+  ---
+  duration_ms: 0.7544
+  ...
+# Subtest: upstashTryAcquireLock returns true only when SET succeeds
+ok 32 - upstashTryAcquireLock returns true only when SET succeeds
+  ---
+  duration_ms: 2.377
+  ...
+# Subtest: isValidGitHubUsername accepts valid GitHub usernames
+ok 33 - isValidGitHubUsername accepts valid GitHub usernames
+  ---
+  duration_ms: 97.4839
+  ...
+# Subtest: isValidGitHubUsername rejects path and query injection attempts
+ok 34 - isValidGitHubUsername rejects path and query injection attempts
+  ---
+  duration_ms: 12.1989
+  ...
+# Subtest: normalizeGitHubUsername trims and validates input
+ok 35 - normalizeGitHubUsername trims and validates input
+  ---
+  duration_ms: 10.296
+  ...
+# Subtest: normalizeGitHubUsername rejects unicode characters
+ok 36 - normalizeGitHubUsername rejects unicode characters
+  ---
+  duration_ms: 7.5824
+  ...
+# Subtest: normalizeGitHubUsername rejects very long strings
+ok 37 - normalizeGitHubUsername rejects very long strings
+  ---
+  duration_ms: 9.7392
+  ...
+# Subtest: normalizeGitHubUsername handles single character
+ok 38 - normalizeGitHubUsername handles single character
+  ---
+  duration_ms: 6.4146
+  ...
+# Subtest: normalizeGitHubUsername rejects names with spaces
+ok 39 - normalizeGitHubUsername rejects names with spaces
+  ---
+  duration_ms: 6.7535
+  ...
+# Subtest: normalizeGitHubUsername rejects special characters
+ok 40 - normalizeGitHubUsername rejects special characters
+  ---
+  duration_ms: 6.5496
+  ...
+# Subtest: isValidGitHubUsername rejects underscores and special chars
+ok 41 - isValidGitHubUsername rejects underscores and special chars
+  ---
+  duration_ms: 11.2939
+  ...
+# Subtest: isValidGitHubUsername accepts hyphens in middle
+ok 42 - isValidGitHubUsername accepts hyphens in middle
+  ---
+  duration_ms: 7.3064
+  ...
+# Subtest: isValidGitHubUsername rejects underscores and special chars
+ok 43 - isValidGitHubUsername rejects underscores and special chars
+  ---
+  duration_ms: 5.3392
+  ...
+# Subtest: normalizeGitHubUsername handles undefined input
+ok 44 - normalizeGitHubUsername handles undefined input
+  ---
+  duration_ms: 5.8046
+  ...
+# Subtest: normalizeGitHubUsername trims leading and trailing whitespace
+ok 45 - normalizeGitHubUsername trims leading and trailing whitespace
+  ---
+  duration_ms: 6.075
+  ...
+1..45
+# tests 45
+# suites 0
+# pass 45
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 665.7495

@@ -1,9 +1,20 @@
+import { collectGitHubSearch } from "@/lib/github-search";
+import { fetchCommitStreakDates } from "@/lib/streak-data";
+import { githubRequest } from "@/lib/github-request";
 import { calculateStreakFromDates } from "@/lib/streak";
 import type { GitHubAchievement } from "@/lib/github-achievements";
 import { syncGitHubAchievementsForUser } from "@/lib/github-achievements";
-import { fetchPinnedRepoDetails, type PinnedRepoDetails } from "@/lib/pinned-repos";
+import {
+  fetchPinnedRepoDetails,
+  type PinnedRepoDetails,
+} from "@/lib/pinned-repos";
 import { getUserByUsername, supabaseAdmin } from "@/lib/supabase";
 import { resolveServerGitHubToken } from "@/lib/github-app";
+import {
+  PROFILE_STATS_QUERY,
+  buildProfileStats,
+  type ProfileStatsNode,
+} from "@/lib/profile-stats";
 
 const GITHUB_API = "https://api.github.com";
 
@@ -23,6 +34,8 @@ export interface ContributionData {
   days: number;
   total: number;
   data: Record<string, number>;
+  complete?: boolean;
+  partialReason?: string;
 }
 
 export interface StreakData {
@@ -30,6 +43,8 @@ export interface StreakData {
   longest: number;
   lastCommitDate: string | null;
   totalActiveDays: number;
+  complete?: boolean;
+  partialReason?: string;
 }
 
 export interface WeeklyGoalProgress {
@@ -59,12 +74,28 @@ export interface PublicProfileData {
   publicWidgets: PublicWidgetKey[];
 }
 
+/** Remove disabled widget data before a public profile leaves the server. */
+export function filterPublicProfileData(
+  profile: PublicProfileData
+): Partial<PublicProfileData> {
+  const visibleProfile: Partial<PublicProfileData> = { ...profile };
+  const publicWidgets = profile.publicWidgets ?? ["streak", "contributions"];
+
+  if (!publicWidgets.includes("streak")) delete visibleProfile.streak;
+  if (!publicWidgets.includes("contributions"))
+    delete visibleProfile.contributions;
+  if (!publicWidgets.includes("languages")) delete visibleProfile.topLanguages;
+  if (!publicWidgets.includes("prs")) delete visibleProfile.pullRequests;
+
+  return visibleProfile;
+}
+
 async function ghFetch(url: string, token?: string): Promise<Response> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  return fetch(url, { headers, cache: "no-store" });
+  return githubRequest(url, { headers, cache: "no-store" });
 }
 
 /**
@@ -79,7 +110,7 @@ export async function fetchPublicGists(
 ): Promise<number> {
   const res = await ghFetch(`${GITHUB_API}/users/${username}`, token);
 
-  if (!res.ok) return 0;
+  if (!res.ok) throw new Error("Public GitHub metric unavailable");
 
   const data = (await res.json()) as { public_gists?: number };
   return data.public_gists ?? 0;
@@ -101,21 +132,21 @@ export async function fetchPublicTopRepos(
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString().slice(0, 10);
 
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
+  const data = await collectGitHubSearch<{
+    repository: { full_name: string; html_url: string };
+  }>(
+    "commits",
+    `author:${username} author-date:>=${sinceStr} is:public`,
     token
   );
-
-  if (!res.ok) return [];
-
-  const data = (await res.json()) as {
-    items: Array<{ repository: { full_name: string; html_url: string } }>;
-  };
+  if (!data.complete)
+    throw new Error("Public repository activity is incomplete");
 
   const repoMap: Record<string, { commits: number; url: string }> = {};
   for (const item of data.items) {
     const name = item.repository.full_name;
-    if (!repoMap[name]) repoMap[name] = { commits: 0, url: item.repository.html_url };
+    if (!repoMap[name])
+      repoMap[name] = { commits: 0, url: item.repository.html_url };
     repoMap[name].commits++;
   }
 
@@ -141,17 +172,13 @@ export async function fetchPublicContributions(
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString().slice(0, 10);
 
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
+  const data = await collectGitHubSearch<{
+    commit: { author: { date: string } };
+  }>(
+    "commits",
+    `author:${username} author-date:>=${sinceStr} is:public`,
     token
   );
-
-  if (!res.ok) return { days, total: 0, data: {} };
-
-  const data = (await res.json()) as {
-    total_count: number;
-    items: Array<{ commit: { author: { date: string } } }>;
-  };
 
   const commitsByDay: Record<string, number> = {};
   for (const item of data.items) {
@@ -159,7 +186,13 @@ export async function fetchPublicContributions(
     commitsByDay[date] = (commitsByDay[date] ?? 0) + 1;
   }
 
-  return { days, total: data.total_count, data: commitsByDay };
+  return {
+    days,
+    total: data.total,
+    data: commitsByDay,
+    complete: data.complete,
+    partialReason: data.partialReason,
+  };
 }
 
 /**
@@ -173,44 +206,28 @@ export async function fetchPublicStreak(
   token?: string,
   timezone?: string
 ): Promise<StreakData> {
-  const since = new Date();
-  since.setDate(since.getDate() - 365);
-  const sinceStr = since.toISOString().slice(0, 10);
-
-  const res = await ghFetch(
-    `${GITHUB_API}/search/commits?q=author:${username}+author-date:>=${sinceStr}&per_page=100&sort=author-date&order=desc`,
-    token
-  );
-
-  if (!res.ok) return { current: 0, longest: 0, lastCommitDate: null, totalActiveDays: 0 };
-
-  const data = (await res.json()) as {
-    items: Array<{ commit: { author: { date: string } } }>;
-  };
-
   const tz = timezone || "UTC";
-  const activeDates = new Set<string>();
-  for (const item of data.items) {
-    try {
-      const d = new Date(item.commit.author.date);
-      const tzDate = new Intl.DateTimeFormat("en-CA", {
-        timeZone: tz,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(d);
-      activeDates.add(tzDate);
-    } catch (e) {
-      activeDates.add(item.commit.author.date.slice(0, 10));
-    }
+  const dates = await fetchCommitStreakDates(
+    username,
+    token,
+    { bypass: false, userId: `public-login:${username}` },
+    tz,
+    "public"
+  );
+  const user = await getUserByUsername(username);
+  let freezes = new Set<string>();
+  if (user) {
+    const { data, error } = await supabaseAdmin
+      .from("streak_freezes")
+      .select("freeze_date")
+      .eq("user_id", user.id);
+    if (error) throw new Error("Public streak freezes unavailable");
+    freezes = new Set((data ?? []).map((row) => row.freeze_date));
   }
-
-  const result = calculateStreakFromDates(activeDates, new Set(), tz);
   return {
-    current: result.current,
-    longest: result.longest,
-    lastCommitDate: result.lastCommitDate,
-    totalActiveDays: result.totalActiveDays,
+    ...calculateStreakFromDates(dates, freezes, tz),
+    complete: dates.complete,
+    partialReason: dates.partialReason,
   };
 }
 
@@ -226,18 +243,18 @@ export async function fetchTopLanguage(
     `${GITHUB_API}/users/${username}/repos?sort=updated&per_page=30`,
     token
   );
-  
+
   if (!res.ok) return null;
-  
+
   const repos = (await res.json()) as Array<{ language: string | null }>;
-  
+
   const counts: Record<string, number> = {};
   for (const r of repos) {
     if (r.language) {
       counts[r.language] = (counts[r.language] || 0) + 1;
     }
   }
-  
+
   let topLang: string | null = null;
   let maxCount = 0;
   for (const [lang, count] of Object.entries(counts)) {
@@ -246,7 +263,7 @@ export async function fetchTopLanguage(
       topLang = lang;
     }
   }
-  
+
   return topLang;
 }
 
@@ -265,7 +282,7 @@ export async function fetchPublicTopLanguages(
     token
   );
 
-  if (!res.ok) return [];
+  if (!res.ok) throw new Error("Public languages unavailable");
 
   const repos = (await res.json()) as Array<{ language: string | null }>;
   const counts: Record<string, number> = {};
@@ -300,14 +317,57 @@ export async function fetchPublicPullRequests(
   token?: string
 ): Promise<number> {
   const res = await ghFetch(
-    `${GITHUB_API}/search/issues?q=type:pr+author:${username}&per_page=1`,
+    `${GITHUB_API}/search/issues?q=type:pr+author:${username}+is:public&per_page=1`,
     token
   );
 
-  if (!res.ok) return 0;
+  if (!res.ok) throw new Error("Public GitHub metric unavailable");
 
   const data = (await res.json()) as { total_count?: number };
   return data.total_count ?? 0;
+}
+
+const PROFILE_WINDOW_DAYS = 30;
+
+/** Streak freeze days a member has used; they keep a streak alive. */
+async function fetchStreakFreezes(userId: string): Promise<Set<string>> {
+  const { data, error } = await supabaseAdmin
+    .from("streak_freezes")
+    .select("freeze_date")
+    .eq("user_id", userId);
+  if (error) throw new Error("Public streak freezes unavailable");
+  return new Set((data ?? []).map((row) => row.freeze_date));
+}
+
+/**
+ * Gists, PRs, 30-day commits by day and repository, languages and the
+ * year's active days, in one GraphQL request (see lib/profile-stats.ts).
+ */
+async function fetchProfileStatsGraphql(login: string, token: string) {
+  const since = new Date(Date.now() - PROFILE_WINDOW_DAYS * 86_400_000);
+  since.setUTCHours(0, 0, 0, 0);
+  const res = await githubRequest("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: PROFILE_STATS_QUERY,
+      variables: { login, since: since.toISOString() },
+    }),
+  });
+  if (!res.ok) throw new Error(`Public profile stats failed: ${res.status}`);
+  const json = (await res.json()) as {
+    data?: { user: ProfileStatsNode | null };
+    errors?: Array<{ message?: string }>;
+  };
+  if (!json.data?.user) {
+    throw new Error(
+      `Public profile stats unavailable: ${json.errors?.[0]?.message ?? "no user"}`
+    );
+  }
+  return buildProfileStats(json.data.user, PROFILE_WINDOW_DAYS);
 }
 
 async function fetchPublicWeeklyGoalProgress(
@@ -347,7 +407,10 @@ export async function fetchPublicProfile(
   username: string,
   options: { includeAchievements?: boolean } = {}
 ): Promise<PublicProfileData | null> {
-  if (process.env.PLAYWRIGHT_TEST === "true" && username === "playwright-user") {
+  if (
+    process.env.PLAYWRIGHT_TEST === "true" &&
+    username === "playwright-user"
+  ) {
     return {
       username: "playwright-user",
       bio: "Test user for visual regression",
@@ -356,7 +419,12 @@ export async function fetchPublicProfile(
       memberSince: "2026-06-01T00:00:00.000Z",
       repos: [],
       contributions: { days: 30, total: 10, data: {} },
-      streak: { current: 5, longest: 10, lastCommitDate: "2026-06-01", totalActiveDays: 50 },
+      streak: {
+        current: 5,
+        longest: 10,
+        lastCommitDate: "2026-06-01",
+        totalActiveDays: 50,
+      },
       topLanguages: [{ name: "TypeScript", count: 10, percentage: 100 }],
       pullRequests: 2,
       achievements: [],
@@ -374,23 +442,62 @@ export async function fetchPublicProfile(
   // Prefer a GitHub App installation token (5 000 req/hr per installation)
   // over a plain PAT, then fall back to unauthenticated (60 req/hr per IP).
   const githubToken = await resolveServerGitHubToken();
+  const timeZone = user.timezone || "UTC";
+
+  // With a token, one GraphQL request covers the stats. Without one (a
+  // self-hosted instance with no GitHub App or PAT) GraphQL is unavailable,
+  // so fall back to the REST and search requests.
+  const statsPromise = githubToken
+    ? Promise.all([
+        fetchProfileStatsGraphql(user.github_login, githubToken),
+        fetchStreakFreezes(user.id),
+      ]).then(([stats, freezes]) => ({
+        publicGists: stats.publicGists,
+        repos: stats.repos,
+        contributions: stats.contributions,
+        streak: {
+          ...calculateStreakFromDates(stats.activeDates, freezes, timeZone),
+          complete: true,
+        } as StreakData,
+        topLanguages: stats.topLanguages,
+        pullRequests: stats.pullRequests,
+      }))
+    : Promise.all([
+        fetchPublicGists(user.github_login),
+        fetchPublicTopRepos(user.github_login, undefined, PROFILE_WINDOW_DAYS),
+        fetchPublicContributions(
+          user.github_login,
+          undefined,
+          PROFILE_WINDOW_DAYS
+        ),
+        fetchPublicStreak(user.github_login, undefined, user.timezone),
+        fetchPublicTopLanguages(user.github_login),
+        fetchPublicPullRequests(user.github_login),
+      ]).then(
+        ([
+          publicGists,
+          repos,
+          contributions,
+          streak,
+          topLanguages,
+          pullRequests,
+        ]) => ({
+          publicGists,
+          repos,
+          contributions,
+          streak,
+          topLanguages,
+          pullRequests,
+        })
+      );
+
   const [
-    publicGists,
-    repos,
-    contributions,
-    streak,
-    topLanguages,
-    pullRequests,
+    { publicGists, repos, contributions, streak, topLanguages, pullRequests },
     achievementsCache,
     spotlight,
     weeklyGoalProgress,
   ] = await Promise.all([
-    fetchPublicGists(user.github_login, githubToken),
-    fetchPublicTopRepos(user.github_login, githubToken, 30),
-    fetchPublicContributions(user.github_login, githubToken, 30),
-    fetchPublicStreak(user.github_login, githubToken, user.timezone),
-    fetchPublicTopLanguages(user.github_login, githubToken),
-    fetchPublicPullRequests(user.github_login, githubToken),
+    statsPromise,
     options.includeAchievements
       ? syncGitHubAchievementsForUser({
           userId: user.id,
@@ -422,8 +529,16 @@ export async function fetchPublicProfile(
       .select("public_widgets")
       .eq("id", user.id)
       .single();
-    if (widgetsRow?.public_widgets && Array.isArray(widgetsRow.public_widgets)) {
-      const valid: PublicWidgetKey[] = ["streak", "contributions", "languages", "prs"];
+    if (
+      widgetsRow?.public_widgets &&
+      Array.isArray(widgetsRow.public_widgets)
+    ) {
+      const valid: PublicWidgetKey[] = [
+        "streak",
+        "contributions",
+        "languages",
+        "prs",
+      ];
       publicWidgets = (widgetsRow.public_widgets as string[]).filter(
         (w): w is PublicWidgetKey => valid.includes(w as PublicWidgetKey)
       );

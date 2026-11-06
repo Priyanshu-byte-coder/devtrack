@@ -75,7 +75,7 @@ export function validateCsrf(req: NextRequest): {
   }
 
   if (referer) {
-    const match = allowed.some((a) => referer.startsWith(a));
+    const match = allowed.some((a) => referer === a || referer.startsWith(a + "/"));
     if (!match) {
       return { valid: false, reason: "Forbidden" };
     }

@@ -1,15 +1,13 @@
 "use client";
 
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
-const ComparisonChart = dynamic(() => import("./ComparisonChart"), { ssr: false });
+const ComparisonChart = dynamic(() => import("./ComparisonChart"), {
+  ssr: false,
+});
 
 interface CompareData {
   username: string;
@@ -45,7 +43,8 @@ function FriendComparison() {
   const [suggestOpen, setSuggestOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [suggestLoading, setSuggestLoading] = useState(false);
-  const [suppressNextSuggestFetch, setSuppressNextSuggestFetch] = useState(false);
+  const [suppressNextSuggestFetch, setSuppressNextSuggestFetch] =
+    useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const trimmedFriendUsername = useMemo(
@@ -195,7 +194,9 @@ function FriendComparison() {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const handleCommitActivityClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleCommitActivityClick = (
+    e: React.MouseEvent<HTMLAnchorElement>
+  ) => {
     e.preventDefault();
   };
 
@@ -206,11 +207,10 @@ function FriendComparison() {
     friendData.prs === 0;
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-6 shadow-sm">
-
+    <div className="w-full overflow-hidden px-frame bg-[var(--card)] p-4 sm:p-6">
       {/* HEADER */}
       <div className="mb-6 space-y-4">
-        <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
+        <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
           Friend Comparison
         </h2>
 
@@ -256,9 +256,15 @@ function FriendComparison() {
 
       {/* LOADING */}
       {loading && (
-        <div className="space-y-2 animate-pulse">
-          <div className="h-20 bg-[var(--control)] rounded" />
-          <div className="h-20 bg-[var(--control)] rounded" />
+        <div
+          className="space-y-2 mt-2"
+          aria-busy="true"
+          aria-label="Loading comparison"
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <SkeletonBlock key={i} className="h-12 w-full rounded-lg" />
+          ))}
+          <SkeletonBlock className="h-48 rounded-xl mt-4" />
         </div>
       )}
 
@@ -284,9 +290,22 @@ function FriendComparison() {
       {/* SUCCESS */}
       {friendData && myData && !loading && !hasNoCompareData && (
         <div className="mt-4 space-y-3">
-          <ComparisonRow label="Streak" myValue={myData.streak} theirValue={friendData.streak} suffix="d" />
-          <ComparisonRow label="Commits" myValue={myData.commits30d} theirValue={friendData.commits30d} />
-          <ComparisonRow label="PRs" myValue={myData.prs} theirValue={friendData.prs} />
+          <ComparisonRow
+            label="Streak"
+            myValue={myData.streak}
+            theirValue={friendData.streak}
+            suffix="d"
+          />
+          <ComparisonRow
+            label="Commits"
+            myValue={myData.commits30d}
+            theirValue={friendData.commits30d}
+          />
+          <ComparisonRow
+            label="PRs"
+            myValue={myData.prs}
+            theirValue={friendData.prs}
+          />
         </div>
       )}
 
@@ -303,17 +322,18 @@ function FriendComparison() {
   );
 }
 
-function ComparisonRow({
-  label,
-  myValue,
-  theirValue,
-  suffix = "",
-}: any) {
+function ComparisonRow({ label, myValue, theirValue, suffix = "" }: any) {
   return (
     <div className="flex justify-between p-2 bg-[var(--control)] rounded">
-      <span>{myValue}{suffix}</span>
+      <span>
+        {myValue}
+        {suffix}
+      </span>
       <span className="text-xs text-[var(--muted-foreground)]">{label}</span>
-      <span>{theirValue}{suffix}</span>
+      <span>
+        {theirValue}
+        {suffix}
+      </span>
     </div>
   );
 }

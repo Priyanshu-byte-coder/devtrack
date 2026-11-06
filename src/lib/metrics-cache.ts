@@ -2,19 +2,23 @@ import { Redis } from "@upstash/redis";
 import type { NextRequest } from "next/server";
 
 export const METRICS_CACHE_TTL_SECONDS = {
+  // Today's numbers: a fresh commit should show up within minutes.
   contributions: 5 * 60,
-  "productive-hours": 5 * 60,
-  discussions: 10 * 60,
-  repos: 10 * 60,
-  "pinned-repos": 10 * 60,
-  "inactive-repos": 10 * 60,
-  prs: 10 * 60,
-  "pr-review-time": 10 * 60,
-  insights: 10 * 60,
   streak: 2 * 60,
   streak_freeze: 2 * 60,
-  activity: 5 * 60,
-  issues: 10 * 60,
+  activity: 10 * 60,
+  // Slow-moving metrics. Every dashboard visit fans out to all of these, so
+  // short TTLs spent each player's GitHub quota on numbers that hadn't
+  // changed. The dashboard's refresh button still bypasses the cache.
+  "productive-hours": 30 * 60,
+  discussions: 30 * 60,
+  repos: 30 * 60,
+  "pinned-repos": 60 * 60,
+  "inactive-repos": 60 * 60,
+  prs: 30 * 60,
+  "pr-review-time": 30 * 60,
+  insights: 30 * 60,
+  issues: 30 * 60,
   languages: 21600,
   "coding-activity-insights": 30 * 60,
   compare: 30 * 60,
@@ -22,6 +26,8 @@ export const METRICS_CACHE_TTL_SECONDS = {
   "commit-times": 30 * 60,
   // 2 hours TTL for historical achievements because they do not require real-time updates
   "achievement-progress": 2 * 60 * 60,
+  // Year in Code: the route picks a longer TTL for finished years.
+  wrapped: 6 * 60 * 60,
 } as const;
 
 type MetricsCacheEndpoint = keyof typeof METRICS_CACHE_TTL_SECONDS;
@@ -128,7 +134,12 @@ export function getRedisClient(): Redis | null {
     return redisClient;
   }
 
-  redisClient = new Redis({ url, token });
+  redisClient = new Redis({
+    url,
+    token,
+    retry: { retries: 0 },
+    signal: () => AbortSignal.timeout(2000),
+  });
   return redisClient;
 }
 
@@ -236,7 +247,7 @@ export async function cacheSet<T>(
  * @param loadFresh - A callback to load fresh data on a cache miss.
  * @returns A promise resolving to the data.
  */
-export async function withMetricsCache<T>(
+async function loadMetricsCache<T>(
   options: MetricsCacheOptions,
   loadFresh: () => Promise<T>
 ): Promise<T> {
@@ -282,6 +293,24 @@ export async function withMetricsCache<T>(
   }
 }
 
+// Coalesce both ordinary cache misses and explicit refreshes for one scope.
+const metricFlights = new Map<string, Promise<unknown>>();
+export async function withMetricsCache<T>(
+  options: MetricsCacheOptions,
+  loadFresh: () => Promise<T>
+): Promise<T> {
+  const existing = metricFlights.get(options.key);
+  if (existing) return existing as Promise<T>;
+  const work = loadMetricsCache(options, loadFresh);
+  metricFlights.set(options.key, work);
+  try {
+    return await work;
+  } finally {
+    if (metricFlights.get(options.key) === work)
+      metricFlights.delete(options.key);
+  }
+}
+
 /**
  * Removes a single cache key from both the in-process memory store and Redis.
  * Used to evict a specific entry (e.g. the shared leaderboard key) without
@@ -309,7 +338,9 @@ export async function cacheDelete(key: string): Promise<void> {
  * @param userId - The user's ID whose metrics should be invalidated.
  * @returns A promise that resolves when the invalidation is complete.
  */
-export async function invalidateUserMetricsCache(userId: string): Promise<void> {
+export async function invalidateUserMetricsCache(
+  userId: string
+): Promise<void> {
   const prefix = `metrics:${userId}:`;
 
   for (const key of memoryCache.keys()) {

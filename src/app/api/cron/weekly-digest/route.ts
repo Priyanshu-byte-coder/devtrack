@@ -86,8 +86,9 @@ function currentWeekLabel(): string {
 /**
  * Send one digest email via Resend.
  * Returns { ok: true } on success, { ok: false, error } on failure.
- * When RESEND_API_KEY is absent the call is skipped and treated as sent,
- * so self-hosted deployments using an external mailer are not penalised.
+ * When RESEND_API_KEY is absent the call is skipped rather than failed, so a
+ * self-hosted deployment using an external mailer is not reported as broken.
+ * Those users are counted under skippedUnconfigured in the response.
  */
 async function sendEmail(params: {
   to: string;
@@ -245,6 +246,7 @@ export async function GET(request: Request) {
     let emailsSent = 0;
     let emailsFailed = 0;
     let skippedCount = 0;
+    let skippedUnconfigured = 0;
     const errors: SendError[] = [];
 
     // 2. Page through opted-in users so no single query loads the full table.
@@ -304,6 +306,10 @@ export async function GET(request: Request) {
               });
             } else if (status === "skipped_cooldown") {
               skippedCount++;
+            } else if (status === "skipped_unconfigured") {
+              // No mailer configured. Not a success and not a failure, but it
+              // must be counted or the outcome vanishes from the response.
+              skippedUnconfigured++;
             }
           }
         }
@@ -319,7 +325,7 @@ export async function GET(request: Request) {
     }
 
     console.log(
-      `[weekly-digest] done — processed:${totalUsersProcessed} sent:${emailsSent} failed:${emailsFailed} skipped:${skippedCount}`
+      `[weekly-digest] done — processed:${totalUsersProcessed} sent:${emailsSent} failed:${emailsFailed} skipped:${skippedCount} unconfigured:${skippedUnconfigured}`
     );
 
     return NextResponse.json({
@@ -328,6 +334,7 @@ export async function GET(request: Request) {
       emailsSent,
       emailsFailed,
       skippedCount,
+      skippedUnconfigured,
       errors,
     });
   } catch (err) {

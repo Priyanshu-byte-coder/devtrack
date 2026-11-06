@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { Trophy, Zap, Flame, Calendar, Star } from "lucide-react";
+import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
 
 interface StreakData {
   current: number;
@@ -20,7 +21,10 @@ interface Repo {
   commits: number;
   url: string;
 }
-function getBestDay(data: Record<string, number>): { count: number; dateLabel: string | null } {
+function getBestDay(data: Record<string, number>): {
+  count: number;
+  dateLabel: string | null;
+} {
   let maxCount = 0;
   let bestDateStr: string | null = null;
   for (const [dateStr, count] of Object.entries(data)) {
@@ -46,7 +50,10 @@ function getBestDay(data: Record<string, number>): { count: number; dateLabel: s
   }
   return { count: maxCount, dateLabel };
 }
-function getBestWeek(data: Record<string, number>): { count: number; weekLabel: string | null } {
+function getBestWeek(data: Record<string, number>): {
+  count: number;
+  weekLabel: string | null;
+} {
   const weeks: Record<string, number> = {};
   for (const [dateStr, count] of Object.entries(data)) {
     const parts = dateStr.split("-").map(Number);
@@ -54,7 +61,9 @@ function getBestWeek(data: Record<string, number>): { count: number; weekLabel: 
       const d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
       const day = d.getUTCDay(); // 0 is Sunday, 1 is Monday
       const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1); // Monday week start
-      const weekStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), diff));
+      const weekStart = new Date(
+        Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), diff)
+      );
       const weekStr = weekStart.toISOString().slice(0, 10);
       weeks[weekStr] = (weeks[weekStr] ?? 0) + count;
     }
@@ -84,7 +93,10 @@ function getBestWeek(data: Record<string, number>): { count: number; weekLabel: 
   }
   return { count: maxCount, weekLabel };
 }
-function getBestMonth(data: Record<string, number>): { count: number; monthLabel: string | null } {
+function getBestMonth(data: Record<string, number>): {
+  count: number;
+  monthLabel: string | null;
+} {
   const months: Record<string, number> = {};
   for (const [dateStr, count] of Object.entries(data)) {
     const monthKey = dateStr.slice(0, 7); // YYYY-MM
@@ -114,7 +126,11 @@ function getBestMonth(data: Record<string, number>): { count: number; monthLabel
   }
   return { count: maxCount, monthLabel };
 }
-function getBusiestRepo(repos: Repo[]): { count: number; repoLabel: string | null; repoUrl: string | null } {
+function getBusiestRepo(repos: Repo[]): {
+  count: number;
+  repoLabel: string | null;
+  repoUrl: string | null;
+} {
   if (!repos || repos.length === 0) {
     return { count: 0, repoLabel: null, repoUrl: null };
   }
@@ -123,12 +139,18 @@ function getBusiestRepo(repos: Repo[]): { count: number; repoLabel: string | nul
     return { count: 0, repoLabel: null, repoUrl: null };
   }
   const shortName = best.name.split("/")[1] ?? best.name;
-  return { count: best.commits, repoLabel: shortName, repoUrl: best.url ?? null };
+  return {
+    count: best.commits,
+    repoLabel: shortName,
+    repoUrl: best.url ?? null,
+  };
 }
 export default function PersonalRecords() {
   const { selectedAccount } = useAccount();
   const [streak, setStreak] = useState<StreakData | null>(null);
-  const [contributions, setContributions] = useState<ContributionData | null>(null);
+  const [contributions, setContributions] = useState<ContributionData | null>(
+    null
+  );
   const [repos, setRepos] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,7 +181,9 @@ export default function PersonalRecords() {
       setContributions(contribData);
       setRepos(reposData.repos ?? []);
     } catch (e) {
-      setError("We couldn't load your personal records right now. Please try again in a moment.");
+      setError(
+        "We couldn't load your personal records right now. Please try again in a moment."
+      );
     } finally {
       setLoading(false);
     }
@@ -200,7 +224,9 @@ export default function PersonalRecords() {
     }
 
     if (triggerConfetti) {
-      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
       if (!prefersReducedMotion) {
         import("canvas-confetti").then((module) => {
           const confetti = module.default;
@@ -260,51 +286,53 @@ export default function PersonalRecords() {
       repoUrl: busiestRepo.repoUrl ?? null,
     },
   ];
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
-        Personal Records
-      </h2>
-      {loading ? (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-busy="true"
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch"
-        >
-          <span className="sr-only">Loading personal records</span>
-
+  if (loading) {
+    return (
+      <WidgetSkeleton
+        title="Personal Records"
+        className="transition-all duration-300"
+      >
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 items-stretch">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              aria-hidden="true"
-              className="h-32 rounded-lg skeleton-shimmer p-4"
-            />
+            <SkeletonBlock key={i} className="h-32 p-4" />
           ))}
         </div>
-      ) : error ? (
-        <div className="rounded-lg border border-[var(--destructive)]/20 bg-[var(--destructive)]/10 p-4 text-sm text-[var(--destructive)]">
+      </WidgetSkeleton>
+    );
+  }
+
+  return (
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+        Personal Records
+      </h2>
+      {error ? (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
             type="button"
             onClick={fetchRecords}
-            className="mt-3 rounded-md border border-[var(--destructive)]/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
+            className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
             Try again
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-stretch stagger-children">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 items-stretch stagger-children">
           {records.map((rec) => (
             <div
               key={rec.label}
-              className="h-full rounded-lg bg-[var(--control)] p-4 text-center flex flex-col justify-between border border-transparent stat-cell animate-fade-in-up hover:border-[var(--accent)]/30"
+              className="stat-cell flex h-full flex-col justify-between p-4 text-center animate-fade-in-up"
             >
               <div>
                 <div className="text-xl mb-2 flex justify-center">
-                  <rec.icon size={28} className="text-[var(--accent)]" aria-hidden="true" />
+                  <rec.icon
+                    size={28}
+                    className="text-[var(--accent)]"
+                    aria-hidden="true"
+                  />
                 </div>
-                <div className="text-3xl font-extrabold text-[var(--accent)] tracking-tight mb-1">
+                <div className="stat-value mb-1 text-2xl">
                   {rec.value}
                   <span className="ml-1 text-xs font-normal text-[var(--muted-foreground)] tracking-normal">
                     {rec.unit}
@@ -315,10 +343,11 @@ export default function PersonalRecords() {
                 </div>
               </div>
               <div
-                className={`mt-3 pt-2.5 border-t border-[var(--border)] text-xs truncate w-full block ${rec.isRepo
+                className={`mt-3 pt-2.5 border-t border-[var(--border)] text-xs truncate w-full block ${
+                  rec.isRepo
                     ? "font-medium text-[var(--card-foreground)]"
                     : "text-[var(--muted-foreground)]"
-                  }`}
+                }`}
                 title={rec.subtext}
               >
                 {rec.isRepo && rec.repoUrl ? (

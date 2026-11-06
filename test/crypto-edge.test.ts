@@ -127,4 +127,66 @@ describe("decryptTokenEdge", () => {
     const result = await decryptTokenEdge(longCipher.encrypted, longCipher.iv);
     expect(result).toBe(longPlaintext);
   });
+
+  it("returns null when crypto.subtle.decrypt throws", async () => {
+    const importKeySpy = vi.fn().mockResolvedValue("mock-crypto-key");
+    const decryptSpy = vi.fn().mockRejectedValue(new Error("decrypt failed"));
+
+    vi.stubGlobal("crypto", {
+      ...globalThis.crypto,
+      subtle: {
+        ...globalThis.crypto.subtle,
+        importKey: importKeySpy,
+        decrypt: decryptSpy,
+      },
+    });
+
+    const result = await decryptTokenEdge(validCipher.encrypted, validCipher.iv);
+
+    expect(result).toBeNull();
+    expect(decryptSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls crypto.subtle.importKey and crypto.subtle.decrypt with the correct parameters", async () => {
+    const importKeySpy = vi.fn().mockResolvedValue("mock-crypto-key");
+    const decryptSpy = vi.fn().mockResolvedValue(new TextEncoder().encode("decrypted-value").buffer);
+
+    vi.stubGlobal("crypto", {
+      ...globalThis.crypto,
+      subtle: {
+        ...globalThis.crypto.subtle,
+        importKey: importKeySpy,
+        decrypt: decryptSpy,
+      },
+    });
+
+    const result = await decryptTokenEdge(validCipher.encrypted, validCipher.iv);
+
+    expect(result).toBe("decrypted-value");
+
+    expect(importKeySpy).toHaveBeenCalledTimes(1);
+    expect(importKeySpy).toHaveBeenCalledWith(
+      "raw",
+      expect.any(Uint8Array),
+      { name: "AES-GCM" },
+      false,
+      ["decrypt"]
+    );
+    const [, importedKeyBytes] = importKeySpy.mock.calls[0];
+    expect(importedKeyBytes).toHaveLength(32);
+
+    expect(decryptSpy).toHaveBeenCalledTimes(1);
+    expect(decryptSpy).toHaveBeenCalledWith(
+      {
+        name: "AES-GCM",
+        iv: expect.any(Uint8Array),
+        tagLength: 128,
+      },
+      "mock-crypto-key",
+      expect.any(Uint8Array)
+    );
+    const [decryptOptions, , decryptedEncryptedBytes] = decryptSpy.mock.calls[0];
+    expect(decryptOptions.iv).toHaveLength(12);
+    expect(decryptedEncryptedBytes).toHaveLength(validCipher.encrypted.length / 2);
+  });
 });

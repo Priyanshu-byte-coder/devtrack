@@ -23,9 +23,9 @@ jobs:
             const MS_LIMIT = DAYS_LIMIT * 24 * 60 * 60 * 1000;
             const now = Date.now();
 
-            // All open issues with gssoc:assigned label
+            // All open issues with status:assigned label
             const issues = await github.paginate(github.rest.issues.listForRepo, {
-              owner, repo, state: 'open', labels: 'gssoc:assigned', per_page: 100,
+              owner, repo, state: 'open', labels: 'status:assigned', per_page: 100,
             });
 
             for (const issue of issues) {
@@ -33,7 +33,7 @@ jobs:
               if (!issue.assignees || issue.assignees.length === 0) {
                 try {
                   await github.rest.issues.removeLabel({
-                    owner, repo, issue_number: issue.number, name: 'gssoc:assigned',
+                    owner, repo, issue_number: issue.number, name: 'status:assigned',
                   });
                 } catch {
                   // Label already removed — ignore
@@ -84,10 +84,10 @@ jobs:
                 owner, repo, issue_number: issue.number, assignees,
               });
 
-              // Remove gssoc:assigned label
+              // Remove status:assigned label
               try {
                 await github.rest.issues.removeLabel({
-                  owner, repo, issue_number: issue.number, name: 'gssoc:assigned',
+                  owner, repo, issue_number: issue.number, name: 'status:assigned',
                 });
               } catch {
                 // Label already removed — ignore

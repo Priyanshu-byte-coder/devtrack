@@ -1,0 +1,11 @@
+{
+  "check": "browser",
+  "checkedAt": "2026-10-11T15:33:47.295Z",
+  "command": [
+    "node",
+    "docs/audits/2026-10-11/evidence/run-isolated-e2e.cjs"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 123.219
+}

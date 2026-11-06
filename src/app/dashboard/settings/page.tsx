@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import ThemePresetPicker from "@/components/ThemePresetPicker";
@@ -13,15 +12,21 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import WebhookManager from "@/components/webhook/WebhookManager";
+import PageHeader from "@/components/shell/PageHeader";
+import SettingsNav, {
+  type SettingsNavItem,
+} from "@/components/settings/SettingsNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useLocale, useTranslations } from "next-intl";
 import { localeMetadata, locales, type AppLocale } from "@/i18n/config";
+import Image from "next/image";
 
 // ── Max length for the profile bio ──────────────────────────────────────────
 const BIO_MAX = 160;
 
 interface UserSettings {
+  webhook_url?: string | null;
   id: string;
   github_login: string;
   bio: string;
@@ -31,7 +36,6 @@ interface UserSettings {
   public_widgets?: string[];
   leaderboard_opt_in: boolean;
   weekly_digest_opt_in: boolean;
-  has_wakatime_key?: boolean;
   discord_webhook_url?: string;
   timezone?: string;
   pinned_repos?: string[];
@@ -104,7 +108,8 @@ function getStatusMessage(
   if (error === "rate_limited") {
     return {
       kind: "error",
-      message: "GitHub API rate limit reached. Please try again in a few minutes.",
+      message:
+        "GitHub API rate limit reached. Please try again in a few minutes.",
     };
   }
 
@@ -142,11 +147,26 @@ function getStatusMessage(
   };
 }
 
+const SETTINGS_SECTIONS: SettingsNavItem[] = [
+  { id: "settings-profile", label: "Profile" },
+  { id: "settings-appearance", label: "Appearance" },
+  { id: "settings-language", label: "Language" },
+  { id: "settings-leaderboard", label: "Leaderboard" },
+  { id: "settings-spotlight", label: "Spotlight" },
+  { id: "settings-digest", label: "Email digest" },
+  { id: "settings-notifications", label: "Notifications" },
+  { id: "settings-accounts", label: "Accounts" },
+  { id: "settings-organizations", label: "Organizations" },
+  { id: "settings-discord", label: "Discord" },
+  { id: "settings-privacy", label: "Privacy & data" },
+  { id: "settings-webhooks", label: "Webhooks" },
+];
+
 function SettingsPageFallback() {
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
       <div className="max-w-2xl mx-auto">
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+        <div className="px-frame bg-[var(--card)] p-6">
           <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)]">
             Settings
           </h1>
@@ -184,18 +204,19 @@ function SettingsPageContent() {
   const [removingAccountId, setRemovingAccountId] = useState<string | null>(
     null
   );
-  const [wakatimeKey, setWakatimeKey] = useState("");
   const [bioDraft, setBioDraft] = useState("");
   const [showBioPreview, setShowBioPreview] = useState(false);
   const [savingBio, setSavingBio] = useState(false);
-  const [savingWakatime, setSavingWakatime] = useState(false);
   const [discordWebhook, setDiscordWebhook] = useState("");
   const [timezone, setTimezone] = useState("");
   const [savingDiscord, setSavingDiscord] = useState(false);
-  const [preferredLocale, setPreferredLocale] = useState<AppLocale>(activeLocale);
+  const [preferredLocale, setPreferredLocale] =
+    useState<AppLocale>(activeLocale);
   const [savingLanguage, setSavingLanguage] = useState(false);
   const [testingDiscord, setTestingDiscord] = useState(false);
-  const [discordMutedUntil, setDiscordMutedUntil] = useState<string | null>(null);
+  const [discordMutedUntil, setDiscordMutedUntil] = useState<string | null>(
+    null
+  );
   const [muteDuration, setMuteDuration] = useState<number>(1);
   const copyResetTimerRef = useRef<number | null>(null);
 
@@ -204,11 +225,13 @@ function SettingsPageContent() {
   const [orgsConfig, setOrgsConfig] = useState<Record<string, boolean>>({});
   const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [isDirty, setIsDirty] = useState(false);
-  const [publicWidgets, setPublicWidgets] = useState<string[]>(["streak", "contributions"]);
+  const [publicWidgets, setPublicWidgets] = useState<string[]>([
+    "streak",
+    "contributions",
+  ]);
   const [savingWidgets, setSavingWidgets] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
-
 
   // Spotlight Repos States
   const [userRepos, setUserRepos] = useState<string[]>([]);
@@ -221,13 +244,16 @@ function SettingsPageContent() {
     [searchParams]
   );
 
-  const publicProfileUsername = session?.githubLogin ?? settings?.github_login ?? "";
+  const publicProfileUsername =
+    session?.githubLogin ?? settings?.github_login ?? "";
+  const [origin, setOrigin] = useState("https://devtrack.live");
+  useEffect(() => setOrigin(window.location.origin), []);
   const profileUrl = useMemo(
     () =>
       publicProfileUsername
-        ? `https://devtrack-silk-kappa.vercel.app/u/${publicProfileUsername}`
+        ? `${origin}/u/${encodeURIComponent(publicProfileUsername)}`
         : "",
-    [publicProfileUsername]
+    [origin, publicProfileUsername]
   );
 
   const { theme, setTheme } = useHeatmapTheme();
@@ -254,7 +280,12 @@ function SettingsPageContent() {
       if (anchor && isDirty) {
         const href = anchor.getAttribute("href");
         // Only intercept internal links
-        if (href && !href.startsWith("#") && !anchor.hasAttribute("download") && !href.startsWith("http")) {
+        if (
+          href &&
+          !href.startsWith("#") &&
+          !anchor.hasAttribute("download") &&
+          !href.startsWith("http")
+        ) {
           e.preventDefault();
           e.stopPropagation();
           setPendingPath(href);
@@ -395,7 +426,9 @@ function SettingsPageContent() {
         body: JSON.stringify({ config: newConfig }),
       });
       if (res.ok) {
-        toast.success(`Organization ${orgLogin} sync ${enabled ? "enabled" : "disabled"}.`);
+        toast.success(
+          `Organization ${orgLogin} sync ${enabled ? "enabled" : "disabled"}.`
+        );
       } else {
         toast.error("Failed to update organization sync settings.");
       }
@@ -487,12 +520,16 @@ function SettingsPageContent() {
       try {
         const res = await fetch("/api/user/github-accounts");
         if (res.status === 403) {
-          setAccountsError("GitHub API rate limit reached. Please try again in a few minutes.");
+          setAccountsError(
+            "GitHub API rate limit reached. Please try again in a few minutes."
+          );
           setLinkedAccounts([]);
           return;
         }
         if (!res.ok) {
-          setAccountsError("Failed to load linked accounts. Please refresh the page.");
+          setAccountsError(
+            "Failed to load linked accounts. Please refresh the page."
+          );
           setLinkedAccounts([]);
           return;
         }
@@ -501,7 +538,9 @@ function SettingsPageContent() {
         setLinkedAccounts(data.accounts ?? []);
       } catch (error) {
         console.error("Failed to load linked accounts:", error);
-        setAccountsError("Failed to load linked accounts. Please refresh the page.");
+        setAccountsError(
+          "Failed to load linked accounts. Please refresh the page."
+        );
         setLinkedAccounts([]);
       } finally {
         setAccountsLoading(false);
@@ -587,9 +626,21 @@ function SettingsPageContent() {
   };
 
   const WIDGET_OPTIONS = [
-    { key: "streak", label: "Streak stats", description: "Current streak, longest streak, active days" },
-    { key: "contributions", label: "Contribution graph", description: "30-day commit activity heatmap" },
-    { key: "languages", label: "Top languages", description: "Language breakdown from recent repos" },
+    {
+      key: "streak",
+      label: "Streak stats",
+      description: "Current streak, longest streak, active days",
+    },
+    {
+      key: "contributions",
+      label: "Contribution graph",
+      description: "30-day commit activity heatmap",
+    },
+    {
+      key: "languages",
+      label: "Top languages",
+      description: "Language breakdown from recent repos",
+    },
     { key: "prs", label: "Pull requests", description: "Total PRs authored" },
   ] as const;
 
@@ -622,33 +673,6 @@ function SettingsPageContent() {
       toast.error("Failed to save widget settings.");
     } finally {
       setSavingWidgets(false);
-    }
-  };
-
-  const handleSaveWakatime = async () => {
-    if (!settings) return;
-    setSavingWakatime(true);
-    try {
-      const res = await fetch("/api/user/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wakatime_api_key: wakatimeKey }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setSettings(updated);
-        setWakatimeKey("");
-        setIsDirty(false);
-        toast.success(wakatimeKey === "" ? "Wakatime key removed" : "Wakatime key saved successfully!");
-      } else {
-        const errorData = await res.json();
-        toast.error(errorData.error || "Failed to update Wakatime key");
-      }
-    } catch (error) {
-      console.error("Error updating Wakatime key:", error);
-      toast.error("Failed to update Wakatime key");
-    } finally {
-      setSavingWakatime(false);
     }
   };
 
@@ -688,13 +712,21 @@ function SettingsPageContent() {
       const res = await fetch("/api/user/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ discord_webhook_url: discordWebhook, timezone, discord_muted_until: discordMutedUntil }),
+        body: JSON.stringify({
+          discord_webhook_url: discordWebhook,
+          timezone,
+          discord_muted_until: discordMutedUntil,
+        }),
       });
       if (res.ok) {
         const updated = await res.json();
         setSettings(updated);
         setIsDirty(false);
-        toast.success(discordWebhook === "" ? "Discord Webhook removed" : "Discord settings saved successfully!");
+        toast.success(
+          discordWebhook === ""
+            ? "Discord Webhook removed"
+            : "Discord settings saved successfully!"
+        );
       } else {
         const errorData = await res.json();
         toast.error(errorData.error || "Failed to update Discord settings");
@@ -750,7 +782,9 @@ function SettingsPageContent() {
         setSettings(updated);
         setDiscordMutedUntil(updated.discord_muted_until);
         setIsDirty(false);
-        toast.success("Discord notifications muted for " + muteDuration + " " + dayLabel);
+        toast.success(
+          "Discord notifications muted for " + muteDuration + " " + dayLabel
+        );
       } else {
         const err = await res.json();
         toast.error(err.error || "Failed to mute notifications");
@@ -802,17 +836,20 @@ function SettingsPageContent() {
       return;
     }
 
-    navigator.clipboard.writeText(profileUrl).then(() => {
-      setCopied(true);
-      toast.success("Link copied successfully!");
-      copyResetTimerRef.current = window.setTimeout(() => {
-        setCopied(false);
-        copyResetTimerRef.current = null;
-      }, 2000);
-    }).catch((err) => {
-      console.error("Clipboard copy failed:", err);
-      toast.error("Failed to copy profile URL");
-    });
+    navigator.clipboard
+      .writeText(profileUrl)
+      .then(() => {
+        setCopied(true);
+        toast.success("Link copied successfully!");
+        copyResetTimerRef.current = window.setTimeout(() => {
+          setCopied(false);
+          copyResetTimerRef.current = null;
+        }, 2000);
+      })
+      .catch((err) => {
+        console.error("Clipboard copy failed:", err);
+        toast.error("Failed to copy profile URL");
+      });
   };
 
   const handleRemoveAccount = async (githubId: string) => {
@@ -846,7 +883,7 @@ function SettingsPageContent() {
     return (
       <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
         <div className="max-w-2xl mx-auto">
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+          <div className="px-frame bg-[var(--card)] p-6">
             <div className="h-8 w-48 bg-[var(--card-muted)] rounded animate-pulse mb-4" />
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -875,1076 +912,1139 @@ function SettingsPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <Link href="/dashboard">
-            <button aria-label="Back to Dashboard" className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--accent)] md:bg-[var(--accent)] md:text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95 md:h-auto md:w-auto md:rounded-lg md:px-4 md:py-2">
-              <span aria-hidden="true" className="text-lg items-center transition-transform duration-200 group-hover:-translate-x-1.5">
-                ←
-              </span>
-              <span className="ml-2 hidden text-sm font-medium md:inline">
-                Back to Dashboard
-              </span>
-            </button>
-          </Link>
-          <div className="sm:text-left mr-2">
-            <h1 className="text-3xl pl-2 text-center font-bold text-[var(--foreground)]">
-              Settings
-            </h1>
-            <p className="md:text-right text-center mt-2 text-[var(--muted-foreground)]">
-              Manage your profile and preferences
-            </p>
-          </div>
-        </div>
-
-        {statusMessage && (
-          <div
-            className={`mb-6 rounded-xl border p-4 text-sm ${statusMessage.kind === "success"
-              ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
-              : "border-[var(--error)]/30 bg-[var(--error)]/10 text-[var(--error)]"
+    <>
+      <PageHeader
+        title="Settings"
+        description="Manage your profile and preferences."
+      />
+      <div className="lg:grid lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-8">
+        <SettingsNav items={SETTINGS_SECTIONS} />
+        <div className="min-w-0 max-w-3xl">
+          {statusMessage && (
+            <div
+              className={`mb-6 rounded-xl border p-4 text-sm ${
+                statusMessage.kind === "success"
+                  ? "border-success/30 bg-success/10 text-[var(--success)]"
+                  : "border-destructive/30 bg-destructive/10 text-[var(--error)]"
               }`}
+            >
+              {statusMessage.message}
+            </div>
+          )}
+
+          {/* Public Profile Section */}
+          <div
+            id="settings-profile"
+            className="scroll-mt-24 px-frame bg-[var(--card)] p-6"
           >
-            {statusMessage.message}
-          </div>
-        )}
-
-        {/* Public Profile Section */}
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex items-start justify-between mb-2 gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                Public Profile
-              </h2>
-              <p className="text-sm text-[var(--muted-foreground)] mt-1">
-                Share your GitHub stats with a public profile link
-              </p>
-            </div>
-
-            {/* Toggle Switch */}
-            <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle setting</span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings.is_public}
-                  aria-label="Toggle Public Profile"
-                  onChange={(e) => handleTogglePublic(e.target.checked)}
-                  disabled={saving}
-                  className="sr-only"
-                />
-                <div
-                  className={`block w-10 h-6 rounded-full transition-colors ${settings.is_public
-                    ? "bg-[var(--accent)]"
-                    : "bg-[var(--control)]"
-                    }`}
-                />
-                <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.is_public ? "translate-x-4" : ""
-                    }`}
-                />
-              </div>
-            </label>
-          </div>
-
-          {/* Share Link Section */}
-          <div>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <Badge
-                variant={settings.is_public ? "success" : "secondary"}
-                className="px-3 py-1 text-[11px] uppercase tracking-wide"
-              >
-                {settings.is_public ? "Public" : "Private"}
-              </Badge>
-              {settings.public_since && (
-                <p className="text-xs text-[var(--muted-foreground)] sm:text-right">
-                  Public since {new Date(settings.public_since).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            <div className="flex items-start justify-between mb-2 gap-4">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  Public Profile
+                </h2>
+                <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                  Share your GitHub stats with a public profile link
                 </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <input
-                type="text"
-                value={profileUrl}
-                readOnly
-                aria-label="Public profile URL"
-                className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] outline-none transition-colors focus:border-[var(--accent)]"
-              />
-              <Button
-                type="button"
-                onClick={copyShareLink}
-                variant="secondary"
-                className="w-full sm:w-auto"
-                aria-label="Copy public profile URL"
-              >
-                {copied ? "Copied!" : "Copy"}
-              </Button>
-            </div>
-            {!settings.is_public && (
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                Your profile is currently private. Enable Public Profile to allow others to view this link.
-              </p>
-            )}
-          </div>
+              </div>
 
-          {/* Weekly Goals on Profile toggle */}
-          {settings.is_public && (
-            <div className="mt-6 pt-6 border-t border-[var(--border)]">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-                    Weekly Goal Progress
-                  </h3>
-                  <p className="text-sm text-[var(--muted-foreground)] mt-1">
-                    Show your weekly goal completion rate on your public profile.
-                  </p>
-                </div>
-                <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle weekly goal visibility</span>
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={settings.show_weekly_goals ?? false}
-                      aria-label="Toggle weekly goal progress on profile"
-                      onChange={async (e) => {
-                        const value = e.target.checked;
-                        setSaving(true);
-                        try {
-                          const res = await fetch("/api/user/settings", {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ show_weekly_goals: value }),
-                          });
-                          if (res.ok) {
-                            const updated = await res.json();
-                            setSettings(updated);
-                          }
-                        } catch (error) {
-                          console.error("Failed to update weekly goals setting:", error);
-                        } finally {
-                          setSaving(false);
-                        }
-                      }}
-                      disabled={saving}
-                      className="sr-only"
-                    />
-                    <div
-                      className={`block w-10 h-6 rounded-full transition-colors ${settings.show_weekly_goals
+              {/* Toggle Switch */}
+              <label className="flex items-center cursor-pointer select-none">
+                <span className="sr-only">Toggle setting</span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={settings.is_public}
+                    aria-label="Toggle Public Profile"
+                    onChange={(e) => handleTogglePublic(e.target.checked)}
+                    disabled={saving}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`block w-10 h-6 rounded-full transition-colors ${
+                      settings.is_public
                         ? "bg-[var(--accent)]"
                         : "bg-[var(--control)]"
-                        }`}
-                    />
-                    <div
-                      className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.show_weekly_goals ? "translate-x-4" : ""
-                        }`}
-                    />
-                  </div>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* ── Public Widget Selector ────────────────────────────────── */}
-          {settings.is_public && (
-            <div className="mt-6 pt-6 border-t border-[var(--border)]">
-              <div className="mb-3">
-                <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-                  Visible Widgets
-                </h3>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  Choose which stats are shown on your public profile.
-                </p>
-              </div>
-              <div className="space-y-3">
-                {WIDGET_OPTIONS.map(({ key, label, description }) => (
-                  <label
-                    key={key}
-                    className="flex items-start gap-3 cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 transition-colors hover:bg-[var(--control)]/80"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={publicWidgets.includes(key)}
-                      onChange={(e) => handleToggleWidget(key, e.target.checked)}
-                      className="mt-0.5 accent-[var(--accent)]"
-                    />
-                    <div>
-                      <div className="text-sm font-medium text-[var(--card-foreground)]">{label}</div>
-                      <div className="text-xs text-[var(--muted-foreground)]">{description}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={handleSaveWidgets}
-                disabled={savingWidgets}
-                className="mt-4 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {savingWidgets ? "Saving..." : "Save Widget Settings"}
-              </button>
-            </div>
-          )}
-
-          {/* ── Profile Bio with Markdown preview ─────────────────────── */}
-          <div className="mt-6 pt-6 border-t border-[var(--border)]">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-                  Profile Bio
-                </h3>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  Add a short Markdown bio for your public profile.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowBioPreview((value) => !value)}
-                className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]"
-              >
-                {showBioPreview ? "Hide Preview" : "Show Preview"}
-              </button>
+                    }`}
+                  />
+                  <div
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                      settings.is_public ? "translate-x-4" : ""
+                    }`}
+                  />
+                </div>
+              </label>
             </div>
 
-            <textarea
-              value={bioDraft}
-              onChange={(e) => {
-                setBioDraft(e.target.value);
-                setIsDirty(true);
-              }}
-              maxLength={500}
-              rows={5}
-              placeholder="Write a short bio with **bold**, _italic_, `code`, or links."
-              className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-            />
-<div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--control)]">
-  <div
-    className={`h-full transition-all ${
-      bioDraft.length >= 490
-        ? "bg-red-500"
-        : bioDraft.length >= 450
-        ? "bg-yellow-500"
-        : "bg-[var(--accent)]"
-    }`}
-    style={{ width: `${(bioDraft.length / 500) * 100}%` }}
-  />
-</div>
-            {showBioPreview && (
-              <div className="mt-3 min-h-[128px] rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-[var(--card-foreground)]">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
-                  Live Preview
-                </p>
-                {bioDraft.trim() ? (
-                  <MarkdownBio bio={bioDraft} />
-                ) : (
-                  <p className="text-sm text-[var(--muted-foreground)]">
-                    Nothing to preview yet.
+            {/* Share Link Section */}
+            <div>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <Badge
+                  variant={settings.is_public ? "success" : "secondary"}
+                  className="px-3 py-1 text-[11px] uppercase tracking-wide"
+                >
+                  {settings.is_public ? "Public" : "Private"}
+                </Badge>
+                {settings.public_since && (
+                  <p className="text-xs text-[var(--muted-foreground)] sm:text-right">
+                    Public since{" "}
+                    {new Date(settings.public_since).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      }
+                    )}
                   </p>
                 )}
               </div>
-            )}
-
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-              <span
-                className={`text-xs ${bioDraft.length > 500
-                  ? "text-[var(--error)]"
-                  : "text-[var(--muted-foreground)]"
-                  }`}
-              >
-                {bioDraft.length}/500 characters
-              </span>
-              <button
-                type="button"
-                onClick={handleSaveBio}
-                disabled={
-                  savingBio ||
-                  bioDraft.length > 500 ||
-                  bioDraft === (settings.bio ?? "")
-                }
-                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {savingBio ? "Saving..." : "Save Bio"}
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-[var(--border)]">
-            <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-              Heatmap colour scheme
-            </h3>
-            <p className="text-sm text-[var(--muted-foreground)] mb-4">
-              Choose a colour scheme for the contribution and streak heatmaps.
-            </p>
-            <div className="space-y-3">
-              <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-[var(--foreground)]">
-                <span>Default</span>
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <input
-                  type="radio"
-                  name="heatmap-theme"
-                  value="default"
-                  checked={theme === "default"}
-                  onChange={() => {
-                    setTheme("default");
-                    setIsDirty(true);
-                  }}
-                  className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
+                  type="text"
+                  value={profileUrl}
+                  readOnly
+                  aria-label="Public profile URL"
+                  className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] outline-none transition-colors focus:border-[var(--accent)]"
                 />
-              </label>
-              <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-[var(--foreground)]">
-                <span>Colour-blind friendly</span>
-                <input
-                  type="radio"
-                  name="heatmap-theme"
-                  value="colour-blind-friendly"
-                  checked={theme === "colour-blind-friendly"}
-                  onChange={() => {
-                    setTheme("colour-blind-friendly");
-                    setIsDirty(true);
-                  }}
-                  className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
-                />
-              </label>
-            </div>
-          </div>
-
-          {!settings.is_public && (
-            <div className="mt-4 p-3 rounded-lg bg-[var(--control)] border border-[var(--border)]">
-              <p className="text-sm text-[var(--muted-foreground)]">
-                Turn on public profile to generate a shareable link to your
-                GitHub stats.
-              </p>
-            </div>
-          )}
-
-          {isDirty && (
-            <div className="mt-6 pt-6 border-t border-[var(--border)] flex justify-end">
-              <button
-                type="button"
-                onClick={() => {
-                  // The toggles themselves already call the API,
-                  // but for the heatmap theme which is local only,
-                  // or to clear the dirty state after a manual change,
-                  // we provide this clear feedback.
-                  setIsDirty(false);
-                  toast.success("Settings saved successfully!");
-                }}
-                className="px-6 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                Save Changes
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-            {t("appearanceTitle")}
-          </h2>
-
-          <p className="mt-1 text-sm text-[var(--muted-foreground)] mb-6">
-            {t("appearanceDescription")}
-          </p>
-
-          <ThemePresetPicker />
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                {t("languageTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("languageDescription")}
-              </p>
-            </div>
-            <div className="w-full md:w-64">
-              <label
-                htmlFor="preferred-locale"
-                className="block text-sm font-medium text-[var(--card-foreground)]"
-              >
-                {t("languageSelectLabel")}
-              </label>
-              <select
-                id="preferred-locale"
-                value={preferredLocale}
-                disabled={savingLanguage}
-                onChange={(event) => handleSaveLanguage(event.target.value as AppLocale)}
-                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:opacity-60"
-              >
-                {locales.map((locale) => (
-                  <option key={locale} value={locale}>
-                    {localeMetadata[locale].nativeLabel}
-                  </option>
-                ))}
-              </select>
-              {savingLanguage && (
-                <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                  {common("saving")}
+                <Button
+                  type="button"
+                  onClick={copyShareLink}
+                  variant="secondary"
+                  className="w-full sm:w-auto"
+                  aria-label="Copy public profile URL"
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </Button>
+              </div>
+              {!settings.is_public && (
+                <p className="mt-3 text-sm text-[var(--muted-foreground)]">
+                  Your profile is currently private. Enable Public Profile to
+                  allow others to view this link.
                 </p>
               )}
             </div>
-          </div>
-        </div>
 
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                Public Leaderboard
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Appear on the public leaderboard for streaks, commits, and pull
-                requests.
-              </p>
+            {/* Weekly Goals on Profile toggle */}
+            {settings.is_public && (
+              <div className="mt-6 pt-6 border-t border-[var(--border)]">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
+                      Weekly Goal Progress
+                    </h3>
+                    <p className="text-sm text-[var(--muted-foreground)] mt-1">
+                      Show your weekly goal completion rate on your public
+                      profile.
+                    </p>
+                  </div>
+                  <label className="flex items-center cursor-pointer select-none">
+                    <span className="sr-only">
+                      Toggle weekly goal visibility
+                    </span>
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={settings.show_weekly_goals ?? false}
+                        aria-label="Toggle weekly goal progress on profile"
+                        onChange={async (e) => {
+                          const value = e.target.checked;
+                          setSaving(true);
+                          try {
+                            const res = await fetch("/api/user/settings", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                show_weekly_goals: value,
+                              }),
+                            });
+                            if (res.ok) {
+                              const updated = await res.json();
+                              setSettings(updated);
+                            }
+                          } catch (error) {
+                            console.error(
+                              "Failed to update weekly goals setting:",
+                              error
+                            );
+                          } finally {
+                            setSaving(false);
+                          }
+                        }}
+                        disabled={saving}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`block w-10 h-6 rounded-full transition-colors ${
+                          settings.show_weekly_goals
+                            ? "bg-[var(--accent)]"
+                            : "bg-[var(--control)]"
+                        }`}
+                      />
+                      <div
+                        className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                          settings.show_weekly_goals ? "translate-x-4" : ""
+                        }`}
+                      />
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* ── Public Widget Selector ────────────────────────────────── */}
+            {settings.is_public && (
+              <div className="mt-6 pt-6 border-t border-[var(--border)]">
+                <div className="mb-3">
+                  <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
+                    Visible Widgets
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                    Choose which stats are shown on your public profile.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {WIDGET_OPTIONS.map(({ key, label, description }) => (
+                    <label
+                      key={key}
+                      className="flex items-start gap-3 cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 transition-colors hover:bg-control/80"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={publicWidgets.includes(key)}
+                        onChange={(e) =>
+                          handleToggleWidget(key, e.target.checked)
+                        }
+                        className="mt-0.5 accent-[var(--accent)]"
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-[var(--card-foreground)]">
+                          {label}
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)]">
+                          {description}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSaveWidgets}
+                  disabled={savingWidgets}
+                  className="mt-4 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {savingWidgets ? "Saving..." : "Save Widget Settings"}
+                </button>
+              </div>
+            )}
+
+            {/* ── Profile Bio with Markdown preview ─────────────────────── */}
+            <div className="mt-6 pt-6 border-t border-[var(--border)]">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
+                    Profile Bio
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                    Add a short Markdown bio for your public profile.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowBioPreview((value) => !value)}
+                  className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]"
+                >
+                  {showBioPreview ? "Hide Preview" : "Show Preview"}
+                </button>
+              </div>
+
+              <textarea
+                value={bioDraft}
+                onChange={(e) => {
+                  setBioDraft(e.target.value);
+                  setIsDirty(true);
+                }}
+                maxLength={500}
+                rows={5}
+                placeholder="Write a short bio with **bold**, _italic_, `code`, or links."
+                className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+              />
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--control)]">
+                <div
+                  className={`h-full transition-all ${
+                    bioDraft.length >= 490
+                      ? "bg-red-500"
+                      : bioDraft.length >= 450
+                        ? "bg-yellow-500"
+                        : "bg-[var(--accent)]"
+                  }`}
+                  style={{ width: `${(bioDraft.length / 500) * 100}%` }}
+                />
+              </div>
+              {showBioPreview && (
+                <div className="mt-3 min-h-[128px] rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-[var(--card-foreground)]">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+                    Live Preview
+                  </p>
+                  {bioDraft.trim() ? (
+                    <MarkdownBio bio={bioDraft} />
+                  ) : (
+                    <p className="text-sm text-[var(--muted-foreground)]">
+                      Nothing to preview yet.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <span
+                  className={`text-xs ${
+                    bioDraft.length > 500
+                      ? "text-[var(--error)]"
+                      : "text-[var(--muted-foreground)]"
+                  }`}
+                >
+                  {bioDraft.length}/500 characters
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSaveBio}
+                  disabled={
+                    savingBio ||
+                    bioDraft.length > 500 ||
+                    bioDraft === (settings.bio ?? "")
+                  }
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {savingBio ? "Saving..." : "Save Bio"}
+                </button>
+              </div>
             </div>
 
-            <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle setting</span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings.leaderboard_opt_in}
-                  aria-label="Toggle Public Leaderboard"
-                  onChange={(e) => handleToggleLeaderboard(e.target.checked)}
-                  disabled={saving}
-                  className="sr-only"
-                />
-                <div
-                  className={`block h-6 w-10 rounded-full transition-colors ${settings.leaderboard_opt_in
-                    ? "bg-[var(--accent)]"
-                    : "bg-[var(--control)]"
-                    }`}
-                />
-                <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.leaderboard_opt_in ? "translate-x-4" : ""
-                    }`}
-                />
-              </div>
-            </label>
-          </div>
-
-          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Turning this on also enables your public profile so leaderboard
-              rows can link to your DevTrack stats.
-            </p>
-
-          </div>
-        </div>
-
-        {/* Repository Spotlight Section */}
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-            Repository Spotlight 🚀
-          </h2>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)] mb-6">
-            Pin up to 3 repositories to showcase on your dashboard and public profile.
-          </p>
-
-          {/* Currently Pinned */}
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-              Pinned Repositories ({(settings.pinned_repos || []).length}/3)
-            </h3>
-            {(settings.pinned_repos || []).length === 0 ? (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)] text-center">
-                No repositories pinned yet. Use the search below to spotlight your best projects!
-              </div>
-            ) : (
+            <div className="mt-6 pt-6 border-t border-[var(--border)]">
+              <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
+                Heatmap colour scheme
+              </h3>
+              <p className="text-sm text-[var(--muted-foreground)] mb-4">
+                Choose a colour scheme for the contribution and streak heatmaps.
+              </p>
               <div className="space-y-3">
-                {(settings.pinned_repos || []).map((repoName, index) => (
-                  <div
-                    key={repoName}
-                    className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] p-4"
-                  >
-                    <div className="min-w-0 flex-1 pr-4">
-                      <span className="text-sm font-semibold text-[var(--card-foreground)] truncate block">
-                        {repoName}
-                      </span>
-                    </div>
+                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-[var(--foreground)]">
+                  <span>Default</span>
+                  <input
+                    type="radio"
+                    name="heatmap-theme"
+                    value="default"
+                    checked={theme === "default"}
+                    onChange={() => {
+                      setTheme("default");
+                      setIsDirty(true);
+                    }}
+                    className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
+                  />
+                </label>
+                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-[var(--foreground)]">
+                  <span>Colour-blind friendly</span>
+                  <input
+                    type="radio"
+                    name="heatmap-theme"
+                    value="colour-blind-friendly"
+                    checked={theme === "colour-blind-friendly"}
+                    onChange={() => {
+                      setTheme("colour-blind-friendly");
+                      setIsDirty(true);
+                    }}
+                    className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
+                  />
+                </label>
+              </div>
+            </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {/* Reorder Buttons */}
-                      <button
-                        type="button"
-                        onClick={() => handleMovePin(index, "up")}
-                        disabled={index === 0 || saving}
-                        title="Move Up"
-                        aria-label={`Move ${repoName} up`}
-                        className="p-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--control-hover)] text-[var(--card-foreground)] disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleMovePin(index, "down")}
-                        disabled={index === (settings.pinned_repos || []).length - 1 || saving}
-                        title="Move Down"
-                        aria-label={`Move ${repoName} down`}
-                        className="p-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--control-hover)] text-[var(--card-foreground)] disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        ↓
-                      </button>
+            {!settings.is_public && (
+              <div className="mt-4 p-3 rounded-lg bg-[var(--control)] border border-[var(--border)]">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  Turn on public profile to generate a shareable link to your
+                  GitHub stats.
+                </p>
+              </div>
+            )}
 
-                      {/* Unpin Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleUnpinRepo(repoName)}
-                        disabled={saving}
-                        aria-label={`Unpin ${repoName}`}
-                        className="ml-2 rounded-lg border border-[var(--destructive-muted-border)] hover:bg-[var(--destructive-muted)] px-3 py-1.5 text-xs font-semibold text-[var(--destructive)] disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Unpin
-                      </button>
-                    </div>
-                  </div>
-                ))}
+            {isDirty && (
+              <div className="mt-6 pt-6 border-t border-[var(--border)] flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // The toggles themselves already call the API,
+                    // but for the heatmap theme which is local only,
+                    // or to clear the dirty state after a manual change,
+                    // we provide this clear feedback.
+                    setIsDirty(false);
+                    toast.success("Settings saved successfully!");
+                  }}
+                  className="px-6 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  Save Changes
+                </button>
               </div>
             )}
           </div>
 
-          {/* Pin New Repos (Search) */}
-          {(settings.pinned_repos || []).length < 3 && (
-            <div className="border-t border-[var(--border)]/60 pt-6">
-              <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-                Search & Pin Repositories
-              </h3>
-              <input
-                type="text"
-                value={repoSearchQuery}
-                onChange={(e) => setRepoSearchQuery(e.target.value)}
-                disabled={saving}
-                placeholder="Type to search your repositories..."
-                aria-label="Search repositories to pin"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
+          <div
+            id="settings-appearance"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+              {t("appearanceTitle")}
+            </h2>
 
-              {loadingRepos ? (
-                <div className="text-center py-4 text-xs text-[var(--muted-foreground)]">
-                  Loading your repositories...
+            <p className="mt-1 text-sm text-[var(--muted-foreground)] mb-6">
+              {t("appearanceDescription")}
+            </p>
+
+            <ThemePresetPicker />
+          </div>
+
+          <div
+            id="settings-language"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  {t("languageTitle")}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  {t("languageDescription")}
+                </p>
+              </div>
+              <div className="w-full md:w-64">
+                <label
+                  htmlFor="preferred-locale"
+                  className="block text-sm font-medium text-[var(--card-foreground)]"
+                >
+                  {t("languageSelectLabel")}
+                </label>
+                <select
+                  id="preferred-locale"
+                  value={preferredLocale}
+                  disabled={savingLanguage}
+                  onChange={(event) =>
+                    handleSaveLanguage(event.target.value as AppLocale)
+                  }
+                  className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:opacity-60"
+                >
+                  {locales.map((locale) => (
+                    <option key={locale} value={locale}>
+                      {localeMetadata[locale].nativeLabel}
+                    </option>
+                  ))}
+                </select>
+                {savingLanguage && (
+                  <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+                    {common("saving")}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="settings-leaderboard"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  Public Leaderboard
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  Appear on the public leaderboard for streaks, commits, and
+                  pull requests.
+                </p>
+              </div>
+
+              <label className="flex items-center cursor-pointer select-none">
+                <span className="sr-only">Toggle setting</span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={settings.leaderboard_opt_in}
+                    aria-label="Toggle Public Leaderboard"
+                    onChange={(e) => handleToggleLeaderboard(e.target.checked)}
+                    disabled={saving}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`block h-6 w-10 rounded-full transition-colors ${
+                      settings.leaderboard_opt_in
+                        ? "bg-[var(--accent)]"
+                        : "bg-[var(--control)]"
+                    }`}
+                  />
+                  <div
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                      settings.leaderboard_opt_in ? "translate-x-4" : ""
+                    }`}
+                  />
+                </div>
+              </label>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--control)] p-3">
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Turning this on also enables your public profile so leaderboard
+                rows can link to your DevTrack stats.
+              </p>
+            </div>
+          </div>
+
+          {/* Repository Spotlight Section */}
+          <div
+            id="settings-spotlight"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+              Repository Spotlight 🚀
+            </h2>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)] mb-6">
+              Pin up to 3 repositories to showcase on your dashboard and public
+              profile.
+            </p>
+
+            {/* Currently Pinned */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
+                Pinned Repositories ({(settings.pinned_repos || []).length}/3)
+              </h3>
+              {(settings.pinned_repos || []).length === 0 ? (
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)] text-center">
+                  No repositories pinned yet. Use the search below to spotlight
+                  your best projects!
                 </div>
               ) : (
-                <div className="max-h-48 overflow-y-auto space-y-2 scrollbar-thin">
-                  {userRepos
-                    .filter(
-                      (repoName) =>
-                        !(settings.pinned_repos || []).includes(repoName) &&
-                        repoName.toLowerCase().includes(repoSearchQuery.toLowerCase())
-                    )
-                    .slice(0, 5)
-                    .map((repoName) => (
-                      <div
-                        key={repoName}
-                        className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)]/40 hover:bg-[var(--control)] px-4 py-2 transition-colors"
-                      >
-                        <span className="text-xs font-medium text-[var(--card-foreground)] truncate">
+                <div className="space-y-3">
+                  {(settings.pinned_repos || []).map((repoName, index) => (
+                    <div
+                      key={repoName}
+                      className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] p-4"
+                    >
+                      <div className="min-w-0 flex-1 pr-4">
+                        <span className="text-sm font-semibold text-[var(--card-foreground)] truncate block">
                           {repoName}
                         </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Reorder Buttons */}
                         <button
                           type="button"
-                          onClick={() => handlePinRepo(repoName)}
-                          disabled={saving}
-                          aria-label={`Pin ${repoName}`}
-                          className="rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] px-3 py-1 text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => handleMovePin(index, "up")}
+                          disabled={index === 0 || saving}
+                          title="Move Up"
+                          aria-label={`Move ${repoName} up`}
+                          className="p-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--control-hover)] text-[var(--card-foreground)] disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                          Pin
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMovePin(index, "down")}
+                          disabled={
+                            index ===
+                              (settings.pinned_repos || []).length - 1 || saving
+                          }
+                          title="Move Down"
+                          aria-label={`Move ${repoName} down`}
+                          className="p-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--control-hover)] text-[var(--card-foreground)] disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          ↓
+                        </button>
+
+                        {/* Unpin Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleUnpinRepo(repoName)}
+                          disabled={saving}
+                          aria-label={`Unpin ${repoName}`}
+                          className="ml-2 rounded-lg border border-[var(--destructive-muted-border)] hover:bg-[var(--destructive-muted)] px-3 py-1.5 text-xs font-semibold text-[var(--destructive)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Unpin
                         </button>
                       </div>
-                    ))}
-                  {userRepos.filter(
-                    (repoName) =>
-                      !(settings.pinned_repos || []).includes(repoName) &&
-                      repoName.toLowerCase().includes(repoSearchQuery.toLowerCase())
-                  ).length === 0 && (
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Pin New Repos (Search) */}
+            {(settings.pinned_repos || []).length < 3 && (
+              <div className="border-t border-border/60 pt-6">
+                <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
+                  Search & Pin Repositories
+                </h3>
+                <input
+                  type="text"
+                  value={repoSearchQuery}
+                  onChange={(e) => setRepoSearchQuery(e.target.value)}
+                  disabled={saving}
+                  placeholder="Type to search your repositories..."
+                  aria-label="Search repositories to pin"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+
+                {loadingRepos ? (
+                  <div className="text-center py-4 text-xs text-[var(--muted-foreground)]">
+                    Loading your repositories...
+                  </div>
+                ) : (
+                  <div className="max-h-48 overflow-y-auto space-y-2 scrollbar-thin">
+                    {userRepos
+                      .filter(
+                        (repoName) =>
+                          !(settings.pinned_repos || []).includes(repoName) &&
+                          repoName
+                            .toLowerCase()
+                            .includes(repoSearchQuery.toLowerCase())
+                      )
+                      .slice(0, 5)
+                      .map((repoName) => (
+                        <div
+                          key={repoName}
+                          className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-control/40 hover:bg-[var(--control)] px-4 py-2 transition-colors"
+                        >
+                          <span className="text-xs font-medium text-[var(--card-foreground)] truncate">
+                            {repoName}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handlePinRepo(repoName)}
+                            disabled={saving}
+                            aria-label={`Pin ${repoName}`}
+                            className="rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] px-3 py-1 text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Pin
+                          </button>
+                        </div>
+                      ))}
+                    {userRepos.filter(
+                      (repoName) =>
+                        !(settings.pinned_repos || []).includes(repoName) &&
+                        repoName
+                          .toLowerCase()
+                          .includes(repoSearchQuery.toLowerCase())
+                    ).length === 0 && (
                       <div className="text-center py-4 text-xs text-[var(--muted-foreground)]">
                         No repositories available to pin.
                       </div>
                     )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                {t("weeklyDigestTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("weeklyDigestDescription")}
-              </p>
-            </div>
-
-            <label className="flex items-center cursor-pointer select-none"><span className="sr-only">Toggle setting</span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={settings.weekly_digest_opt_in}
-                  aria-label="Toggle Weekly Email Digest"
-                  onChange={(e) => handleToggleWeeklyDigest(e.target.checked)}
-                  disabled={saving}
-                  className="sr-only"
-                />
-                <div
-                  className={`block h-6 w-10 rounded-full transition-colors ${settings.weekly_digest_opt_in
-                    ? "bg-[var(--accent)]"
-                    : "bg-[var(--control)]"
-                    }`}
-                />
-                <div
-                  className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${settings.weekly_digest_opt_in ? "translate-x-4" : ""
-                    }`}
-                />
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                {t("notificationsTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("notificationsDescription")}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label className="text-sm font-medium text-[var(--card-foreground)]">
-              {t("webhookUrl")}
-            </label>
-            <input
-              type="text"
-              value={webhookUrl ?? ""}
-              onChange={(e) => setWebhookUrl(e.target.value || null)}
-              placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/..."
-              className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-            />
-
-            <div className="mt-3 flex gap-2">
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!settings) return;
-                  setWebhookSaving(true);
-                  try {
-                    const res = await fetch("/api/user/settings", {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ webhook_url: webhookUrl }),
-                    });
-
-                    if (res.ok) {
-                      const updated = await res.json();
-                      setSettings(updated);
-                    } else {
-                      console.error("Failed to update webhook setting");
-                    }
-                  } catch (err) {
-                    console.error("Error updating webhook:", err);
-                  } finally {
-                    setWebhookSaving(false);
-                  }
-                }}
-                disabled={webhookSaving}
-                className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] hover:opacity-90 transition-opacity disabled:opacity-60"
-              >
-                {webhookSaving ? common("saving") : common("save")}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setWebhookUrl(settings?.webhook_url ?? null);
-                }}
-                className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)]"
-              >
-                {common("reset")}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                {t("connectedAccountsTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("connectedAccountsDescription")}
-              </p>
-            </div>
-
-            <Link
-              href="/api/auth/link-github"
-              prefetch={false}
-              className="inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] hover:opacity-90 transition-opacity"
-            >
-              {t("addGitHubAccount")}
-            </Link>
-          </div>
-
-          {removeError && (
-            <div className="mt-4 rounded-lg border border-[var(--error)]/30 bg-[var(--error)]/10 p-3 text-sm text-[var(--error)]">
-              {removeError}
-            </div>
-          )}
-
-          {accountsError && (
-            <div className="mt-4 rounded-lg border border-[var(--error)]/30 bg-[var(--error)]/10 p-3 text-sm text-[var(--error)]">
-              {accountsError}
-            </div>
-          )}
-
-          <div className="mt-6">
-            {accountsLoading ? (
-              <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
-                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                {t("loadingLinkedAccounts")}
-              </div>
-            ) : linkedAccounts.length === 0 ? (
-              <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)]">
-                {t("noLinkedAccounts")}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {linkedAccounts.map((account) => (
-                  <div
-                    key={account.id}
-                    className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 md:flex-row md:items-center md:justify-between"
-                  >
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--card-foreground)]">
-                        {account.githubLogin}
-                      </div>
-                      <div className="mt-1 text-sm text-[var(--muted-foreground)]">
-                        {formatAddedDate(account.addedAt)}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveAccount(account.githubId)}
-                      aria-label={`Remove ${account.githubLogin}`}
-                      disabled={removingAccountId === account.githubId}
-                      className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--error)]/10 hover:text-[var(--error)] disabled:opacity-60"
-                    >
-                      {removingAccountId === account.githubId
-                        ? "Removing..."
-                        : "Remove"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                GitHub Organizations
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Choose which organizations to include or exclude from your dashboard metrics.
-              </p>
-            </div>
-          </div>
-
-          {loadingOrgs ? (
-            <div className="space-y-3">
-              <div className="h-10 bg-[var(--card-muted)] rounded animate-pulse" />
-              <div className="h-10 bg-[var(--card-muted)] rounded animate-pulse" />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {orgAccounts.some((acc) => !acc.hasOrgScope) && (
-                <div className="rounded-lg border border-amber-300/30 bg-amber-500/10 p-4">
-                  <p className="text-sm text-amber-200">
-                    <strong>Action Required:</strong> Organization access is not fully authorized. To display private organization contributions, please sign out and sign back in to grant organization permission (enable the &quot;read:org&quot; scope when prompted).
-                  </p>
-                </div>
-              )}
-
-              {orgAccounts.length === 0 ? (
-                <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)] text-center">
-                  No organizations found.
-                </div>
-              ) : (
-                orgAccounts.map((acc) => (
-                  <div key={acc.githubId} className="space-y-3">
-                    <h3 className="text-sm font-semibold text-[var(--card-foreground)] border-b border-[var(--border)] pb-2">
-                      Organizations ({acc.githubLogin})
-                    </h3>
-                    {acc.orgs.length === 0 ? (
-                      <p className="text-xs text-[var(--muted-foreground)] py-2">
-                        No organization memberships found for this account.
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {acc.orgs.map((org: any) => {
-                          const isEnabled = orgsConfig[org.login] !== false; // default to true
-                          return (
-                            <div
-                              key={org.id}
-                              className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] p-3"
-                            >
-                              <div className="flex items-center gap-3">
-                                <img
-                                  src={org.avatarUrl}
-                                  alt={org.login}
-                                  className="w-8 h-8 rounded"
-                                />
-                                <span className="text-sm font-semibold text-[var(--card-foreground)]">
-                                  {org.login}
-                                </span>
-                              </div>
-                              <label className="flex items-center cursor-pointer select-none">
-                                <span className="sr-only">Toggle {org.login}</span>
-                                <div className="relative">
-                                  <input
-                                    type="checkbox"
-                                    checked={isEnabled}
-                                    onChange={(e) => handleToggleOrg(org.login, e.target.checked)}
-                                    className="sr-only"
-                                  />
-                                  <div
-                                    className={`block h-6 w-10 rounded-full transition-colors ${
-                                      isEnabled ? "bg-[var(--accent)]" : "bg-[var(--control)]"
-                                    }`}
-                                  />
-                                  <div
-                                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
-                                      isEnabled ? "translate-x-4" : ""
-                                    }`}
-                                  />
-                                </div>
-                              </label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                Wakatime Integration
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("wakatimeDescription")}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="wakatime-key" className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
-                {t("apiKey")}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="wakatime-key"
-                  type="password"
-                  value={wakatimeKey}
-                  onChange={(e) => {
-                    setWakatimeKey(e.target.value);
-                    setIsDirty(true);
-                  }}
-                  placeholder={settings.has_wakatime_key ? "•••••••••••••••• (Configured)" : "Enter your Wakatime API key"}
-                  autoComplete="new-password"
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-                />
-                <button
-                  type="button"
-                  onClick={handleSaveWakatime}
-                  disabled={savingWakatime}
-                  className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60 min-w-[80px]"
-                >
-                  {savingWakatime ? common("saving") : common("save")}
-                </button>
-              </div>
-              <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-                {settings.has_wakatime_key ? "Leave blank and click Save to remove your key." : "You can find your API key in your Wakatime Settings."}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
-            <div>
-              <h2 className="text-xl font-semibold text-[var(--card-foreground)]">
-                {t("discordTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {t("discordDescription")}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="discord-webhook" className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
-                {t("webhookUrl")}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="discord-webhook"
-                  type="text"
-                  value={discordWebhook}
-                  onChange={(e) => {
-                    setDiscordWebhook(e.target.value);
-                    setIsDirty(true);
-                  }}
-                  placeholder="https://discord.com/api/webhooks/..."
-                  className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="timezone-select" className="block text-sm font-medium text-[var(--card-foreground)] mb-1">
-                {t("timezoneLabel")}
-              </label>
-              <select
-                id="timezone-select"
-                value={timezone}
-                onChange={(e) => {
-                  setTimezone(e.target.value);
-                  setIsDirty(true);
-                }}
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-              >
-                <option value="UTC">UTC</option>
-                <option value="America/New_York">Eastern Time (ET)</option>
-                <option value="America/Chicago">Central Time (CT)</option>
-                <option value="America/Denver">Mountain Time (MT)</option>
-                <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                <option value="Europe/London">London (GMT/BST)</option>
-                <option value="Europe/Paris">Central European Time (CET)</option>
-                <option value="Asia/Kolkata">India Standard Time (IST)</option>
-                <option value="Asia/Tokyo">Japan Standard Time (JST)</option>
-                <option value="Australia/Sydney">Australian Eastern Time (AET)</option>
-                {/* Additional common timezones */}
-                <option value="America/Sao_Paulo">Brasilia Time (BRT)</option>
-                <option value="Asia/Dubai">Gulf Standard Time (GST)</option>
-                <option value="Asia/Singapore">Singapore Standard Time (SGT)</option>
-              </select>
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <button
-                type="button"
-                onClick={handleSaveDiscord}
-                disabled={savingDiscord}
-                className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
-              >
-                {savingDiscord ? common("saving") : t("saveDiscord")}
-              </button>
-              <button
-                type="button"
-                onClick={handleTestDiscord}
-                disabled={testingDiscord || !discordWebhook}
-                className="px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--control)] text-[var(--card-foreground)] text-sm font-medium hover:bg-[var(--card-muted)] transition-colors disabled:opacity-60"
-              >
-                {testingDiscord ? t("testing") : t("testNotification")}
-              </button>
-            </div>
-            <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-              Leave Webhook URL blank and click Save to unlink Discord.
-            </p>
-
-            {discordWebhook && (
-              <div className="border-t border-[var(--border)]/60 pt-4 mt-4">
-                <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
-                  {t("muteNotifications")}
-                </h3>
-                {discordMutedUntil && new Date(discordMutedUntil).getTime() > Date.now() ? (
-                  <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4">
-                    <p className="text-sm text-[var(--card-foreground)] mb-3">
-                      Muted until{" "}
-                      <span className="font-semibold">
-                        {new Intl.DateTimeFormat("en-US", {
-                          dateStyle: "long",
-                          timeStyle: "short",
-                        }).format(new Date(discordMutedUntil))}
-                      </span>
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleUnmuteDiscord}
-                      disabled={savingDiscord}
-                      className="px-4 py-2 rounded-lg border border-[var(--destructive-muted-border)] text-[var(--destructive)] text-sm font-medium hover:bg-[var(--destructive-muted)] transition-colors disabled:opacity-60"
-                    >
-                      {savingDiscord ? common("saving") : t("unmuteNow")}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    <select
-                      value={muteDuration}
-                      onChange={(e) => setMuteDuration(Number(e.target.value))}
-                      className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-                    >
-                      <option value={1}>1 day</option>
-                      <option value={3}>3 days</option>
-                      <option value={7}>7 days</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={handleMuteDiscord}
-                      disabled={savingDiscord}
-                      className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
-                    >
-                      {savingDiscord ? common("saving") : t("muteNotifications")}
-                    </button>
                   </div>
                 )}
               </div>
             )}
           </div>
+
+          <div
+            id="settings-digest"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  {t("weeklyDigestTitle")}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  {t("weeklyDigestDescription")}
+                </p>
+              </div>
+
+              <label className="flex items-center cursor-pointer select-none">
+                <span className="sr-only">Toggle setting</span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={settings.weekly_digest_opt_in}
+                    aria-label="Toggle Weekly Email Digest"
+                    onChange={(e) => handleToggleWeeklyDigest(e.target.checked)}
+                    disabled={saving}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`block h-6 w-10 rounded-full transition-colors ${
+                      settings.weekly_digest_opt_in
+                        ? "bg-[var(--accent)]"
+                        : "bg-[var(--control)]"
+                    }`}
+                  />
+                  <div
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                      settings.weekly_digest_opt_in ? "translate-x-4" : ""
+                    }`}
+                  />
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div
+            id="settings-notifications"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  {t("notificationsTitle")}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  {t("notificationsDescription")}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="text-sm font-medium text-[var(--card-foreground)]">
+                {t("webhookUrl")}
+              </label>
+              <input
+                type="text"
+                value={webhookUrl ?? ""}
+                onChange={(e) => setWebhookUrl(e.target.value || null)}
+                placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/..."
+                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+              />
+
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!settings) return;
+                    setWebhookSaving(true);
+                    try {
+                      const res = await fetch("/api/user/settings", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ webhook_url: webhookUrl }),
+                      });
+
+                      if (res.ok) {
+                        const updated = await res.json();
+                        setSettings(updated);
+                      } else {
+                        console.error("Failed to update webhook setting");
+                      }
+                    } catch (err) {
+                      console.error("Error updating webhook:", err);
+                    } finally {
+                      setWebhookSaving(false);
+                    }
+                  }}
+                  disabled={webhookSaving}
+                  className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] hover:opacity-90 transition-opacity disabled:opacity-60"
+                >
+                  {webhookSaving ? common("saving") : common("save")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWebhookUrl(settings?.webhook_url ?? null);
+                  }}
+                  className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)]"
+                >
+                  {common("reset")}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="settings-accounts"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  {t("connectedAccountsTitle")}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  {t("connectedAccountsDescription")}
+                </p>
+              </div>
+
+              <Link
+                href="/api/auth/link-github"
+                prefetch={false}
+                className="inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] hover:opacity-90 transition-opacity"
+              >
+                {t("addGitHubAccount")}
+              </Link>
+            </div>
+
+            {removeError && (
+              <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-[var(--error)]">
+                {removeError}
+              </div>
+            )}
+
+            {accountsError && (
+              <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-[var(--error)]">
+                {accountsError}
+              </div>
+            )}
+
+            <div className="mt-6">
+              {accountsLoading ? (
+                <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  {t("loadingLinkedAccounts")}
+                </div>
+              ) : linkedAccounts.length === 0 ? (
+                <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)]">
+                  {t("noLinkedAccounts")}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {linkedAccounts.map((account) => (
+                    <div
+                      key={account.id}
+                      className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 md:flex-row md:items-center md:justify-between"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold text-[var(--card-foreground)]">
+                          {account.githubLogin}
+                        </div>
+                        <div className="mt-1 text-sm text-[var(--muted-foreground)]">
+                          {formatAddedDate(account.addedAt)}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAccount(account.githubId)}
+                        aria-label={`Remove ${account.githubLogin}`}
+                        disabled={removingAccountId === account.githubId}
+                        className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-destructive/10 hover:text-[var(--error)] disabled:opacity-60"
+                      >
+                        {removingAccountId === account.githubId
+                          ? "Removing..."
+                          : "Remove"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div
+            id="settings-organizations"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  GitHub Organizations
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  Choose which organizations to include or exclude from your
+                  dashboard metrics.
+                </p>
+              </div>
+            </div>
+
+            {loadingOrgs ? (
+              <div className="space-y-3">
+                <div className="h-10 bg-[var(--card-muted)] rounded animate-pulse" />
+                <div className="h-10 bg-[var(--card-muted)] rounded animate-pulse" />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {orgAccounts.some((acc) => !acc.hasOrgScope) && (
+                  <div className="rounded-lg border border-amber-300/30 bg-amber-500/10 p-4">
+                    <p className="text-sm text-amber-200">
+                      <strong>Action Required:</strong> Organization access is
+                      not fully authorized. To display private organization
+                      contributions, please sign out and sign back in to grant
+                      organization permission (enable the &quot;read:org&quot;
+                      scope when prompted).
+                    </p>
+                  </div>
+                )}
+
+                {orgAccounts.length === 0 ? (
+                  <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 text-sm text-[var(--muted-foreground)] text-center">
+                    No organizations found.
+                  </div>
+                ) : (
+                  orgAccounts.map((acc) => (
+                    <div key={acc.githubId} className="space-y-3">
+                      <h3 className="text-sm font-semibold text-[var(--card-foreground)] border-b border-[var(--border)] pb-2">
+                        Organizations ({acc.githubLogin})
+                      </h3>
+                      {acc.orgs.length === 0 ? (
+                        <p className="text-xs text-[var(--muted-foreground)] py-2">
+                          No organization memberships found for this account.
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {acc.orgs.map((org: any) => {
+                            const isEnabled = orgsConfig[org.login] !== false; // default to true
+                            return (
+                              <div
+                                key={org.id}
+                                className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] p-3"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Image
+                                    src={org.avatarUrl}
+                                    alt={org.login}
+                                    width={32}
+                                    height={32}
+                                    className="w-8 h-8 rounded"
+                                    unoptimized
+                                  />
+                                  <span className="text-sm font-semibold text-[var(--card-foreground)]">
+                                    {org.login}
+                                  </span>
+                                </div>
+                                <label className="flex items-center cursor-pointer select-none">
+                                  <span className="sr-only">
+                                    Toggle {org.login}
+                                  </span>
+                                  <div className="relative">
+                                    <input
+                                      type="checkbox"
+                                      checked={isEnabled}
+                                      onChange={(e) =>
+                                        handleToggleOrg(
+                                          org.login,
+                                          e.target.checked
+                                        )
+                                      }
+                                      className="sr-only"
+                                    />
+                                    <div
+                                      className={`block h-6 w-10 rounded-full transition-colors ${
+                                        isEnabled
+                                          ? "bg-[var(--accent)]"
+                                          : "bg-[var(--control)]"
+                                      }`}
+                                    />
+                                    <div
+                                      className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-[var(--card)] transition-transform ${
+                                        isEnabled ? "translate-x-4" : ""
+                                      }`}
+                                    />
+                                  </div>
+                                </label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <div
+            id="settings-discord"
+            className="mt-6 scroll-mt-24 px-frame bg-[var(--card)] p-6"
+          >
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-4">
+              <div>
+                <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+                  {t("discordTitle")}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  {t("discordDescription")}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="discord-webhook"
+                  className="block text-sm font-medium text-[var(--card-foreground)] mb-1"
+                >
+                  {t("webhookUrl")}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="discord-webhook"
+                    type="text"
+                    value={discordWebhook}
+                    onChange={(e) => {
+                      setDiscordWebhook(e.target.value);
+                      setIsDirty(true);
+                    }}
+                    placeholder="https://discord.com/api/webhooks/..."
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="timezone-select"
+                  className="block text-sm font-medium text-[var(--card-foreground)] mb-1"
+                >
+                  {t("timezoneLabel")}
+                </label>
+                <select
+                  id="timezone-select"
+                  value={timezone}
+                  onChange={(e) => {
+                    setTimezone(e.target.value);
+                    setIsDirty(true);
+                  }}
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                >
+                  <option value="UTC">UTC</option>
+                  <option value="America/New_York">Eastern Time (ET)</option>
+                  <option value="America/Chicago">Central Time (CT)</option>
+                  <option value="America/Denver">Mountain Time (MT)</option>
+                  <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                  <option value="Europe/London">London (GMT/BST)</option>
+                  <option value="Europe/Paris">
+                    Central European Time (CET)
+                  </option>
+                  <option value="Asia/Kolkata">
+                    India Standard Time (IST)
+                  </option>
+                  <option value="Asia/Tokyo">Japan Standard Time (JST)</option>
+                  <option value="Australia/Sydney">
+                    Australian Eastern Time (AET)
+                  </option>
+                  {/* Additional common timezones */}
+                  <option value="America/Sao_Paulo">Brasilia Time (BRT)</option>
+                  <option value="Asia/Dubai">Gulf Standard Time (GST)</option>
+                  <option value="Asia/Singapore">
+                    Singapore Standard Time (SGT)
+                  </option>
+                </select>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={handleSaveDiscord}
+                  disabled={savingDiscord}
+                  className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+                >
+                  {savingDiscord ? common("saving") : t("saveDiscord")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleTestDiscord}
+                  disabled={testingDiscord || !discordWebhook}
+                  className="px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--control)] text-[var(--card-foreground)] text-sm font-medium hover:bg-[var(--card-muted)] transition-colors disabled:opacity-60"
+                >
+                  {testingDiscord ? t("testing") : t("testNotification")}
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+                Leave Webhook URL blank and click Save to unlink Discord.
+              </p>
+
+              {discordWebhook && (
+                <div className="border-t border-border/60 pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-[var(--card-foreground)] mb-3">
+                    {t("muteNotifications")}
+                  </h3>
+                  {discordMutedUntil &&
+                  new Date(discordMutedUntil).getTime() > Date.now() ? (
+                    <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4">
+                      <p className="text-sm text-[var(--card-foreground)] mb-3">
+                        Muted until{" "}
+                        <span className="font-semibold">
+                          {new Intl.DateTimeFormat("en-US", {
+                            dateStyle: "long",
+                            timeStyle: "short",
+                          }).format(new Date(discordMutedUntil))}
+                        </span>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleUnmuteDiscord}
+                        disabled={savingDiscord}
+                        className="px-4 py-2 rounded-lg border border-[var(--destructive-muted-border)] text-[var(--destructive)] text-sm font-medium hover:bg-[var(--destructive-muted)] transition-colors disabled:opacity-60"
+                      >
+                        {savingDiscord ? common("saving") : t("unmuteNow")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                      <select
+                        value={muteDuration}
+                        onChange={(e) =>
+                          setMuteDuration(Number(e.target.value))
+                        }
+                        className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                      >
+                        <option value={1}>1 day</option>
+                        <option value={3}>3 days</option>
+                        <option value={7}>7 days</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={handleMuteDiscord}
+                        disabled={savingDiscord}
+                        className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[var(--accent-foreground)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+                      >
+                        {savingDiscord
+                          ? common("saving")
+                          : t("muteNotifications")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div id="settings-privacy" className="scroll-mt-24">
+            <PrivacySettings />
+          </div>
+
+          <div id="settings-webhooks" className="mt-6 scroll-mt-24">
+            <WebhookManager />
+          </div>
+
+          <ConfirmModal
+            isOpen={showConfirmModal}
+            title={t("unsavedTitle")}
+            message={t("unsavedMessage")}
+            confirmLabel={t("leaveAnyway")}
+            cancelLabel={t("stayAndSave")}
+            onConfirm={handleConfirmLeave}
+            onCancel={handleCancelLeave}
+          />
         </div>
-
-        <PrivacySettings />
-        <div className="mt-4 flex justify-center items-center pt-6">
-          <Link href="/dashboard">
-            <button aria-label="Back to Dashboard" className="group inline-flex items-center justify-center rounded-lg border border-[var(--accent)] bg-[var(--accent)] px-5 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-all hover:opacity-90 active:scale-95">
-              <span className="mr-2 transition-transform duration-200 group-hover:-translate-x-1.5">
-                ←
-              </span>
-              {common("backToDashboard")}
-            </button>
-          </Link>
-        </div>
-
-        <WebhookManager />
-
-        <ConfirmModal
-          isOpen={showConfirmModal}
-          title={t("unsavedTitle")}
-          message={t("unsavedMessage")}
-          confirmLabel={t("leaveAnyway")}
-          cancelLabel={t("stayAndSave")}
-          onConfirm={handleConfirmLeave}
-          onCancel={handleCancelLeave}
-        />
       </div>
-    </div>
+    </>
   );
 }
 

@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
 interface ProfileQrModalProps {
-  /** The full public profile URL to encode, e.g. https://devtrack-silk-kappa.vercel.app/u/johndoe */
+  /** The full public profile URL to encode, e.g. https://devtrack.live/u/johndoe */
   profileUrl: string;
   /** Display name shown in the modal header */
   username: string;
@@ -27,7 +27,7 @@ interface ProfileQrModalProps {
  *   <button onClick={() => setShowQr(true)}>Show QR Code</button>
  *   {showQr && (
  *     <ProfileQrModal
- *       profileUrl={`https://devtrack-silk-kappa.vercel.app/u/${username}`}
+ *       profileUrl={`https://devtrack.live/u/${username}`}
  *       username={username}
  *       onClose={() => setShowQr(false)}
  *     />
@@ -52,11 +52,14 @@ export function ProfileQrModal({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  // Prevent background scroll while modal is open
+  // Prevent background scroll while modal is open. Restore the previous
+  // inline overflow instead of hardcoding "" so we don't clobber a value
+  // that was already set before this modal mounted.
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
     };
   }, []);
 
@@ -68,39 +71,29 @@ export function ProfileQrModal({
   );
 
   const handleDownload = useCallback(() => {
-    const svg = qrContainerRef.current?.querySelector("svg");
-    if (!svg) return;
+    // QRCodeCanvas renders a <canvas>, so the pixels are already there — read
+    // them straight off it. A previous version looked for a <svg> here, which
+    // this component has never rendered, so the button silently did nothing.
+    const source = qrContainerRef.current?.querySelector("canvas");
+    if (!source) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
     const padding = 24; // px of white border around the QR code
-    const qrSize = 256;
-    canvas.width = qrSize + padding * 2;
-    canvas.height = qrSize + padding * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = source.width + padding * 2;
+    canvas.height = source.height + padding * 2;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // White background
+    // White background so the code still scans when saved on a dark theme.
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, padding, padding);
 
-    const img = new Image();
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    img.onload = () => {
-      ctx.drawImage(img, padding, padding, qrSize, qrSize);
-      URL.revokeObjectURL(url);
-
-      const pngUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = pngUrl;
-      link.download = `devtrack-${username}-qr.png`;
-      link.click();
-    };
-
-    img.src = url;
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = `devtrack-${username}-qr.png`;
+    link.click();
   }, [username]);
 
   return (
@@ -113,12 +106,12 @@ export function ProfileQrModal({
       onClick={handleBackdropClick}
     >
       {/* Panel */}
-      <div className="relative mx-4 flex w-full max-w-sm flex-col items-center rounded-2xl bg-white px-8 py-8 shadow-2xl dark:bg-gray-900">
+      <div className="relative mx-4 flex w-full max-w-sm flex-col items-center px-frame bg-[var(--card)] px-8 py-8">
         {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Close QR code modal"
-          className="absolute right-4 top-4 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          className="absolute right-4 top-4 rounded-full p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] hover:text-[var(--foreground)]"
         >
           {/* ✕ icon (inline SVG to avoid icon-library coupling) */}
           <svg
@@ -141,13 +134,13 @@ export function ProfileQrModal({
         {/* Heading */}
         <h2
           id="qr-modal-title"
-          className="mb-1 text-lg font-semibold text-gray-900 dark:text-white"
+          className="mb-1 text-lg font-semibold text-[var(--foreground)]"
         >
           Share Profile
         </h2>
-        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mb-6 text-sm text-[var(--muted-foreground)]">
           Scan to visit&nbsp;
-          <span className="font-medium text-gray-700 dark:text-gray-300">
+          <span className="font-medium text-[var(--foreground)]">
             @{username}
           </span>
           &apos;s DevTrack profile
@@ -169,7 +162,7 @@ export function ProfileQrModal({
 
         {/* Profile URL (read-only, copyable) */}
         <p
-          className="mt-4 max-w-full truncate text-center text-xs text-gray-400 dark:text-gray-500"
+          className="mt-4 max-w-full truncate text-center text-xs text-[var(--muted-foreground)]"
           title={profileUrl}
         >
           {profileUrl}
@@ -178,7 +171,7 @@ export function ProfileQrModal({
         {/* Download button */}
         <button
           onClick={handleDownload}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
         >
           {/* Download icon */}
           <svg

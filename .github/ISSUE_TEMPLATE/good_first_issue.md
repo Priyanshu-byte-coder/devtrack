@@ -2,8 +2,8 @@
 name: Good First Issue
 about: A well-scoped task for first-time contributors
 title: "[GOOD FIRST ISSUE] "
-labels: good-first-issue
-assignees: ''
+labels: "good first issue"
+assignees: ""
 ---
 
 ## What Needs to Be Done

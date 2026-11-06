@@ -1,10 +1,38 @@
 packages:
   - '.'
+# pnpm >=10 reads overrides from this file, not from package.json.
+# Keep every override here — a duplicate block in package.json is silently ignored.
 overrides:
-  serialize-javascript: ">=7.0.3"
-  postcss: ">=8.4.31"
+  "@types/react": "^18"
+  "@types/react-dom": "^18"
+  axios: "^1.20.0"
+  braces: "3.0.3"
+  source-map-js: "^1.2.2"
+  sprintf-js: "1.1.3"
+  serialize-javascript: ">=7.1.3"
   uuid: ">=9.0.1"
-  js-yaml: "4.1.0"
+  esbuild: ">=0.25.0"
+  form-data: ">=4.0.6"
+  # Transitive advisories (see `pnpm audit --prod`). Ranges are caret-bounded on
+  # purpose: an open ">=" here drags every dependent onto the newest major
+  # (js-yaml 5, nanoid 6, undici 8), which is a far bigger change than the fix.
+  postcss: "^8.5.23"
+  js-yaml: "^4.3.2"
+  fast-uri: "^3.1.9"
+  nanoid: "^3.3.18"
+  sharp: "^0.35.5"
+  undici: "^7.29.1"
+  postcss-selector-parser: "^7.1.6"
+  browserslist: "^4.28.9"
+  baseline-browser-mapping: "^2.11.0"
+  # immutable 3.8.3 has no patched 3.x line; the advisory's fix is 4.3.9.
+  immutable: "^4.3.9"
+  follow-redirects: "^1.16.2"
+  glob: "^14.0.2"
+  minimatch: "^11.0.1"
+  zod: "^4.6.6"
+  # brace-expansion ships three parallel majors; a single range would let the
+  # vulnerable 2.x satisfy a "^1.1.18" constraint, so bound each line separately.
 allowBuilds:
   '@parcel/watcher': true
   '@scarf/scarf': true
@@ -18,3 +46,21 @@ allowBuilds:
   tree-sitter: true
   tree-sitter-json: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@next/env@16.4.1'
+  - '@next/eslint-plugin-next@16.4.1'
+  - '@next/swc-darwin-arm64@16.4.1'
+  - '@next/swc-darwin-x64@16.4.1'
+  - '@next/swc-linux-arm64-gnu@16.4.1'
+  - '@next/swc-linux-arm64-musl@16.4.1'
+  - '@next/swc-linux-x64-gnu@16.4.1'
+  - '@next/swc-linux-x64-musl@16.4.1'
+  - '@next/swc-win32-arm64-msvc@16.4.1'
+  - '@next/swc-win32-x64-msvc@16.4.1'
+  - eslint-config-next@16.4.1
+  - next@16.4.1
+
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
+  deepmerge@4.3.1: patches/deepmerge@4.3.1.patch
+  sprintf-js@1.1.3: patches/sprintf-js@1.1.3.patch

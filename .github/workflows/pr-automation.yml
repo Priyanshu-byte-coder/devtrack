@@ -1,0 +1,101 @@
+name: PR Label & Assignment Automation
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+  issues: write
+
+jobs:
+  auto-type-label:
+    name: Auto-apply type labels
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target'
+    steps:
+      - name: Detect and apply type labels
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const { owner, repo } = context.repo;
+            const prNumber = pr.number;
+            const title = pr.title.toLowerCase();
+            const body = (pr.body || '').toLowerCase();
+
+            // Fetch changed files
+            const filesRes = await github.paginate(github.rest.pulls.listFiles, {
+              owner, repo, pull_number: prNumber, per_page: 100
+            });
+            const files = filesRes.map(f => f.filename.toLowerCase());
+
+            const labelsToAdd = new Set();
+
+            // --- Type detection from title ---
+            if (/^fix|^bug|hotfix/.test(title)) labelsToAdd.add('type:bug');
+            if (/^feat|^feature|add |implement/.test(title)) labelsToAdd.add('type:feature');
+            if (/^docs|^doc|readme|changelog|contributing/.test(title)) labelsToAdd.add('type:docs');
+            if (/^refactor|cleanup|clean up|reorgani/.test(title)) labelsToAdd.add('type:refactor');
+            if (/test|spec|coverage/.test(title)) labelsToAdd.add('type:testing');
+            if (/perf|performance|optimi|speed|latency/.test(title)) labelsToAdd.add('type:performance');
+            if (/a11y|accessibility|aria|wcag|screen.?reader/.test(title)) labelsToAdd.add('type:accessibility');
+            if (/security|auth|cve|xss|injection|csrf/.test(title)) labelsToAdd.add('type:security');
+            if (/ci|cd|deploy|docker|kubernetes|workflow|pipeline|devops/.test(title)) labelsToAdd.add('type:devops');
+            if (/design|ui|ux|theme|style|layout|responsive|dark.?mode/.test(title)) labelsToAdd.add('type:design');
+
+            // --- Type detection from files changed ---
+            const hasMarkdown = files.some(f => f.endsWith('.md') || f.endsWith('.mdx'));
+            const hasTests = files.some(f =>
+              f.includes('.test.') || f.includes('.spec.') ||
+              f.includes('__tests__') || f.includes('/tests/')
+            );
+            const hasWorkflow = files.some(f => f.includes('.github/workflows'));
+            const hasSecurity = files.some(f =>
+              f.includes('auth') || f.includes('middleware') || f.includes('security')
+            );
+            const hasStyle = files.some(f =>
+              f.endsWith('.css') || f.endsWith('.scss') ||
+              f.includes('globals') || f.includes('tailwind')
+            );
+
+            if (hasMarkdown) labelsToAdd.add('type:docs');
+            if (hasTests) labelsToAdd.add('type:testing');
+            if (hasWorkflow) labelsToAdd.add('type:devops');
+            if (hasSecurity && !labelsToAdd.has('type:bug') && !labelsToAdd.has('type:feature')) {
+              labelsToAdd.add('type:security');
+            }
+            if (hasStyle && !labelsToAdd.has('type:bug')) labelsToAdd.add('type:design');
+
+            // Fetch current labels
+            const currentLabels = pr.labels.map(l => l.name);
+
+            // Only add labels not already present
+            const newLabels = [...labelsToAdd].filter(l => !currentLabels.includes(l));
+
+            if (newLabels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: prNumber, labels: newLabels
+              });
+              console.log(`Added labels: ${newLabels.join(', ')}`);
+            }
+
+            // Auto-assign PR author to PR
+            const creator = pr.user.login;
+            const currentAssignees = pr.assignees.map(a => a.login);
+            if (pr.user.type !== "Bot" && !creator.endsWith("[bot]") && !currentAssignees.includes(creator)) {
+              try {
+              await github.rest.issues.addAssignees({
+                owner,
+                repo,
+                issue_number: prNumber,
+                assignees: [creator]
+              });
+              console.log(`Assigned PR #${prNumber} to author @${creator}`);
+              } catch (error) {
+                if (![403, 422].includes(error.status)) throw error;
+                core.warning(`Author assignment skipped: HTTP ${error.status}`);
+              }
+            }

@@ -143,7 +143,9 @@ describe('GoalTracker - useGoalTracker Hook', () => {
     });
 
     expect(result.current.syncing).toBe(false);
-    expect(result.current.syncError).toBe('Failed to sync goals. Please try again.');
+    // handleSync's generic non-429/401/502 branch. The "Failed to sync goals"
+    // wording belongs to the devtrack:sync event listener, a different path.
+    expect(result.current.syncError).toBe('Sync failed. Please try again.');
   });
 
   it('handles creating a non-auto-synced goal successfully', async () => {
@@ -284,16 +286,18 @@ describe('GoalTracker - useGoalTracker Hook', () => {
   });
 
   describe('getCompletionLabel calculation bounds', () => {
-    it('returns completed tags correctly', () => {
+    it('returns completed and surpassed tags correctly', () => {
       const { result } = renderHook(() => useGoalTracker());
 
       const oneTime = { id: '1', current: 5, target: 5, recurrence: 'none' as const, deadline: null } as any;
       const weekly = { id: '2', current: 10, target: 10, recurrence: 'weekly' as const, deadline: null } as any;
       const monthly = { id: '3', current: 20, target: 20, recurrence: 'monthly' as const, deadline: null } as any;
+      const surpassed = { id: '4', current: 14, target: 10, recurrence: 'none' as const, deadline: null } as any;
 
       expect(result.current.getCompletionLabel(oneTime)).toBe('Completed ✓');
       expect(result.current.getCompletionLabel(weekly)).toBe('Completed this week ✓');
       expect(result.current.getCompletionLabel(monthly)).toBe('Completed this month ✓');
+      expect(result.current.getCompletionLabel(surpassed)).toBe('Goal surpassed! 🎯');
     });
 
     it('returns deadline-based tags correctly', () => {

@@ -1,0 +1,44 @@
+# DevTrack
+
+> DevTrack is a free, open-source GitHub activity tracker and developer leaderboard: a web app that turns a developer's GitHub activity into stats, streaks and a global ranking. Developers sign in with GitHub to see their commits, pull requests, contribution streak and languages, set coding goals, and compare themselves with friends and other developers worldwide.
+
+DevTrack is built with Next.js and is developed in the open on GitHub, where contributors of every experience level are welcome.
+
+## Public pages
+
+- [Home](https://devtrack.live/): what DevTrack is and live stats for the project itself
+- [Global leaderboard](https://devtrack.live/leaderboard): developers with public profiles ranked by coding streak, commits and merged pull requests, filterable by language and period (week, month, all time)
+- [Public profiles](https://devtrack.live/u/{github-username}): a developer's streak, contributions, top languages, pull requests and GitHub achievements. Only shown for users who made their profile public.
+- [Year in Code](https://devtrack.live/wrapped): a yearly recap of a developer's GitHub activity
+
+## How rankings work
+
+- New accounts appear on the leaderboard by default; anyone can hide their profile or leave the board in Settings.
+- Rankings are computed from public GitHub activity: current contribution streak, commits and pull requests in the selected period.
+- Data refreshes about hourly.
+
+## Guides
+
+- [GitHub activity trackers compared](https://devtrack.live/guides/github-activity-tracker): what GitHub shows, WakaTime, README stats cards, OSS Insight and DevTrack, and which to use for what.
+- [Is there a GitHub leaderboard?](https://devtrack.live/guides/github-leaderboard): GitHub doesn't rank users; how developer leaderboards rank people and how to see your rank.
+- [Add GitHub stats to your profile README](https://devtrack.live/guides/github-stats-readme): live rank, streak and monthly commit badges, with copy-paste Markdown.
+- [GitHub streaks](https://devtrack.live/guides/github-streak): GitHub removed streak counters in 2016; how streaks are counted now and how to keep one.
+- [Compare two GitHub profiles](https://devtrack.live/guides/compare-github-profiles): side-by-side duels on streaks, contributions, commits, PRs and reviews.
+- [How the DevTrack score works](https://devtrack.live/guides/devtrack-score): the 0-1000 score, six tiers, XP and levels.
+
+## Top developers
+
+- [By language](https://devtrack.live/top): the most-followed GitHub developers for 20 languages, updated daily.
+- [By country](https://devtrack.live/top/country/india): the most-followed GitHub developers in 28 countries, e.g. India, the United States, Germany, Brazil.
+
+## For developers and contributors
+
+- [Source code](https://github.com/Priyanshu-byte-coder/devtrack)
+- [Contributing guide](https://github.com/Priyanshu-byte-coder/devtrack/blob/main/CONTRIBUTING.md)
+- [Public API reference](https://devtrack.live/api-docs)
+- [Community guidelines](https://devtrack.live/guidelines)
+
+## Optional
+
+- [Privacy policy](https://devtrack.live/privacy-policy)
+- [Contact](https://devtrack.live/contact)

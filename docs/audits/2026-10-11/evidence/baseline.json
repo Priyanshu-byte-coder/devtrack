@@ -1,0 +1,19 @@
+{
+  "captured_at_utc": "2026-10-11T07:20:42.979744+00:00",
+  "repo": "Priyanshu-byte-coder/devtrack",
+  "remote": "https://github.com/Priyanshu-byte-coder/devtrack.git",
+  "branch": "main",
+  "head": "a20e51d437a220db4e626a072a9716b67381eca9",
+  "origin_main": "a20e51d437a220db4e626a072a9716b67381eca9",
+  "commit_date": "2026-09-12T16:43:25+05:30",
+  "commit_subject": "fix(deps): patch two critical Next.js RCEs and eight other advisories (#3514)",
+  "tracked_changes": [],
+  "staged_changes": [],
+  "remote_branch_count": 39,
+  "tag_count": 2,
+  "node": "v22.14.0",
+  "pnpm": "11.9.0",
+  "preserved_preexisting_untracked": [
+    ".scannerwork/"
+  ]
+}

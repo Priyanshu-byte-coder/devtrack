@@ -8,6 +8,7 @@ const eslintConfig = [
       reportUnusedDisableDirectives: "off",
     },
     rules: {
+      "react-hooks/exhaustive-deps": "error",
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/no-direct-set-state-in-use-effect": "off",
       "react-hooks/refs": "off",

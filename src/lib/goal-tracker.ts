@@ -1,4 +1,5 @@
 type Recurrence = "none" | "weekly" | "monthly";
+export type GoalCategory = "side-project" | "work" | "dsa" | "open-source";
 
 export interface CreateGoalPayload {
   title: string;
@@ -6,6 +7,7 @@ export interface CreateGoalPayload {
   unit: string;
   recurrence: Recurrence;
   deadline: string | null;
+  category?: GoalCategory | null;
 }
 
 interface SubmitGoalOptions {

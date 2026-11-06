@@ -48,7 +48,6 @@ async function setupGoalsMocks(page: import("@playwright/test").Page) {
         user: { name: "Playwright User", email: "playwright@devtrack.test" },
         githubLogin: "playwright-user",
         githubId: "99001",
-        accessToken: "mock-access-token",
         expires: "2099-01-01T00:00:00.000Z",
       }),
     })
@@ -107,7 +106,10 @@ async function setupGoalsMocks(page: import("@playwright/test").Page) {
   await page.route("**/api/goals/sync**", (route) =>
     route.fulfill({
       contentType: "application/json",
-      body: JSON.stringify({ ok: true, last_synced_at: new Date().toISOString() }),
+      body: JSON.stringify({
+        ok: true,
+        last_synced_at: new Date().toISOString(),
+      }),
     })
   );
 
@@ -115,20 +117,24 @@ async function setupGoalsMocks(page: import("@playwright/test").Page) {
 }
 
 async function openGoalsWidget(page: import("@playwright/test").Page) {
-  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  await page.goto("/dashboard/goals", { waitUntil: "domcontentloaded" });
   await expect(
-    page.getByRole("heading", { name: "Dashboard", exact: true })
+    page.getByRole("heading", { level: 1, name: "Goals" })
   ).toBeVisible({ timeout: 30_000 });
   await scrollToWidget(page, "Goals");
 }
 
 test("[Goals E2E] goals widget renders on dashboard", async ({ page }) => {
-  page.on("console", msg => console.log("BROWSER CONSOLE:", msg.text()));
+  page.on("console", (msg) => console.log("BROWSER CONSOLE:", msg.text()));
   await setupGoalsMocks(page);
 
   await page.route(/\/api\/goals(\?|$)/, (route) => {
     if (route.request().method() === "POST") {
-      return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
+      });
     }
     return route.fulfill({
       contentType: "application/json",
@@ -174,8 +180,14 @@ test("[Goals E2E] creating a goal sends POST /api/goals with correct payload", a
   await page.getByLabel("Unit", { exact: true }).selectOption("prs");
   await page.getByRole("button", { name: "Create goal" }).click();
 
-  await expect.poll(() => goalPosts.filter(Boolean), { timeout: 10_000 }).toHaveLength(1);
-  expect(goalPosts.find(Boolean)).toMatchObject({ title: "Ship one PR", target: 1, unit: "prs" });
+  await expect
+    .poll(() => goalPosts.filter(Boolean), { timeout: 10_000 })
+    .toHaveLength(1);
+  expect(goalPosts.find(Boolean)).toMatchObject({
+    title: "Ship one PR",
+    target: 1,
+    unit: "prs",
+  });
 });
 
 test("[Goals E2E] newly created goal appears in the goals list", async ({
@@ -199,10 +211,17 @@ test("[Goals E2E] newly created goal appears in the goals list", async ({
   // Use regex so only /api/goals is matched — NOT /api/goals/sync or /api/goals/:id.
   await page.route(/\/api\/goals(\?|$)/, async (route) => {
     if (route.request().method() === "POST") {
-      const body = route.request().postDataJSON() as Record<string, unknown> | null;
+      const body = route.request().postDataJSON() as Record<
+        string,
+        unknown
+      > | null;
       // Guard: /api/goals/sync POSTs (if leaked) have null body — skip them.
       if (!body) {
-        return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+        return route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify({ ok: true }),
+        });
       }
       goalsStore.push({
         id: `g-new-${Date.now()}`,
@@ -228,7 +247,9 @@ test("[Goals E2E] newly created goal appears in the goals list", async ({
 
   await openGoalsWidget(page);
 
-  await expect(page.getByText("Existing Goal")).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText("Existing Goal")).toBeVisible({
+    timeout: 10_000,
+  });
 
   // Scroll goal form into view and wait for it to be interactive.
   const titleInput = page.getByLabel("Goal title");
@@ -242,7 +263,9 @@ test("[Goals E2E] newly created goal appears in the goals list", async ({
   await page.getByRole("button", { name: "Create goal" }).click();
 
   // The new goal should appear without a page reload.
-  await expect(page.getByText("Ship five PRs")).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText("Ship five PRs")).toBeVisible({
+    timeout: 10_000,
+  });
 });
 
 test("[Goals E2E] deleting a goal removes it from the list", async ({
@@ -263,9 +286,13 @@ test("[Goals E2E] deleting a goal removes it from the list", async ({
     },
   ];
 
-  await page.route("**/api/goals**", async (route) => {
+  await page.route(/\/api\/goals(\?|$)/, async (route) => {
     if (route.request().method() === "POST") {
-      return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ ok: true }) });
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
+      });
     }
     return route.fulfill({
       contentType: "application/json",
@@ -291,19 +318,26 @@ test("[Goals E2E] deleting a goal removes it from the list", async ({
         body: JSON.stringify({ goal: goalsStore[0] ?? {} }),
       });
     }
-    return route.fulfill({ status: 204, body: "" });
+    return route.fallback();
   });
 
   await openGoalsWidget(page);
-  await expect(page.getByText("Goal to Delete")).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText("Goal to Delete")).toBeVisible({
+    timeout: 10_000,
+  });
 
   // Click the delete button (trash icon) next to this goal.
-  const goalRow = page.locator("li").filter({ hasText: "Goal to Delete" }).first();
+  const goalRow = page
+    .locator("li")
+    .filter({ hasText: "Goal to Delete" })
+    .first();
   await goalRow.getByRole("button", { name: /delete goal/i }).click();
 
   // A confirmation modal appears — click "Permanently Delete" to confirm.
   await page.getByRole("button", { name: /permanently delete/i }).click();
 
   // Goal should be gone.
-  await expect(page.getByText("Goal to Delete", { exact: true })).not.toBeVisible({ timeout: 10_000 });
+  await expect(
+    page.getByText("Goal to Delete", { exact: true })
+  ).not.toBeVisible({ timeout: 10_000 });
 });

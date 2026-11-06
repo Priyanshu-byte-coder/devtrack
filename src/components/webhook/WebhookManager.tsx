@@ -21,13 +21,67 @@ interface WebhookDelivery {
   delivered_at: string;
 }
 
+/**
+ * All available webhook events.
+ */
 const AVAILABLE_EVENTS = [
-  { value: "goal.completed", label: "Goal Completed" },
-  { value: "goal.created", label: "Goal Created" },
-  { value: "streak.milestone", label: "Streak Milestone" },
-  { value: "daily.summary", label: "Daily Summary" },
-  { value: "weekly.summary", label: "Weekly Summary" },
-  { value: "metrics.updated", label: "Metrics Updated" },
+  {
+    value: "streak.milestone_reached",
+    label: "Streak Milestone Reached",
+    group: "Activity Alerts",
+    description:
+      "Fired when a user hits a streak milestone (7, 30, 100 days, etc.)",
+  },
+  {
+    value: "goal.completed",
+    label: "Goal Completed",
+    group: "Activity Alerts",
+    description: "Fired when a weekly coding goal is marked complete",
+  },
+  {
+    value: "weekly_summary.ready",
+    label: "Weekly Summary Ready",
+    group: "Activity Alerts",
+    description: "Fired when the weekly coding summary is generated",
+  },
+  {
+    value: "goal.created",
+    label: "Goal Created",
+    group: "Goals",
+    description: "Fired when a new goal is created",
+  },
+  {
+    value: "streak.milestone",
+    label: "Streak Milestone (legacy)",
+    group: "Streaks",
+    description: "Legacy streak milestone event",
+  },
+  {
+    value: "daily.summary",
+    label: "Daily Summary",
+    group: "Summaries",
+    description: "Daily activity summary dispatch",
+  },
+  {
+    value: "weekly.summary",
+    label: "Weekly Summary (legacy)",
+    group: "Summaries",
+    description: "Legacy weekly summary event",
+  },
+  {
+    value: "metrics.updated",
+    label: "Metrics Updated",
+    group: "Metrics",
+    description: "Fired when metrics are refreshed",
+  },
+];
+
+const CONTENT_TYPES = [
+  { value: "application/json", label: "application/json (default)" },
+  {
+    value: "application/x-www-form-urlencoded",
+    label: "application/x-www-form-urlencoded",
+  },
 ];
 
 export default function WebhookManager() {
@@ -41,6 +95,9 @@ export default function WebhookManager() {
   const [formName, setFormName] = useState("");
   const [formUrl, setFormUrl] = useState("");
   const [formEvents, setFormEvents] = useState<string[]>([]);
+  const [formContentType, setFormContentType] = useState("application/json");
+  const [formSecretToken, setFormSecretToken] = useState("");
+  const [secretCopied, setSecretCopied] = useState(false);
 
   const [selectedWebhook, setSelectedWebhook] = useState<string | null>(null);
   const [webhookDetails, setWebhookDetails] = useState<{
@@ -85,6 +142,10 @@ export default function WebhookManager() {
           name: formName,
           url: formUrl,
           events: formEvents,
+          content_type: formContentType,
+          ...(formSecretToken.trim()
+            ? { secret_token: formSecretToken.trim() }
+            : {}),
         }),
       });
 
@@ -98,9 +159,14 @@ export default function WebhookManager() {
       setFormName("");
       setFormUrl("");
       setFormEvents([]);
+      setFormContentType("application/json");
+      setFormSecretToken("");
+      setShowCreateForm(false);
       await loadWebhooks();
     } catch (err) {
-      setCreatingError(err instanceof Error ? err.message : "Failed to create webhook");
+      setCreatingError(
+        err instanceof Error ? err.message : "Failed to create webhook"
+      );
     } finally {
       setCreating(false);
     }
@@ -195,7 +261,9 @@ export default function WebhookManager() {
   }
 
   async function handleRotateSecret(id: string) {
-    if (!confirm("Rotate secret key? Your endpoint will need to use the new key.")) {
+    if (
+      !confirm("Rotate secret key? Your endpoint will need to use the new key.")
+    ) {
       return;
     }
 
@@ -224,6 +292,16 @@ export default function WebhookManager() {
     );
   }
 
+  async function copySecret(secret: string) {
+    try {
+      await navigator.clipboard.writeText(secret);
+      setSecretCopied(true);
+      setTimeout(() => setSecretCopied(false), 2000);
+    } catch {
+      // Clipboard API not available – user can select manually
+    }
+  }
+
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
@@ -235,31 +313,43 @@ export default function WebhookManager() {
   }
 
   function getEventLabel(eventValue: string): string {
-    return AVAILABLE_EVENTS.find((e) => e.value === eventValue)?.label || eventValue;
+    return (
+      AVAILABLE_EVENTS.find((e) => e.value === eventValue)?.label || eventValue
+    );
   }
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+      <div className="px-frame bg-[var(--card)] p-6">
         <div className="h-6 w-40 bg-[var(--card-muted)] rounded animate-pulse mb-4" />
         <div className="space-y-3">
           {[1, 2].map((i) => (
-            <div key={i} className="h-20 bg-[var(--card-muted)] rounded animate-pulse" />
+            <div
+              key={i}
+              className="h-20 bg-[var(--card-muted)] rounded animate-pulse"
+            />
           ))}
         </div>
       </div>
     );
   }
 
+  const activityAlertEvents = AVAILABLE_EVENTS.filter(
+    (e) => e.group === "Activity Alerts"
+  );
+  const otherEvents = AVAILABLE_EVENTS.filter(
+    (e) => e.group !== "Activity Alerts"
+  );
+
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+    <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
-            Custom Webhooks
+          <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+            Outbound Webhooks
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-            Trigger external events from your DevTrack metrics
+            Receive HTTP POST requests when DevTrack activity events occur
           </p>
         </div>
 
@@ -276,21 +366,35 @@ export default function WebhookManager() {
       </div>
 
       {newSecret && (
-        <div className="mb-6 rounded-lg border border-[var(--success)]/30 bg-[var(--success)]/10 p-4">
-          <p className="text-sm font-semibold text-[var(--success)]">Webhook Created!</p>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-            Save this secret key - it will not be shown again:
+        <div className="mb-6 rounded-lg border border-success/30 bg-success/10 p-4">
+          <p className="text-sm font-semibold text-[var(--success)]">
+            Webhook Created!
           </p>
-          <code className="mt-2 block rounded bg-[var(--control)] p-2 font-mono text-xs break-all">
-            {newSecret}
-          </code>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            Save this secret token — it will not be shown again. Use it to
+            verify the{" "}
+            <code className="font-mono text-xs">X-Webhook-Signature</code>{" "}
+            header (HMAC-SHA256) on your endpoint.
+          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <code className="flex-1 block rounded bg-[var(--control)] p-2 font-mono text-xs break-all">
+              {newSecret}
+            </code>
+            <button
+              type="button"
+              onClick={() => copySecret(newSecret)}
+              className="flex-shrink-0 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors"
+            >
+              {secretCopied ? "Copied!" : "Copy"}
+            </button>
+          </div>
         </div>
       )}
 
       {showCreateForm && (
         <form
           onSubmit={handleCreate}
-          className="mb-6 rounded-lg border border-[var(--border)] bg-[var(--control)] p-4 space-y-4"
+          className="mb-6 border border-[var(--border)] bg-[var(--control)] p-4 space-y-4"
         >
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
@@ -309,7 +413,7 @@ export default function WebhookManager() {
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-              Webhook URL
+              Payload URL
             </label>
             <input
               type="url"
@@ -324,41 +428,153 @@ export default function WebhookManager() {
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-              Events
+              Content-Type
             </label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              {AVAILABLE_EVENTS.map((event) => (
-                <label
-                  key={event.value}
-                  className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all text-sm ${
-                    formEvents.includes(event.value)
-                      ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--foreground)]"
-                      : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]/50"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={formEvents.includes(event.value)}
-                    onChange={() => toggleEvent(event.value)}
-                    disabled={creating}
-                    className="sr-only"
-                  />
-                  <span
-                    className={`h-4 w-4 rounded border flex items-center justify-center ${
+            <select
+              value={formContentType}
+              onChange={(e) => setFormContentType(e.target.value)}
+              disabled={creating}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+            >
+              {CONTENT_TYPES.map((ct) => (
+                <option key={ct.value} value={ct.value}>
+                  {ct.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+              Secret Token{" "}
+              <span className="normal-case font-normal text-[var(--muted-foreground)]">
+                (optional — leave blank to auto-generate)
+              </span>
+            </label>
+            <input
+              type="text"
+              value={formSecretToken}
+              onChange={(e) => setFormSecretToken(e.target.value)}
+              placeholder="my-shared-secret"
+              disabled={creating}
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] font-mono"
+            />
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+              DevTrack signs payloads with HMAC-SHA256. The signature is sent in
+              the <code className="font-mono">X-Webhook-Signature</code> header
+              as <code className="font-mono">sha256=&lt;hex&gt;</code>.
+            </p>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+              Which events trigger this webhook?
+            </label>
+
+            <div className="mb-3">
+              <p className="mb-2 text-xs font-semibold text-[var(--accent)] uppercase tracking-wide flex items-center gap-1">
+                <span>🔔</span>
+                <span>Activity Alerts</span>
+              </p>
+              <div className="space-y-1">
+                {activityAlertEvents.map((event) => (
+                  <label
+                    key={event.value}
+                    className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all text-sm ${
                       formEvents.includes(event.value)
-                        ? "bg-[var(--accent)] border-[var(--accent)]"
-                        : "border-[var(--border)]"
+                        ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
+                        : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
                     }`}
                   >
-                    {formEvents.includes(event.value) && (
-                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </span>
-                  <span>{event.label}</span>
-                </label>
-              ))}
+                    <input
+                      type="checkbox"
+                      checked={formEvents.includes(event.value)}
+                      onChange={() => toggleEvent(event.value)}
+                      disabled={creating}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`mt-0.5 h-4 w-4 flex-shrink-0 rounded border flex items-center justify-center ${
+                        formEvents.includes(event.value)
+                          ? "bg-[var(--accent)] border-[var(--accent)]"
+                          : "border-[var(--border)]"
+                      }`}
+                    >
+                      {formEvents.includes(event.value) && (
+                        <svg
+                          className="h-3 w-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="flex-1">
+                      <span className="block font-medium">{event.label}</span>
+                      <span className="block text-xs text-[var(--muted-foreground)]">
+                        {event.description}
+                      </span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wide">
+                Other Events
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {otherEvents.map((event) => (
+                  <label
+                    key={event.value}
+                    className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all text-sm ${
+                      formEvents.includes(event.value)
+                        ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
+                        : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formEvents.includes(event.value)}
+                      onChange={() => toggleEvent(event.value)}
+                      disabled={creating}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`h-4 w-4 rounded border flex items-center justify-center ${
+                        formEvents.includes(event.value)
+                          ? "bg-[var(--accent)] border-[var(--accent)]"
+                          : "border-[var(--border)]"
+                      }`}
+                    >
+                      {formEvents.includes(event.value) && (
+                        <svg
+                          className="h-3 w-3 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </span>
+                    <span>{event.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -377,7 +593,7 @@ export default function WebhookManager() {
       )}
 
       {webhooks.length === 0 ? (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-6 text-center">
+        <div className="border border-[var(--border)] bg-[var(--control)] p-6 text-center">
           <p className="text-sm text-[var(--muted-foreground)]">
             No webhooks configured yet
           </p>
@@ -387,7 +603,7 @@ export default function WebhookManager() {
           {webhooks.map((webhook) => (
             <div
               key={webhook.id}
-              className="rounded-lg border border-[var(--border)] bg-[var(--control)] p-4"
+              className="border border-[var(--border)] bg-[var(--control)] p-4"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -396,7 +612,7 @@ export default function WebhookManager() {
                       {webhook.name}
                     </h3>
                     {!webhook.is_enabled && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--muted-foreground)]/20 text-[var(--muted-foreground)]">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-muted-foreground/20 text-[var(--muted-foreground)]">
                         Disabled
                       </span>
                     )}
@@ -408,7 +624,7 @@ export default function WebhookManager() {
                     {webhook.events.map((event) => (
                       <span
                         key={event}
-                        className="text-xs px-2 py-0.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)]"
+                        className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-[var(--accent)]"
                       >
                         {getEventLabel(event)}
                       </span>
@@ -418,17 +634,41 @@ export default function WebhookManager() {
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={() => handleToggleEnabled(webhook.id, webhook.is_enabled)}
+                    onClick={() =>
+                      handleToggleEnabled(webhook.id, webhook.is_enabled)
+                    }
                     className="p-2 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-                    title={webhook.is_enabled ? "Disable webhook" : "Enable webhook"}
+                    title={
+                      webhook.is_enabled ? "Disable webhook" : "Enable webhook"
+                    }
                   >
                     {webhook.is_enabled ? (
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     ) : (
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                        />
                       </svg>
                     )}
                   </button>
@@ -437,26 +677,51 @@ export default function WebhookManager() {
                     className="p-2 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                     title="View details"
                   >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   </button>
                   <button
                     onClick={() => handleTest(webhook.id)}
                     disabled={testingId === webhook.id}
-                    className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium text-[var(--foreground)] hover:bg-[var(--accent)]/10 transition-colors disabled:opacity-60"
+                    className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors disabled:opacity-60"
                     title="Send test payload"
                   >
                     {testingId === webhook.id ? "Testing..." : "Test"}
                   </button>
                   <button
                     onClick={() => handleDelete(webhook.id)}
-                    className="p-2 rounded-lg border border-[var(--destructive)]/30 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-colors"
+                    className="p-2 rounded-lg border border-destructive/30 text-[var(--destructive)] hover:bg-destructive/10 transition-colors"
                     title="Delete webhook"
                   >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -470,8 +735,8 @@ export default function WebhookManager() {
         <div
           className={`mt-4 rounded-lg border p-4 ${
             testResult.success
-              ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
-              : "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]"
+              ? "border-success/30 bg-success/10 text-[var(--success)]"
+              : "border-destructive/30 bg-destructive/10 text-[var(--destructive)]"
           }`}
         >
           {testResult.message}
@@ -519,7 +784,9 @@ export default function WebhookManager() {
                   >
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        delivery.success ? "bg-[var(--success)]" : "bg-[var(--destructive)]"
+                        delivery.success
+                          ? "bg-[var(--success)]"
+                          : "bg-[var(--destructive)]"
                       }`}
                     />
                     <span className="flex-1 text-[var(--foreground)]">

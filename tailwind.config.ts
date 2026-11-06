@@ -1,6 +1,9 @@
 import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
+const themeColor = (name: string) =>
+  `color-mix(in srgb, var(--${name}) calc(<alpha-value> * 100%), transparent)`;
+
 const config: Config = {
   darkMode: "class",
   content: [
@@ -10,31 +13,94 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // CSS variables hold plain hex colors, so opacity modifiers (bg-accent/20)
+      // are applied with color-mix; Tailwind substitutes <alpha-value>.
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        muted: "var(--muted)",
-        "muted-foreground": "var(--muted-foreground)",
-        card: "var(--card)",
-        "card-foreground": "var(--card-foreground)",
-        "card-muted": "var(--card-muted)",
-        border: "var(--border)",
+        background: themeColor("background"),
+        foreground: themeColor("foreground"),
+        muted: themeColor("muted"),
+        "muted-foreground": themeColor("muted-foreground"),
+        card: themeColor("card"),
+        "card-foreground": themeColor("card-foreground"),
+        "card-muted": themeColor("card-muted"),
+        border: themeColor("border"),
         accent: {
-          DEFAULT: "var(--accent)",
-          foreground: "var(--accent-foreground)",
-          secondary: "var(--accent-secondary)",
-          soft: "var(--accent-soft)",
+          DEFAULT: themeColor("accent"),
+          foreground: themeColor("accent-foreground"),
+          secondary: themeColor("accent-secondary"),
+          soft: themeColor("accent-soft"),
         },
-        control: "var(--control)",
-        "control-hover": "var(--control-hover)",
-        ring: "var(--ring)",
-        success: "var(--success)",
-        warning: "var(--warning)",
+        control: themeColor("control"),
+        "control-hover": themeColor("control-hover"),
+        ring: themeColor("ring"),
+        success: themeColor("success"),
+        warning: themeColor("warning"),
         destructive: {
-          DEFAULT: "var(--destructive)",
-          foreground: "var(--destructive-foreground)",
-          muted: "var(--destructive-muted)",
+          DEFAULT: themeColor("destructive"),
+          foreground: themeColor("destructive-foreground"),
+          muted: themeColor("destructive-muted"),
         },
+      },
+      // Motion tokens from globals.css (mirrored in src/lib/motion.ts).
+      transitionTimingFunction: {
+        out: "var(--ease-out)",
+        "in-out": "var(--ease-in-out)",
+        in: "var(--ease-in)",
+      },
+      transitionDuration: {
+        instant: "var(--duration-instant)",
+        fast: "var(--duration-fast)",
+        base: "var(--duration-base)",
+        slow: "var(--duration-slow)",
+        slower: "var(--duration-slower)",
+      },
+      // Type scale. Display sizes are fluid and deliberately large: the old
+      // pages sat almost every heading in the same mid range, which is a big
+      // part of why they read as generic.
+      fontSize: {
+        "display-xl": [
+          "clamp(3.25rem, 8vw + 1rem, 8rem)",
+          { lineHeight: "0.92", letterSpacing: "-0.045em", fontWeight: "800" },
+        ],
+        "display-lg": [
+          "clamp(2.75rem, 5.5vw + 1rem, 5.5rem)",
+          { lineHeight: "0.95", letterSpacing: "-0.04em", fontWeight: "800" },
+        ],
+        "display-md": [
+          "clamp(2.25rem, 3.5vw + 1rem, 3.75rem)",
+          { lineHeight: "1", letterSpacing: "-0.035em", fontWeight: "700" },
+        ],
+        headline: [
+          "clamp(1.5rem, 1.5vw + 1rem, 2.25rem)",
+          { lineHeight: "1.1", letterSpacing: "-0.025em", fontWeight: "700" },
+        ],
+        title: [
+          "1.25rem",
+          { lineHeight: "1.3", letterSpacing: "-0.015em", fontWeight: "600" },
+        ],
+        eyebrow: [
+          "0.6875rem",
+          { lineHeight: "1.2", letterSpacing: "0.14em", fontWeight: "600" },
+        ],
+        stat: [
+          "clamp(2rem, 3vw + 1rem, 3.5rem)",
+          { lineHeight: "1", letterSpacing: "-0.03em", fontWeight: "700" },
+        ],
+      },
+      fontFamily: {
+        pixel: ["var(--font-pixel)", "ui-monospace", "monospace"],
+        display: [
+          "var(--font-syne)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          "var(--font-jetbrains)",
+          "ui-monospace",
+          "SFMono-Regular",
+          "monospace",
+        ],
       },
       keyframes: {
         "fade-in-up": {
@@ -59,7 +125,7 @@ const config: Config = {
   },
   plugins: [
     require("tailwind-scrollbar")({ nocompatible: true }),
-    plugin(function({ addBase }) {
+    plugin(function ({ addBase }) {
       addBase({
         "*:focus": {
           outline: "none",

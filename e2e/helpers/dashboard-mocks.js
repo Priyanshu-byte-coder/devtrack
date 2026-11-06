@@ -38,10 +38,56 @@ export function mockMetricResponse(url) {
       avgReviewHours: 5,
       avgFirstReviewHours: 2,
       mergeRate: "75%",
+      summary: {
+        range: "30d",
+        opened: 4,
+        merged: 3,
+        closed: 1,
+        stillOpen: 0,
+        mergeRate: 0.75,
+        medianHoursToMerge: 5,
+        medianHoursToFirstReview: 2,
+        additions: 420,
+        deletions: 96,
+        sampled: false,
+        openNow: 1,
+        draftsNow: 0,
+        weeks: [
+          { weekStart: "2026-10-12", opened: 1, merged: 1 },
+          { weekStart: "2026-10-19", opened: 2, merged: 1 },
+          { weekStart: "2026-10-26", opened: 1, merged: 1 },
+        ],
+        repos: [{ repo: "demo/repo", opened: 4, merged: 3 }],
+        openList: [
+          {
+            title: "Add streak freeze",
+            url: "https://github.com/demo/repo/pull/7",
+            repo: "demo/repo",
+            number: 7,
+            ageDays: 3,
+            isDraft: false,
+            reviewed: false,
+          },
+        ],
+        recentMerged: [
+          {
+            title: "Fix login redirect",
+            url: "https://github.com/demo/repo/pull/6",
+            repo: "demo/repo",
+            number: 6,
+            mergedAt: "2026-10-30T10:00:00Z",
+            hoursToMerge: 5,
+          },
+        ],
+        reviews: {
+          total: 2,
+          approved: 1,
+          changesRequested: 0,
+          commented: 1,
+          topRepos: [{ repo: "demo/repo", count: 2 }],
+        },
+      },
     };
-  }
-  if (url.includes("/api/metrics/pr-breakdown")) {
-    return { draft: 1, merged: 9, open: 3, closed: 1 };
   }
   if (url.includes("/api/metrics/issues")) {
     return {
@@ -64,7 +110,14 @@ export function mockMetricResponse(url) {
     };
   }
   if (url.includes("/api/metrics/languages")) {
-    return { languages: [{ language: "TypeScript", count: 20 }] };
+    return {
+      languages: [
+        { name: "TypeScript", bytes: 61000, percentage: 61 },
+        { name: "Python", bytes: 22000, percentage: 22 },
+        { name: "CSS", bytes: 11000, percentage: 11 },
+        { name: "Shell", bytes: 6000, percentage: 6 },
+      ],
+    };
   }
   if (url.includes("/api/metrics/streak")) {
     return DEFAULT_STREAK;
@@ -83,7 +136,7 @@ export function mockMetricResponse(url) {
       topRepo: "demo/devtrack",
       repoBreakdown: [
         { repoName: "demo/devtrack", commits: 10 },
-        { repoName: "demo/other", commits: 2 }
+        { repoName: "demo/other", commits: 2 },
       ],
       dailyCommits: [
         { date: "2023-10-07", commits: 5 },
@@ -92,9 +145,9 @@ export function mockMetricResponse(url) {
         { date: "2023-10-04", commits: 0 },
         { date: "2023-10-03", commits: 0 },
         { date: "2023-10-02", commits: 0 },
-        { date: "2023-10-01", commits: 0 }
+        { date: "2023-10-01", commits: 0 },
       ],
-      mostActiveDay: "2023-10-07"
+      mostActiveDay: "2023-10-07",
     };
   }
   if (url.includes("/api/metrics/compare")) {
@@ -121,7 +174,10 @@ export function mockMetricResponse(url) {
     return { weeks: [] };
   }
   if (url.includes("/api/metrics/inactive-repos")) return { repos: [] };
-  if (url.includes("/api/metrics/coding-time") || url.includes("/api/wakatime")) {
+  if (
+    url.includes("/api/metrics/coding-time") ||
+    url.includes("/api/wakatime")
+  ) {
     return {
       hasData: false,
       not_configured: true,
@@ -268,7 +324,11 @@ export async function installDashboardApiMocks(page, options = {}) {
     if (route.request().method() === "POST") {
       return route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify({ ...freeze, hasFreeze: true, freezeDate: "2026-05-18" }),
+        body: JSON.stringify({
+          ...freeze,
+          hasFreeze: true,
+          freezeDate: "2026-05-18",
+        }),
       });
     }
     return route.fulfill({
@@ -379,5 +439,5 @@ export function streakSection(page) {
   return page
     .getByRole("heading", { name: "Commit Streaks" })
     .first()
-    .locator("xpath=ancestor::div[contains(@class,'rounded-xl')][1]");
+    .locator("xpath=ancestor::div[contains(@class,'px-frame')][1]");
 }

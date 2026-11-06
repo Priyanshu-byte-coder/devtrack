@@ -1,4 +1,4 @@
-import { getServerSession } from 'next-auth';
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from '@/lib/auth';
 import { createRoom, getRoomsForUser } from '@/lib/supabase-rooms';
 import { supabaseAdmin } from '@/lib/supabase-admin';
@@ -15,10 +15,10 @@ const GITHUB_REPO_RE = /^[a-zA-Z0-9._-]{1,100}$/;
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.name)
+  if (!session?.githubId || !session.githubLogin)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const rooms = await getRoomsForUser(session.user.name);
+    const rooms = await getRoomsForUser(session.githubId!);
     return NextResponse.json(rooms);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal server error';
@@ -28,7 +28,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.name)
+  if (!session?.githubId || !session.githubLogin)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   let body: CreateRoomPayload;
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
   const { count, error: countError } = await supabaseAdmin
     .from('room_members')
     .select('*', { count: 'exact', head: true })
-    .eq('github_username', session.user.name)
+    .eq('github_id', session.githubId)
     .eq('role', 'owner');
 
   if (countError)
@@ -80,7 +80,8 @@ export async function POST(req: Request) {
   try {
     const room = await createRoom(
       { name, repo_owner: repoOwner, repo_name: repoName, description: description || undefined },
-      session.user.name
+      session.githubLogin,
+      session.githubId
     );
     return NextResponse.json(room, { status: 201 });
   } catch (err: unknown) {

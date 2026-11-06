@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { GitHubAuthError, githubAuthErrorResponse } from "@/lib/github-fetch";
@@ -62,7 +64,7 @@ async function fetchAchievementMetrics(
       ttlSeconds: METRICS_CACHE_TTL_SECONDS["achievement-progress"],
     },
     async () => {
-      const response = await fetch("https://api.github.com/graphql", {
+      const response = await githubRequest("https://api.github.com/graphql", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,6 +114,9 @@ export async function GET(req: NextRequest) {
   try {
     metrics = await fetchAchievementMetrics(session.accessToken, user.id, bypass);
   } catch (err) {
+    const githubLimit = githubRateLimitResponse(err);
+    if (githubLimit) return githubLimit;
+
     if (err instanceof GitHubAuthError) {
       return githubAuthErrorResponse();
     }

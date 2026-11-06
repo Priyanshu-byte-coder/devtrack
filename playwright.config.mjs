@@ -19,6 +19,14 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL,
+    // Entrances and count-ups settle instantly, so screenshots and visibility
+    // checks never catch an element mid-animation. Also exercises the
+    // reduced-motion path on every run.
+    contextOptions: { reducedMotion: "reduce" },
+    // page.route() can't see requests a service worker handles, so a worker
+    // that takes control mid-test would bypass the API mocks. The specs that
+    // test the worker itself opt back in (security-repairs.spec.ts).
+    serviceWorkers: "block",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",

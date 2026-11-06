@@ -5,7 +5,11 @@ import {
   fetchPublicStreak,
   fetchTopLanguage,
   fetchPublicGists,
+  filterPublicProfileData,
+  type PublicProfileData,
 } from "../src/lib/public-profile-data";
+
+vi.mock("@/lib/supabase", () => ({getUserByUsername: vi.fn().mockResolvedValue(null), supabaseAdmin: {from: vi.fn()}}));
 
 describe("public-profile-data", () => {
   beforeEach(() => {
@@ -21,6 +25,7 @@ describe("public-profile-data", () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
+          total_count: 3,
           items: [
             { repository: { full_name: "owner/repo-a", html_url: "https://github.com/owner/repo-a" } },
             { repository: { full_name: "owner/repo-a", html_url: "https://github.com/owner/repo-a" } },
@@ -38,12 +43,30 @@ describe("public-profile-data", () => {
       expect(repos[1].commits).toBe(1);
     });
 
-    it("should return empty array on failed API response", async () => {
+    it("should reject on failed API response", async () => {
       const mockFetch = vi.fn().mockResolvedValue({ ok: false });
       vi.stubGlobal("fetch", mockFetch);
 
-      const repos = await fetchPublicTopRepos("user123");
-      expect(repos).toEqual([]);
+      await expect(fetchPublicTopRepos("user123")).rejects.toThrow();
+    });
+  });
+
+  describe("filterPublicProfileData", () => {
+    it("removes disabled widget data from the public response", () => {
+      const profile = {
+        publicWidgets: ["contributions"],
+        streak: { current: 4 },
+        contributions: { days: 30, total: 12, data: {} },
+        topLanguages: [{ name: "TypeScript", count: 1, percentage: 100 }],
+        pullRequests: 8,
+      } as unknown as PublicProfileData;
+
+      const filtered = filterPublicProfileData(profile);
+
+      expect(filtered.contributions).toEqual(profile.contributions);
+      expect(filtered).not.toHaveProperty("streak");
+      expect(filtered).not.toHaveProperty("topLanguages");
+      expect(filtered).not.toHaveProperty("pullRequests");
     });
   });
 
@@ -59,12 +82,11 @@ describe("public-profile-data", () => {
       expect(gists).toBe(7);
     });
 
-    it("should return zero on failed API response", async () => {
+    it("should reject on failed API response", async () => {
       const mockFetch = vi.fn().mockResolvedValue({ ok: false });
       vi.stubGlobal("fetch", mockFetch);
 
-      const gists = await fetchPublicGists("user123");
-      expect(gists).toBe(0);
+      await expect(fetchPublicGists("user123")).rejects.toThrow();
     });
   });
 
@@ -100,6 +122,7 @@ describe("public-profile-data", () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
+          total_count: 3,
           items: [
             { commit: { author: { date: today } } },
             { commit: { author: { date: yesterday } } },
@@ -115,14 +138,11 @@ describe("public-profile-data", () => {
       expect(streak.totalActiveDays).toBe(3);
     });
 
-    it("should return zero values on failed API response", async () => {
+    it("should reject on failed API response", async () => {
       const mockFetch = vi.fn().mockResolvedValue({ ok: false });
       vi.stubGlobal("fetch", mockFetch);
 
-      const streak = await fetchPublicStreak("user123");
-      expect(streak.current).toBe(0);
-      expect(streak.longest).toBe(0);
-      expect(streak.lastCommitDate).toBeNull();
+      await expect(fetchPublicStreak("failed-user")).rejects.toThrow();
     });
   });
 

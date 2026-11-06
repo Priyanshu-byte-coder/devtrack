@@ -5,14 +5,6 @@
       "schedule": "0 9 * * 1"
     },
     {
-      "path": "/api/wakatime/sync",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/goals/sync",
-      "schedule": "0 0 * * *"
-    },
-    {
       "path": "/api/sponsors/sync",
       "schedule": "0 0 * * *"
     },
@@ -21,8 +13,8 @@
       "schedule": "0 20 * * *"
     },
     {
-      "path": "/api/notifications/weekly",
-      "schedule": "0 9 * * 1"
+      "path": "/api/cron/gamification",
+      "schedule": "15 0 * * *"
     }
   ]
 }

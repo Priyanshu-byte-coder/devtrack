@@ -1,4 +1,6 @@
-import { getServerSession } from "next-auth";
+import { isSafeUrl } from "@/lib/ssrf-protection";
+
+import { getServerSession } from "@/lib/server-session";
 import { NextRequest } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -28,8 +30,12 @@ async function testJiraConnection(
   email: string,
   token: string
 ): Promise<boolean> {
+  const url = `https://${domain}/rest/api/3/myself`;
+  if (!(await isSafeUrl(url))) {
+    return false;
+  }
   const auth = Buffer.from(`${email}:${token}`).toString("base64");
-  const response = await fetch(`https://${domain}/rest/api/3/myself`, {
+  const response = await fetch(url, {
     headers: {
       Authorization: `Basic ${auth}`,
       Accept: "application/json",

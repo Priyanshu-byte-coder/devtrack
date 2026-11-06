@@ -1,0 +1,18 @@
+{
+  "check": "node",
+  "checkedAt": "2026-10-11T14:55:53.312Z",
+  "command": [
+    "node",
+    "--experimental-strip-types",
+    "--test",
+    "test/check-deps.test.js",
+    "test/crypto.test.js",
+    "test/environment-security.test.mjs",
+    "test/leaderboard-cache.test.mjs",
+    "test/upstash-rest.test.mjs",
+    "test/validate-github-username.test.js"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "durationSeconds": 0.828
+}

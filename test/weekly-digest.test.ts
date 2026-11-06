@@ -10,11 +10,12 @@
  *     • cooldown / duplicate-send prevention
  *     • partial failure handling (one bad user does not stop the batch)
  *     • metrics fetched only when GITHUB_TOKEN is configured
- *     • response shape: sentCount / failedCount / skippedCount / errors
+ *     • response shape: emailsSent / emailsFailed / skippedCount / errors
  *     • opted-in filter delegated to the DB query
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { supabaseQueryStub } from "./supabase-query-stub";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -63,10 +64,9 @@ function stubCronUsers(
     last_digest_sent_at?: string | null;
   }>
 ) {
-  const notChain = vi.fn().mockResolvedValue({ data: users, error: null });
-  const eqChain = vi.fn().mockReturnValue({ not: notChain });
-  const selChain = vi.fn().mockReturnValue({ eq: eqChain });
-  mocks.supabaseFrom.mockReturnValue({ select: selChain });
+  mocks.supabaseFrom.mockReturnValue(
+    supabaseQueryStub({ data: users, error: null })
+  );
 }
 
 /** Configure supabase unsubscribe update to succeed. */
@@ -465,15 +465,15 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
 
   // ── Response shape ──────────────────────────────────────────────────────────
 
-  it("response includes sentCount, failedCount, skippedCount, errors", async () => {
+  it("response includes emailsSent, emailsFailed, skippedCount, errors", async () => {
     stubCronUsers([{ github_login: "alice", email: "alice@example.com" }]);
     vi.stubEnv("GITHUB_TOKEN", "gh-token");
     const { GET } = await import("@/app/api/cron/weekly-digest/route");
     const res = await GET(makeCronRequest("Bearer secret"));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body).toHaveProperty("sentCount");
-    expect(body).toHaveProperty("failedCount");
+    expect(body).toHaveProperty("emailsSent");
+    expect(body).toHaveProperty("emailsFailed");
     expect(body).toHaveProperty("skippedCount");
     expect(body).toHaveProperty("errors");
   });
@@ -497,7 +497,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.skippedCount).toBe(1);
-    expect(body.sentCount).toBe(0);
+    expect(body.emailsSent).toBe(0);
     expect(mocks.fetchGlobal).not.toHaveBeenCalled();
   });
 
@@ -564,7 +564,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const res = await GET(makeCronRequest("Bearer secret"));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.sentCount).toBeGreaterThanOrEqual(1);
+    expect(body.emailsSent).toBeGreaterThanOrEqual(1);
     expect(mocks.fetchGlobal).toHaveBeenCalledOnce();
   });
 
@@ -589,8 +589,8 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const res = await GET(makeCronRequest("Bearer secret"));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.failedCount).toBe(1);
-    expect(body.sentCount).toBeGreaterThanOrEqual(2);
+    expect(body.emailsFailed).toBe(1);
+    expect(body.emailsSent).toBeGreaterThanOrEqual(2);
     expect(body.errors).toHaveLength(1);
     expect(mocks.fetchGlobal).toHaveBeenCalledTimes(3);
   });
@@ -632,7 +632,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const res = await GET(makeCronRequest("Bearer secret"));
     const body = await res.json();
     expect(body.skippedCount).toBe(1);
-    expect(body.sentCount).toBe(1);
+    expect(body.emailsSent).toBe(1);
     expect(mocks.fetchGlobal).toHaveBeenCalledTimes(1);
   });
 

@@ -1,22 +1,40 @@
 export const dynamic = "force-dynamic";
-import QrCodeButton from "@/components/QrCodeButton";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
 import { Metadata } from "next";
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+import { notFound, permanentRedirect } from "next/navigation";
+import { getServerSession } from "@/lib/server-session";
 import BadgeSection from "@/components/BadgeSection";
 import GitHubAchievements from "@/components/GitHubAchievements";
-import StatsCard from "@/components/StatsCard";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import CopyLinkButton from "@/components/CopyLinkButton";
 import { Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
+import {
+  getProfileForPage,
+  getPublicProfileForPage,
+} from "@/lib/public-profile-cache";
+import { getLeaderboardData } from "@/lib/leaderboard";
+import {
+  estimateGuestRank,
+  isIndexableGuest,
+  type GuestProfile,
+  type GuestRankEstimate,
+} from "@/lib/guest-profile-model";
+import GuestProfileView from "@/components/profile/GuestProfileView";
+import GitHubBusy from "@/components/GitHubBusy";
+import { isGitHubBusyError } from "@/lib/github-busy";
+import { getProgressForLogin } from "@/lib/gamification/queries";
+import { getRankRow } from "@/lib/gamification/live-rank";
+import RankMovementBadge from "@/components/gamification/RankMovementBadge";
+import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";
+import { rankMovement } from "@/lib/gamification/ranking";
+import { JsonLd, breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo/json-ld";
 
 // Extend tracking structures to forward gamification flags seamlessly downstream
 interface ExtendedPublicProfileData extends PublicProfileData {
@@ -33,45 +51,32 @@ function getBaseUrl() {
   );
 }
 
-async function fetchPublicProfile(
-  username: string,
-  options: { includeAchievements?: boolean } = {}
+async function loadProfile(
+  username: string
 ): Promise<ExtendedPublicProfileData | null> {
-  try {
-    const url = new URL(`/api/public/${encodeURIComponent(username)}`, getBaseUrl());
-    if (options.includeAchievements) url.searchParams.set("achievements", "1");
+  const base = await getPublicProfileForPage(username);
+  if (!base) return null;
 
-    const res = await fetch(url.toString(), { cache: "no-store" });
-    if (!res.ok) return null;
+  // Compute Night Owl / Early Bird from repos
+  let nightOwlCount = 0;
+  let earlyBirdCount = 0;
 
-    const base: PublicProfileData = await res.json();
-
-    const canonicalUsername = base.username.toLowerCase();
-    if (username !== canonicalUsername) {
-      redirect(`/u/${canonicalUsername}`);
+  (base.repos || []).forEach((repo: any) => {
+    if (repo.last_commit_date || repo.updatedAt) {
+      const commitHour = new Date(
+        repo.last_commit_date || repo.updatedAt
+      ).getHours();
+      if (commitHour >= 0 && commitHour <= 4) nightOwlCount++;
+      if (commitHour >= 5 && commitHour <= 8) earlyBirdCount++;
     }
+  });
 
-    // Compute Night Owl / Early Bird from repos
-    let nightOwlCount = 0;
-    let earlyBirdCount = 0;
-
-    (base.repos || []).forEach((repo: any) => {
-      if (repo.last_commit_date || repo.updatedAt) {
-        const commitHour = new Date(repo.last_commit_date || repo.updatedAt).getHours();
-        if (commitHour >= 0 && commitHour <= 4) nightOwlCount++;
-        if (commitHour >= 5 && commitHour <= 8) earlyBirdCount++;
-      }
-    });
-
-    return {
-      ...base,
-      userId: "",
-      isNightOwl: nightOwlCount >= 1,
-      isEarlyBird: earlyBirdCount >= 1,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    ...base,
+    userId: "",
+    isNightOwl: nightOwlCount >= 1,
+    isEarlyBird: earlyBirdCount >= 1,
+  };
 }
 
 async function getLoggedInGitHubUsername() {
@@ -90,7 +95,7 @@ async function getLoggedInGitHubUsername() {
 }
 
 function getProfileUrl(username: string) {
-  return `${getBaseUrl()}/u/${username}`;
+  return `${getBaseUrl()}/u/${username.toLowerCase()}`;
 }
 
 export async function generateMetadata({
@@ -99,128 +104,185 @@ export async function generateMetadata({
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
   const { username } = await params;
-  const profileUrl = getProfileUrl(username);
+  const canonicalPath = `/u/${username.toLowerCase()}`;
 
-  let userExists = false;
+  let lookup: Awaited<ReturnType<typeof getProfileForPage>>;
   try {
-    const res = await fetch(
-      new URL(`/api/public/${encodeURIComponent(username)}`, getBaseUrl()).toString(),
-      { cache: "no-store" }
-    );
-    userExists = res.ok;
+    lookup = await getProfileForPage(username);
   } catch {
-    userExists = false;
+    // Upstream outage: keep the metadata neutral. A noindex here would drop a
+    // real profile from search because GitHub had a bad minute.
+    return { title: username };
   }
 
-  if (!userExists) {
+  if (!lookup) {
     return {
-      title: "Profile Not Found",
+      title: "Profile not found",
       description: "This profile is not available or is private.",
+      robots: { index: false, follow: false },
     };
   }
 
-  const baseUrl = getBaseUrl();
+  if (lookup.kind === "guest") return guestMetadata(lookup.profile);
 
-  const ogImageUrl = new URL(`${baseUrl}/api/og/user`);
-  ogImageUrl.searchParams.set("username", username);
-  ogImageUrl.searchParams.set("name", username);
-  ogImageUrl.searchParams.set("avatar", `https://avatars.githubusercontent.com/${username}`);
-  ogImageUrl.searchParams.set("topLang", "Code");
-  ogImageUrl.searchParams.set("streak", "0");
-  ogImageUrl.searchParams.set("commits", "0");
+  const displayName = lookup.profile.username;
+  // The tab title stays short; link previews get the longer one.
+  const title = `${displayName}'s GitHub stats`;
+  const shareTitle = `${displayName}'s GitHub stats, streak & rank`;
+  const description = `${displayName}'s coding activity on DevTrack: contribution streak, commits, pull requests, top languages and global rank.`;
 
-  const title = `${username}'s DevTrack Profile`;
-  const description = `GitHub stats and coding activity for ${username}. View commits, streaks, and top repositories.`;
-
+  // No `images` here on purpose: the segment's opengraph-image.tsx renders the
+  // card from live stats. Setting images in config would override it.
   return {
     title,
     description,
+    alternates: { canonical: canonicalPath },
     openGraph: {
-      title,
+      title: shareTitle,
       description,
-      url: profileUrl,
+      url: canonicalPath,
       siteName: "DevTrack",
       type: "profile",
-      images: [
-        {
-          url: ogImageUrl.toString(),
-          width: 1200,
-          height: 630,
-          alt: `${username}'s DevTrack profile`,
-        },
-      ],
+      username: displayName,
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: shareTitle,
       description,
-      images: [ogImageUrl.toString()],
     },
   };
 }
+function guestMetadata(guest: GuestProfile): Metadata {
+  const canonicalPath = `/u/${guest.login.toLowerCase()}`;
+  const title = `${guest.login}'s GitHub stats`;
+  const shareTitle = `${guest.login}'s GitHub stats, streak & rank`;
+  const description = `${guest.login}'s GitHub activity: ${guest.yearContributions.toLocaleString("en-US")} contributions in the last year, a ${guest.streak.longest}-day best streak, top languages and where they'd rank on DevTrack.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+    // Thin pages stay out of the index but still pass link equity on.
+    robots: isIndexableGuest(guest)
+      ? undefined
+      : { index: false, follow: true },
+    openGraph: {
+      title: shareTitle,
+      description,
+      url: canonicalPath,
+      siteName: "DevTrack",
+      type: "profile",
+      username: guest.login,
+    },
+    twitter: { card: "summary_large_image", title: shareTitle, description },
+  };
+}
+
+async function guestEstimate(
+  guest: GuestProfile
+): Promise<GuestRankEstimate | null> {
+  try {
+    const board = await getLeaderboardData(false, { period: "all" });
+    if (!board) return null;
+    return estimateGuestRank(guest, Object.values(board.leaders).flat());
+  } catch {
+    return null;
+  }
+}
+
+async function GuestProfilePage({ guest }: { guest: GuestProfile }) {
+  const canonical = guest.login.toLowerCase();
+  const [estimate, viewerLogin] = await Promise.all([
+    guestEstimate(guest),
+    getLoggedInGitHubUsername(),
+  ]);
+  const indexable = isIndexableGuest(guest);
+
+  return (
+    <ProfileThemeWrapper>
+      {indexable && (
+        <JsonLd
+          data={[
+            profilePageJsonLd({
+              username: guest.login,
+              bio: guest.bio,
+              memberSince: null,
+              topLanguages: guest.topLanguages,
+            }),
+            breadcrumbJsonLd([
+              { name: "DevTrack", path: "/" },
+              { name: "Leaderboard", path: "/leaderboard" },
+              { name: guest.login, path: `/u/${canonical}` },
+            ]),
+          ]}
+        />
+      )}
+      <GuestProfileView
+        profile={guest}
+        estimate={estimate}
+        profileUrl={getProfileUrl(canonical)}
+        viewerLogin={
+          viewerLogin && viewerLogin.toLowerCase() !== canonical
+            ? viewerLogin
+            : null
+        }
+      />
+    </ProfileThemeWrapper>
+  );
+}
+
 export default async function PublicProfilePage({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-  const [profile, loggedInUsername] = await Promise.all([
-    fetchPublicProfile(username, { includeAchievements: true }),
-    getLoggedInGitHubUsername(),
-  ]);
-  const profileUrl = getProfileUrl(username);
-
-  if (!profile) {
+  let lookup: Awaited<ReturnType<typeof getProfileForPage>>;
+  try {
+    lookup = await getProfileForPage(username);
+  } catch (error) {
+    if (!isGitHubBusyError(error)) throw error;
     return (
       <ProfileThemeWrapper>
-      <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors flex items-center justify-center">
-        <div className="surface-card max-w-md rounded-2xl p-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            Profile Not Found
-          </h1>
-          <p className="text-[var(--muted-foreground)] mb-2">
-            This profile is not available or has not been made public.
-          </p>
-          <p className="text-sm text-[var(--muted-foreground)] mb-6">
-            If this is your profile, go to{" "}
-            <Link
-              href="/dashboard/settings"
-              className="text-[var(--accent)] underline hover:opacity-80"
-            >
-              Settings
-            </Link>{" "}
-            and enable <strong>Public Profile</strong>.
-          </p>
-          <Link
-            href="/"
-            className="primary-button inline-block rounded-lg px-6 py-2"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
+        <GitHubBusy
+          retryHref={`/u/${encodeURIComponent(username)}`}
+          what={`@${username}'s profile`}
+        />
       </ProfileThemeWrapper>
     );
   }
+  if (!lookup) notFound();
+
+  if (lookup.kind === "guest") {
+    const canonical = lookup.profile.login.toLowerCase();
+    if (username !== canonical) permanentRedirect(`/u/${canonical}`);
+    return <GuestProfilePage guest={lookup.profile} />;
+  }
+
+  const [profile, loggedInUsername, progress, globalRank] = await Promise.all([
+    loadProfile(username),
+    getLoggedInGitHubUsername(),
+    getProgressForLogin(username),
+    getRankRow(username, "all"),
+  ]);
+  const profileUrl = getProfileUrl(username);
+
+  if (!profile) notFound();
 
   const canonicalUsername = profile.username.toLowerCase();
   if (username !== canonicalUsername) {
-    redirect(`/u/${canonicalUsername}`);
+    permanentRedirect(`/u/${canonicalUsername}`);
   }
 
-  const avatarUrl = `https://avatars.githubusercontent.com/${profile.username}`;
-  const topRepo = profile.repos[0]?.name ?? "";
   const gistsUrl = `https://gist.github.com/${profile.username}`;
   const githubUrl = `https://github.com/${profile.username}`;
+  const isOwner =
+    loggedInUsername?.toLowerCase() === profile.username.toLowerCase();
   const showCompareButton =
     loggedInUsername !== null &&
     loggedInUsername.toLowerCase() !== profile.username.toLowerCase();
   const compareHref = showCompareButton
     ? `/compare/${encodeURIComponent(loggedInUsername)}-vs-${encodeURIComponent(profile.username)}`
     : null;
-  const signInToCompareHref = `/auth/signin?callbackUrl=${encodeURIComponent(
-    `/u/${profile.username}`
-  )}`;
 
   const widgets = profile.publicWidgets ?? ["streak", "contributions"];
   const showStreak = widgets.includes("streak");
@@ -235,213 +297,249 @@ export default async function PublicProfilePage({
       })
     : null;
 
+  // Headline stats, in priority order; hidden widgets never make the HUD.
+  const hudCandidates: Array<HudStat | false> = [
+    globalRank
+      ? {
+          label: "Global rank",
+          value: globalRank.rank,
+          prefix: "#",
+          sub: (
+            <RankMovementBadge
+              movement={rankMovement(
+                globalRank.rank,
+                globalRank.previousRank ?? undefined,
+                globalRank.hasPrevious
+              )}
+            />
+          ),
+        }
+      : { label: "Global rank", value: "—" },
+    showStreak && {
+      label: "Streak",
+      value: profile.streak.current,
+      suffix: "D",
+    },
+    progress !== null && { label: "Level", value: progress.level },
+    showContributions && {
+      label: "Commits 30d",
+      value: profile.contributions.total,
+    },
+    showPRs && { label: "PRs", value: profile.pullRequests },
+    { label: "Gists", value: profile.publicGists },
+  ];
+  const hud = hudCandidates
+    .filter((stat): stat is HudStat => Boolean(stat))
+    .slice(0, 3);
+
   return (
     <ProfileThemeWrapper>
-    <div className="min-h-screen bg-[var(--background)] p-4 text-[var(--foreground)] transition-colors md:p-8">
-
-      {/* ── Header: Avatar + Identity ── */}
-      <div className="mb-8 flex flex-wrap items-start gap-5">
-        {/* GitHub avatar */}
-        <div className="shrink-0">
-          <Image
-            src={avatarUrl}
-            alt={`${profile.username}'s GitHub avatar`}
-            width={80}
-            height={80}
-            className="rounded-full border-2 border-[var(--border)] shadow-md"
-            unoptimized
-          />
-        </div>
-
-        {/* Identity block */}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] flex flex-wrap items-center gap-2">
-              <span>@{profile.username}</span>
+      <JsonLd
+        data={[
+          profilePageJsonLd({
+            username: profile.username,
+            bio: profile.bio,
+            memberSince: profile.memberSince,
+            topLanguages: showLanguages ? (profile.topLanguages ?? []) : [],
+          }),
+          breadcrumbJsonLd([
+            { name: "DevTrack", path: "/" },
+            { name: "Leaderboard", path: "/leaderboard" },
+            { name: profile.username, path: `/u/${canonicalUsername}` },
+          ]),
+        ]}
+      />
+      <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+        <PlayerCard
+          login={profile.username}
+          eyebrow={isOwner ? "Player 1 · you" : "Player · DevTrack member"}
+          subtitle="GitHub activity and coding stats"
+          bio={profile.bio}
+          tier={progress?.tier ?? globalRank?.tier ?? null}
+          xp={progress?.xp ?? null}
+          hud={hud}
+          meta={
+            <>
               {profile.isSponsor && <SponsorBadge />}
-
-              {/* Night Owl / Early Bird badges */}
               {profile.isNightOwl && (
                 <span
                   title="Night Owl Milestone Badge"
-                  className="inline-flex items-center gap-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-0.5 text-xs font-bold text-indigo-400"
+                  className="inline-flex items-center gap-1 border border-indigo-500/40 bg-indigo-500/10 px-2 py-0.5 font-bold text-indigo-400"
                 >
-                  <Moon className="h-3 w-3" />
-                  <span>Night Owl</span>
+                  <Moon className="h-3 w-3" aria-hidden="true" />
+                  Night Owl
                 </span>
               )}
               {profile.isEarlyBird && (
                 <span
                   title="Early Bird Milestone Badge"
-                  className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-xs font-bold text-amber-400"
+                  className="inline-flex items-center gap-1 border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-bold text-amber-400"
                 >
-                  <Sun className="h-3 w-3" />
-                  <span>Early Bird</span>
+                  <Sun className="h-3 w-3" aria-hidden="true" />
+                  Early Bird
                 </span>
               )}
-            </h1>
-            <CopyLinkButton url={profileUrl} />
-          </div>
-
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            GitHub activity and coding stats
-          </p>
-
-          {/* Member since + View on GitHub */}
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--muted-foreground)]">
-            {memberSinceFormatted && (
-              <span>Member since {memberSinceFormatted}</span>
-            )}
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)] hover:border-[var(--accent)]"
-            >
-              <svg viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-              </svg>
-              View on GitHub
-            </a>
-            {profile.publicGists > 0 && (
+              {memberSinceFormatted && (
+                <span>Member since {memberSinceFormatted}</span>
+              )}
               <a
-                href={gistsUrl}
+                href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--control)] px-3 py-1 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
+                className="inline-flex items-center gap-1.5 border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
               >
-                {profile.publicGists} Gists
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="h-3.5 w-3.5"
+                  aria-hidden="true"
+                >
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                </svg>
+                View on GitHub
               </a>
-            )}
-          </div>
-
-          {/* Compare buttons */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {compareHref && (
-              <Link
-                href={compareHref}
-                className="primary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Compare with me
+              {profile.publicGists > 0 && (
+                <a
+                  href={gistsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
+                >
+                  {profile.publicGists} Gists
+                </a>
+              )}
+            </>
+          }
+          actions={
+            <>
+              {compareHref ? (
+                <Link href={compareHref} className="px-btn">
+                  Challenge to a duel
+                </Link>
+              ) : (
+                !isOwner && (
+                  <Link
+                    href={`/compare?vs=${encodeURIComponent(canonicalUsername)}`}
+                    className="px-btn"
+                  >
+                    Duel @{profile.username}
+                  </Link>
+                )
+              )}
+              <Link href="/leaderboard" className="px-btn px-btn-ghost">
+                Leaderboard
               </Link>
-            )}
-            {!loggedInUsername && (
-              <Link
-                href={signInToCompareHref}
-                className="secondary-button inline-flex rounded-lg px-4 py-2 text-sm font-semibold"
-              >
-                Log in to compare
-              </Link>
-            )}
-          </div>
-        </div>
+            </>
+          }
+        />
 
-        {/* Stats card download */}
-        <div className="shrink-0">
-          <StatsCard
+        {/* Share section */}
+        <div className="mb-8">
+          <ShareProfileSection
             username={profile.username}
-            avatarUrl={avatarUrl}
-            currentStreak={profile.streak.current}
-            longestStreak={profile.streak.longest}
-            totalCommits={profile.contributions.total}
-            topRepo={topRepo}
+            streak={profile.streak.current}
+            profileUrl={profileUrl}
+            isOwner={isOwner}
+            rank={
+              globalRank
+                ? {
+                    rank: globalRank.rank,
+                    total: globalRank.total,
+                    tier: globalRank.tier,
+                    level: globalRank.level,
+                  }
+                : null
+            }
           />
         </div>
-      </div>
 
-      {/* Share section */}
-      <div className="mb-8">
-        <ShareProfileSection
-          username={profile.username}
-          streak={profile.streak.current}
-          profileUrl={profileUrl}
-        />
-          <div className="mt-3">
-            <QrCodeButton profileUrl={profileUrl} username={profile.username} />
+        {/* Row 1: Contribution graph + Streak (gated by public_widgets) */}
+        {(showContributions || showStreak) && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {showContributions && (
+              <div className="lg:col-span-2">
+                <PublicContributionGraph data={profile.contributions} />
+              </div>
+            )}
+            {showStreak && (
+              <div className={showContributions ? "" : "lg:col-span-3"}>
+                <PublicStreakTracker streak={profile.streak} />
+              </div>
+            )}
           </div>
+        )}
 
-      </div>
+        {/* Languages (gated) */}
+        {showLanguages && profile.topLanguages.length > 0 && (
+          <div className="mt-6">
+            <PublicLanguageBreakdown languages={profile.topLanguages} />
+          </div>
+        )}
 
-      {/* Row 1: Contribution graph + Streak (gated by public_widgets) */}
-      {(showContributions || showStreak) && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {showContributions && (
-            <div className="lg:col-span-2">
-              <PublicContributionGraph data={profile.contributions} />
-            </div>
-          )}
-          {showStreak && (
-            <div className={showContributions ? "" : "lg:col-span-3"}>
-              <PublicStreakTracker streak={profile.streak} />
-            </div>
-          )}
-        </div>
-      )}
+        {/* Pull Requests (gated) */}
+        {showPRs && (
+          <div className="mt-6">
+            <PublicPRCount pullRequests={profile.pullRequests} />
+          </div>
+        )}
 
-      {/* Languages (gated) */}
-      {showLanguages && profile.topLanguages.length > 0 && (
+        {/* Custom Spotlight Repositories */}
+        {profile.spotlightRepos?.length ? (
+          <div className="mt-6">
+            <PinnedReposWidget
+              initialRepos={profile.spotlightRepos}
+              isPublic={true}
+            />
+          </div>
+        ) : null}
+
+        {/* Weekly Goal Progress */}
+        {profile.weeklyGoalProgress && (
+          <div className="mt-6">
+            <PublicWeeklyGoalProgress progress={profile.weeklyGoalProgress} />
+          </div>
+        )}
+
+        {/* Top repos */}
         <div className="mt-6">
-          <PublicLanguageBreakdown languages={profile.topLanguages} />
+          <PublicTopRepos repos={profile.repos} />
         </div>
-      )}
 
-      {/* Pull Requests (gated) */}
-      {showPRs && (
+        {/* GitHub achievements */}
         <div className="mt-6">
-          <PublicPRCount pullRequests={profile.pullRequests} />
-        </div>
-      )}
-
-      {/* Custom Spotlight Repositories */}
-      {profile.spotlightRepos?.length ? (
-        <div className="mt-6">
-          <PinnedReposWidget
-            initialRepos={profile.spotlightRepos}
-            isPublic={true}
+          <GitHubAchievements
+            achievements={profile.achievements}
+            error={profile.achievementsError}
           />
         </div>
-      ) : null}
 
-      {/* Weekly Goal Progress */}
-      {profile.weeklyGoalProgress && (
-        <div className="mt-6">
-          <PublicWeeklyGoalProgress progress={profile.weeklyGoalProgress} />
+        {/* README badges: only useful to the profile owner */}
+        {isOwner && (
+          <div className="mt-6">
+            <BadgeSection username={profile.username} />
+          </div>
+        )}
+
+        {/* Powered by DevTrack footer badge */}
+        <div className="mt-10 flex justify-center">
+          <a
+            href="https://devtrack.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 border-2 border-dashed border-[var(--border)] bg-[var(--card)] px-4 py-2 font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--accent)]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-3.5 w-3.5 text-[var(--accent)]"
+              aria-hidden="true"
+            >
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Powered by DevTrack
+          </a>
         </div>
-      )}
-
-      {/* Top repos */}
-      <div className="mt-6">
-        <PublicTopRepos repos={profile.repos} />
-      </div>
-
-      {/* GitHub achievements */}
-      <div className="mt-6">
-        <GitHubAchievements
-          achievements={profile.achievements}
-          error={profile.achievementsError}
-        />
-      </div>
-
-      {/* Get your badge */}
-      <div className="mt-6">
-        <BadgeSection username={profile.username} />
-      </div>
-
-      {/* Powered by DevTrack footer badge */}
-      <div className="mt-10 flex justify-center">
-        <a
-          href="https://devtrack-silk-kappa.vercel.app"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:border-[var(--accent)]"
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 text-[var(--accent)]" aria-hidden="true">
-            <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Powered by DevTrack
-        </a>
-      </div>
-    </div>
+      </main>
     </ProfileThemeWrapper>
   );
 }
@@ -455,56 +553,108 @@ function PublicContributionGraph({
     data: Record<string, number>;
   };
 }) {
-  const data = Object.entries(contributionData.data ?? {})
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, commits]) => ({ day, commits }));
+  // Every day in the window, zeros included, so gaps show as gaps.
+  const today = Date.parse(new Date().toISOString().slice(0, 10));
+  const days = Array.from({ length: contributionData.days }, (_, i) => {
+    const day = new Date(today - (contributionData.days - 1 - i) * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    return { day, commits: contributionData.data?.[day] ?? 0 };
+  });
+  const max = Math.max(1, ...days.map((d) => d.commits));
+  const active = days.filter((d) => d.commits > 0).length;
+  const best = days.reduce((a, b) => (b.commits > a.commits ? b : a), days[0]);
+  const label = (day: string) =>
+    new Date(`${day}T00:00:00Z`).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
-            Commit Activity ({contributionData.days} days)
-          </h2>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
-            Total commits: {contributionData.total}
-          </p>
-        </div>
-      </div>
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
+        Commit Activity ({contributionData.days} days)
+      </h2>
+      <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+        {[
+          { label: "Total commits", value: contributionData.total },
+          { label: "Active days", value: active },
+          {
+            label: "Best day",
+            value: best && best.commits > 0 ? best.commits : 0,
+          },
+        ].map((stat) => (
+          <div key={stat.label}>
+            <dt className="font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+              {stat.label}
+            </dt>
+            <dd className="font-pixel text-xl tabular-nums text-[var(--card-foreground)]">
+              {stat.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
 
-      {data.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)]">
-          No commit data available.
+      {contributionData.total === 0 ? (
+        <p className="mt-4 text-sm text-[var(--muted-foreground)]">
+          No public commits in the last {contributionData.days} days.
         </p>
       ) : (
-        <div className="space-y-2">
-          <div className="text-sm text-[var(--muted-foreground)]">
-            {data.length} active days
+        <>
+          <div
+            role="img"
+            aria-label={`Commits per day over the last ${contributionData.days} days: ${contributionData.total} in total, best day ${best.commits} on ${label(best.day)}.`}
+            className="mt-5 flex h-36 items-end gap-[3px]"
+          >
+            {days.map((d, i) => {
+              const steps =
+                d.commits === 0
+                  ? 0
+                  : Math.max(1, Math.round((d.commits / max) * 12));
+              const isBest = d === best && d.commits > 0;
+              return (
+                <div
+                  key={d.day}
+                  title={`${label(d.day)}: ${d.commits} commit${d.commits === 1 ? "" : "s"}`}
+                  className="flex h-full min-w-0 flex-1 flex-col justify-end"
+                >
+                  <div
+                    className="profile-bar w-full origin-bottom"
+                    style={{
+                      height: steps === 0 ? "3px" : `${(steps / 12) * 100}%`,
+                      background:
+                        steps === 0
+                          ? "var(--control)"
+                          : isBest
+                            ? "#f2c14e"
+                            : "var(--accent)",
+                      opacity: steps === 0 ? 1 : 0.45 + 0.55 * (steps / 12),
+                      animationDelay: `${i * 18}ms`,
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
-          <div className="grid grid-cols-7 gap-1">
-            {data.map((day) => (
-              <div
-                key={day.day}
-                className="aspect-square rounded-sm"
-                style={{
-                  backgroundColor:
-                    day.commits > 0 ? "var(--accent)" : "var(--control)",
-                  opacity:
-                    day.commits > 0
-                      ? Math.max(0.2, Math.min(day.commits / 10, 1))
-                      : 1,
-                }}
-                title={`${day.day}: ${day.commits} commits`}
-              />
-            ))}
+          <div className="mt-2 flex justify-between font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+            <span>{label(days[0].day)}</span>
+            <span>
+              <span className="text-[#f2c14e]">■</span> best day
+            </span>
+            <span>Today</span>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
 }
 
-function PublicStreakTracker({ streak }: { streak: any }) {
+function PublicStreakTracker({
+  streak,
+}: {
+  streak: import("@/lib/public-profile-data").StreakData;
+}) {
   const stats = [
     {
       label: "Current Streak",
@@ -521,7 +671,7 @@ function PublicStreakTracker({ streak }: { streak: any }) {
       icon: "🏆",
     },
     {
-      label: "Active Days (90d)",
+      label: "Active Days (365d)",
       value: streak.totalActiveDays,
       unit: "days",
       highlight: false,
@@ -542,24 +692,29 @@ function PublicStreakTracker({ streak }: { streak: any }) {
   ];
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Commit Streaks
       </h2>
+      {streak.complete === false && (
+        <p role="status" className="mb-3 text-sm text-amber-500">
+          {streak.partialReason ?? "Streak history is incomplete."}
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className={`rounded-lg border p-3 ${
+            className={`border-2 p-3 ${
               stat.highlight
-                ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                ? "border-[var(--accent)] bg-accent/10"
                 : "border-[var(--border)] bg-[var(--control)]"
             }`}
           >
             <div className="text-xs font-medium text-[var(--muted-foreground)]">
               {stat.icon} {stat.label}
             </div>
-            <div className="mt-1 text-lg font-bold text-[var(--card-foreground)]">
+            <div className="mt-1 font-pixel text-lg tabular-nums text-[var(--card-foreground)]">
               {stat.value}
             </div>
             {stat.unit && (
@@ -580,20 +735,24 @@ function PublicLanguageBreakdown({
   languages: Array<{ name: string; count: number; percentage: number }>;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Top Languages
       </h2>
       <div className="space-y-3">
         {languages.map((lang) => (
           <div key={lang.name}>
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="font-medium text-[var(--card-foreground)]">{lang.name}</span>
-              <span className="text-[var(--muted-foreground)]">{lang.percentage}%</span>
+              <span className="font-medium text-[var(--card-foreground)]">
+                {lang.name}
+              </span>
+              <span className="text-[var(--muted-foreground)]">
+                {lang.percentage}%
+              </span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[var(--control)]">
+            <div className="h-2 overflow-hidden bg-[var(--control)]">
               <div
-                className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                className="h-full bg-[var(--accent)] transition-all duration-500"
                 style={{ width: `${lang.percentage}%` }}
               />
             </div>
@@ -606,13 +765,17 @@ function PublicLanguageBreakdown({
 
 function PublicPRCount({ pullRequests }: { pullRequests: number }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-2 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-2 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Pull Requests
       </h2>
       <div className="flex items-end gap-2">
-        <span className="text-4xl font-bold text-[var(--accent)]">{pullRequests.toLocaleString()}</span>
-        <span className="mb-1 text-sm text-[var(--muted-foreground)]">total PRs authored</span>
+        <span className="font-pixel text-4xl tabular-nums text-[var(--accent)]">
+          {pullRequests.toLocaleString()}
+        </span>
+        <span className="mb-1 text-sm text-[var(--muted-foreground)]">
+          total PRs authored
+        </span>
       </div>
     </div>
   );
@@ -624,19 +787,32 @@ function PublicWeeklyGoalProgress({
   progress: { completed: number; total: number; percentage: number };
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Weekly Goal Progress
       </h2>
       <div className="flex items-center gap-4">
         <div className="relative h-20 w-20">
           <svg className="h-20 w-20 -rotate-90" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--control)" strokeWidth="6" />
             <circle
-              cx="36" cy="36" r="30"
-              fill="none" stroke="var(--accent)" strokeWidth="6"
+              cx="36"
+              cy="36"
+              r="30"
+              fill="none"
+              stroke="var(--control)"
+              strokeWidth="6"
+            />
+            <circle
+              cx="36"
+              cy="36"
+              r="30"
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth="6"
               strokeDasharray={2 * Math.PI * 30}
-              strokeDashoffset={2 * Math.PI * 30 * (1 - progress.percentage / 100)}
+              strokeDashoffset={
+                2 * Math.PI * 30 * (1 - progress.percentage / 100)
+              }
               strokeLinecap="round"
             />
           </svg>
@@ -660,8 +836,8 @@ function PublicTopRepos({
   const maxCommits = repos[0]?.commits ?? 1;
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[var(--shadow-soft)]">
-      <h2 className="mb-4 text-lg font-semibold text-[var(--card-foreground)]">
+    <div className="px-frame bg-[var(--card)] p-6">
+      <h2 className="mb-4 font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
         Top Repositories
       </h2>
 
@@ -696,9 +872,9 @@ function PublicTopRepos({
                     {repo.commits} commit{repo.commits !== 1 ? "s" : ""}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-[var(--control)]">
+                <div className="h-1.5 overflow-hidden bg-[var(--control)]">
                   <div
-                    className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+                    className="h-full bg-[var(--accent)] transition-all duration-500"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>

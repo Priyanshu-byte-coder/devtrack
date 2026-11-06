@@ -1,629 +1,294 @@
 <div align="center">
 
-# DevTrack
+<img src="./.github/assets/readme/bit.svg" alt="Bit, DevTrack's pixel mascot" width="72" />
 
-**Your developer productivity command center.**
+# ▲ DevTrack
 
-> Track your GitHub activity, commit streaks, PR analytics, and coding goals in one clean, self-hostable dashboard — no enterprise plan, no vendor lock-in.
+**Turn your GitHub into a high score.**
 
-[![CI](https://github.com/Priyanshu-byte-coder/devtrack/actions/workflows/ci.yml/badge.svg)](https://github.com/Priyanshu-byte-coder/devtrack/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-[![Stack](https://img.shields.io/badge/stack-Next.js%2016%20%7C%20Supabase%20%7C%20TypeScript-blue)](./DEVELOPMENT.md)
-[![Stars](https://img.shields.io/github/stars/Priyanshu-byte-coder/devtrack?style=flat&color=yellow)](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)
-[![Forks](https://img.shields.io/github/forks/Priyanshu-byte-coder/devtrack?style=flat&color=blue)](https://github.com/Priyanshu-byte-coder/devtrack/network/members)
-[![Contributors](https://img.shields.io/github/contributors/Priyanshu-byte-coder/devtrack?color=brightgreen)](https://github.com/Priyanshu-byte-coder/devtrack/graphs/contributors)
-[![Last Commit](https://img.shields.io/github/last-commit/Priyanshu-byte-coder/devtrack)](https://github.com/Priyanshu-byte-coder/devtrack/commits/main)
-[![Views](https://komarev.com/ghpvc/?username=Priyanshu-byte-coder&label=Views&color=blueviolet)](https://github.com/Priyanshu-byte-coder/devtrack)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/Priyanshu-byte-coder?label=sponsors&color=ea4aaa)](https://github.com/sponsors/Priyanshu-byte-coder)
-[![Good First Issues](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
-[![Help Wanted](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/help%20wanted?label=help%20wanted&color=008672)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-
-**[Live Demo](https://devtrack-silk-kappa.vercel.app)** · **[Dev Guide](./DEVELOPMENT.md)** · **[Report Bug](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=bug_report.md)** · **[Request Feature](https://github.com/Priyanshu-byte-coder/devtrack/issues/new?template=feature_request.md)** · **[Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** · **[Sponsor](https://github.com/sponsors/Priyanshu-byte-coder)**
+One ranking for every developer. Your commits, PRs, reviews and streaks become one score,<br />
+one tier and one spot on a global leaderboard, built from the GitHub activity you already have.<br />
+Look anyone up, duel your friends, flex it in your README. Free, open source and self-hostable.
 
 <br />
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack&project-name=devtrack&repository-name=devtrack&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,NEXTAUTH_URL,NEXTAUTH_SECRET,GITHUB_ID,GITHUB_SECRET,ENCRYPTION_KEY&envDescription=Supabase%20keys%2C%20GitHub%20OAuth%20app%20credentials%2C%20and%20a%20NextAuth%20secret&envLink=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack%2Fblob%2Fmain%2FDEVELOPMENT.md)
+[![Play](https://img.shields.io/badge/▶_play-devtrack.live-6ba8ff?style=for-the-badge&labelColor=0b1024)](https://devtrack.live)
 
-⭐ **If DevTrack saves you time, [star the repo](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)** — it helps more developers discover it.
+[![CI](https://github.com/Priyanshu-byte-coder/devtrack/actions/workflows/ci.yml/badge.svg)](https://github.com/Priyanshu-byte-coder/devtrack/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org)
+[![Stars](https://img.shields.io/github/stars/Priyanshu-byte-coder/devtrack?style=flat&color=yellow)](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)
+[![Forks](https://img.shields.io/github/forks/Priyanshu-byte-coder/devtrack?style=flat&color=orange)](https://github.com/Priyanshu-byte-coder/devtrack/network/members)
+[![Contributors](https://img.shields.io/github/contributors/Priyanshu-byte-coder/devtrack?color=brightgreen)](https://github.com/Priyanshu-byte-coder/devtrack/graphs/contributors)
+[![Good First Issues](https://img.shields.io/github/issues/Priyanshu-byte-coder/devtrack/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[![Sponsor](https://img.shields.io/badge/sponsor-♥-ea4aaa)](https://devtrack.live/sponsor)
+
+<br />
+
+<a href="https://youtube.com/shorts/RuArlADjlmQ"><img src="./.github/assets/readme/trailer.png" alt="Watch the 41-second DevTrack trailer: look up a score, climb the leaderboard, duel a friend, flex your README badges" width="90%" /></a>
+
+<sub><b>▶ <a href="https://youtube.com/shorts/RuArlADjlmQ">Watch the trailer</a></b> (0:41, YouTube): score, leaderboard, duels, README badges and more. Or just type any GitHub username at <a href="https://devtrack.live">devtrack.live</a> and see where they'd rank. No sign-up needed.</sub>
+
+<br /><br />
+
+| 🎮 [**Play**](#for-players)                       | 🛠️ [**Build**](#for-contributors)                          | 💎 [**Sponsor**](#for-sponsors)                         |
+| ------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+| Get your rank, tier and badges in under a minute. | 280+ contributors, mentoring, and a no-accounts demo mode. | Put your brand where developers check their rank daily. |
 
 </div>
 
 ---
 
-## Demo
+## For players
 
-<div align="center">
+### Three steps to your high score
+
+1. **Press start.** [Sign in with GitHub](https://devtrack.live/auth/signin). You approve on github.com; DevTrack never sees your password.
+2. **Get your player card.** Your score (0–1000), tier from Bronze to Legend, XP and level, and your spot on the global leaderboard, built from your real commits, PRs and reviews.
+3. **Flex it.** Duel friends, share your card, and drop live badges into your README.
+
+Just curious? Try any username in the [score attack](https://devtrack.live), or open anyone's card at `devtrack.live/u/<username>`. No account needed.
+
+### Take a look
 
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="./public/assets/gifs/dashboard-demo.gif" alt="DevTrack dashboard demo" width="100%" />
-      <br />
-      <em>Dashboard: streaks, PR analytics, activity heatmap, and goals</em>
+      <img src="./.github/assets/readme/leaderboard.png" alt="DevTrack leaderboard with a podium for the top three players and a season countdown" width="100%" />
+      <br /><sub><b>Hi-score table</b>: overall, streak, commits and PR boards, by language, for the week, month or all time</sub>
     </td>
     <td width="50%" align="center">
-      <img src="./public/assets/gifs/feature-hover-demo.gif" alt="DevTrack widget demo" width="100%" />
-      <br />
-      <em>Interactive widgets: real-time GitHub data in action</em>
+      <img src="./.github/assets/readme/duel.png" alt="A DevTrack duel between torvalds and gaearon, won 5 to 2" width="100%" />
+      <br /><sub><b>Duels</b>: any two GitHub users, eight rounds, one shareable result</sub>
     </td>
   </tr>
   <tr>
-    <td colspan="2" align="center">
-      <img src="./public/assets/gifs/year_wrapped.gif" alt="DevTrack Year Wrapped" width="70%" />
-      <br />
-      <em>Year Wrapped: your annual coding journey, visualized</em>
+    <td width="50%" align="center">
+      <img src="./.github/assets/readme/player-card.png" alt="A DevTrack player card with global rank, streak, level, an XP bar and a share card" width="100%" />
+      <br /><sub><b>Player cards</b>: rank, tier, level and XP, a 30-day commit chart and a share card</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="./.github/assets/readme/dashboard-hq.png" alt="The DevTrack dashboard HQ with a weekly HUD, a season rank card and the arcade menu" width="100%" />
+      <br /><sub><b>HQ</b>: your week as a game HUD, your season rank, and everything else one click away</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./.github/assets/readme/year-in-code.png" alt="A DevTrack Year in Code slide showing a 42-day streak as level 2" width="100%" />
+      <br /><sub><b>Year in Code</b>: your year as a run of levels, with a share card at the end</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="./.github/assets/readme/top-country.png" alt="The most-followed GitHub developers in India on DevTrack" width="100%" />
+      <br /><sub><b>Top developers</b>: by language and by country, updated daily</sub>
     </td>
   </tr>
 </table>
 
+### Flex it in your README
+
+Live, animated pixel badges that update on their own. Here are the maintainer's:
+
+<p align="center">
+  <a href="https://devtrack.live/u/priyanshu-byte-coder"><img src="https://devtrack.live/api/badge/rank?user=priyanshu-byte-coder" alt="DevTrack rank" height="80" /></a>
+  <a href="https://devtrack.live/u/priyanshu-byte-coder"><img src="https://devtrack.live/api/badge/streak-shield?user=priyanshu-byte-coder" alt="DevTrack streak" height="80" /></a>
+  <a href="https://devtrack.live/u/priyanshu-byte-coder"><img src="https://devtrack.live/api/badge/commits?user=priyanshu-byte-coder" alt="DevTrack commits this month" height="80" /></a>
+</p>
+
+Sign in once, then paste this into your profile README (replace `YOUR_LOGIN`):
+
+```md
+[![DevTrack rank](https://devtrack.live/api/badge/rank?user=YOUR_LOGIN)](https://devtrack.live/u/YOUR_LOGIN)
+[![Coding streak](https://devtrack.live/api/badge/streak-shield?user=YOUR_LOGIN)](https://devtrack.live/u/YOUR_LOGIN)
+[![Commits this month](https://devtrack.live/api/badge/commits?user=YOUR_LOGIN)](https://devtrack.live/u/YOUR_LOGIN)
+```
+
+The rank badge also takes `&board=month` or `&board=week`. More in [BADGE_API.md](./BADGE_API.md) and the [README stats guide](https://devtrack.live/guides/github-stats-readme).
+
+### Everything you get
+
+<table>
+<tr>
+<td valign="top" width="50%">
+
+**Play**
+
+- DevTrack score (0–1000): consistency, impact, volume and breadth
+- Six tiers, Bronze to Legend; XP and levels that never go down
+- Global leaderboard by language, with weekly and monthly seasons, a podium and daily rank changes
+- Duels between any two GitHub users
+- Top developers by language (20) and country (28)
+- Year in Code, your year as a shareable run
+- Bit, the pixel mascot, with a tip on every page
+
+</td>
+<td valign="top" width="50%">
+
+**Your dashboard**
+
+- Weekly HUD, season rank card, level-up celebrations
+- Contribution heatmap, streaks with freezes, productive hours
+- Pull request, review, issue and CI analytics
+- Repositories, language loadout, repo health and comparison
+- Goals as a quest log, milestones and a daily focus
+- AI resume, coding personality, project tutor, weekly insights
+- Themes, English and Spanish, PWA, Discord and Slack
+
+</td>
+</tr>
+</table>
+
+**Your data, your call.** New players start on the public leaderboard and can hide their profile or leave the board in one click. The board shows totals only, never private repository names or code. Export everything or delete your account any time. DevTrack is free, [open source](./LICENSE), and not affiliated with GitHub.
+
+---
+
+## For contributors
+
+DevTrack is one of the friendliest places to land your first, or fiftieth, open-source pull request.
+
+<div align="center">
+
+| 280+ contributors | 1,100+ merged PRs | 430+ forks | 100% open source |
+| :---------------: | :---------------: | :--------: | :--------------: |
+
 </div>
 
----
+**Why build here**
 
-## Table of Contents
+- **Real users, real impact.** Your change ships to a live site people check every day, and your avatar joins the contributors wall below.
+- **A modern stack worth learning.** Next.js 16 (App Router), React, TypeScript, Tailwind, Supabase, the GitHub GraphQL API, Playwright and Vitest.
+- **Fun problems.** Pixel art, game mechanics, animation, SVG badges and Open Graph cards, not only CRUD.
+- **People who review.** Maintainers review every PR and mentor newcomers. Look for [`good first issue`](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), [`hacktoberfest`](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22hacktoberfest%22) and `level:*` labels.
 
-- [Why DevTrack?](#why-devtrack)
-- [Demo](#demo)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Architecture](#architecture)
-- [API Documentation](#api-documentation)
-- [Getting Started](#getting-started)
-- [Docker Development Setup](#docker-development-setup)
-- [FAQ](#faq)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [Community](#community)
-- [Built With](#built-with)
-- [Sponsors](#sponsors)
-- [Star History](#star-history)
-- [License](#license)
-- [Maintainers](#maintainers)
-- [Contributors](#contributors)
+### Your first PR in 15 minutes
 
----
-
-## Why DevTrack?
-
-Most developers track their work across multiple disconnected tools — GitHub for commits, Jira for tasks, Notion for goals, Slack for standups. None of them give you the full picture.
-
-**DevTrack solves this by:**
-
-- Consolidating GitHub contributions, PR metrics, and streak data in one view
-- Helping you set and visualize personal coding goals with progress tracking
-- Keeping your data yours — fully self-hostable with zero vendor lock-in
-- Deploying in minutes on the free tier of Next.js + Supabase + Vercel
-
----
-
-## Features
-
-| Feature | Description |
-|---|---|
-| **GitHub OAuth** | Sign in with GitHub — no separate account needed |
-| **Commit Activity Chart** | Visualize daily commit activity with 7d / 14d / 30d / 90d range selector |
-| **Commit Streak Tracker** | Current streak, longest streak, and active days |
-| **PR Analytics** | Average review time, merge rate, open/closed PR counts |
-| **Top Repositories** | Ranked list of most active repos over any time range |
-| **Goal Tracker** | Set and track personal coding goals with progress bars |
-| **Public Profile** | Shareable public profile page at `/u/[username]` with stats and badges |
-| **Repository Spotlight** | Pin up to 3 repositories to showcase on your public profile |
-| **GitHub Achievements** | Automatically synced GitHub achievement badges on your public profile |
-| **Leaderboard** | Opt-in public leaderboard ranked by streak, commits, and PRs |
-| **Discord Integration** | Streak reminders and milestone alerts via Discord webhooks |
-| **Wakatime Integration** | Accurate coding time and language usage from Wakatime |
-| **Multi-Account Support** | Link and switch between multiple GitHub accounts |
-| **Weekly Email Digest** | Optional Monday morning summary of your coding habits |
-| **Data Export** | Download all your data in JSON format |
-| **AI Weekly Insights** | Groq-powered natural language summary of your weekly activity |
-| **Heatmap Themes** | Default and colour-blind-friendly heatmap colour schemes |
-| **Year Wrapped** | Annual coding journey recap with animated visualizations |
-| **Real-time Dashboard** | Live updates via Supabase Realtime with polling fallback |
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16 (App Router), TypeScript, Tailwind CSS |
-| Auth | GitHub OAuth via NextAuth.js v4 |
-| Database | Supabase (PostgreSQL) with Row Level Security |
-| API | Next.js Route Handlers (`/app/api/`) |
-| Charts | Recharts |
-| AI | Groq API |
-| Deployment | Vercel (free tier, auto-deploys from GitHub) |
-
----
-
-## Project Structure
-
-```
-devtrack/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── auth/          # GitHub OAuth (NextAuth)
-│   │   │   ├── metrics/       # Contributions, streak, PRs, repos
-│   │   │   ├── goals/         # Goal CRUD
-│   │   │   ├── leaderboard/   # Public leaderboard
-│   │   │   ├── public/        # Public profile JSON API
-│   │   │   └── user/          # Settings, data export, linked accounts
-│   │   ├── dashboard/         # Authenticated dashboard
-│   │   ├── u/[username]/      # Public profile pages
-│   │   └── page.tsx           # Landing page
-│   ├── components/            # Reusable UI components
-│   └── lib/
-│       ├── auth.ts            # NextAuth config
-│       ├── supabase.ts        # Supabase admin client (server-side only)
-│       ├── public-profile-data.ts  # GitHub API helpers for public profiles
-│       └── github-achievements.ts  # Achievement sync logic
-├── supabase/
-│   └── migrations/            # Versioned schema migrations
-├── e2e/                       # Playwright end-to-end tests
-├── test/                      # Unit tests
-└── .github/
-    ├── workflows/ci.yml       # Type-check + lint on every PR
-    └── ISSUE_TEMPLATE/        # Bug, feature, good-first-issue templates
-```
-
----
-
-## Architecture
-
-New contributors can start with the [architecture overview](./docs/architecture.md) for Mermaid diagrams covering the Next.js frontend, API routes, Supabase schema, external services, and GitHub activity sync flow.
-
----
-
-## API Documentation
-
-DevTrack includes a documented REST API.
-
-Documentation resources:
-
-- `docs/api.md` — API usage guide
-- `public/openapi.yaml` — OpenAPI 3.1 specification
-- `/api-docs` — Interactive Swagger UI
-
-After starting the development server, open:
-
-`http://localhost:3000/api-docs`
-
----
-
-## Getting Started
-
-For local development and contributing, see **[DEVELOPMENT.md](./DEVELOPMENT.md)**.
-To deploy your own instance, see the **[Self-Hosting Guide](./docs/self-hosting.md)**.
-
-
-### Quick Start
-
-**1. Clone and install**
+No Supabase project, GitHub app or API keys needed. Demo mode runs the public pages (landing, leaderboard, player cards, duels, top developers, guides) on built-in sample data:
 
 ```bash
 git clone https://github.com/Priyanshu-byte-coder/devtrack.git
 cd devtrack
 pnpm install
+pnpm dev:demo        # http://localhost:3000, then try /leaderboard and /u/playwright-user
 ```
 
-**2. Set up Supabase**
-
-1. Create a free project at [supabase.com](https://supabase.com)
-2. Run all migrations from `supabase/migrations/` in the SQL editor (in order)
-3. Copy your Project URL, anon key, and service_role key from **Project Settings → API**
-
-**3. Create a GitHub OAuth App**
-
-1. Go to [GitHub → Settings → Developer Settings → OAuth Apps](https://github.com/settings/applications/new)
-2. Set the callback URL to `http://localhost:3000/api/auth/callback/github`
-3. Copy your Client ID and Client Secret
-
-**4. Configure environment**
-
-```bash
-cp .env.example .env.local
-```
-
-### Environment Variables
-
-> [!WARNING]
-> Never commit `.env` or `.env.local` to Git. These files are pre-configured in `.gitignore`.
-
-| Variable | Required | Description |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase public anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key (server-side only) |
-| `NEXTAUTH_URL` | Yes | Base URL of the app (`http://localhost:3000` locally) |
-| `NEXTAUTH_SECRET` | Yes | Session encryption key — `openssl rand -base64 32` |
-| `GITHUB_ID` | Yes | GitHub OAuth App Client ID |
-| `GITHUB_SECRET` | Yes | GitHub OAuth App Client Secret |
-| `ENCRYPTION_KEY` | Yes | 32-byte hex key — `openssl rand -hex 32` |
-| `GITHUB_TOKEN` | No | Personal Access Token to raise GitHub API rate limits |
-| `GITHUB_WEBHOOK_SECRET` | No | Webhook signature validation key |
-| `UPSTASH_REDIS_REST_URL` | No | Upstash Redis endpoint for rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis access token |
-| `GROQ_API_KEY` | No | Groq API key for AI weekly insights |
-| `NEXT_PUBLIC_APP_URL` | No | Public URL override for generating share links |
-
-**5. Run locally**
-
-```bash
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) and sign in with GitHub.
-
-**6. Run tests**
-
-```bash
-# Unit tests
-pnpm test
-
-# End-to-end tests (requires Chromium)
-npx playwright install --with-deps chromium
-pnpm run test:e2e
-```
-
-### E2E Test Suite (Playwright)
-
-DevTrack ships a Playwright-based end-to-end suite covering the full user journey — OAuth sign-in, dashboard rendering, and API correctness. No real credentials needed; all external calls are mocked via `page.route()`.
-
-| Spec file | Coverage |
-|-----------|----------|
-| `e2e/auth.spec.ts` | Landing page, sign-in button, OAuth redirect, unauthenticated redirects |
-| `e2e/dashboard.spec.ts` | All 6 dashboard widgets render after mock login, no console errors |
-| `e2e/goals.spec.ts` | Goal create/delete lifecycle with API payload verification |
-| `e2e/streak.spec.ts` | Streak values display, freeze button triggers API call |
-| `e2e/api.spec.ts` | Auth-gated API routes return 200/401 correctly |
-
-```bash
-# Install Playwright browsers (one-time)
-npx playwright install --with-deps chromium
-
-# Run the full suite (dev server auto-starts on port 3002)
-pnpm run test:e2e
-
-# Run a single spec
-npx playwright test e2e/goals.spec.ts
-
-# Interactive UI runner
-npx playwright test --ui
-```
-
-The test server is configured in `playwright.config.mjs` and auto-starts on `http://127.0.0.1:3002` with placeholder credentials — no `.env.local` required. E2E tests also run on every PR via `.github/workflows/e2e.yml`.
-
-### Visual Regression Tests
-
-Playwright screenshot assertions cover the landing page, sign-in page, dashboard header, public profile, and 404 page.
-
-```bash
-# Run visual regression tests
-npx playwright test -c playwright.visual.config.mjs
-
-# Update baselines
-npx playwright test -c playwright.visual.config.mjs --update-snapshots
-```
-
-Baselines are stored in `tests/snapshots/`. Use the same Linux/Chromium environment as CI to avoid OS-specific rendering differences. The suite uses a `1280x720` viewport and fails at >0.1% pixel difference.
-
----
-
-## Docker Development Setup
-
-DevTrack includes Docker support for local development, allowing contributors to get started quickly without manually installing dependencies or configuring environments.
-
-### Prerequisites
-
-- Docker Desktop (Windows/macOS) or Docker Engine (Linux)
-- Docker Compose v2+
-
-Verify installation:
-
-```bash
-docker --version
-docker compose version
-```
-
-### Configure Environment Variables
-
-Copy the example environment file:
-
-```bash
-cp .env.example .env.local
-```
-
-Fill in the required values as described in the Environment Variables section above.
-
-### Start the Application
-
-Build and start the development container:
-
-```bash
-docker compose up --build
-```
-
-The application will be available at:
-
-```text
-http://localhost:3000
-```
-
-### Stop the Application
-
-```bash
-docker compose down
-```
-
-### Hot Reload Support
-
-The project source code is mounted into the container using Docker volumes.
-
-Any changes made to files on your host machine are automatically reflected inside the container, enabling Next.js hot reload during development without rebuilding the image.
-
-### Rebuild After Dependency Changes
-
-If you modify `package.json` or install new dependencies:
-
-```bash
-docker compose down
-docker compose up --build
-```
-
-### Troubleshooting
-
-Remove containers and rebuild from scratch:
-
-```bash
-docker compose down -v
-docker compose up --build
-```
-
-View container logs:
-
-```bash
-docker compose logs -f
-```
-
----
-
-## FAQ
-
-Answers to questions new contributors and self-hosters ask most often. For deeper setup detail, see [DEVELOPMENT.md](./DEVELOPMENT.md) and the [Self-Hosting Guide](./docs/self-hosting.md).
-
-<details>
-<summary><strong>How do I configure GitHub OAuth?</strong></summary>
-
-1. Go to [GitHub → Settings → Developer Settings → OAuth Apps](https://github.com/settings/applications/new) and create a new OAuth App.
-2. Set the **Authorization callback URL** to:
-   - Local dev: `http://localhost:3000/api/auth/callback/github`
-   - Production: `https://<your-domain>/api/auth/callback/github`
-3. Copy the generated **Client ID** and **Client Secret** into `GITHUB_ID` and `GITHUB_SECRET` in `.env.local`.
-4. Make sure `NEXTAUTH_URL` matches the base URL you're running on, and `NEXTAUTH_SECRET` is set (generate one with `openssl rand -base64 32`).
-
-</details>
-
-<details>
-<summary><strong>Why is login not working?</strong></summary>
-
-This is almost always one of the following:
-
-- **Callback URL mismatch** — the URL registered on your GitHub OAuth App must exactly match `NEXTAUTH_URL` + `/api/auth/callback/github`, including protocol and trailing slashes.
-- **Missing/incorrect `NEXTAUTH_SECRET`** — sessions will silently fail without it.
-- **Stale `.env.local`** — restart `pnpm dev` after changing any auth-related env vars; Next.js doesn't hot-reload env files.
-- **Supabase RLS blocking the user row** — check that the relevant migrations from `supabase/migrations/` have been applied in order.
-
-If the issue persists, check your browser console and terminal logs for the specific NextAuth error code, then search/open a [Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
-
-</details>
-
-<details>
-<summary><strong>How do I obtain Supabase credentials?</strong></summary>
-
-1. Create a free project at [supabase.com](https://supabase.com).
-2. Open **Project Settings → API**.
-3. Copy:
-   - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
-   - **anon public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY` (server-side only — never expose this in client code or commit it)
-4. Run all SQL files in `supabase/migrations/` via the Supabase SQL editor, in order, before starting the app.
-
-</details>
-
-<details>
-<summary><strong>Why are GitHub metrics not loading?</strong></summary>
-
-- You're likely hitting **GitHub's unauthenticated API rate limit**. Set the optional `GITHUB_TOKEN` (a personal access token) in `.env.local` to raise the limit significantly.
-- Check that your GitHub OAuth scopes were granted during sign-in — if you denied a permission, re-authenticate by signing out and back in.
-- If you're self-hosting behind a proxy or firewall, confirm outbound requests to `api.github.com` aren't being blocked.
-- Look at the server logs/terminal for the specific API error (403 usually means rate-limited; 401 means a token problem).
-
-</details>
-
-<details>
-<summary><strong>How do I run tests?</strong></summary>
-
-```bash
-# Unit tests
-pnpm test
-
-# End-to-end tests (Playwright, first-time setup)
-npx playwright install --with-deps chromium
-pnpm run test:e2e
-
-# Run a single e2e spec
-npx playwright test e2e/goals.spec.ts
-
-# Visual regression tests
-npx playwright test -c playwright.visual.config.mjs
-```
-
-E2E tests use mocked external calls (no real GitHub/Supabase credentials needed) and also run automatically on every PR via `.github/workflows/e2e.yml`.
-
-</details>
-
-<details>
-<summary><strong>How can I contribute?</strong></summary>
-
-1. Browse [open issues](https://github.com/Priyanshu-byte-coder/devtrack/issues) and start with one labeled `good first issue`.
-2. Comment on the issue to get assigned before starting work.
-3. Fork the repo, branch off `main` (e.g. `feat/issue-42-description`), and open a PR.
-4. Before pushing, make sure CI passes locally:
-   ```bash
-   pnpm run lint && pnpm run type-check
-   ```
-5. See [CONTRIBUTING.md](./CONTRIBUTING.md) for commit message style, branch naming conventions, and the review process.
-
-Questions are welcome anytime in [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
-
-</details>
-
-<details>
-<summary><strong>Which Node.js and pnpm versions are supported?</strong></summary>
-
-| Tool | Version | Check |
-|------|---------|-------|
-| Node.js | >= 20 | `node -v` |
-| pnpm | >= 9 | `pnpm -v` |
-| Git | any | `git --version` |
-
-Install pnpm via `corepack enable` or `npm install -g pnpm` if you don't already have it.
-
-If your local versions differ and you hit install/build errors, aligning your Node.js/pnpm version with the table above is the first thing to check.
-
-</details>
-
----
-
-## Roadmap
-
-### Shipped
-
-These features are live in the current version.
-
-| Feature | Notes |
-|---|---|
-| GitHub OAuth sign-in | |
-| Commit activity chart | 7d / 14d / 30d / 90d range selector |
-| Commit streak tracker | Current, longest, active days |
-| PR analytics widget | Review time, merge rate, open/closed counts |
-| Top repositories widget | |
-| Weekly goal tracker | |
-| Dark mode + heatmap themes | Default and colour-blind-friendly |
-| Responsive mobile layout | |
-| Public profile (`/u/[username]`) | Shareable stats page |
-| Repository Spotlight | Pin up to 3 repos on public profile |
-| GitHub Achievements sync | Scraped and cached from GitHub profile |
-| Public leaderboard | Opt-in, ranked by streak / commits / PRs |
-| Discord webhook integration | Streak reminders and milestone alerts |
-| Wakatime integration | Coding time and language breakdown |
-| Multi-account GitHub linking | Switch accounts on the dashboard |
-| Weekly email digest | Opt-in Monday morning summary |
-| Data export | Full JSON dump of user data |
-| AI weekly insights | Groq-powered natural language summary |
-| Streak freeze | Protect streak during planned breaks |
-| RSS feed | Atom feed at `/u/[username]/feed.xml` |
-| Year Wrapped | Animated annual coding journey recap |
-| Real-time dashboard | Live Supabase Realtime sync with polling fallback |
-
-### In Progress / Planned
-
-Want to contribute? Pick an item below and open an issue or start a PR.
-
-| Feature | Difficulty | Issue |
-|---|---|---|
-| Contribution heatmap calendar | Intermediate | [#18](https://github.com/Priyanshu-byte-coder/devtrack/issues/18) |
-| Chart type toggle (bar / line) | Intermediate | [#17](https://github.com/Priyanshu-byte-coder/devtrack/issues/17) |
-| Language breakdown widget | Intermediate | [#32](https://github.com/Priyanshu-byte-coder/devtrack/issues/32) |
-| Activity feed | Intermediate | [#33](https://github.com/Priyanshu-byte-coder/devtrack/issues/33) |
-| Auto-progress goals from commits | Advanced | [#34](https://github.com/Priyanshu-byte-coder/devtrack/issues/34) |
-| GitLab integration | Advanced | [#6](https://github.com/Priyanshu-byte-coder/devtrack/issues/6) |
-| Jira integration | Advanced | — |
-| Team dashboards | Advanced | — |
-| Embeddable stats widgets | Intermediate | — |
-| Mobile app (React Native) | Advanced | — |
-
----
-
-> For caching best practices used in this project, see [Caching Guidelines](docs/caching.md).
-
-## Contributing
-
-DevTrack actively welcomes contributors of all skill levels.
-
-Setup takes under 10 minutes — see [DEVELOPMENT.md](./DEVELOPMENT.md) for the full walkthrough.
+Then pick something small. These are great first changes:
+
+| Area                    | Where                               | Example                                                 |
+| ----------------------- | ----------------------------------- | ------------------------------------------------------- |
+| Bit's dialogue          | `src/lib/buddy-lines.ts`            | Write funnier tips or leaderboard trash talk for a page |
+| Translations            | `messages/*.json`                   | Add a language, or fill in missing Spanish strings      |
+| Guides                  | `src/content/guides.tsx`            | Write a guide that answers a question developers search |
+| Pixel art               | `src/components/pixel/PixelArt.tsx` | Draw a new 8×8 icon as a character grid                 |
+| Countries and languages | `src/lib/top-developers.ts`         | Add a country or language board                         |
+| Tests                   | `test/`, `e2e/`                     | Cover an untested helper or page                        |
+
+Ready to work on the signed-in dashboard? The full setup (Supabase, GitHub OAuth, every environment variable) is in **[DEVELOPMENT.md](./DEVELOPMENT.md)**.
 
 ### How to contribute
 
-1. Browse [open issues](https://github.com/Priyanshu-byte-coder/devtrack/issues) — start with `good first issue`
-2. Comment on the issue to get assigned before starting work
-3. Fork → branch (`feat/issue-42-description`) → PR against `main`
-4. Ensure CI passes: `pnpm run lint && pnpm run type-check`
+1. Find an [open issue](https://github.com/Priyanshu-byte-coder/devtrack/issues) and comment to get assigned.
+2. Fork, branch from `main` (for example `feat/issue-42-description`) and make your change.
+3. Run `pnpm run lint && pnpm run type-check && pnpm test` and open a PR.
 
-See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for commit style, branch naming, and the review process.
+**[CONTRIBUTING.md](./CONTRIBUTING.md)** covers commit style, the arcade design system for UI work, and the review process. Questions are always welcome in [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
 
-Questions? Open a [Discussion](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
+**Looking for something bigger?** Open an issue to claim one of these and discuss the approach first:
 
----
+| Idea                                       | Difficulty   |
+| ------------------------------------------ | ------------ |
+| Friend leagues (private leaderboards)      | Intermediate |
+| Achievements and quests from GitHub events | Intermediate |
+| More UI languages                          | Beginner     |
+| GitLab and Bitbucket accounts              | Advanced     |
+| Team dashboards                            | Advanced     |
 
-## Built With
+### Tech stack
 
-DevTrack is built on best-in-class open-source infrastructure. Sponsoring helps us keep using these tools and exposes them to 224+ active contributors.
+| Layer      | Technology                                                                  |
+| ---------- | --------------------------------------------------------------------------- |
+| Frontend   | Next.js 16 (App Router), React, TypeScript, Tailwind CSS, Motion            |
+| Look       | Arcade pixel design system (Silkscreen, `.px-*` classes), SVG pixel sprites |
+| Auth       | GitHub OAuth via NextAuth.js                                                |
+| Data       | Supabase (PostgreSQL) with Row Level Security; GitHub GraphQL and REST APIs |
+| Charts     | Recharts                                                                    |
+| AI         | Anthropic Claude and Groq                                                   |
+| i18n       | next-intl (English, Spanish)                                                |
+| Testing    | Vitest, Playwright (end-to-end and visual regression)                       |
+| Deployment | Vercel and Supabase free tiers                                              |
 
-| Partner | Role in DevTrack |
-|---|---|
-| [Supabase](https://supabase.com) | PostgreSQL database, auth, Row Level Security, and Realtime sync |
-| [Vercel](https://vercel.com) | Hosting, CI/CD, and preview deployments |
-| [Groq](https://groq.com) | AI-powered weekly coding insights |
-| [Wakatime](https://wakatime.com) | Coding time tracking and language analytics |
+### Documentation
 
----
-
-## Sponsors
-
-DevTrack is free and open source, built by **224+ contributors** worldwide. Sponsoring directly funds:
-
-- **Supabase and Vercel infrastructure** — keeping the hosted demo fast and free for every contributor
-- **Groq API costs** — powering AI weekly insights for all users
-- **Maintainer time** — code review, issue triage, and release management
-
-With **130+ stars**, **369 forks**, **800+ merged PRs**, and **224 contributors**, DevTrack is one of the most active open-source developer-productivity projects on GitHub. Your logo here reaches a highly technical, actively coding audience.
-
-### Sponsor Tiers
-
-| Tier | Amount | Perks |
-|---|---|---|
-| Coffee | $5 / mo | Your name in this README |
-| Backer | $15 / mo | Name + priority response on issues |
-| Champion | $50 / mo | Name + logo in README + feature request priority |
-| One-time | $10+ | One-time thanks, no recurring commitment |
-
-### Current Sponsors
-
-> Be the first sponsor — your logo or name will appear here. See tiers above.
-
-**[Sponsor DevTrack on GitHub →](https://github.com/sponsors/Priyanshu-byte-coder)** · **[Buy Me a Chai →](https://www.buymeachai.in/devtrack)**
-
-Want a standalone sponsor brief to share with your company's finance team? See [docs/SPONSORS.md](./docs/SPONSORS.md).
+| Guide                                              | What it covers                                                        |
+| -------------------------------------------------- | --------------------------------------------------------------------- |
+| [DEVELOPMENT.md](./DEVELOPMENT.md)                 | Local setup, environment variables, project structure, adding widgets |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)               | Workflow, code style, the arcade design system, PR checklist          |
+| [Architecture](./ARCHITECTURE.md)                  | How the app, data and gamification fit together                       |
+| [Self-hosting guide](./docs/self-hosting.md)       | Deploying your own production instance                                |
+| [Docker guide](./docs/docker.md)                   | Containerised local development                                       |
+| [Database guide](./supabase/README.md)             | Schema, migrations and upgrading an existing install                  |
+| [API reference](./docs/api.md)                     | REST API guide; interactive Swagger UI at `/api-docs`                 |
+| [Badge API](./BADGE_API.md)                        | README badges: endpoints, parameters, caching                         |
+| [FAQ](./docs/faq.md)                               | Sign-in, the leaderboard, badges, testing                             |
+| [Guides on the site](https://devtrack.live/guides) | README stats, GitHub streaks, comparing profiles, the score           |
 
 ---
 
-## Community
+## For sponsors
 
-Have questions, ideas, or want to connect with other contributors?
+DevTrack is where developers come back to check their rank, streak and season, and its repository is a magnet for new open-source contributors. Sponsoring puts your brand in front of both.
 
-- **[GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions)** — ask questions, share ideas, show what you've built
-- **[Open an Issue](https://github.com/Priyanshu-byte-coder/devtrack/issues/new/choose)** — bug reports, feature requests, and good-first-issues
-- **[Email the maintainer](mailto:doshipriyanshu3@gmail.com)** — for anything else
+**What you get**
 
-All contributors are expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
+- **The leaderboard sponsor slot.** One clearly labelled placement on the page players revisit most. No tracking scripts, no pop-ups.
+- **Your logo in this README**, seen by every visitor and contributor.
+- **A thank-you on the [sponsor page](https://devtrack.live/sponsor)** and the supporters wall.
+
+**What it funds:** hosting and the database for devtrack.live, the AI features (Anthropic and Groq), and maintainer time for reviews and mentoring.
+
+<div align="center">
+
+[**Become a sponsor**](https://devtrack.live/sponsor) · [GitHub Sponsors](https://github.com/sponsors/Priyanshu-byte-coder) · [Buy Me a Chai](https://www.buymeachai.in/devtrack) · [Sponsor brief](./docs/SPONSORS.md)
+
+<br />
+
+<a href="https://devtrack.live/sponsor"><img src="https://img.shields.io/badge/your_logo_here-become_the_first_sponsor-f2c14e?style=for-the-badge&labelColor=0b1024" alt="Your logo here: become the first sponsor" /></a>
+
+</div>
+
+Not ready to sponsor? **[Star the repository](https://github.com/Priyanshu-byte-coder/devtrack/stargazers)**. It's free and helps other developers find DevTrack.
 
 ---
 
-## Star History
+## Run your own
+
+**Deploy in one click.** You'll need a free [Supabase](https://supabase.com) project and a [GitHub OAuth App](https://github.com/settings/applications/new).
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack&project-name=devtrack&repository-name=devtrack&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,NEXTAUTH_URL,NEXTAUTH_SECRET,GITHUB_ID,GITHUB_SECRET,ENCRYPTION_KEY&envDescription=Supabase%20keys%2C%20GitHub%20OAuth%20app%20credentials%2C%20and%20a%20NextAuth%20secret&envLink=https%3A%2F%2Fgithub.com%2FPriyanshu-byte-coder%2Fdevtrack%2Fblob%2Fmain%2FDEVELOPMENT.md)
+
+**Or run it locally with your own accounts:**
+
+```bash
+git clone https://github.com/Priyanshu-byte-coder/devtrack.git
+cd devtrack
+pnpm install
+cp .env.example .env.local   # fill in Supabase + GitHub OAuth credentials
+pnpm dev
+```
+
+Then follow **[DEVELOPMENT.md](./DEVELOPMENT.md)** for the database migrations and OAuth setup, the **[Docker guide](./docs/docker.md)** for containers, or the **[self-hosting guide](./docs/self-hosting.md)** for production.
+
+---
+
+## Community and support
+
+- [GitHub Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions): questions, ideas, show what you've built
+- [Issues](https://github.com/Priyanshu-byte-coder/devtrack/issues/new/choose): bug reports and feature requests
+- [Email the maintainer](mailto:doshipriyanshu3@gmail.com): anything else
+
+Everyone is expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Found a security issue? See [SECURITY.md](./SECURITY.md).
+
+DevTrack is built on [Supabase](https://supabase.com), [Vercel](https://vercel.com), [Anthropic](https://anthropic.com), and [Groq](https://groq.com).
+
+## Star history
 
 <div align="center">
 
@@ -631,47 +296,39 @@ All contributors are expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date&theme=dark" />
     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" width="600" />
+    <img alt="Star history chart" src="https://api.star-history.com/svg?repos=Priyanshu-byte-coder/devtrack&type=Date" width="600" />
   </picture>
 </a>
 
 </div>
 
----
-
 ## License
 
-MIT — see [LICENSE](./LICENSE) for details.
-
----
+MIT, see [LICENSE](./LICENSE). The hosted service at devtrack.live has its own [Terms of Service](https://devtrack.live/terms) and [Privacy Policy](https://devtrack.live/privacy-policy). DevTrack is an independent project and is not affiliated with GitHub, Inc.
 
 ## Maintainers
 
-| Name | GitHub | Role |
-|---|---|---|
-| Priyanshu Doshi | [@Priyanshu-byte-coder](https://github.com/Priyanshu-byte-coder) | Founder & Maintainer |
-| Saahil Doshi | [@Legit-Ox](https://github.com/Legit-Ox) | Maintainer |
-
----
+| Name            | GitHub                                                           | Role                 |
+| --------------- | ---------------------------------------------------------------- | -------------------- |
+| Priyanshu Doshi | [@Priyanshu-byte-coder](https://github.com/Priyanshu-byte-coder) | Founder & maintainer |
+| Saahil Doshi    | [@Legit-Ox](https://github.com/Legit-Ox)                         | Maintainer           |
 
 ## Contributors
 
-Thanks to everyone who has helped build DevTrack. Want to join the list? See [CONTRIBUTING.md](./CONTRIBUTING.md) and pick a [good first issue](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=label%3A%22good+first+issue%22).
+Every one of these people shipped something to DevTrack. Want your avatar here? Pick a [good first issue](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and join in.
 
 <div align="center">
 
 <a href="https://github.com/Priyanshu-byte-coder/devtrack/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Priyanshu-byte-coder/devtrack" alt="Contributors" />
+  <img src="https://contrib.rocks/image?repo=Priyanshu-byte-coder/devtrack" alt="DevTrack contributors" />
 </a>
 
-</div>
+<br /><br />
 
----
-
-<div align="center">
-
-Built by the DevTrack community · [devtrack-silk-kappa.vercel.app](https://devtrack-silk-kappa.vercel.app)
-
-Star this repo if DevTrack is useful to you.
+**Press start.** [devtrack.live](https://devtrack.live)
 
 </div>
+
+## Audit and repairs
+
+The [2026-10-11 audit](docs/audits/2026-10-11/README.md) records the original code and GitHub backlog. The [repair ledger](docs/repairs/2026-10-11.md) maps each finding to changes and verification. Existing deployments must follow the [database adoption guide](supabase/README.md) before using the repaired schema.

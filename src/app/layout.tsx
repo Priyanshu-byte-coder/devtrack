@@ -1,8 +1,9 @@
-import CustomCursor from "@/components/CustomCursor";
+import { headers } from "next/headers";
 import type { Metadata, Viewport } from "next";
-import { Inter, Syne, JetBrains_Mono } from "next/font/google";
+import { Inter, Syne, JetBrains_Mono, Silkscreen } from "next/font/google";
 import AppNavbar from "@/components/AppNavbar";
 import Footer from "@/components/Footer";
+import ClarityScript from "@/components/analytics/ClarityScript";
 import DeferredVercelMetrics from "@/components/DeferredVercelMetrics";
 import Providers from "./providers";
 import OfflineBanner from "@/components/OfflineBanner";
@@ -29,16 +30,51 @@ const jetbrains = JetBrains_Mono({
   preload: false,
 });
 
+// The arcade display face: headings, HUD labels and scores. Never body text.
+// Its fallback is "Pixel Fallback" in globals.css, not the generated one: that
+// is Arial at 150%, about 40% too wide for this uppercase text,
+// so the hero re-wrapped when the font arrived and the page jumped.
+const pixel = Silkscreen({
+  subsets: ["latin"],
+  variable: "--font-pixel",
+  weight: ["400", "700"],
+  display: "swap",
+  adjustFontFallback: false,
+  fallback: ["Pixel Fallback", "ui-monospace", "monospace"],
+});
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://devtrack.vercel.app"),
-  title: "DevTrack — Developer Productivity Dashboard",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
+  ),
+  title: {
+    // Leads with the words people search for: Google weighs the title most.
+    default: "DevTrack: GitHub Activity Tracker & Developer Leaderboard",
+    template: "%s · DevTrack",
+  },
   description:
-    "Track coding habits, visualize GitHub contributions, and hit your goals.",
+    "Free GitHub activity tracker. Turn your commits, pull requests and coding streak into a score, and see where you rank on a global developer leaderboard. Open source.",
+  applicationName: "DevTrack",
+  // Search engine ownership checks. Google is verified by DNS.
+  verification: { yandex: "cf0315371c223923" },
+  openGraph: {
+    type: "website",
+    siteName: "DevTrack",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 
   manifest: "/manifest.json",
 
   icons: {
-    icon: "/favicon.ico",
+    // Bit, drawn by scripts/generate-icons.mjs. The SVG stays crisp at any
+    // size; the .ico is for browsers that don't take SVG icons.
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+    ],
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
@@ -62,14 +98,27 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const locale = await getRequestLocale();
   const messages = await getMessagesForLocale(locale);
 
   return (
-    <html lang={locale} dir={getLocaleDirection(locale)} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={getLocaleDirection(locale)}
+      suppressHydrationWarning
+    >
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
+        {/* Scroll entrances start hidden and are revealed by JS; without JS, show them. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html:
+              "<style>[data-reveal]{opacity:1!important;transform:none!important}</style>",
+          }}
+        />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -89,6 +138,12 @@ export default async function RootLayout({
                   document.documentElement.classList.toggle('dark', isDark);
                   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
                 } catch (e) {}
+                // The landing page's boot intro plays once per session.
+                try {
+                  if (sessionStorage.getItem('devtrack:booted')) {
+                    document.documentElement.classList.add('booted');
+                  }
+                } catch (e) {}
               })();
             `,
           }}
@@ -96,7 +151,7 @@ export default async function RootLayout({
       </head>
 
       <body
-        className={`${inter.className} min-h-screen bg-[var(--background)] text-[var(--foreground)]`}
+        className={`${inter.className} ${syne.variable} ${jetbrains.variable} ${pixel.variable} min-h-screen bg-[var(--background)] text-[var(--foreground)]`}
       >
         <a
           href="#main-content"
@@ -104,7 +159,6 @@ export default async function RootLayout({
         >
           Skip to main content
         </a>
-        <CustomCursor />
         <OfflineBanner />
 
         <div className="flex min-h-screen flex-col">
@@ -112,7 +166,14 @@ export default async function RootLayout({
             <NextIntlClientProvider locale={locale} messages={messages}>
               <Providers>
                 <AppNavbar />
-                <div id="main-content" tabIndex={-1} className="outline-none">
+                {/* At least a screen tall, so the footer starts below the
+                    fold: streamed content replacing a shorter skeleton
+                    then can't shove a visible footer down (layout shift). */}
+                <div
+                  id="main-content"
+                  tabIndex={-1}
+                  className="min-h-[100svh] outline-none"
+                >
                   {children}
                 </div>
                 <Footer />
@@ -122,7 +183,13 @@ export default async function RootLayout({
 
           <Toaster richColors position="top-right" />
         </div>
-        <DeferredVercelMetrics />
+        <ClarityScript nonce={nonce} />
+        <DeferredVercelMetrics
+          enabled={
+            process.env.VERCEL === "1" ||
+            process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ENABLED === "true"
+          }
+        />
       </body>
     </html>
   );

@@ -85,16 +85,25 @@ export default function GoalHistory() {
       {open && (
         <div id="goal-history-panel" className="mt-3">
           {loading && (
-            <div role="status" aria-live="polite" aria-busy="true" className="space-y-3">
+            <div
+              role="status"
+              aria-live="polite"
+              aria-busy="true"
+              className="space-y-3"
+            >
               <span className="sr-only">Loading goal history</span>
               {[1, 2, 3].map((i) => (
-                <div key={i} aria-hidden="true" className="h-12 rounded-lg bg-[var(--card-muted)] animate-pulse" />
+                <div
+                  key={i}
+                  aria-hidden="true"
+                  className="h-12 rounded-lg bg-[var(--card-muted)] animate-pulse"
+                />
               ))}
             </div>
           )}
 
           {error && !loading && (
-            <div className="rounded-lg border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-3 py-2 text-xs text-[var(--destructive)] flex items-center justify-between gap-2">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-[var(--destructive)] flex items-center justify-between gap-2">
               <span>⚠️ {error}</span>
               <button
                 type="button"
@@ -108,16 +117,21 @@ export default function GoalHistory() {
 
           {!loading && !error && fetched && history.length === 0 && (
             <p className="text-sm text-[var(--muted-foreground)]">
-              No past goals yet. Completed or expired recurring goals will appear here.
+              No past goals yet. Completed or expired recurring goals will
+              appear here.
             </p>
           )}
 
           {!loading && !error && history.length > 0 && (
             <ul className="space-y-2" aria-label="Past goals">
               {history.map((entry) => {
-                const pct = entry.target > 0
-                  ? Math.min(Math.round((entry.achieved / entry.target) * 100), 100)
-                  : 0;
+                const pct =
+                  entry.target > 0
+                    ? Math.min(
+                        Math.round((entry.achieved / entry.target) * 100),
+                        100
+                      )
+                    : 0;
 
                 return (
                   <li
@@ -140,17 +154,19 @@ export default function GoalHistory() {
                         className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
                           entry.completed
                             ? "bg-emerald-500/15 text-emerald-500"
-                            : "bg-[var(--destructive)]/10 text-[var(--destructive)]"
+                            : "bg-destructive/10 text-[var(--destructive)]"
                         }`}
                       >
-                        {entry.completed ? "Completed" : `Missed (${entry.achieved}/${entry.target})`}
+                        {entry.completed
+                          ? "Completed"
+                          : `Missed (${entry.achieved}/${entry.target})`}
                       </span>
                     </div>
 
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--card-muted)]">
                       <div
                         className={`h-full rounded-full ${
-                          entry.completed ? "bg-emerald-500" : "bg-[var(--accent)]/50"
+                          entry.completed ? "bg-emerald-500" : "bg-accent/50"
                         }`}
                         style={{ width: `${pct}%` }}
                       />

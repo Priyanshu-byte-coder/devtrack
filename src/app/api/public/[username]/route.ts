@@ -1,6 +1,6 @@
-// @ts-nocheck
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchPublicProfile } from "@/lib/public-profile-data";
+import { fetchPublicProfile, filterPublicProfileData } from "@/lib/public-profile-data";
 import { getUpstashConfig, upstashRateLimitFixedWindow } from "@/lib/upstash-rest";
 import { createMemoryFixedWindowRateLimiter, getClientIp } from "@/lib/rate-limit";
 
@@ -30,7 +30,7 @@ const memoryLimiter = createMemoryFixedWindowRateLimiter({
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
-): Promise<NextResponse> {
+): Promise<Response> {
   const { username } = await params;
 
   // Validate username before touching any downstream service.
@@ -80,7 +80,13 @@ export async function GET(
     );
   }
 
-  const profile = await fetchPublicProfile(username);
+  let profile;
+  try { profile = await fetchPublicProfile(username); }
+  catch (error) {
+    const cooldown = githubRateLimitResponse(error);
+    if (cooldown) return cooldown;
+    return NextResponse.json({error:'Public profile temporarily unavailable'}, {status:503});
+  }
 
   if (!profile) {
     return NextResponse.json(
@@ -89,5 +95,5 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(profile);
+  return NextResponse.json(filterPublicProfileData(profile));
 }

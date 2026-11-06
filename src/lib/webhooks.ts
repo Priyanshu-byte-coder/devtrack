@@ -1,3 +1,5 @@
+import { toDatabaseJson } from "@/lib/database-json";
+import { safeWebhookFetch } from "@/lib/safe-webhook-fetch";
 import { createHmac, randomBytes } from "crypto";
 import { supabaseAdmin } from "./supabase";
 import { encryptToken, decryptToken } from "./crypto";
@@ -15,7 +17,9 @@ export interface WebhookDeliveryResult {
 }
 
 const WEBHOOK_EVENTS = [
+  "streak.milestone_reached",
   "goal.completed",
+  "weekly_summary.ready",
   "goal.created",
   "streak.milestone",
   "daily.summary",
@@ -23,14 +27,30 @@ const WEBHOOK_EVENTS = [
   "metrics.updated",
 ] as const;
 
-export type WebhookEvent = typeof WEBHOOK_EVENTS[number];
+export type WebhookEvent = (typeof WEBHOOK_EVENTS)[number];
+
+export const ACTIVITY_ALERT_EVENTS = [
+  "streak.milestone_reached",
+  "goal.completed",
+  "weekly_summary.ready",
+] as const satisfies readonly WebhookEvent[];
+
+export type ActivityAlertEvent = (typeof ACTIVITY_ALERT_EVENTS)[number];
 
 export function isValidWebhookEvent(event: string): event is WebhookEvent {
-  return WEBHOOK_EVENTS.includes(event as WebhookEvent);
+  return (WEBHOOK_EVENTS as readonly string[]).includes(event);
+}
+
+export function isActivityAlertEvent(event: string): event is ActivityAlertEvent {
+  return (ACTIVITY_ALERT_EVENTS as readonly string[]).includes(event);
 }
 
 export function getAvailableEvents(): readonly string[] {
   return WEBHOOK_EVENTS;
+}
+
+export function getActivityAlertEvents(): readonly string[] {
+  return ACTIVITY_ALERT_EVENTS;
 }
 
 export function generateSecretKey(): string {
@@ -41,8 +61,8 @@ export function encryptSecretKey(secret: string): { encrypted: string; iv: strin
   return encryptToken(secret);
 }
 
-export function decryptSecretKey(encrypted: string, iv: string): string | null {
-  return decryptToken(encrypted, iv);
+export function decryptSecretKey(encrypted: string, iv: string | null): string | null {
+  return iv ? decryptToken(encrypted, iv) : null;
 }
 
 export function signPayload(payload: string, secret: string): string {
@@ -86,7 +106,7 @@ export async function dispatchWebhook(
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
-      payload,
+      payload: toDatabaseJson(payload),
       success: false,
       error_message: errorMessage,
     });
@@ -97,34 +117,38 @@ export async function dispatchWebhook(
   let errorMessage: string | undefined;
 
   try {
-    const response = await fetch(webhook.url, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Webhook-Signature": `sha256=${signature}`,
-    "X-Webhook-Event": event,
-    "X-Webhook-Delivery-Id": webhookId,
-  },
-  body: payloadString,
-  signal: AbortSignal.timeout(10000),
-  redirect: "manual",
-});
+    const contentType: string =
+      (webhook as { content_type?: string }).content_type ?? "application/json";
 
-if ([301, 302, 303, 307, 308].includes(response.status)) {
-  const location = response.headers.get("location");
+    const response = await safeWebhookFetch(webhook.url, {
+      method: "POST",
+      headers: {
+        "Content-Type": contentType,
+        "X-Webhook-Signature": `sha256=${signature}`,
+        "X-Webhook-Event": event,
+        "X-Webhook-Delivery-Id": webhookId,
+        "X-DevTrack-Version": "1",
+      },
+      body: payloadString,
+      signal: AbortSignal.timeout(10000),
+      redirect: "manual",
+    });
 
-  if (!location) {
-    throw new Error("Redirect response missing location header");
-  }
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers.get("location");
 
-  const redirectSafe = await isSafeUrl(location);
+      if (!location) {
+        throw new Error("Redirect response missing location header");
+      }
 
-  if (!redirectSafe) {
-    throw new Error(
-      "SSRF protection: blocked redirect to private/internal address"
-    );
-  }
-}
+      const redirectSafe = await isSafeUrl(location);
+
+      if (!redirectSafe) {
+        throw new Error(
+          "SSRF protection: blocked redirect to private/internal address"
+        );
+      }
+    }
 
     statusCode = response.status;
     const success = response.ok;
@@ -132,7 +156,7 @@ if ([301, 302, 303, 307, 308].includes(response.status)) {
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
-      payload,
+      payload: toDatabaseJson(payload),
       status_code: statusCode,
       success,
       error_message: success ? null : `HTTP ${statusCode}`,
@@ -145,7 +169,7 @@ if ([301, 302, 303, 307, 308].includes(response.status)) {
     await supabaseAdmin.from("webhook_deliveries").insert({
       webhook_id: webhookId,
       event,
-      payload,
+      payload: toDatabaseJson(payload),
       success: false,
       error_message: errorMessage,
     });
@@ -174,4 +198,19 @@ export async function dispatchToAllWebhooks(
   await Promise.all(
     webhooks.map((webhook) => dispatchWebhook(webhook.id, event, data))
   );
+}
+
+export async function dispatchActivityAlert(
+  userId: string,
+  event: ActivityAlertEvent,
+  data: Record<string, unknown>
+): Promise<void> {
+  try {
+    await dispatchToAllWebhooks(userId, event, {
+      ...data,
+      devtrack_event: event,
+    });
+  } catch (err) {
+    console.error(`[webhook-dispatcher] Failed to dispatch ${event}:`, err);
+  }
 }

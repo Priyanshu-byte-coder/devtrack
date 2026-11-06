@@ -1,3 +1,4 @@
+import { safeWebhookFetch } from "@/lib/safe-webhook-fetch";
 const DISCORD_WEBHOOK_REGEX =
   /^https:\/\/discord\.com\/api\/webhooks\/\d+\/[\w-]+$/;
 const MAX_RETRIES = 1;
@@ -22,7 +23,7 @@ export async function sendDiscordWebhook(
 ) {
   validateWebhookUrl(webhookUrl);
   // lgtm[js/request-forgery] - URL is validated by validateWebhookUrl() against a strict Discord-only regex
-  const res = await fetch(webhookUrl, {
+  const res = await safeWebhookFetch(webhookUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,7 +36,7 @@ export async function sendDiscordWebhook(
     if (retryCount >= MAX_RETRIES) {
       throw new Error("Discord webhook rate limit exceeded");
     }
-    const retryAfter = Number(res.headers.get("retry-after")) || 1;
+    const retryAfter = Math.min(10, Math.max(1, Number(res.headers.get("retry-after")) || 1));
     await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
     return sendDiscordWebhook(webhookUrl, payload, retryCount + 1);
   }

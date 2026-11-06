@@ -1,139 +1,159 @@
+import { getWeeklyWebhookStats } from "@/lib/weekly-webhook-stats";
+import { claimCronBatch } from "@/lib/cron-batch";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "@/lib/server-session";
 import { supabaseAdmin } from "@/lib/supabase";
+import { validateCronRequest } from "@/lib/cron-auth";
+import { resolveAppUser } from "@/lib/resolve-user";
+import { safeWebhookFetch } from "@/lib/safe-webhook-fetch";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
-function isDiscordWebhook(url: string) {
-  return url.includes("discord") || url.includes("discordapp");
-}
-
-async function sendWebhook(url: string, message: string) {
+type Recipient = {
+  id: string;
+  github_login: string;
+  webhook_url: string | null;
+  last_weekly_webhook_at?: string | null;
+};
+async function dispatch(user: Recipient, token?: string) {
+  if (
+    user.last_weekly_webhook_at &&
+    Date.now() - Date.parse(user.last_weekly_webhook_at) < 7 * 86400000
+  )
+    return { userId: user.id, sent: false, skipped: true };
+  if (!user.webhook_url) return { userId: user.id, sent: false };
+  const now = new Date();
+  const { data: goals, error: goalsError } = await supabaseAdmin
+    .from("goals")
+    .select("target,current")
+    .eq("user_id", user.id)
+    .eq("recurrence", "weekly");
+  if (goalsError)
+    return { userId: user.id, sent: false, error: "Summary unavailable" };
+  let commits: number, prs: number;
   try {
-    const body = isDiscordWebhook(url)
-      ? { content: message }
-      : { text: message };
-
-    const res = await fetch(url, {
+    ({ commits, prs } = await getWeeklyWebhookStats(
+      user.id,
+      user.github_login,
+      token
+    ));
+  } catch {
+    return { userId: user.id, sent: false, error: "Summary unavailable" };
+  }
+  const percent = goals?.length
+    ? Math.round(
+        (100 *
+          goals.reduce(
+            (n, g) =>
+              n + (g.target > 0 ? Math.min(1, g.current / g.target) : 0),
+            0
+          )) /
+          goals.length
+      )
+    : 0;
+  try {
+    const hostname = new URL(user.webhook_url).hostname;
+    const message = `Your weekly DevTrack summary: ${commits} commits, ${prs} PRs merged, ${percent}% goals hit`;
+    const discord = hostname === "discord.com" || hostname === "discordapp.com";
+    const response = await safeWebhookFetch(user.webhook_url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(discord ? { content: message } : { text: message }),
     });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      console.error(`Webhook POST failed for ${url}: ${res.status} ${text}`);
-      return { ok: false, status: res.status, text };
+    if (response.ok) {
+      const { error } = await supabaseAdmin
+        .from("users")
+        .update({ last_weekly_webhook_at: now.toISOString() })
+        .eq("id", user.id);
+      if (error)
+        return {
+          userId: user.id,
+          sent: true,
+          error: "Delivery confirmation could not be saved",
+        };
     }
-
-    return { ok: true };
-  } catch (error) {
-    console.error(`Error sending webhook to ${url}:`, error);
-    return { ok: false, error };
+    return {
+      userId: user.id,
+      sent: response.ok,
+      ...(response.ok ? {} : { error: "Delivery failed" }),
+    };
+  } catch {
+    return { userId: user.id, sent: false, error: "Delivery failed" };
   }
 }
 
 export async function GET(req: NextRequest) {
-  // Compute time window: last 7 days
-  const now = new Date();
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - 7);
-
-  // Fetch all users with webhook_url set
-  const { data: users, error: usersError } = await supabaseAdmin
-    .from("users")
-    .select("id, github_login, webhook_url")
-    .not("webhook_url", "is", null);
-
-  if (usersError) {
-    console.error("Failed to fetch users for notifications:", usersError);
-    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
-  }
-
-  const results: Array<{ userId: string; github_login: string; webhook: string; sent: boolean; error?: any; summary?: any }> = [];
-
-  for (const u of users as any[]) {
-    const webhook: string | null = u.webhook_url;
-    if (!webhook) continue;
-
-    // Aggregate commits and prs_merged from metric_snapshots in the last 7 days
-    const { data: snaps, error: snapsError } = await supabaseAdmin
-      .from("metric_snapshots")
-      .select("commits, prs_merged")
-      .eq("user_id", u.id)
-      .gte("snapshot_at", weekStart.toISOString())
-      .lte("snapshot_at", now.toISOString());
-
-    if (snapsError) {
-      console.error(`Failed to fetch snapshots for user ${u.id}:`, snapsError);
-      results.push({ userId: u.id, github_login: u.github_login, webhook, sent: false, error: snapsError });
-      continue;
-    }
-
-    const totalCommits = (snaps as any[]).reduce((s, r) => s + (r.commits ?? 0), 0);
-    const totalPrs = (snaps as any[]).reduce((s, r) => s + (r.prs_merged ?? 0), 0);
-
-    // Compute weekly goal completion percentage for weekly goals
-    const { data: goals, error: goalsError } = await supabaseAdmin
-      .from("goals")
-      .select("id, target, current, recurrence")
-      .eq("user_id", u.id)
-      .eq("recurrence", "weekly");
-
-    if (goalsError) {
-      console.error(`Failed to fetch goals for user ${u.id}:`, goalsError);
-      results.push({ userId: u.id, github_login: u.github_login, webhook, sent: false, error: goalsError });
-      continue;
-    }
-
-    let goalsPercent = 0;
-    if ((goals as any[]).length > 0) {
-      const per = (goals as any[]).map((g) => {
-        if (!g.target || g.target === 0) return 0;
-        return Math.min(1, g.current / g.target);
+  const denied = validateCronRequest(req);
+  if (denied) return denied;
+  try {
+    const batch = await claimCronBatch("weekly-webhooks");
+    if (!batch)
+      return NextResponse.json({
+        skipped: true,
+        reason: "Job already running",
       });
-      goalsPercent = Math.round((per.reduce((a, b) => a + b, 0) / per.length) * 100);
+    let cursor = batch.cursor;
+    const results: Awaited<ReturnType<typeof dispatch>>[] = [];
+    const started = Date.now();
+    try {
+      let hasMore = true;
+      while (Date.now() - started < 240_000 && hasMore) {
+        let query = supabaseAdmin
+          .from("users")
+          .select("id,github_login,webhook_url,last_weekly_webhook_at")
+          .not("webhook_url", "is", null)
+          .order("id")
+          .limit(100);
+        if (cursor) query = query.gt("id", cursor);
+        const { data, error } = await query;
+        if (error) throw new Error("Recipients unavailable");
+        let visited = 0;
+        for (const user of data ?? []) {
+          if (Date.now() - started > 240_000) break;
+          const result = await dispatch(user);
+          if (!("skipped" in result)) results.push(result);
+          cursor = user.id;
+          visited++;
+        }
+        hasMore = (data?.length ?? 0) === 100 || visited < (data?.length ?? 0);
+        if (!hasMore) cursor = null;
+      }
+      return NextResponse.json({ results, hasMore });
+    } finally {
+      await batch.finish(cursor);
     }
-
-    const message = `Your weekly DevTrack summary: ${totalCommits} commits, ${totalPrs} PRs merged, ${goalsPercent}% goals hit`;
-
-    const sendResult = await sendWebhook(webhook, message);
-
-    results.push({
-      userId: u.id,
-      github_login: u.github_login,
-      webhook,
-      sent: !!sendResult.ok,
-      error: sendResult.ok ? undefined : sendResult,
-      summary: { commits: totalCommits, prs_merged: totalPrs, goals_percent: goalsPercent },
-    });
+  } catch {
+    return NextResponse.json(
+      { error: "Recipients unavailable" },
+      { status: 503 }
+    );
   }
-
-  return NextResponse.json({ results });
 }
 
 export async function POST(req: NextRequest) {
-  // Allow manual trigger with optional body { userId?: string }
-  try {
-    const body = await req.json().catch(() => ({}));
-    if (body.userId) {
-      // Trigger for single user
-      const { data: user, error: userError } = await supabaseAdmin
-        .from("users")
-        .select("id, github_login, webhook_url")
-        .eq("id", body.userId)
-        .single();
-
-      if (userError || !user) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-      }
-
-      // Reuse GET logic by calling GET and filtering
-      return GET(req);
-    }
-
-    return GET(req);
-  } catch (err) {
-    console.error("Error in weekly notifications POST:", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
-  }
+  const session = await getServerSession();
+  if (!session?.githubId)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const user = await resolveAppUser(session.githubId, session.githubLogin);
+  if (!user)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body))
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  if (body.userId && body.userId !== user.id)
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const { data, error } = await supabaseAdmin
+    .from("users")
+    .select("id, github_login, webhook_url, last_weekly_webhook_at")
+    .eq("id", user.id)
+    .single();
+  if (error || !data)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  return NextResponse.json({
+    results: [await dispatch(data as Recipient, session.accessToken)],
+  });
 }

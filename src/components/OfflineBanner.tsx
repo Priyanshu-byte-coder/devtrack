@@ -9,9 +9,11 @@ export default function OfflineBanner() {
     setIsOffline(!navigator.onLine);
 
     const registerServiceWorker = () => {
-      navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch((error) => {
-        console.error("DevTrack service worker registration failed", error);
-      });
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .catch((error) => {
+          console.error("DevTrack service worker registration failed", error);
+        });
     };
 
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {

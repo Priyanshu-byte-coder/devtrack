@@ -29,6 +29,10 @@ export default defineConfig({
   use: {
     baseURL,
     viewport: { width: 1280, height: 720 },
+    // Entrances and count-ups settle instantly, so screenshots and visibility
+    // checks never catch an element mid-animation. Also exercises the
+    // reduced-motion path on every run.
+    contextOptions: { reducedMotion: "reduce" },
     deviceScaleFactor: 1,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

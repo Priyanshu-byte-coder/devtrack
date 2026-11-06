@@ -1,51 +1,64 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Download, QrCode } from "lucide-react";
 import CopyLinkButton from "@/components/CopyLinkButton";
-import { toPng } from "html-to-image";
-import ProfileShareCard from "./ProfileShareCard";
 import { ProfileQrModal } from "@/components/ProfileQrModal";
-import { QrCode } from "lucide-react";
+import {
+  buildShareText,
+  shareUrl,
+  type ShareRank,
+} from "@/lib/gamification/share-text";
 
 interface ShareProfileSectionProps {
   username: string;
   streak: number;
   profileUrl: string;
+  /** The viewer owns this profile, so the post is written in first person. */
+  isOwner: boolean;
+  /** Global rank, when the profile is on the leaderboard. */
+  rank: ShareRank | null;
 }
 
+const BUTTON =
+  "inline-flex items-center gap-2 border-2 border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-control/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
+
+/**
+ * Share a profile. The card shown here is the profile's Open Graph image, so
+ * what people preview, download and see in their X or LinkedIn feed is the
+ * same arcade card.
+ */
 export default function ShareProfileSection({
   username,
   streak,
   profileUrl,
+  isOwner,
+  rank,
 }: ShareProfileSectionProps) {
   const [canUseNativeShare, setCanUseNativeShare] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     setCanUseNativeShare(
-      typeof navigator !== "undefined" &&
-        "share" in navigator
+      typeof navigator !== "undefined" && "share" in navigator
     );
   }, []);
 
-  const shareText = `Check out my coding stats on DevTrack! 🔥 ${streak}-day streak`;
-  const encodedText = encodeURIComponent(shareText);
-  const encodedUrl = encodeURIComponent(profileUrl);
+  const text = buildShareText({ username, isOwner, rank, streak });
+  const cardPath = `/u/${username.toLowerCase()}/opengraph-image`;
 
-  const xShareUrl = `https://x.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
-  const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+  const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl(profileUrl, "x"))}`;
+  const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl(profileUrl, "linkedin"))}`;
 
   const handleNativeShare = async () => {
     if (!navigator.share) return;
-
     try {
       await navigator.share({
-        title: `${username}'s DevTrack Profile`,
-        text: shareText,
-        url: profileUrl,
+        title: `${username} on DevTrack`,
+        text,
+        url: shareUrl(profileUrl, "native"),
       });
     } catch (error) {
       if ((error as DOMException).name !== "AbortError") {
@@ -53,127 +66,114 @@ export default function ShareProfileSection({
       }
     }
   };
-  
+
   const downloadCard = async () => {
-    if (!cardRef.current) return;
-  
+    setDownloading(true);
     try {
-      const dataUrl = await toPng(cardRef.current);
-  
+      const res = await fetch(cardPath);
+      if (!res.ok) throw new Error(String(res.status));
+      const href = URL.createObjectURL(await res.blob());
       const link = document.createElement("a");
       link.download = `${username}-devtrack-card.png`;
-      link.href = dataUrl;
+      link.href = href;
       link.click();
+      URL.revokeObjectURL(href);
     } catch {
-      toast.error("Failed to download card");
+      toast.error("Couldn't download the card. Try again in a moment.");
+    } finally {
+      setDownloading(false);
     }
   };
 
-return (
-  <>
-    <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm md:p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--card-foreground)]">
-            Share Profile
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-            Share your public stats on X, LinkedIn, or copy the profile link.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowPreview(true)}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium"
-        >
-          Generate Share Card
-        </button>
-
-        <div className="flex flex-wrap gap-2">
-          {canUseNativeShare ? (
-            <button
-              type="button"
-              onClick={handleNativeShare}
-              aria-label={`Share ${username}'s profile using the device share sheet`}
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-colors hover:opacity-90"
-            >
-              <span>📲</span>
-              <span>Share</span>
-            </button>
-          ) : null}
-
-          <button
-            type="button"
-            onClick={() => setShowQrModal(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50 active:scale-95"
-          >
-            <QrCode size={16} aria-hidden="true" />
-            <span>QR Code</span>
-          </button>
-        
-          <a
-            href={xShareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Share ${username}'s profile on X`}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]/80"
-          >
-            <span>𝕏</span>
-            <span>X</span>
-          </a>
-
-          <a
-            href={linkedInShareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Share ${username}'s profile on LinkedIn`}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]/80"
-          >
-            <span>in</span>
-            <span>LinkedIn</span>
-          </a>
-        
-          <CopyLinkButton url={profileUrl} />
-        </div>
-      </div>
-    </section>
-
-    {showPreview && (
-      <div className="mt-4 rounded-xl border p-4">
-        <div ref={cardRef}>
-          <ProfileShareCard
-            username={username}
-            streak={streak}
-            profileUrl={profileUrl}
+  return (
+    <>
+      <section className="px-frame bg-[var(--card)] p-4 md:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
+          {/* eslint-disable-next-line @next/next/no-img-element -- server-rendered PNG, already sized */}
+          <img
+            src={cardPath}
+            alt={
+              rank
+                ? `${username}'s DevTrack card: #${rank.rank} of ${rank.total}`
+                : `${username}'s DevTrack card`
+            }
+            width={1200}
+            height={630}
+            // Usually the largest thing in view, so the page's LCP: fetch it
+            // straight away instead of waiting for layout to say it's visible.
+            fetchPriority="high"
+            className="aspect-[1200/630] w-full border-2 border-[var(--border)] bg-[#05070f] lg:w-[340px] lg:shrink-0"
           />
+
+          <div className="min-w-0 flex-1">
+            <h2 className="font-pixel text-sm uppercase tracking-[0.14em] text-[var(--card-foreground)]">
+              {isOwner ? "Share your card" : "Share this profile"}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+              {text}
+            </p>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {canUseNativeShare && (
+                <button
+                  type="button"
+                  onClick={handleNativeShare}
+                  aria-label={`Share ${username}'s profile using the device share sheet`}
+                  className="inline-flex items-center gap-2 border-2 border-[var(--border)] bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-colors hover:opacity-90"
+                >
+                  Share
+                </button>
+              )}
+              <a
+                href={xShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Share ${username}'s profile on X`}
+                className={BUTTON}
+              >
+                <span aria-hidden="true">𝕏</span>
+                <span>Post</span>
+              </a>
+              <a
+                href={linkedInShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Share ${username}'s profile on LinkedIn`}
+                className={BUTTON}
+              >
+                <span aria-hidden="true">in</span>
+                <span>LinkedIn</span>
+              </a>
+              <button
+                type="button"
+                onClick={downloadCard}
+                disabled={downloading}
+                className={`${BUTTON} disabled:opacity-60`}
+              >
+                <Download size={16} aria-hidden="true" />
+                <span>{downloading ? "Preparing…" : "Download card"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowQrModal(true)}
+                className={BUTTON}
+              >
+                <QrCode size={16} aria-hidden="true" />
+                <span>QR code</span>
+              </button>
+              <CopyLinkButton url={profileUrl} />
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={downloadCard}
-            className="rounded-lg border px-3 py-2"
-          >
-            Download PNG
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowPreview(false)}
-            className="rounded-lg border px-3 py-2"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    )}
-
-    <ProfileQrModal
-      onClose={() => setShowQrModal(false)}
-      username={username}
-      profileUrl={profileUrl}
-    />
-  </>
-);
+      {showQrModal && (
+        <ProfileQrModal
+          onClose={() => setShowQrModal(false)}
+          username={username}
+          profileUrl={profileUrl}
+        />
+      )}
+    </>
+  );
 }

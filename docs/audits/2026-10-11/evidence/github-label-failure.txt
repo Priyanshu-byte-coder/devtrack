@@ -1,0 +1,321 @@
+Auto-apply type labels	UNKNOWN STEP	﻿2026-10-09T04:59:38.5996969Z Current runner version: '2.337.0'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6020861Z ##[group]Runner Image Provisioner
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6021738Z Hosted Compute Agent
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6022687Z Version: 20261002.596
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6023325Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6024025Z Build Date: 2026-10-02T22:28:27Z
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6024773Z Worker ID: {c72e0674-b09e-428e-b238-0c9280971d36}
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6025484Z Region: westcentralus
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6026117Z Cloud: Azure
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6026663Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6028083Z ##[group]Operating System
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6028820Z Ubuntu
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6029339Z 24.04.5
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6029914Z LTS
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6030442Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6030994Z ##[group]Runner Image
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6031650Z Image: ubuntu-24.04
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6032559Z Version: 20261004.327.1
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6033947Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6035513Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6036519Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6037898Z ##[group]GITHUB_TOKEN Permissions
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6039822Z Contents: read
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6040425Z Issues: write
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6040953Z Metadata: read
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6041658Z PullRequests: write
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6042718Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6044864Z Secret source: Actions
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6045778Z Cache mode: read
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6046482Z Prepare workflow directory
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6379870Z Prepare all required actions
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.6426760Z Getting action download info
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:38.9359916Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.0423736Z Download action repository 'actions/github-script@v9' (SHA:3a2844b7e9c422d3c10d287c895573f7108da1b3)
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.7343577Z Complete job name: Auto-apply type labels
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8186246Z ##[group]Run actions/checkout@v7
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8187200Z with:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8187681Z   fetch-depth: 0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8188233Z   repository: Priyanshu-byte-coder/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8192570Z   token: ***
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8193055Z   ssh-strict: true
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8193533Z   ssh-user: git
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8194015Z   persist-credentials: true
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8194552Z   clean: true
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8195030Z   sparse-checkout-cone-mode: true
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8195601Z   fetch-tags: false
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8196086Z   show-progress: true
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8196580Z   lfs: false
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8197041Z   submodules: false
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8197536Z   set-safe-directory: true
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8198091Z   allow-unsafe-pr-checkout: false
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.8198938Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9208246Z Syncing repository: Priyanshu-byte-coder/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9210724Z ##[group]Getting Git version info
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9211859Z Working directory is '/home/runner/work/devtrack/devtrack'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9213976Z [command]/usr/bin/git version
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9284051Z git version 2.55.0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9310169Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9316460Z Temporarily overriding HOME='/home/runner/work/_temp/43a28f13-c184-48f8-b1a0-92d8760c1dba' before making global git config changes
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9320214Z Adding repository directory to the temporary git global config as a safe directory
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9322452Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/devtrack/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9366624Z Deleting the contents of '/home/runner/work/devtrack/devtrack'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9370329Z ##[group]Determining repository object format
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9372255Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9373767Z ##[group]Initializing the repository
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9377237Z [command]/usr/bin/git init /home/runner/work/devtrack/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9471229Z hint: Using 'master' as the name for the initial branch. This default branch name
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9473517Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9476568Z hint: to use in all of your new repositories, which will suppress this warning,
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9479761Z hint: call:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9481121Z hint:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9482433Z hint: 	git config --global init.defaultBranch <name>
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9483695Z hint:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9485069Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9486816Z hint: 'development'. The just-created branch can be renamed via this command:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9487668Z hint:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9488163Z hint: 	git branch -m <name>
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9488702Z hint:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9489390Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9490473Z Initialized empty Git repository in /home/runner/work/devtrack/devtrack/.git/
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9492858Z [command]/usr/bin/git remote add origin https://github.com/Priyanshu-byte-coder/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9543613Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9545860Z ##[group]Disabling automatic garbage collection
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9547809Z [command]/usr/bin/git config --local gc.auto 0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9578621Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9580109Z ##[group]Setting up auth
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9581246Z Removing SSH command configuration
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9584990Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9624436Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9970900Z Removing HTTP extra header
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:39.9975631Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0026383Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0264520Z Removing includeIf entries pointing to credentials config files
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0269061Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0304470Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0527192Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0566831Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/devtrack/devtrack/.git.path /home/runner/work/_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0601378Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/devtrack/devtrack/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0641680Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0679579Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0728324Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0729911Z ##[group]Fetching the repository
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:40.0733406Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9883410Z From https://github.com/Priyanshu-byte-coder/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9884527Z  * [new branch]      chore/deepsource-config -> origin/chore/deepsource-config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9885170Z  * [new branch]      chore/trigger-vercel-deploy -> origin/chore/trigger-vercel-deploy
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9885778Z  * [new branch]      ci/pin-pnpm-version     -> origin/ci/pin-pnpm-version
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9886363Z  * [new branch]      ci/star-gate-and-assign-fix -> origin/ci/star-gate-and-assign-fix
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9887057Z  * [new branch]      dependabot/npm_and_yarn/axios-1.20.0 -> origin/dependabot/npm_and_yarn/axios-1.20.0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9887856Z  * [new branch]      dependabot/npm_and_yarn/dompurify-3.4.16 -> origin/dependabot/npm_and_yarn/dompurify-3.4.16
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9889204Z  * [new branch]      dependabot/npm_and_yarn/minor-and-patch-4e028031a4 -> origin/dependabot/npm_and_yarn/minor-and-patch-4e028031a4
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9890233Z  * [new branch]      dependabot/npm_and_yarn/next-16.3.8 -> origin/dependabot/npm_and_yarn/next-16.3.8
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9891037Z  * [new branch]      dependabot/npm_and_yarn/undici-7.30.0 -> origin/dependabot/npm_and_yarn/undici-7.30.0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9891713Z  * [new branch]      feat-app-navbar-1330-clean -> origin/feat-app-navbar-1330-clean
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9892668Z  * [new branch]      feat/markdown-bio-profile -> origin/feat/markdown-bio-profile
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9893537Z  * [new branch]      fix/collect-orphaned-tests -> origin/fix/collect-orphaned-tests
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9894450Z  * [new branch]      fix/critical-next-rce-advisories -> origin/fix/critical-next-rce-advisories
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9895127Z  * [new branch]      fix/red-test-suite      -> origin/fix/red-test-suite
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9895883Z  * [new branch]      fix/vercel-node24-build-failure -> origin/fix/vercel-node24-build-failure
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9896492Z  * [new branch]      main                    -> origin/main
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9897047Z  * [new branch]      security/block-zeronet-ssrf -> origin/security/block-zeronet-ssrf
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9897778Z  * [new tag]         v0.1.0                  -> v0.1.0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9898181Z  * [new tag]         v0.2.0                  -> v0.2.0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9899536Z [command]/usr/bin/git branch --list --remote origin/main
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9927619Z   origin/main
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9937783Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9966912Z a20e51d437a220db4e626a072a9716b67381eca9
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9971366Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9972190Z ##[group]Determining the checkout info
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9973163Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:42.9977223Z [command]/usr/bin/git sparse-checkout disable
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.0031275Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.0065521Z ##[group]Checking out the ref
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.0069415Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.2778858Z Switched to a new branch 'main'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.2783464Z branch 'main' set up to track 'origin/main'.
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.2810469Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.2872783Z [command]/usr/bin/git log -1 --format=%H
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.2897496Z a20e51d437a220db4e626a072a9716b67381eca9
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3208015Z ##[group]Run actions/github-script@v9
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3208309Z with:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3210953Z   github-token: ***
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3221140Z   script: const pr = context.payload.pull_request;
+Auto-apply type labels	UNKNOWN STEP	const { owner, repo } = context.repo;
+Auto-apply type labels	UNKNOWN STEP	const prNumber = pr.number;
+Auto-apply type labels	UNKNOWN STEP	const title = pr.title.toLowerCase();
+Auto-apply type labels	UNKNOWN STEP	const body = (pr.body || '').toLowerCase();
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// Fetch changed files
+Auto-apply type labels	UNKNOWN STEP	const filesRes = await github.rest.pulls.listFiles({
+Auto-apply type labels	UNKNOWN STEP	  owner, repo, pull_number: prNumber, per_page: 100
+Auto-apply type labels	UNKNOWN STEP	});
+Auto-apply type labels	UNKNOWN STEP	const files = filesRes.data.map(f => f.filename.toLowerCase());
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	const labelsToAdd = new Set();
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// --- Type detection from title ---
+Auto-apply type labels	UNKNOWN STEP	if (/^fix|^bug|hotfix/.test(title)) labelsToAdd.add('type:bug');
+Auto-apply type labels	UNKNOWN STEP	if (/^feat|^feature|add |implement/.test(title)) labelsToAdd.add('type:feature');
+Auto-apply type labels	UNKNOWN STEP	if (/^docs|^doc|readme|changelog|contributing/.test(title)) labelsToAdd.add('type:docs');
+Auto-apply type labels	UNKNOWN STEP	if (/^refactor|cleanup|clean up|reorgani/.test(title)) labelsToAdd.add('type:refactor');
+Auto-apply type labels	UNKNOWN STEP	if (/test|spec|coverage/.test(title)) labelsToAdd.add('type:testing');
+Auto-apply type labels	UNKNOWN STEP	if (/perf|performance|optimi|speed|latency/.test(title)) labelsToAdd.add('type:performance');
+Auto-apply type labels	UNKNOWN STEP	if (/a11y|accessibility|aria|wcag|screen.?reader/.test(title)) labelsToAdd.add('type:accessibility');
+Auto-apply type labels	UNKNOWN STEP	if (/security|auth|cve|xss|injection|csrf/.test(title)) labelsToAdd.add('type:security');
+Auto-apply type labels	UNKNOWN STEP	if (/ci|cd|deploy|docker|kubernetes|workflow|pipeline|devops/.test(title)) labelsToAdd.add('type:devops');
+Auto-apply type labels	UNKNOWN STEP	if (/design|ui|ux|theme|style|layout|responsive|dark.?mode/.test(title)) labelsToAdd.add('type:design');
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// --- Type detection from files changed ---
+Auto-apply type labels	UNKNOWN STEP	const hasMarkdown = files.some(f => f.endsWith('.md') || f.endsWith('.mdx'));
+Auto-apply type labels	UNKNOWN STEP	const hasTests = files.some(f =>
+Auto-apply type labels	UNKNOWN STEP	  f.includes('.test.') || f.includes('.spec.') ||
+Auto-apply type labels	UNKNOWN STEP	  f.includes('__tests__') || f.includes('/tests/')
+Auto-apply type labels	UNKNOWN STEP	);
+Auto-apply type labels	UNKNOWN STEP	const hasWorkflow = files.some(f => f.includes('.github/workflows'));
+Auto-apply type labels	UNKNOWN STEP	const hasSecurity = files.some(f =>
+Auto-apply type labels	UNKNOWN STEP	  f.includes('auth') || f.includes('middleware') || f.includes('security')
+Auto-apply type labels	UNKNOWN STEP	);
+Auto-apply type labels	UNKNOWN STEP	const hasStyle = files.some(f =>
+Auto-apply type labels	UNKNOWN STEP	  f.endsWith('.css') || f.endsWith('.scss') ||
+Auto-apply type labels	UNKNOWN STEP	  f.includes('globals') || f.includes('tailwind')
+Auto-apply type labels	UNKNOWN STEP	);
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	if (hasMarkdown) labelsToAdd.add('type:docs');
+Auto-apply type labels	UNKNOWN STEP	if (hasTests) labelsToAdd.add('type:testing');
+Auto-apply type labels	UNKNOWN STEP	if (hasWorkflow) labelsToAdd.add('type:devops');
+Auto-apply type labels	UNKNOWN STEP	if (hasSecurity && !labelsToAdd.has('type:bug') && !labelsToAdd.has('type:feature')) {
+Auto-apply type labels	UNKNOWN STEP	  labelsToAdd.add('type:security');
+Auto-apply type labels	UNKNOWN STEP	}
+Auto-apply type labels	UNKNOWN STEP	if (hasStyle && !labelsToAdd.has('type:bug')) labelsToAdd.add('type:design');
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// Fetch current labels
+Auto-apply type labels	UNKNOWN STEP	const currentLabels = pr.labels.map(l => l.name);
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// Always add gssoc26 to every PR
+Auto-apply type labels	UNKNOWN STEP	if (!currentLabels.includes('gssoc26')) labelsToAdd.add('gssoc26');
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// Only add labels not already present
+Auto-apply type labels	UNKNOWN STEP	const newLabels = [...labelsToAdd].filter(l => !currentLabels.includes(l));
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	if (newLabels.length > 0) {
+Auto-apply type labels	UNKNOWN STEP	  await github.rest.issues.addLabels({
+Auto-apply type labels	UNKNOWN STEP	    owner, repo, issue_number: prNumber, labels: newLabels
+Auto-apply type labels	UNKNOWN STEP	  });
+Auto-apply type labels	UNKNOWN STEP	  console.log(`Added labels: ${newLabels.join(', ')}`);
+Auto-apply type labels	UNKNOWN STEP	}
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	// Auto-assign PR author to PR
+Auto-apply type labels	UNKNOWN STEP	const creator = pr.user.login;
+Auto-apply type labels	UNKNOWN STEP	const currentAssignees = pr.assignees.map(a => a.login);
+Auto-apply type labels	UNKNOWN STEP	if (!currentAssignees.includes(creator)) {
+Auto-apply type labels	UNKNOWN STEP	  await github.rest.issues.addAssignees({
+Auto-apply type labels	UNKNOWN STEP	    owner,
+Auto-apply type labels	UNKNOWN STEP	    repo,
+Auto-apply type labels	UNKNOWN STEP	    issue_number: prNumber,
+Auto-apply type labels	UNKNOWN STEP	    assignees: [creator]
+Auto-apply type labels	UNKNOWN STEP	  });
+Auto-apply type labels	UNKNOWN STEP	  console.log(`Assigned PR #${prNumber} to author @${creator}`);
+Auto-apply type labels	UNKNOWN STEP	}
+Auto-apply type labels	UNKNOWN STEP	
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3231632Z   debug: false
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3231853Z   user-agent: actions/github-script
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3232237Z   result-encoding: json
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3232458Z   retries: 0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3232690Z   retry-exempt-status-codes: 400,401,403,404,422
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:43.3232986Z ##[endgroup]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.5943825Z Added labels: gssoc26
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8659379Z POST /repos/Priyanshu-byte-coder/devtrack/issues/3523/assignees - 403 with id 3828:A8FB3:2544CE:7B3233:6AC874C0 in 271ms
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8718606Z RequestError [HttpError]: Forbidden - https://docs.github.com/rest/issues/assignees#add-assignees-to-an-issue
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8742182Z ##[error]Unhandled error: HttpError: Forbidden - https://docs.github.com/rest/issues/assignees#add-assignees-to-an-issue
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8751568Z     at fetchWrapper (/home/runner/work/_actions/actions/github-script/v9/dist/index.js:61509:11)
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8752899Z     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8753730Z     at async eval (eval at callAsyncFunction (/home/runner/work/_actions/actions/github-script/v9/dist/index.js:64949:16), <anonymous>:72:3)
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8754942Z     at async main (/home/runner/work/_actions/actions/github-script/v9/dist/index.js:65100:20) {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8755395Z   status: 403,
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8755597Z   request: {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8755790Z     method: 'POST',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8756194Z     url: 'https://api.github.com/repos/Priyanshu-byte-coder/devtrack/issues/3523/assignees',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8756869Z     headers: {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8757102Z       accept: 'application/vnd.github.v3+json',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8757837Z       'user-agent': 'actions/github-script actions_orchestration_id/ad757d08-2035-8b26-aae8-1dd44ca13f94.auto-type-label.__default octokit-core.js/7.0.6 Node.js/24',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8758549Z       authorization: 'bearer [REDACTED]',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8758929Z       'content-type': 'application/json; charset=utf-8'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8759228Z     },
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8759472Z     body: [Object: null prototype] { assignees: [Array] },
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8759786Z     request: {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8759979Z       agent: [Agent],
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8760206Z       fetch: [Function: proxyFetch],
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8760482Z       hook: [Function: bound bound register]
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8760746Z     }
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8760925Z   },
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8761100Z   response: {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8761467Z     url: 'https://api.github.com/repos/Priyanshu-byte-coder/devtrack/issues/3523/assignees',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8762300Z     status: 403,
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8762595Z     headers: {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8762830Z       'access-control-allow-origin': '*',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8764424Z       'access-control-expose-headers': 'ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, Deprecation, Sunset, Warning',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8765921Z       'content-encoding': 'gzip',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8766229Z       'content-security-policy': "default-src 'none'",
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8766588Z       'content-type': 'application/json; charset=utf-8',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8766914Z       date: 'Fri, 09 Oct 2026 04:59:44 GMT',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8767343Z       'referrer-policy': 'origin-when-cross-origin, strict-origin-when-cross-origin',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8767780Z       server: 'github.com',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8768164Z       'strict-transport-security': 'max-age=31536000; includeSubdomains; preload',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8768582Z       'transfer-encoding': 'chunked',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8768906Z       vary: 'Accept-Encoding, Accept, X-Requested-With',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8769337Z       'x-accepted-github-permissions': 'issues=write; pull_requests=write',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8769745Z       'x-content-type-options': 'nosniff',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8770030Z       'x-frame-options': 'deny',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8770315Z       'x-github-api-version-selected': '2022-11-28',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8770624Z       'x-github-edge-region': 'iad',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8770926Z       'x-github-media-type': 'github.v3; format=json',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8771290Z       'x-github-request-id': '3828:A8FB3:2544CE:7B3233:6AC874C0',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8771633Z       'x-ratelimit-limit': '5000',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8771896Z       'x-ratelimit-remaining': '4964',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8772449Z       'x-ratelimit-reset': '1791523493',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8772732Z       'x-ratelimit-resource': 'core',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8773201Z       'x-ratelimit-used': '36',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8773902Z       'x-xss-protection': '0'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8774357Z     },
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8774573Z     data: {
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8774773Z       message: 'Forbidden',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8775248Z       documentation_url: 'https://docs.github.com/rest/issues/assignees#add-assignees-to-an-issue',
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8775721Z       status: '403'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8776010Z     }
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8776346Z   },
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8776634Z   [cause]: undefined
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.8776993Z }
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:44.9902846Z Post job cleanup.
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0745524Z [command]/usr/bin/git version
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0785832Z git version 2.55.0
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0826854Z Temporarily overriding HOME='/home/runner/work/_temp/982f10c4-1a93-4022-bacb-fddce512876e' before making global git config changes
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0828000Z Adding repository directory to the temporary git global config as a safe directory
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0830913Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/devtrack/devtrack
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0862281Z Removing SSH command configuration
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0869926Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.0905423Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1143539Z Removing HTTP extra header
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1149614Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1184039Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1430942Z Removing includeIf entries pointing to credentials config files
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1438185Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1470124Z includeif.gitdir:/home/runner/work/devtrack/devtrack/.git.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1471568Z includeif.gitdir:/home/runner/work/devtrack/devtrack/.git/worktrees/*.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1473237Z includeif.gitdir:/github/workspace/.git.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1474378Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1481583Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/devtrack/devtrack/.git.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1508365Z /home/runner/work/_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1518673Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/devtrack/devtrack/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-d39654b5\-af6b\-41d7\-9a61\-b64813d85bf5\.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1602409Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/devtrack/devtrack/.git/worktrees/*.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1629634Z /home/runner/work/_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1639133Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/devtrack/devtrack/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-d39654b5\-af6b\-41d7\-9a61\-b64813d85bf5\.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1681188Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1709583Z /github/runner_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1720899Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-d39654b5\-af6b\-41d7\-9a61\-b64813d85bf5\.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1760124Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1791482Z /github/runner_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1801236Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-d39654b5\-af6b\-41d7\-9a61\-b64813d85bf5\.config
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.1855656Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.2097568Z Removing credentials config '/home/runner/work/_temp/git-credentials-d39654b5-af6b-41d7-9a61-b64813d85bf5.config'
+Auto-apply type labels	UNKNOWN STEP	2026-10-09T04:59:45.2245494Z Cleaning up orphan processes

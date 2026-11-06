@@ -1,3 +1,5 @@
+import { githubRateLimitResponse } from "@/lib/github-rate-limit";
+import { githubRequest } from "@/lib/github-request";
 import { getSessionWithToken } from "@/lib/get-session-token";
 import { NextRequest } from "next/server";
 import { getAccountToken, getAllAccounts } from "@/lib/github-accounts";
@@ -105,7 +107,7 @@ async function fetchPublicEvents(
   token: string,
   githubLogin: string
 ): Promise<RawEvent[]> {
-  const response = await fetch(
+  const response = await githubRequest(
     `${GITHUB_API}/users/${encodeURIComponent(githubLogin)}/events/public?per_page=100`,
     {
       headers: {
@@ -167,9 +169,9 @@ export async function GET(req: NextRequest) {
   let limit = limitParam ? parseInt(limitParam, 10) : 10;
   let offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-  if (isNaN(limit) || limit < 1) limit = 10;
+  if (Number.isNaN(limit) || limit < 1) limit = 10;
   if (limit > 100) limit = 100;
-  if (isNaN(offset) || offset < 0) offset = 0;
+  if (Number.isNaN(offset) || offset < 0) offset = 0;
 
   const bypass = isMetricsCacheBypassed(req);
   const cacheKey = metricsCacheKey(
@@ -294,6 +296,9 @@ export async function GET(req: NextRequest) {
     result.items = (result.items || []).slice(offset, offset + limit);
     return Response.json(result);
   } catch (error) {
+    const githubLimit = githubRateLimitResponse(error);
+    if (githubLimit) return githubLimit;
+
     if (error instanceof Error) {
       if (error.message === "Unauthorized") {
         return Response.json({ error: "Unauthorized" }, { status: 401 });

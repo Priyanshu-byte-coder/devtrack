@@ -5,11 +5,16 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v10
+      - uses: actions/stale@v11
         with:
           stale-issue-message: >
             This issue has been inactive for 21 days. If you are still working on it or it is still relevant, please leave a comment — otherwise it will be closed in 7 days.

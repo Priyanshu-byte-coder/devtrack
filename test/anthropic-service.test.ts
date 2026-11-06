@@ -58,9 +58,12 @@ vi.mock("@anthropic-ai/sdk", () => {
     }
   }
 
-  const MockAnthropic = vi.fn(
-    () => ({ messages: { create: messagesCreate } })
-  ) as unknown as (new () => object) & { APIError: typeof FakeAPIError };
+  // Must be a `function`, not an arrow: production code calls
+  // `new Anthropic({...})`, and an arrow function has no [[Construct]] slot,
+  // so vi.fn() wrapping one throws "is not a constructor".
+  const MockAnthropic = vi.fn(function MockAnthropicClient() {
+    return { messages: { create: messagesCreate } };
+  }) as unknown as (new () => object) & { APIError: typeof FakeAPIError };
   MockAnthropic.APIError = FakeAPIError;
 
   return { default: MockAnthropic, APIError: FakeAPIError };

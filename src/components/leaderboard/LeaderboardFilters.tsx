@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
+import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Period = "week" | "month" | "all";
@@ -35,6 +37,22 @@ function isPeriod(value: string | null): value is Period {
   return value === "week" || value === "month" || value === "all";
 }
 
+type StoredFilters = { lang?: string; period?: string };
+
+function readStoredFilters(): StoredFilters | null {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as StoredFilters) : null;
+  } catch {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage blocked: nothing to restore.
+    }
+    return null;
+  }
+}
+
 export default function LeaderboardFilters() {
   const router = useRouter();
   const pathname = usePathname();
@@ -46,51 +64,47 @@ export default function LeaderboardFilters() {
 
   const hasFilters = searchParams.has("lang") || searchParams.has("period");
 
-  const currentFilters = useMemo(
-    () => ({ lang: language, period }),
-    [language, period]
-  );
-
+  // Bring back the last filters once, when the page opens without any.
+  // Only then: "All time" and "All languages" are the defaults, so picking
+  // them removes the params, and restoring on every change used to put the
+  // saved "This week" straight back.
+  const restored = useRef(false);
   useEffect(() => {
-    const hasUrlFilters =
-      searchParams.has("lang") || searchParams.has("period");
+    if (restored.current) return;
+    restored.current = true;
+    if (searchParams.has("lang") || searchParams.has("period")) return;
 
-    if (!hasUrlFilters) {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
-        return;
-      }
+    const stored = readStoredFilters();
+    if (!stored) return;
 
-      try {
-        const parsed = JSON.parse(stored) as {
-          lang?: string;
-          period?: string;
-        };
-        const nextParams = new URLSearchParams(searchParams.toString());
-
-        if (parsed.lang) {
-          nextParams.set("lang", parsed.lang);
-        }
-
-        const storedPeriod = parsed.period ?? null;
-        if (isPeriod(storedPeriod) && storedPeriod !== "all") {
-          nextParams.set("period", storedPeriod);
-        }
-
-        const query = nextParams.toString();
-        if (query) {
-          router.replace(`${pathname}?${query}`, { scroll: false });
-        }
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
-      return;
+    const nextParams = new URLSearchParams(searchParams.toString());
+    if (stored.lang) nextParams.set("lang", stored.lang);
+    const storedPeriod = stored.period ?? null;
+    if (isPeriod(storedPeriod) && storedPeriod !== "all") {
+      nextParams.set("period", storedPeriod);
     }
+    const query = nextParams.toString();
+    if (query) router.replace(`${pathname}?${query}`, { scroll: false });
+  }, [pathname, router, searchParams]);
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentFilters));
-  }, [currentFilters, pathname, router, searchParams]);
+  /** Remember the choice, including going back to the defaults. */
+  function saveFilters(next: { lang: string; period: Period }) {
+    try {
+      if (!next.lang && next.period === "all") {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } else {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      }
+    } catch {
+      // Storage blocked: the URL still holds the filters.
+    }
+  }
 
   function updateFilters(next: Partial<{ lang: string; period: Period }>) {
+    saveFilters({
+      lang: next.lang ?? language,
+      period: next.period ?? period,
+    });
     const params = new URLSearchParams(searchParams.toString());
 
     if (next.lang !== undefined) {
@@ -117,64 +131,50 @@ export default function LeaderboardFilters() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("lang");
     params.delete("period");
-    window.localStorage.removeItem(STORAGE_KEY);
+    saveFilters({ lang: "", period: "all" });
 
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 p-3 shadow-[var(--shadow-soft)]">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <label className="flex flex-col gap-2 text-sm font-medium text-[var(--card-foreground)] md:min-w-64">
-          Language
-          <select
-            value={language}
-            onChange={(event) => updateFilters({ lang: event.target.value })}
-            className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus:border-[var(--accent)]"
+    <div className="flex flex-wrap items-center gap-2">
+      <label className="sr-only" htmlFor="leaderboard-language">
+        Language
+      </label>
+      <select
+        id="leaderboard-language"
+        value={language}
+        onChange={(event) => updateFilters({ lang: event.target.value })}
+        className="px-frame h-9 bg-[var(--card)] px-2.5 font-mono text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+      >
+        <option value="">All languages</option>
+        {languages.map((item) => (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        ))}
+      </select>
+
+      <div role="group" aria-label="Time range" className={arcadeTabGroupClass}>
+        {periods.map((item) => (
+          <button
+            key={item.value}
+            type="button"
+            aria-pressed={item.value === period}
+            onClick={() => updateFilters({ period: item.value })}
+            className={arcadeTabClass(item.value === period)}
           >
-            <option value="">All languages</option>
-            {languages.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="flex flex-col gap-2 text-sm font-medium text-[var(--card-foreground)]">
-          Time range
-          <div className="grid grid-cols-3 gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] p-1">
-            {periods.map((item) => {
-              const active = item.value === period;
-
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => updateFilters({ period: item.value })}
-                  className={`rounded-md px-3 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-                    active
-                      ? "bg-[var(--accent)] text-[var(--accent-foreground)] shadow-sm"
-                      : "text-[var(--muted-foreground)] hover:bg-[var(--card)] hover:text-[var(--card-foreground)]"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={clearFilters}
-          disabled={!hasFilters}
-          className="secondary-button rounded-lg px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Clear filters
-        </button>
+            {item.label}
+          </button>
+        ))}
       </div>
+
+      {hasFilters && (
+        <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+          Clear
+        </Button>
+      )}
     </div>
   );
 }

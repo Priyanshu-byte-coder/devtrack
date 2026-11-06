@@ -1,44 +1,41 @@
-# Leaderboard cache: implementation & deployment notes
+# Leaderboard caching
 
-This change implements a persistent, cross-instance leaderboard cache and safe rebuild workflow.
+Building the leaderboard means a GitHub request per public player, so the result is cached in several layers. This page explains them, how changes reach the board, and the optional scheduled rebuild.
 
-What changed
+## Layers
 
-- Added `leaderboard_cache` table migration: `supabase/migrations/20260602000000_add_leaderboard_cache.sql`.
-- Updated API route: `src/app/api/leaderboard/route.ts` to read from `leaderboard_cache`, return stale payloads, and attempt cross-instance locking using `building_until`.
-- Added secure scheduled rebuild endpoint: `src/app/api/leaderboard/rebuild/route.ts`.
-- Added in-process dedupe to avoid duplicate builds within the same Node process.
+| Layer                        | Where                                                | Notes                                                                           |
+| ---------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Next.js data cache           | `getCachedLeaderboard()` in `src/lib/leaderboard.ts` | `unstable_cache`, tag `leaderboard`, refreshed hourly (`CACHE_REFRESH_SECONDS`) |
+| In-process memory            | `src/lib/leaderboard.ts`                             | Fallback when the data cache fails; per server instance                         |
+| Shared cache (Redis/Upstash) | `src/lib/metrics-cache.ts`                           | Optional; stale copies for up to 6 hours (`CACHE_STALE_SECONDS`)                |
+| `leaderboard_cache` table    | Supabase (in the baseline schema)                    | Written by the rebuild endpoint; lets any instance serve a recent payload       |
 
-Required deployment steps
+`GET /api/leaderboard` reports which layer answered in the `x-devtrack-leaderboard-cache` response header (`memory`, `stale`, `error-stale`...).
 
-1. Apply the new database migration in your Supabase project (use SQL editor or CLI):
+## How changes reach the board
 
-```bash
-# Example using psql (replace with your connection info)
-psql -h <host> -U <user> -d <db> -f supabase/migrations/20260602000000_add_leaderboard_cache.sql
-```
+When a player turns their public profile or the leaderboard on or off (Settings), and when a new player signs in for the first time, `clearLeaderboardCache()` drops every layer and expires the `leaderboard` tag with `revalidateTag("leaderboard", { expire: 0 })`. The next request rebuilds the board, so the change is visible straight away.
 
-2. Set environment variables in your deployment:
+Use `{ expire: 0 }` for this tag. An object without `expire` (or a profile like `"max"`) means stale-while-revalidate: the first visitor after the change would still see the old board. `test/leaderboard-tag-expiry.test.ts` guards this.
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `LEADERBOARD_REBUILD_TOKEN` (secret value used by scheduled job)
+Ranks on README badges and share cards come from the daily snapshots written by `/api/cron/gamification`, so they can lag the live board by up to a day.
 
-3. Configure a scheduler (cron/CI) to POST the rebuild endpoint periodically:
+## Scheduled rebuild (optional)
+
+For large installations you can keep the `leaderboard_cache` table warm with a scheduled rebuild:
+
+1. Set `LEADERBOARD_REBUILD_TOKEN` (a long random secret) and the Supabase server variables (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`).
+2. Call the endpoint from your scheduler:
 
 ```bash
 curl -X POST "https://<your-site>/api/leaderboard/rebuild" \
   -H "x-devtrack-rebuild-token: $LEADERBOARD_REBUILD_TOKEN"
 ```
 
-Recommended frequency: every 5–15 minutes depending on how fresh you want the leaderboard.
+Every 15–60 minutes is plenty; builds are de-duplicated within a process. `LEADERBOARD_USER_CONCURRENCY` (default 5) limits concurrent GitHub fetches during a build.
 
-Verification
+## Verifying
 
-- After running the rebuild endpoint, verify `leaderboard_cache` row exists in the DB and contains `payload` and `generated_at`.
-- Send concurrent requests to `/api/leaderboard` and verify `x-devtrack-leaderboard-cache` header values (`supabase`, `stale-supabase`, etc.) and that only one rebuild occurs (check logs).
-
-Notes & follow-ups
-
-- The DB lock uses a time window (`building_until`). For long builds you may want to extend the lock during the build or use a more robust job runner.
-- Add tests to simulate concurrent requests and assert only one build occurs. This PR includes code changes but no test changes.
+- After a rebuild, the `leaderboard_cache` row has a fresh `payload` and `generated_at`.
+- Toggle the leaderboard setting on a test account and reload `/leaderboard` once: the change should show on that first load.

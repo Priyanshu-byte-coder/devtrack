@@ -162,15 +162,29 @@ describe('badge-rate-limit', () => {
     });
   });
 
+  // getBadgeClientIp deliberately ignores x-forwarded-for: any client can set
+  // it on a direct request, which would let an attacker pick their own rate
+  // limit bucket. It reads x-vercel-forwarded-for, then x-real-ip, then req.ip.
   describe('getBadgeClientIp', () => {
-    it('verify x-forwarded-for header parsing', () => {
+    it('prefers x-vercel-forwarded-for, which the edge sets', () => {
+      const req = {
+        headers: new Headers({
+          'x-vercel-forwarded-for': '192.168.1.1',
+          'x-real-ip': '10.0.0.1'
+        })
+      } as unknown as NextRequest;
+
+      expect(getBadgeClientIp(req)).toBe('192.168.1.1');
+    });
+
+    it('ignores x-forwarded-for, because a client can forge it', () => {
       const req = {
         headers: new Headers({
           'x-forwarded-for': '192.168.1.1, 10.0.0.1'
         })
       } as unknown as NextRequest;
 
-      expect(getBadgeClientIp(req)).toBe('192.168.1.1');
+      expect(getBadgeClientIp(req)).toBe('unknown');
     });
 
     it('verify x-real-ip header handling', () => {
@@ -200,11 +214,22 @@ describe('badge-rate-limit', () => {
       expect(getBadgeClientIp(req)).toBe('172.16.0.1');
     });
 
-    it('x-forwarded-for takes precedence over req.ip', () => {
+    it('falls back to req.ip rather than trusting a forged x-forwarded-for', () => {
       const req = {
         ip: '10.0.0.99',
         headers: new Headers({
           'x-forwarded-for': '203.0.113.5'
+        })
+      } as unknown as NextRequest;
+
+      expect(getBadgeClientIp(req)).toBe('10.0.0.99');
+    });
+
+    it('x-real-ip takes precedence over req.ip', () => {
+      const req = {
+        ip: '10.0.0.99',
+        headers: new Headers({
+          'x-real-ip': '203.0.113.5'
         })
       } as unknown as NextRequest;
 

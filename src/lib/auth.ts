@@ -1,7 +1,9 @@
+import { githubRequest } from "@/lib/github-request";
 import { type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import { syncGitHubAchievementsForUser } from "./github-achievements";
-import { supabaseAdmin } from "./supabase";
+import { supabaseAdmin, isSupabaseAdminAvailable } from "./supabase";
+import { encryptToken } from "./crypto";
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 const SESSION_UPDATE_AGE = 24 * 60 * 60;
@@ -12,6 +14,51 @@ const GITHUB_API = "https://api.github.com";
 // Catches revocations within a reasonable window without adding per-request latency.
 // Without this check a revoked token silently continues for up to 30 days (JWT lifetime).
 const TOKEN_VALIDATION_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * New accounts start public and on the leaderboard (the sign-in page says
+ * so, and the dashboard shows a one-time "Hide me" banner). Accounts that
+ * existed before keep whatever they chose. Never throws: a failure here
+ * only means the account starts private, as it used to.
+ */
+async function isFirstSignIn(githubId: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("github_id", githubId)
+      .maybeSingle();
+    return !error && !data;
+  } catch {
+    return false;
+  }
+}
+
+async function enrolNewPlayer(userId: string, login: string) {
+  try {
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update({
+        is_public: true,
+        public_since: new Date().toISOString(),
+        leaderboard_opt_in: true,
+      })
+      .eq("id", userId);
+    if (error) {
+      console.error("[auth] Could not enrol new player:", error.code);
+      return;
+    }
+    // Show them on the board at once, and tell search engines about the
+    // new public profile.
+    const [{ clearLeaderboardCache }, { submitToIndexNow }] = await Promise.all(
+      [import("@/lib/leaderboard"), import("@/lib/indexnow")]
+    );
+    await clearLeaderboardCache();
+    void submitToIndexNow([`/u/${login.toLowerCase()}`]);
+  } catch (error) {
+    console.error("[auth] New player enrolment failed (non-fatal):", error);
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   // Playwright runs on plain HTTP (127.0.0.1) and relies on the default
@@ -47,20 +94,18 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "github" && profile) {
         const p = profile as { id: number; login: string; email?: string };
 
-        // Guard: supabaseAdmin is null when Supabase env vars are missing or
-        // contain placeholder values (see src/lib/supabase.ts). Calling .from()
-        // on null throws a TypeError which NextAuth silently converts to
-        // return false → error=github redirect. Skip the upsert gracefully
-        // so authentication can still succeed with degraded functionality.
-        if (!supabaseAdmin) {
+        if (!isSupabaseAdminAvailable) {
           console.warn(
             "signIn: supabaseAdmin is not configured; skipping DB upsert. " +
-            "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local."
+              "Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local."
           );
           return true;
         }
 
         try {
+          // Checked before the upsert, which can't tell insert from update.
+          const firstSignIn = await isFirstSignIn(String(p.id));
+
           let { data: user, error: upsertError } = await supabaseAdmin
             .from("users")
             .upsert(
@@ -77,7 +122,10 @@ export const authOptions: NextAuthOptions = {
 
           // If the email column does not exist yet (migration pending),
           // PostgREST returns a 42703 error. Fallback to upsert without email.
-          if (upsertError && (upsertError as { code?: string }).code === "42703") {
+          if (
+            upsertError &&
+            (upsertError as { code?: string }).code === "42703"
+          ) {
             const fallback = await supabaseAdmin
               .from("users")
               .upsert(
@@ -98,7 +146,27 @@ export const authOptions: NextAuthOptions = {
             console.error("[auth] Supabase upsert error:", upsertError);
           }
 
+          if (firstSignIn && user?.id) {
+            await enrolNewPlayer(user.id, p.login);
+          }
+
           if (user?.id && account.access_token) {
+            if (/^[a-f0-9]{64}$/i.test(process.env.ENCRYPTION_KEY ?? "")) {
+              const encrypted = encryptToken(account.access_token);
+              const { error: tokenError } = await supabaseAdmin
+                .from("user_tokens")
+                .upsert({
+                  user_id: user.id,
+                  encrypted_token: encrypted.encrypted,
+                  token_iv: encrypted.iv,
+                  updated_at: new Date().toISOString(),
+                });
+              if (tokenError)
+                console.error(
+                  "[auth] Background sync token could not be stored",
+                  tokenError.code
+                );
+            }
             try {
               await syncGitHubAchievementsForUser({
                 userId: user.id,
@@ -151,7 +219,7 @@ export const authOptions: NextAuthOptions = {
         Date.now() - token.accessTokenValidatedAt > TOKEN_VALIDATION_INTERVAL_MS
       ) {
         try {
-          const res = await fetch(`${GITHUB_API}/user`, {
+          const res = await githubRequest(`${GITHUB_API}/user`, {
             headers: { Authorization: `Bearer ${token.accessToken}` },
             cache: "no-store",
           });
@@ -175,15 +243,13 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (typeof token.accessToken === "string")
-        session.accessToken = token.accessToken;
-      if (typeof token.githubId === "string")
-        session.githubId = token.githubId;
+      // Provider credentials remain inside the encrypted, HttpOnly JWT.
+      // Never return them from /api/auth/session.
+      if (typeof token.githubId === "string") session.githubId = token.githubId;
       if (typeof token.githubLogin === "string")
         session.githubLogin = token.githubLogin;
       // Surface the revocation flag so pages can redirect to re-authentication.
-      if (token.error === "TokenRevoked")
-        session.error = "TokenRevoked";
+      if (token.error === "TokenRevoked") session.error = "TokenRevoked";
       return session;
     },
   },

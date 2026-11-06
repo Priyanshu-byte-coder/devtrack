@@ -1,10 +1,10 @@
-import { getServerSession } from "next-auth";
+import { getServerSession } from "@/lib/server-session";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import RepoHealthExplorer from "@/components/repo-health/RepoHealthExplorer";
 
 export const metadata = {
-  title: "Repository Health Explorer — DevTrack",
+  title: "Repository health",
   description:
     "Interactive health breakdown, radar chart, score analysis, and recommendations for your most active GitHub repositories.",
 };
