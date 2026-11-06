@@ -423,12 +423,32 @@ paths:
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
-  /api/cv/generate:
-    post:
-      operationId: post_api_cv_generate
-      summary: POST /api/cv/generate
-      tags:
-        - cv
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, target, unit]
+              properties:
+                title:
+                  type: string
+                  maxLength: 100
+                target:
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                unit:
+                  type: string
+                  enum: [commits, prs, hours, streak, language]
+                recurrence:
+                  type: string
+                  enum: [none, weekly, monthly]
+                  default: none
+                deadline:
+                  type: string
+                  format: date-time
+                  nullable: true
       responses:
         '200':
           description: Successful response. See the route contract for the returned JSON fields.
@@ -522,12 +542,10 @@ paths:
           description: Goal deleted
         '401':
           description: Unauthorized
-        '404':
-          description: Goal not found
-      operationId: delete_api_goals_id_
+
+  /api/goals/{id}:
     patch:
-      tags:
-        - Goals
+      tags: [Goals]
       summary: Update a goal
       security:
         - cookieAuth: []
@@ -546,10 +564,22 @@ paths:
               properties:
                 title:
                   type: string
+                  maxLength: 100
                 target:
-                  type: number
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                unit:
+                  type: string
+                  enum: [commits, prs, hours, streak, language]
+                recurrence:
+                  type: string
+                  enum: [none, weekly, monthly]
                 current:
-                  type: number
+                  type: integer
+                  minimum: 0
+                is_public:
+                  type: boolean
       responses:
         '200':
           description: Goal updated
