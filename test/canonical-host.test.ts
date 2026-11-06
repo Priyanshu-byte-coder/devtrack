@@ -25,4 +25,20 @@ describe("canonicalRedirectUrl", () => {
       canonicalRedirectUrl("www.devtrack.live", "/", "production")
     ).toBeNull();
   });
+
+  it("never redirects API routes, so scheduled jobs reach the handler", () => {
+    for (const path of [
+      "/api/cron/gamification",
+      "/api/cron/goals-sync?x=1",
+      "/api/notifications/weekly",
+      "/api",
+    ])
+      expect(
+        canonicalRedirectUrl("devtrack-abc.vercel.app", path, "production")
+      ).toBeNull();
+    // Pages on the same alias still go to the canonical domain.
+    expect(
+      canonicalRedirectUrl("devtrack-abc.vercel.app", "/apis", "production")
+    ).not.toBeNull();
+  });
 });
