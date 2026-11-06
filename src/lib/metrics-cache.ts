@@ -213,6 +213,18 @@ export async function cacheGet<T>(
 }
 
 /**
+ * Several values in one Redis command (MGET), in key order. Upstash bills per
+ * command, so this is much cheaper than a cacheGet per key. Null for misses;
+ * throws when Redis fails, so callers can tell a miss from an outage.
+ */
+export async function cacheGetMany<T>(keys: string[]): Promise<(T | null)[]> {
+  if (keys.length === 0) return [];
+  const redis = getRedisClient();
+  if (!redis) return keys.map(() => null);
+  return redis.mget<(T | null)[]>(...keys);
+}
+
+/**
  * Stores a value in both the in-memory cache and Redis with a specific TTL.
  * @param key - The cache key.
  * @param value - The value to store.

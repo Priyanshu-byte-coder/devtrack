@@ -5,6 +5,9 @@ vi.unmock("@/lib/github-request");
 const cache = vi.hoisted(() => new Map<string, unknown>());
 vi.mock("@/lib/metrics-cache", () => ({
   cacheGet: vi.fn(async (key: string) => cache.get(key) ?? null),
+  cacheGetMany: vi.fn(async (keys: string[]) =>
+    keys.map((key) => cache.get(key) ?? null)
+  ),
   cacheSet: vi.fn(async (key: string, value: unknown) => {
     cache.set(key, value);
   }),
@@ -398,4 +401,39 @@ it("honors GraphQL primary reset without blocking remaining REST quota", async (
       .ok
   ).toBe(true);
   expect(fetch).toHaveBeenCalledTimes(2);
+});
+
+describe("shared cooldowns", () => {
+  const bucketHash = async (value: string) =>
+    Array.from(
+      new Uint8Array(
+        await webcrypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(value)
+        )
+      ),
+      (b) => b.toString(16).padStart(2, "0")
+    ).join("");
+
+  it("honors a cooldown another instance stored in Redis", async () => {
+    const credential = await bucketHash("Bearer test-a");
+    cache.set(`github:cooldown:${credential}:secondary`, Date.now() + 60_000);
+    vi.mocked(fetch).mockResolvedValue(json({ login: "a" }));
+    await expect(
+      githubRequest("https://api.github.com/user", { headers: token() })
+    ).rejects.toBeInstanceOf(GitHubRateLimitError);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("checks Redis for cooldowns once, not on every request", async () => {
+    const { cacheGetMany } = await import("@/lib/metrics-cache");
+    vi.mocked(cacheGetMany).mockClear();
+    vi.mocked(fetch).mockImplementation(async () => json({ ok: true }));
+    for (const path of ["user", "user/repos", "user/orgs"])
+      await githubRequest(`https://api.github.com/${path}`, {
+        headers: token(),
+      });
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(cacheGetMany).toHaveBeenCalledTimes(1);
+  });
 });

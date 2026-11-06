@@ -4,6 +4,7 @@ import { decryptToken } from "@/lib/crypto";
 import { dateDiffDays, toDateStr } from "@/lib/date-utils";
 import {
   cacheGet,
+  cacheGetMany,
   cacheSet,
   cacheDelete,
   invalidateLeaderboardCache,
@@ -559,12 +560,16 @@ async function playerStats(
   token: string | undefined,
   sharedToken: string | undefined,
   period: LeaderboardPeriod,
-  periodStart: string | undefined
+  periodStart: string | undefined,
+  /** Already read by the caller; undefined to read it here. */
+  preloaded?: unknown
 ): Promise<UserStats> {
   const key = lastGoodKey(login, period);
   let saved: SavedStats | null = null;
   try {
-    saved = readSaved(await cacheGet<unknown>(key));
+    saved = readSaved(
+      preloaded === undefined ? await cacheGet<unknown>(key) : preloaded
+    );
   } catch {
     // Redis down: fall through to GitHub.
   }
@@ -624,6 +629,20 @@ export async function buildLeaderboard(
   // bucket), else the GITHUB_TOKEN PAT.
   const serverToken = await resolveServerGitHubToken();
 
+  // Every player's saved stats in one Redis command instead of one each:
+  // Upstash bills per command, and this runs for each period every hour.
+  let savedStats = new Map<string, unknown>();
+  try {
+    const values = await cacheGetMany<unknown>(
+      safeUsers.map((user) => lastGoodKey(user.github_login, period))
+    );
+    savedStats = new Map(
+      safeUsers.map((user, i) => [user.id, values[i] ?? null])
+    );
+  } catch {
+    // Redis down: each player reads (and falls back) on its own.
+  }
+
   const rows = await mapWithConcurrency(
     safeUsers,
     CACHE_READ_CONCURRENCY,
@@ -635,7 +654,8 @@ export async function buildLeaderboard(
         token,
         serverToken,
         period,
-        periodStart
+        periodStart,
+        savedStats.get(user.id)
       );
       const { streak, commits, prs, activeDays, reviews, repos } = stats;
       const score = streak * 5 + commits + prs * 3;

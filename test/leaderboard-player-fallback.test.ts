@@ -16,6 +16,9 @@ vi.mock("@/lib/github-request", () => ({ githubRequest: mocks.githubRequest }));
 vi.mock("@/lib/crypto", () => ({ decryptToken: vi.fn(() => "user-token") }));
 vi.mock("@/lib/metrics-cache", () => ({
   cacheGet: vi.fn(async (key: string) => mocks.store.get(key) ?? null),
+  cacheGetMany: vi.fn(async (keys: string[]) =>
+    keys.map((key) => mocks.store.get(key) ?? null)
+  ),
   cacheSet: vi.fn(async (key: string, value: unknown) => {
     mocks.store.set(key, value);
   }),
@@ -159,6 +162,34 @@ describe("leaderboard player stats when GitHub fails", () => {
       mocks.githubRequest.mock.calls.filter(([url]) =>
         String(url).includes("/graphql")
       )
+    ).toHaveLength(0);
+  });
+
+  it("reads every player's saved stats in one Redis command", async () => {
+    const { cacheGet, cacheGetMany } = await import("@/lib/metrics-cache");
+    vi.mocked(cacheGet).mockClear();
+    vi.mocked(cacheGetMany).mockClear();
+    mocks.store.set("leaderboard:player:last-good:month:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 50,
+        prs: 9,
+        activeDays: 12,
+        reviews: 4,
+        repos: 5,
+      },
+      savedAt: Date.now(),
+    });
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    await buildLeaderboard({ period: "month" });
+    expect(cacheGetMany).toHaveBeenCalledTimes(1);
+    expect(cacheGetMany).toHaveBeenCalledWith([
+      "leaderboard:player:last-good:month:brijesh",
+    ]);
+    expect(
+      vi
+        .mocked(cacheGet)
+        .mock.calls.filter(([key]) => String(key).includes("last-good"))
     ).toHaveLength(0);
   });
 
