@@ -360,6 +360,7 @@ function ResultCard({
         {!preview.member && (
           <Link
             href={`/claim?login=${encodeURIComponent(preview.login.toLowerCase())}`}
+            rel="nofollow"
             className="px-btn px-btn-sm"
           >
             Is this you? Claim it
@@ -371,6 +372,7 @@ function ResultCard({
         </Link>
         <Link
           href={`/compare?vs=${encodeURIComponent(preview.login.toLowerCase())}`}
+          rel="nofollow"
           className="px-btn px-btn-sm px-btn-ghost"
         >
           <Swords className="h-3.5 w-3.5" aria-hidden="true" />

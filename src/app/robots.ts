@@ -7,7 +7,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/dashboard/", "/auth/", "/login-required"],
+      // /claim and ?vs= duels sit behind a link on every profile; crawling
+      // them rendered a page per profile for nothing indexable.
+      disallow: [
+        "/api/",
+        "/dashboard/",
+        "/auth/",
+        "/login-required",
+        "/claim",
+        "/compare?vs=",
+      ],
     },
     sitemap: `${BASE_URL}/sitemap.xml`,
   };

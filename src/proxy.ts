@@ -8,6 +8,12 @@ import {
 } from "@/lib/auth-rate-limit";
 import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
 import { canonicalRedirectUrl } from "@/lib/canonical-host";
+import { localeCookieName } from "@/i18n/config";
+import {
+  PUBLIC_CACHE_PARAM,
+  PUBLIC_CDN_CACHE_CONTROL,
+  isPublicCacheable,
+} from "@/lib/public-page-cache";
 
 const isDev = process.env.NODE_ENV === "development";
 const memoryBuckets = new Map<string, number[]>();
@@ -277,6 +283,28 @@ export async function proxy(req: NextRequest) {
     response.headers.set("Cache-Control", "private, no-store");
     return response;
   };
+
+  // Signed-out, default-locale views of public pages share one cached copy
+  // on Vercel's CDN, under their own key (see lib/public-page-cache.ts).
+  if (
+    isPublicCacheable({
+      method: req.method,
+      pathname,
+      searchParams: req.nextUrl.searchParams,
+      cookieNames: req.cookies.getAll().map((cookie) => cookie.name),
+      localeCookie: req.cookies.get(localeCookieName)?.value,
+      headers: req.headers,
+    })
+  ) {
+    const url = req.nextUrl.clone();
+    url.searchParams.set(PUBLIC_CACHE_PARAM, "1");
+    const response = NextResponse.rewrite(url, {
+      request: { headers: requestHeaders },
+    });
+    response.headers.set("Content-Security-Policy", csp);
+    response.headers.set("Vercel-CDN-Cache-Control", PUBLIC_CDN_CACHE_CONTROL);
+    return response;
+  }
 
   // In production (HTTPS), NextAuth.js writes the session to the
   // __Secure-next-auth.session-token cookie (Secure flag set).

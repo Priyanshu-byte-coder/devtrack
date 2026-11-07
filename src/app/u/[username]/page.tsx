@@ -420,6 +420,7 @@ export default async function PublicProfilePage({
                 !isOwner && (
                   <Link
                     href={`/compare?vs=${encodeURIComponent(canonicalUsername)}`}
+                    rel="nofollow"
                     className="px-btn"
                   >
                     Duel @{profile.username}
