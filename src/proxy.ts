@@ -10,9 +10,10 @@ import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
 import { canonicalRedirectUrl } from "@/lib/canonical-host";
 import { localeCookieName } from "@/i18n/config";
 import {
-  PUBLIC_CACHE_PARAM,
-  PUBLIC_CDN_CACHE_CONTROL,
+  PUBLIC_PAGE_ROUTE,
+  PUBLIC_PAGE_SOURCE_PARAM,
   isPublicCacheable,
+  publicPageCacheEnabled,
 } from "@/lib/public-page-cache";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -287,6 +288,7 @@ export async function proxy(req: NextRequest) {
   // Signed-out, default-locale views of public pages share one cached copy
   // on Vercel's CDN, under their own key (see lib/public-page-cache.ts).
   if (
+    publicPageCacheEnabled() &&
     isPublicCacheable({
       method: req.method,
       pathname,
@@ -297,13 +299,14 @@ export async function proxy(req: NextRequest) {
     })
   ) {
     const url = req.nextUrl.clone();
-    url.searchParams.set(PUBLIC_CACHE_PARAM, "1");
-    const response = NextResponse.rewrite(url, {
-      request: { headers: requestHeaders },
-    });
-    response.headers.set("Content-Security-Policy", csp);
-    response.headers.set("Vercel-CDN-Cache-Control", PUBLIC_CDN_CACHE_CONTROL);
-    return response;
+    url.pathname = PUBLIC_PAGE_ROUTE;
+    url.search = "";
+    url.searchParams.set(
+      PUBLIC_PAGE_SOURCE_PARAM,
+      req.nextUrl.pathname + req.nextUrl.search
+    );
+    // The handler returns the page's own CSP, matching its nonce.
+    return NextResponse.rewrite(url);
   }
 
   // In production (HTTPS), NextAuth.js writes the session to the

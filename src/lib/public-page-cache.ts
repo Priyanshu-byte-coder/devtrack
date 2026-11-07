@@ -7,23 +7,32 @@
  * Hobby plan's Active CPU, largely on crawlers and first visits.
  *
  * The proxy rewrites a signed-out, default-locale request for one of these
- * pages to the same URL plus PUBLIC_CACHE_PARAM, and marks the response
- * cacheable on Vercel's CDN. The marker keeps that cached copy under its own
- * key: Vercel's cache key ignores cookies, so a signed-in visitor or one
- * reading another language must never be served it, and their requests
- * aren't rewritten. The cached HTML and its CSP header (with the nonce they
- * share) are stored together, which is the accepted trade-off on these
- * pages: the nonce repeats for the cache lifetime instead of per request.
+ * pages to PUBLIC_PAGE_ROUTE, which renders the page without cookies and
+ * returns it cacheable (Next marks pages themselves `private`, which Vercel
+ * won't cache). The rewritten URL is the cache key, so that copy is kept
+ * apart from signed-in and other-language views: Vercel's cache key ignores
+ * cookies, and those requests aren't rewritten. The cached HTML and its CSP
+ * header (with the nonce they share) are stored together, the accepted
+ * trade-off on these pages: the nonce repeats for the cache lifetime.
  */
 
 import { defaultLocale } from "@/i18n/config";
 import { detectLocale } from "@/i18n/detection";
 
+/** Route handler that serves the cacheable copy. */
+export const PUBLIC_PAGE_ROUTE = "/api/public-page";
+/** Its query parameter naming the page (path and query) to serve. */
+export const PUBLIC_PAGE_SOURCE_PARAM = "src";
+/** Marks the handler's own render request so the proxy doesn't send it back. */
 export const PUBLIC_CACHE_PARAM = "_pub";
 
-/** Fresh for 5 minutes; after that one visitor gets the stale copy while it refreshes. */
+/**
+ * The CDN keeps a page 5 minutes, then serves it stale once while it
+ * refreshes. Browsers don't keep it: a visitor who signs in must see their
+ * own view on the next load.
+ */
 export const PUBLIC_CDN_CACHE_CONTROL =
-  "max-age=300, stale-while-revalidate=86400";
+  "public, max-age=0, s-maxage=300, stale-while-revalidate=86400";
 
 const CACHEABLE_PATHS: RegExp[] = [
   /^\/$/,
@@ -47,9 +56,27 @@ export interface PublicCacheRequest {
   headers: Headers;
 }
 
+/**
+ * Production only. Preview deployments sit behind Vercel's deployment
+ * protection, which the handler's cookie-less render request can't pass,
+ * and local and test runs have no CDN to gain from.
+ */
+export function publicPageCacheEnabled(): boolean {
+  return process.env.VERCEL_ENV === "production";
+}
+
+/** The site the handler renders from: configuration, never the request. */
+export const PUBLIC_PAGE_ORIGIN = new URL(
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
+).origin;
+
+export function isCacheablePath(pathname: string): boolean {
+  return CACHEABLE_PATHS.some((p) => p.test(pathname));
+}
+
 export function isPublicCacheable(req: PublicCacheRequest): boolean {
   if (req.method !== "GET" && req.method !== "HEAD") return false;
-  if (!CACHEABLE_PATHS.some((p) => p.test(req.pathname))) return false;
+  if (!isCacheablePath(req.pathname)) return false;
   // Already marked: a direct request for the cached variant, served as-is.
   if (req.searchParams.has(PUBLIC_CACHE_PARAM)) return false;
   // Client navigations fetch RSC payloads keyed on router state; leave them.
