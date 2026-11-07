@@ -215,6 +215,65 @@ describe("leaderboard player stats when GitHub fails", () => {
     expect(entry).toMatchObject({ activeDays: 12, reviews: 4, repos: 5 });
   });
 
+  it("keeps saved lifetime totals when the all-time lookup fails", async () => {
+    // The year's data loads but the per-year lifetime totals time out.
+    mocks.store.set("leaderboard:player:last-good:all:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 1190,
+        prs: 10,
+        activeDays: 96,
+        reviews: 0,
+        repos: 19,
+      },
+      savedAt: Date.now() - 8 * 60 * 60 * 1000,
+    });
+    mocks.githubRequest.mockImplementation(
+      async (url: string, init?: { body?: string }) =>
+        String(url).includes("/graphql")
+          ? String(init?.body).includes("LeaderboardAllTime")
+            ? failed
+            : contributions()
+          : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "all" })).leaders.commits;
+    // Not the last year's 120 commits passed off as lifetime.
+    expect(entry).toMatchObject({ commits: 1190, prs: 10 });
+  });
+
+  it("sums every year for all-time totals when the lookup works", async () => {
+    mocks.githubRequest.mockImplementation(
+      async (url: string, init?: { body?: string }) =>
+        String(url).includes("/graphql")
+          ? String(init?.body).includes("LeaderboardAllTime")
+            ? {
+                ok: true,
+                json: async () => ({
+                  data: {
+                    user: {
+                      y2025: {
+                        totalCommitContributions: 900,
+                        totalPullRequestContributions: 5,
+                        totalPullRequestReviewContributions: 1,
+                      },
+                      y2026: {
+                        totalCommitContributions: 120,
+                        totalPullRequestContributions: 30,
+                        totalPullRequestReviewContributions: 40,
+                      },
+                    },
+                  },
+                }),
+              }
+            : contributions()
+          : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "all" })).leaders.commits;
+    expect(entry).toMatchObject({ commits: 1020, prs: 35, reviews: 41 });
+  });
+
   it("only uses the search counts for a player never loaded before", async () => {
     mocks.githubRequest.mockImplementation(async (url: string) =>
       String(url).includes("/graphql") ? failed : searchCount
