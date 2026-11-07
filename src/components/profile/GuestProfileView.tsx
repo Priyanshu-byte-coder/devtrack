@@ -98,6 +98,7 @@ export default function GuestProfileView({
           ) : (
             <Link
               href={`/compare?vs=${encodeURIComponent(profile.login.toLowerCase())}`}
+              rel="nofollow"
               className="px-btn px-btn-ghost"
             >
               Duel @{profile.login}
@@ -147,7 +148,7 @@ export default function GuestProfileView({
             </p>
           </div>
           <div className="-m-1 flex shrink-0 flex-wrap gap-2 md:flex-col">
-            <Link href={claimHref} className="px-btn">
+            <Link href={claimHref} rel="nofollow" className="px-btn">
               Is this you? Sign in to claim
             </Link>
             <Link href="/leaderboard" className="px-btn px-btn-ghost">
