@@ -65,11 +65,6 @@ export function publicPageCacheEnabled(): boolean {
   return process.env.VERCEL_ENV === "production";
 }
 
-/** The site the handler renders from: configuration, never the request. */
-export const PUBLIC_PAGE_ORIGIN = new URL(
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://devtrack.live"
-).origin;
-
 export function isCacheablePath(pathname: string): boolean {
   return CACHEABLE_PATHS.some((p) => p.test(pathname));
 }

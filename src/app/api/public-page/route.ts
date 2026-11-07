@@ -13,12 +13,18 @@ import type { NextRequest } from "next/server";
 import {
   PUBLIC_CACHE_PARAM,
   PUBLIC_CDN_CACHE_CONTROL,
-  PUBLIC_PAGE_ORIGIN,
   PUBLIC_PAGE_SOURCE_PARAM,
   isCacheablePath,
 } from "@/lib/public-page-cache";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * The site this renders from. A literal, not configuration or the request:
+ * the handler only runs in production (lib/public-page-cache.ts), and a
+ * fixed host is what keeps the fetch below from going anywhere else.
+ */
+const ORIGIN = "https://devtrack.live";
 
 /** Headers worth keeping from the rendered page. Set-Cookie never is. */
 const PASS_THROUGH = [
@@ -41,18 +47,18 @@ export async function GET(req: NextRequest) {
   if (!source?.startsWith("/")) return notFound();
   let target: URL;
   try {
-    target = new URL(source, PUBLIC_PAGE_ORIGIN);
+    target = new URL(source, ORIGIN);
   } catch {
     return notFound();
   }
   // Only this site's own public pages: never a fetch the caller steers.
-  if (target.origin !== PUBLIC_PAGE_ORIGIN || !isCacheablePath(target.pathname))
+  if (target.origin !== ORIGIN || !isCacheablePath(target.pathname))
     return notFound();
   // The marker keeps the proxy from sending this request back here.
   target.searchParams.set(PUBLIC_CACHE_PARAM, "1");
-  // Host from configuration; only the checked path and query come from the
-  // request.
-  const pageUrl = `${PUBLIC_PAGE_ORIGIN}/${target.pathname.slice(1)}${target.search}`;
+  // Only the checked path and query come from the request.
+  const pageUrl =
+    "https://devtrack.live/" + target.pathname.slice(1) + target.search;
 
   let page: Response;
   try {
