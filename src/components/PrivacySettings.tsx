@@ -8,6 +8,7 @@ export default function PrivacySettings() {
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteTouched, setDeleteTouched] = useState(false);
   const [message, setMessage] = useState<{
     kind: "success" | "error";
     text: string;
@@ -43,8 +44,12 @@ export default function PrivacySettings() {
     wasConfirmOpen.current = showDeleteConfirm;
   }, [showDeleteConfirm]);
 
+  // Only flag the field as invalid after the user leaves it, so screen readers
+  // don't announce "invalid" on every keystroke while "DELETE" is being typed.
   const deleteTextInvalid =
-    deleteConfirmText.length > 0 && deleteConfirmText !== "DELETE";
+    deleteTouched &&
+    deleteConfirmText.length > 0 &&
+    deleteConfirmText !== "DELETE";
 
   /** Download a portable ZIP archive of all user-owned data. */
   async function handleExportZip() {
@@ -268,7 +273,6 @@ export default function PrivacySettings() {
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
               aria-expanded={false}
-              aria-controls={ids.deletePanel}
               aria-describedby={ids.deleteDescription}
               className="rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-[var(--destructive)] transition hover:bg-destructive/10"
             >
@@ -276,11 +280,7 @@ export default function PrivacySettings() {
             </button>
           ) : (
             <div id={ids.deletePanel} className="space-y-4">
-              <div
-                role="group"
-                aria-labelledby={ids.deleteList}
-                className="rounded-lg border border-destructive/30 bg-destructive/10 p-4"
-              >
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
                 <p
                   id={ids.deleteList}
                   className="text-sm text-[var(--destructive)] mb-3"
@@ -296,7 +296,6 @@ export default function PrivacySettings() {
                   <li>Metric history and snapshots</li>
                   <li>Webhook configurations</li>
                   <li>Linked accounts and integrations</li>
-                  <li>Local coding time data</li>
                 </ul>
 
                 <label
@@ -318,14 +317,17 @@ export default function PrivacySettings() {
                   name="delete-confirmation"
                   type="text"
                   value={deleteConfirmText}
-                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  onChange={(e) => {
+                    setDeleteConfirmText(e.target.value);
+                    setDeleteTouched(false);
+                  }}
+                  onBlur={() => setDeleteTouched(true)}
                   placeholder="DELETE"
                   autoComplete="off"
                   autoCapitalize="characters"
                   spellCheck={false}
                   required
                   disabled={deleting}
-                  aria-required="true"
                   aria-invalid={deleteTextInvalid}
                   aria-describedby={ids.deleteInputHint}
                   className="w-full rounded-lg border border-destructive/30 bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] mb-3"
@@ -345,6 +347,7 @@ export default function PrivacySettings() {
                     onClick={() => {
                       setShowDeleteConfirm(false);
                       setDeleteConfirmText("");
+                      setDeleteTouched(false);
                     }}
                     disabled={deleting}
                     className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--control)] disabled:opacity-60"
