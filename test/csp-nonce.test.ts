@@ -23,16 +23,19 @@ it("forwards a fresh nonce to rendering and excludes unsafe production script po
   expect(csp).toContain("worker-src 'self' blob:");
   expect(first.headers.get("cache-control")).toBe("private, no-store");
 });
-it("serves signed-out views of public pages from a separately keyed CDN copy", async () => {
-  const res = await proxy(new NextRequest("http://localhost/u/octocat"));
-  const rewrite = new URL(res.headers.get("x-middleware-rewrite")!);
-  expect(rewrite.pathname).toBe("/u/octocat");
-  expect(rewrite.searchParams.get("_pub")).toBe("1");
-  expect(res.headers.get("vercel-cdn-cache-control")).toContain("max-age=300");
-  expect(res.headers.get("cache-control")).toBeNull();
-  // The cached page keeps its CSP, nonce included.
-  const nonce = res.headers.get("x-middleware-request-x-nonce");
-  expect(res.headers.get("content-security-policy")).toContain(
-    `'nonce-${nonce}'`
+it("sends signed-out views of public pages to the cacheable copy", async () => {
+  vi.stubEnv("VERCEL_ENV", "production");
+  const res = await proxy(
+    new NextRequest("http://localhost/leaderboard?period=week")
   );
+  const rewrite = new URL(res.headers.get("x-middleware-rewrite")!);
+  expect(rewrite.pathname).toBe("/api/public-page");
+  expect(rewrite.searchParams.get("src")).toBe("/leaderboard?period=week");
+  expect(res.headers.get("cache-control")).toBeNull();
+  vi.unstubAllEnvs();
+});
+it("renders public pages per request outside production", async () => {
+  const res = await proxy(new NextRequest("http://localhost/leaderboard"));
+  expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+  expect(res.headers.get("cache-control")).toBe("private, no-store");
 });

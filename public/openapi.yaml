@@ -1563,6 +1563,27 @@ paths:
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/public-page:
+    get:
+      operationId: get_api_public_page
+      summary: GET /api/public-page
+      tags:
+        - public-page
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+    head:
+      operationId: head_api_public_page
+      summary: HEAD /api/public-page
+      tags:
+        - public-page
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
   /api/public/{username}:
     get:
       tags:
