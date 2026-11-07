@@ -57,6 +57,11 @@ describe("public page cache route", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("rejects a malformed path escape without fetching", async () => {
+    expect((await call("/u/%E0%A4")).status).toBe(404);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("passes redirects through without the marker", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(null, {

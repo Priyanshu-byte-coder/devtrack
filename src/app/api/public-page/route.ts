@@ -35,6 +35,27 @@ const PASS_THROUGH = [
   "x-robots-tag",
 ];
 
+/**
+ * The checked path and query, rebuilt piece by piece and escaped, so nothing
+ * from the request can change which URL is fetched beyond those values.
+ */
+function encodedPath(url: URL): string {
+  return url.pathname
+    .split("/")
+    .slice(1)
+    .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+    .join("/");
+}
+
+function encodedQuery(url: URL): string {
+  return [...url.searchParams]
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    )
+    .join("&");
+}
+
 function notFound() {
   return new Response("Not found", {
     status: 404,
@@ -56,9 +77,13 @@ export async function GET(req: NextRequest) {
     return notFound();
   // The marker keeps the proxy from sending this request back here.
   target.searchParams.set(PUBLIC_CACHE_PARAM, "1");
-  // Only the checked path and query come from the request.
-  const pageUrl =
-    "https://devtrack.live/" + target.pathname.slice(1) + target.search;
+  let pageUrl: string;
+  try {
+    pageUrl = `https://devtrack.live/${encodedPath(target)}?${encodedQuery(target)}`;
+  } catch {
+    // A malformed %-escape in the path.
+    return notFound();
+  }
 
   let page: Response;
   try {
