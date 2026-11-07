@@ -453,6 +453,11 @@ async function fetchUserStats(
           token
         )
       : null;
+    // Without the lifetime totals this would pass off the last year's as
+    // all-time and save them as good: one timed-out request cut a player's
+    // 1,190 lifetime commits to 212 and their score by 200. A failed lookup
+    // instead, so the caller tries the shared token, then the saved stats.
+    if (years.length > 0 && !all?.user) return null;
     if (all?.user) {
       const totals = Object.values(all.user);
       commits = totals.reduce((sum, t) => sum + t.totalCommitContributions, 0);
