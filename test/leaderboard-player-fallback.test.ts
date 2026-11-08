@@ -215,6 +215,37 @@ describe("leaderboard player stats when GitHub fails", () => {
     expect(entry).toMatchObject({ activeDays: 12, reviews: 4, repos: 5 });
   });
 
+  it("keeps saved stats over the shared token's view when the player's own token fails", async () => {
+    // The shared token can't see private repositories, so its counts for a
+    // player with their own token run low.
+    mocks.store.set("leaderboard:player:last-good:all:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 2560,
+        prs: 332,
+        activeDays: 221,
+        reviews: 334,
+        repos: 73,
+      },
+      savedAt: Date.now() - 8 * 60 * 60 * 1000,
+    });
+    mocks.githubRequest.mockImplementation(async (url: string, init) =>
+      String(url).includes("/graphql")
+        ? auth(init).includes("user-token")
+          ? failed
+          : contributions()
+        : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "all" })).leaders.commits;
+    expect(entry).toMatchObject({ commits: 2560, prs: 332, repos: 73 });
+    expect(
+      mocks.githubRequest.mock.calls.some(([, init]) =>
+        auth(init).includes("shared-token")
+      )
+    ).toBe(false);
+  });
+
   it("keeps saved lifetime totals when the all-time lookup fails", async () => {
     // The year's data loads but the per-year lifetime totals time out.
     mocks.store.set("leaderboard:player:last-good:all:brijesh", {

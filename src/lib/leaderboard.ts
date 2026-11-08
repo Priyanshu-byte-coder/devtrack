@@ -577,7 +577,9 @@ function refreshAfterMs(login: string): number {
  * that has no active days, streak, reviews or repositories, so a player
  * near the top dropped ~400 points and a hundred places. In order, we try
  * their token, then the shared token (contribution data is public), then
- * their last good stats, and only then the search counts.
+ * their last good stats, and only then the search counts. A player whose
+ * own token fails gets their last good stats before the shared token's
+ * public-only view.
  */
 async function playerStats(
   login: string,
@@ -600,8 +602,14 @@ async function playerStats(
   if (saved && Date.now() - saved.savedAt < refreshAfterMs(login))
     return saved.stats;
 
+  const ownToken = Boolean(token && token !== sharedToken);
   const fresh = await githubSlots(async () => {
     let stats = token ? await fetchUserStats(login, token, periodStart) : null;
+    // The shared token can't see private-repo work, so for a player with
+    // their own token its view is a partial one: saving it as good cut one
+    // player's lifetime commits from 2,560 to 1,775 when their token failed
+    // once. Their last good stats are the better answer.
+    if (!stats && ownToken && saved) return null;
     if (!stats && sharedToken && sharedToken !== token)
       stats = await fetchUserStats(login, sharedToken, periodStart);
     return stats;
