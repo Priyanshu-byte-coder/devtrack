@@ -38,7 +38,7 @@ describe("public page cache route", () => {
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("<html>profile</html>");
-    expect(res.headers.get("cache-control")).toContain("s-maxage=300");
+    expect(res.headers.get("cache-control")).toContain("s-maxage=3600");
     expect(res.headers.get("content-security-policy")).toBe(
       "script-src 'nonce-abc'"
     );

@@ -102,10 +102,11 @@ export default async function Image({
     ...SHARE_CARD_SIZE,
     // `revalidate` above doesn't reach the CDN for a dynamic segment, so
     // without this every profile view and link preview drew a fresh PNG.
-    // Ranks move once a day with the nightly snapshot, so six hours is safe.
+    // Ranks move once a day with the nightly snapshot, so a day is safe, and
+    // crawlers fetch a card for every profile they visit.
     headers: {
       "Cache-Control":
-        "public, max-age=300, s-maxage=21600, stale-while-revalidate=604800",
+        "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800",
     },
   });
 }

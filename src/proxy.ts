@@ -7,7 +7,10 @@ import {
   AUTH_LIMIT,
 } from "@/lib/auth-rate-limit";
 import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
-import { canonicalRedirectUrl } from "@/lib/canonical-host";
+import {
+  canonicalRedirectUrl,
+  lowercaseProfilePath,
+} from "@/lib/canonical-host";
 import { localeCookieName } from "@/i18n/config";
 import {
   PUBLIC_PAGE_ROUTE,
@@ -254,6 +257,16 @@ export async function proxy(req: NextRequest) {
     req.nextUrl.pathname + req.nextUrl.search
   );
   if (canonical) return NextResponse.redirect(canonical, 308);
+
+  const profilePath =
+    req.method === "GET" || req.method === "HEAD"
+      ? lowercaseProfilePath(req.nextUrl.pathname)
+      : null;
+  if (profilePath) {
+    const url = req.nextUrl.clone();
+    url.pathname = profilePath;
+    return NextResponse.redirect(url, 308);
+  }
 
   const pathname = req.nextUrl.pathname;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");

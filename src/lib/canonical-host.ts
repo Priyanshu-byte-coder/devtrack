@@ -30,3 +30,18 @@ export function canonicalRedirectUrl(
   if (!host.endsWith(".vercel.app") || host === CANONICAL_HOST) return null;
   return `https://${CANONICAL_HOST}${pathAndQuery}`;
 }
+
+/**
+ * Profiles live at a lowercase login (the canonical URL and the sitemap use
+ * it), but links across the site keep the login's own casing. Crawlers
+ * followed both, so every profile and its share image rendered twice, each
+ * a separate CDN cache entry. Returns the lowercase path to redirect to, or
+ * null when the path is already canonical or isn't a profile.
+ */
+export function lowercaseProfilePath(pathname: string): string | null {
+  const match = /^\/u\/([^/]+)(\/.*)?$/.exec(pathname);
+  if (!match) return null;
+  const login = match[1].toLowerCase();
+  if (login === match[1]) return null;
+  return `/u/${login}${match[2] ?? ""}`;
+}

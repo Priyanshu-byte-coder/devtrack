@@ -39,3 +39,11 @@ it("renders public pages per request outside production", async () => {
   expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   expect(res.headers.get("cache-control")).toBe("private, no-store");
 });
+it("redirects a profile URL with uppercase letters to its lowercase form", async () => {
+  const res = await proxy(
+    new NextRequest("http://localhost/u/Neal006?tab=stats")
+  );
+  expect(res.status).toBe(308);
+  expect(new URL(res.headers.get("location")!).pathname).toBe("/u/neal006");
+  expect(new URL(res.headers.get("location")!).search).toBe("?tab=stats");
+});
