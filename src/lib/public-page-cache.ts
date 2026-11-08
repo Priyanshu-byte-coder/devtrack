@@ -27,12 +27,14 @@ export const PUBLIC_PAGE_SOURCE_PARAM = "src";
 export const PUBLIC_CACHE_PARAM = "_pub";
 
 /**
- * The CDN keeps a page 5 minutes, then serves it stale once while it
- * refreshes. Browsers don't keep it: a visitor who signs in must see their
- * own view on the next load.
+ * The CDN keeps a page an hour, then serves it stale once while it
+ * refreshes. The stats on these pages change about daily, and every render
+ * costs Active CPU on the Hobby plan, so a crawler and the visitors after it
+ * share one render. Browsers don't keep it: a visitor who signs in must see
+ * their own view on the next load.
  */
 export const PUBLIC_CDN_CACHE_CONTROL =
-  "public, max-age=0, s-maxage=300, stale-while-revalidate=86400";
+  "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
 
 const CACHEABLE_PATHS: RegExp[] = [
   /^\/$/,

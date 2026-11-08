@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { canonicalRedirectUrl } from "@/lib/canonical-host";
+import {
+  canonicalRedirectUrl,
+  lowercaseProfilePath,
+} from "@/lib/canonical-host";
 
 describe("canonicalRedirectUrl", () => {
   it("sends production vercel.app aliases to the canonical domain", () => {
@@ -40,5 +43,21 @@ describe("canonicalRedirectUrl", () => {
     expect(
       canonicalRedirectUrl("devtrack-abc.vercel.app", "/apis", "production")
     ).not.toBeNull();
+  });
+});
+
+describe("lowercaseProfilePath", () => {
+  it("lowercases the login of a profile path", () => {
+    expect(lowercaseProfilePath("/u/Neal006")).toBe("/u/neal006");
+    expect(lowercaseProfilePath("/u/Neal006/goals/42")).toBe(
+      "/u/neal006/goals/42"
+    );
+  });
+
+  it("leaves canonical and non-profile paths alone", () => {
+    expect(lowercaseProfilePath("/u/neal006")).toBeNull();
+    expect(lowercaseProfilePath("/u/neal006/goals/AbC")).toBeNull();
+    expect(lowercaseProfilePath("/leaderboard")).toBeNull();
+    expect(lowercaseProfilePath("/U/Neal006")).toBeNull();
   });
 });
