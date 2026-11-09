@@ -1,0 +1,58 @@
+name: Deploy to production
+
+# Merges to main don't deploy on their own (vercel.json sets
+# git.deploymentEnabled.main to false): every production deploy empties
+# Vercel's CDN cache, so each page renders again and spends Active CPU.
+# Merge as many PRs as you like, then run this once to ship them together:
+#   Actions > Deploy to production > Run workflow   (or: gh workflow run deploy-production.yml)
+#
+# Requires the repository secret VERCEL_DEPLOY_HOOK_URL: a Vercel Deploy Hook
+# for the main branch (Project Settings > Git > Deploy Hooks).
+on:
+  workflow_dispatch:
+    inputs:
+      skip_ci_check:
+        description: "Deploy even if CI on the latest main commit hasn't passed"
+        type: boolean
+        default: false
+
+permissions:
+  actions: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.repository == 'Priyanshu-byte-coder/devtrack' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check CI passed on the latest main commit
+        if: ${{ !inputs.skip_ci_check }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          conclusion=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow CI --branch main \
+            --commit "$SHA" --limit 1 --json conclusion --jq '.[0].conclusion // ""')
+          echo "CI on ${SHA::7}: ${conclusion:-not finished}"
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::CI hasn't passed on ${SHA::7}. Wait for it, or re-run with skip_ci_check."
+            exit 1
+          fi
+
+      - name: Trigger the Vercel production deploy
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Add the VERCEL_DEPLOY_HOOK_URL secret first (Vercel > Project Settings > Git > Deploy Hooks, branch main)."
+            exit 1
+          fi
+          status=$(curl -sS -o response.json -w '%{http_code}' -X POST "$HOOK")
+          echo "HTTP $status"
+          jq -r '"Deploy job " + .job.id + ": " + .job.state' response.json 2>/dev/null || cat response.json
+          test "$status" -lt 400
+          echo "Deploying ${GITHUB_SHA::7} to production. Follow it at https://vercel.com/dashboard." >> "$GITHUB_STEP_SUMMARY"

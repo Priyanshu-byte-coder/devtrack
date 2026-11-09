@@ -16,5 +16,10 @@
       "path": "/api/cron/gamification",
       "schedule": "15 0 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
 }
