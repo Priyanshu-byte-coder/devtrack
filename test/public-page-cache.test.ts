@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   PUBLIC_CACHE_PARAM,
+  PUBLIC_CDN_CACHE_CONTROL,
+  cdnCacheControlFor,
   isPublicCacheable,
   type PublicCacheRequest,
 } from "@/lib/public-page-cache";
@@ -88,5 +90,18 @@ describe("isPublicCacheable", () => {
         req({ searchParams: new URLSearchParams(`${PUBLIC_CACHE_PARAM}=1`) })
       )
     ).toBe(false);
+  });
+});
+
+describe("cdnCacheControlFor", () => {
+  it("keeps pages for as long as their data stays the same", () => {
+    expect(cdnCacheControlFor("/terms")).toContain("s-maxage=86400");
+    expect(cdnCacheControlFor("/guides/github-streak")).toContain(
+      "s-maxage=86400"
+    );
+    expect(cdnCacheControlFor("/u/octocat")).toContain("s-maxage=21600");
+    expect(cdnCacheControlFor("/top/rust")).toContain("s-maxage=21600");
+    expect(cdnCacheControlFor("/leaderboard")).toBe(PUBLIC_CDN_CACHE_CONTROL);
+    expect(cdnCacheControlFor("/")).toBe(PUBLIC_CDN_CACHE_CONTROL);
   });
 });

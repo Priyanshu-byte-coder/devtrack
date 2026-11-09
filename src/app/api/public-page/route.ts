@@ -11,9 +11,11 @@
 
 import type { NextRequest } from "next/server";
 import {
+  BUSY_CDN_CACHE_CONTROL,
+  GITHUB_BUSY_MARKER,
   PUBLIC_CACHE_PARAM,
-  PUBLIC_CDN_CACHE_CONTROL,
   PUBLIC_PAGE_SOURCE_PARAM,
+  cdnCacheControlFor,
   isCacheablePath,
 } from "@/lib/public-page-cache";
 
@@ -113,17 +115,23 @@ export async function GET(req: NextRequest) {
       next.origin === target.origin ? next.pathname + next.search : next.href
     );
   }
-  // Errors aren't cached, so a failed render can't stick for everyone.
+  const body = await page.text();
+  // Errors aren't cached, so a failed render can't stick for everyone, and a
+  // "GitHub is busy" page is kept only briefly.
   const cacheable =
     page.status === 200 ||
     page.status === 404 ||
     (page.status >= 301 && page.status <= 308);
   headers.set(
     "Cache-Control",
-    cacheable ? PUBLIC_CDN_CACHE_CONTROL : "no-store"
+    !cacheable
+      ? "no-store"
+      : body.includes(GITHUB_BUSY_MARKER)
+        ? BUSY_CDN_CACHE_CONTROL
+        : cdnCacheControlFor(target.pathname)
   );
 
-  return new Response(req.method === "HEAD" ? null : await page.text(), {
+  return new Response(req.method === "HEAD" ? null : body, {
     status: page.status,
     headers,
   });

@@ -36,7 +36,7 @@ export default async function Image({
     // `revalidate` doesn't reach the CDN for a dynamic segment.
     headers: {
       "Cache-Control":
-        "public, max-age=300, s-maxage=21600, stale-while-revalidate=604800",
+        "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800",
     },
   });
 }

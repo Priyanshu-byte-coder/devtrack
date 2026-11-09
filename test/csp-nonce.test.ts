@@ -47,3 +47,11 @@ it("redirects a profile URL with uppercase letters to its lowercase form", async
   expect(new URL(res.headers.get("location")!).pathname).toBe("/u/neal006");
   expect(new URL(res.headers.get("location")!).search).toBe("?tab=stats");
 });
+it("answers scanner probes with a bare 404 instead of a rendered page", async () => {
+  const res = await proxy(
+    new NextRequest("http://localhost/wp-admin/install.php")
+  );
+  expect(res.status).toBe(404);
+  expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+  expect(await res.text()).toBe("");
+});

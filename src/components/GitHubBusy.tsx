@@ -9,7 +9,11 @@ export default function GitHubBusy({
   what?: string;
 }) {
   return (
-    <div className="mx-auto max-w-xl px-4 py-16 text-center">
+    // data-github-busy tells the page cache to keep this only briefly.
+    <div
+      data-github-busy=""
+      className="mx-auto max-w-xl px-4 py-16 text-center"
+    >
       <p className="font-pixel text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
         Loading…
       </p>
