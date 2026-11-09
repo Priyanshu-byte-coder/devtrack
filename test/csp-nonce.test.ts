@@ -55,3 +55,16 @@ it("answers scanner probes with a bare 404 instead of a rendered page", async ()
   expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   expect(await res.text()).toBe("");
 });
+it("doesn't decrypt the session for pages that never use it", async () => {
+  const { getToken } = await import("next-auth/jwt");
+  vi.mocked(getToken).mockClear();
+  await proxy(signedIn());
+  await proxy(new NextRequest("http://localhost/u/octocat"));
+  expect(getToken).not.toHaveBeenCalled();
+  await proxy(
+    new NextRequest("http://localhost/dashboard", {
+      headers: { cookie: "next-auth.session-token=abc" },
+    })
+  );
+  expect(getToken).toHaveBeenCalled();
+});

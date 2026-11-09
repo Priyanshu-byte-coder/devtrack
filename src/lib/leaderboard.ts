@@ -24,7 +24,13 @@ import {
   type Tier,
 } from "@/lib/gamification/scoring";
 
-export const CACHE_REFRESH_SECONDS = 3600; // 1 hour
+/**
+ * How often a board is rebuilt from saved player stats. Each player's GitHub
+ * stats refresh every 6 hours at most and ranks snapshot once a day, so an
+ * hourly rebuild (3 boards, 72 a day) mostly recomputed the same numbers.
+ * A new player still shows up at once: sign-up clears the cache.
+ */
+export const CACHE_REFRESH_SECONDS = 3 * 3600;
 /**
  * How long one player's GitHub stats are reused across board rebuilds. Most
  * players have no stored token, so their stats are fetched with the shared
