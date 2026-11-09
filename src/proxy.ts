@@ -338,29 +338,31 @@ export async function proxy(req: NextRequest) {
   const isProduction =
     new URL(process.env.NEXTAUTH_URL ?? req.url).protocol === "https:";
 
-  let token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: isProduction,
-    cookieName: isProduction
-      ? "__Secure-next-auth.session-token"
-      : "next-auth.session-token",
-  });
-
-  if (!token && (!isProduction || process.env.CI === "true")) {
-    // Fallback: try the opposite cookie name to handle edge cases such as
-    // a dev build or CI environment that somehow received a Secure cookie.
-    token = await getToken({
+  const readToken = async () => {
+    let token = await getToken({
       req,
       secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: !isProduction,
-      cookieName: !isProduction
+      secureCookie: isProduction,
+      cookieName: isProduction
         ? "__Secure-next-auth.session-token"
         : "next-auth.session-token",
     });
-  }
 
-  if (token?.error === "TokenRevoked") token = null;
+    if (!token && (!isProduction || process.env.CI === "true")) {
+      // Fallback: try the opposite cookie name to handle edge cases such as
+      // a dev build or CI environment that somehow received a Secure cookie.
+      token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+        secureCookie: !isProduction,
+        cookieName: !isProduction
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      });
+    }
+
+    return token?.error === "TokenRevoked" ? null : token;
+  };
 
   const isApiStateChange =
     pathname.startsWith("/api/") &&
@@ -383,6 +385,10 @@ export async function proxy(req: NextRequest) {
   const isAdminRoute = adminRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
+
+  // Only these branches read the session; decrypting it for every public
+  // page and API call was CPU spent on every request.
+  const token = isProtectedRoute || isAdminRoute ? await readToken() : null;
 
   if ((isProtectedRoute || isAdminRoute) && !token) {
     const url = req.nextUrl.clone();
@@ -441,7 +447,9 @@ export async function proxy(req: NextRequest) {
     return next();
   }
 
-  const githubId = typeof token?.githubId === "string" ? token.githubId : null;
+  const rateToken = await readToken();
+  const githubId =
+    typeof rateToken?.githubId === "string" ? rateToken.githubId : null;
   const identifier = githubId ? `user:${githubId}` : `ip:${getIp(req)}`;
   const limit = githubId
     ? RATE_LIMIT_CONFIG.AUTHENTICATED_LIMIT

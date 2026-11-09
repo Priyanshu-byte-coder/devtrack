@@ -15,8 +15,8 @@ afterEach(() => {
 });
 
 describe("exported constants", () => {
-  it("CACHE_REFRESH_SECONDS equals 3600", () => {
-    expect(CACHE_REFRESH_SECONDS).toBe(3600);
+  it("CACHE_REFRESH_SECONDS equals 3 hours", () => {
+    expect(CACHE_REFRESH_SECONDS).toBe(3 * 3600);
   });
 
   it("CACHE_STALE_SECONDS equals 21600 (6 hours)", () => {
