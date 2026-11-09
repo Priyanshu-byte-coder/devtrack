@@ -38,11 +38,33 @@ describe("public page cache route", () => {
 
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("<html>profile</html>");
-    expect(res.headers.get("cache-control")).toContain("s-maxage=3600");
+    expect(res.headers.get("cache-control")).toContain("s-maxage=21600");
     expect(res.headers.get("content-security-policy")).toBe(
       "script-src 'nonce-abc'"
     );
     expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("keeps a GitHub-busy page only briefly", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response('<div data-github-busy="">GitHub needs a breather</div>', {
+        headers: { "content-type": "text/html" },
+      })
+    );
+    const res = await call("/u/torvalds");
+    expect(res.headers.get("cache-control")).toBe(
+      "public, max-age=0, s-maxage=120"
+    );
+  });
+
+  it("keeps guides and legal pages for a day", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("<html>terms</html>", {
+        headers: { "content-type": "text/html" },
+      })
+    );
+    const res = await call("/terms");
+    expect(res.headers.get("cache-control")).toContain("s-maxage=86400");
   });
 
   it("refuses anything but this site's public pages", async () => {

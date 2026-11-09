@@ -36,6 +36,42 @@ export const PUBLIC_CACHE_PARAM = "_pub";
 export const PUBLIC_CDN_CACHE_CONTROL =
   "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400";
 
+/** Guides and legal pages change only when we deploy, which empties the cache anyway. */
+const STATIC_CDN_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800";
+
+/**
+ * Profiles and the /top boards: ranks move once a day with the nightly
+ * snapshot, and guest data is cached for 6 hours on our side too. Crawlers
+ * sweep these by the hundred, so each render should serve them for hours.
+ */
+const PROFILE_CDN_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=21600, stale-while-revalidate=86400";
+
+/**
+ * A "GitHub is busy" page: worth sharing between a burst of visitors, never
+ * worth keeping once GitHub has recovered.
+ */
+export const BUSY_CDN_CACHE_CONTROL = "public, max-age=0, s-maxage=120";
+
+/** Marker GitHubBusy renders, so the cache route can spot a degraded page. */
+export const GITHUB_BUSY_MARKER = "data-github-busy";
+
+const STATIC_PATHS: RegExp[] = [
+  /^\/guides(?:\/[^/]+)?$/,
+  /^\/(?:terms|privacy-policy|sponsor|api-docs|guidelines)$/,
+];
+const PROFILE_PATHS: RegExp[] = [/^\/u\/[^/]+$/, /^\/top(?:\/.+)?$/];
+
+/** How long the CDN may keep a signed-out page at this path. */
+export function cdnCacheControlFor(pathname: string): string {
+  if (STATIC_PATHS.some((p) => p.test(pathname)))
+    return STATIC_CDN_CACHE_CONTROL;
+  if (PROFILE_PATHS.some((p) => p.test(pathname)))
+    return PROFILE_CDN_CACHE_CONTROL;
+  return PUBLIC_CDN_CACHE_CONTROL;
+}
+
 const CACHEABLE_PATHS: RegExp[] = [
   /^\/$/,
   /^\/leaderboard$/,

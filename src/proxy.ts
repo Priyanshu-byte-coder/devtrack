@@ -11,6 +11,7 @@ import {
   canonicalRedirectUrl,
   lowercaseProfilePath,
 } from "@/lib/canonical-host";
+import { isProbePath } from "@/lib/probe-paths";
 import { localeCookieName } from "@/i18n/config";
 import {
   PUBLIC_PAGE_ROUTE,
@@ -252,6 +253,14 @@ async function checkRateLimit(identifier: string, limit: number) {
 }
 
 export async function proxy(req: NextRequest) {
+  // Scanner probes get a bare 404 here instead of a rendered not-found page.
+  if (isProbePath(req.nextUrl.pathname)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "public, max-age=86400" },
+    });
+  }
+
   const canonical = canonicalRedirectUrl(
     req.headers.get("host") ?? "",
     req.nextUrl.pathname + req.nextUrl.search
@@ -481,7 +490,10 @@ export const config = {
     // (u/<login>/opengraph-image) and duel cards (compare/<a>-vs-<b>/
     // opengraph-image) are public images too, fetched by link
     // preview crawlers, so they're excluded for the same reason, as is the
-    // public, cookie-free api/score-preview lookup.
-    "/((?!_next/static|_next/image|favicon.ico|favicon.svg|sw.js|workbox-|manifest.json|offline.html|api/badge/|api/score-preview|u/[^/]+/opengraph-image|compare/[^/]+/opengraph-image).*)",
+    // public, cookie-free api/score-preview lookup. Files with a static
+    // extension (icons, cursors, robots.txt, sitemap.xml, scripts) skip it
+    // too: they need no CSP or session, and each pass was a billed
+    // invocation that also marked them "no-store" so the CDN never kept them.
+    "/((?!_next/static|_next/image|favicon.ico|favicon.svg|sw.js|workbox-|manifest.json|offline.html|api/badge/|api/score-preview|u/[^/]+/opengraph-image|compare/[^/]+/opengraph-image|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico|txt|xml|webmanifest|woff2?|ttf|css|js|map)$).*)",
   ],
 };
