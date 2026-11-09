@@ -89,17 +89,9 @@ export default function NotificationBell() {
       }
     }
 
-    const handleNotifications = () => {
-      void refetch();
-    };
-
-    // initial load
+    // Loaded once per page view and again after marking read. Nothing polls:
+    // every background refetch was a function invocation on Vercel.
     void refetch();
-
-    window.addEventListener("devtrack:notifications", handleNotifications);
-
-    return () =>
-      window.removeEventListener("devtrack:notifications", handleNotifications);
   }, [refetch]);
 
   useEffect(() => {

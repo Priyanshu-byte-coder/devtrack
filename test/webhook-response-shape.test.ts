@@ -28,10 +28,6 @@ vi.mock("@/lib/error-handler", () => ({
   logError: vi.fn(),
 }));
 
-vi.mock("@/lib/sse", () => ({
-  sendSSEEvent: vi.fn(),
-}));
-
 vi.mock("@/lib/metrics-cache", () => ({
   invalidateUserMetricsCache: vi.fn(),
 }));
@@ -48,7 +44,11 @@ function signPayload(body: string): string {
   return `sha256=${crypto.createHmac("sha256", WEBHOOK_SECRET).update(body).digest("hex")}`;
 }
 
-function createRequest(body: string, event = "push", signature?: string): Request {
+function createRequest(
+  body: string,
+  event = "push",
+  signature?: string
+): Request {
   return new Request("http://localhost:3000/api/webhooks/github", {
     method: "POST",
     headers: {

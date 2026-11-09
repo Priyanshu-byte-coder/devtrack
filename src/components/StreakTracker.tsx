@@ -4,7 +4,6 @@ import SectionHeader from "./SectionHeader";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useCountUp } from "@/hooks/useCountUp";
 import StreakMilestoneBanner from "@/components/StreakMilestoneBanner";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
@@ -55,7 +54,6 @@ export { useStreakTracker } from "@/hooks/useStreakTracker";
 export default function StreakTracker() {
   const {
     selectedAccount,
-    isStreakLive,
     data,
     setData,
     contributionData,
@@ -307,18 +305,6 @@ export default function StreakTracker() {
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SectionHeader title="Commit Streaks" />
-              {isStreakLive && (
-                <span
-                  title="Live — updates automatically"
-                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500"
-                >
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  </span>
-                  Live
-                </span>
-              )}
             </div>
             {data && <div className="h-8 w-24" />}
           </div>
