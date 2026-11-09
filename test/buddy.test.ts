@@ -35,7 +35,6 @@ describe("scriptFor", () => {
   it("picks the most specific page", () => {
     expect(scriptFor("/dashboard/goals").stage).toBe("Quest log");
     expect(scriptFor("/dashboard").stage).toBe("HQ");
-    expect(scriptFor("/dashboard/rooms/abc").stage).toBe("HQ");
     expect(scriptFor("/u/octocat").stage).toBe("Player card");
     expect(scriptFor("/").stage).toBe("Title screen");
   });

@@ -3,7 +3,6 @@ import SectionHeader from "@/components/SectionHeader";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useCountUp } from "@/hooks/useCountUp";
 import StreakMilestoneBanner from "@/components/StreakMilestoneBanner";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
@@ -319,27 +318,8 @@ export function useStreakTracker() {
     }
   };
 
-  // -------------------------------------------------------------------------
-  // Realtime: re-fetch when streak_freezes rows change in Supabase.
-  // Falls back to 60-second polling if the WebSocket cannot connect.
-  // NOTE: enable Realtime for the `streak_freezes` table in the Supabase
-  // dashboard and ensure the anon role has a SELECT policy (or use a
-  // user-scoped filter once a Supabase JWT is available in the session).
-  // -------------------------------------------------------------------------
-  const handleRealtimeFreeze = useCallback(() => {
-    fetchFreeze();
-    fetchStreak();
-  }, [fetchFreeze, fetchStreak]);
-
-  const { isLive: isStreakLive } = useRealtimeSync(
-    "streak_freezes",
-    ["INSERT", "DELETE"],
-    handleRealtimeFreeze
-  );
-
   return {
     selectedAccount,
-    isStreakLive,
     data,
     setData,
     contributionData,
