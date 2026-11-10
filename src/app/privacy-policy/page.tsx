@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
             {
               title: "Weekly Email Digest",
               content:
-                "If your GitHub account shares an email address with DevTrack, we send you a weekly summary of your own coding activity every Monday. It is on by default, including for accounts created before this change. Each email has an unsubscribe link, and you can turn it off at any time in Settings. We use your email only for this digest and account messages, never for advertising, and we never sell or share it. Emails are delivered through Resend, which processes your address to send them.",
+                "If your GitHub account shares an email address with DevTrack, we send you a weekly summary of your own coding activity. It is on by default, including for accounts created before this change. Each email has an unsubscribe link, and you can turn it off at any time in Settings. We use your email only for this digest and account messages, never for advertising, and we never sell or share it. Emails are delivered through Resend, which processes your address to send them.",
             },
             {
               title: "Third-Party Services",

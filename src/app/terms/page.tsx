@@ -61,9 +61,9 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     body: (
       <>
         If your GitHub account shares an email address with DevTrack, you get a
-        weekly email every Monday summarising your own coding activity. It is on
-        by default. Unsubscribe from any digest email or turn it off in Settings
-        at any time.
+        weekly email summarising your own coding activity. It is on by default.
+        Unsubscribe from any digest email or turn it off in Settings at any
+        time.
       </>
     ),
   },

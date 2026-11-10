@@ -401,12 +401,12 @@ export function buildDigestHtml(data: DigestEmailData): string {
                 </td>
                 <td valign="middle">
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                    <td style="background:${CARD};border:2px solid ${INK};padding:9px 12px;font-family:${PIXEL};font-size:12px;font-weight:700;letter-spacing:1px;color:${INK};text-transform:uppercase;">See you next Monday, player.</td>
+                    <td style="background:${CARD};border:2px solid ${INK};padding:9px 12px;font-family:${PIXEL};font-size:12px;font-weight:700;letter-spacing:1px;color:${INK};text-transform:uppercase;">See you next week, player.</td>
                   </tr></table>
                 </td>
               </tr></table>
               <p style="margin:16px 0 4px 0;font-family:${BODY};font-size:12px;line-height:1.6;color:${MUTED};">
-                You get this every Monday because the weekly digest is on in your
+                You get this once a week because the weekly digest is on in your
                 <a href="${esc(base)}/dashboard/settings" style="color:${MUTED};">DevTrack settings</a>.
                 <a href="${esc(unsubscribeUrl)}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a>
               </p>
@@ -486,8 +486,8 @@ export function buildDigestText(data: DigestEmailData): string {
     `Press start: ${base}/dashboard`,
     `Leaderboard: ${base}/leaderboard`,
     ``,
-    `See you next Monday, player.`,
-    `You get this every Monday because the weekly digest is on.`,
+    `See you next week, player.`,
+    `You get this once a week because the weekly digest is on.`,
     `Unsubscribe: ${unsubscribeUrl}`,
     ``
   );

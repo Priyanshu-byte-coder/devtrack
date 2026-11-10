@@ -87,7 +87,7 @@
     "appearanceTitle": "Appearance",
     "appearanceDescription": "Choose the theme that matches your workflow.",
     "weeklyDigestTitle": "Weekly Email Digest",
-    "weeklyDigestDescription": "A weekly email every Monday morning summarizing your coding habits. On by default; turn it off here any time.",
+    "weeklyDigestDescription": "A weekly email summarizing your coding habits. On by default; turn it off here any time.",
     "notificationsTitle": "Notifications",
     "notificationsDescription": "Send a weekly summary of your activity to Slack or Discord via webhook.",
     "webhookUrl": "Webhook URL",
