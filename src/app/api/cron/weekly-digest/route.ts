@@ -162,7 +162,8 @@ async function processUser(
   user: UserRow,
   weekLabel: string,
   githubToken: string | undefined,
-  boardEntry: DigestBoardEntry | undefined
+  boardEntry: DigestBoardEntry | undefined,
+  place?: { rank: number; players: number }
 ): Promise<{
   status: "sent" | "failed" | "skipped_cooldown" | "skipped_unconfigured";
   error?: string;
@@ -183,7 +184,8 @@ async function processUser(
     metrics = await buildDigestMetricsFromBoard(
       boardEntry,
       user.github_login,
-      githubToken
+      githubToken,
+      place
     );
   } else if (githubToken) {
     try {
@@ -264,6 +266,13 @@ export async function GET(request: Request) {
     const boardById = new Map<string, DigestBoardEntry>(
       (weekBoard?.leaders.commits ?? []).map((e) => [e.id, e])
     );
+    // The site ranks the board by score; the email shows the same place.
+    const byScore = [...(weekBoard?.leaders.commits ?? [])].sort(
+      (a, b) => (b.scoreV2 ?? 0) - (a.scoreV2 ?? 0)
+    );
+    const placeById = new Map(
+      byScore.map((e, i) => [e.id, { rank: i + 1, players: byScore.length }])
+    );
 
     let totalUsersProcessed = 0;
     let emailsSent = 0;
@@ -306,7 +315,8 @@ export async function GET(request: Request) {
               user,
               weekLabel,
               githubToken,
-              user.id ? boardById.get(user.id) : undefined
+              user.id ? boardById.get(user.id) : undefined,
+              user.id ? placeById.get(user.id) : undefined
             )
           )
         );

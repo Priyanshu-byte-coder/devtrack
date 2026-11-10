@@ -16,6 +16,7 @@ import { githubRequest } from "@/lib/github-request";
  */
 
 import { createHmac, timingSafeEqual } from "crypto";
+import type { Tier } from "@/lib/gamification/scoring";
 import {
   fetchPublicStreak,
   fetchPublicContributions,
@@ -50,6 +51,8 @@ export interface DigestMetrics {
   prsThisWeek: number;
   topLanguages: DigestLanguage[];
   topRepos: DigestTopRepo[];
+  /** Place on the weekly leaderboard, by score, when the numbers came from it. */
+  weeklyRank?: { rank: number; players: number; tier?: Tier };
 }
 
 // ─── Metric aggregation ───────────────────────────────────────────────────────
@@ -172,6 +175,7 @@ export interface DigestBoardEntry {
   prs: number;
   streak: number;
   activeDays?: number;
+  tier?: Tier;
 }
 
 /**
@@ -184,7 +188,8 @@ export interface DigestBoardEntry {
 export async function buildDigestMetricsFromBoard(
   entry: DigestBoardEntry,
   githubLogin: string,
-  token?: string
+  token?: string,
+  place?: { rank: number; players: number }
 ): Promise<DigestMetrics> {
   let topLanguages: DigestLanguage[] = [];
   if (token) {
@@ -204,6 +209,7 @@ export async function buildDigestMetricsFromBoard(
     prsThisWeek: entry.prs,
     topLanguages,
     topRepos: [],
+    ...(place && { weeklyRank: { ...place, tier: entry.tier } }),
   };
 }
 

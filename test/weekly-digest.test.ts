@@ -348,7 +348,7 @@ describe("buildDigestHtml", () => {
     });
     expect(html).toContain("TypeScript");
     expect(html).toContain("Python");
-    expect(html).toContain("72.5");
+    expect(html).toContain("73%");
   });
 
   it("renders top repos with links", async () => {
