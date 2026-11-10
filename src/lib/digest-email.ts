@@ -91,12 +91,17 @@ export function buildDigestHtml(data: DigestEmailData): string {
                     ${m.streak.current} ${m.streak.current === 1 ? "day" : "days"} 🔥
                   </p>
                 </td>
+${
+  m.streak.longest === null
+    ? ""
+    : `
                 <td align="right" valign="middle">
                   <p style="margin:0 0 4px 0;font-size:12px;color:#64748b;">Longest streak</p>
                   <p style="margin:0;font-size:20px;font-weight:600;color:#374151;">
                     ${m.streak.longest} ${m.streak.longest === 1 ? "day" : "days"}
                   </p>
-                </td>
+                </td>`
+}
               </tr>
             </table>
           </td>
@@ -384,11 +389,10 @@ export function buildDigestText(data: DigestEmailData): string {
     );
   } else {
     if (m.streak.current > 0) {
-      lines.push(
-        `🔥 Current streak: ${pluralise(m.streak.current, "day")}`,
-        `   Longest streak: ${pluralise(m.streak.longest, "day")}`,
-        ``
-      );
+      lines.push(`🔥 Current streak: ${pluralise(m.streak.current, "day")}`);
+      if (m.streak.longest !== null)
+        lines.push(`   Longest streak: ${pluralise(m.streak.longest, "day")}`);
+      lines.push(``);
     }
 
     lines.push(

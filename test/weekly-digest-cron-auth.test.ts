@@ -40,6 +40,10 @@ vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: { from: mocks.supabaseFrom },
 }));
 
+vi.mock("@/lib/leaderboard", () => ({
+  getLeaderboardData: vi.fn().mockResolvedValue(null),
+}));
+
 vi.stubGlobal("fetch", mocks.resendFetch);
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -206,8 +210,10 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
 
   it("returns 500 when the database query fails", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
-    const notChain = vi.fn().mockResolvedValue({ data: null, error: { message: "DB error" } });
-    const eqChain  = vi.fn().mockReturnValue({ not: notChain });
+    const notChain = vi
+      .fn()
+      .mockResolvedValue({ data: null, error: { message: "DB error" } });
+    const eqChain = vi.fn().mockReturnValue({ not: notChain });
     const selChain = vi.fn().mockReturnValue({ eq: eqChain });
     mocks.supabaseFrom.mockReturnValue({ select: selChain });
 
@@ -222,7 +228,9 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
   it("addresses emails to the correct user and includes their github_login", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
     vi.stubEnv("RESEND_API_KEY", "resend-key");
-    stubUsers([{ github_login: "devtracker", email: "devtracker@example.com" }]);
+    stubUsers([
+      { github_login: "devtracker", email: "devtracker@example.com" },
+    ]);
     mocks.resendFetch.mockResolvedValue({ ok: true });
 
     await GET(makeRequest("Bearer s3cr3t"));

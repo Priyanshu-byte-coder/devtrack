@@ -27,7 +27,8 @@ import {
 
 export interface DigestStreak {
   current: number;
-  longest: number;
+  /** Unknown when the metrics come from the leaderboard, which keeps only the current streak. */
+  longest: number | null;
   lastCommitDate: string | null;
 }
 
@@ -78,7 +79,7 @@ async function fetchWeeklyMergedPrs(
         cache: "no-store",
       }
     );
-    if (!res.ok) throw new Error('Weekly PR count unavailable');
+    if (!res.ok) throw new Error("Weekly PR count unavailable");
     const data = (await res.json()) as { total_count?: number };
     return data.total_count ?? 0;
   } catch (error) {
@@ -97,37 +98,51 @@ export async function buildDigestMetrics(
   githubLogin: string,
   token: string
 ): Promise<DigestMetrics> {
-  const [streakResult, contributionsResult, languagesResult, reposResult, prsResult] =
-    await Promise.allSettled([
-      fetchPublicStreak(githubLogin, token),
-      fetchPublicContributions(githubLogin, token, 7),
-      fetchPublicTopLanguages(githubLogin, token),
-      fetchPublicTopRepos(githubLogin, token, 7),
-      fetchWeeklyMergedPrs(githubLogin, token),
-    ]);
+  const [
+    streakResult,
+    contributionsResult,
+    languagesResult,
+    reposResult,
+    prsResult,
+  ] = await Promise.allSettled([
+    fetchPublicStreak(githubLogin, token),
+    fetchPublicContributions(githubLogin, token, 7),
+    fetchPublicTopLanguages(githubLogin, token),
+    fetchPublicTopRepos(githubLogin, token, 7),
+    fetchWeeklyMergedPrs(githubLogin, token),
+  ]);
 
-  if ([streakResult, contributionsResult, languagesResult, reposResult, prsResult].some(result => result.status === 'rejected') ||
-      (streakResult.status === 'fulfilled' && streakResult.value.complete === false) ||
-      (contributionsResult.status === 'fulfilled' && contributionsResult.value.complete === false)) {
-    throw new Error('Weekly digest metrics unavailable or incomplete');
+  // The week's commits are the point of the digest: if they're missing or
+  // partial, send it without numbers rather than with wrong ones.
+  if (
+    contributionsResult.status === "rejected" ||
+    contributionsResult.value.complete === false
+  ) {
+    throw new Error("Weekly digest metrics unavailable or incomplete");
   }
 
+  // The rest is best-effort. GitHub search often flags results incomplete, and
+  // a busy year of commits can outrun the streak lookup's time budget; failing
+  // on either left the most active users with an empty digest. A partial streak
+  // lookup is cut off at the oldest end, so the current streak stays right and
+  // only the longest can be short, never shorter than the current one.
   const streak: DigestStreak =
     streakResult.status === "fulfilled"
       ? {
           current: streakResult.value.current,
-          longest: streakResult.value.longest,
+          longest: Math.max(
+            streakResult.value.longest,
+            streakResult.value.current
+          ),
           lastCommitDate: streakResult.value.lastCommitDate,
         }
       : { current: 0, longest: 0, lastCommitDate: null };
 
-  const contributions =
-    contributionsResult.status === "fulfilled"
-      ? contributionsResult.value
-      : { total: 0, data: {} as Record<string, number> };
+  const contributions = contributionsResult.value;
 
   const weeklyCommits = contributions.total;
-  const weeklyActiveDays = Object.keys(contributions.data).length;
+  // The search window spans today and the 7 days before it.
+  const weeklyActiveDays = Math.min(Object.keys(contributions.data).length, 7);
 
   const topLanguages: DigestLanguage[] =
     languagesResult.status === "fulfilled"
@@ -137,12 +152,9 @@ export async function buildDigestMetrics(
       : [];
 
   const topRepos: DigestTopRepo[] =
-    reposResult.status === "fulfilled"
-      ? reposResult.value.slice(0, 3)
-      : [];
+    reposResult.status === "fulfilled" ? reposResult.value.slice(0, 3) : [];
 
-  const prsThisWeek =
-    prsResult.status === "fulfilled" ? prsResult.value : 0;
+  const prsThisWeek = prsResult.status === "fulfilled" ? prsResult.value : 0;
 
   return {
     streak,
@@ -151,6 +163,47 @@ export async function buildDigestMetrics(
     prsThisWeek,
     topLanguages,
     topRepos,
+  };
+}
+
+/** One player's week as the leaderboard already computed it. */
+export interface DigestBoardEntry {
+  commits: number;
+  prs: number;
+  streak: number;
+  activeDays?: number;
+}
+
+/**
+ * Digest numbers from the weekly leaderboard instead of fresh GitHub searches.
+ * They match what the site shows (private contributions included) and cost
+ * one GitHub REST call for languages instead of 5 to 12 searches: GitHub allows
+ * only 30 searches a minute, so searching per user rate-limited most of a run.
+ * Top repos need search, so they're left out here.
+ */
+export async function buildDigestMetricsFromBoard(
+  entry: DigestBoardEntry,
+  githubLogin: string,
+  token?: string
+): Promise<DigestMetrics> {
+  let topLanguages: DigestLanguage[] = [];
+  if (token) {
+    try {
+      topLanguages = (await fetchPublicTopLanguages(githubLogin, token))
+        .slice(0, 5)
+        .map((l) => ({ name: l.name, percentage: l.percentage }));
+    } catch {
+      // Languages are decoration; the email goes without them.
+    }
+  }
+  return {
+    streak: { current: entry.streak, longest: null, lastCommitDate: null },
+    weeklyCommits: entry.commits,
+    // The board's week spans today and the 7 days before it.
+    weeklyActiveDays: Math.min(entry.activeDays ?? 0, 7),
+    prsThisWeek: entry.prs,
+    topLanguages,
+    topRepos: [],
   };
 }
 
@@ -168,9 +221,7 @@ const UNSUBSCRIBE_SCOPE = "weekly-digest-unsubscribe-v1";
  */
 function getUnsubscribeSecret(): string {
   const secret =
-    process.env.DIGEST_UNSUBSCRIBE_SECRET ??
-    process.env.NEXTAUTH_SECRET ??
-    "";
+    process.env.DIGEST_UNSUBSCRIBE_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
   if (!secret) {
     throw new Error(
       "DIGEST_UNSUBSCRIBE_SECRET or NEXTAUTH_SECRET must be set to generate unsubscribe links"

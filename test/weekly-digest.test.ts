@@ -23,6 +23,11 @@ const mocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
   fetchGlobal: vi.fn(),
   buildDigestMetrics: vi.fn(),
+  getLeaderboardData: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("@/lib/leaderboard", () => ({
+  getLeaderboardData: mocks.getLeaderboardData,
 }));
 
 vi.mock("@/lib/supabase", () => ({
@@ -115,18 +120,16 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   });
 
   it("verifies a correct token", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-verify-test";
     const token = generateUnsubscribeToken(uid);
     expect(verifyUnsubscribeToken(uid, token)).toBe(true);
   });
 
   it("rejects a tampered token", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-tamper-test";
     const token = generateUnsubscribeToken(uid);
     const tampered = token.slice(0, -2) + "00";
@@ -134,9 +137,8 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   });
 
   it("rejects a token issued for a different user", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const tokenForA = generateUnsubscribeToken("user-a");
     expect(verifyUnsubscribeToken("user-b", tokenForA)).toBe(false);
   });
@@ -149,9 +151,8 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   it("prefers DIGEST_UNSUBSCRIBE_SECRET over NEXTAUTH_SECRET", async () => {
     vi.stubEnv("DIGEST_UNSUBSCRIBE_SECRET", "dedicated-secret");
     vi.resetModules();
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-dedicated";
     const token = generateUnsubscribeToken(uid);
     expect(verifyUnsubscribeToken(uid, token)).toBe(true);
@@ -188,14 +189,18 @@ describe("GET /api/unsubscribe", () => {
 
   it("returns 400 when uid is not a valid UUID", async () => {
     const { GET } = await import("@/app/api/unsubscribe/route");
-    const res = await GET(makeUnsubRequest({ uid: "not-a-uuid", token: "abc" }));
+    const res = await GET(
+      makeUnsubRequest({ uid: "not-a-uuid", token: "abc" })
+    );
     expect(res.status).toBe(400);
   });
 
   it("returns 403 when token does not match uid", async () => {
     const { generateUnsubscribeToken } = await import("@/lib/weekly-digest");
     const { GET } = await import("@/app/api/unsubscribe/route");
-    const tokenForA = generateUnsubscribeToken("00000000-0000-0000-0000-000000000001");
+    const tokenForA = generateUnsubscribeToken(
+      "00000000-0000-0000-0000-000000000001"
+    );
     const res = await GET(
       makeUnsubRequest({
         uid: "00000000-0000-0000-0000-000000000002",
@@ -546,6 +551,30 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     expect(mocks.buildDigestMetrics).toHaveBeenCalledWith("eve", "gh-token");
   });
 
+  it("uses the weekly leaderboard instead of searching GitHub", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "");
+    vi.stubEnv("RESEND_API_KEY", "resend-key");
+    mocks.getLeaderboardData.mockResolvedValueOnce({
+      leaders: {
+        commits: [
+          { id: "u-board", commits: 201, prs: 79, streak: 9, activeDays: 8 },
+        ],
+      },
+    });
+    stubCronUsers([
+      { id: "u-board", github_login: "board", email: "board@example.com" },
+    ]);
+    mocks.fetchGlobal.mockResolvedValue({ ok: true });
+    const { GET } = await import("@/app/api/cron/weekly-digest/route");
+
+    await GET(makeCronRequest("Bearer secret"));
+
+    expect(mocks.buildDigestMetrics).not.toHaveBeenCalled();
+    const body = JSON.parse(mocks.fetchGlobal.mock.calls[0][1].body);
+    expect(body.text).toContain("201");
+    expect(body.text).not.toContain("Longest streak");
+  });
+
   it("does not fetch metrics when GITHUB_TOKEN is absent", async () => {
     vi.stubEnv("GITHUB_TOKEN", "");
     stubCronUsers([{ github_login: "frank", email: "frank@example.com" }]);
@@ -613,9 +642,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
   // ── Mixed eligible / cooldown ────────────────────────────────────────────────
 
   it("counts sent and skipped correctly for mixed user states", async () => {
-    const recentSend = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
-    ).toISOString();
+    const recentSend = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     stubCronUsers([
       {
         github_login: "eligible",
