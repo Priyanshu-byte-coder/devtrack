@@ -23,6 +23,11 @@ const mocks = vi.hoisted(() => ({
   supabaseFrom: vi.fn(),
   fetchGlobal: vi.fn(),
   buildDigestMetrics: vi.fn(),
+  getLeaderboardData: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("@/lib/leaderboard", () => ({
+  getLeaderboardData: mocks.getLeaderboardData,
 }));
 
 vi.mock("@/lib/supabase", () => ({
@@ -397,7 +402,7 @@ describe("buildDigestHtml", () => {
     });
     expect(html).toContain("TypeScript");
     expect(html).toContain("Python");
-    expect(html).toContain("72.5");
+    expect(html).toContain("73%");
   });
 
   it("renders top repos with links", async () => {
@@ -598,6 +603,30 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
     const { GET } = await import("@/app/api/cron/weekly-digest/route");
     await GET(makeCronRequest("Bearer secret"));
     expect(mocks.buildDigestMetrics).toHaveBeenCalledWith("eve", "gh-token");
+  });
+
+  it("uses the weekly leaderboard instead of searching GitHub", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "");
+    vi.stubEnv("RESEND_API_KEY", "resend-key");
+    mocks.getLeaderboardData.mockResolvedValueOnce({
+      leaders: {
+        commits: [
+          { id: "u-board", commits: 201, prs: 79, streak: 9, activeDays: 8 },
+        ],
+      },
+    });
+    stubCronUsers([
+      { id: "u-board", github_login: "board", email: "board@example.com" },
+    ]);
+    mocks.fetchGlobal.mockResolvedValue({ ok: true });
+    const { GET } = await import("@/app/api/cron/weekly-digest/route");
+
+    await GET(makeCronRequest("Bearer secret"));
+
+    expect(mocks.buildDigestMetrics).not.toHaveBeenCalled();
+    const body = JSON.parse(mocks.fetchGlobal.mock.calls[0][1].body);
+    expect(body.text).toContain("201");
+    expect(body.text).not.toContain("Longest streak");
   });
 
   it("does not fetch metrics when GITHUB_TOKEN is absent", async () => {

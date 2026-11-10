@@ -40,6 +40,10 @@ vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: { from: mocks.supabaseFrom },
 }));
 
+vi.mock("@/lib/leaderboard", () => ({
+  getLeaderboardData: vi.fn().mockResolvedValue(null),
+}));
+
 vi.stubGlobal("fetch", mocks.resendFetch);
 
 // ─── helpers ────────────────────────────────────────────────────────────────

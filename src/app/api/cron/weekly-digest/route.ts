@@ -31,7 +31,13 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { buildDigestMetrics, buildUnsubscribeUrl } from "@/lib/weekly-digest";
+import {
+  buildDigestMetrics,
+  buildDigestMetricsFromBoard,
+  buildUnsubscribeUrl,
+} from "@/lib/weekly-digest";
+import type { DigestBoardEntry } from "@/lib/weekly-digest";
+import { getLeaderboardData } from "@/lib/leaderboard";
 import { buildDigestHtml, buildDigestText } from "@/lib/digest-email";
 import { validateCronRequest } from "@/lib/cron-auth";
 import type { DigestMetrics } from "@/lib/weekly-digest";
@@ -181,7 +187,9 @@ async function recordDigestSent(userId: string): Promise<void> {
 async function processUser(
   user: UserRow,
   weekLabel: string,
-  githubToken: string | undefined
+  githubToken: string | undefined,
+  boardEntry: DigestBoardEntry | undefined,
+  place?: { rank: number; players: number }
 ): Promise<{
   status: "sent" | "failed" | "skipped_cooldown" | "skipped_unconfigured";
   error?: string;
@@ -195,8 +203,17 @@ async function processUser(
   }
 
   // ── Metric aggregation ────────────────────────────────────────────────────
+  // Prefer the week the leaderboard already computed; search GitHub only for
+  // someone missing from it.
   let metrics: DigestMetrics | null = null;
-  if (githubToken) {
+  if (boardEntry) {
+    metrics = await buildDigestMetricsFromBoard(
+      boardEntry,
+      user.github_login,
+      githubToken,
+      place
+    );
+  } else if (githubToken) {
     try {
       metrics = await buildDigestMetrics(user.github_login, githubToken);
     } catch (err) {
@@ -271,6 +288,21 @@ export async function GET(request: Request) {
     const weekLabel = currentWeekLabel();
     const githubToken = process.env.GITHUB_TOKEN || undefined;
 
+    // One read of the cached weekly board covers every user's numbers.
+    const weekBoard = await getLeaderboardData(false, { period: "week" }).catch(
+      () => null
+    );
+    const boardById = new Map<string, DigestBoardEntry>(
+      (weekBoard?.leaders.commits ?? []).map((e) => [e.id, e])
+    );
+    // The site ranks the board by score; the email shows the same place.
+    const byScore = [...(weekBoard?.leaders.commits ?? [])].sort(
+      (a, b) => (b.scoreV2 ?? 0) - (a.scoreV2 ?? 0)
+    );
+    const placeById = new Map(
+      byScore.map((e, i) => [e.id, { rank: i + 1, players: byScore.length }])
+    );
+
     let totalUsersProcessed = 0;
     let emailsSent = 0;
     let emailsFailed = 0;
@@ -312,7 +344,15 @@ export async function GET(request: Request) {
         const batch = (users as UserRow[]).slice(i, i + BATCH_SIZE);
 
         const results = await Promise.allSettled(
-          batch.map((user) => processUser(user, weekLabel, githubToken))
+          batch.map((user) =>
+            processUser(
+              user,
+              weekLabel,
+              githubToken,
+              user.id ? boardById.get(user.id) : undefined,
+              user.id ? placeById.get(user.id) : undefined
+            )
+          )
         );
 
         for (let j = 0; j < results.length; j++) {

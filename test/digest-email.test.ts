@@ -10,7 +10,9 @@ const makeStreak = (overrides: Partial<DigestStreak> = {}): DigestStreak => ({
   ...overrides,
 });
 
-const makeMetrics = (overrides: Partial<DigestMetrics> = {}): DigestMetrics => ({
+const makeMetrics = (
+  overrides: Partial<DigestMetrics> = {}
+): DigestMetrics => ({
   streak: makeStreak(),
   weeklyCommits: 0,
   weeklyActiveDays: 0,
@@ -52,16 +54,19 @@ describe("digest-email", () => {
     it("renders the streak section when metrics.streak.current > 0", () => {
       const result = buildDigestHtml({
         ...BASE_DATA,
-        metrics: makeMetrics({ streak: makeStreak({ current: 7, longest: 14 }) }),
+        metrics: makeMetrics({
+          streak: makeStreak({ current: 7, longest: 14 }),
+        }),
       });
-      expect(result).toContain("Current Streak");
-      expect(result).toContain("7 days");
-      expect(result).toContain("14 days");
+      expect(result).toContain("Streak");
+      expect(result).toMatch(/>7<span[^>]*> days</);
+      expect(result).toContain("Longest streak: 14 days");
     });
 
     it("omits the streak section when metrics is null", () => {
       const result = buildDigestHtml({ ...BASE_DATA, metrics: null });
-      expect(result).not.toContain("Current Streak");
+      expect(result).not.toContain("Longest streak");
+      expect(result).toContain("numbers aren't ready yet");
     });
 
     it("renders streak value as 0 when streak.current is 0", () => {
@@ -71,8 +76,8 @@ describe("digest-email", () => {
       });
       // The HTML always renders the streak section when m is present;
       // the value is 0 rather than the section being hidden.
-      expect(result).toContain("Current Streak");
-      expect(result).toContain("0 days");
+      expect(result).toMatch(/>0<span[^>]*> days</);
+      expect(result).toContain("Longest streak");
     });
 
     it("renders language colours for known languages", () => {
@@ -123,7 +128,9 @@ describe("digest-email", () => {
     it("contains the streak line when metrics.streak.current > 0", () => {
       const result = buildDigestText({
         ...BASE_DATA,
-        metrics: makeMetrics({ streak: makeStreak({ current: 5, longest: 10 }) }),
+        metrics: makeMetrics({
+          streak: makeStreak({ current: 5, longest: 10 }),
+        }),
       });
       expect(result).toContain("streak");
       expect(result).toContain("5");
@@ -134,7 +141,7 @@ describe("digest-email", () => {
         ...BASE_DATA,
         metrics: makeMetrics({ streak: makeStreak({ current: 0 }) }),
       });
-      expect(result).not.toContain("streak");
+      expect(result).not.toContain("Current streak:");
     });
 
     it("contains weekly commits in activity section when metrics provided", () => {
@@ -150,5 +157,45 @@ describe("digest-email", () => {
       const result = buildDigestText({ ...BASE_DATA, metrics: null });
       expect(result).toContain("https://devtrack.example/unsubscribe/tok");
     });
+  });
+});
+
+describe("buildDigestHtml arcade layout", () => {
+  const metrics = {
+    streak: { current: 9, longest: null, lastCommitDate: null },
+    weeklyCommits: 201,
+    weeklyActiveDays: 7,
+    prsThisWeek: 79,
+    topLanguages: [],
+    topRepos: [],
+    weeklyRank: { rank: 1, players: 227, tier: "legend" as const },
+  };
+
+  it("shows the weekly rank and tier, and no emoji anywhere", () => {
+    const html = buildDigestHtml({
+      githubLogin: "octocat",
+      metrics,
+      unsubscribeUrl: "u",
+      weekLabel: "November 10, 2026",
+    });
+    expect(html).toContain("#1");
+    expect(html).toContain("/ 227");
+    expect(html).toContain("Legend");
+    expect(html).not.toMatch(/\p{Extended_Pictographic}/u);
+    // U+25B6 turns into a colour emoji on iOS and Gmail; U+25BA stays text.
+    expect(html).not.toContain("&#9654;");
+    expect(html).not.toContain("Longest streak");
+    expect(html).toContain('content="light"');
+  });
+
+  it("keeps emoji out of the plain-text version too", () => {
+    const text = buildDigestText({
+      githubLogin: "octocat",
+      metrics,
+      unsubscribeUrl: "u",
+      weekLabel: "November 10, 2026",
+    });
+    expect(text).toContain("Weekly rank: #1 of 227 · Legend");
+    expect(text).not.toMatch(/\p{Extended_Pictographic}/u);
   });
 });
