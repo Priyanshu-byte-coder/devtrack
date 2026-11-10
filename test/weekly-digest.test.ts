@@ -115,18 +115,16 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   });
 
   it("verifies a correct token", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-verify-test";
     const token = generateUnsubscribeToken(uid);
     expect(verifyUnsubscribeToken(uid, token)).toBe(true);
   });
 
   it("rejects a tampered token", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-tamper-test";
     const token = generateUnsubscribeToken(uid);
     const tampered = token.slice(0, -2) + "00";
@@ -134,9 +132,8 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   });
 
   it("rejects a token issued for a different user", async () => {
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const tokenForA = generateUnsubscribeToken("user-a");
     expect(verifyUnsubscribeToken("user-b", tokenForA)).toBe(false);
   });
@@ -149,9 +146,8 @@ describe("generateUnsubscribeToken / verifyUnsubscribeToken", () => {
   it("prefers DIGEST_UNSUBSCRIBE_SECRET over NEXTAUTH_SECRET", async () => {
     vi.stubEnv("DIGEST_UNSUBSCRIBE_SECRET", "dedicated-secret");
     vi.resetModules();
-    const { generateUnsubscribeToken, verifyUnsubscribeToken } = await import(
-      "@/lib/weekly-digest"
-    );
+    const { generateUnsubscribeToken, verifyUnsubscribeToken } =
+      await import("@/lib/weekly-digest");
     const uid = "user-dedicated";
     const token = generateUnsubscribeToken(uid);
     expect(verifyUnsubscribeToken(uid, token)).toBe(true);
@@ -188,14 +184,18 @@ describe("GET /api/unsubscribe", () => {
 
   it("returns 400 when uid is not a valid UUID", async () => {
     const { GET } = await import("@/app/api/unsubscribe/route");
-    const res = await GET(makeUnsubRequest({ uid: "not-a-uuid", token: "abc" }));
+    const res = await GET(
+      makeUnsubRequest({ uid: "not-a-uuid", token: "abc" })
+    );
     expect(res.status).toBe(400);
   });
 
   it("returns 403 when token does not match uid", async () => {
     const { generateUnsubscribeToken } = await import("@/lib/weekly-digest");
     const { GET } = await import("@/app/api/unsubscribe/route");
-    const tokenForA = generateUnsubscribeToken("00000000-0000-0000-0000-000000000001");
+    const tokenForA = generateUnsubscribeToken(
+      "00000000-0000-0000-0000-000000000001"
+    );
     const res = await GET(
       makeUnsubRequest({
         uid: "00000000-0000-0000-0000-000000000002",
@@ -255,6 +255,60 @@ describe("GET /api/unsubscribe", () => {
 
     const res = await GET(makeUnsubRequest({ uid, token }));
     expect(res.status).toBe(500);
+  });
+});
+
+// ─── POST /api/unsubscribe (one-click, RFC 8058) ─────────────────────────────
+
+describe("POST /api/unsubscribe", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    vi.stubEnv("NEXTAUTH_SECRET", "test-secret-for-unsub");
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  function oneClick(params: Record<string, string>): Request {
+    const url = new URL("http://localhost/api/unsubscribe");
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    return new Request(url.toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "List-Unsubscribe=One-Click",
+    });
+  }
+
+  it("opts the user out and answers 200 with no page", async () => {
+    const { generateUnsubscribeToken } = await import("@/lib/weekly-digest");
+    const { POST } = await import("@/app/api/unsubscribe/route");
+    const uid = "00000000-0000-0000-0000-000000000007";
+    const eqFn = vi.fn().mockResolvedValue({ error: null });
+    const updFn = vi.fn().mockReturnValue({ eq: eqFn });
+    mocks.supabaseFrom.mockReturnValue({ update: updFn });
+
+    const res = await POST(
+      oneClick({ uid, token: generateUnsubscribeToken(uid) })
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe("");
+    expect(updFn).toHaveBeenCalledWith({ weekly_digest_opt_in: false });
+    expect(eqFn).toHaveBeenCalledWith("id", uid);
+  });
+
+  it("rejects a token signed for someone else", async () => {
+    const { generateUnsubscribeToken } = await import("@/lib/weekly-digest");
+    const { POST } = await import("@/app/api/unsubscribe/route");
+    const res = await POST(
+      oneClick({
+        uid: "00000000-0000-0000-0000-000000000008",
+        token: generateUnsubscribeToken("00000000-0000-0000-0000-000000000009"),
+      })
+    );
+    expect(res.status).toBe(403);
+    expect(mocks.supabaseFrom).not.toHaveBeenCalled();
   });
 });
 
@@ -613,9 +667,7 @@ describe("GET /api/cron/weekly-digest — new behaviours", () => {
   // ── Mixed eligible / cooldown ────────────────────────────────────────────────
 
   it("counts sent and skipped correctly for mixed user states", async () => {
-    const recentSend = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
-    ).toISOString();
+    const recentSend = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     stubCronUsers([
       {
         github_login: "eligible",

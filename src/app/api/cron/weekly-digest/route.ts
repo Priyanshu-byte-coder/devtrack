@@ -95,6 +95,7 @@ async function sendEmail(params: {
   subject: string;
   html: string;
   text: string;
+  unsubscribeUrl?: string;
 }): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -102,7 +103,7 @@ async function sendEmail(params: {
   }
 
   const from =
-    process.env.RESEND_FROM_EMAIL ?? "DevTrack <digest@devtrack.app>";
+    process.env.RESEND_FROM_EMAIL ?? "DevTrack <digest@devtrack.live>";
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -117,6 +118,14 @@ async function sendEmail(params: {
         subject: params.subject,
         html: params.html,
         text: params.text,
+        // Gmail and Yahoo show their own "Unsubscribe" button for these and
+        // treat mail without them as more likely spam.
+        ...(params.unsubscribeUrl && {
+          headers: {
+            "List-Unsubscribe": `<${params.unsubscribeUrl}>`,
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          },
+        }),
       }),
     });
 
@@ -204,6 +213,9 @@ async function processUser(
     subject: `Your weekly coding digest — ${weekLabel}`,
     html,
     text,
+    // One-click unsubscribe (RFC 8058) only works with the signed link; the
+    // settings-page fallback can't take a POST.
+    unsubscribeUrl: user.id ? unsubscribeUrl : undefined,
   });
 
   if (!result.ok) {
