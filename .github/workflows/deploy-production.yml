@@ -6,8 +6,11 @@ name: Deploy to production
 # Merge as many PRs as you like, then run this once to ship them together:
 #   Actions > Deploy to production > Run workflow   (or: gh workflow run deploy-production.yml)
 #
-# Requires the repository secret VERCEL_DEPLOY_HOOK_URL: a Vercel Deploy Hook
-# for the main branch (Project Settings > Git > Deploy Hooks).
+# The deploy is uploaded with the Vercel CLI, so the Vercel project needs no
+# Git connection. Requires three repository secrets:
+#   VERCEL_TOKEN       Vercel > Account Settings > Tokens, scoped to the team
+#   VERCEL_ORG_ID      "orgId" in .vercel/project.json after `vercel link`
+#   VERCEL_PROJECT_ID  "projectId" in the same file
 on:
   workflow_dispatch:
     inputs:
@@ -27,7 +30,7 @@ jobs:
   deploy:
     if: github.repository == 'Priyanshu-byte-coder/devtrack' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
     steps:
       - name: Check CI passed on the latest main commit
         if: ${{ !inputs.skip_ci_check }}
@@ -43,16 +46,18 @@ jobs:
             exit 1
           fi
 
-      - name: Trigger the Vercel production deploy
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel production
         env:
-          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          if [ -z "$HOOK" ]; then
-            echo "::error::Add the VERCEL_DEPLOY_HOOK_URL secret first (Vercel > Project Settings > Git > Deploy Hooks, branch main)."
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::error::Add the VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID secrets first."
             exit 1
           fi
-          status=$(curl -sS -o response.json -w '%{http_code}' -X POST "$HOOK")
-          echo "HTTP $status"
-          jq -r '"Deploy job " + .job.id + ": " + .job.state' response.json 2>/dev/null || cat response.json
-          test "$status" -lt 400
-          echo "Deploying ${GITHUB_SHA::7} to production. Follow it at https://vercel.com/dashboard." >> "$GITHUB_STEP_SUMMARY"
+          npm install --global vercel@54.18.7
+          url=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
+          echo "Deployed ${GITHUB_SHA::7} to production: $url" >> "$GITHUB_STEP_SUMMARY"
