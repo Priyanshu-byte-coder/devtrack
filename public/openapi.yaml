@@ -1697,6 +1697,16 @@ paths:
           description: Successful response. See the route contract for the returned JSON fields.
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security: []
+    post:
+      operationId: post_api_unsubscribe
+      summary: POST /api/unsubscribe
+      tags:
+        - unsubscribe
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
   /api/user/data-export:
     delete:
       operationId: delete_api_user_data_export
