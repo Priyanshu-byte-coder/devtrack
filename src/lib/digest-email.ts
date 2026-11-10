@@ -7,9 +7,12 @@
  *   • Tables and inline styles only; no flexbox, grid or <style> rules.
  *   • Square corners and hard offset "pixel shadows" built from table cells
  *     (box-shadow and border-radius are dropped by several clients anyway).
- *   • Silkscreen for display text where the client loads web fonts (Apple
- *     Mail, iOS); Gmail and Outlook fall back to bold monospace.
- *   • No images, so nothing waits on "load images" and nothing breaks.
+ *   • Pixel display type (Press Start 2P, Silkscreen) where the client loads
+ *     web fonts (Apple Mail, iOS); Gmail and Outlook fall back to bold
+ *     monospace, which keeps the arcade feel.
+ *   • Art (the header scene, tier gems, Bit) is static PNGs in public/email,
+ *     drawn by scripts/generate-email-art.mjs. Every image has alt text and
+ *     the layout reads fine with images blocked.
  *   • Light theme only: `color-scheme: light` asks dark-mode clients not to
  *     invert it.
  * Every section is skipped when its data is missing, so a user without
@@ -39,6 +42,12 @@ function pluralise(
 
 function appUrl(): string {
   return (process.env.NEXTAUTH_URL ?? "").replace(/\/$/, "");
+}
+
+function ordinal(n: number): string {
+  const tens = n % 100;
+  if (tens >= 11 && tens <= 13) return `${n}TH`;
+  return `${n}${["TH", "ST", "ND", "RD"][n % 10] ?? "TH"}`;
 }
 
 // Language colours, as GitHub shows them.
@@ -76,18 +85,20 @@ const PAPER = "#f6f8fc";
 const CARD = "#ffffff";
 const INK = "#0b1220";
 const MUTED = "#4b5875";
-const LINE = "#dbe3f0";
+const LINE = "#e3e9f4";
 const BLUE = "#2563eb";
+const BLUE_SOFT = "#dbe6fb";
 const YELLOW = "#facc15";
 const GREEN = "#16a34a";
 
+const HEADLINE = "'Press Start 2P','Courier New',Courier,monospace";
 const PIXEL = "'Silkscreen','Courier New',Courier,monospace";
 const BODY =
   "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
 /** A small uppercase pixel label. */
 function label(text: string, colour = BLUE): string {
-  return `<p style="margin:0 0 6px 0;font-family:${PIXEL};font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${colour};">${text}</p>`;
+  return `<p style="margin:0 0 6px 0;font-family:${PIXEL};font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${colour};">${text}</p>`;
 }
 
 /**
@@ -95,27 +106,18 @@ function label(text: string, colour = BLUE): string {
  * site's pixel frame. An ink cell padded on two sides draws the shadow, since
  * box-shadow isn't safe in email.
  */
-function pixelFrame(inner: string, background = CARD): string {
+function pixelFrame(
+  inner: string,
+  background = CARD,
+  border = `2px solid ${INK}`
+): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr><td style="background:${INK};padding:0 4px 4px 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td style="background:${background};border:2px solid ${INK};padding:0;">${inner}</td></tr>
+      <tr><td style="background:${background};border:${border};padding:0;">${inner}</td></tr>
     </table>
   </td></tr>
 </table>`;
-}
-
-/** One stat tile: pixel label over a big pixel number. */
-function statTile(name: string, value: string, extra = ""): string {
-  return `<td width="50%" valign="top" style="width:50%;padding:6px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr><td style="background:${CARD};border:2px solid ${INK};padding:14px 16px;">
-      ${label(name)}
-      <p style="margin:0;font-family:${PIXEL};font-size:30px;font-weight:700;line-height:1.1;color:${INK};">${value}</p>
-      ${extra}
-    </td></tr>
-  </table>
-</td>`;
 }
 
 /** Seven squares, one per day, filled for the days with commits. */
@@ -123,26 +125,65 @@ function dayBlocks(activeDays: number): string {
   const cells = Array.from(
     { length: 7 },
     (_, i) =>
-      `<td width="14" style="width:14px;height:14px;padding:0;background:${i < activeDays ? GREEN : LINE};border:1px solid ${i < activeDays ? INK : LINE};font-size:0;line-height:0;">&nbsp;</td><td width="3" style="width:3px;font-size:0;">&nbsp;</td>`
+      `<td width="12" style="width:12px;height:12px;padding:0;background:${i < activeDays ? GREEN : LINE};border:1px solid ${i < activeDays ? INK : LINE};font-size:0;line-height:0;">&nbsp;</td><td width="3" style="width:3px;font-size:0;">&nbsp;</td>`
   ).join("");
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;"><tr>${cells}</tr></table>`;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="right"><tr>${cells}</tr></table>`;
 }
 
-/** Short, specific line under the headline. */
-function verdict(m: DigestMetrics | null): string {
+/** One line of the hi-score screen: label left, score right. */
+function scoreRow(
+  name: string,
+  value: string,
+  extra = "",
+  last = false
+): string {
+  const rule = last ? "" : `border-bottom:2px dotted ${BLUE_SOFT};`;
+  return `<tr>
+  <td style="padding:13px 0;${rule}font-family:${PIXEL};font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${INK};">${name}</td>
+  <td align="right" style="padding:13px 0;${rule}">
+    <span style="font-family:${HEADLINE};font-size:20px;font-weight:700;font-synthesis:none;line-height:1;color:${INK};">${value}</span>
+    ${extra ? `<div style="padding-top:8px;">${extra}</div>` : ""}
+  </td>
+</tr>`;
+}
+
+/** Short pixel headline, then one plain line under it. */
+function verdict(m: DigestMetrics | null): { title: string; line: string } {
   if (!m)
-    return "Your stats are being counted. Open your dashboard for the full picture.";
+    return {
+      title: "Your week is in.",
+      line: "This week's numbers are still being counted. Your dashboard has the latest.",
+    };
+  const r = m.weeklyRank;
   if (m.weeklyCommits === 0 && m.prsThisWeek === 0)
-    return "A quiet week. One commit starts the next streak.";
-  if (m.weeklyRank?.rank === 1)
-    return "Number one on this week's leaderboard. Defend the title.";
-  if (m.weeklyRank && m.weeklyRank.rank <= 3)
-    return `#${m.weeklyRank.rank} on this week's leaderboard. The top spot is in reach.`;
+    return {
+      title: "Game paused.",
+      line: "A quiet week. One commit starts the next run.",
+    };
+  if (r?.rank === 1)
+    return {
+      title: "Number one.",
+      line: `Top of the weekly board out of ${r.players} players. Defend the title.`,
+    };
+  if (r && r.rank <= 3)
+    return {
+      title: `${ordinal(r.rank)} place.`,
+      line: "On the weekly podium. The top spot is in reach.",
+    };
   if (m.weeklyActiveDays >= 7)
-    return "Seven days out of seven. A perfect week.";
+    return {
+      title: "Perfect week.",
+      line: "Seven days out of seven. That's how high scores are built.",
+    };
   if (m.streak.current >= 7)
-    return `${pluralise(m.streak.current, "day")} in a row and counting.`;
-  return `${pluralise(m.weeklyCommits, "commit")} shipped this week. Keep the run going.`;
+    return {
+      title: `${m.streak.current}-day run.`,
+      line: "Your streak is alive. Keep it going this week.",
+    };
+  return {
+    title: "Level complete.",
+    line: `${pluralise(m.weeklyCommits, "commit")} shipped this week. Keep the run going.`,
+  };
 }
 
 // ─── HTML template ────────────────────────────────────────────────────────────
@@ -152,109 +193,132 @@ export interface DigestEmailData {
   metrics: DigestMetrics | null;
   unsubscribeUrl: string;
   weekLabel: string; // e.g. "November 10, 2026"
+  /** Where the art lives; defaults to this site's /email folder. */
+  assetBase?: string;
 }
 
 export function buildDigestHtml(data: DigestEmailData): string {
   const { githubLogin, metrics: m, unsubscribeUrl, weekLabel } = data;
   const base = appUrl();
+  const art = (data.assetBase ?? `${base}/email`).replace(/\/$/, "");
+  const v = verdict(m);
 
   // Inbox preview line, hidden in the body.
   const preview = m
     ? `${pluralise(m.weeklyCommits, "commit")}, ${pluralise(m.prsThisWeek, "PR")} and a ${pluralise(m.streak.current, "day")} streak this week.`
     : "Your week on DevTrack.";
 
-  // ── Rank strip ────────────────────────────────────────────────────────────
+  // ── Hi-score screen ───────────────────────────────────────────────────────
+  const scoresHtml = m
+    ? `<tr><td style="padding:0 30px 22px 30px;">
+  ${pixelFrame(
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="padding:16px 20px 10px 20px;border-bottom:2px dashed #c7d4ee;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="font-family:${PIXEL};font-size:14px;font-weight:700;letter-spacing:3px;color:${INK};">HI-SCORES</td>
+          <td align="right" style="font-family:${PIXEL};font-size:11px;font-weight:700;letter-spacing:1.5px;color:${BLUE};text-transform:uppercase;">This week &middot; Live</td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="padding:2px 20px 4px 20px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${scoreRow("Commits", m.weeklyCommits.toLocaleString("en-US"))}
+          ${scoreRow("PRs merged", m.prsThisWeek.toLocaleString("en-US"))}
+          ${scoreRow("Active days", `${m.weeklyActiveDays}/7`, dayBlocks(m.weeklyActiveDays))}
+          ${scoreRow(
+            "Streak",
+            `${m.streak.current}<span style="font-size:11px;color:${MUTED};">&nbsp;${m.streak.current === 1 ? "DAY" : "DAYS"}</span>`,
+            m.streak.longest !== null
+              ? `<span style="font-family:${BODY};font-size:12px;color:${MUTED};">Longest streak: ${pluralise(m.streak.longest, "day")}</span>`
+              : "",
+            true
+          )}
+        </table>
+      </td></tr>
+    </table>`,
+    CARD,
+    `3px solid ${BLUE}`
+  )}
+</td></tr>`
+    : `<tr><td style="padding:0 30px 22px 30px;">
+  ${pixelFrame(
+    `<p style="margin:0;padding:18px 20px;font-family:${BODY};font-size:14px;line-height:1.6;color:${MUTED};">This week's numbers aren't ready yet. Your <a href="${esc(base)}/dashboard" style="color:${BLUE};font-weight:600;">dashboard</a> always has the latest.</p>`
+  )}
+</td></tr>`;
+
+  // ── Rank card ─────────────────────────────────────────────────────────────
   const rank = m?.weeklyRank;
   const tier = rank?.tier ? TIER_STYLE[rank.tier] : null;
+  const topPct = rank
+    ? Math.max(1, Math.ceil((rank.rank / Math.max(rank.players, 1)) * 100))
+    : 0;
+  const place = rank
+    ? rank.rank <= 3
+      ? `<span style="color:${YELLOW};">${ordinal(rank.rank)}</span>`
+      : `#${rank.rank}`
+    : "";
   const rankHtml = rank
-    ? `<tr><td style="padding:0 34px 18px 34px;">
+    ? `<tr><td style="padding:0 30px 22px 30px;">
   ${pixelFrame(
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td valign="middle" style="padding:14px 18px;">
-        ${label("Weekly rank", YELLOW)}
-        <p style="margin:0;font-family:${PIXEL};font-size:34px;font-weight:700;line-height:1;color:#ffffff;">#${rank.rank} <span style="font-size:14px;color:#9fb0cc;">/ ${rank.players}</span></p>
-      </td>
       ${
-        tier
-          ? `<td align="right" valign="middle" style="padding:14px 18px;">
-        <span style="display:inline-block;background:${tier.fill};color:${tier.text};font-family:${PIXEL};font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;border:2px solid #ffffff;">${tier.label}</span>
+        tier && rank.tier
+          ? `<td width="76" valign="middle" style="width:76px;padding:16px 0 16px 18px;">
+        <img src="${esc(art)}/gem-${rank.tier}.png" width="56" height="56" alt="${tier.label} gem" style="display:block;width:56px;height:56px;border:0;image-rendering:pixelated;">
       </td>`
           : ""
       }
+      <td valign="middle" style="padding:16px 18px;">
+        <p style="margin:0 0 6px 0;font-family:${PIXEL};font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${YELLOW};white-space:nowrap;">Weekly rank</p>
+        <p style="margin:0;font-family:${HEADLINE};font-size:24px;font-weight:700;font-synthesis:none;line-height:1.2;color:#ffffff;white-space:nowrap;">${place} <span style="font-family:${PIXEL};font-size:12px;letter-spacing:1px;color:#9fb0cc;">of ${rank.players}</span></p>
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;"><tr>
+          <td style="background:${YELLOW};color:${INK};font-family:${BODY};font-size:12px;font-weight:800;letter-spacing:1px;padding:5px 8px;white-space:nowrap;">TOP ${topPct}%</td>
+          ${tier ? `<td style="padding:0 0 0 10px;font-family:${PIXEL};font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${tier.accent};white-space:nowrap;">${tier.label} tier</td>` : ""}
+        </tr></table>
+      </td>
     </tr></table>`,
     INK
   )}
 </td></tr>`
     : "";
 
-  // ── Stat tiles ────────────────────────────────────────────────────────────
-  const statsHtml = m
-    ? `<tr><td style="padding:0 28px 12px 28px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    <tr>
-      ${statTile("Commits", m.weeklyCommits.toLocaleString("en-US"))}
-      ${statTile("PRs merged", m.prsThisWeek.toLocaleString("en-US"))}
-    </tr>
-    <tr>
-      ${statTile("Active days", `${m.weeklyActiveDays}<span style="font-size:16px;color:${MUTED};">/7</span>`, dayBlocks(m.weeklyActiveDays))}
-      ${statTile(
-        "Streak",
-        `${m.streak.current}<span style="font-size:16px;color:${MUTED};"> ${m.streak.current === 1 ? "day" : "days"}</span>`,
-        // Same height as the day squares beside it.
-        `<p style="margin:8px 0 0 0;font-family:${BODY};font-size:12px;line-height:16px;color:${MUTED};">${
-          m.streak.longest !== null
-            ? `Longest streak: ${pluralise(m.streak.longest, "day")}`
-            : m.streak.current > 0
-              ? "Commit today to keep it alive."
-              : "One commit starts a new one."
-        }</p>`
-      )}
-    </tr>
-  </table>
-</td></tr>`
-    : `<tr><td style="padding:0 34px 18px 34px;">
-  ${pixelFrame(
-    `<p style="margin:0;padding:18px 20px;font-family:${BODY};font-size:14px;line-height:1.6;color:${MUTED};">This week's numbers aren't ready yet. Your <a href="${esc(base)}/dashboard" style="color:${BLUE};font-weight:600;">dashboard</a> always has the latest.</p>`
-  )}
-</td></tr>`;
-
-  // ── Languages ─────────────────────────────────────────────────────────────
+  // ── Languages: one stacked bar, GitHub style, with a key ──────────────────
+  const langs = m?.topLanguages ?? [];
+  const langTotal = langs.reduce((s, l) => s + l.percentage, 0) || 1;
   const languagesHtml =
-    m && m.topLanguages.length > 0
-      ? `<tr><td style="padding:12px 34px 8px 34px;">
+    langs.length > 0
+      ? `<tr><td style="padding:0 30px 22px 30px;">
   ${label("Languages")}
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-    ${m.topLanguages
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px solid ${INK};"><tr>
+    ${langs
       .map((l) => {
-        const pct = Math.max(2, Math.min(100, Math.round(l.percentage)));
-        return `<tr>
-      <td width="34%" style="width:34%;padding:5px 10px 5px 0;font-family:${BODY};font-size:13px;color:${INK};white-space:nowrap;">${esc(l.name)}</td>
-      <td style="padding:5px 0;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:2px solid ${INK};"><tr>
-          <td width="${pct}%" style="width:${pct}%;height:10px;background:${langColour(l.name)};font-size:0;line-height:0;">&nbsp;</td>
-          <td style="height:10px;background:${CARD};font-size:0;line-height:0;">&nbsp;</td>
-        </tr></table>
-      </td>
-      <td width="44" align="right" style="width:44px;padding:5px 0 5px 10px;font-family:${PIXEL};font-size:12px;font-weight:700;color:${MUTED};">${Math.round(l.percentage)}%</td>
-    </tr>`;
+        const w = Math.max(1, Math.round((l.percentage / langTotal) * 100));
+        return `<td width="${w}%" style="width:${w}%;height:14px;background:${langColour(l.name)};font-size:0;line-height:0;">&nbsp;</td>`;
       })
       .join("")}
-  </table>
+  </tr></table>
+  <p style="margin:10px 0 0 0;font-family:${BODY};font-size:13px;line-height:1.9;color:${INK};">
+    ${langs
+      .map(
+        (l) =>
+          `<span style="white-space:nowrap;margin-right:14px;"><span style="display:inline-block;width:9px;height:9px;background:${langColour(l.name)};border:1px solid ${INK};"></span>&nbsp;${esc(l.name)} <span style="font-family:${BODY};font-size:12px;font-weight:600;color:${MUTED};">${Math.round(l.percentage)}%</span></span>`
+      )
+      .join(" ")}
+  </p>
 </td></tr>`
       : "";
 
   // ── Top repositories ──────────────────────────────────────────────────────
   const reposHtml =
     m && m.topRepos.length > 0
-      ? `<tr><td style="padding:12px 34px 8px 34px;">
+      ? `<tr><td style="padding:0 30px 22px 30px;">
   ${label("Most active repos")}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     ${m.topRepos
       .map(
         (r, i) => `<tr>
-      <td width="34" style="width:34px;padding:6px 0;font-family:${PIXEL};font-size:13px;font-weight:700;color:${BLUE};">${i + 1}.</td>
-      <td style="padding:6px 0;border-bottom:1px solid ${LINE};font-family:${BODY};font-size:14px;"><a href="${esc(r.url)}" style="color:${INK};text-decoration:none;font-weight:600;">${esc(r.name)}</a></td>
-      <td align="right" style="padding:6px 0;border-bottom:1px solid ${LINE};font-family:${PIXEL};font-size:12px;font-weight:700;color:${MUTED};white-space:nowrap;">${pluralise(r.commits, "commit")}</td>
+      <td width="34" style="width:34px;padding:7px 0;font-family:${PIXEL};font-size:13px;font-weight:700;color:${BLUE};">${i + 1}.</td>
+      <td style="padding:7px 0;border-bottom:2px dotted ${BLUE_SOFT};font-family:${BODY};font-size:14px;"><a href="${esc(r.url)}" style="color:${INK};text-decoration:none;font-weight:600;">${esc(r.name)}</a></td>
+      <td align="right" style="padding:7px 0;border-bottom:2px dotted ${BLUE_SOFT};font-family:${PIXEL};font-size:12px;font-weight:700;color:${MUTED};white-space:nowrap;">${pluralise(r.commits, "commit")}</td>
     </tr>`
       )
       .join("")}
@@ -270,56 +334,57 @@ export function buildDigestHtml(data: DigestEmailData): string {
   <meta name="color-scheme" content="light">
   <meta name="supported-color-schemes" content="light">
   <title>Your week on DevTrack, ${esc(weekLabel)}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0;padding:0;background:${PAPER};color-scheme:light;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${PAPER};">${esc(preview)}</div>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${PAPER};">
     <tr>
-      <td align="center" style="padding:28px 12px;">
+      <td align="center" style="padding:24px 12px 32px 12px;">
 
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
           <tr><td>
             ${pixelFrame(
               `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 
-          <!-- Marquee -->
+          <!-- Header art: Bit jumping for coins over a contribution-square level -->
           <tr>
-            <td style="background:${INK};padding:14px 22px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                <td style="font-family:${PIXEL};font-size:16px;font-weight:700;letter-spacing:3px;color:#ffffff;"><span style="color:#6ba8ff;">&#9650;</span>&nbsp;DEVTRACK</td>
-                <td align="right" style="font-family:${PIXEL};font-size:11px;font-weight:700;letter-spacing:2px;color:${YELLOW};text-transform:uppercase;">Weekly digest</td>
-              </tr></table>
+            <td style="background:${PAPER};border-bottom:2px solid ${INK};padding:0;line-height:0;font-size:0;">
+              <a href="${esc(base)}" style="display:block;text-decoration:none;">
+                <img src="${esc(art)}/digest-header.png" width="596" alt="DevTrack weekly high score" style="display:block;width:100%;max-width:596px;height:auto;border:0;background:${PAPER};font-family:${PIXEL};font-size:16px;line-height:1.4;color:${INK};">
+              </a>
             </td>
           </tr>
-          <tr><td style="background:${BLUE};height:4px;line-height:4px;font-size:0;">&nbsp;</td></tr>
 
           <!-- Headline -->
           <tr>
-            <td style="padding:30px 34px 20px 34px;">
-              ${label(`Player @${esc(githubLogin)}`)}
-              <h1 style="margin:0;font-family:${PIXEL};font-size:30px;font-weight:700;line-height:1.15;letter-spacing:1px;text-transform:uppercase;color:${INK};">Your week<br><span style="color:${BLUE};">in code.</span></h1>
-              <p style="margin:12px 0 0 0;font-family:${BODY};font-size:15px;line-height:1.55;color:${MUTED};">${esc(verdict(m))}</p>
-              <p style="margin:6px 0 0 0;font-family:${PIXEL};font-size:11px;letter-spacing:1px;color:${MUTED};text-transform:uppercase;">Week of ${esc(weekLabel)}</p>
+            <td style="padding:28px 30px 22px 30px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;"><tr>
+                <td style="background:${INK};padding:5px 9px;font-family:${PIXEL};font-size:11px;font-weight:700;letter-spacing:2px;color:${YELLOW};">PLAYER 1</td>
+                <td style="background:${BLUE_SOFT};padding:5px 9px;font-family:${PIXEL};font-size:11px;font-weight:700;letter-spacing:1px;color:${BLUE};">@${esc(githubLogin)}</td>
+              </tr></table>
+              <h1 style="margin:0;font-family:${HEADLINE};font-size:22px;font-weight:700;font-synthesis:none;line-height:1.4;text-transform:uppercase;color:${INK};">${esc(v.title)}</h1>
+              <p style="margin:12px 0 0 0;font-family:${BODY};font-size:15px;line-height:1.6;color:${MUTED};">${esc(v.line)}</p>
+              <p style="margin:10px 0 0 0;font-family:${PIXEL};font-size:11px;font-weight:700;letter-spacing:1.5px;color:#7a88a6;text-transform:uppercase;">Week of ${esc(weekLabel)}</p>
             </td>
           </tr>
 
+          ${scoresHtml}
           ${rankHtml}
-          ${statsHtml}
           ${languagesHtml}
           ${reposHtml}
 
           <!-- Press start -->
           <tr>
-            <td align="center" style="padding:22px 34px 30px 34px;">
+            <td align="center" style="padding:6px 30px 30px 30px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td>
                 ${pixelFrame(
-                  `<a href="${esc(base)}/dashboard" style="display:block;padding:13px 28px;font-family:${PIXEL};font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;">&#9658;&nbsp;Press start</a>`,
+                  `<a href="${esc(base)}/dashboard" style="display:block;padding:14px 30px;font-family:${PIXEL};font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ffffff;text-decoration:none;">&#9658;&nbsp;Press start</a>`,
                   BLUE
                 )}
               </td></tr></table>
-              <p style="margin:14px 0 0 0;font-family:${BODY};font-size:13px;color:${MUTED};">
+              <p style="margin:16px 0 0 0;font-family:${BODY};font-size:13px;color:${MUTED};">
                 <a href="${esc(base)}/leaderboard" style="color:${BLUE};font-weight:600;text-decoration:none;">See the leaderboard</a>
                 &nbsp;&middot;&nbsp;
                 <a href="${esc(base)}/u/${encodeURIComponent(githubLogin)}" style="color:${BLUE};font-weight:600;text-decoration:none;">Your profile</a>
@@ -327,15 +392,23 @@ export function buildDigestHtml(data: DigestEmailData): string {
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Sign-off: Bit with a speech bubble -->
           <tr>
-            <td style="border-top:2px solid ${INK};background:${PAPER};padding:18px 34px;">
-              <p style="margin:0 0 6px 0;font-family:${BODY};font-size:12px;line-height:1.6;color:${MUTED};">
+            <td style="border-top:2px solid ${INK};background:${PAPER};padding:20px 30px 22px 30px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+                <td width="46" valign="bottom" style="width:46px;padding:0 12px 0 0;">
+                  <img src="${esc(art)}/bit-talk.png" width="36" height="48" alt="Bit" style="display:block;width:36px;height:48px;border:0;image-rendering:pixelated;">
+                </td>
+                <td valign="middle">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                    <td style="background:${CARD};border:2px solid ${INK};padding:9px 12px;font-family:${PIXEL};font-size:12px;font-weight:700;letter-spacing:1px;color:${INK};text-transform:uppercase;">See you next Monday, player.</td>
+                  </tr></table>
+                </td>
+              </tr></table>
+              <p style="margin:16px 0 4px 0;font-family:${BODY};font-size:12px;line-height:1.6;color:${MUTED};">
                 You get this every Monday because the weekly digest is on in your
                 <a href="${esc(base)}/dashboard/settings" style="color:${MUTED};">DevTrack settings</a>.
-              </p>
-              <p style="margin:0;font-family:${BODY};font-size:12px;color:${MUTED};">
-                <a href="${esc(unsubscribeUrl)}" style="color:${MUTED};text-decoration:underline;">Unsubscribe from the weekly digest</a>
+                <a href="${esc(unsubscribeUrl)}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a>
               </p>
             </td>
           </tr>
@@ -357,29 +430,20 @@ export function buildDigestHtml(data: DigestEmailData): string {
 export function buildDigestText(data: DigestEmailData): string {
   const { githubLogin, metrics: m, unsubscribeUrl, weekLabel } = data;
   const base = appUrl();
+  const v = verdict(m);
 
   const lines: string[] = [
-    `DEVTRACK · WEEKLY DIGEST`,
+    `DEVTRACK · WEEKLY HIGH SCORE`,
     `Week of ${weekLabel}`,
     ``,
-    `Player @${githubLogin}`,
-    verdict(m),
+    `Player 1: @${githubLogin}`,
+    `${v.title.toUpperCase()} ${v.line}`,
     ``,
   ];
 
   if (m) {
-    if (m.weeklyRank) {
-      const tier = m.weeklyRank.tier
-        ? ` · ${TIER_STYLE[m.weeklyRank.tier].label}`
-        : "";
-      lines.push(
-        `Weekly rank: #${m.weeklyRank.rank} of ${m.weeklyRank.players}${tier}`,
-        ``
-      );
-    }
-
     lines.push(
-      `This week`,
+      `HI-SCORES`,
       `  Commits:      ${m.weeklyCommits}`,
       `  PRs merged:   ${m.prsThisWeek}`,
       `  Active days:  ${m.weeklyActiveDays}/7`
@@ -390,6 +454,16 @@ export function buildDigestText(data: DigestEmailData): string {
         lines.push(`  Longest streak: ${pluralise(m.streak.longest, "day")}`);
     }
     lines.push(``);
+
+    if (m.weeklyRank) {
+      const tier = m.weeklyRank.tier
+        ? ` · ${TIER_STYLE[m.weeklyRank.tier].label}`
+        : "";
+      lines.push(
+        `Weekly rank: #${m.weeklyRank.rank} of ${m.weeklyRank.players}${tier}`,
+        ``
+      );
+    }
 
     if (m.topLanguages.length > 0) {
       lines.push(`Languages`);
@@ -412,6 +486,7 @@ export function buildDigestText(data: DigestEmailData): string {
     `Press start: ${base}/dashboard`,
     `Leaderboard: ${base}/leaderboard`,
     ``,
+    `See you next Monday, player.`,
     `You get this every Monday because the weekly digest is on.`,
     `Unsubscribe: ${unsubscribeUrl}`,
     ``
