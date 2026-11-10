@@ -87,7 +87,7 @@
     "appearanceTitle": "Apariencia",
     "appearanceDescription": "Elige el tema que se adapta a tu flujo de trabajo.",
     "weeklyDigestTitle": "Resumen semanal por correo",
-    "weeklyDigestDescription": "Un correo semanal cada lunes por la mañana con tus hábitos de programación. Activado por defecto; desactívalo aquí cuando quieras.",
+    "weeklyDigestDescription": "Un correo semanal con tus hábitos de programación. Activado por defecto; desactívalo aquí cuando quieras.",
     "notificationsTitle": "Notificaciones",
     "notificationsDescription": "Envía un resumen semanal de tu actividad a Slack o Discord mediante webhook.",
     "webhookUrl": "URL del webhook",

@@ -159,7 +159,7 @@ const header = `<!doctype html><html><head>${FONT}<style>${BASE_CSS}
   ${sprite(BIT.jump, 6, 448, 52)}
   <div class="logo"><div class="mark"><div class="tri"></div></div><div class="word">DEVTRACK</div></div>
   <div class="title"><div class="t1">Weekly</div><div class="t2">High score</div></div>
-  <div class="chip">MONDAY <b>RECAP</b> · PRESS START</div>
+  <div class="chip">WEEKLY <b>RECAP</b> · PRESS START</div>
 </div></body></html>`;
 
 // ── Footer Bit: 72x96 shown ─────────────────────────────────────────────────
