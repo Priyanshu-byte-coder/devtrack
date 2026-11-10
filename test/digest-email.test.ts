@@ -59,7 +59,7 @@ describe("digest-email", () => {
         }),
       });
       expect(result).toContain("Streak");
-      expect(result).toMatch(/>7<span[^>]*> days</);
+      expect(result).toMatch(/>7<span[^>]*>&nbsp;DAYS</);
       expect(result).toContain("Longest streak: 14 days");
     });
 
@@ -76,7 +76,7 @@ describe("digest-email", () => {
       });
       // The HTML always renders the streak section when m is present;
       // the value is 0 rather than the section being hidden.
-      expect(result).toMatch(/>0<span[^>]*> days</);
+      expect(result).toMatch(/>0<span[^>]*>&nbsp;DAYS</);
       expect(result).toContain("Longest streak");
     });
 
@@ -178,14 +178,28 @@ describe("buildDigestHtml arcade layout", () => {
       unsubscribeUrl: "u",
       weekLabel: "November 10, 2026",
     });
-    expect(html).toContain("#1");
-    expect(html).toContain("/ 227");
-    expect(html).toContain("Legend");
+    expect(html).toContain("1ST");
+    expect(html).toContain("of 227");
+    expect(html).toContain("TOP 1%");
+    expect(html).toContain("gem-legend.png");
+    expect(html).toContain("Legend tier");
     expect(html).not.toMatch(/\p{Extended_Pictographic}/u);
     // U+25B6 turns into a colour emoji on iOS and Gmail; U+25BA stays text.
     expect(html).not.toContain("&#9654;");
     expect(html).not.toContain("Longest streak");
     expect(html).toContain('content="light"');
+  });
+
+  it("loads the art from the site's /email folder by default", () => {
+    const html = buildDigestHtml({
+      githubLogin: "octocat",
+      metrics,
+      unsubscribeUrl: "u",
+      weekLabel: "November 10, 2026",
+    });
+    expect(html).toContain("/email/digest-header.png");
+    expect(html).toContain("/email/bit-talk.png");
+    expect(html).toMatch(/alt="DevTrack weekly high score"/);
   });
 
   it("keeps emoji out of the plain-text version too", () => {
