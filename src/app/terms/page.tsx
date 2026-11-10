@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-const UPDATED = "2026-11-03";
+const UPDATED = "2026-11-10";
 
 const SECTIONS: Array<{ title: string; body: ReactNode }> = [
   {
@@ -57,7 +57,18 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     ),
   },
   {
-    title: "4. Acceptable use",
+    title: "4. Weekly email digest",
+    body: (
+      <>
+        If your GitHub account shares an email address with DevTrack, you get a
+        weekly email every Monday summarising your own coding activity. It is on
+        by default. Unsubscribe from any digest email or turn it off in Settings
+        at any time.
+      </>
+    ),
+  },
+  {
+    title: "5. Acceptable use",
     body: (
       <>
         Don&apos;t use DevTrack to break the law, harass people, scrape or
@@ -69,7 +80,7 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     ),
   },
   {
-    title: "5. Your data and content",
+    title: "6. Your data and content",
     body: (
       <>
         Your GitHub data stays yours. You let DevTrack process it to provide the
@@ -80,7 +91,7 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     ),
   },
   {
-    title: "6. Open source",
+    title: "7. Open source",
     body: (
       <>
         DevTrack&apos;s source code is available under the MIT licence at{" "}
@@ -98,7 +109,7 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     ),
   },
   {
-    title: "7. No warranty",
+    title: "8. No warranty",
     body: (
       <>
         DevTrack is provided &quot;as is&quot;, without warranties of any kind.
@@ -109,7 +120,7 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     ),
   },
   {
-    title: "8. Limitation of liability",
+    title: "9. Limitation of liability",
     body: (
       <>
         To the extent the law allows, DevTrack and its contributors are not
@@ -119,7 +130,7 @@ const SECTIONS: Array<{ title: string; body: ReactNode }> = [
     ),
   },
   {
-    title: "9. Changes and contact",
+    title: "10. Changes and contact",
     body: (
       <>
         We may update these terms; the date below shows the latest version, and
@@ -144,7 +155,7 @@ export default function TermsPage() {
           Terms of Service
         </h1>
         <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-          Last updated <time dateTime={UPDATED}>November 3, 2026</time>
+          Last updated <time dateTime={UPDATED}>November 10, 2026</time>
         </p>
 
         <div className="mt-10 space-y-8">

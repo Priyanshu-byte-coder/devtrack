@@ -206,8 +206,10 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
 
   it("returns 500 when the database query fails", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
-    const notChain = vi.fn().mockResolvedValue({ data: null, error: { message: "DB error" } });
-    const eqChain  = vi.fn().mockReturnValue({ not: notChain });
+    const notChain = vi
+      .fn()
+      .mockResolvedValue({ data: null, error: { message: "DB error" } });
+    const eqChain = vi.fn().mockReturnValue({ not: notChain });
     const selChain = vi.fn().mockReturnValue({ eq: eqChain });
     mocks.supabaseFrom.mockReturnValue({ select: selChain });
 
@@ -222,7 +224,9 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
   it("addresses emails to the correct user and includes their github_login", async () => {
     vi.stubEnv("CRON_SECRET", "s3cr3t");
     vi.stubEnv("RESEND_API_KEY", "resend-key");
-    stubUsers([{ github_login: "devtracker", email: "devtracker@example.com" }]);
+    stubUsers([
+      { github_login: "devtracker", email: "devtracker@example.com" },
+    ]);
     mocks.resendFetch.mockResolvedValue({ ok: true });
 
     await GET(makeRequest("Bearer s3cr3t"));
@@ -234,5 +238,69 @@ describe("GET /api/cron/weekly-digest — authentication hardening (#1745)", () 
 
     expect(body.to).toBe("devtracker@example.com");
     expect(body.html).toContain("devtracker");
+  });
+
+  it("sends from devtrack.live with one-click unsubscribe headers", async () => {
+    vi.stubEnv("CRON_SECRET", "s3cr3t");
+    vi.stubEnv("RESEND_API_KEY", "resend-key");
+    vi.stubEnv("NEXTAUTH_SECRET", "unsub-secret");
+    vi.stubEnv("NEXTAUTH_URL", "https://devtrack.live");
+    stubUsers([
+      {
+        id: "00000000-0000-0000-0000-00000000000a",
+        github_login: "devtracker",
+        email: "devtracker@example.com",
+      } as { github_login: string; email: string },
+    ]);
+    mocks.resendFetch.mockResolvedValue({ ok: true });
+
+    await GET(makeRequest("Bearer s3cr3t"));
+
+    const [, callOptions] = mocks.resendFetch.mock.calls[0];
+    const body = JSON.parse(callOptions.body);
+
+    expect(body.from).toBe("DevTrack <digest@devtrack.live>");
+    expect(body.headers["List-Unsubscribe"]).toMatch(
+      /^<https:\/\/devtrack\.live\/api\/unsubscribe\?uid=00000000-0000-0000-0000-00000000000a&token=[0-9a-f]{64}>$/
+    );
+    expect(body.headers["List-Unsubscribe-Post"]).toBe(
+      "List-Unsubscribe=One-Click"
+    );
+  });
+
+  it("stops at 90 sends a run so the free Resend plan's 100/day isn't exceeded", async () => {
+    vi.stubEnv("CRON_SECRET", "s3cr3t");
+    vi.stubEnv("RESEND_API_KEY", "resend-key");
+    stubUsers(
+      Array.from({ length: 120 }, (_, i) => ({
+        github_login: `dev${i}`,
+        email: `dev${i}@example.com`,
+      }))
+    );
+    mocks.resendFetch.mockResolvedValue({ ok: true });
+
+    const res = await GET(makeRequest("Bearer s3cr3t"));
+    const json = await res.json();
+
+    expect(json.limitReached).toBe(true);
+    expect(json.emailsSent).toBe(90);
+    expect(mocks.resendFetch).toHaveBeenCalledTimes(90);
+  });
+
+  it("retries once when Resend answers 429", async () => {
+    vi.stubEnv("CRON_SECRET", "s3cr3t");
+    vi.stubEnv("RESEND_API_KEY", "resend-key");
+    stubUsers([
+      { github_login: "devtracker", email: "devtracker@example.com" },
+    ]);
+    mocks.resendFetch
+      .mockResolvedValueOnce({ ok: false, status: 429, text: async () => "" })
+      .mockResolvedValueOnce({ ok: true, status: 200 });
+
+    const res = await GET(makeRequest("Bearer s3cr3t"));
+    const json = await res.json();
+
+    expect(mocks.resendFetch).toHaveBeenCalledTimes(2);
+    expect(json.emailsSent).toBe(1);
   });
 });
