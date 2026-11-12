@@ -49,6 +49,19 @@ const PROFILE_CDN_CACHE_CONTROL =
   "public, max-age=0, s-maxage=21600, stale-while-revalidate=86400";
 
 /**
+ * Guest profiles: GitHub users who aren't on DevTrack. The /top boards link
+ * about 1,300 of them and crawlers walk every one, so with the 6-hour profile
+ * lifetime each bot that came back re-rendered the page (GitHub fetch plus a
+ * full render), most of the site's Active CPU. Their numbers are public "where
+ * would they rank" estimates, so a week is fresh enough.
+ */
+export const GUEST_CDN_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=604800, stale-while-revalidate=2592000";
+
+/** Marker GuestProfileView renders, so the cache route can keep it longer. */
+export const GUEST_PROFILE_MARKER = "data-guest-profile";
+
+/**
  * A "GitHub is busy" page: worth sharing between a burst of visitors, never
  * worth keeping once GitHub has recovered.
  */
