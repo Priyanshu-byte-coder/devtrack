@@ -75,3 +75,38 @@ export async function submitGoalWithRefresh({
     error: null,
   };
 }
+
+export type GoalStatusFilter = "all" | "active" | "completed";
+
+interface FilterableGoal {
+  title: string;
+  target: number;
+  current: number;
+  category?: GoalCategory | null;
+}
+
+export interface GoalFilters {
+  query?: string;
+  status?: GoalStatusFilter;
+  category?: GoalCategory | null;
+}
+
+/**
+ * Narrows a goal list by title search, completion status and category.
+ * All provided filters must match. The title match is case-insensitive and
+ * ignores surrounding whitespace in the query.
+ */
+export function filterGoals<T extends FilterableGoal>(
+  goals: T[],
+  { query = "", status = "all", category = null }: GoalFilters
+): T[] {
+  const needle = query.trim().toLowerCase();
+  return goals.filter((goal) => {
+    if (needle && !goal.title.toLowerCase().includes(needle)) return false;
+    if (category && goal.category !== category) return false;
+    const completed = goal.current >= goal.target;
+    if (status === "active") return !completed;
+    if (status === "completed") return completed;
+    return true;
+  });
+}
