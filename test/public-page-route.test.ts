@@ -57,6 +57,39 @@ describe("public page cache route", () => {
     );
   });
 
+  it("keeps a guest profile for a week, a member profile for hours", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response('<main data-guest-profile="">Not on DevTrack yet</main>', {
+        headers: { "content-type": "text/html" },
+      })
+    );
+    const guest = await call("/u/torvalds");
+    expect(guest.headers.get("cache-control")).toBe(
+      "public, max-age=0, s-maxage=604800, stale-while-revalidate=2592000"
+    );
+
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response("<main>member</main>", {
+        headers: { "content-type": "text/html" },
+      })
+    );
+    const member = await call("/u/octocat");
+    expect(member.headers.get("cache-control")).toContain("s-maxage=21600");
+  });
+
+  it("keeps a busy guest page briefly, not for a week", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        '<main data-guest-profile=""><div data-github-busy="">busy</div></main>',
+        { headers: { "content-type": "text/html" } }
+      )
+    );
+    const res = await call("/u/torvalds");
+    expect(res.headers.get("cache-control")).toBe(
+      "public, max-age=0, s-maxage=120"
+    );
+  });
+
   it("keeps guides and legal pages for a day", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response("<html>terms</html>", {
