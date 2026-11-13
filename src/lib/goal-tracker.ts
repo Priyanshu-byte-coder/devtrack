@@ -75,3 +75,61 @@ export async function submitGoalWithRefresh({
     error: null,
   };
 }
+
+export type GoalStatusFilter = "all" | "active" | "completed";
+
+interface FilterableGoal {
+  title: string;
+  target: number;
+  current: number;
+  category?: GoalCategory | null;
+}
+
+export interface GoalFilters {
+  query?: string;
+  status?: GoalStatusFilter;
+  category?: GoalCategory | null;
+}
+
+/**
+ * Narrows a goal list by title search, completion status and category.
+ * All provided filters must match. The title match is case-insensitive and
+ * ignores surrounding whitespace in the query.
+ */
+export function filterGoals<T extends FilterableGoal>(
+  goals: T[],
+  { query = "", status = "all", category = null }: GoalFilters
+): T[] {
+  const needle = query.trim().toLowerCase();
+  return goals.filter((goal) => {
+    if (needle && !goal.title.toLowerCase().includes(needle)) return false;
+    if (category && goal.category !== category) return false;
+    const completed = goal.current >= goal.target;
+    if (status === "active") return !completed;
+    if (status === "completed") return completed;
+    return true;
+  });
+}
+
+/** The search box is only useful once the list is longer than this. */
+export const GOAL_SEARCH_MIN_GOALS = 5;
+
+export interface GoalFilterVisibility {
+  search: boolean;
+  status: boolean;
+}
+
+/**
+ * Decides which filter controls can actually narrow the list: search needs
+ * more than GOAL_SEARCH_MIN_GOALS goals, the status tabs need at least one
+ * active and one completed goal.
+ */
+export function shouldShowGoalFilters(
+  goals: Pick<FilterableGoal, "target" | "current">[]
+): GoalFilterVisibility {
+  const completed = goals.filter((goal) => goal.current >= goal.target).length;
+  return {
+    search: goals.length > GOAL_SEARCH_MIN_GOALS,
+    status: completed > 0 && completed < goals.length,
+  };
+}
