@@ -3,6 +3,7 @@ import Link from "@/components/Link";
 import { GitCompare, HeartPulse } from "lucide-react";
 import PageHeader, { SectionTitle } from "@/components/shell/PageHeader";
 import {
+  DiffTrend,
   InactiveRepos,
   LanguageBreakdown,
   PinnedRepos,
@@ -42,6 +43,9 @@ export default function RepositoriesPage() {
       <div className="grid gap-4 xl:grid-cols-2">
         <TopRepos />
         <RepoContributionDistribution />
+        <div className="xl:col-span-2">
+          <DiffTrend />
+        </div>
       </div>
 
       <SectionTitle>Languages &amp; showcase</SectionTitle>
