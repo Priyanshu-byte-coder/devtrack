@@ -184,6 +184,36 @@ describe("PATCH /api/goals/[id] — progress integrity", () => {
     expect(body.error).toMatch(/cannot exceed target/);
   });
 
+  it("rejects patching target to a value below current progress", async () => {
+    setupSupabase(buildGoal({ unit: "hours", target: 10, current: 8 }));
+    const [req, ctx] = makeRequest({ target: 5 });
+    const res = await PATCH(req, ctx);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/cannot exceed target/);
+  });
+
+  it("rejects patching both current and target when new current > new target", async () => {
+    setupSupabase(buildGoal({ unit: "hours", target: 10, current: 2 }));
+    const [req, ctx] = makeRequest({ current: 8, target: 5 });
+    const res = await PATCH(req, ctx);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toMatch(/cannot exceed target/);
+  });
+
+  it("allows patching both current and target when new current <= new target", async () => {
+    const goal = buildGoal({ unit: "hours", target: 10, current: 2 });
+    const updated = { ...goal, target: 20, current: 15 };
+    setupSupabase(goal, updated);
+    const [req, ctx] = makeRequest({ current: 15, target: 20 });
+    const res = await PATCH(req, ctx);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.goal.target).toBe(20);
+    expect(body.goal.current).toBe(15);
+  });
+
   it("allows current === target for a manual goal (completion)", async () => {
     const goal = buildGoal({ unit: "hours", target: 10, current: 0 });
     const updated = { ...goal, current: 10 };
