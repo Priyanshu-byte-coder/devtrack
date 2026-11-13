@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/Link";
 import { m } from "motion/react";
 import TierBadge from "@/components/gamification/TierBadge";
 import type { Tier } from "@/lib/gamification/scoring";

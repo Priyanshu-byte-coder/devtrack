@@ -3,7 +3,7 @@
 import { signIn } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { Github } from "lucide-react";
 import { toast } from "sonner";
 import PixelSprite from "@/components/buddy/PixelSprite";

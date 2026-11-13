@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { getUserByGithubId } from "@/lib/supabase";
 import { getLeaderboardData } from "@/lib/leaderboard";
 import { rankEntriesByScoreV2, rankMovement } from "@/lib/gamification/ranking";

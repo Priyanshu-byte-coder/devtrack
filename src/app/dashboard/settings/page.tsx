@@ -9,7 +9,7 @@ import PrivacySettings from "@/components/PrivacySettings";
 import ConfirmModal from "@/components/ConfirmModal";
 import MarkdownBio from "@/components/MarkdownBio";
 import { toast } from "sonner";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { useRouter } from "next/navigation";
 import WebhookManager from "@/components/webhook/WebhookManager";
 import PageHeader from "@/components/shell/PageHeader";

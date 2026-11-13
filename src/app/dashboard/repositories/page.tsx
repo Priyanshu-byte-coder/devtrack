@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { GitCompare, HeartPulse } from "lucide-react";
 import PageHeader, { SectionTitle } from "@/components/shell/PageHeader";
 import {

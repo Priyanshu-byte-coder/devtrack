@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import RematchForm from "@/components/compare/RematchForm";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { getLeaderboardData } from "@/lib/leaderboard";
