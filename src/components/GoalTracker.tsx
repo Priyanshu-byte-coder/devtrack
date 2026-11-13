@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
 import {
   filterGoals,
+  shouldShowGoalFilters,
   submitGoalWithRefresh,
   type GoalStatusFilter,
 } from "@/lib/goal-tracker";
@@ -425,9 +426,23 @@ export default function GoalTracker() {
     );
   }, [goals, setSummary]);
 
+  const filterVisibility = shouldShowGoalFilters(goals);
+
+  // Reset hidden controls so the list is never filtered by something the user
+  // can no longer see.
+  useEffect(() => {
+    if (!filterVisibility.search) setSearchQuery("");
+    if (!filterVisibility.status) setStatusFilter("all");
+  }, [
+    filterVisibility.search,
+    filterVisibility.status,
+    setSearchQuery,
+    setStatusFilter,
+  ]);
+
   const visibleGoals = filterGoals(goals, {
-    query: searchQuery,
-    status: statusFilter,
+    query: filterVisibility.search ? searchQuery : "",
+    status: filterVisibility.status ? statusFilter : "all",
     category: activeCategoryFilter,
   });
 
@@ -648,49 +663,55 @@ export default function GoalTracker() {
             </div>
           )}
 
-          <div className="mb-3 space-y-2">
-            <div className="relative">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search goals..."
-                aria-label="Search goals"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-muted)] py-1.5 pl-3 pr-8 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] [&::-webkit-search-cancel-button]:appearance-none"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  aria-label="Clear search"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
+          {(filterVisibility.search || filterVisibility.status) && (
+            <div className="mb-3 space-y-2">
+              {filterVisibility.search && (
+                <div className="relative">
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search goals..."
+                    aria-label="Search goals"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-muted)] py-1.5 pl-3 pr-8 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] [&::-webkit-search-cancel-button]:appearance-none"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      aria-label="Clear search"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              )}
+              {filterVisibility.status && (
+                <div
+                  role="group"
+                  aria-label="Filter goals by status"
+                  className="flex flex-wrap gap-1.5"
                 >
-                  ×
-                </button>
+                  {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setStatusFilter(value)}
+                      aria-pressed={statusFilter === value}
+                      className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                        statusFilter === value
+                          ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
+                          : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
-            <div
-              role="group"
-              aria-label="Filter goals by status"
-              className="flex flex-wrap gap-1.5"
-            >
-              {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setStatusFilter(value)}
-                  aria-pressed={statusFilter === value}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
-                    statusFilter === value
-                      ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
-                      : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {visibleGoals.length === 0 && (
             <p

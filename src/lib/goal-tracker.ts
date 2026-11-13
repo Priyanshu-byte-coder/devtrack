@@ -110,3 +110,26 @@ export function filterGoals<T extends FilterableGoal>(
     return true;
   });
 }
+
+/** The search box is only useful once the list is longer than this. */
+export const GOAL_SEARCH_MIN_GOALS = 5;
+
+export interface GoalFilterVisibility {
+  search: boolean;
+  status: boolean;
+}
+
+/**
+ * Decides which filter controls can actually narrow the list: search needs
+ * more than GOAL_SEARCH_MIN_GOALS goals, the status tabs need at least one
+ * active and one completed goal.
+ */
+export function shouldShowGoalFilters(
+  goals: Pick<FilterableGoal, "target" | "current">[]
+): GoalFilterVisibility {
+  const completed = goals.filter((goal) => goal.current >= goal.target).length;
+  return {
+    search: goals.length > GOAL_SEARCH_MIN_GOALS,
+    status: completed > 0 && completed < goals.length,
+  };
+}

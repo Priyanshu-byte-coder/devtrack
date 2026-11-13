@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { filterGoals } from "@/lib/goal-tracker";
+import { filterGoals, shouldShowGoalFilters } from "@/lib/goal-tracker";
 
 const goals = [
   {
@@ -79,5 +79,27 @@ describe("filterGoals", () => {
     const copy = [...goals];
     filterGoals(goals, { status: "active" });
     expect(goals).toEqual(copy);
+  });
+});
+
+describe("shouldShowGoalFilters", () => {
+  const make = (n: number, current = 0) =>
+    Array.from({ length: n }, () => ({ target: 5, current }));
+
+  it("hides everything for an empty list", () => {
+    expect(shouldShowGoalFilters([])).toEqual({ search: false, status: false });
+  });
+
+  it("shows search only when there are more than 5 goals", () => {
+    expect(shouldShowGoalFilters(make(5)).search).toBe(false);
+    expect(shouldShowGoalFilters(make(6)).search).toBe(true);
+  });
+
+  it("shows status tabs only with both active and completed goals", () => {
+    expect(shouldShowGoalFilters(make(3)).status).toBe(false);
+    expect(shouldShowGoalFilters(make(3, 5)).status).toBe(false);
+    expect(shouldShowGoalFilters([...make(1), ...make(1, 9)]).status).toBe(
+      true
+    );
   });
 });
