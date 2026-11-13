@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { Coffee, Heart } from "lucide-react";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";

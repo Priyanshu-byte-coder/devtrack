@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { Star } from "lucide-react";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";

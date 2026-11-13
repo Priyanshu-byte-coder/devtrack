@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { ExternalLink, HeartPulse, X } from "lucide-react";
 import ContributorStats from "./ContributorStats";
 import { RepoAnalyticsResponse } from "@/lib/repo-analytics-types";

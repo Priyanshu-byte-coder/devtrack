@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { PixelGem } from "@/components/gamification/TierBadge";
 import { TIER_STYLE } from "@/lib/gamification/tier-palette";

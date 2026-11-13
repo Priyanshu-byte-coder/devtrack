@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/Link";
 import { usePathname } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import { useId, useState } from "react";

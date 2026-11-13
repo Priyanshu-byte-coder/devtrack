@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getGoalProgressPercent } from "@/lib/goals/share";
