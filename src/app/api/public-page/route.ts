@@ -13,6 +13,8 @@ import type { NextRequest } from "next/server";
 import {
   BUSY_CDN_CACHE_CONTROL,
   GITHUB_BUSY_MARKER,
+  GUEST_CDN_CACHE_CONTROL,
+  GUEST_PROFILE_MARKER,
   PUBLIC_CACHE_PARAM,
   PUBLIC_PAGE_SOURCE_PARAM,
   cdnCacheControlFor,
@@ -128,7 +130,9 @@ export async function GET(req: NextRequest) {
       ? "no-store"
       : body.includes(GITHUB_BUSY_MARKER)
         ? BUSY_CDN_CACHE_CONTROL
-        : cdnCacheControlFor(target.pathname)
+        : body.includes(GUEST_PROFILE_MARKER)
+          ? GUEST_CDN_CACHE_CONTROL
+          : cdnCacheControlFor(target.pathname)
   );
 
   return new Response(req.method === "HEAD" ? null : body, {
