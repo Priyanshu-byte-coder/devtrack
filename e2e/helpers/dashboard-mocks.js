@@ -210,6 +210,15 @@ export function mockMetricResponse(url) {
     return { pinnedRepos: [] };
   }
   if (url.includes("/api/metrics/repo-explorer")) return { repos: [] };
+  if (url.includes("/api/metrics/diff-trend")) {
+    return {
+      repos: ["demo/repo"],
+      weeks: [
+        { weekStart: "2026-05-17", additions: 420, deletions: 120 },
+        { weekStart: "2026-05-24", additions: 180, deletions: 60 },
+      ],
+    };
+  }
   if (url.includes("/api/metrics/sponsors")) {
     return {
       mrr: 85,
@@ -413,6 +422,7 @@ export async function installDashboardApiMocks(page, options = {}) {
     "**/api/metrics/productive-hours**",
     "**/api/user/pinned-repos/details**",
     "**/api/metrics/repo-explorer**",
+    "**/api/metrics/diff-trend**",
     "**/api/metrics/sponsors**",
     "**/api/metrics/achievement-progress**",
   ];

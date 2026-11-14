@@ -1000,6 +1000,59 @@ paths:
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/metrics/diff-trend:
+    get:
+      tags:
+        - Metrics
+      summary: Get weekly lines added and removed
+      description: Lines the signed-in user added and removed per week over the last 12 weeks, summed across the 3 repositories they committed to most in that window. Weeks start on Sunday (UTC).
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Weekly line counts and the repositories they cover
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weeks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        weekStart:
+                          type: string
+                          format: date
+                        additions:
+                          type: integer
+                        deletions:
+                          type: integer
+                  repos:
+                    type: array
+                    items:
+                      type: string
+        '202':
+          description: GitHub is still computing repository statistics. Retry shortly.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  computing:
+                    type: boolean
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+        '502':
+          description: GitHub API error
+      operationId: get_api_metrics_diff_trend
   /api/metrics/discussions:
     get:
       operationId: get_api_metrics_discussions
