@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import GithubSignInButton from "@/components/GithubSignInButton";
 export default function LoginRequiredPage() {
   return (

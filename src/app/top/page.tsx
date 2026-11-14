@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { CountryFlag, LanguageIcon } from "@/components/pixel/TopIcons";
 import { TOP_COUNTRIES, TOP_LANGUAGES } from "@/lib/top-developers";

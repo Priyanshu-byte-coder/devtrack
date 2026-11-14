@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { Star } from "lucide-react";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";
@@ -68,7 +68,11 @@ export default function GuestProfileView({
   ];
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+    // data-guest-profile tells the page cache it may keep this for a week.
+    <main
+      data-guest-profile=""
+      className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8"
+    >
       <PlayerCard
         login={profile.login}
         eyebrow="Not on DevTrack yet"

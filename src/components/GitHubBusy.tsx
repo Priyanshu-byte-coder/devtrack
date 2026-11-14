@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 
 /** Shown when GitHub is rate-limiting us; the next try usually works. */
 export default function GitHubBusy({

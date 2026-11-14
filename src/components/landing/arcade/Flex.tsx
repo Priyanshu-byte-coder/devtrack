@@ -10,7 +10,7 @@ import {
   Target,
   Trophy,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { renderRankBadge } from "@/lib/gamification/rank-badge";
 import {

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { Github } from "lucide-react";
 import PixelSprite from "@/components/buddy/PixelSprite";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { redirect } from "next/navigation";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
 import ClaimProfileButton from "@/components/profile/ClaimProfileButton";

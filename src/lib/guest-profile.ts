@@ -11,8 +11,12 @@ import {
   type YearTotals,
 } from "@/lib/guest-profile-model";
 
-/** Guest stats change slowly; a few hours keeps GitHub usage per page tiny. */
-const GUEST_TTL_SECONDS = 6 * 60 * 60;
+/**
+ * Guest stats are public estimates and change slowly. A week matches the page
+ * cache (GUEST_CDN_CACHE_CONTROL), and the data cache outlives deploys, so a
+ * deploy that empties the CDN re-renders guest pages without refetching GitHub.
+ */
+const GUEST_TTL_SECONDS = 7 * 24 * 60 * 60;
 const REGISTRATION_TTL_SECONDS = 300;
 /**
  * GraphQL points kept back for the leaderboard and signed-in users. Guest
