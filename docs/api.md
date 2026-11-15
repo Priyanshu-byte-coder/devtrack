@@ -84,7 +84,7 @@ All metrics routes require authentication. Most support a `?refresh=1` or `?bypa
 | GET    | `/api/metrics/contributions/daily`          | Daily contribution breakdown                                     |
 | GET    | `/api/metrics/contributions/hourly`         | Hourly contribution breakdown                                    |
 | GET    | `/api/metrics/streak`                       | Current and longest commit streak                                |
-| GET    | `/api/metrics/prs`                          | PR summary: open, merged, closed counts                          |
+| GET    | `/api/metrics/prs`                          | PR summary: outcomes, merge time, reviews and PRs reviewed       |
 | GET    | `/api/metrics/pr-breakdown`                 | PR status breakdown chart data                                   |
 | GET    | `/api/metrics/pr-review-time`               | PR review time trend over time                                   |
 | GET    | `/api/metrics/repos`                        | Top repositories ranked by commit activity (supports `?days=30`) |

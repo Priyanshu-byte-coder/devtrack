@@ -7,6 +7,7 @@ import {
   weekStart,
   type PullRequestNode,
   type PullRequestRaw,
+  type ReviewContributionNode,
 } from "@/lib/pull-requests";
 
 const NOW = new Date("2026-11-05T12:00:00Z");
@@ -34,6 +35,18 @@ function pr(
         : [],
     },
     ...rest,
+  };
+}
+
+function review(
+  state: string,
+  repo: string,
+  pullRequest: ReviewContributionNode["pullRequest"] = null
+): ReviewContributionNode {
+  return {
+    pullRequestReview: { state },
+    repository: { nameWithOwner: repo },
+    pullRequest,
   };
 }
 
@@ -79,18 +92,19 @@ describe("summarizePullRequests", () => {
         openNow: [open],
         openTotal: 1,
         reviews: [
-          {
-            pullRequestReview: { state: "APPROVED" },
-            repository: { nameWithOwner: "o/x" },
-          },
-          {
-            pullRequestReview: { state: "APPROVED" },
-            repository: { nameWithOwner: "o/x" },
-          },
-          {
-            pullRequestReview: { state: "CHANGES_REQUESTED" },
-            repository: { nameWithOwner: "o/y" },
-          },
+          review("APPROVED", "o/x", {
+            url: "https://github.com/o/x/pull/1",
+            author: { login: "alice" },
+          }),
+          // A second review on the same PR.
+          review("APPROVED", "o/x", {
+            url: "https://github.com/o/x/pull/1",
+            author: { login: "alice" },
+          }),
+          review("CHANGES_REQUESTED", "o/y", {
+            url: "https://github.com/o/y/pull/9",
+            author: { login: "bob" },
+          }),
         ],
         reviewsTotal: 3,
       }),
@@ -138,6 +152,9 @@ describe("summarizePullRequests", () => {
   it("summarises reviews given", () => {
     expect(summary.reviews).toEqual({
       total: 3,
+      prsReviewed: 2,
+      participationRate: 1,
+      sampled: false,
       approved: 2,
       changesRequested: 1,
       commented: 0,
@@ -146,6 +163,96 @@ describe("summarizePullRequests", () => {
         { repo: "o/y", count: 1 },
       ],
     });
+  });
+
+  it("counts each reviewed PR by someone else once", () => {
+    const own = {
+      url: "https://github.com/me/app/pull/4",
+      author: { login: "Me" },
+    };
+    const alts = {
+      url: "https://github.com/me/app/pull/5",
+      author: { login: "alt" },
+    };
+    const theirs = {
+      url: "https://github.com/o/x/pull/1",
+      author: { login: "alice" },
+    };
+    const reviews = summarizePullRequests(
+      [
+        raw({
+          inRange: [merged, closed, open],
+          reviews: [
+            review("COMMENTED", "me/app", own),
+            review("APPROVED", "o/x", theirs),
+            review("COMMENTED", "o/x", null),
+          ],
+          reviewsTotal: 3,
+        }),
+        raw({
+          login: "alt",
+          reviews: [
+            review("COMMENTED", "me/app", alts),
+            review("APPROVED", "o/x", { ...theirs }),
+          ],
+          reviewsTotal: 2,
+        }),
+      ],
+      "30d",
+      NOW
+    ).reviews;
+    expect(reviews).toMatchObject({ total: 5, prsReviewed: 1, sampled: false });
+    expect(reviews.participationRate).toBeCloseTo(1 / 3);
+  });
+
+  it("counts reviews of a deleted account's PRs", () => {
+    const reviews = summarizePullRequests(
+      [
+        raw({
+          inRange: [merged],
+          reviews: [
+            review("APPROVED", "o/x", {
+              url: "https://github.com/o/x/pull/2",
+              author: null,
+            }),
+          ],
+          reviewsTotal: 1,
+        }),
+      ],
+      "30d",
+      NOW
+    ).reviews;
+    expect(reviews.prsReviewed).toBe(1);
+    expect(reviews.participationRate).toBe(1);
+  });
+
+  it("has no participation rate without PRs opened in the range", () => {
+    const reviews = summarizePullRequests(
+      [
+        raw({
+          reviews: [
+            review("APPROVED", "o/x", {
+              url: "https://github.com/o/x/pull/1",
+              author: { login: "alice" },
+            }),
+          ],
+          reviewsTotal: 1,
+        }),
+      ],
+      "7d",
+      NOW
+    ).reviews;
+    expect(reviews.prsReviewed).toBe(1);
+    expect(reviews.participationRate).toBeNull();
+  });
+
+  it("flags a sample when there are more reviews than one request returns", () => {
+    const reviews = summarizePullRequests(
+      [raw({ reviews: [review("APPROVED", "o/x")], reviewsTotal: 140 })],
+      "90d",
+      NOW
+    ).reviews;
+    expect(reviews.sampled).toBe(true);
   });
 
   it("keeps the fields other features read", () => {

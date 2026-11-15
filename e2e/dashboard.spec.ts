@@ -227,6 +227,9 @@ async function injectMockSession(page: import("@playwright/test").Page) {
           ],
           reviews: {
             total: 2,
+            prsReviewed: 2,
+            participationRate: 0.5,
+            sampled: false,
             approved: 1,
             changesRequested: 0,
             commented: 1,
