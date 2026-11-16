@@ -512,7 +512,33 @@ export default function PRMetrics() {
                         reviews submitted
                       </div>
                     </div>
+                    <div
+                      className="text-right"
+                      title="PRs where you left a review comment or approval"
+                    >
+                      <div className="stat-value text-3xl">
+                        {s.reviews.prsReviewed}
+                        {s.reviews.sampled ? "+" : ""}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        PRs reviewed
+                      </div>
+                    </div>
                   </div>
+                  <p className="text-xs text-[var(--muted-foreground)]">
+                    {s.reviews.participationRate === null ? (
+                      "Open a PR in this range to compare reviews given with PRs opened."
+                    ) : (
+                      <>
+                        <span className="font-pixel text-[var(--card-foreground)]">
+                          {Math.round(s.reviews.participationRate * 100)}%
+                        </span>{" "}
+                        review participation: PRs you reviewed as a share of the
+                        PRs you opened
+                        {s.reviews.sampled ? " (latest 100 reviews)" : ""}.
+                      </>
+                    )}
+                  </p>
                   {reviewTotal > 0 && (
                     <div>
                       <div className="flex h-3 overflow-hidden bg-[var(--card)]">

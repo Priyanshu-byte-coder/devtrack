@@ -35,6 +35,8 @@ export interface PullRequestNode {
 export interface ReviewContributionNode {
   pullRequestReview: { state: string } | null;
   repository: { nameWithOwner: string } | null;
+  /** The PR the review was left on. */
+  pullRequest: { url: string; author: { login: string } | null } | null;
 }
 
 /** What one account's GraphQL request returns, before summarising. */
@@ -65,6 +67,7 @@ query PullRequests($inRange: String!, $open: String!, $login: String!, $from: Da
         nodes {
           pullRequestReview { state }
           repository { nameWithOwner }
+          pullRequest { url author { login } }
         }
       }
     }
@@ -189,6 +192,12 @@ export interface PullRequestSummary {
   }>;
   reviews: {
     total: number;
+    /** Distinct PRs by other people that you reviewed in the range. */
+    prsReviewed: number;
+    /** PRs you reviewed per PR you opened; null when you opened none. */
+    participationRate: number | null;
+    /** True when you gave more reviews than one request returns. */
+    sampled: boolean;
     approved: number;
     changesRequested: number;
     commented: number;
@@ -257,6 +266,9 @@ export function summarizePullRequests(
 
   const reviewNodes = raws.flatMap((r) => r.reviews);
   const reviewRepos = new Map<string, number>();
+  // Several reviews on one PR, or one PR seen through two linked accounts,
+  // count once. Reviews on your own PRs are not participation.
+  const reviewedPRs = new Set<string>();
   let approved = 0;
   let changesRequested = 0;
   let commented = 0;
@@ -267,6 +279,10 @@ export function summarizePullRequests(
     else if (state === "COMMENTED") commented += 1;
     const repo = node.repository?.nameWithOwner;
     if (repo) reviewRepos.set(repo, (reviewRepos.get(repo) ?? 0) + 1);
+    const reviewed = node.pullRequest;
+    const author = reviewed?.author?.login.toLowerCase();
+    if (reviewed?.url && !(author && logins.has(author)))
+      reviewedPRs.add(reviewed.url);
   }
 
   return {
@@ -319,6 +335,10 @@ export function summarizePullRequests(
       })),
     reviews: {
       total: raws.reduce((sum, r) => sum + r.reviewsTotal, 0),
+      prsReviewed: reviewedPRs.size,
+      participationRate:
+        inRange.length > 0 ? reviewedPRs.size / inRange.length : null,
+      sampled: raws.some((r) => r.reviewsTotal > r.reviews.length),
       approved,
       changesRequested,
       commented,
