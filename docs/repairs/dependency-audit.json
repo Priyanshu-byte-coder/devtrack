@@ -1,41 +1,57 @@
 {
   "advisories": {
-    "1243505": {
+    "1247710": {
       "findings": [
         {
-          "version": "4.3.1",
+          "version": "2.3.2",
           "paths": [
-            ".>@ducanh2912/next-pwa>workbox-build>@rollup/plugin-node-resolve>deepmerge",
-            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@rollup/plugin-node-resolve>deepmerge",
-            ".>swagger-ui-react>swagger-client>deepmerge"
+            ".>@ducanh2912/next-pwa>fast-glob>micromatch>picomatch",
+            ".>@ducanh2912/next-pwa>workbox-build>@rollup/plugin-babel>@rollup/pluginutils>picomatch",
+            ".>@ducanh2912/next-pwa>workbox-build>@rollup/plugin-replace>@rollup/pluginutils>picomatch",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@rollup/plugin-babel>@rollup/pluginutils>picomatch",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@rollup/plugin-replace>@rollup/pluginutils>picomatch"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "version": "4.0.5",
+          "paths": [
+            ".>@ducanh2912/next-pwa>workbox-build>@rollup/plugin-node-resolve>@rollup/pluginutils>picomatch",
+            ".>@ducanh2912/next-pwa>workbox-webpack-plugin>workbox-build>@rollup/plugin-node-resolve>@rollup/pluginutils>picomatch",
+            ".>@sentry/nextjs>@rollup/plugin-commonjs>@rollup/pluginutils>picomatch",
+            ".>@sentry/nextjs>@rollup/plugin-commonjs>fdir>picomatch",
+            ".>@sentry/nextjs>@rollup/plugin-commonjs>picomatch",
+            ".>next-intl>@parcel/watcher>picomatch"
           ],
           "dev": false,
           "optional": false,
           "bundled": false
         }
       ],
-      "id": 1243505,
-      "title": "deepmerge mergeObject() allows prototype poisoning of returned objects",
-      "module_name": "deepmerge",
-      "vulnerable_versions": ">=4.2.0 <=4.3.1",
-      "patched_versions": ">=4.3.2",
-      "severity": "low",
-      "cwe": "CWE-1321",
-      "github_advisory_id": "GHSA-gcqx-w48m-w2h4",
-      "url": "https://github.com/advisories/GHSA-gcqx-w48m-w2h4"
+      "id": 1247710,
+      "title": "picomatch vulnerable to ReDoS through single-branch repeated extglobs",
+      "module_name": "picomatch",
+      "vulnerable_versions": "<=4.0.7",
+      "patched_versions": ">=4.0.8",
+      "severity": "high",
+      "cwe": "CWE-1333",
+      "github_advisory_id": "GHSA-fc5q-39xc-vjpf",
+      "url": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf"
     }
   },
   "metadata": {
     "vulnerabilities": {
       "info": 0,
-      "low": 1,
+      "low": 0,
       "moderate": 0,
-      "high": 0,
+      "high": 1,
       "critical": 0
     },
-    "dependencies": 750,
+    "dependencies": 754,
     "devDependencies": 0,
     "optionalDependencies": 152,
-    "totalDependencies": 902
+    "totalDependencies": 906
   }
 }
