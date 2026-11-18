@@ -23,7 +23,14 @@ try {
   throw new Error("Dependency audit did not return JSON");
 }
 if (report.error) throw new Error("Dependency registry audit unavailable");
+// Advisories with no fixed release that this app can't reach, each with a
+// written reason and a date to look again. Past that date the audit fails.
+const accepted = JSON.parse(
+  fs.readFileSync("patches/accepted-advisories.json", "utf8")
+);
+const today = new Date().toISOString().slice(0, 10);
 let allowed = 0;
+let acceptedCount = 0;
 const unexpected = [];
 for (const advisory of Object.values(report.advisories || {})) {
   const patch = patches.find(
@@ -31,11 +38,21 @@ for (const advisory of Object.values(report.advisories || {})) {
       p.advisory === advisory.github_advisory_id &&
       p.package === advisory.module_name
   );
+  const acceptance = accepted.find(
+    (a) =>
+      a.advisory === advisory.github_advisory_id &&
+      a.package === advisory.module_name
+  );
   if (
     patch &&
     advisory.findings.every((finding) => finding.version === patch.version)
   )
     allowed++;
+  else if (acceptance && today <= acceptance.reviewBy) acceptedCount++;
+  else if (acceptance)
+    unexpected.push(
+      `${advisory.module_name}: ${advisory.github_advisory_id} (${advisory.severity}), accepted until ${acceptance.reviewBy}: check for a fixed release and review again`
+    );
   else
     unexpected.push(
       `${advisory.module_name}: ${advisory.github_advisory_id} (${advisory.severity})`
@@ -51,5 +68,5 @@ if (unexpected.length) {
   process.exitCode = 1;
 } else
   console.log(
-    `Production dependency audit passed: ${allowed} exact-version advisories mitigated by verified patches; no unmitigated advisories.`
+    `Production dependency audit passed: ${allowed} exact-version advisories mitigated by verified patches, ${acceptedCount} accepted with a review date (patches/accepted-advisories.json); no unmitigated advisories.`
   );
