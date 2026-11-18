@@ -1,0 +1,8 @@
+[
+  {
+    "package": "picomatch",
+    "advisory": "GHSA-fc5q-39xc-vjpf",
+    "reason": "ReDoS when an attacker supplies the glob pattern. No fixed release exists (every version through 4.0.7 is affected). picomatch only reaches production dependencies through build tooling (next-pwa/workbox, @sentry/nextjs's rollup plugin, next-intl's file watcher), which match globs written in this repository. No request input ever becomes a glob.",
+    "reviewBy": "2027-01-31"
+  }
+]
