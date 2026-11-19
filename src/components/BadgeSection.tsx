@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 
 interface BadgeSectionProps {
   username: string;
@@ -250,16 +253,13 @@ function CopyableCodeBlock({
   code: string;
   onCopySuccess?: () => void;
 }) {
-  const [copied, setCopied] = useState(false);
+  const { copy, isCopied } = useCopyToClipboard();
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
+    if (await copy(code)) {
       onCopySuccess?.();
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
+    } else {
+      toast.error("Failed to copy badge markdown.");
     }
   };
 
@@ -269,10 +269,17 @@ function CopyableCodeBlock({
         {code}
       </code>
       <button
+        type="button"
         onClick={handleCopy}
         className="ml-2 shrink-0 px-2 py-1 text-xs font-medium rounded bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90 transition-opacity"
       >
-        {copied ? "✓ Copied!" : "Copy"}
+        <CopyFeedback
+          copied={isCopied()}
+          label="Copy"
+          iconClassName="h-3 w-3"
+          copiedClassName=""
+          className="gap-1"
+        />
       </button>
     </div>
   );

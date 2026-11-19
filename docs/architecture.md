@@ -343,6 +343,8 @@ Components in `src/components/` are organized by feature subdirectory:
 
 Key shared components include: `AIMentorWidget`, `ContributionGraph`, `ContributionHeatmap`, `StreakTracker`, `PRMetrics`, `GoalTracker`, `MilestonePlanner`, `WeeklySummaryCard`, `PersonalRecords`, `CommunityMetrics`, `ConsistencyScoreWidget`, `ProductiveHoursWidget`, `DiscussionsWidget`, `InactiveRepositoriesCard`, `DashboardSSEProvider`, `SSEListener`, `NotificationBell`, `WebhookManager`, and more.
 
+Copy-to-clipboard buttons share one behaviour: the `useCopyToClipboard` hook (`src/hooks/useCopyToClipboard.ts`) writes the text, falling back to a hidden textarea where the Clipboard API is missing, and reports failure so the caller can show an error. `CopyFeedback` (`src/components/ui/copy-feedback.tsx`) renders the button contents: a copy icon that turns into a checkmark with a "Copied!" label for two seconds. Use both for any new copy action.
+
 ## Lib Utilities
 
 Key files in `src/lib/`:
