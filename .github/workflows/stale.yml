@@ -26,7 +26,7 @@ jobs:
             Closing due to inactivity. Feel free to reopen or open a new PR if you would like to continue.
           days-before-stale: 21
           days-before-close: 7
-          exempt-issue-labels: "pinned,security,good first issue"
+          exempt-issue-labels: "pinned,security,good first issue,wocs,level 1,level 2,level 3"
           exempt-pr-labels: "pinned,security"
           stale-issue-label: "stale"
           stale-pr-label: "stale"
