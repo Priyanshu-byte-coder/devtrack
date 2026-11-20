@@ -360,6 +360,11 @@ export default async function PublicProfilePage({
           hud={hud}
           meta={
             <>
+              {profile.contributions.total > 0 && (
+                <span className="text-[var(--muted-foreground)]">
+                  {profile.contributions.total.toLocaleString()} total commits in the last 365 days
+                </span>
+              )}
               {profile.isSponsor && <SponsorBadge />}
               {profile.isNightOwl && (
                 <span
