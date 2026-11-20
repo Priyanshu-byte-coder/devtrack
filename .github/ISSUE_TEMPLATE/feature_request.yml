@@ -1,73 +1,75 @@
-name: Feature Request
-description: Suggest a new feature or improvement for DevTrack
+name: Feature request
+description: Suggest something new for DevTrack
 title: "[FEAT] "
 labels: ["enhancement", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a feature! Help us understand what you need.
+        Thanks for the idea! Please search [open and closed issues](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue) first. For a big or open-ended idea, start a thread in [Ideas](https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/ideas) to gather feedback before it becomes an issue.
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem Statement
-      description: What problem does this feature solve? Why is it needed?
-      placeholder: "As a user, I want to ... so that ..."
+      label: What problem does it solve?
+      description: Who is it for and what can't they do today?
+      placeholder: As a developer comparing myself with friends, I can't see who improved the most this month.
     validations:
       required: true
 
   - type: textarea
-    id: solution
+    id: proposal
     attributes:
-      label: Proposed Solution
-      description: How should this feature work? Be as specific as possible.
+      label: What should it do?
+      description: Describe how it would work. Sketches or screenshots of similar features help.
     validations:
       required: true
 
   - type: dropdown
     id: area
     attributes:
-      label: Feature Area
-      description: Which part of DevTrack would this affect?
+      label: Area
       options:
-        - Dashboard
-        - Landing Page
-        - Authentication
-        - API / Backend
-        - Public Profile
-        - Leaderboard
-        - Collaboration Rooms
-        - Goal Tracker
-        - Streak System
-        - Settings
-        - New Feature Area
+        - Dashboard overview
+        - Repositories
+        - Pull requests and reviews
+        - Goals
+        - Streak and activity
+        - AI features (insights, personality, project tutor, career)
+        - Public profile or share card
+        - Leaderboard or Top boards
+        - Compare (duels)
+        - README badges
+        - Weekly email
+        - Settings and privacy
+        - Translations
+        - Landing page or guides
+        - API
+        - Something new
     validations:
       required: true
 
   - type: textarea
-    id: alternatives
+    id: done
     attributes:
-      label: Alternatives Considered
-      description: What other approaches did you consider?
-    validations:
-      required: false
-
-  - type: textarea
-    id: acceptance
-    attributes:
-      label: Acceptance Criteria
-      description: How will we know this feature is complete?
+      label: How will we know it's done?
       value: |
-        - [ ] ...
-        - [ ] ...
+        - [ ] …
+        - [ ] …
     validations:
       required: false
 
   - type: textarea
-    id: context
+    id: notes
     attributes:
-      label: Additional Context
-      description: Screenshots, mockups, or links to similar implementations.
+      label: Anything else?
+      description: Alternatives you considered, edge cases, related issues.
     validations:
       required: false
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Want to build it?
+      options:
+        - label: I'd like to work on this. A maintainer will confirm the scope and assign you; please don't start before that.
