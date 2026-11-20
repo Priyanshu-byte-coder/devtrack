@@ -114,7 +114,7 @@ export default function StreakTracker() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--card)] p-6 min-h-[700px]">
+      <div className="bg-[var(--card)] p-6">
         {data?.complete === false && (
           <p
             role="status"
@@ -126,15 +126,19 @@ export default function StreakTracker() {
         )}
         <div role="status" aria-live="polite" aria-busy="true">
           <span className="sr-only">Loading streak tracker</span>
-          <SkeletonBlock className="h-6 w-36 mb-4" />
+          <SkeletonBlock className="h-8 w-36 mb-4" />
           <div
             aria-hidden="true"
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             {[1, 2, 3, 4].map((i) => (
-              <SkeletonBlock key={i} className="h-28 rounded-lg" />
+              <SkeletonBlock key={i} className="h-[86.5px] rounded-lg" />
             ))}
           </div>
+          <SkeletonBlock className="mt-3 h-[38px]" />
+          <SkeletonBlock className="mt-2 h-4" />
+          <SkeletonBlock className="mt-4 h-[50px]" />
+          <SkeletonBlock className="mt-6 h-[531px]" />
         </div>
       </div>
     );
