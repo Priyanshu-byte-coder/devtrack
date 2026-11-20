@@ -129,7 +129,12 @@ jobs:
             }
 
             if (toAdd.length) {
-              await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: toAdd });
+              // One label at a time: the WOCS webhook server fails ("Could
+              // not create webhook log") when two labeled events arrive at once.
+              for (const [i, label] of toAdd.entries()) {
+                if (i > 0) await new Promise((r) => setTimeout(r, 2000));
+                await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [label] });
+              }
               labels = [...labels, ...toAdd];
               core.info(`#${pr.number}: added ${toAdd.join(", ")}`);
             }
