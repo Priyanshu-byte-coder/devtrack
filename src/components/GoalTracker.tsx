@@ -515,15 +515,17 @@ export default function GoalTracker() {
     return (
       <WidgetSkeleton title="weekly goals" className="h-full">
         <div className="flex justify-between items-center mb-4">
-          <SkeletonBlock className="h-6 w-16" />
-          <SkeletonBlock className="h-6 w-20" />
+          <SkeletonBlock className="h-[35px] w-16" />
+          <SkeletonBlock className="h-[35px] w-20" />
         </div>
-        {[1, 2, 3].map((i) => (
-          <div key={i} aria-hidden="true" className="mb-4">
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-2 w-full" />
-          </div>
-        ))}
+        <SkeletonBlock className="mb-3 h-[26px]" />
+        <div aria-hidden="true">
+          <SkeletonBlock className="h-4 w-full mb-2" />
+          <SkeletonBlock className="h-[108px] w-full" />
+        </div>
+        <SkeletonBlock className="mt-2 h-4" />
+        <SkeletonBlock className="mt-6 h-[440px]" />
+        <SkeletonBlock className="mt-6 h-[37px]" />
       </WidgetSkeleton>
     );
   }
