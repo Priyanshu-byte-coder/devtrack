@@ -272,13 +272,17 @@ export default function PRMetrics() {
           <span className="sr-only">Loading pull requests</span>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             {Array.from({ length: 6 }, (_, i) => (
-              <SkeletonBlock key={i} className="h-[92px]" />
+              <SkeletonBlock key={i} className="h-[104px]" />
             ))}
           </div>
-          <SkeletonBlock className="h-48" />
+          <SkeletonBlock className="h-[236px]" />
           <div className="grid gap-4 lg:grid-cols-2">
-            <SkeletonBlock className="h-56" />
-            <SkeletonBlock className="h-56" />
+            <SkeletonBlock className="h-[127px]" />
+            <SkeletonBlock className="h-[127px]" />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SkeletonBlock className="h-[127px]" />
+            <SkeletonBlock className="h-[127px]" />
           </div>
         </div>
       ) : error && !s ? (

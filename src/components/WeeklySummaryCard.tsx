@@ -1,8 +1,11 @@
 "use client";
 
-import { Check, ChevronDown, Copy, Download, Sparkles } from "lucide-react";
+import { ChevronDown, Download, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useAccount } from "@/components/AccountContext";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { signOut, signIn } from "next-auth/react";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
@@ -35,7 +38,6 @@ interface AiSummaryState {
   loading: boolean;
   error: string | null;
   rateLimitReset: Date | null;
-  copied: boolean;
 }
 
 export default function WeeklySummaryCard() {
@@ -51,8 +53,8 @@ export default function WeeklySummaryCard() {
     loading: false,
     error: null,
     rateLimitReset: null,
-    copied: false,
   });
+  const { copy, isCopied } = useCopyToClipboard();
 
   const maxCommits = summary?.commits
     ? Math.max(summary.commits.current, summary.commits.previous, 1)
@@ -218,13 +220,12 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
       });
   }, [summary, ai.loading]);
 
-  const handleCopy = useCallback(() => {
+  const handleCopy = useCallback(async () => {
     if (!ai.text) return;
-    navigator.clipboard.writeText(ai.text).then(() => {
-      setAi((prev) => ({ ...prev, copied: true }));
-      setTimeout(() => setAi((prev) => ({ ...prev, copied: false })), 2000);
-    });
-  }, [ai.text]);
+    if (!(await copy(ai.text))) {
+      toast.error("Failed to copy the summary.");
+    }
+  }, [ai.text, copy]);
 
   const rateLimitMessage = (() => {
     if (!ai.rateLimitReset) return null;
@@ -365,17 +366,12 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                     aria-label="Copy AI summary to clipboard"
                     title="Copy to clipboard"
                   >
-                    {ai.copied ? (
-                      <>
-                        <Check className="h-3 w-3 text-[var(--success)]" />
-                        <span className="text-[var(--success)]">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3 w-3" />
-                        <span>Copy</span>
-                      </>
-                    )}
+                    <CopyFeedback
+                      copied={isCopied()}
+                      label="Copy"
+                      iconClassName="h-3 w-3"
+                      className="gap-1"
+                    />
                   </button>
                 </div>
                 <p className="text-sm leading-relaxed text-[var(--card-foreground)]">

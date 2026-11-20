@@ -3,7 +3,10 @@
 import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit2, Eye, Copy, Check, Info, Trash2, Plus } from "lucide-react";
+import { Edit2, Eye, Info, Trash2, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { cn } from "@/lib/utils";
 import type {
   ResumeContent,
@@ -22,15 +25,11 @@ export default function ResumePreview({
   onContentChange,
 }: ResumePreviewProps) {
   const [isEditMode, setIsEditMode] = useState(false);
-  const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  const { copy, isCopied } = useCopyToClipboard();
 
   const handleCopySection = async (sectionName: string, text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedSection(sectionName);
-      setTimeout(() => setCopiedSection(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy section:", err);
+    if (!(await copy(text, sectionName))) {
+      toast.error("Failed to copy section.");
     }
   };
 
@@ -253,11 +252,11 @@ export default function ResumePreview({
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy Section"
                 >
-                  {copiedSection === "summary" ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
+                  <CopyFeedback
+                    copied={isCopied("summary")}
+                    iconOnly
+                    iconClassName="h-4 w-4"
+                  />
                 </button>
               </div>
 
@@ -295,11 +294,11 @@ export default function ResumePreview({
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy All Bullets"
                 >
-                  {copiedSection === "experience" ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
+                  <CopyFeedback
+                    copied={isCopied("experience")}
+                    iconOnly
+                    iconClassName="h-4 w-4"
+                  />
                 </button>
               </div>
 
@@ -413,11 +412,11 @@ export default function ResumePreview({
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy All Projects"
                 >
-                  {copiedSection === "projects" ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
+                  <CopyFeedback
+                    copied={isCopied("projects")}
+                    iconOnly
+                    iconClassName="h-4 w-4"
+                  />
                 </button>
               </div>
 
@@ -551,11 +550,11 @@ export default function ResumePreview({
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   title="Copy Skills"
                 >
-                  {copiedSection === "skills" ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
+                  <CopyFeedback
+                    copied={isCopied("skills")}
+                    iconOnly
+                    iconClassName="h-4 w-4"
+                  />
                 </button>
               </div>
 
