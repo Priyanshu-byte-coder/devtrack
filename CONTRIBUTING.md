@@ -605,8 +605,8 @@ DevTrack is taking part in [Winter of Code Social](https://woc.codesocial.tech),
 
 1. **Register** at [woc.codesocial.tech](https://woc.codesocial.tech/get-involved) with the GitHub account you'll open PRs from. Unregistered accounts get no points, even for merged PRs.
 2. **Get assigned before you start.** Comment `/assign` (or "assign me") on an open issue with a line about your approach; the bot assigns you if nobody else has it.
-3. **Open a PR** that links the issue (`Closes #123`) and passes CI. Follow the usual [PR checklist](#pull-request-pr-checklist).
-4. **Maintainers add the labels** before merging: `wocs` plus exactly one of `level 1`, `level 2` or `level 3`. You don't need to add them yourself. Once a PR is merged its level is final.
+3. **Open a PR** that links the issue (`Closes #123`) and passes CI, and **tick the Winter of Code Social box** at the bottom of the PR template. That box is how we know your PR is part of WOCS; PRs without it are treated as regular contributions. Follow the usual [PR checklist](#pull-request-pr-checklist).
+4. **The labels are handled for you:** a bot adds `wocs` and the issue's level, and a maintainer confirms the level (`level 1`, `level 2` or `level 3`) before merging. Once a PR is merged its level is final.
 
 | WOCS label | Points | Usually matches                    | Typical scope                                 |
 | ---------- | ------ | ---------------------------------- | --------------------------------------------- |

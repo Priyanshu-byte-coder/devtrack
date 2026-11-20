@@ -1,0 +1,60 @@
+name: Task (maintainers)
+description: A scoped task for contributors to pick up, with a difficulty level
+title: ""
+labels: ["help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For maintainers and mentors writing work for contributors. Everyone else: please use Bug report, Feature request, Improvement or Tests.
+
+        When a maintainer opens this, the Difficulty below is added as labels automatically (`level N` and the matching `level:*`).
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What needs doing and why it matters, in plain words.
+    validations:
+      required: true
+
+  - type: textarea
+    id: where
+    attributes:
+      label: Where
+      description: Files, components or routes to start from.
+      placeholder: |
+        - `src/components/PRMetrics.tsx`
+        - `test/components/PRMetrics.test.tsx`
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      description: What should be true when this is done?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] …
+        - [ ] Tests added or updated
+        - [ ] Lint, type check and tests pass
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty
+      options:
+        - "level 1 (small or beginner-friendly: docs, copy, small UI fixes)"
+        - "level 2 (moderate: bug fixes, tests, small features)"
+        - "level 3 (substantial: larger features, refactors, architecture)"
+    validations:
+      required: true
