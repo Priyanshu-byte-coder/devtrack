@@ -1,10 +1,11 @@
 "use client";
 
 import ThemePresetPicker from "@/components/ThemePresetPicker";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { redirect, useSearchParams } from "next/navigation";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import PrivacySettings from "@/components/PrivacySettings";
 import ConfirmModal from "@/components/ConfirmModal";
 import MarkdownBio from "@/components/MarkdownBio";
@@ -18,6 +19,7 @@ import SettingsNav, {
 } from "@/components/settings/SettingsNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
 import { useLocale, useTranslations } from "next-intl";
 import { localeMetadata, locales, type AppLocale } from "@/i18n/config";
 import Image from "next/image";
@@ -198,7 +200,7 @@ function SettingsPageContent() {
   const [saving, setSaving] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState<string | null>(null);
   const [webhookSaving, setWebhookSaving] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copy: copyText, isCopied } = useCopyToClipboard();
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [accountsError, setAccountsError] = useState<string | null>(null);
   const [removingAccountId, setRemovingAccountId] = useState<string | null>(
@@ -218,7 +220,6 @@ function SettingsPageContent() {
     null
   );
   const [muteDuration, setMuteDuration] = useState<number>(1);
-  const copyResetTimerRef = useRef<number | null>(null);
 
   // GitHub Orgs States
   const [orgAccounts, setOrgAccounts] = useState<any[]>([]);
@@ -823,33 +824,14 @@ function SettingsPageContent() {
     }
   };
 
-  const copyShareLink = () => {
+  const copyShareLink = async () => {
     if (!profileUrl) return;
 
-    if (copyResetTimerRef.current) {
-      window.clearTimeout(copyResetTimerRef.current);
-      copyResetTimerRef.current = null;
+    if (await copyText(profileUrl)) {
+      toast.success("Link copied successfully!");
+    } else {
+      toast.error("Failed to copy profile URL");
     }
-
-    if (!navigator.clipboard?.writeText) {
-      toast.error("Clipboard access is not available in this browser.");
-      return;
-    }
-
-    navigator.clipboard
-      .writeText(profileUrl)
-      .then(() => {
-        setCopied(true);
-        toast.success("Link copied successfully!");
-        copyResetTimerRef.current = window.setTimeout(() => {
-          setCopied(false);
-          copyResetTimerRef.current = null;
-        }, 2000);
-      })
-      .catch((err) => {
-        console.error("Clipboard copy failed:", err);
-        toast.error("Failed to copy profile URL");
-      });
   };
 
   const handleRemoveAccount = async (githubId: string) => {
@@ -1013,7 +995,7 @@ function SettingsPageContent() {
                   className="w-full sm:w-auto"
                   aria-label="Copy public profile URL"
                 >
-                  {copied ? "Copied!" : "Copy"}
+                  <CopyFeedback copied={isCopied()} label="Copy" />
                 </Button>
               </div>
               {!settings.is_public && (
