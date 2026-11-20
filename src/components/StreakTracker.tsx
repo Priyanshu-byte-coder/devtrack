@@ -14,13 +14,13 @@ import {
   Trophy,
   Calendar,
   Zap,
-  Copy,
   CheckCircle,
   Medal,
   Star,
   Sparkles,
 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
 const DATA_WINDOW_DAYS = 90;
@@ -66,7 +66,6 @@ export default function StreakTracker() {
     lastUpdated,
     minutesAgo,
     copied,
-    setCopied,
     error,
     setError,
     calendarMonth,
@@ -263,13 +262,11 @@ export default function StreakTracker() {
               className="cursor-pointer flex h-8 items-center justify-center rounded-md px-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-colors"
               aria-label="Copy streak stats to clipboard"
             >
-              {copied ? (
-                <span className="text-xs font-medium text-[var(--success)]">
-                  Copied!
-                </span>
-              ) : (
-                <Copy size={16} className="opacity-80 hover:opacity-100" />
-              )}
+              <CopyFeedback
+                copied={copied}
+                iconClassName="h-4 w-4"
+                className="text-xs font-medium"
+              />
             </button>
             <button
               type="button"

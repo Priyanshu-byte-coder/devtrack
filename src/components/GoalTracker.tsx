@@ -10,6 +10,8 @@ import {
   type GoalStatusFilter,
 } from "@/lib/goal-tracker";
 import ConfirmModal from "@/components/ConfirmModal";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
@@ -454,7 +456,7 @@ export default function GoalTracker() {
       ? (session as { githubLogin: string }).githubLogin
       : null;
 
-  const [copiedGoalId, setCopiedGoalId] = useState<string | null>(null);
+  const { copy: copyText, isCopied } = useCopyToClipboard();
   const [sharingGoalId, setSharingGoalId] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
 
@@ -502,15 +504,7 @@ export default function GoalTracker() {
       goalId
     );
 
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopiedGoalId(goalId);
-      window.setTimeout(() => {
-        setCopiedGoalId((currentGoalId) =>
-          currentGoalId === goalId ? null : currentGoalId
-        );
-      }, 2000);
-    } catch {
+    if (!(await copyText(shareUrl, goalId))) {
       setShareError("Failed to copy share link. Please copy it manually.");
     }
   };
@@ -978,9 +972,10 @@ export default function GoalTracker() {
                         onClick={() => copyGoalShareLink(goal.id)}
                         className="secondary-button mt-3 rounded-lg px-3 py-1.5 text-sm"
                       >
-                        {copiedGoalId === goal.id
-                          ? "Copied!"
-                          : "Copy share link"}
+                        <CopyFeedback
+                          copied={isCopied(goal.id)}
+                          label="Copy share link"
+                        />
                       </button>
                     )}
                   </div>
