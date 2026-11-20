@@ -78,6 +78,7 @@ http://localhost:3000
 - Branch Naming Conventions
 - Commit Guidelines
 - Issue Labels & Difficulty Levels
+- Winter of Code Social (WOCS) 2026
 - Pull Request (PR) Checklist
 - Self-Hosting & Deployment
 
@@ -588,7 +589,39 @@ During **Hacktoberfest**, also check the [`hacktoberfest`](https://github.com/Pr
 - **One Issue at a Time**: Prefer working on one issue at a time so reviews stay focused.
 - **Auto-unassignment**: If you are assigned but do not open a PR within **7 days**, the issue-assignment bot will unassign you so others can pick it up. Still working on it? Comment on the issue and request re-assignment.
 - **Link Issue to PR**: Ensure your pull request description explicitly links to your assigned issue (e.g. `Closes #45`).
-- **Low-effort/AI-generated PRs**: Maintainers label spammy or low-effort PRs (e.g. unreviewed AI output, trivial whitespace-only changes) as `invalid` or `spam` rather than merging them — this keeps the project healthy and keeps them from counting toward Hacktoberfest.
+- **Low-effort PRs**: Maintainers label spammy or low-effort PRs (e.g. trivial whitespace-only changes, bulk PRs made only to collect points) as `invalid` or `spam` rather than merging them. This keeps the project healthy and keeps them from counting toward events like Hacktoberfest or WOCS.
+
+### AI policy
+
+AI tools are allowed, for code, tests and docs alike. PRs are reviewed the same way whoever or whatever wrote them: they need to work, pass CI, fit the issue and follow the guidelines here, and you should be able to answer review questions about your change.
+
+---
+
+## Winter of Code Social (WOCS) 2026
+
+DevTrack is taking part in [Winter of Code Social](https://woc.codesocial.tech), a free open-source program by Code Social. PRs merged between **1 November 2026 and 31 January 2027** can earn WOCS points.
+
+### Getting points
+
+1. **Register** at [woc.codesocial.tech](https://woc.codesocial.tech/get-involved) with the GitHub account you'll open PRs from. Unregistered accounts get no points, even for merged PRs.
+2. **Get assigned before you start.** Comment `/assign` (or "assign me") on an open issue with a line about your approach; the bot assigns you if nobody else has it.
+3. **Open a PR** that links the issue (`Closes #123`) and passes CI. Follow the usual [PR checklist](#pull-request-pr-checklist).
+4. **Maintainers add the labels** before merging: `wocs` plus exactly one of `level 1`, `level 2` or `level 3`. You don't need to add them yourself. Once a PR is merged its level is final.
+
+| WOCS label | Points | Usually matches                    | Typical scope                                 |
+| ---------- | ------ | ---------------------------------- | --------------------------------------------- |
+| `level 1`  | 2      | `level:beginner`                   | Docs, translations, small fixes, first issues |
+| `level 2`  | 5      | `level:intermediate`               | Bug fixes, tests, small features              |
+| `level 3`  | 11     | `level:advanced`, `level:critical` | Larger features, refactors, architecture      |
+
+Maintainers and WOCS mentors set the level from the work actually done, so a PR can land at a different level than its issue.
+
+### Ground rules
+
+- Work on one or two issues at a time and release any you can't finish. The [7-day auto-unassign](#guidelines) still applies.
+- One branch per issue, never commit to `main`, and keep each PR to its issue.
+- Only merged PRs count. Filler or point-farming PRs are closed without review.
+- Questions about points or the program: the [Code Social Discord](https://discord.gg/MSTNyRSPYW) (`#wocs-help`) or `codesocialcommunity@gmail.com`. Questions about DevTrack itself: the issue, or [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
 
 ---
 
