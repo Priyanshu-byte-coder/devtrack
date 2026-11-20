@@ -1,85 +1,90 @@
-name: Bug Report
-description: Report a bug to help us improve DevTrack
+name: Bug report
+description: Something on DevTrack is broken or wrong
 title: "[BUG] "
 labels: ["bug", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug! Please fill out the details below so we can investigate.
+        Thanks for taking the time to report this. Please search [open and closed issues](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue) first; duplicates get closed.
+
+        Found a security problem? Don't open an issue: [report it privately](https://github.com/Priyanshu-byte-coder/devtrack/security/advisories/new).
 
   - type: textarea
-    id: description
+    id: what-happened
     attributes:
-      label: Bug Description
-      description: What happened? What did you expect instead?
-      placeholder: "When I click X, Y happens instead of Z"
+      label: What happened?
+      description: Describe the bug and what you expected to happen instead.
+      placeholder: On the Repositories page, the Lines Changed chart shows 0 for every week, but I committed every day.
     validations:
       required: true
 
   - type: textarea
     id: steps
     attributes:
-      label: Steps to Reproduce
-      description: How can we reproduce this bug?
+      label: Steps to reproduce
       value: |
-        1. Go to '...'
-        2. Click on '...'
-        3. See error
+        1. Go to …
+        2. Click …
+        3. See …
     validations:
       required: true
 
   - type: dropdown
     id: area
     attributes:
-      label: Affected Area
-      description: Which part of DevTrack is affected?
+      label: Where is it?
       options:
-        - Dashboard
-        - Landing Page
-        - Authentication / Sign-in
-        - API Routes
-        - Public Profile
-        - Leaderboard
-        - Collaboration Rooms
-        - Goal Tracker
-        - Streak System
-        - Settings
+        - Dashboard overview
+        - Repositories
+        - Pull requests and reviews
+        - Goals
+        - Streak and activity
+        - AI features (insights, personality, project tutor, career)
+        - Public profile or share card
+        - Leaderboard or Top boards
+        - Compare (duels)
+        - README badges
+        - Weekly email
+        - Sign-in or account
+        - Settings and privacy
+        - Translations
+        - Landing page or guides
+        - API
         - Other
     validations:
       required: true
 
-  - type: textarea
-    id: screenshots
+  - type: dropdown
+    id: where
     attributes:
-      label: Screenshots
-      description: If applicable, add screenshots to help explain the issue.
+      label: Where did you see it?
+      options:
+        - devtrack.live
+        - Local development
+        - Both
     validations:
-      required: false
+      required: true
 
   - type: input
     id: browser
     attributes:
-      label: Browser & OS
-      placeholder: "Chrome 126 on Windows 11"
-    validations:
-      required: false
-
-  - type: dropdown
-    id: environment
-    attributes:
-      label: Environment
-      options:
-        - Local Development
-        - Production (devtrack.site)
-        - Both
+      label: Browser and device
+      placeholder: Chrome 131 on Windows 11 / Safari on iPhone 15
     validations:
       required: false
 
   - type: textarea
-    id: additional
+    id: evidence
     attributes:
-      label: Additional Context
-      description: Any other relevant information (error logs, console output, etc.)
+      label: Screenshots, console errors or logs
+      description: Paste or drag files in. Remove anything private (tokens, emails) first.
     validations:
       required: false
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Want to fix it?
+      options:
+        - label: I'd like to work on this. A maintainer will assign you; please don't start before that.
