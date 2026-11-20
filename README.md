@@ -185,6 +185,8 @@ Ready to work on the signed-in dashboard? The full setup (Supabase, GitHub OAuth
 
 ### How to contribute
 
+> **Winter of Code Social 2026:** DevTrack is part of [WOCS](https://woc.codesocial.tech). Register there before you open PRs, and see [CONTRIBUTING.md](./CONTRIBUTING.md#winter-of-code-social-wocs-2026) for how points and the `wocs` / `level N` labels work.
+
 1. Find an [open issue](https://github.com/Priyanshu-byte-coder/devtrack/issues) and comment to get assigned.
 2. Fork, branch from `main` (for example `feat/issue-42-description`) and make your change.
 3. Run `pnpm run lint && pnpm run type-check && pnpm test` and open a PR.
