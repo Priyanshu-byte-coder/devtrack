@@ -10,6 +10,8 @@ import {
   type GoalStatusFilter,
 } from "@/lib/goal-tracker";
 import ConfirmModal from "@/components/ConfirmModal";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
@@ -454,9 +456,20 @@ export default function GoalTracker() {
       ? (session as { githubLogin: string }).githubLogin
       : null;
 
-  const [copiedGoalId, setCopiedGoalId] = useState<string | null>(null);
+  const { copy: copyText, isCopied } = useCopyToClipboard();
   const [sharingGoalId, setSharingGoalId] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
+
+  // Animate the progress bars from 0% when they first appear. Each bar
+  // already has `transition-all duration-700`, but its width starts at the
+  // final value, so it snaps instead of filling. This flips on after the
+  // first render that shows goals, so the width change animates.
+  const [barsAnimated, setBarsAnimated] = useState(false);
+  useEffect(() => {
+    if (goals.length > 0 && !barsAnimated) {
+      setBarsAnimated(true);
+    }
+  }, [goals, barsAnimated]);
 
   const toggleGoalSharing = async (goalId: string, nextValue: boolean) => {
     setSharingGoalId(goalId);
@@ -502,15 +515,7 @@ export default function GoalTracker() {
       goalId
     );
 
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopiedGoalId(goalId);
-      window.setTimeout(() => {
-        setCopiedGoalId((currentGoalId) =>
-          currentGoalId === goalId ? null : currentGoalId
-        );
-      }, 2000);
-    } catch {
+    if (!(await copyText(shareUrl, goalId))) {
       setShareError("Failed to copy share link. Please copy it manually.");
     }
   };
@@ -521,15 +526,17 @@ export default function GoalTracker() {
     return (
       <WidgetSkeleton title="weekly goals" className="h-full">
         <div className="flex justify-between items-center mb-4">
-          <SkeletonBlock className="h-6 w-16" />
-          <SkeletonBlock className="h-6 w-20" />
+          <SkeletonBlock className="h-[35px] w-16" />
+          <SkeletonBlock className="h-[35px] w-20" />
         </div>
-        {[1, 2, 3].map((i) => (
-          <div key={i} aria-hidden="true" className="mb-4">
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-2 w-full" />
-          </div>
-        ))}
+        <SkeletonBlock className="mb-3 h-[26px]" />
+        <div aria-hidden="true">
+          <SkeletonBlock className="h-4 w-full mb-2" />
+          <SkeletonBlock className="h-[108px] w-full" />
+        </div>
+        <SkeletonBlock className="mt-2 h-4" />
+        <SkeletonBlock className="mt-6 h-[440px]" />
+        <SkeletonBlock className="mt-6 h-[37px]" />
       </WidgetSkeleton>
     );
   }
@@ -924,7 +931,7 @@ export default function GoalTracker() {
                       className="pointer-events-none absolute inset-0 z-10 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--card)_10px_12px)]"
                     />
                     <div
-                      className={`h-full transition-all duration-700 ${
+                      className={`h-full transition-all duration-700 motion-reduce:transition-none ${
                         isSurpassed
                           ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
                           : completed
@@ -932,7 +939,7 @@ export default function GoalTracker() {
                             : "bg-[var(--accent)]"
                       }`}
                       style={{
-                        width: `${Math.max(0, Math.min(progressWidth, 100))}%`,
+                        width: `${barsAnimated ? Math.max(0, Math.min(progressWidth, 100)) : 0}%`,
                       }}
                       role="progressbar"
                       aria-valuenow={goal.current}
@@ -976,9 +983,10 @@ export default function GoalTracker() {
                         onClick={() => copyGoalShareLink(goal.id)}
                         className="secondary-button mt-3 rounded-lg px-3 py-1.5 text-sm"
                       >
-                        {copiedGoalId === goal.id
-                          ? "Copied!"
-                          : "Copy share link"}
+                        <CopyFeedback
+                          copied={isCopied(goal.id)}
+                          label="Copy share link"
+                        />
                       </button>
                     )}
                   </div>

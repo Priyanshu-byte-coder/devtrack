@@ -36,6 +36,12 @@ export function formatDuration(hours: number | null): string {
   return `${Math.round((hours / 24) * 10) / 10}d`;
 }
 
+/** A ratio to one decimal ("1.5"), or two below 0.1 ("0.03"). */
+function roundRatio(rate: number): number {
+  const scale = rate < 0.1 ? 100 : 10;
+  return Math.round(rate * scale) / scale;
+}
+
 function timeAgo(iso: string): string {
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
   if (days <= 0) return "today";
@@ -220,6 +226,10 @@ export default function PRMetrics() {
   const reviewTotal = s
     ? s.reviews.approved + s.reviews.changesRequested + s.reviews.commented
     : 0;
+  const reviewRatio =
+    s && s.reviews.participationRate !== null
+      ? roundRatio(s.reviews.participationRate)
+      : null;
   const repoPeak = s ? Math.max(1, ...s.repos.map((r) => r.opened)) : 1;
 
   return (
@@ -272,13 +282,17 @@ export default function PRMetrics() {
           <span className="sr-only">Loading pull requests</span>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
             {Array.from({ length: 6 }, (_, i) => (
-              <SkeletonBlock key={i} className="h-[92px]" />
+              <SkeletonBlock key={i} className="h-[104px]" />
             ))}
           </div>
-          <SkeletonBlock className="h-48" />
+          <SkeletonBlock className="h-[236px]" />
           <div className="grid gap-4 lg:grid-cols-2">
-            <SkeletonBlock className="h-56" />
-            <SkeletonBlock className="h-56" />
+            <SkeletonBlock className="h-[127px]" />
+            <SkeletonBlock className="h-[127px]" />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SkeletonBlock className="h-[127px]" />
+            <SkeletonBlock className="h-[127px]" />
           </div>
         </div>
       ) : error && !s ? (
@@ -526,15 +540,15 @@ export default function PRMetrics() {
                     </div>
                   </div>
                   <p className="text-xs text-[var(--muted-foreground)]">
-                    {s.reviews.participationRate === null ? (
+                    {reviewRatio === null ? (
                       "Open a PR in this range to compare reviews given with PRs opened."
                     ) : (
                       <>
                         <span className="font-pixel text-[var(--card-foreground)]">
-                          {Math.round(s.reviews.participationRate * 100)}%
+                          {reviewRatio}
                         </span>{" "}
-                        review participation: PRs you reviewed as a share of the
-                        PRs you opened
+                        {reviewRatio === 1 ? "PR" : "PRs"} reviewed for every PR
+                        you opened
                         {s.reviews.sampled ? " (latest 100 reviews)" : ""}.
                       </>
                     )}

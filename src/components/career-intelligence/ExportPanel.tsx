@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Braces, Check, Copy, FileCode, FileDown } from "lucide-react";
+import { Braces, FileCode, FileDown } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import type { ResumeContent, ExportFormat } from "@/types/cv-types";
 
 interface ExportPanelProps {
@@ -47,7 +50,7 @@ export default function ExportPanel({
   const [exportingFormat, setExportingFormat] = useState<ExportFormat | null>(
     null
   );
-  const [copied, setCopied] = useState(false);
+  const { copy, isCopied } = useCopyToClipboard();
 
   const handleExport = async (format: ExportFormat) => {
     setExportingFormat(format);
@@ -59,12 +62,8 @@ export default function ExportPanel({
   };
 
   const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(resumeAsText(content));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy resume content:", err);
+    if (!(await copy(resumeAsText(content)))) {
+      toast.error("Failed to copy resume content.");
     }
   };
 
@@ -93,8 +92,7 @@ export default function ExportPanel({
         JSON
       </Button>
       <Button variant="ghost" onClick={copyToClipboard}>
-        {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-        {copied ? "Copied" : "Copy as text"}
+        <CopyFeedback copied={isCopied()} label="Copy as text" />
       </Button>
       <span className="text-xs text-[var(--muted-foreground)]">
         Edits you make below are included in the download.

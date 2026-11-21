@@ -61,7 +61,7 @@ describe("PRMetrics review participation", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows PRs reviewed and the participation rate", async () => {
+  it("shows PRs reviewed and the participation ratio", async () => {
     fetchMock.mockReturnValue(reply({ summary: summary() }));
     render(<PRMetrics />);
 
@@ -70,10 +70,66 @@ describe("PRMetrics review participation", () => {
     );
     expect(within(reviewed).getByText("6")).toBeInTheDocument();
     expect(within(reviewed).getByText("PRs reviewed")).toBeInTheDocument();
-    expect(screen.getByText("150%")).toBeInTheDocument();
-    expect(
-      screen.getByText(/as a share of the PRs you opened\.$/)
-    ).toBeInTheDocument();
+    const ratio = screen
+      .getByText(/^PRs reviewed for every PR you opened\.$/)
+      .closest("p");
+    expect(ratio).toHaveTextContent(
+      "1.5 PRs reviewed for every PR you opened."
+    );
+    expect(ratio).not.toHaveTextContent("%");
+  });
+
+  it("shows a ratio below one", async () => {
+    fetchMock.mockReturnValue(
+      reply({
+        summary: summary({ total: 3, prsReviewed: 2, participationRate: 0.5 }),
+      })
+    );
+    render(<PRMetrics />);
+
+    const ratio = (
+      await screen.findByText(/^PRs reviewed for every PR you opened\.$/)
+    ).closest("p");
+    expect(ratio).toHaveTextContent(
+      "0.5 PRs reviewed for every PR you opened."
+    );
+  });
+
+  it("uses the singular for a ratio of exactly one", async () => {
+    fetchMock.mockReturnValue(
+      reply({
+        summary: summary({ total: 5, prsReviewed: 4, participationRate: 1 }),
+      })
+    );
+    render(<PRMetrics />);
+
+    const ratio = (
+      await screen.findByText(/^PR reviewed for every PR you opened\.$/)
+    ).closest("p");
+    expect(ratio).toHaveTextContent("1 PR reviewed for every PR you opened.");
+  });
+
+  it("keeps a small ratio above zero", async () => {
+    fetchMock.mockReturnValue(
+      reply({
+        summary: {
+          ...summary({
+            total: 1,
+            prsReviewed: 1,
+            participationRate: 1 / 30,
+          }),
+          opened: 30,
+        },
+      })
+    );
+    render(<PRMetrics />);
+
+    const ratio = (
+      await screen.findByText(/^PRs reviewed for every PR you opened\.$/)
+    ).closest("p");
+    expect(ratio).toHaveTextContent(
+      "0.03 PRs reviewed for every PR you opened."
+    );
   });
 
   it("marks a sampled count as a lower bound", async () => {
@@ -86,7 +142,9 @@ describe("PRMetrics review participation", () => {
 
     expect(await screen.findByText("80+")).toBeInTheDocument();
     expect(
-      screen.getByText(/the PRs you opened \(latest 100 reviews\)\.$/)
+      screen.getByText(
+        /^PRs reviewed for every PR you opened \(latest 100 reviews\)\.$/
+      )
     ).toBeInTheDocument();
   });
 
