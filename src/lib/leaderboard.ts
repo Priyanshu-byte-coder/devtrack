@@ -4,6 +4,7 @@ import { decryptToken } from "@/lib/crypto";
 import { dateDiffDays, toDateStr } from "@/lib/date-utils";
 import {
   cacheGet,
+  cacheGetMany,
   cacheSet,
   cacheDelete,
   invalidateLeaderboardCache,
@@ -23,7 +24,13 @@ import {
   type Tier,
 } from "@/lib/gamification/scoring";
 
-export const CACHE_REFRESH_SECONDS = 3600; // 1 hour
+/**
+ * How often a board is rebuilt from saved player stats. Each player's GitHub
+ * stats refresh every 6 hours at most and ranks snapshot once a day, so an
+ * hourly rebuild (3 boards, 72 a day) mostly recomputed the same numbers.
+ * A new player still shows up at once: sign-up clears the cache.
+ */
+export const CACHE_REFRESH_SECONDS = 3 * 3600;
 /**
  * How long one player's GitHub stats are reused across board rebuilds. Most
  * players have no stored token, so their stats are fetched with the shared
@@ -324,7 +331,7 @@ function getPeriodSince(period: LeaderboardPeriod): string | undefined {
   return toDateStr(new Date(Date.now() - days * 86400000));
 }
 
-type UserStats = {
+export type UserStats = {
   streak: number;
   commits: number;
   prs: number;
@@ -452,6 +459,11 @@ async function fetchUserStats(
           token
         )
       : null;
+    // Without the lifetime totals this would pass off the last year's as
+    // all-time and save them as good: one timed-out request cut a player's
+    // 1,190 lifetime commits to 212 and their score by 200. A failed lookup
+    // instead, so the caller tries the shared token, then the saved stats.
+    if (years.length > 0 && !all?.user) return null;
     if (all?.user) {
       const totals = Object.values(all.user);
       commits = totals.reduce((sum, t) => sum + t.totalCommitContributions, 0);
@@ -532,6 +544,25 @@ function readSaved(value: unknown): SavedStats | null {
 }
 
 /**
+ * A player's last good leaderboard stats, without fetching. Fetched with the
+ * player's own token where we have one, so they include private-repo work
+ * that public lookups can't see. Null when the player has none saved.
+ */
+export async function getSavedPlayerStats(
+  login: string,
+  period: LeaderboardPeriod
+): Promise<UserStats | null> {
+  try {
+    return (
+      readSaved(await cacheGet<unknown>(lastGoodKey(login, period)))?.stats ??
+      null
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Spreads refreshes over an extra hour per player, so players fetched in the
  * same burst don't all come due together again six hours later.
  */
@@ -552,27 +583,39 @@ function refreshAfterMs(login: string): number {
  * that has no active days, streak, reviews or repositories, so a player
  * near the top dropped ~400 points and a hundred places. In order, we try
  * their token, then the shared token (contribution data is public), then
- * their last good stats, and only then the search counts.
+ * their last good stats, and only then the search counts. A player whose
+ * own token fails gets their last good stats before the shared token's
+ * public-only view.
  */
 async function playerStats(
   login: string,
   token: string | undefined,
   sharedToken: string | undefined,
   period: LeaderboardPeriod,
-  periodStart: string | undefined
+  periodStart: string | undefined,
+  /** Already read by the caller; undefined to read it here. */
+  preloaded?: unknown
 ): Promise<UserStats> {
   const key = lastGoodKey(login, period);
   let saved: SavedStats | null = null;
   try {
-    saved = readSaved(await cacheGet<unknown>(key));
+    saved = readSaved(
+      preloaded === undefined ? await cacheGet<unknown>(key) : preloaded
+    );
   } catch {
     // Redis down: fall through to GitHub.
   }
   if (saved && Date.now() - saved.savedAt < refreshAfterMs(login))
     return saved.stats;
 
+  const ownToken = Boolean(token && token !== sharedToken);
   const fresh = await githubSlots(async () => {
     let stats = token ? await fetchUserStats(login, token, periodStart) : null;
+    // The shared token can't see private-repo work, so for a player with
+    // their own token its view is a partial one: saving it as good cut one
+    // player's lifetime commits from 2,560 to 1,775 when their token failed
+    // once. Their last good stats are the better answer.
+    if (!stats && ownToken && saved) return null;
     if (!stats && sharedToken && sharedToken !== token)
       stats = await fetchUserStats(login, sharedToken, periodStart);
     return stats;
@@ -624,6 +667,20 @@ export async function buildLeaderboard(
   // bucket), else the GITHUB_TOKEN PAT.
   const serverToken = await resolveServerGitHubToken();
 
+  // Every player's saved stats in one Redis command instead of one each:
+  // Upstash bills per command, and this runs for each period every hour.
+  let savedStats = new Map<string, unknown>();
+  try {
+    const values = await cacheGetMany<unknown>(
+      safeUsers.map((user) => lastGoodKey(user.github_login, period))
+    );
+    savedStats = new Map(
+      safeUsers.map((user, i) => [user.id, values[i] ?? null])
+    );
+  } catch {
+    // Redis down: each player reads (and falls back) on its own.
+  }
+
   const rows = await mapWithConcurrency(
     safeUsers,
     CACHE_READ_CONCURRENCY,
@@ -635,7 +692,8 @@ export async function buildLeaderboard(
         token,
         serverToken,
         period,
-        periodStart
+        periodStart,
+        savedStats.get(user.id)
       );
       const { streak, commits, prs, activeDays, reviews, repos } = stats;
       const score = streak * 5 + commits + prs * 3;

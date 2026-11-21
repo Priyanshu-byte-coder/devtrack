@@ -4,10 +4,18 @@ import { Button } from "@/components/ui/button";
 import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PUBLIC_CACHE_PARAM } from "@/lib/public-page-cache";
 
 type Period = "week" | "month" | "all";
 
 const STORAGE_KEY = "leaderboard-filters";
+
+/** The page's query, minus the proxy's cache marker (lib/public-page-cache). */
+function withoutCacheMarker(current: { toString(): string }) {
+  const params = new URLSearchParams(current.toString());
+  params.delete(PUBLIC_CACHE_PARAM);
+  return params;
+}
 
 const languages = [
   { label: "TypeScript", value: "typescript" },
@@ -69,6 +77,7 @@ export default function LeaderboardFilters() {
   // them removes the params, and restoring on every change used to put the
   // saved "This week" straight back.
   const restored = useRef(false);
+
   useEffect(() => {
     if (restored.current) return;
     restored.current = true;
@@ -77,7 +86,7 @@ export default function LeaderboardFilters() {
     const stored = readStoredFilters();
     if (!stored) return;
 
-    const nextParams = new URLSearchParams(searchParams.toString());
+    const nextParams = withoutCacheMarker(searchParams);
     if (stored.lang) nextParams.set("lang", stored.lang);
     const storedPeriod = stored.period ?? null;
     if (isPeriod(storedPeriod) && storedPeriod !== "all") {
@@ -105,7 +114,7 @@ export default function LeaderboardFilters() {
       lang: next.lang ?? language,
       period: next.period ?? period,
     });
-    const params = new URLSearchParams(searchParams.toString());
+    const params = withoutCacheMarker(searchParams);
 
     if (next.lang !== undefined) {
       if (next.lang) {
@@ -128,7 +137,7 @@ export default function LeaderboardFilters() {
   }
 
   function clearFilters() {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = withoutCacheMarker(searchParams);
     params.delete("lang");
     params.delete("period");
     saveFilters({ lang: "", period: "all" });

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 import { useAccount } from "@/components/AccountContext";
 import type { RepoHealthScore } from "@/types/repo-health";

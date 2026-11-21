@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 /** Slim banner that puts Year in Code (Wrapped) in front of every visit. */

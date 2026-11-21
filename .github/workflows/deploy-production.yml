@@ -1,0 +1,63 @@
+name: Deploy to production
+
+# Merges to main don't deploy on their own (vercel.json sets
+# git.deploymentEnabled.main to false): every production deploy empties
+# Vercel's CDN cache, so each page renders again and spends Active CPU.
+# Merge as many PRs as you like, then run this once to ship them together:
+#   Actions > Deploy to production > Run workflow   (or: gh workflow run deploy-production.yml)
+#
+# The deploy is uploaded with the Vercel CLI, so the Vercel project needs no
+# Git connection. Requires three repository secrets:
+#   VERCEL_TOKEN       Vercel > Account Settings > Tokens, scoped to the team
+#   VERCEL_ORG_ID      "orgId" in .vercel/project.json after `vercel link`
+#   VERCEL_PROJECT_ID  "projectId" in the same file
+on:
+  workflow_dispatch:
+    inputs:
+      skip_ci_check:
+        description: "Deploy even if CI on the latest main commit hasn't passed"
+        type: boolean
+        default: false
+
+permissions:
+  actions: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.repository == 'Priyanshu-byte-coder/devtrack' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check CI passed on the latest main commit
+        if: ${{ !inputs.skip_ci_check }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          conclusion=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow CI --branch main \
+            --commit "$SHA" --limit 1 --json conclusion --jq '.[0].conclusion // ""')
+          echo "CI on ${SHA::7}: ${conclusion:-not finished}"
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::CI hasn't passed on ${SHA::7}. Wait for it, or re-run with skip_ci_check."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::error::Add the VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID secrets first."
+            exit 1
+          fi
+          npm install --global vercel@54.18.7
+          url=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
+          echo "Deployed ${GITHUB_SHA::7} to production: $url" >> "$GITHUB_STEP_SUMMARY"

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
 import { buttonVariants } from "@/components/ui/button";
 

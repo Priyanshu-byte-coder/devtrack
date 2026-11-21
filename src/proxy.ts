@@ -7,7 +7,18 @@ import {
   AUTH_LIMIT,
 } from "@/lib/auth-rate-limit";
 import { isStateChangingMethod, isCsrfExempt, validateCsrf } from "@/lib/csrf";
-import { canonicalRedirectUrl } from "@/lib/canonical-host";
+import {
+  canonicalRedirectUrl,
+  lowercaseProfilePath,
+} from "@/lib/canonical-host";
+import { isProbePath } from "@/lib/probe-paths";
+import { localeCookieName } from "@/i18n/config";
+import {
+  PUBLIC_PAGE_ROUTE,
+  PUBLIC_PAGE_SOURCE_PARAM,
+  isPublicCacheable,
+  publicPageCacheEnabled,
+} from "@/lib/public-page-cache";
 
 const isDev = process.env.NODE_ENV === "development";
 const memoryBuckets = new Map<string, number[]>();
@@ -242,11 +253,29 @@ async function checkRateLimit(identifier: string, limit: number) {
 }
 
 export async function proxy(req: NextRequest) {
+  // Scanner probes get a bare 404 here instead of a rendered not-found page.
+  if (isProbePath(req.nextUrl.pathname)) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { "Cache-Control": "public, max-age=86400" },
+    });
+  }
+
   const canonical = canonicalRedirectUrl(
     req.headers.get("host") ?? "",
     req.nextUrl.pathname + req.nextUrl.search
   );
   if (canonical) return NextResponse.redirect(canonical, 308);
+
+  const profilePath =
+    req.method === "GET" || req.method === "HEAD"
+      ? lowercaseProfilePath(req.nextUrl.pathname)
+      : null;
+  if (profilePath) {
+    const url = req.nextUrl.clone();
+    url.pathname = profilePath;
+    return NextResponse.redirect(url, 308);
+  }
 
   const pathname = req.nextUrl.pathname;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -278,6 +307,30 @@ export async function proxy(req: NextRequest) {
     return response;
   };
 
+  // Signed-out, default-locale views of public pages share one cached copy
+  // on Vercel's CDN, under their own key (see lib/public-page-cache.ts).
+  if (
+    publicPageCacheEnabled() &&
+    isPublicCacheable({
+      method: req.method,
+      pathname,
+      searchParams: req.nextUrl.searchParams,
+      cookieNames: req.cookies.getAll().map((cookie) => cookie.name),
+      localeCookie: req.cookies.get(localeCookieName)?.value,
+      headers: req.headers,
+    })
+  ) {
+    const url = req.nextUrl.clone();
+    url.pathname = PUBLIC_PAGE_ROUTE;
+    url.search = "";
+    url.searchParams.set(
+      PUBLIC_PAGE_SOURCE_PARAM,
+      req.nextUrl.pathname + req.nextUrl.search
+    );
+    // The handler returns the page's own CSP, matching its nonce.
+    return NextResponse.rewrite(url);
+  }
+
   // In production (HTTPS), NextAuth.js writes the session to the
   // __Secure-next-auth.session-token cookie (Secure flag set).
   // We must try the secure cookie first; the plain cookie is only
@@ -285,29 +338,31 @@ export async function proxy(req: NextRequest) {
   const isProduction =
     new URL(process.env.NEXTAUTH_URL ?? req.url).protocol === "https:";
 
-  let token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-    secureCookie: isProduction,
-    cookieName: isProduction
-      ? "__Secure-next-auth.session-token"
-      : "next-auth.session-token",
-  });
-
-  if (!token && (!isProduction || process.env.CI === "true")) {
-    // Fallback: try the opposite cookie name to handle edge cases such as
-    // a dev build or CI environment that somehow received a Secure cookie.
-    token = await getToken({
+  const readToken = async () => {
+    let token = await getToken({
       req,
       secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: !isProduction,
-      cookieName: !isProduction
+      secureCookie: isProduction,
+      cookieName: isProduction
         ? "__Secure-next-auth.session-token"
         : "next-auth.session-token",
     });
-  }
 
-  if (token?.error === "TokenRevoked") token = null;
+    if (!token && (!isProduction || process.env.CI === "true")) {
+      // Fallback: try the opposite cookie name to handle edge cases such as
+      // a dev build or CI environment that somehow received a Secure cookie.
+      token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+        secureCookie: !isProduction,
+        cookieName: !isProduction
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      });
+    }
+
+    return token?.error === "TokenRevoked" ? null : token;
+  };
 
   const isApiStateChange =
     pathname.startsWith("/api/") &&
@@ -330,6 +385,10 @@ export async function proxy(req: NextRequest) {
   const isAdminRoute = adminRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
+
+  // Only these branches read the session; decrypting it for every public
+  // page and API call was CPU spent on every request.
+  const token = isProtectedRoute || isAdminRoute ? await readToken() : null;
 
   if ((isProtectedRoute || isAdminRoute) && !token) {
     const url = req.nextUrl.clone();
@@ -388,7 +447,9 @@ export async function proxy(req: NextRequest) {
     return next();
   }
 
-  const githubId = typeof token?.githubId === "string" ? token.githubId : null;
+  const rateToken = await readToken();
+  const githubId =
+    typeof rateToken?.githubId === "string" ? rateToken.githubId : null;
   const identifier = githubId ? `user:${githubId}` : `ip:${getIp(req)}`;
   const limit = githubId
     ? RATE_LIMIT_CONFIG.AUTHENTICATED_LIMIT
@@ -437,7 +498,10 @@ export const config = {
     // (u/<login>/opengraph-image) and duel cards (compare/<a>-vs-<b>/
     // opengraph-image) are public images too, fetched by link
     // preview crawlers, so they're excluded for the same reason, as is the
-    // public, cookie-free api/score-preview lookup.
-    "/((?!_next/static|_next/image|favicon.ico|favicon.svg|sw.js|workbox-|manifest.json|offline.html|api/badge/|api/score-preview|u/[^/]+/opengraph-image|compare/[^/]+/opengraph-image).*)",
+    // public, cookie-free api/score-preview lookup. Files with a static
+    // extension (icons, cursors, robots.txt, sitemap.xml, scripts) skip it
+    // too: they need no CSP or session, and each pass was a billed
+    // invocation that also marked them "no-store" so the CDN never kept them.
+    "/((?!_next/static|_next/image|favicon.ico|favicon.svg|sw.js|workbox-|manifest.json|offline.html|api/badge/|api/score-preview|u/[^/]+/opengraph-image|compare/[^/]+/opengraph-image|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico|txt|xml|webmanifest|woff2?|ttf|css|js|map)$).*)",
   ],
 };

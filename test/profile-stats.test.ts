@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildProfileStats, type ProfileStatsNode } from "@/lib/profile-stats";
+import {
+  PROFILE_STATS_QUERY,
+  buildProfileStats,
+  type ProfileStatsNode,
+} from "@/lib/profile-stats";
 
 function node(): ProfileStatsNode {
   return {
-    gists: { totalCount: 3 },
     pullRequests: { totalCount: 42 },
     repositories: {
       nodes: [
@@ -100,7 +103,11 @@ describe("buildProfileStats", () => {
   it("keeps active days for the streak, and the counts", () => {
     const stats = buildProfileStats(node(), 30);
     expect([...stats.activeDates].sort()).toEqual(["2026-10-31", "2026-11-01"]);
-    expect(stats.publicGists).toBe(3);
     expect(stats.pullRequests).toBe(42);
+  });
+
+  it("doesn't ask GraphQL for gists, which GitHub App tokens can't read", () => {
+    // "Resource not accessible by integration" failed every member profile.
+    expect(PROFILE_STATS_QUERY).not.toMatch(/gists/);
   });
 });

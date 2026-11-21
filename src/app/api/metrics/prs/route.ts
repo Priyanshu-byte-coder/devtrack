@@ -95,7 +95,7 @@ function cachedRaw(
   cache: { bypass: boolean; userId: string }
 ) {
   const key = metricsCacheKey(cache.userId, "prs", {
-    v: 2,
+    v: 3,
     range,
     githubLogin: login,
     orgName: scope.org ?? undefined,

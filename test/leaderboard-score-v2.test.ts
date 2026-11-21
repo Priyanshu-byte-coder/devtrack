@@ -14,6 +14,7 @@ vi.mock("@/lib/github-request", () => ({ githubRequest: mocks.githubRequest }));
 vi.mock("@/lib/crypto", () => ({ decryptToken: vi.fn(() => null) }));
 vi.mock("@/lib/metrics-cache", () => ({
   cacheGet: vi.fn(),
+  cacheGetMany: vi.fn(async (keys: string[]) => keys.map(() => null)),
   cacheSet: vi.fn(),
   cacheDelete: vi.fn(),
   invalidateLeaderboardCache: vi.fn(),

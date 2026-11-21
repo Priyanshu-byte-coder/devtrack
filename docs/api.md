@@ -102,7 +102,7 @@ All metrics routes require authentication. Most support a `?refresh=1` or `?bypa
 | GET    | `/api/metrics/contributions/daily`          | Daily contribution breakdown                                     |
 | GET    | `/api/metrics/contributions/hourly`         | Hourly contribution breakdown                                    |
 | GET    | `/api/metrics/streak`                       | Current and longest commit streak                                |
-| GET    | `/api/metrics/prs`                          | PR summary: open, merged, closed counts                          |
+| GET    | `/api/metrics/prs`                          | PR summary: outcomes, merge time, reviews and PRs reviewed       |
 | GET    | `/api/metrics/pr-breakdown`                 | PR status breakdown chart data                                   |
 | GET    | `/api/metrics/pr-review-time`               | PR review time trend over time                                   |
 | GET    | `/api/metrics/repos`                        | Top repositories ranked by commit activity (supports `?days=30`) |
@@ -121,6 +121,7 @@ All metrics routes require authentication. Most support a `?refresh=1` or `?bypa
 | GET    | `/api/metrics/sponsors`                     | GitHub Sponsors data                                             |
 | GET    | `/api/metrics/commit-times`                 | Commits grouped by hour of day                                   |
 | GET    | `/api/metrics/productive-hours`             | Most productive coding hours                                     |
+| GET    | `/api/metrics/diff-trend`                   | Lines added/removed per week in your top 3 repos (12 weeks)      |
 | GET    | `/api/metrics/consistency-score`            | Developer consistency score                                      |
 | GET    | `/api/metrics/community-engagement`         | Community engagement score                                       |
 | GET    | `/api/metrics/compare`                      | Side-by-side comparison with another GitHub user                 |

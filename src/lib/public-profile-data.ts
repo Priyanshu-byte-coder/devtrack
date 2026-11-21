@@ -451,8 +451,10 @@ export async function fetchPublicProfile(
     ? Promise.all([
         fetchProfileStatsGraphql(user.github_login, githubToken),
         fetchStreakFreezes(user.id),
-      ]).then(([stats, freezes]) => ({
-        publicGists: stats.publicGists,
+        // GraphQL's gists field refuses GitHub App tokens; REST doesn't.
+        fetchPublicGists(user.github_login, githubToken).catch(() => 0),
+      ]).then(([stats, freezes, publicGists]) => ({
+        publicGists,
         repos: stats.repos,
         contributions: stats.contributions,
         streak: {

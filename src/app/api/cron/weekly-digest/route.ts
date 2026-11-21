@@ -1,7 +1,9 @@
 /**
  * Weekly coding digest cron endpoint.
  *
- * Triggered by Vercel Cron every Monday at 09:00 UTC (see vercel.json).
+ * Triggered by Vercel Cron every day at 09:00 UTC (see vercel.json). The
+ * cooldown below still limits each user to one digest a week; running daily
+ * lets a run that hit DAILY_SEND_LIMIT finish the rest the next day.
  * Self-hosted deployments can call this route from any external scheduler
  * by supplying:  Authorization: Bearer <CRON_SECRET>
  *
@@ -29,7 +31,13 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { buildDigestMetrics, buildUnsubscribeUrl } from "@/lib/weekly-digest";
+import {
+  buildDigestMetrics,
+  buildDigestMetricsFromBoard,
+  buildUnsubscribeUrl,
+} from "@/lib/weekly-digest";
+import type { DigestBoardEntry } from "@/lib/weekly-digest";
+import { getLeaderboardData } from "@/lib/leaderboard";
 import { buildDigestHtml, buildDigestText } from "@/lib/digest-email";
 import { validateCronRequest } from "@/lib/cron-auth";
 import type { DigestMetrics } from "@/lib/weekly-digest";
@@ -46,6 +54,14 @@ const PAGE_SIZE = 50;
 
 // Maximum users processed in parallel within a fetched page.
 const BATCH_SIZE = 5;
+
+// Resend's free plan sends 100 emails a day. Stop after this many attempts so
+// a run never goes over (a batch can add up to BATCH_SIZE - 1 more); users not
+// reached are still outside the cooldown and get theirs on the next day's run.
+const DAILY_SEND_LIMIT = 90;
+
+// Resend allows a few requests per second; a 429 is retried after this pause.
+const RATE_LIMIT_RETRY_MS = 1100;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -95,6 +111,7 @@ async function sendEmail(params: {
   subject: string;
   html: string;
   text: string;
+  unsubscribeUrl?: string;
 }): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -102,23 +119,38 @@ async function sendEmail(params: {
   }
 
   const from =
-    process.env.RESEND_FROM_EMAIL ?? "DevTrack <digest@devtrack.app>";
+    process.env.RESEND_FROM_EMAIL ?? "DevTrack <digest@devtrack.live>";
 
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from,
-        to: params.to,
-        subject: params.subject,
-        html: params.html,
-        text: params.text,
-      }),
-    });
+    const send = () =>
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          from,
+          to: params.to,
+          subject: params.subject,
+          html: params.html,
+          text: params.text,
+          // Gmail and Yahoo show their own "Unsubscribe" button for these and
+          // treat mail without them as more likely spam.
+          ...(params.unsubscribeUrl && {
+            headers: {
+              "List-Unsubscribe": `<${params.unsubscribeUrl}>`,
+              "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
+          }),
+        }),
+      });
+
+    let res = await send();
+    if (res.status === 429) {
+      await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_RETRY_MS));
+      res = await send();
+    }
 
     if (!res.ok) {
       const body = await res.text().catch(() => "(no body)");
@@ -155,7 +187,9 @@ async function recordDigestSent(userId: string): Promise<void> {
 async function processUser(
   user: UserRow,
   weekLabel: string,
-  githubToken: string | undefined
+  githubToken: string | undefined,
+  boardEntry: DigestBoardEntry | undefined,
+  place?: { rank: number; players: number }
 ): Promise<{
   status: "sent" | "failed" | "skipped_cooldown" | "skipped_unconfigured";
   error?: string;
@@ -169,8 +203,17 @@ async function processUser(
   }
 
   // ── Metric aggregation ────────────────────────────────────────────────────
+  // Prefer the week the leaderboard already computed; search GitHub only for
+  // someone missing from it.
   let metrics: DigestMetrics | null = null;
-  if (githubToken) {
+  if (boardEntry) {
+    metrics = await buildDigestMetricsFromBoard(
+      boardEntry,
+      user.github_login,
+      githubToken,
+      place
+    );
+  } else if (githubToken) {
     try {
       metrics = await buildDigestMetrics(user.github_login, githubToken);
     } catch (err) {
@@ -204,6 +247,9 @@ async function processUser(
     subject: `Your weekly coding digest — ${weekLabel}`,
     html,
     text,
+    // One-click unsubscribe (RFC 8058) only works with the signed link; the
+    // settings-page fallback can't take a POST.
+    unsubscribeUrl: user.id ? unsubscribeUrl : undefined,
   });
 
   if (!result.ok) {
@@ -242,18 +288,34 @@ export async function GET(request: Request) {
     const weekLabel = currentWeekLabel();
     const githubToken = process.env.GITHUB_TOKEN || undefined;
 
+    // One read of the cached weekly board covers every user's numbers.
+    const weekBoard = await getLeaderboardData(false, { period: "week" }).catch(
+      () => null
+    );
+    const boardById = new Map<string, DigestBoardEntry>(
+      (weekBoard?.leaders.commits ?? []).map((e) => [e.id, e])
+    );
+    // The site ranks the board by score; the email shows the same place.
+    const byScore = [...(weekBoard?.leaders.commits ?? [])].sort(
+      (a, b) => (b.scoreV2 ?? 0) - (a.scoreV2 ?? 0)
+    );
+    const placeById = new Map(
+      byScore.map((e, i) => [e.id, { rank: i + 1, players: byScore.length }])
+    );
+
     let totalUsersProcessed = 0;
     let emailsSent = 0;
     let emailsFailed = 0;
     let skippedCount = 0;
     let skippedUnconfigured = 0;
+    let limitReached = false;
     const errors: SendError[] = [];
 
     // 2. Page through opted-in users so no single query loads the full table.
     let page = 0;
     let hasMore = true;
 
-    while (hasMore) {
+    while (hasMore && !limitReached) {
       const { data: users, error } = await supabaseAdmin
         .from("users")
         .select("id, github_login, email, timezone, last_digest_sent_at")
@@ -275,10 +337,22 @@ export async function GET(request: Request) {
 
       // 3. Within each page, send in parallel sub-batches to cap concurrency.
       for (let i = 0; i < users.length; i += BATCH_SIZE) {
+        if (emailsSent + emailsFailed >= DAILY_SEND_LIMIT) {
+          limitReached = true;
+          break;
+        }
         const batch = (users as UserRow[]).slice(i, i + BATCH_SIZE);
 
         const results = await Promise.allSettled(
-          batch.map((user) => processUser(user, weekLabel, githubToken))
+          batch.map((user) =>
+            processUser(
+              user,
+              weekLabel,
+              githubToken,
+              user.id ? boardById.get(user.id) : undefined,
+              user.id ? placeById.get(user.id) : undefined
+            )
+          )
         );
 
         for (let j = 0; j < results.length; j++) {
@@ -325,7 +399,7 @@ export async function GET(request: Request) {
     }
 
     console.log(
-      `[weekly-digest] done — processed:${totalUsersProcessed} sent:${emailsSent} failed:${emailsFailed} skipped:${skippedCount} unconfigured:${skippedUnconfigured}`
+      `[weekly-digest] done — processed:${totalUsersProcessed} sent:${emailsSent} failed:${emailsFailed} skipped:${skippedCount} unconfigured:${skippedUnconfigured} limitReached:${limitReached}`
     );
 
     return NextResponse.json({
@@ -335,6 +409,7 @@ export async function GET(request: Request) {
       emailsFailed,
       skippedCount,
       skippedUnconfigured,
+      limitReached,
       errors,
     });
   } catch (err) {

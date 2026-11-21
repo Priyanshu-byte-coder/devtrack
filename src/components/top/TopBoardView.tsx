@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import type { ReactNode } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { stagger } from "@/lib/motion";

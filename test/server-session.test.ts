@@ -57,3 +57,13 @@ describe("server-only session credentials", () => {
     vi.unstubAllEnvs();
   });
 });
+describe("anonymous requests", () => {
+  it("returns null without running NextAuth when there is no session cookie", async () => {
+    mocks.cookies.mockResolvedValue({
+      getAll: () => [{ name: "NEXT_LOCALE", value: "en" }],
+    });
+    expect(await getServerSession()).toBeNull();
+    expect(mocks.session).not.toHaveBeenCalled();
+    expect(mocks.token).not.toHaveBeenCalled();
+  });
+});

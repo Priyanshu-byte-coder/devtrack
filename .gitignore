@@ -75,3 +75,6 @@ package-lock.json
 # Local verification artifacts
 coverage/
 playwright-report/
+
+.vercel
+.env*

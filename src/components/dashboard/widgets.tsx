@@ -55,6 +55,7 @@ const ContributionHeatmapChart = lazy(
 const RepoContributionDistributionChart = lazy(
   () => import("@/components/RepoContributionDistribution")
 );
+const DiffTrendChart = lazy(() => import("@/components/DiffTrendChart"));
 const CodingActivityInsightsCard = lazy(
   () => import("@/components/CodingActivityInsightsCard")
 );
@@ -205,6 +206,12 @@ export const RepoContributionDistribution = slot(
   "repo-contribution-distribution",
   "Repository Contribution Distribution",
   () => <RepoContributionDistributionChart />,
+  true
+);
+export const DiffTrend = slot(
+  "diff-trend",
+  "Lines Changed",
+  () => <DiffTrendChart />,
   true
 );
 

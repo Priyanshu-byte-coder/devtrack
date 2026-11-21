@@ -11,8 +11,12 @@ import {
   type YearTotals,
 } from "@/lib/guest-profile-model";
 
-/** Guest stats change slowly; a few hours keeps GitHub usage per page tiny. */
-const GUEST_TTL_SECONDS = 6 * 60 * 60;
+/**
+ * Guest stats are public estimates and change slowly. A week matches the page
+ * cache (GUEST_CDN_CACHE_CONTROL), and the data cache outlives deploys, so a
+ * deploy that empties the CDN re-renders guest pages without refetching GitHub.
+ */
+const GUEST_TTL_SECONDS = 7 * 24 * 60 * 60;
 const REGISTRATION_TTL_SECONDS = 300;
 /**
  * GraphQL points kept back for the leaderboard and signed-in users. Guest
@@ -39,7 +43,6 @@ query GuestProfile($login: String!) {
     bio
     createdAt
     followers { totalCount }
-    gists(privacy: PUBLIC) { totalCount }
     repositories(ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC, first: 30, orderBy: { field: PUSHED_AT, direction: DESC }) {
       totalCount
       nodes { name url description stargazerCount primaryLanguage { name } }
@@ -125,6 +128,25 @@ async function fetchLifetime(
   }
 }
 
+/**
+ * Public gist count over REST. GraphQL's `gists` field answers a GitHub App
+ * installation token with "Resource not accessible by integration", which
+ * failed the whole profile query. Zero when GitHub can't say.
+ */
+async function fetchPublicGists(login: string, token: string): Promise<number> {
+  try {
+    const res = await githubRequest(
+      `https://api.github.com/users/${encodeURIComponent(login)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!res.ok) return 0;
+    const data = (await res.json()) as { public_gists?: number };
+    return data.public_gists ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 /** A GitHub user's public profile, or null when no such user exists. */
 export async function fetchGuestProfile(
   login: string
@@ -140,12 +162,15 @@ export async function fetchGuestProfile(
   );
   if (!data.user) return null;
 
-  const lifetime = await fetchLifetime(
-    data.user.login,
-    data.user.contributionsCollection.contributionYears,
-    token
-  );
-  return buildGuestProfile(data.user, lifetime);
+  const [lifetime, publicGists] = await Promise.all([
+    fetchLifetime(
+      data.user.login,
+      data.user.contributionsCollection.contributionYears,
+      token
+    ),
+    fetchPublicGists(data.user.login, token),
+  ]);
+  return buildGuestProfile(data.user, lifetime, publicGists);
 }
 
 const PLAYWRIGHT_GUEST = "playwright-guest";

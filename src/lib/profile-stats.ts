@@ -18,7 +18,6 @@ import type {
 export const PROFILE_STATS_QUERY = `
 query ProfileStats($login: String!, $since: DateTime!) {
   user(login: $login) {
-    gists(privacy: PUBLIC) { totalCount }
     pullRequests { totalCount }
     repositories(ownerAffiliations: OWNER, privacy: PUBLIC, first: 30, orderBy: { field: PUSHED_AT, direction: DESC }) {
       nodes { primaryLanguage { name } }
@@ -38,7 +37,6 @@ query ProfileStats($login: String!, $since: DateTime!) {
 }`;
 
 export interface ProfileStatsNode {
-  gists: { totalCount: number };
   pullRequests: { totalCount: number };
   repositories: {
     nodes: Array<{ primaryLanguage: { name: string } | null } | null>;
@@ -61,7 +59,6 @@ export interface ProfileStatsNode {
 }
 
 export interface ProfileStats {
-  publicGists: number;
   pullRequests: number;
   /** Public commits per day over the window, and their total. */
   contributions: ContributionData;
@@ -129,7 +126,6 @@ export function buildProfileStats(
   );
 
   return {
-    publicGists: user.gists.totalCount,
     pullRequests: user.pullRequests.totalCount,
     contributions: {
       days: windowDays,

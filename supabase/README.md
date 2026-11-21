@@ -6,9 +6,16 @@ The active migration is `migrations/20261011000000_canonical_schema.sql`. Its SQ
 
 `schema.sql` stays byte-identical to the baseline migration, because the baseline has already been applied to production. Schema changes since then live only in later files in `migrations/` (14-digit version, after `20261011000000`), applied in version order:
 
-| Version                           | Adds                                                                                                                            |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `20261102000000_gamification.sql` | `leaderboard_snapshots`, `user_progress` (with a trigger so XP, level, best tier and best rank never regress), `season_results` |
+| Version                                       | Adds                                                                                                                            |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `20261102000000_gamification.sql`             | `leaderboard_snapshots`, `user_progress` (with a trigger so XP, level, best tier and best rank never regress), `season_results` |
+| `20261110000000_weekly_digest_default_on.sql` | `users.weekly_digest_opt_in` defaults to `true`, so new accounts get the weekly digest                                          |
+
+**One-time data update for `20261110000000`.** Run once, right after that migration, to turn the digest on for accounts created before it. Don't run it again later, or it re-subscribes everyone who has unsubscribed since:
+
+```sql
+UPDATE public.users SET weekly_digest_opt_in = true WHERE weekly_digest_opt_in IS DISTINCT FROM true;
+```
 
 Each later migration must be safe to run twice and must give every new table RLS, revoked browser grants and service-role access; `pnpm run test:db` enforces both. The checks, type generator and route-contract checker all build the schema as baseline + later migrations.
 

@@ -3,7 +3,7 @@ import {
   GitHubRateLimitError,
   getGitHubRateLimitDetails,
 } from "@/lib/github-rate-limit";
-import { cacheGet, cacheSet } from "@/lib/metrics-cache";
+import { cacheGet, cacheGetMany, cacheSet } from "@/lib/metrics-cache";
 
 type StoredResponse = {
   body: string;
@@ -15,6 +15,36 @@ type Resource = "core" | "graphql" | "search";
 const flights = new Map<string, Promise<StoredResponse>>();
 const slots = new Map<string, { active: number; waiting: Array<() => void> }>();
 const cooldowns = new Map<string, number>();
+// Cooldowns set by other instances live in Redis. Reading them on every
+// request cost two Upstash commands per GitHub call, almost always to find
+// nothing, so each bucket's answer (a miss included) is reused briefly.
+// This instance's own cooldowns are in `cooldowns` and apply at once.
+const SHARED_COOLDOWN_RECHECK_MS = 10_000;
+const MAX_SHARED_COOLDOWN_ENTRIES = 1000;
+const sharedCooldowns = new Map<string, { until: number; checkedAt: number }>();
+
+async function sharedCooldown(
+  cooldownKey: string,
+  secondaryKey: string
+): Promise<number> {
+  const seen = sharedCooldowns.get(cooldownKey);
+  if (seen && Date.now() - seen.checkedAt < SHARED_COOLDOWN_RECHECK_MS)
+    return seen.until;
+  let until = 0;
+  try {
+    const [primary, secondary] = await cacheGetMany<number>([
+      cooldownKey,
+      secondaryKey,
+    ]);
+    until = Math.max(Number(primary) || 0, Number(secondary) || 0);
+  } catch {
+    // Redis down: this instance's own cooldowns still apply.
+  }
+  if (sharedCooldowns.size >= MAX_SHARED_COOLDOWN_ENTRIES)
+    sharedCooldowns.clear();
+  sharedCooldowns.set(cooldownKey, { until, checkedAt: Date.now() });
+  return until;
+}
 const REQUEST_TIMEOUT_MS = 12_000;
 // Search allows 30 requests/minute; its data also changes slowly, so it is
 // cached longest. Callers force revalidation with `cache: "no-cache"`.
@@ -228,8 +258,7 @@ export async function githubRequest(
       const until = Math.max(
         cooldowns.get(bucket) ?? 0,
         cooldowns.get(secondaryBucket) ?? 0,
-        (await cacheGet<number>(cooldownKey)) ?? 0,
-        (await cacheGet<number>(secondaryKey)) ?? 0
+        await sharedCooldown(cooldownKey, secondaryKey)
       );
       if (until > Date.now()) return limited(until);
       if (cached) {
@@ -352,4 +381,5 @@ export function resetGitHubRequestState() {
   flights.clear();
   slots.clear();
   cooldowns.clear();
+  sharedCooldowns.clear();
 }

@@ -80,6 +80,7 @@ export const METRICS_CACHE_TTL_SECONDS = {
   "coding-activity-insights": 30 * 60,
   compare:                  30 * 60,
   "commit-times":           30 * 60,
+  "diff-trend":             30 * 60,
   languages:               21600,      //  6 hours
 };
 ```

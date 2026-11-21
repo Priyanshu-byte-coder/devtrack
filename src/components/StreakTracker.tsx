@@ -4,7 +4,6 @@ import SectionHeader from "./SectionHeader";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useCountUp } from "@/hooks/useCountUp";
 import StreakMilestoneBanner from "@/components/StreakMilestoneBanner";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
@@ -15,13 +14,13 @@ import {
   Trophy,
   Calendar,
   Zap,
-  Copy,
   CheckCircle,
   Medal,
   Star,
   Sparkles,
 } from "lucide-react";
 import ConfirmModal from "@/components/ConfirmModal";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
 const DATA_WINDOW_DAYS = 90;
@@ -55,7 +54,6 @@ export { useStreakTracker } from "@/hooks/useStreakTracker";
 export default function StreakTracker() {
   const {
     selectedAccount,
-    isStreakLive,
     data,
     setData,
     contributionData,
@@ -68,7 +66,6 @@ export default function StreakTracker() {
     lastUpdated,
     minutesAgo,
     copied,
-    setCopied,
     error,
     setError,
     calendarMonth,
@@ -116,7 +113,7 @@ export default function StreakTracker() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--card)] p-6 min-h-[700px]">
+      <div className="bg-[var(--card)] p-6">
         {data?.complete === false && (
           <p
             role="status"
@@ -128,15 +125,19 @@ export default function StreakTracker() {
         )}
         <div role="status" aria-live="polite" aria-busy="true">
           <span className="sr-only">Loading streak tracker</span>
-          <SkeletonBlock className="h-6 w-36 mb-4" />
+          <SkeletonBlock className="h-8 w-36 mb-4" />
           <div
             aria-hidden="true"
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             {[1, 2, 3, 4].map((i) => (
-              <SkeletonBlock key={i} className="h-28 rounded-lg" />
+              <SkeletonBlock key={i} className="h-[86.5px] rounded-lg" />
             ))}
           </div>
+          <SkeletonBlock className="mt-3 h-[38px]" />
+          <SkeletonBlock className="mt-2 h-4" />
+          <SkeletonBlock className="mt-4 h-[50px]" />
+          <SkeletonBlock className="mt-6 h-[531px]" />
         </div>
       </div>
     );
@@ -261,13 +262,11 @@ export default function StreakTracker() {
               className="cursor-pointer flex h-8 items-center justify-center rounded-md px-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-colors"
               aria-label="Copy streak stats to clipboard"
             >
-              {copied ? (
-                <span className="text-xs font-medium text-[var(--success)]">
-                  Copied!
-                </span>
-              ) : (
-                <Copy size={16} className="opacity-80 hover:opacity-100" />
-              )}
+              <CopyFeedback
+                copied={copied}
+                iconClassName="h-4 w-4"
+                className="text-xs font-medium"
+              />
             </button>
             <button
               type="button"
@@ -307,18 +306,6 @@ export default function StreakTracker() {
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SectionHeader title="Commit Streaks" />
-              {isStreakLive && (
-                <span
-                  title="Live — updates automatically"
-                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500"
-                >
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  </span>
-                  Live
-                </span>
-              )}
             </div>
             {data && <div className="h-8 w-24" />}
           </div>

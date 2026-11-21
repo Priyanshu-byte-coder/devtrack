@@ -3,10 +3,10 @@ import SectionHeader from "@/components/SectionHeader";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "@/components/AccountContext";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
-import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useCountUp } from "@/hooks/useCountUp";
 import StreakMilestoneBanner from "@/components/StreakMilestoneBanner";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
 import {
@@ -61,7 +61,8 @@ export function useStreakTracker() {
     useState<number>(0);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [minutesAgo, setMinutesAgo] = useState(0);
-  const [copied, setCopied] = useState(false);
+  const { copy, isCopied } = useCopyToClipboard();
+  const copied = isCopied();
   const [error, setError] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [freeze, setFreeze] = useState<FreezeData | null>(null);
@@ -300,46 +301,15 @@ export function useStreakTracker() {
       `Active days: ${data.totalActiveDays}`,
     ].join("\n");
 
-    if (typeof navigator === "undefined" || !navigator.clipboard) {
-      toast.error("Clipboard is not supported in this browser.");
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-
-      setCopied(true);
-
+    if (await copy(textToCopy)) {
       toast.success("Streak stats copied to clipboard!");
-
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy streak stats:", err);
+    } else {
       toast.error("Failed to copy streak stats.");
     }
   };
 
-  // -------------------------------------------------------------------------
-  // Realtime: re-fetch when streak_freezes rows change in Supabase.
-  // Falls back to 60-second polling if the WebSocket cannot connect.
-  // NOTE: enable Realtime for the `streak_freezes` table in the Supabase
-  // dashboard and ensure the anon role has a SELECT policy (or use a
-  // user-scoped filter once a Supabase JWT is available in the session).
-  // -------------------------------------------------------------------------
-  const handleRealtimeFreeze = useCallback(() => {
-    fetchFreeze();
-    fetchStreak();
-  }, [fetchFreeze, fetchStreak]);
-
-  const { isLive: isStreakLive } = useRealtimeSync(
-    "streak_freezes",
-    ["INSERT", "DELETE"],
-    handleRealtimeFreeze
-  );
-
   return {
     selectedAccount,
-    isStreakLive,
     data,
     setData,
     contributionData,
@@ -355,7 +325,6 @@ export function useStreakTracker() {
     lastUpdated,
     minutesAgo,
     copied,
-    setCopied,
     error,
     setError,
     calendarMonth,

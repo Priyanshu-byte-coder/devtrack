@@ -24,6 +24,7 @@ export const METRICS_CACHE_TTL_SECONDS = {
   compare: 30 * 60,
   "weekly-summary": 30 * 60,
   "commit-times": 30 * 60,
+  "diff-trend": 30 * 60,
   // 2 hours TTL for historical achievements because they do not require real-time updates
   "achievement-progress": 2 * 60 * 60,
   // Year in Code: the route picks a longer TTL for finished years.
@@ -210,6 +211,18 @@ export async function cacheGet<T>(
   }
 
   return null;
+}
+
+/**
+ * Several values in one Redis command (MGET), in key order. Upstash bills per
+ * command, so this is much cheaper than a cacheGet per key. Null for misses;
+ * throws when Redis fails, so callers can tell a miss from an outage.
+ */
+export async function cacheGetMany<T>(keys: string[]): Promise<(T | null)[]> {
+  if (keys.length === 0) return [];
+  const redis = getRedisClient();
+  if (!redis) return keys.map(() => null);
+  return redis.mget<(T | null)[]>(...keys);
 }
 
 /**

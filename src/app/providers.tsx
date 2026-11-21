@@ -11,7 +11,9 @@ import MotionProvider from "@/components/motion/MotionProvider";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
+    // No refetch on tab focus: each one was a function invocation for every
+    // visitor, signed in or not. Sign-in and sign-out still update all tabs.
+    <SessionProvider refetchOnWindowFocus={false}>
       <AccountProvider>
         <ThemeProvider>
           <MotionProvider>

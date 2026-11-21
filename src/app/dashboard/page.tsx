@@ -16,7 +16,6 @@ import { getServerSession } from "@/lib/server-session";
 import { decode } from "next-auth/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import DashboardSSEProvider from "@/components/DashboardSSEProvider";
 import RankCard from "@/components/gamification/RankCard";
 import { Suspense } from "react";
 
@@ -63,7 +62,7 @@ export default async function DashboardPage() {
   const firstName = session.user?.name?.trim().split(/\s+/)[0];
 
   return (
-    <DashboardSSEProvider>
+    <>
       <PageHeader
         title="Dashboard"
         description={
@@ -119,6 +118,6 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
-    </DashboardSSEProvider>
+    </>
   );
 }

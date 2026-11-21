@@ -1030,6 +1030,59 @@ paths:
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/metrics/diff-trend:
+    get:
+      tags:
+        - Metrics
+      summary: Get weekly lines added and removed
+      description: Lines the signed-in user added and removed per week over the last 12 weeks, summed across the 3 repositories they committed to most in that window. Weeks start on Sunday (UTC).
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Weekly line counts and the repositories they cover
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  weeks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        weekStart:
+                          type: string
+                          format: date
+                        additions:
+                          type: integer
+                        deletions:
+                          type: integer
+                  repos:
+                    type: array
+                    items:
+                      type: string
+        '202':
+          description: GitHub is still computing repository statistics. Retry shortly.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  computing:
+                    type: boolean
+        '401':
+          description: Unauthorized
+        '429':
+          description: GitHub or application rate limit. Retry after the cooldown.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds before retrying.
+        '502':
+          description: GitHub API error
+      operationId: get_api_metrics_diff_trend
   /api/metrics/discussions:
     get:
       operationId: get_api_metrics_discussions
@@ -1593,6 +1646,27 @@ paths:
       x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
       security:
         - cookieAuth: []
+  /api/public-page:
+    get:
+      operationId: get_api_public_page
+      summary: GET /api/public-page
+      tags:
+        - public-page
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+    head:
+      operationId: head_api_public_page
+      summary: HEAD /api/public-page
+      tags:
+        - public-page
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
   /api/public/{username}:
     get:
       tags:
@@ -1631,170 +1705,6 @@ paths:
         '401':
           description: Unauthorized
       operationId: get_api_public_privacy
-  /api/room-invitations/{invitationId}:
-    post:
-      operationId: post_api_room_invitations_invitationId_
-      summary: POST /api/room-invitations/{invitationId}
-      tags:
-        - room-invitations
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: invitationId
-          in: path
-          required: true
-          schema:
-            type: string
-  /api/room-invitations:
-    get:
-      operationId: get_api_room_invitations
-      summary: GET /api/room-invitations
-      tags:
-        - room-invitations
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-  /api/rooms/{roomId}/invite:
-    post:
-      operationId: post_api_rooms_roomId_invite
-      summary: POST /api/rooms/{roomId}/invite
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: string
-  /api/rooms/{roomId}/members/{username}:
-    delete:
-      operationId: delete_api_rooms_roomId_members_username_
-      summary: DELETE /api/rooms/{roomId}/members/{username}
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: username
-          in: path
-          required: true
-          schema:
-            type: string
-  /api/rooms/{roomId}/messages:
-    get:
-      operationId: get_api_rooms_roomId_messages
-      summary: GET /api/rooms/{roomId}/messages
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: string
-    post:
-      operationId: post_api_rooms_roomId_messages
-      summary: POST /api/rooms/{roomId}/messages
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: string
-  /api/rooms/{roomId}:
-    delete:
-      operationId: delete_api_rooms_roomId_
-      summary: DELETE /api/rooms/{roomId}
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: string
-    get:
-      operationId: get_api_rooms_roomId_
-      summary: GET /api/rooms/{roomId}
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: roomId
-          in: path
-          required: true
-          schema:
-            type: string
-  /api/rooms:
-    get:
-      operationId: get_api_rooms
-      summary: GET /api/rooms
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
-    post:
-      operationId: post_api_rooms
-      summary: POST /api/rooms
-      tags:
-        - rooms
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
   /api/score-preview:
     get:
       operationId: get_api_score_preview
@@ -1859,22 +1769,20 @@ paths:
         '401':
           description: Unauthorized
       operationId: post_api_streak_freeze
-  /api/stream:
-    get:
-      operationId: get_api_stream
-      summary: GET /api/stream
-      tags:
-        - stream
-      responses:
-        '200':
-          description: Successful response. See the route contract for the returned JSON fields.
-      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
-      security:
-        - cookieAuth: []
   /api/unsubscribe:
     get:
       operationId: get_api_unsubscribe
       summary: GET /api/unsubscribe
+      tags:
+        - unsubscribe
+      responses:
+        '200':
+          description: Successful response. See the route contract for the returned JSON fields.
+      x-contract-detail: Route and method are verified from source; endpoint-specific JSON schemas have not yet been expanded.
+      security: []
+    post:
+      operationId: post_api_unsubscribe
+      summary: POST /api/unsubscribe
       tags:
         - unsubscribe
       responses:

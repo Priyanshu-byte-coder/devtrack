@@ -28,47 +28,21 @@ export const dynamic = "force-dynamic";
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/**
+ * One-click unsubscribe (RFC 8058). Gmail and Yahoo POST to the link in the
+ * List-Unsubscribe header when the reader presses their own Unsubscribe
+ * button, so there's no page to show: the status code is the answer.
+ */
+export async function POST(req: Request) {
+  const failure = await optOut(req);
+  return failure ?? new NextResponse(null, { status: 200 });
+}
+
 // Accept plain Request so the handler works with both Next.js (NextRequest)
 // and plain fetch-compatible Request objects (e.g. in unit tests).
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const uid = searchParams.get("uid");
-  const token = searchParams.get("token");
-
-  // ── Input validation ──────────────────────────────────────────────────────
-  if (!uid || !token) {
-    return NextResponse.json(
-      { error: "Missing uid or token" },
-      { status: 400 }
-    );
-  }
-
-  // Validate uid format before using it in a database query.
-  if (!UUID_RE.test(uid)) {
-    return NextResponse.json({ error: "Invalid uid" }, { status: 400 });
-  }
-
-  // ── Token verification ────────────────────────────────────────────────────
-  if (!verifyUnsubscribeToken(uid, token)) {
-    return NextResponse.json(
-      { error: "Invalid or expired unsubscribe token" },
-      { status: 403 }
-    );
-  }
-
-  // ── Opt the user out ──────────────────────────────────────────────────────
-  const { error } = await supabaseAdmin
-    .from("users")
-    .update({ weekly_digest_opt_in: false })
-    .eq("id", uid);
-
-  if (error) {
-    console.error("[unsubscribe] DB update failed:", error);
-    return NextResponse.json(
-      { error: "Failed to process unsubscribe request" },
-      { status: 500 }
-    );
-  }
+  const failure = await optOut(req);
+  if (failure) return failure;
 
   // ── Confirmation response ─────────────────────────────────────────────────
   // Return a simple HTML page so clicking the link from an email client
@@ -114,4 +88,48 @@ export async function GET(req: Request) {
     status: 200,
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
+}
+
+/** Verifies the signed link and opts the user out; returns a response only on failure. */
+async function optOut(req: Request): Promise<NextResponse | null> {
+  const { searchParams } = new URL(req.url);
+  const uid = searchParams.get("uid");
+  const token = searchParams.get("token");
+
+  // ── Input validation ──────────────────────────────────────────────────────
+  if (!uid || !token) {
+    return NextResponse.json(
+      { error: "Missing uid or token" },
+      { status: 400 }
+    );
+  }
+
+  // Validate uid format before using it in a database query.
+  if (!UUID_RE.test(uid)) {
+    return NextResponse.json({ error: "Invalid uid" }, { status: 400 });
+  }
+
+  // ── Token verification ────────────────────────────────────────────────────
+  if (!verifyUnsubscribeToken(uid, token)) {
+    return NextResponse.json(
+      { error: "Invalid or expired unsubscribe token" },
+      { status: 403 }
+    );
+  }
+
+  // ── Opt the user out ──────────────────────────────────────────────────────
+  const { error } = await supabaseAdmin
+    .from("users")
+    .update({ weekly_digest_opt_in: false })
+    .eq("id", uid);
+
+  if (error) {
+    console.error("[unsubscribe] DB update failed:", error);
+    return NextResponse.json(
+      { error: "Failed to process unsubscribe request" },
+      { status: 500 }
+    );
+  }
+
+  return null;
 }

@@ -1,4 +1,8 @@
 import { toDatabaseJson } from "@/lib/database-json";
+import {
+  loadInsightMetrics,
+  InsightMetricsUnavailableError,
+} from "@/lib/insight-metrics";
 import { groqChatCompletion } from "@/lib/groq";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/server-session";
@@ -171,34 +175,36 @@ export async function GET(request: Request) {
     );
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-  const cookie = request.headers.get("cookie") ?? "";
-  const headers = { Cookie: cookie };
-
-  const [contributionsRes, prsRes, streakRes, reposRes] = await Promise.all([
-    fetch(`${baseUrl}/api/metrics/contributions?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-    fetch(`${baseUrl}/api/metrics/prs`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/streak`, { headers, cache: "no-store" }),
-    fetch(`${baseUrl}/api/metrics/repos?days=90`, {
-      headers,
-      cache: "no-store",
-    }),
-  ]);
-
-  const [contributionsRaw, prsRaw, streakRaw, reposRaw]: [
+  let loaded: Awaited<ReturnType<typeof loadInsightMetrics>>;
+  try {
+    loaded = await loadInsightMetrics(request);
+  } catch (error) {
+    const status =
+      error instanceof InsightMetricsUnavailableError &&
+      error.response.status === 429
+        ? 429
+        : 503;
+    const retryAfter =
+      error instanceof InsightMetricsUnavailableError
+        ? error.response.headers.get("retry-after")
+        : null;
+    return NextResponse.json(
+      {
+        error:
+          "Complete metrics are unavailable; personality report was not generated",
+      },
+      {
+        status,
+        ...(retryAfter ? { headers: { "Retry-After": retryAfter } } : {}),
+      }
+    );
+  }
+  const [contributionsRaw, prsRaw, streakRaw, reposRaw] = loaded as [
     ContributionsApiResponse,
     PRsApiResponse,
     StreakApiResponse,
     ReposApiResponse,
-  ] = await Promise.all([
-    contributionsRes.ok ? contributionsRes.json() : {},
-    prsRes.ok ? prsRes.json() : {},
-    streakRes.ok ? streakRes.json() : {},
-    reposRes.ok ? reposRes.json() : {},
-  ]);
+  ];
 
   const commitsByDay: Record<string, number> = contributionsRaw.data ?? {};
   const commitsArray = Object.entries(commitsByDay)

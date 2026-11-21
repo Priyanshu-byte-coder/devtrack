@@ -13,6 +13,12 @@ const CANONICAL_HOST = (() => {
  * (the OAuth callback is tied to the canonical domain), and looks like a
  * clone to phishing filters. Preview deployments run with
  * VERCEL_ENV=preview and are left alone.
+ *
+ * API routes are never redirected. Vercel Cron and the hourly GitHub
+ * workflow call the deployment on its *.vercel.app address and don't follow
+ * redirects, so redirecting /api/cron/* silently stopped every scheduled job
+ * (rank snapshots, goal sync, digests). APIs aren't indexed, so there is
+ * nothing to consolidate there anyway.
  */
 export function canonicalRedirectUrl(
   host: string,
@@ -20,6 +26,22 @@ export function canonicalRedirectUrl(
   vercelEnv = process.env.VERCEL_ENV
 ): string | null {
   if (vercelEnv !== "production") return null;
+  if (pathAndQuery === "/api" || pathAndQuery.startsWith("/api/")) return null;
   if (!host.endsWith(".vercel.app") || host === CANONICAL_HOST) return null;
   return `https://${CANONICAL_HOST}${pathAndQuery}`;
+}
+
+/**
+ * Profiles live at a lowercase login (the canonical URL and the sitemap use
+ * it), but links across the site keep the login's own casing. Crawlers
+ * followed both, so every profile and its share image rendered twice, each
+ * a separate CDN cache entry. Returns the lowercase path to redirect to, or
+ * null when the path is already canonical or isn't a profile.
+ */
+export function lowercaseProfilePath(pathname: string): string | null {
+  const match = /^\/u\/([^/]+)(\/.*)?$/.exec(pathname);
+  if (!match) return null;
+  const login = match[1].toLowerCase();
+  if (login === match[1]) return null;
+  return `/u/${login}${match[2] ?? ""}`;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { notFound } from "next/navigation";
 import { LanguageIcon } from "@/components/pixel/TopIcons";
 import TopBoardView from "@/components/top/TopBoardView";

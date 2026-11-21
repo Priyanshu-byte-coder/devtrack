@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import ProfileThemeWrapper from "@/components/ProfileThemeWrapper";
 import { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/Link";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -420,6 +420,7 @@ export default async function PublicProfilePage({
                 !isOwner && (
                   <Link
                     href={`/compare?vs=${encodeURIComponent(canonicalUsername)}`}
+                    rel="nofollow"
                     className="px-btn"
                   >
                     Duel @{profile.username}

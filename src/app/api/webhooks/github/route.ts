@@ -1,10 +1,8 @@
-
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { verifyGitHubSignature } from "@/lib/crypto";
 import { logError } from "@/lib/error-handler";
-import { sendSSEEvent } from "@/lib/sse";
 import { invalidateUserMetricsCache } from "@/lib/metrics-cache";
 
 export const dynamic = "force-dynamic";
@@ -68,7 +66,11 @@ async function markUserMetricsStale(githubLogin: string) {
   if (primaryError) throw primaryError;
 
   if (primaryUser) {
-    return { userId: primaryUser.id as string, githubId: String(primaryUser.github_id), accountType: "primary" };
+    return {
+      userId: primaryUser.id as string,
+      githubId: String(primaryUser.github_id),
+      accountType: "primary",
+    };
   }
 
   const { data: linkedAccount, error: linkedError } = await supabaseAdmin
@@ -88,7 +90,11 @@ async function markUserMetricsStale(githubLogin: string) {
 
   if (updateError) throw updateError;
 
-  return { userId: linkedAccount.user_id as string, githubId: String(linkedAccount.github_id), accountType: "linked" };
+  return {
+    userId: linkedAccount.user_id as string,
+    githubId: String(linkedAccount.github_id),
+    accountType: "linked",
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -125,7 +131,10 @@ export async function POST(req: NextRequest) {
   try {
     payload = JSON.parse(body) as GitHubPushPayload;
   } catch (e) {
-    return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid JSON payload" },
+      { status: 400 }
+    );
   }
 
   const githubLogin = getPushActor(payload);
@@ -158,10 +167,6 @@ export async function POST(req: NextRequest) {
       await invalidateUserMetricsCache(staleResult.githubId);
     }
 
-    sendSSEEvent(staleResult.userId, "commit", {
-      repo: payload.repository?.full_name,
-      timestamp: new Date().toISOString(),
-    });
     revalidatePath(`/u/${githubLogin}`);
     revalidatePath("/dashboard");
   }

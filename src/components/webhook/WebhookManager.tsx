@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 
 interface WebhookConfig {
   id: string;
@@ -97,7 +100,7 @@ export default function WebhookManager() {
   const [formEvents, setFormEvents] = useState<string[]>([]);
   const [formContentType, setFormContentType] = useState("application/json");
   const [formSecretToken, setFormSecretToken] = useState("");
-  const [secretCopied, setSecretCopied] = useState(false);
+  const { copy: copyText, isCopied } = useCopyToClipboard();
 
   const [selectedWebhook, setSelectedWebhook] = useState<string | null>(null);
   const [webhookDetails, setWebhookDetails] = useState<{
@@ -293,12 +296,8 @@ export default function WebhookManager() {
   }
 
   async function copySecret(secret: string) {
-    try {
-      await navigator.clipboard.writeText(secret);
-      setSecretCopied(true);
-      setTimeout(() => setSecretCopied(false), 2000);
-    } catch {
-      // Clipboard API not available – user can select manually
+    if (!(await copyText(secret))) {
+      toast.error("Failed to copy the secret. Select it and copy it manually.");
     }
   }
 
@@ -385,7 +384,7 @@ export default function WebhookManager() {
               onClick={() => copySecret(newSecret)}
               className="flex-shrink-0 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors"
             >
-              {secretCopied ? "Copied!" : "Copy"}
+              <CopyFeedback copied={isCopied()} label="Copy" />
             </button>
           </div>
         </div>

@@ -15,7 +15,25 @@ const eslintConfig = [
       "react-hooks/purity": "off",
       "react-hooks/use-memo": "off",
       "react-compiler/react-compiler": "off",
+      // Links prefetch on viewport by default, and every prefetch is a billed
+      // server render; use the wrapper, which turns that off.
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "next/link",
+              message:
+                'Import Link from "@/components/Link" instead: it disables prefetching, which costs Active CPU.',
+            },
+          ],
+        },
+      ],
     },
+  },
+  {
+    files: ["src/components/Link.tsx"],
+    rules: { "no-restricted-imports": "off" },
   },
 ];
 

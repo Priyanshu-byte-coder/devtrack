@@ -16,6 +16,9 @@ vi.mock("@/lib/github-request", () => ({ githubRequest: mocks.githubRequest }));
 vi.mock("@/lib/crypto", () => ({ decryptToken: vi.fn(() => "user-token") }));
 vi.mock("@/lib/metrics-cache", () => ({
   cacheGet: vi.fn(async (key: string) => mocks.store.get(key) ?? null),
+  cacheGetMany: vi.fn(async (keys: string[]) =>
+    keys.map((key) => mocks.store.get(key) ?? null)
+  ),
   cacheSet: vi.fn(async (key: string, value: unknown) => {
     mocks.store.set(key, value);
   }),
@@ -162,6 +165,34 @@ describe("leaderboard player stats when GitHub fails", () => {
     ).toHaveLength(0);
   });
 
+  it("reads every player's saved stats in one Redis command", async () => {
+    const { cacheGet, cacheGetMany } = await import("@/lib/metrics-cache");
+    vi.mocked(cacheGet).mockClear();
+    vi.mocked(cacheGetMany).mockClear();
+    mocks.store.set("leaderboard:player:last-good:month:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 50,
+        prs: 9,
+        activeDays: 12,
+        reviews: 4,
+        repos: 5,
+      },
+      savedAt: Date.now(),
+    });
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    await buildLeaderboard({ period: "month" });
+    expect(cacheGetMany).toHaveBeenCalledTimes(1);
+    expect(cacheGetMany).toHaveBeenCalledWith([
+      "leaderboard:player:last-good:month:brijesh",
+    ]);
+    expect(
+      vi
+        .mocked(cacheGet)
+        .mock.calls.filter(([key]) => String(key).includes("last-good"))
+    ).toHaveLength(0);
+  });
+
   it("refreshes stale saved stats and keeps them if the refresh fails", async () => {
     mocks.store.set("leaderboard:player:last-good:month:brijesh", {
       stats: {
@@ -182,6 +213,96 @@ describe("leaderboard player stats when GitHub fails", () => {
       .commits;
     expect(mocks.githubRequest).toHaveBeenCalled();
     expect(entry).toMatchObject({ activeDays: 12, reviews: 4, repos: 5 });
+  });
+
+  it("keeps saved stats over the shared token's view when the player's own token fails", async () => {
+    // The shared token can't see private repositories, so its counts for a
+    // player with their own token run low.
+    mocks.store.set("leaderboard:player:last-good:all:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 2560,
+        prs: 332,
+        activeDays: 221,
+        reviews: 334,
+        repos: 73,
+      },
+      savedAt: Date.now() - 8 * 60 * 60 * 1000,
+    });
+    mocks.githubRequest.mockImplementation(async (url: string, init) =>
+      String(url).includes("/graphql")
+        ? auth(init).includes("user-token")
+          ? failed
+          : contributions()
+        : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "all" })).leaders.commits;
+    expect(entry).toMatchObject({ commits: 2560, prs: 332, repos: 73 });
+    expect(
+      mocks.githubRequest.mock.calls.some(([, init]) =>
+        auth(init).includes("shared-token")
+      )
+    ).toBe(false);
+  });
+
+  it("keeps saved lifetime totals when the all-time lookup fails", async () => {
+    // The year's data loads but the per-year lifetime totals time out.
+    mocks.store.set("leaderboard:player:last-good:all:brijesh", {
+      stats: {
+        streak: 3,
+        commits: 1190,
+        prs: 10,
+        activeDays: 96,
+        reviews: 0,
+        repos: 19,
+      },
+      savedAt: Date.now() - 8 * 60 * 60 * 1000,
+    });
+    mocks.githubRequest.mockImplementation(
+      async (url: string, init?: { body?: string }) =>
+        String(url).includes("/graphql")
+          ? String(init?.body).includes("LeaderboardAllTime")
+            ? failed
+            : contributions()
+          : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "all" })).leaders.commits;
+    // Not the last year's 120 commits passed off as lifetime.
+    expect(entry).toMatchObject({ commits: 1190, prs: 10 });
+  });
+
+  it("sums every year for all-time totals when the lookup works", async () => {
+    mocks.githubRequest.mockImplementation(
+      async (url: string, init?: { body?: string }) =>
+        String(url).includes("/graphql")
+          ? String(init?.body).includes("LeaderboardAllTime")
+            ? {
+                ok: true,
+                json: async () => ({
+                  data: {
+                    user: {
+                      y2025: {
+                        totalCommitContributions: 900,
+                        totalPullRequestContributions: 5,
+                        totalPullRequestReviewContributions: 1,
+                      },
+                      y2026: {
+                        totalCommitContributions: 120,
+                        totalPullRequestContributions: 30,
+                        totalPullRequestReviewContributions: 40,
+                      },
+                    },
+                  },
+                }),
+              }
+            : contributions()
+          : searchCount
+    );
+    const { buildLeaderboard } = await import("@/lib/leaderboard");
+    const [entry] = (await buildLeaderboard({ period: "all" })).leaders.commits;
+    expect(entry).toMatchObject({ commits: 1020, prs: 35, reviews: 41 });
   });
 
   it("only uses the search counts for a player never loaded before", async () => {

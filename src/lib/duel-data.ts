@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { getGuestProfile, getRegistration } from "@/lib/guest-profile";
 import { estimateGuestRank } from "@/lib/guest-profile-model";
-import { getLeaderboardData } from "@/lib/leaderboard";
+import { getLeaderboardData, getSavedPlayerStats } from "@/lib/leaderboard";
 import { getRankBadgeRow } from "@/lib/gamification/queries";
 import { levelFromXp, xpFromTotals } from "@/lib/gamification/scoring";
 import { isSupabaseAdminAvailable, supabaseAdmin } from "@/lib/supabase-admin";
@@ -42,9 +42,10 @@ async function publicWidgets(login: string): Promise<PublicWidgetKey[]> {
 }
 
 /**
- * A fighter for a compare duel, from public GitHub data so both sides are
- * measured the same way. Null for unknown logins and for members who made
- * their profile private; a member's hidden widgets sit their rounds out.
+ * A fighter for a compare duel, from public GitHub data, except that ranked
+ * members' lifetime totals match the leaderboard. Null for unknown logins
+ * and for members who made their profile private; a member's hidden widgets
+ * sit their rounds out.
  */
 export async function getDuelFighter(
   login: string
@@ -99,15 +100,28 @@ export async function getDuelFighter(
     xp = estimate.xp;
   }
 
+  // Public lookups miss a member's private-repo work. Ranked members' totals
+  // come from the leaderboard instead, which reads them with their own
+  // token, so the duel matches the board. Max, since either can be fresher.
+  const lifetime = { ...guest.lifetime };
+  if (row) {
+    const saved = await getSavedPlayerStats(login, "all");
+    if (saved) {
+      lifetime.commits = Math.max(lifetime.commits, saved.commits);
+      lifetime.prs = Math.max(lifetime.prs, saved.prs);
+      lifetime.reviews = Math.max(lifetime.reviews, saved.reviews);
+    }
+  }
+
   const stats: DuelFighter["stats"] = {
     score,
     streak: guest.streak.current,
     longestStreak: guest.streak.longest,
     activeDays: guest.activeDays,
     contributions: guest.yearContributions,
-    commits: guest.lifetime.commits,
-    prs: guest.lifetime.prs,
-    reviews: guest.lifetime.reviews,
+    commits: lifetime.commits,
+    prs: lifetime.prs,
+    reviews: lifetime.reviews,
   };
   for (const key of hidden) stats[key] = null;
 

@@ -1,0 +1,200 @@
+name: WOCS labels
+
+# Winter of Code Social 2026 awards points for merged PRs that carry `wocs`
+# plus exactly one of `level 1`, `level 2`, `level 3`, set before merging.
+#
+# - Issues: a `level:*` label also gets its WOCS level, so contributors see
+#   the points an issue is worth.
+# - Issues a maintainer opens with the Task template get the level chosen in
+#   its Difficulty field.
+# - Contributor PRs are WOCS PRs only when the author ticks the WOCS box in
+#   the PR template (or a maintainer adds `wocs`); every other PR is left
+#   alone. WOCS PRs get `wocs`, the level of the issue they close unless a
+#   maintainer already chose one, and one comment on how points work. A
+#   `wocs-labels` status turns red while their labels are missing or
+#   ambiguous. Maintainers can still change the level before merging.
+#
+# pull_request_target runs this file from main and never checks out PR code.
+
+on:
+  issues:
+    types: [opened, labeled]
+  pull_request_target:
+    types:
+      [
+        opened,
+        reopened,
+        edited,
+        synchronize,
+        ready_for_review,
+        labeled,
+        unlabeled,
+      ]
+
+permissions:
+  issues: write
+  pull-requests: write
+  statuses: write
+
+concurrency:
+  group: wocs-labels-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  wocs:
+    name: WOCS labels
+    # Outside contributors never see this run: on PRs it only starts when the
+    # WOCS box is ticked or the PR is already labelled `wocs` (contains() is
+    # case-insensitive, so "[X]" matches too).
+    if: >-
+      github.event_name == 'issues' ||
+      contains(github.event.pull_request.labels.*.name, 'wocs') ||
+      contains(github.event.pull_request.body, '[x] I am taking part in Winter of Code Social')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            // Points count for PRs merged during the coding period.
+            const PROGRAM_END = Date.parse("2027-02-01T00:00:00Z");
+            const LEVELS = ["level 1", "level 2", "level 3"];
+            const FROM_REPO_LEVEL = {
+              "level:beginner": "level 1",
+              "level:intermediate": "level 2",
+              "level:advanced": "level 3",
+              "level:critical": "level 3",
+            };
+            const MAINTAINERS = ["OWNER", "MEMBER", "COLLABORATOR"];
+            const CONTEXT = "wocs-labels";
+
+            const names = (labels) => labels.map((l) => (typeof l === "string" ? l : l.name));
+            const wocsLevelOf = (labels) => {
+              const set = names(labels);
+              const direct = LEVELS.filter((l) => set.includes(l));
+              if (direct.length) return direct;
+              const mapped = set.map((n) => FROM_REPO_LEVEL[n]).filter(Boolean);
+              return [...new Set(mapped)];
+            };
+            const highest = (levels) => levels.sort().at(-1);
+
+            if (Date.now() >= PROGRAM_END) {
+              core.info("WOCS 2026 has ended; nothing to do.");
+              return;
+            }
+
+            // ── Issues: mirror level:* as a WOCS level ──
+            if (context.eventName === "issues") {
+              const issue = context.payload.issue;
+              if (issue.pull_request) return;
+              const current = names(issue.labels);
+              if (LEVELS.some((l) => current.includes(l))) return;
+
+              // Task template: "### Difficulty" then "level N". Only trusted
+              // for maintainers, so nobody sets the points of their own issue.
+              const chosen = (issue.body || "").match(/###\s*Difficulty\s+(level [123])\b/i);
+              if (context.payload.action === "opened" && chosen && MAINTAINERS.includes(issue.author_association)) {
+                const level = chosen[1].toLowerCase();
+                const repoLevel = { "level 1": "level:beginner", "level 2": "level:intermediate", "level 3": "level:advanced" }[level];
+                await github.rest.issues.addLabels({ owner, repo, issue_number: issue.number, labels: [level, repoLevel] });
+                core.info(`#${issue.number}: added ${level}, ${repoLevel} from the Difficulty field`);
+                return;
+              }
+              const level = highest(
+                current.map((n) => FROM_REPO_LEVEL[n]).filter(Boolean)
+              );
+              if (!level) return;
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: issue.number, labels: [level],
+              });
+              core.info(`#${issue.number}: added ${level}`);
+              return;
+            }
+
+            // ── Pull requests ──
+            const pr = context.payload.pull_request;
+            const sha = pr.head.sha;
+            const setStatus = (state, description) =>
+              github.rest.repos.createCommitStatus({
+                owner, repo, sha, context: CONTEXT, state, description,
+                target_url: `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md#winter-of-code-social-wocs-2026`,
+              });
+
+            if (pr.user.type === "Bot" || MAINTAINERS.includes(pr.author_association)) {
+              return;
+            }
+
+            let labels = names(pr.labels);
+            const toAdd = [];
+            const action = context.payload.action;
+            const contentChanged = ["opened", "reopened", "edited", "synchronize", "ready_for_review"].includes(action);
+
+            // Opt-in: only participants who tick the box in the PR template
+            // (or PRs a maintainer labelled `wocs`) are treated as WOCS PRs.
+            const optedIn = /^\s*[-*]\s*\[[xX]\]\s*[^\n]*winter of code social/im.test(pr.body || "");
+            if (!optedIn && !labels.includes("wocs")) {
+              return;
+            }
+
+            if (contentChanged && !labels.includes("wocs")) toAdd.push("wocs");
+
+            // No level yet: take it from the issue(s) the PR closes.
+            if (contentChanged && !LEVELS.some((l) => labels.includes(l))) {
+              const body = pr.body || "";
+              const linked = [
+                ...body.matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)/gi),
+              ].map((m) => Number(m[1]));
+              const found = [];
+              for (const number of [...new Set(linked)].slice(0, 5)) {
+                try {
+                  const { data } = await github.rest.issues.get({ owner, repo, issue_number: number });
+                  if (!data.pull_request) found.push(...wocsLevelOf(data.labels));
+                } catch {
+                  core.info(`Linked #${number} not found`);
+                }
+              }
+              const level = found.length ? highest(found) : undefined;
+              if (level) toAdd.push(level);
+            }
+
+            if (toAdd.length) {
+              // One label at a time: the WOCS webhook server fails ("Could
+              // not create webhook log") when two labeled events arrive at once.
+              for (const [i, label] of toAdd.entries()) {
+                if (i > 0) await new Promise((r) => setTimeout(r, 2000));
+                await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [label] });
+              }
+              labels = [...labels, ...toAdd];
+              core.info(`#${pr.number}: added ${toAdd.join(", ")}`);
+            }
+
+            // Once per PR (also when the box is ticked later): how points work.
+            const MARKER = "<!-- wocs-welcome -->";
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: pr.number, per_page: 100,
+            });
+            if (!comments.some((c) => (c.body || "").includes(MARKER))) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: [
+                  MARKER,
+                  `Thanks for the PR, @${pr.user.login}! ❄️ This PR is tracked for **Winter of Code Social 2026**.`,
+                  "",
+                  "- Points only count if you're registered at https://woc.codesocial.tech with this GitHub account.",
+                  "- A maintainer confirms the `level` label (2, 5 or 11 points) before merging. Only merged PRs count.",
+                  "- Please keep the PR linked to its issue (`Closes #123`).",
+                  "",
+                  "See [CONTRIBUTING.md](https://github.com/" + owner + "/" + repo + "/blob/main/CONTRIBUTING.md#winter-of-code-social-wocs-2026) for the details.",
+                ].join("\n"),
+              });
+            }
+
+            const levels = LEVELS.filter((l) => labels.includes(l));
+            if (labels.includes("wocs") && levels.length === 1) {
+              await setStatus("success", `wocs + ${levels[0]}`);
+            } else if (levels.length > 1) {
+              await setStatus("failure", `Keep exactly one level label (has ${levels.join(", ")})`);
+            } else {
+              await setStatus("failure", "Maintainer: add wocs and one of level 1 / 2 / 3 before merging");
+            }
