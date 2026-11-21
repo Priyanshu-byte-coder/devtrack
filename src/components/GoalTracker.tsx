@@ -460,6 +460,17 @@ export default function GoalTracker() {
   const [sharingGoalId, setSharingGoalId] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
 
+  // Animate the progress bars from 0% when they first appear. Each bar
+  // already has `transition-all duration-700`, but its width starts at the
+  // final value, so it snaps instead of filling. This flips on after the
+  // first render that shows goals, so the width change animates.
+  const [barsAnimated, setBarsAnimated] = useState(false);
+  useEffect(() => {
+    if (goals.length > 0 && !barsAnimated) {
+      setBarsAnimated(true);
+    }
+  }, [goals, barsAnimated]);
+
   const toggleGoalSharing = async (goalId: string, nextValue: boolean) => {
     setSharingGoalId(goalId);
     setShareError(null);
@@ -920,7 +931,7 @@ export default function GoalTracker() {
                       className="pointer-events-none absolute inset-0 z-10 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--card)_10px_12px)]"
                     />
                     <div
-                      className={`h-full transition-all duration-700 ${
+                      className={`h-full transition-all duration-700 motion-reduce:transition-none ${
                         isSurpassed
                           ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
                           : completed
@@ -928,7 +939,7 @@ export default function GoalTracker() {
                             : "bg-[var(--accent)]"
                       }`}
                       style={{
-                        width: `${Math.max(0, Math.min(progressWidth, 100))}%`,
+                        width: `${barsAnimated ? Math.max(0, Math.min(progressWidth, 100)) : 0}%`,
                       }}
                       role="progressbar"
                       aria-valuenow={goal.current}
