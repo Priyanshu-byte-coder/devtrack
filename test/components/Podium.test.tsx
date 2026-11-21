@@ -73,7 +73,8 @@ describe("Podium", () => {
     );
     expect(html).toContain("#<!-- -->42");
     expect(html).toContain(">21<");
-    expect(html).toMatch(/points(<!-- -->)? to #3/);
+    // React marks text-node boundaries with <!-- --> in SSR output.
+    expect(html.replace(/<!-- -->/g, "")).toMatch(/points\s+to #3/);
     expect(html).toContain('role="meter"');
     expect(html).toContain('href="#you"');
   });
