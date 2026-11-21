@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { resolveAppUser } from "@/lib/resolve-user";
+import { clearLeaderboardCache } from "@/lib/leaderboard";
+import { invalidatePublicProfile } from "@/lib/public-profile-tags";
 
 export const dynamic = "force-dynamic";
 
@@ -424,6 +426,27 @@ export async function DELETE(req: NextRequest) {
       { error: "Account deletion is unavailable" },
       { status: 503 }
     );
+  }
+
+  // --- Evict cached public data -----------------------------------------
+  // #934: the leaderboard and the public profile are cached for hours, so
+  // without this a deleted account stays listed and its profile stays
+  // viewable until the caches expire. The account is already gone, so a
+  // failed eviction is logged rather than reported as a failed deletion.
+  try {
+    await clearLeaderboardCache();
+  } catch (err) {
+    console.error("[account-deletion] Failed to clear leaderboard cache:", err);
+  }
+  if (session.githubLogin) {
+    try {
+      invalidatePublicProfile(session.githubLogin);
+    } catch (err) {
+      console.error(
+        "[account-deletion] Failed to invalidate public profile cache:",
+        err
+      );
+    }
   }
 
   // --- Clear session cookie --------------------------------------------

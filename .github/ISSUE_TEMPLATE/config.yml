@@ -1,11 +1,14 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Questions & Help
+  - name: Security vulnerability
+    url: https://github.com/Priyanshu-byte-coder/devtrack/security/advisories/new
+    about: Report security issues privately, never in a public issue (see SECURITY.md)
+  - name: Questions and help
     url: https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/q-a
-    about: Ask questions and get help from the community
-  - name: Feature Ideas & Discussion
+    about: Setup problems, "how do I…" questions and general help
+  - name: Ideas
     url: https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/ideas
-    about: Share and vote on feature ideas before creating an issue
-  - name: Show & Tell
-    url: https://github.com/Priyanshu-byte-coder/devtrack/discussions/categories/show-and-tell
-    about: Share your DevTrack setup, dashboards, or cool things you built
+    about: Float a bigger idea and gather feedback before it becomes an issue
+  - name: Winter of Code Social help
+    url: https://discord.gg/MSTNyRSPYW
+    about: WOCS registration, points and leaderboard questions (Code Social Discord, #wocs-help)

@@ -115,11 +115,17 @@ const config: Config = {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "copy-pop": {
+          "0%": { opacity: "0", transform: "scale(0.4)" },
+          "70%": { opacity: "1", transform: "scale(1.15)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.4s ease-out both",
         "scale-in": "scale-in 0.3s ease-out both",
         shimmer: "shimmer 1.8s ease-in-out infinite",
+        "copy-pop": "copy-pop 0.25s ease-out both",
       },
     },
   },

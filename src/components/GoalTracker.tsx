@@ -10,6 +10,8 @@ import {
   type GoalStatusFilter,
 } from "@/lib/goal-tracker";
 import ConfirmModal from "@/components/ConfirmModal";
+import { CopyFeedback } from "@/components/ui/copy-feedback";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { buildPublicGoalShareUrl } from "@/lib/goals/share";
 import GoalHistory from "@/components/GoalHistory";
 import WidgetSkeleton, { SkeletonBlock } from "./WidgetSkeleton";
@@ -454,7 +456,7 @@ export default function GoalTracker() {
       ? (session as { githubLogin: string }).githubLogin
       : null;
 
-  const [copiedGoalId, setCopiedGoalId] = useState<string | null>(null);
+  const { copy: copyText, isCopied } = useCopyToClipboard();
   const [sharingGoalId, setSharingGoalId] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
 
@@ -502,15 +504,7 @@ export default function GoalTracker() {
       goalId
     );
 
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopiedGoalId(goalId);
-      window.setTimeout(() => {
-        setCopiedGoalId((currentGoalId) =>
-          currentGoalId === goalId ? null : currentGoalId
-        );
-      }, 2000);
-    } catch {
+    if (!(await copyText(shareUrl, goalId))) {
       setShareError("Failed to copy share link. Please copy it manually.");
     }
   };
@@ -521,15 +515,17 @@ export default function GoalTracker() {
     return (
       <WidgetSkeleton title="weekly goals" className="h-full">
         <div className="flex justify-between items-center mb-4">
-          <SkeletonBlock className="h-6 w-16" />
-          <SkeletonBlock className="h-6 w-20" />
+          <SkeletonBlock className="h-[35px] w-16" />
+          <SkeletonBlock className="h-[35px] w-20" />
         </div>
-        {[1, 2, 3].map((i) => (
-          <div key={i} aria-hidden="true" className="mb-4">
-            <SkeletonBlock className="h-4 w-full mb-2" />
-            <SkeletonBlock className="h-2 w-full" />
-          </div>
-        ))}
+        <SkeletonBlock className="mb-3 h-[26px]" />
+        <div aria-hidden="true">
+          <SkeletonBlock className="h-4 w-full mb-2" />
+          <SkeletonBlock className="h-[108px] w-full" />
+        </div>
+        <SkeletonBlock className="mt-2 h-4" />
+        <SkeletonBlock className="mt-6 h-[440px]" />
+        <SkeletonBlock className="mt-6 h-[37px]" />
       </WidgetSkeleton>
     );
   }
@@ -976,9 +972,10 @@ export default function GoalTracker() {
                         onClick={() => copyGoalShareLink(goal.id)}
                         className="secondary-button mt-3 rounded-lg px-3 py-1.5 text-sm"
                       >
-                        {copiedGoalId === goal.id
-                          ? "Copied!"
-                          : "Copy share link"}
+                        <CopyFeedback
+                          copied={isCopied(goal.id)}
+                          label="Copy share link"
+                        />
                       </button>
                     )}
                   </div>

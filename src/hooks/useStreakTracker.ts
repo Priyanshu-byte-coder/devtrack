@@ -6,6 +6,7 @@ import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA1
 import { useCountUp } from "@/hooks/useCountUp";
 import StreakMilestoneBanner from "@/components/StreakMilestoneBanner";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
 import {
@@ -60,7 +61,8 @@ export function useStreakTracker() {
     useState<number>(0);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [minutesAgo, setMinutesAgo] = useState(0);
-  const [copied, setCopied] = useState(false);
+  const { copy, isCopied } = useCopyToClipboard();
+  const copied = isCopied();
   const [error, setError] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [freeze, setFreeze] = useState<FreezeData | null>(null);
@@ -299,21 +301,9 @@ export function useStreakTracker() {
       `Active days: ${data.totalActiveDays}`,
     ].join("\n");
 
-    if (typeof navigator === "undefined" || !navigator.clipboard) {
-      toast.error("Clipboard is not supported in this browser.");
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-
-      setCopied(true);
-
+    if (await copy(textToCopy)) {
       toast.success("Streak stats copied to clipboard!");
-
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy streak stats:", err);
+    } else {
       toast.error("Failed to copy streak stats.");
     }
   };
@@ -335,7 +325,6 @@ export function useStreakTracker() {
     lastUpdated,
     minutesAgo,
     copied,
-    setCopied,
     error,
     setError,
     calendarMonth,

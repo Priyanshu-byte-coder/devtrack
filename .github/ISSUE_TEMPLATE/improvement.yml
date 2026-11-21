@@ -1,0 +1,54 @@
+name: Improvement
+description: Refactor, performance, accessibility, docs or CI improvement (no new feature)
+title: "[IMPROVE] "
+labels: ["needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For changes that make existing code or docs better without adding a feature. Please search [open and closed issues](https://github.com/Priyanshu-byte-coder/devtrack/issues?q=is%3Aissue) first; duplicates get closed.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of improvement
+      options:
+        - Refactor or simplification
+        - Performance
+        - Accessibility
+        - Documentation
+        - CI or tooling
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What should change, and why?
+      description: Point at the specific problem (a slow page, a confusing doc, duplicated code) rather than a general wish.
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files involved
+      placeholder: |
+        src/lib/leaderboard.ts
+        src/components/PRMetrics.tsx
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Want to work on it?
+      options:
+        - label: I'd like to work on this. A maintainer will assign you; please don't start before that.
