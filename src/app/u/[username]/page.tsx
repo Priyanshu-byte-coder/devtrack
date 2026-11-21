@@ -350,6 +350,14 @@ export default async function PublicProfilePage({
         ]}
       />
       <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+        {isOwner && (
+          <Link
+            href="/dashboard"
+            className="mb-6 inline-flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
+          >
+            ← Back to dashboard
+          </Link>
+        )}
         <PlayerCard
           login={profile.username}
           eyebrow={isOwner ? "Player 1 · you" : "Player · DevTrack member"}
