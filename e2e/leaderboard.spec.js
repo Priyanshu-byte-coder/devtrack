@@ -42,3 +42,48 @@ test("switching back to All time sticks", async ({ page }) => {
   await page.waitForTimeout(1000);
   await expect(page).not.toHaveURL(/period=/);
 });
+
+// The Following view lists only you and the people you follow on GitHub
+// (two fixture players in test mode), keeping their global ranks.
+test("the Following view shows your circle with global ranks", async ({
+  page,
+  baseURL,
+}) => {
+  const { encode } = await import("next-auth/jwt");
+  const token = await encode({
+    secret:
+      process.env.NEXTAUTH_SECRET ??
+      "test-nextauth-secret-for-playwright-tests",
+    token: {
+      name: "dev-four",
+      sub: "99004",
+      githubLogin: "dev-four",
+      githubId: "99004",
+      accessToken: "mock-access-token",
+    },
+    maxAge: 3600,
+  });
+  const { hostname } = new URL(baseURL ?? "http://127.0.0.1:3000");
+  await page.context().addCookies([
+    {
+      name: "next-auth.session-token",
+      value: token,
+      domain: hostname,
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+    },
+  ]);
+
+  await page.goto("/leaderboard?view=following");
+  await expect(page.getByText("Your circle")).toBeVisible();
+  const list = page.getByRole("region", {
+    name: "You and the players you follow",
+  });
+  await expect(list).toContainText("@octocat");
+  await expect(list).toContainText("Following");
+  await expect(list).toContainText("@dev-four");
+  await expect(list).not.toContainText("@playwright-user");
+  await expect(page.getByRole("region", { name: "Top three" })).toHaveCount(0);
+});

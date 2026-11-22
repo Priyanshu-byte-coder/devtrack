@@ -774,6 +774,36 @@ export async function refreshLeaderboardCache(
 }
 
 /**
+ * The board saved by the last build or refresh, while it's fresh.
+ *
+ * Each refresh ends with revalidateTag("leaderboard", { expire: 0 }), which
+ * empties the data cache for every period, not only the one it rebuilt. The
+ * next visitor to each period then waited for a full rebuild (every
+ * player's stats) even though a fresh board was sitting in Redis. The week
+ * board, opened least, was the one that most often paid for it. Settings
+ * changes delete the Redis copy too (clearLeaderboardCache), so this never
+ * serves a board from before someone joined or left.
+ */
+async function savedLeaderboard(
+  period: LeaderboardPeriod
+): Promise<LeaderboardPayload | null> {
+  const mem = getMemoryCachedLeaderboard(period);
+  if (mem) return mem;
+  try {
+    const saved = await cacheGet<LeaderboardPayload>(
+      getLeaderboardCacheKey(period)
+    );
+    if (saved && isFresh(saved)) {
+      setMemoryCachedLeaderboard(saved, period);
+      return saved;
+    }
+  } catch {
+    // Redis down: build instead.
+  }
+  return null;
+}
+
+/**
  * Retrieves the cached leaderboard using Next.js unstable_cache, falling back to buildLeaderboard.
  * @param filters - Filtering options.
  * @returns A promise resolving to the leaderboard payload.
@@ -781,7 +811,7 @@ export async function refreshLeaderboardCache(
 export const getCachedLeaderboard = (filters: LeaderboardFilters = {}) => {
   const period = filters.period ?? DEFAULT_PERIOD;
   return unstable_cache(
-    async () => buildLeaderboard(filters),
+    async () => (await savedLeaderboard(period)) ?? buildLeaderboard(filters),
     ["leaderboard", period],
     {
       revalidate: CACHE_REFRESH_SECONDS,

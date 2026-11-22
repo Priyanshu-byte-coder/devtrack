@@ -382,8 +382,19 @@ export async function invalidateUserMetricsCache(
   }
 }
 
+/**
+ * Drops the cached leaderboards (`leaderboard:v1:<period>`) so the next
+ * request rebuilds them with current eligibility.
+ *
+ * Only the boards: each player's last good stats
+ * (`leaderboard:player:last-good:*`) stay. This used to match every
+ * `leaderboard:` key, so every sign-up, settings change and account deletion
+ * also wiped ~230 players' saved stats for all three periods, and the next
+ * build refetched everyone from GitHub: slow pages, a burst of Active CPU,
+ * and the rate-limit failures that zero players out.
+ */
 export async function invalidateLeaderboardCache(): Promise<void> {
-  const prefix = `leaderboard:`;
+  const prefix = `leaderboard:v1:`;
 
   for (const key of memoryCache.keys()) {
     if (key.startsWith(prefix)) {
