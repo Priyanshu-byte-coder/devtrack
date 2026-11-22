@@ -11,7 +11,7 @@ import GitHubAchievements from "@/components/GitHubAchievements";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import { Moon, Sun } from "lucide-react";
+import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
@@ -353,9 +353,11 @@ export default async function PublicProfilePage({
         {isOwner && (
           <Link
             href="/dashboard"
-            className="mb-6 inline-flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
+            className="mb-6 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-accent/40"
+            aria-label="Back to dashboard"
           >
-            ← Back to dashboard
+            <ArrowLeft size={14} aria-hidden="true" />
+            Back to dashboard
           </Link>
         )}
         <PlayerCard
