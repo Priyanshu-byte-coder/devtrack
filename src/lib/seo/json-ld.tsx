@@ -12,7 +12,7 @@ type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
 
 /** `<` is escaped so user-controlled strings (bios, names) cannot close the tag. */
 export function serializeJsonLd(data: JsonLdValue): string {
-  return JSON.stringify(data).replace(/</g, "\u003c");
+  return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 export function JsonLd({ data }: { data: JsonLdValue }) {
