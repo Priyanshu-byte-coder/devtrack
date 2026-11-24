@@ -213,7 +213,7 @@ const RepoItem = memo(
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-[var(--control)]">
           <div
-            className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+            className="h-full rounded-full bg-[var(--accent)] transition-[width] duration-500"
             style={{ width: `${barWidth}%` }}
           />
         </div>
