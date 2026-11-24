@@ -1,3 +1,4 @@
+import MetricTooltip from "@/components/ui/MetricTooltip";
 "use client";
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
@@ -82,19 +83,24 @@ function StatTile({
   value,
   hint,
   color,
+  tooltip,
 }: {
   label: string;
   value: string;
   hint?: string;
   color: string;
+  tooltip?: string;
 }) {
   return (
     <div
-      className="stat-cell min-w-0 p-3 sm:p-4"
+      className="stat-cell min-w-0 p-3 sm:p-4 relative"
       style={{ "--stat-c": color } as CSSProperties}
       title={hint}
     >
-      <div className={hudLabelClass}>{label}</div>
+      <div className="flex items-center justify-between gap-1">
+        <span className={hudLabelClass}>{label}</span>
+        {tooltip && <MetricTooltip content={tooltip} label={`About ${label}`} />}
+      </div>
       <div className="stat-value mt-2 truncate text-lg sm:text-xl">{value}</div>
       {hint && (
         <div className="mt-1 truncate text-[11px] text-[var(--muted-foreground)]">
@@ -327,18 +333,21 @@ export default function PRMetrics() {
               }
               color="#c77dff"
               hint="Of PRs merged or closed"
+              tooltip="Percentage of pull requests that were successfully merged."
             />
             <StatTile
               label="Time to merge"
               value={formatDuration(s.medianHoursToMerge)}
               color="#22d3ee"
               hint="Median"
+              tooltip="Average cycle time from opening a pull request to merging it."
             />
             <StatTile
               label="First review"
               value={formatDuration(s.medianHoursToFirstReview)}
               color="#f2c14e"
               hint="Median, by others"
+              tooltip="Average review time taken for pull requests to receive a review."
             />
             <StatTile
               label="Lines"

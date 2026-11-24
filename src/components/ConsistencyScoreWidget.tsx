@@ -1,3 +1,4 @@
+import MetricTooltip from "@/components/ui/MetricTooltip";
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -221,7 +222,10 @@ export default function ConsistencyScoreWidget() {
   return (
     <div className="px-frame bg-[var(--card)] p-6">
       <div className="mb-4 flex items-center justify-between">
-        <SectionHeader title="Consistency Score" />
+        <div className="flex items-center gap-1.5">
+          <SectionHeader title="Consistency Score" />
+          <MetricTooltip content="Indicates how consistently you contribute over time based on active commit and PR cadence." label="About Consistency Score" />
+        </div>
         <span
           className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-bold ${GRADE_COLORS[data.grade]}`}
         >
