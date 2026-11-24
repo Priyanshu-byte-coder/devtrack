@@ -155,7 +155,7 @@ export default function LeaderboardFilters() {
         id="leaderboard-language"
         value={language}
         onChange={(event) => updateFilters({ lang: event.target.value })}
-        className="px-frame h-9 bg-[var(--card)] px-2.5 font-mono text-sm text-[var(--card-foreground)] outline-none transition-colors hover:bg-[var(--control)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+        className="border border-[var(--border)] bg-[var(--control)] h-9 px-2.5 font-mono text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-colors"
       >
         <option value="">All languages</option>
         {languages.map((item) => (

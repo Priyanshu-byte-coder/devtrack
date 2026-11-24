@@ -591,7 +591,7 @@ export default function TopRepos() {
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
           aria-label="Select time range for top repositories"
-          className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--card-foreground)]"
+          className="border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         >
           <option value={7}>Last 7d</option>
           <option value={30}>Last 30d</option>

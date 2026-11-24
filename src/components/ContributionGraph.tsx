@@ -515,7 +515,7 @@ export default function ContributionGraph() {
           <select
             value={repo}
             onChange={(e) => setRepo(e.target.value)}
-            className="bg-slate-700 text-slate-300 text-sm rounded-lg px-2 py-1 border border-slate-600"
+            className="border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <option value="all">All repos</option>
             {repoOptions.map((r) => (
