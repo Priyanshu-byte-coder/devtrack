@@ -215,6 +215,7 @@ Ready to work on the signed-in dashboard? The full setup (Supabase, GitHub OAuth
 | AI         | Anthropic Claude and Groq                                                   |
 | i18n       | next-intl (English, Spanish)                                                |
 | Testing    | Vitest, Playwright (end-to-end and visual regression)                       |
+| Monitoring | Sentry (errors, tracing, session replay)                                    |
 | Deployment | Vercel and Supabase free tiers                                              |
 
 ### Documentation
@@ -288,7 +289,7 @@ Then follow **[DEVELOPMENT.md](./DEVELOPMENT.md)** for the database migrations a
 
 Everyone is expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md). Found a security issue? See [SECURITY.md](./SECURITY.md).
 
-DevTrack is built on [Supabase](https://supabase.com), [Vercel](https://vercel.com), [Anthropic](https://anthropic.com), and [Groq](https://groq.com).
+DevTrack is built on [Supabase](https://supabase.com), [Vercel](https://vercel.com), [Anthropic](https://anthropic.com), and [Groq](https://groq.com). Error monitoring is provided by [Sentry](https://sentry.io) through its open-source sponsorship.
 
 ## Star history
 
