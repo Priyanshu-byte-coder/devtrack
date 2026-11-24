@@ -7,9 +7,9 @@ export default function WrappedSpotlight() {
   return (
     <Link
       href="/wrapped"
-      className="group flex items-center gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-600/15 via-fuchsia-500/10 to-transparent px-4 py-3 transition-colors hover:border-violet-500/60"
+      className="group flex items-center gap-3 rounded-xl border border-[var(--accent)]/30 bg-gradient-to-r from-[var(--accent)]/15 via-[var(--accent-secondary)]/10 to-transparent px-4 py-3 transition-colors hover:border-[var(--accent)]/60"
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/20 text-violet-400">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)]/20 text-[var(--accent)]">
         <Sparkles className="h-4 w-4" aria-hidden="true" />
       </span>
       <span className="min-w-0 flex-1">
@@ -20,7 +20,7 @@ export default function WrappedSpotlight() {
           Your year of commits, languages and streaks as a story you can share.
         </span>
       </span>
-      <span className="hidden items-center gap-1 text-sm font-medium text-violet-400 sm:flex">
+      <span className="hidden items-center gap-1 text-sm font-medium text-[var(--accent)] sm:flex">
         View
         <ArrowRight
           className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

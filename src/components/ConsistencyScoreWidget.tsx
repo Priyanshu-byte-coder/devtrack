@@ -20,7 +20,7 @@ import {
 
 const GRADE_COLORS: Record<ConsistencyScoreResult["grade"], string> = {
   S: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  A: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  A: "bg-[var(--accent)]/15 text-[var(--accent)] border-[var(--accent)]/30",
   B: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
   C: "bg-orange-500/15 text-orange-400 border-orange-500/30",
   D: "bg-red-500/15 text-red-400 border-red-500/30",
@@ -28,7 +28,7 @@ const GRADE_COLORS: Record<ConsistencyScoreResult["grade"], string> = {
 
 const GRADE_RING_COLORS: Record<ConsistencyScoreResult["grade"], string> = {
   S: "var(--success, #10b981)",
-  A: "#3b82f6",
+  A: "var(--accent, #6ba8ff)",
   B: "#eab308",
   C: "#f97316",
   D: "var(--destructive, #ef4444)",
