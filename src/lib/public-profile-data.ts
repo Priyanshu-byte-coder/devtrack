@@ -59,6 +59,7 @@ export interface PublicProfileData {
   username: string;
   bio: string | null;
   isSponsor: boolean;
+  hasSponsorsListing?: boolean;
   publicGists: number;
   memberSince: string | null;
   repos: TopRepo[];
@@ -104,16 +105,33 @@ async function ghFetch(url: string, token?: string): Promise<Response> {
  * @param token - Optional GitHub personal access token.
  * @returns The number of public gists.
  */
-export async function fetchPublicGists(
+export async function fetchPublicUserInfo(
   username: string,
   token?: string
-): Promise<number> {
+): Promise<{ publicGists: number; hasSponsorsListing: boolean }> {
   const res = await ghFetch(`${GITHUB_API}/users/${username}`, token);
 
   if (!res.ok) throw new Error("Public GitHub metric unavailable");
 
-  const data = (await res.json()) as { public_gists?: number };
-  return data.public_gists ?? 0;
+  const data = (await res.json()) as {
+    public_gists?: number;
+    has_sponsors_listing?: boolean;
+    has_sponsor_listing?: boolean;
+  };
+  return {
+    publicGists: data.public_gists ?? 0,
+    hasSponsorsListing: Boolean(
+      data.has_sponsors_listing || data.has_sponsor_listing
+    ),
+  };
+}
+
+export async function fetchPublicGists(
+  username: string,
+  token?: string
+): Promise<number> {
+  const info = await fetchPublicUserInfo(username, token);
+  return info.publicGists;
 }
 
 /**
@@ -455,6 +473,7 @@ export async function fetchPublicProfile(
         fetchPublicGists(user.github_login, githubToken).catch(() => 0),
       ]).then(([stats, freezes, publicGists]) => ({
         publicGists,
+        hasSponsorsListing: stats.hasSponsorsListing,
         repos: stats.repos,
         contributions: stats.contributions,
         streak: {
@@ -465,7 +484,10 @@ export async function fetchPublicProfile(
         pullRequests: stats.pullRequests,
       }))
     : Promise.all([
-        fetchPublicGists(user.github_login),
+        fetchPublicUserInfo(user.github_login).catch(() => ({
+          publicGists: 0,
+          hasSponsorsListing: false,
+        })),
         fetchPublicTopRepos(user.github_login, undefined, PROFILE_WINDOW_DAYS),
         fetchPublicContributions(
           user.github_login,
@@ -477,14 +499,15 @@ export async function fetchPublicProfile(
         fetchPublicPullRequests(user.github_login),
       ]).then(
         ([
-          publicGists,
+          userInfo,
           repos,
           contributions,
           streak,
           topLanguages,
           pullRequests,
         ]) => ({
-          publicGists,
+          publicGists: userInfo.publicGists,
+          hasSponsorsListing: userInfo.hasSponsorsListing,
           repos,
           contributions,
           streak,
@@ -494,7 +517,7 @@ export async function fetchPublicProfile(
       );
 
   const [
-    { publicGists, repos, contributions, streak, topLanguages, pullRequests },
+    { publicGists, hasSponsorsListing, repos, contributions, streak, topLanguages, pullRequests },
     achievementsCache,
     spotlight,
     weeklyGoalProgress,
@@ -553,6 +576,7 @@ export async function fetchPublicProfile(
     username: user.github_login,
     bio: user.bio ?? null,
     isSponsor: user.is_sponsor ?? false,
+    hasSponsorsListing,
     publicGists,
     memberSince: user.created_at ?? null,
     repos,

@@ -1,5 +1,5 @@
 import Link from "@/components/Link";
-import { Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import PlayerCard, { type HudStat } from "@/components/profile/PlayerCard";
 import ShareProfileSection from "@/components/ShareProfileSection";
@@ -92,6 +92,21 @@ export default function GuestProfileView({
             >
               View on GitHub
             </a>
+            {profile.hasSponsorsListing && (
+              <a
+                href={`https://github.com/sponsors/${encodeURIComponent(profile.login)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 border border-pink-500/40 bg-pink-500/10 px-2.5 py-1 font-medium text-pink-400 transition-colors hover:border-pink-500/80 hover:bg-pink-500/20 hover:text-pink-300"
+                title={`Sponsor @${profile.login} on GitHub`}
+              >
+                <Heart
+                  className="h-3.5 w-3.5 fill-pink-500 text-pink-500"
+                  aria-hidden="true"
+                />
+                Sponsor me
+              </a>
+            )}
           </>
         }
         actions={
