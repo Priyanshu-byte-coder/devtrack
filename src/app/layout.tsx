@@ -88,8 +88,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f8fc" },
+    { media: "(prefers-color-scheme: dark)", color: "#050816" },
   ],
 };
 
@@ -123,16 +123,17 @@ export default async function RootLayout({
             __html: `
               (function() {
                 try {
+                  const legacy = { 'classic-dark': 'arcade', 'nordic-frost': 'arcade', 'modern-light-blue': 'daylight', 'cyberpunk-matrix': 'terminal' };
                   const stored = localStorage.getItem('theme');
-                  const validThemes = ['classic-dark', 'modern-light-blue', 'nordic-frost', 'cyberpunk-matrix'];
-                  let theme = validThemes.includes(stored || '') ? stored : null;
+                  const validThemes = ['arcade', 'daylight', 'terminal', 'synthwave'];
+                  let theme = validThemes.includes(stored || '') ? stored : legacy[stored] || null;
 
                   if (!theme) {
                     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    theme = systemPrefersDark ? 'classic-dark' : 'modern-light-blue';
+                    theme = systemPrefersDark ? 'arcade' : 'daylight';
                   }
 
-                  const isDark = theme !== 'modern-light-blue';
+                  const isDark = theme !== 'daylight';
 
                   document.documentElement.dataset.theme = theme;
                   document.documentElement.classList.toggle('dark', isDark);

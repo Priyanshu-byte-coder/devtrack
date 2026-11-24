@@ -70,15 +70,10 @@
   --chart-8: #40d9c2;
 }
 
-html[data-theme="classic-dark"],
-html.dark {
-  color-scheme: dark;
-  --card: #111111;
-  --card-muted: #1a1a1a;
-  --border: #2a2a2a;
-}
-
-html[data-theme="modern-light-blue"] {
+/* Themes. Arcade is :root above (the navy brand look the landing page and
+   podium use). Each other theme redefines the full token set, so it reads as
+   its own cabinet rather than a tinted copy of Arcade. */
+html[data-theme="daylight"] {
   color-scheme: light;
   --background: #f6f8fc;
   --foreground: #0f172a;
@@ -115,78 +110,80 @@ html[data-theme="modern-light-blue"] {
   --chart-8: #14b8a6;
 }
 
-html[data-theme="nordic-frost"] {
+/* Green-phosphor CRT: everything glows green, amber for highlights. */
+html[data-theme="terminal"] {
   color-scheme: dark;
-  --background: #07131f;
-  --foreground: #eaf4ff;
-  --muted: #111f31;
-  --muted-foreground: #9eb6ce;
-  --card: #0c1a2a;
-  --card-foreground: #eaf4ff;
-  --card-muted: #122436;
-  --border: #213447;
-  --accent: #59e3d0;
-  --accent-secondary: #6ad1ff;
-  --ring: #8af2e7;
-  --focus-ring: #8af2e7;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --destructive: #fb7185;
-  --accent-soft: rgba(89, 227, 208, 0.14);
-  --accent-foreground: #04111a;
-  --control: #122031;
-  --control-hover: #173046;
-  --tooltip: #0a1624;
-  --tooltip-foreground: #eaf4ff;
-  --destructive-muted: rgba(251, 113, 133, 0.1);
-  --destructive-muted-border: rgba(251, 113, 133, 0.28);
+  --background: #020a04;
+  --foreground: #c4ffd0;
+  --muted: #08160c;
+  --muted-foreground: #6fbf83;
+  --card: #051009;
+  --card-foreground: #c4ffd0;
+  --card-muted: #0a1d10;
+  --border: #15401f;
+  --accent: #39ff6a;
+  --accent-secondary: #ffb000;
+  --ring: #7dffa0;
+  --focus-ring: #7dffa0;
+  --success: #39ff6a;
+  --warning: #ffb000;
+  --destructive: #ff5f56;
+  --accent-soft: rgba(57, 255, 106, 0.12);
+  --accent-foreground: #021006;
+  --control: #0a1d10;
+  --control-hover: #102a17;
+  --tooltip: #051009;
+  --tooltip-foreground: #c4ffd0;
+  --destructive-muted: rgba(255, 95, 86, 0.1);
+  --destructive-muted-border: rgba(255, 95, 86, 0.3);
   --destructive-foreground: #ffffff;
-  --shadow-soft: 0 16px 34px -24px rgba(4, 16, 29, 0.78);
-  --shadow-medium: 0 24px 45px -28px rgba(4, 16, 29, 0.86);
-  --chart-2: #67e8f9;
-  --chart-3: #a5f3fc;
-  --chart-4: #5eead4;
-  --chart-5: #34d399;
-  --chart-6: #22c55e;
-  --chart-7: #7dd3fc;
-  --chart-8: #2dd4bf;
+  --shadow-soft: 0 16px 34px -24px rgba(0, 0, 0, 0.9);
+  --shadow-medium: 0 24px 45px -28px rgba(0, 0, 0, 0.95);
+  --chart-2: #ffb000;
+  --chart-3: #2de0c4;
+  --chart-4: #9dff5c;
+  --chart-5: #ff8a3d;
+  --chart-6: #e8ff6b;
+  --chart-7: #5cd6ff;
+  --chart-8: #1fb85a;
 }
 
-html[data-theme="cyberpunk-matrix"] {
+/* Purple night with hot-pink and cyan neon. */
+html[data-theme="synthwave"] {
   color-scheme: dark;
-  --background: #050608;
-  --foreground: #e8ffe8;
-  --muted: #0d140d;
-  --muted-foreground: #98b698;
-  --card: #0a100a;
-  --card-foreground: #e8ffe8;
-  --card-muted: #101810;
-  --border: #1c2a1c;
-  --accent: #6dff76;
-  --accent-secondary: #b16cff;
-  --ring: #8dff9a;
-  --focus-ring: #8dff9a;
-  --success: #2dd4bf;
-  --warning: #facc15;
-  --destructive: #f87171;
-  --accent-soft: rgba(109, 255, 118, 0.12);
-  --accent-foreground: #041104;
-  --control: #0f170f;
-  --control-hover: #162016;
-  --tooltip: #0a0f0a;
-  --tooltip-foreground: #e8ffe8;
-  --destructive-muted: rgba(248, 113, 113, 0.1);
-  --destructive-muted-border: rgba(248, 113, 113, 0.28);
+  --background: #12052b;
+  --foreground: #fbeaff;
+  --muted: #1f0b45;
+  --muted-foreground: #b9a3d9;
+  --card: #1a0a3b;
+  --card-foreground: #fbeaff;
+  --card-muted: #241050;
+  --border: #3a1f6b;
+  --accent: #ff4fd8;
+  --accent-secondary: #29e0ff;
+  --ring: #ff9df0;
+  --focus-ring: #ff9df0;
+  --success: #3dffb5;
+  --warning: #ffd23f;
+  --destructive: #ff5c7a;
+  --accent-soft: rgba(255, 79, 216, 0.14);
+  --accent-foreground: #1a0526;
+  --control: #241050;
+  --control-hover: #2e1563;
+  --tooltip: #1a0a3b;
+  --tooltip-foreground: #fbeaff;
+  --destructive-muted: rgba(255, 92, 122, 0.1);
+  --destructive-muted-border: rgba(255, 92, 122, 0.3);
   --destructive-foreground: #ffffff;
-  --shadow-soft: 0 16px 34px -24px rgba(0, 0, 0, 0.85);
-  --shadow-medium: 0 24px 45px -28px rgba(0, 0, 0, 0.9);
-  --chart-2: #34d399;
-  --chart-3: #a78bfa;
-  --chart-4: #22d3ee;
-  --chart-5: #f472b6;
-  --chart-6: #facc15;
-  --chart-7: #6dff76;
-  --chart-8: #2dd4bf;
+  --shadow-soft: 0 16px 34px -24px rgba(6, 0, 20, 0.85);
+  --shadow-medium: 0 24px 45px -28px rgba(6, 0, 20, 0.9);
+  --chart-2: #29e0ff;
+  --chart-3: #ffd23f;
+  --chart-4: #b388ff;
+  --chart-5: #ff8a5c;
+  --chart-6: #3dffb5;
+  --chart-7: #ff4fd8;
+  --chart-8: #7c9bff;
 }
 
 html {
