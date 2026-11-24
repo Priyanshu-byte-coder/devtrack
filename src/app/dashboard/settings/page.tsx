@@ -1,7 +1,38 @@
+export function SettingsErrorPanel({
+  onRetry,
+  loading = false,
+}: {
+  onRetry: () => void;
+  loading?: boolean;
+}) {
+  return (
+    <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
+      <div className="max-w-2xl mx-auto">
+        <div className="px-frame bg-[var(--card)] px-4 py-12 text-center">
+          <p className="font-pixel text-sm uppercase text-[var(--card-foreground)]">
+            Connection lost
+          </p>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            Failed to load settings. Check your connection and try again.
+          </p>
+          <button
+            type="button"
+            onClick={onRetry}
+            disabled={loading}
+            className="px-btn mt-6"
+          >
+            {loading ? "Retrying..." : "Retry"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 "use client";
 
 import ThemePresetPicker from "@/components/ThemePresetPicker";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { redirect, useSearchParams } from "next/navigation";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
@@ -337,34 +368,38 @@ function SettingsPageContent() {
     }
   }, [status]);
 
-  // Load settings on mount
-  useEffect(() => {
+  const loadSettings = useCallback(async () => {
     if (status !== "authenticated" || !session?.githubLogin) {
       return;
     }
 
-    async function loadSettings() {
-      try {
-        const res = await fetch("/api/user/settings");
-        if (res.ok) {
-          const data = await res.json();
-          setSettings(data);
-          setBioDraft(data.bio ?? "");
-          setDiscordWebhook(data.discord_webhook_url || "");
-          setTimezone(data.timezone || "UTC");
-          setDiscordMutedUntil(data.discord_muted_until ?? null);
-          setWebhookUrl(data.webhook_url ?? null);
-          setPublicWidgets(data.public_widgets ?? ["streak", "contributions"]);
-        }
-      } catch (error) {
-        console.error("Failed to load settings:", error);
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/user/settings");
+      if (res.ok) {
+        const data = await res.json();
+        setSettings(data);
+        setBioDraft(data.bio ?? "");
+        setDiscordWebhook(data.discord_webhook_url || "");
+        setTimezone(data.timezone || "UTC");
+        setDiscordMutedUntil(data.discord_muted_until ?? null);
+        setWebhookUrl(data.webhook_url ?? null);
+        setPublicWidgets(data.public_widgets ?? ["streak", "contributions"]);
+      } else {
+        setSettings(null);
       }
+    } catch (error) {
+      console.error("Failed to load settings:", error);
+      setSettings(null);
+    } finally {
+      setLoading(false);
     }
+  }, [session?.githubLogin, status]);
 
+  // Load settings on mount
+  useEffect(() => {
     loadSettings();
-  }, [activeLocale, session, status]);
+  }, [loadSettings]);
 
   const handleSaveLanguage = async (value: AppLocale) => {
     if (!settings) return;
@@ -883,13 +918,10 @@ function SettingsPageContent() {
 
   if (!settings) {
     return (
-      <div className="min-h-screen bg-[var(--background)] p-4 md:p-8 text-[var(--foreground)] transition-colors">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-[var(--muted-foreground)]">
-            Failed to load settings.
-          </p>
-        </div>
-      </div>
+      <SettingsErrorPanel
+        onRetry={() => loadSettings()}
+        loading={loading}
+      />
     );
   }
 
