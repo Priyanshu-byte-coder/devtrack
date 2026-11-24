@@ -1,3 +1,4 @@
+import MetricTooltip from "@/components/ui/MetricTooltip";
 "use client";
 
 import { ChevronDown, Download, Sparkles } from "lucide-react";
