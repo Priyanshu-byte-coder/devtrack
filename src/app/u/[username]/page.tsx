@@ -11,7 +11,7 @@ import GitHubAchievements from "@/components/GitHubAchievements";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import { Moon, Sun } from "lucide-react";
+import { ArrowLeft, Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
@@ -350,6 +350,16 @@ export default async function PublicProfilePage({
         ]}
       />
       <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+        {isOwner && (
+          <Link
+            href="/dashboard"
+            className="mb-6 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-accent/40"
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={14} aria-hidden="true" />
+            Back to dashboard
+          </Link>
+        )}
         <PlayerCard
           login={profile.username}
           eyebrow={isOwner ? "Player 1 · you" : "Player · DevTrack member"}
