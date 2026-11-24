@@ -986,7 +986,7 @@ function SettingsPageContent() {
                   value={profileUrl}
                   readOnly
                   aria-label="Public profile URL"
-                  className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] outline-none transition-colors focus:border-[var(--accent)]"
+                  className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
                 />
                 <Button
                   type="button"

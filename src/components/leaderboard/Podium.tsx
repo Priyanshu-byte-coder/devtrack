@@ -280,7 +280,7 @@ function Step({ place, index }: { place: PodiumPlace; index: number }) {
         <div className="flex h-10 items-end">{first && <Crown />}</div>
         <Link
           href={place.profileUrl}
-          className="group mt-1 flex w-full min-w-0 flex-col items-center focus-visible:outline-none"
+          className="group mt-1 flex w-full min-w-0 flex-col items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:rounded"
         >
           <span className={`relative ${first ? "podium-aura" : ""}`}>
             {/* eslint-disable-next-line @next/next/no-img-element -- GitHub avatar, already sized by the URL */}

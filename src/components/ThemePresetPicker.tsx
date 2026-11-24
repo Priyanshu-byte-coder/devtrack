@@ -34,8 +34,8 @@ export default function ThemePresetPicker() {
           py-2
           text-foreground
           focus:outline-none
-          focus:ring-2
-          focus:ring-accent
+          focus-visible:ring-2
+          focus-visible:ring-[var(--focus-ring)]
         "
       >
         {THEME_OPTIONS.map((themeOption) => (
