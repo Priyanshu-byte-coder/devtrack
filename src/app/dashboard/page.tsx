@@ -6,11 +6,7 @@ import ExportButton from "@/components/ExportButton";
 import PageHeader from "@/components/shell/PageHeader";
 import StatStrip from "@/components/dashboard/StatStrip";
 import WrappedSpotlight from "@/components/dashboard/WrappedSpotlight";
-import {
-  AIMentor,
-  ContributionGraph,
-  PersonalRecords,
-} from "@/components/dashboard/widgets";
+import CustomizableWidgetGrid from "@/components/dashboard/CustomizableWidgetGrid";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "@/lib/server-session";
 import { decode } from "next-auth/jwt";
@@ -99,24 +95,7 @@ export default async function DashboardPage() {
         </div>
         <WrappedSpotlight />
 
-        <div className="grid gap-4 xl:grid-cols-3">
-          <div className="min-w-0 space-y-4 xl:col-span-2">
-            {/* Reserves the loaded chart's height (its header wraps on phones). */}
-            <div
-              className="min-h-[388px] sm:min-h-[330px]"
-              data-tour="activity"
-            >
-              <ContributionGraph />
-            </div>
-            <PersonalRecords />
-          </div>
-          <div className="min-w-0 space-y-4">
-            <div data-tour="focus">
-              <TodayFocusHero />
-            </div>
-            <AIMentor />
-          </div>
-        </div>
+        <CustomizableWidgetGrid />
       </div>
     </>
   );
