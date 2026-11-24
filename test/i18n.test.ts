@@ -6,6 +6,9 @@ describe("normalizeLocale", () => {
   it("normalizes valid locales", () => {
     expect(normalizeLocale("en")).toBe("en");
     expect(normalizeLocale("es")).toBe("es");
+    expect(normalizeLocale("pt-BR")).toBe("pt-BR");
+    expect(normalizeLocale("pt")).toBe("pt-BR");
+    expect(normalizeLocale("pt-PT")).toBe("pt-BR");
   });
 
   it("normalizes valid locales with region/case", () => {
@@ -103,11 +106,20 @@ describe("detectBrowserLocale", () => {
   it("detects supported browser languages from complex Accept-Language", () => {
     expect(detectBrowserLocale("fr-CA,es;q=0.8,en;q=0.7")).toBe("es");
   });
+
+  it("detects Portuguese browser languages", () => {
+    expect(detectBrowserLocale("pt-BR,pt;q=0.9,en;q=0.8")).toBe("pt-BR");
+    expect(detectBrowserLocale("pt,en;q=0.8")).toBe("pt-BR");
+  });
 });
 
 describe("i18n translation lookup", () => {
   it("renders Spanish strings", async () => {
     await expect(translateMessage("es", "navigation.settings")).resolves.toBe("Configuración");
+  });
+
+  it("renders Portuguese (Brazil) strings", async () => {
+    await expect(translateMessage("pt-BR", "navigation.settings")).resolves.toBe("Configurações");
   });
 
   it("falls back to English when locale is unsupported", async () => {
