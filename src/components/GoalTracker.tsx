@@ -678,7 +678,7 @@ export default function GoalTracker() {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search goals..."
+                    placeholder="Search goals…"
                     aria-label="Search goals"
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-muted)] py-1.5 pl-3 pr-8 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] [&::-webkit-search-cancel-button]:appearance-none"
                   />
@@ -1163,7 +1163,7 @@ export default function GoalTracker() {
           {creating ? (
             <>
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Creating Goal...
+              Creating Goal…
             </>
           ) : (
             "Create goal"
@@ -1179,7 +1179,7 @@ export default function GoalTracker() {
         isOpen={confirmingId !== null}
         title="Delete Tracking Goal"
         message={`Are you sure you want to permanently remove your "${activeConfirmingGoal?.title || "active coding"}" goal? This will erase all gathered progress history numbers parameters.`}
-        confirmLabel={deletingId ? "Deleting..." : "Permanently Delete"}
+        confirmLabel={deletingId ? "Deleting…" : "Permanently Delete"}
         cancelLabel="Keep Goal"
         onConfirm={() => {
           if (confirmingId) handleDelete(confirmingId);

@@ -486,7 +486,7 @@ export default function StreakTracker() {
                     disabled={cancelling || freezeLoading}
                     className="rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-[var(--destructive)] transition hover:bg-destructive/20 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {cancelling ? "Removing..." : "Yes, remove"}
+                    {cancelling ? "Removing…" : "Yes, remove"}
                   </button>
                   <button
                     type="button"
@@ -545,7 +545,7 @@ export default function StreakTracker() {
                     : "bg-[var(--accent)] hover:opacity-90"
                 } text-[var(--accent-foreground)]`}
               >
-                {freezeLoading ? "Freezing..." : "Freeze Streak"}
+                {freezeLoading ? "Freezing…" : "Freeze Streak"}
               </button>
             </div>
           )}

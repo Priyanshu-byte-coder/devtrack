@@ -340,7 +340,7 @@ export default function PrivacySettings() {
                     aria-busy={deleting}
                     className="rounded-lg bg-[var(--destructive)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition hover:bg-destructive/90 disabled:opacity-60"
                   >
-                    {deleting ? "Deleting..." : "Confirm Delete"}
+                    {deleting ? "Deleting…" : "Confirm Delete"}
                   </button>
                   <button
                     type="button"

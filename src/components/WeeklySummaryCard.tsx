@@ -335,7 +335,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               >
                 <Sparkles className="h-4 w-4 animate-pulse text-[var(--muted-foreground)]" />
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  Generating summary...
+                  Generating summary…
                 </span>
               </div>
             )}

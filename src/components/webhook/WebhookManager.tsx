@@ -586,7 +586,7 @@ export default function WebhookManager() {
             disabled={creating || formEvents.length === 0}
             className="w-full rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {creating ? "Creating..." : "Create Webhook"}
+            {creating ? "Creating…" : "Create Webhook"}
           </button>
         </form>
       )}
@@ -702,7 +702,7 @@ export default function WebhookManager() {
                     className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors disabled:opacity-60"
                     title="Send test payload"
                   >
-                    {testingId === webhook.id ? "Testing..." : "Test"}
+                    {testingId === webhook.id ? "Testing…" : "Test"}
                   </button>
                   <button
                     onClick={() => handleDelete(webhook.id)}
@@ -760,7 +760,7 @@ export default function WebhookManager() {
               disabled={testingId === selectedWebhook}
               className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-sm font-medium text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
             >
-              {testingId === selectedWebhook ? "Sending..." : "Send Test"}
+              {testingId === selectedWebhook ? "Sending…" : "Send Test"}
             </button>
             <button
               onClick={() => handleRotateSecret(selectedWebhook)}

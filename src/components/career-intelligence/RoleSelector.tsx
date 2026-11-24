@@ -168,7 +168,7 @@ export default function RoleSelector({
             disabled={disabled}
             value={customRoleText}
             onChange={(e) => setCustomRoleText(e.target.value)}
-            placeholder="e.g. Site Reliability Engineer, SRE, Developer Advocate..."
+            placeholder="e.g. Site Reliability Engineer, SRE, Developer Advocate…"
             className="flex h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-sm text-[var(--foreground)] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
           />
           <button

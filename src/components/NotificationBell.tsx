@@ -292,7 +292,7 @@ export default function NotificationBell() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search notifications..."
+                placeholder="Search notifications…"
                 aria-label="Search notifications"
                 className="w-full pl-3 pr-8 py-1.5 text-sm bg-[var(--control)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-shadow"
               />

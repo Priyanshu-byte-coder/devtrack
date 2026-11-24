@@ -495,7 +495,7 @@ export default function ContributionGraph() {
           )}
           {compareMode && compareLoading && (
             <p className="text-xs text-[var(--muted-foreground)] mt-1">
-              Loading friend data...
+              Loading friend data…
             </p>
           )}
           {!compareMode && !loading && !error && (
