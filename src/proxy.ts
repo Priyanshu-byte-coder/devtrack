@@ -285,7 +285,7 @@ export async function proxy(req: NextRequest) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://avatars.githubusercontent.com https://github.githubassets.com https://images.unsplash.com https://*.clarity.ms https://c.bing.com",
-    "connect-src 'self' https://api.github.com https://*.supabase.co wss://*.supabase.co https://*.upstash.io https://vitals.vercel-insights.com https://*.clarity.ms https://c.bing.com",
+    "connect-src 'self' https://api.github.com https://*.supabase.co wss://*.supabase.co https://*.upstash.io https://vitals.vercel-insights.com https://*.clarity.ms https://c.bing.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
     "worker-src 'self' blob:",
     "frame-ancestors 'none'",
     "base-uri 'none'",
