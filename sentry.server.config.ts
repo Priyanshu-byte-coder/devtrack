@@ -1,7 +1,12 @@
 import * as Sentry from "@sentry/nextjs";
+import { sentryDsn, sentryEnvironment, traceRate } from "./sentry.shared";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 1.0,
-  debug: false,
+  dsn: sentryDsn,
+  environment: sentryEnvironment,
+  tracesSampleRate: traceRate(0.05),
+  enableLogs: true,
+  integrations: [
+    Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
+  ],
 });
