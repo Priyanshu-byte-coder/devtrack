@@ -1,4 +1,4 @@
-import { defaultLocale, isValidLocale, type AppLocale } from "./config";
+import { defaultLocale, isValidLocale, locales, type AppLocale } from "./config";
 
 type LocaleSource = "preference" | "cookie" | "browser" | "default";
 
@@ -9,7 +9,14 @@ export type LocaleResolution = {
 
 export function normalizeLocale(value: string | null | undefined): AppLocale | null {
   if (!value) return null;
-  const [language] = value.trim().toLowerCase().split("-");
+  const trimmed = value.trim();
+  const lower = trimmed.toLowerCase();
+
+  const exact = locales.find((l) => l.toLowerCase() === lower);
+  if (exact) return exact;
+
+  const [language] = lower.split("-");
+  if (language === "pt") return "pt-BR";
   return isValidLocale(language) ? language : null;
 }
 
