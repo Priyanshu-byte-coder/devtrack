@@ -142,7 +142,7 @@ export function AIMentorWidget() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] flex items-center gap-2">
-            <span aria-hidden="true" className="text-purple-500">
+            <span aria-hidden="true" className="text-[var(--accent)]">
               ✦
             </span>
             AI Mentor
@@ -182,8 +182,8 @@ export function AIMentorWidget() {
       {!isCollapsed && (
         <div className="mt-4 space-y-3">
           {data.aiSummary && (
-            <div className="rounded-lg bg-purple-500/10 border border-purple-500/30 p-4">
-              <p className="text-xs font-semibold text-purple-400 mb-1.5 uppercase tracking-wide">
+            <div className="rounded-lg bg-[var(--accent-soft)] border border-[var(--accent)]/30 p-4">
+              <p className="text-xs font-semibold text-[var(--accent)] mb-1.5 uppercase tracking-wide">
                 Weekly summary · AI
               </p>
               <p

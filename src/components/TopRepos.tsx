@@ -77,7 +77,7 @@ const RepoItem = memo(
         ariaLabel: "Medium codebase, between 50KB and 500KB total code",
       },
       Large: {
-        classes: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+        classes: "bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/20",
         ariaLabel: "Large codebase, over 500KB total code",
       },
     };
