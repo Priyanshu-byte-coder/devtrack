@@ -356,7 +356,7 @@ export default function MilestonePlanner() {
                     category: e.target.value as Milestone["category"],
                   }))
                 }
-                className={fieldClass}
+                className="w-full border border-[var(--border)] bg-[var(--control)] px-2.5 py-2 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 {CATEGORY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>

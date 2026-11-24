@@ -1047,7 +1047,7 @@ export default function GoalTracker() {
               value={target}
               onChange={(e) => setTarget(Number(e.target.value))}
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
+              className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             />
           </div>
           <div className="flex-1">
@@ -1062,7 +1062,7 @@ export default function GoalTracker() {
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
+              className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <option value="commits">Commits ⚡</option>
               <option value="prs">PRs ⚡</option>
@@ -1085,7 +1085,7 @@ export default function GoalTracker() {
             value={category}
             onChange={(e) => setCategory(e.target.value as GoalCategory | "")}
             disabled={creating}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
+            className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             <option value="">No category</option>
             {CATEGORY_OPTIONS.map((c) => (
@@ -1111,7 +1111,7 @@ export default function GoalTracker() {
               onChange={(e) => setDeadline(e.target.value)}
               disabled={creating}
               min={new Date().toISOString().split("T")[0]}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
+              className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             />
           </div>
         )}

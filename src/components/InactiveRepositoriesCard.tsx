@@ -90,7 +90,7 @@ export default function InactiveRepositoriesCard() {
               setThresholdDays(Number(event.target.value) as ThresholdDays)
             }
             aria-label="Select inactivity threshold"
-            className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--card-foreground)]"
+            className="border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             {THRESHOLDS.map((days) => (
               <option key={days} value={days}>

@@ -1313,7 +1313,7 @@ function SettingsPageContent() {
                   onChange={(event) =>
                     handleSaveLanguage(event.target.value as AppLocale)
                   }
-                  className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:opacity-60"
+                  className="mt-2 w-full border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:opacity-60"
                 >
                   {locales.map((locale) => (
                     <option key={locale} value={locale}>
@@ -1902,7 +1902,7 @@ function SettingsPageContent() {
                     setTimezone(e.target.value);
                     setIsDirty(true);
                   }}
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                  className="w-full border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 >
                   <option value="UTC">UTC</option>
                   <option value="America/New_York">Eastern Time (ET)</option>
@@ -1984,7 +1984,7 @@ function SettingsPageContent() {
                         onChange={(e) =>
                           setMuteDuration(Number(e.target.value))
                         }
-                        className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                        className="border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                       >
                         <option value={1}>1 day</option>
                         <option value={3}>3 days</option>

@@ -365,7 +365,7 @@ export default function PRMetrics() {
                   <select
                     value={staleDays}
                     onChange={(e) => setStaleDays(Number(e.target.value))}
-                    className="border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)]"
+                    className="border border-[var(--border)] bg-[var(--control)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   >
                     {[7, 14, 30].map((d) => (
                       <option key={d} value={d}>

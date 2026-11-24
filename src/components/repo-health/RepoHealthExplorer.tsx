@@ -278,7 +278,7 @@ export default function RepoHealthExplorer() {
               setDays(Number(e.target.value));
               setSelectedRepo(null);
             }}
-            className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-1.5 text-sm text-[var(--card-foreground)]"
+            className="border border-[var(--border)] bg-[var(--control)] px-3 py-1.5 text-sm text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             aria-label="Select analysis window"
           >
             <option value={7}>Last 7 days</option>

@@ -406,7 +406,7 @@ export default function WebhookManager() {
               placeholder="My Dashboard Integration"
               required
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             />
           </div>
 
@@ -421,7 +421,7 @@ export default function WebhookManager() {
               placeholder="https://your-server.com/webhook"
               required
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             />
           </div>
 
@@ -433,7 +433,7 @@ export default function WebhookManager() {
               value={formContentType}
               onChange={(e) => setFormContentType(e.target.value)}
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               {CONTENT_TYPES.map((ct) => (
                 <option key={ct.value} value={ct.value}>
