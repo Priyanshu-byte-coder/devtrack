@@ -44,3 +44,48 @@ describe("pull-request-checklist guide (#3801)", () => {
     expect(html).toContain("/guides/github-activity-tracker");
   });
 });
+
+describe("code-review-for-beginners guide (#3802)", () => {
+  it("exists and is registered in GUIDES list", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide).toBeDefined();
+    expect(guide?.title).toBe(
+      "Reviewing other people's pull requests (and why it grows your profile)"
+    );
+    expect(GUIDES.some((g) => g.slug === "code-review-for-beginners")).toBe(true);
+  });
+
+  it("has a description under 160 characters", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide?.description.length).toBeLessThanOrEqual(160);
+    expect(guide?.description.length).toBeGreaterThan(50);
+  });
+
+  it("has between 2 and 4 FAQ entries", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide?.faq.length).toBeGreaterThanOrEqual(2);
+    expect(guide?.faq.length).toBeLessThanOrEqual(4);
+    for (const item of guide?.faq ?? []) {
+      expect(item.q).toBeTruthy();
+      expect(item.a).toBeTruthy();
+    }
+  });
+
+  it("renders body with word count between 700 and 1200 words", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide).toBeDefined();
+    const html = renderToStaticMarkup(guide!.body() as any);
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const words = text.split(" ").filter(Boolean);
+    expect(words.length).toBeGreaterThanOrEqual(700);
+    expect(words.length).toBeLessThanOrEqual(1200);
+  });
+
+  it("links to GitHub documentation and internal DevTrack guides", () => {
+    const guide = findGuide("code-review-for-beginners");
+    const html = renderToStaticMarkup(guide!.body() as any);
+    expect(html).toContain("https://docs.github.com");
+    expect(html).toContain("/guides/devtrack-score");
+    expect(html).toContain("/guides/pull-request-checklist");
+  });
+});
