@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as Sentry from "@sentry/nextjs";
@@ -24,48 +23,38 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     Sentry.captureException(error);
+
+    // Restore the saved theme because the root layout is unavailable.
+    try {
+      const validThemes = [
+        "classic-dark",
+        "modern-light-blue",
+        "nordic-frost",
+        "cyberpunk-matrix",
+      ];
+
+      const storedTheme = localStorage.getItem("theme");
+
+      const theme = validThemes.includes(storedTheme || "")
+        ? storedTheme!
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "classic-dark"
+          : "modern-light-blue";
+
+      const isDark = theme !== "modern-light-blue";
+
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.classList.toggle("dark", isDark);
+      document.documentElement.style.colorScheme = isDark
+        ? "dark"
+        : "light";
+    } catch {
+      // Keep the default CSS theme if localStorage is unavailable.
+    }
   }, [error]);
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Apply the saved theme before the page is painted. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (() => {
-                try {
-                  const validThemes = [
-                    "classic-dark",
-                    "modern-light-blue",
-                    "nordic-frost",
-                    "cyberpunk-matrix"
-                  ];
-
-                  const storedTheme = localStorage.getItem("theme");
-
-                  const theme = validThemes.includes(storedTheme || "")
-                    ? storedTheme
-                    : window.matchMedia("(prefers-color-scheme: dark)").matches
-                      ? "classic-dark"
-                      : "modern-light-blue";
-
-                  const isDark = theme !== "modern-light-blue";
-
-                  document.documentElement.dataset.theme = theme;
-                  document.documentElement.classList.toggle("dark", isDark);
-                  document.documentElement.style.colorScheme = isDark
-                    ? "dark"
-                    : "light";
-                } catch {
-                  // Fall back to the default CSS theme.
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
-
       <body
         className={`${pixel.variable} min-h-screen bg-background text-foreground antialiased`}
       >
