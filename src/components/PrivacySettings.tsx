@@ -197,7 +197,7 @@ export default function PrivacySettings() {
                 : "Download ZIP archive of your data"
             }
             aria-describedby={`${ids.exportDescription} ${ids.exportDetails}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-all duration-200 hover:opacity-90 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {downloading ? (
               <>

@@ -436,7 +436,7 @@ export default function StreakTracker() {
                         <div className="w-5 bg-[var(--card-muted)] rounded-sm flex items-end h-8 overflow-hidden">
                           <div
                             style={{ height: `${heightPercent}%` }}
-                            className={`w-full rounded-sm transition-all duration-300 ${
+                            className={`w-full rounded-sm transition-[height,width] duration-300 ${
                               isPeak
                                 ? "bg-[var(--accent)]"
                                 : "bg-accent/40 hover:bg-accent/60"
@@ -731,7 +731,7 @@ function StreakCalendar({
           return (
             <div
               key={dateStr}
-              className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} transition-all hover:scale-110 hover:shadow-lg cursor-default ${
+              className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} transition-[transform,box-shadow] hover:scale-110 hover:shadow-lg cursor-default ${
                 isToday ? "ring-2 ring-offset-1 ring-[var(--accent)]" : ""
               }`}
               style={cellStyle}
