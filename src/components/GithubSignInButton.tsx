@@ -56,7 +56,7 @@ className={`         flex items-center justify-center gap-3
          /> </svg>
 
 
-      Redirecting...
+      Redirecting…
     </>
   ) : (
     <>

@@ -61,7 +61,7 @@ export default function ResumePreview({
     const newBullets = [
       ...content.bulletPoints,
       {
-        text: "New achievement bullet point...",
+        text: "New achievement bullet point…",
         repository: "",
         confidence: 100,
         technologies: [],
@@ -104,7 +104,7 @@ export default function ResumePreview({
         name: "New Project",
         nameWithOwner: "owner/repo",
         url: "https://github.com/",
-        description: "Project description...",
+        description: "Project description…",
         highlights: [],
         technologies: [],
       },
