@@ -479,7 +479,7 @@ export default function WebhookManager() {
                 {activityAlertEvents.map((event) => (
                   <label
                     key={event.value}
-                    className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all text-sm ${
+                    className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors text-sm ${
                       formEvents.includes(event.value)
                         ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
                         : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
@@ -534,7 +534,7 @@ export default function WebhookManager() {
                 {otherEvents.map((event) => (
                   <label
                     key={event.value}
-                    className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all text-sm ${
+                    className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors text-sm ${
                       formEvents.includes(event.value)
                         ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
                         : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
