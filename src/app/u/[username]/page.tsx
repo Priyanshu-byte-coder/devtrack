@@ -11,7 +11,7 @@ import GitHubAchievements from "@/components/GitHubAchievements";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import { ArrowLeft, Moon, Sun } from "lucide-react";
+import { ArrowLeft, Heart, Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
@@ -416,6 +416,21 @@ export default async function PublicProfilePage({
                   className="inline-flex items-center border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
                 >
                   {profile.publicGists} Gists
+                </a>
+              )}
+              {profile.hasSponsorsListing && (
+                <a
+                  href={`https://github.com/sponsors/${encodeURIComponent(profile.username)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-medium text-accent transition-colors hover:border-accent/80 hover:bg-accent/20"
+                  title={`Sponsor @${profile.username} on GitHub`}
+                >
+                  <Heart
+                    className="h-3.5 w-3.5 fill-accent text-accent"
+                    aria-hidden="true"
+                  />
+                  Sponsor me
                 </a>
               )}
             </>
