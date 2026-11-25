@@ -76,11 +76,12 @@ export default async function DashboardPage() {
         actions={<ExportButton />}
       />
 
-      {/* Alerts that arrive after the page has drawn float above the content
-          instead of pushing it down (on phones, above the tab bar). */}
+      {/* Streak warning stays in normal document flow to prevent overlap. */}
+      <StreakAtRiskBanner />
+
+      {/* Throttle alerts retain their existing fixed positioning. */}
       <div className="pointer-events-none fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 space-y-2 sm:inset-x-auto sm:right-6 sm:w-[26rem] lg:bottom-6 [&>*]:pointer-events-auto">
         <ThrottleBanner />
-        <StreakAtRiskBanner />
       </div>
 
       <div className="space-y-4">

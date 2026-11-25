@@ -540,6 +540,426 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "pull-request-checklist",
+    title: "Writing a pull request maintainers want to merge",
+    description:
+      "How to craft clear, focused pull requests that open-source maintainers want to review and merge, from commit hygiene to handling review feedback.",
+    published: "2026-11-25",
+    updated: "2026-11-25",
+    body: () => (
+      <>
+        <p>
+          Open-source maintainers spend hundreds of hours reviewing code outside
+          their day jobs. A pull request that is easy to review, thoroughly
+          tested, and respectful of their time is far more likely to be merged
+          promptly. Conversely, a massive pull request with no description,
+          failing tests, and unrelated edits often stalls for weeks.
+        </p>
+        <p>
+          Whether you are submitting your very first open-source fix or building
+          up your profile on a{" "}
+          <A href="/guides/github-activity-tracker">GitHub activity tracker</A>,
+          following this practical checklist ensures your contributions stand out
+          for the right reasons.
+        </p>
+
+        <h2>1. Keep pull requests small and focused</h2>
+        <p>
+          The single most effective way to speed up a code review is to limit
+          scope. A pull request should do one thing and do it well: fix a
+          specific bug, add an isolated component, or document an API.
+        </p>
+        <ul>
+          <li>
+            <strong>Avoid cosmetic scope creep:</strong> Do not reformat entire
+            unrelated files, alter lint rules, or reorganize folder structures
+            unless the issue explicitly calls for it. Large diffs filled with
+            whitespace changes obscure the core logic and trigger merge
+            conflicts.
+          </li>
+          <li>
+            <strong>Split compound features:</strong> If an implementation
+            requires a database migration, an API endpoint, and a complex UI,
+            consider opening separate PRs in logical stages. GitHub allows you
+            to publish early progress as a{" "}
+            <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests">
+              draft pull request
+            </A>{" "}
+            to signal that work is underway before requesting a final review.
+          </li>
+        </ul>
+
+        <h2>2. Link the issue and use closing keywords</h2>
+        <p>
+          Always connect your pull request to an existing issue. This gives
+          maintainers immediate context on why the change was proposed and
+          ensures GitHub automatically updates the tracking board.
+        </p>
+        <p>
+          Use official{" "}
+          <A href="https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue">
+            GitHub linking keywords
+          </A>{" "}
+          in your pull request description:
+        </p>
+        <Code>{`Closes #123\nFixes #123\nResolves #123`}</Code>
+        <p>
+          When your pull request is merged into the default branch, GitHub will
+          automatically close the linked issue. If your PR only partially
+          addresses a broader initiative, mention the issue number without a
+          closing keyword (e.g., &quot;Part of #123&quot;) so maintainers retain
+          ownership of when to close it.
+        </p>
+
+        <h2>3. Write a self-explanatory description</h2>
+        <p>
+          Never leave the pull request body blank. A helpful description answers
+          three core questions in under two minutes:
+        </p>
+        <ul>
+          <li>
+            <strong>What changed:</strong> A concise bulleted summary of the code
+            modifications.
+          </li>
+          <li>
+            <strong>Why:</strong> The background reasoning or bug reproduction
+            details that necessitated the change.
+          </li>
+          <li>
+            <strong>How to verify:</strong> Exact terminal commands, test
+            suites, or browser steps maintainers can follow to reproduce the fix
+            locally.
+          </li>
+        </ul>
+
+        <h2>4. Provide visual proof for UI changes</h2>
+        <p>
+          If your pull request modifies user interfaces, styles, or interactive
+          components, always include screenshots or a quick recording.
+        </p>
+        <p>
+          Capture both desktop and mobile viewports (e.g., at 390px width for
+          smartphones), and test both dark and light modes if the application
+          supports themes. Showing visual proof confirms you actually tested the
+          change in a browser rather than assuming the styling rendered
+          correctly.
+        </p>
+
+        <h2>5. Run tests, types, and lints locally</h2>
+        <p>
+          Never rely on the continuous integration (CI) pipeline as your personal
+          linter. Pushing code that breaks static checks wastes maintainer CI
+          runner minutes and clutters the commit history.
+        </p>
+        <p>
+          Before committing, run the project&apos;s local validation commands:
+        </p>
+        <Code>{`# Verify static typing\nnpx tsc --noEmit\n\n# Run code style and lint checks\nnpm run lint\n\n# Execute affected test suites\nnpm test`}</Code>
+        <p>
+          If the repository includes unit or integration tests, add test
+          coverage for your new code paths. Demonstrating that your change has
+          automated regression tests gives maintainers the confidence to hit
+          merge immediately.
+        </p>
+
+        <h2>6. Respect project guidelines and commit hygiene</h2>
+        <p>
+          Every open-source project has its own conventions defined in{" "}
+          <code>CONTRIBUTING.md</code>. Read it carefully before opening your
+          pull request.
+        </p>
+        <ul>
+          <li>
+            <strong>Commit messages:</strong> Follow the repository&apos;s style,
+            such as Conventional Commits (e.g., <code>feat(auth): ...</code> or{" "}
+            <code>fix(api): ...</code>).
+          </li>
+          <li>
+            <strong>Sign-off trailers:</strong> Many repositories require a
+            Developer Certificate of Origin (DCO). Ensure your commits include a{" "}
+            <A href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/managing-the-commit-signoff-policy-for-your-repository">
+              DCO sign-off trailer
+            </A>{" "}
+            using <code>git commit -s</code>.
+          </li>
+        </ul>
+
+        <h2>7. Respond graciously to review feedback</h2>
+        <p>
+          Code review is a collaborative discussion, not a personal critique.
+          When a maintainer requests adjustments:
+        </p>
+        <ul>
+          <li>
+            <strong>Acknowledge and clarify:</strong> If a suggestion is unclear,
+            politely ask for guidance rather than guessing.
+          </li>
+          <li>
+            <strong>Keep branches synced:</strong> If upstream changes while your
+            PR is under review, use{" "}
+            <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/keeping-your-pull-request-in-sync-with-the-base-branch">
+              GitHub&apos;s branch update mechanism
+            </A>{" "}
+            or rebase against upstream <code>main</code> to ensure a clean merge.
+          </li>
+          <li>
+            <strong>Notify when ready:</strong> After pushing requested changes,
+            leave a brief comment summarizing what was updated so the reviewer
+            knows it is ready for another look.
+          </li>
+        </ul>
+
+        <h2>How pull request quality powers your DevTrack score</h2>
+        <p>
+          In DevTrack, pull request activity is a primary signal of real-world
+          impact. The{" "}
+          <A href="/guides/devtrack-score">DevTrack score</A> allocates 30% of its
+          weight to Impact—measuring merged pull requests and constructive code
+          reviews across repositories. By focusing on concise, well-documented
+          contributions that maintainers merge quickly, you maximize your
+          productivity velocity, level up faster, and climb the public
+          leaderboard.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "How small should an open-source pull request be?",
+        a: "Ideally under 200 to 400 lines of code focused on a single issue. Smaller PRs are reviewed and merged substantially faster than multi-file refactors.",
+      },
+      {
+        q: "Which keywords automatically close an issue on GitHub?",
+        a: "GitHub supports 'Closes #123', 'Fixes #123', and 'Resolves #123' (and their past-tense variants). When merged into default branch, GitHub automatically marks the issue closed.",
+      },
+      {
+        q: "What should I do if a maintainer requests changes?",
+        a: "Review the comments carefully, implement the requested adjustments, run local tests to verify nothing broke, push the commit to your branch, and reply politely to confirm the updates are ready.",
+      },
+      {
+        q: "How does merged PR activity impact my DevTrack score?",
+        a: "Merged pull requests contribute to the Impact dimension, which represents 30% of your overall DevTrack score, as well as providing 50 XP per pull request toward your lifetime level.",
+      },
+    ],
+  },
+  {
+    slug: "first-open-source-issue",
+    title: "How to pick your first open-source issue",
+    description:
+      "A practical guide to finding beginner-friendly issues on GitHub, evaluating scope, reading contributing guides, and making your first open-source contribution.",
+    published: "2026-11-25",
+    updated: "2026-11-25",
+    body: () => (
+      <>
+        <p>
+          Taking the leap from writing code in your own private projects to
+          contributing to an open-source codebase can feel intimidating. Many
+          aspiring contributors open a large repository, feel overwhelmed by the
+          sheer volume of directories, open issues, and pull requests, and close
+          the browser tab before typing a single command.
+        </p>
+        <p>
+          The secret to getting started in open source is not knowing every line of
+          the codebase; it is picking the right first issue. When you select an
+          issue that is clearly scoped, actively maintained, and appropriate for
+          your current skill level, your first contribution becomes an enjoyable,
+          confidence-building milestone. This guide covers how to find
+          approachable issues, evaluate scope, claim them courteously, and navigate
+          roadblocks.
+        </p>
+
+        <h2>Where to look: Labels that signal beginner friendliness</h2>
+        <p>
+          Open-source maintainers deliberately flag tasks suitable for newcomers
+          using standard labels. When searching repositories on{" "}
+          <A href="https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/filtering-and-searching-issues-and-pull-requests">
+            GitHub&apos;s issue search
+          </A>
+          , prioritize these established tags:
+        </p>
+        <ul>
+          <li>
+            <strong><code>good first issue</code>:</strong> The official GitHub
+            standard label for introductory tasks. Maintainers reserve these for
+            self-contained bugs, documentation additions, minor UI polish, or
+            straightforward unit test gaps that do not require deep architectural
+            context.
+          </li>
+          <li>
+            <strong><code>help wanted</code>:</strong> Indicates that maintainers
+            actively desire external community contributions because the core team
+            is focused on higher-priority roadmap epics.
+          </li>
+          <li>
+            <strong><code>documentation</code> or <code>docs</code>:</strong> Fixing
+            outdated README steps, correcting broken code snippets, or clarifying API
+            parameter tables is one of the highest-value ways to learn a project
+            while delivering immediate value.
+          </li>
+          <li>
+            <strong><code>type: testing</code> or <code>tests</code>:</strong> Adding
+            missing unit tests or edge-case assertions allows you to explore the
+            codebase safely with instant local feedback.
+          </li>
+        </ul>
+
+        <h2>Reading the project&apos;s CONTRIBUTING guide first</h2>
+        <p>
+          Before commenting on an issue or forking a repository, always look for
+          a <code>CONTRIBUTING.md</code> file in the repository root or <code>.github/</code> directory.
+          As documented in{" "}
+          <A href="https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors">
+            GitHub&apos;s guidelines for repository contributors
+          </A>
+          , this file contains the project&apos;s non-negotiable rules of engagement:
+        </p>
+        <ol>
+          <li>
+            <strong>Environment Setup:</strong> Required Node, Python, or Go
+            versions, package manager preferences (e.g. <code>pnpm</code> vs{" "}
+            <code>npm</code>), and commands to run local development servers.
+          </li>
+          <li>
+            <strong>Branching and Commit Conventions:</strong> Whether the project
+            mandates Conventional Commits (e.g. <code>feat:</code>, <code>fix:</code>),
+            Developer Certificate of Origin (DCO) sign-off lines, or specific branch
+            naming formats.
+          </li>
+          <li>
+            <strong>Testing and Linting Standards:</strong> The exact verification
+            commands (e.g. <code>npm run lint</code>, <code>pytest</code>,{" "}
+            <code>mix test</code>) that must pass before a pull request can be
+            merged.
+          </li>
+        </ol>
+
+        <h2>Sizing an issue: Green flags vs. red flags</h2>
+        <p>
+          Not all issues labeled &quot;beginner&quot; are actually easy. Learn to evaluate
+          an issue&apos;s true difficulty before investing hours of work:
+        </p>
+        <ul>
+          <li>
+            <strong>Green Flag — Clear Acceptance Criteria:</strong> The issue
+            description clearly identifies the affected files, expected behavior,
+            and acceptance criteria, or includes reproduction steps and screenshots.
+          </li>
+          <li>
+            <strong>Green Flag — Active Maintainer Engagement:</strong> Maintainers
+            have commented recently, merged other community PRs within the past
+            two weeks, and responded promptly to contributor inquiries.
+          </li>
+          <li>
+            <strong>Red Flag — Vague Architecture Refactors:</strong> Issues
+            titled <em>&quot;Refactor auth module&quot;</em> or <em>&quot;Improve performance&quot;</em>{" "}
+            are rarely suitable for first-time contributors; they often spark
+            prolonged architectural debates and stall in review.
+          </li>
+          <li>
+            <strong>Red Flag — Dormant Repositories:</strong> If the last commit
+            was nine months ago and unanswered PRs are piling up, your contribution
+            may sit unreviewed indefinitely regardless of quality.
+          </li>
+        </ul>
+
+        <h2>How to claim an issue politely</h2>
+        <p>
+          Avoid leaving generic comments like <em>&quot;Assign to me&quot;</em> or{" "}
+          <em>&quot;I want to work on this&quot;</em> without context. Maintainers receive dozens
+          of automated or abandoned claims every week. Instead, post a brief,
+          informed comment explaining your approach:
+        </p>
+        <pre className="overflow-x-auto rounded border border-base-300 bg-base-200 p-3 text-xs">
+          <code>
+{`Hi @maintainer! I'd love to work on this issue.
+
+My proposed plan:
+1. Locate the hardcoded color palette in src/components/...
+2. Replace static classes with semantic theme variables.
+3. Add a unit test verifying dark/light adaptability.
+
+Could you please assign this issue to me?`}
+          </code>
+        </pre>
+        <p>
+          This demonstrates that you read the issue description, understand the
+          task, and have a credible plan to deliver results.
+        </p>
+
+        <h2>What to do when you get stuck</h2>
+        <p>
+          Every developer gets stuck when working in an unfamiliar codebase. When
+          you hit an obstacle, follow this troubleshooting hierarchy:
+        </p>
+        <ul>
+          <li>
+            <strong>Inspect existing tests:</strong> Test files are living
+            documentation. Searching for how existing functions are called and
+            mocked in <code>test/</code> usually answers 90% of architectural questions.
+          </li>
+          <li>
+            <strong>Search closed PRs:</strong> Use GitHub search to look at recently
+            merged pull requests touching the same directory. See how other
+            contributors structured their solutions and solved similar problems.
+          </li>
+          <li>
+            <strong>Ask targeted questions on the issue:</strong> If an internal API
+            is ambiguous, leave a concise comment outlining what you tried, what you
+            observed, and your specific question. Maintainers are eager to help
+            contributors who demonstrate clear troubleshooting effort.
+          </li>
+        </ul>
+        <p>
+          Once your changes are coded and verified locally, follow our{" "}
+          <A href="/guides/pull-request-checklist">pull request checklist guide</A>{" "}
+          to prepare a clean, maintainer-ready PR, and learn about{" "}
+          <A href="/guides/devtrack-score">how the DevTrack score works</A>{" "}
+          to track your ongoing impact.
+        </p>
+
+        <h2>How early contributions build your DevTrack score</h2>
+        <p>
+          Picking and solving well-scoped open-source issues is the fastest way to
+          establish your public presence on the{" "}
+          <A href="/guides/devtrack-score">DevTrack global leaderboard</A>:
+        </p>
+        <ul>
+          <li>
+            <strong>Breadth across repositories:</strong> Contributing to diverse
+            projects boosts your DevTrack breadth score, proving that your skills
+            transfer across different tech stacks and team workflows.
+          </li>
+          <li>
+            <strong>Milestones and XP:</strong> Each merged pull request awards
+            experience points toward leveling up your player card and unlocking
+            community achievement badges.
+          </li>
+          <li>
+            <strong>Consistency over volume:</strong> Resolving one or two small
+            issues every week builds a reliable streak and sustainable momentum.
+          </li>
+        </ul>
+      </>
+    ),
+    faq: [
+      {
+        q: "What does the 'good first issue' label mean on GitHub?",
+        a: "The 'good first issue' label identifies introductory tasks curated by maintainers for first-time contributors. These are typically self-contained, clearly scoped bugs, documentation improvements, or small feature enhancements.",
+      },
+      {
+        q: "Should I start working on an issue before it is assigned to me?",
+        a: "It is best practice to leave a comment with your proposed approach and wait for maintainer confirmation. This prevents duplicated effort if another contributor is already working on the issue.",
+      },
+      {
+        q: "What should I do if a repository has no CONTRIBUTING.md file?",
+        a: "Inspect the README, check package.json or Makefile scripts, and examine recent merged pull requests to mirror the established testing, linting, and branch conventions.",
+      },
+      {
+        q: "How do merged issues and PRs affect my DevTrack score?",
+        a: "Merged PRs directly increase the Impact dimension (30% of your score), expand repository breadth, and award experience points (XP) to climb the global leaderboard.",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {
