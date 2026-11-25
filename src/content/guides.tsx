@@ -540,6 +540,186 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "github-badges-on-your-website",
+    title: "Show your GitHub stats on your portfolio site",
+    description:
+      "How to embed live, auto-updating GitHub streak and activity badges on your developer portfolio with HTML, Markdown, and React, keeping it fast and accessible.",
+    published: "2026-11-25",
+    updated: "2026-11-25",
+    body: () => (
+      <>
+        <p>
+          Your personal portfolio website is where hiring managers, clients, and
+          fellow developers go to evaluate your work. While listing projects is
+          essential, showing consistent engineering habits provides concrete
+          evidence of your dedication. Embedding live, auto-updating GitHub
+          activity badges—such as your coding streak, monthly commits, and global
+          developer rank—turns a static resume into living proof of your craft.
+        </p>
+        <h2>Why show GitHub stats on your personal site?</h2>
+        <p>
+          Recruiters spend less than a minute scanning a portfolio. A visually
+          distinct activity badge instantly communicates three things: you code
+          regularly, you actively participate in version control, and you maintain
+          momentum. According to{" "}
+          <A href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile">
+            GitHub&apos;s guide to managing your developer profile
+          </A>
+          , public contributions and open-source engagement are among the
+          strongest indicators of practical engineering collaboration.
+        </p>
+        <h2>Choosing the right stats to display</h2>
+        <p>
+          Avoid cluttering your hero section with dozens of arbitrary metrics. Focus
+          on high-signal indicators:
+        </p>
+        <ul>
+          <li>
+            <strong>Current and longest streak</strong>: Highlights discipline
+            and steady daily effort.
+          </li>
+          <li>
+            <strong>Commits and PRs this month</strong>: Demonstrates recent,
+            active production rather than ancient history.
+          </li>
+          <li>
+            <strong>Global rank or tier badge</strong>: Shows your relative
+            standing on the leaderboard. Learn how tiers work in{" "}
+            <A href="/guides/devtrack-score">how the DevTrack score works</A>.
+          </li>
+        </ul>
+        <p>
+          If you already display stats in your profile repository, read our companion
+          guide on{" "}
+          <A href="/guides/github-stats-readme">
+            adding GitHub stats to your profile README
+          </A>{" "}
+          to keep the visual language consistent across both destinations.
+        </p>
+        <h2>Embedding with plain HTML</h2>
+        <p>
+          If your website is built with vanilla HTML or a static site generator like
+          Astro, Jekyll, or 11ty, embed the badge using an accessible anchor and
+          image element:
+        </p>
+        <Code>{`<a href="${SITE}/u/YOUR_LOGIN" target="_blank" rel="noopener noreferrer">
+  <img
+    src="${SITE}/api/badge/streak-shield?user=YOUR_LOGIN"
+    alt="GitHub coding streak badge for YOUR_LOGIN on DevTrack"
+    loading="lazy"
+    decoding="async"
+    width="160"
+    height="28"
+  />
+</a>`}</Code>
+        <p>
+          Setting explicit <code>width</code> and <code>height</code> attributes
+          prevents Cumulative Layout Shift (CLS), while <code>loading="lazy"</code>{" "}
+          ensures badges outside the immediate viewport don&apos;t block critical
+          rendering path assets.
+        </p>
+        <h2>Embedding in Markdown portfolios</h2>
+        <p>
+          For developer blogs powered by Hugo, Docusaurus, or GitHub Pages
+          Markdown, use linked image syntax:
+        </p>
+        <Code>{`[![DevTrack Streak Badge](${SITE}/api/badge/streak-shield?user=YOUR_LOGIN)](${SITE}/u/YOUR_LOGIN)`}</Code>
+        <p>
+          You can combine streak, commit volume, and rank side by side in a flexible
+          container:
+        </p>
+        <Code>{`[![DevTrack Rank](${SITE}/api/badge/rank?user=YOUR_LOGIN)](${SITE}/u/YOUR_LOGIN)
+[![Coding Streak](${SITE}/api/badge/streak-shield?user=YOUR_LOGIN)](${SITE}/u/YOUR_LOGIN)
+[![Monthly Commits](${SITE}/api/badge/commits?user=YOUR_LOGIN)](${SITE}/u/YOUR_LOGIN)`}</Code>
+        <h2>Embedding in React and Next.js</h2>
+        <p>
+          When using modern React frameworks like Next.js, Gatsby, or Remix, render
+          the badge inside a responsive badge container. Since DevTrack badges are
+          dynamic SVGs served directly from our CDN, you can render a native image
+          tag with unoptimized loading:
+        </p>
+        <Code>{`import Link from "next/link";
+
+export function GitHubStatsBadge({ username }: { username: string }) {
+  return (
+    <Link
+      href={\`${SITE}/u/\${username}\`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-block transition-transform hover:scale-105"
+      aria-label={\`View \${username}'s live GitHub analytics on DevTrack\`}
+    >
+      <img
+        src={\`${SITE}/api/badge/streak-shield?user=\${username}\`}
+        alt={\`\${username}'s active coding streak\`}
+        width={160}
+        height={28}
+        loading="lazy"
+      />
+    </Link>
+  );
+}`}</Code>
+        <h2>Keeping your portfolio fast with caching</h2>
+        <p>
+          Performance directly impacts recruiter impressions and SEO scores.
+          DevTrack badges are rendered as lightweight SVG vectors and served with
+          HTTP caching headers (<code>Cache-Control: public, max-age=1800, stale-while-revalidate=86400</code>).
+          This ensures:
+        </p>
+        <ul>
+          <li>
+            Visitors receive cached responses from global edge servers in milliseconds.
+          </li>
+          <li>
+            The browser revalidates in the background so your latest commits appear
+            without freezing visitor load times.
+          </li>
+          <li>
+            Zero client-side JavaScript execution overhead on your personal domain.
+          </li>
+        </ul>
+        <h2>Accessibility best practices</h2>
+        <p>
+          Every visual indicator must be accessible to screen reader users (WCAG 2.1
+          Level AA):
+        </p>
+        <ul>
+          <li>
+            <strong>Informative alt text</strong>: Always include your username and
+            the specific metric (e.g. &quot;Ritesh&apos;s current 42-day coding streak
+            on DevTrack&quot;). Never use vague tags like &quot;badge&quot; or &quot;stats&quot;.
+          </li>
+          <li>
+            <strong>Focus states</strong>: Ensure the wrapping link retains visible
+            keyboard focus outlines for keyboard navigation.
+          </li>
+          <li>
+            <strong>Color contrast</strong>: DevTrack badges use high-contrast text
+            and background tokens compliant with contrast thresholds.
+          </li>
+        </ul>
+      </>
+    ),
+    faq: [
+      {
+        q: "How do I embed GitHub stats badges on my personal portfolio?",
+        a: `Use an HTML <a> and <img> tag or Markdown syntax pointing to ${SITE}/api/badge/streak-shield?user=YOUR_LOGIN, replacing YOUR_LOGIN with your GitHub username.`,
+      },
+      {
+        q: "Will embedding GitHub stats badges slow down my portfolio website?",
+        a: "No. Badges are lightweight SVG vectors served from global edge caches with stale-while-revalidate headers, ensuring millisecond load times without client-side JavaScript.",
+      },
+      {
+        q: "What alt text should I use for GitHub stats badges?",
+        a: "Use descriptive alt text mentioning your username and the exact metric, such as 'John's active 30-day coding streak on DevTrack', fulfilling WCAG 2.1 Level AA accessibility standards.",
+      },
+      {
+        q: "Can I use DevTrack badges with React, Next.js, or Astro?",
+        a: "Yes. In React or Next.js, render an <a> tag wrapping an <img> with loading='lazy' and explicit dimensions (160x28px), or use standard Markdown syntax in static site generators.",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {
