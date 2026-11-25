@@ -136,6 +136,7 @@ export default function DiffTrendChart() {
   );
   const net = totals.additions - totals.deletions;
   const repos = data?.repos ?? [];
+  const pending = data?.pending ?? [];
 
   return (
     <section className="px-frame bg-[var(--card)] p-5">
@@ -180,12 +181,18 @@ export default function DiffTrendChart() {
             Try again
           </button>
         </div>
-      ) : totals.additions + totals.deletions === 0 ? (
+      ) : totals.additions + totals.deletions === 0 && pending.length === 0 ? (
         <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-[var(--border)] px-4 text-center text-sm text-[var(--muted-foreground)]">
           No line changes in the last {DIFF_TREND_WEEKS} weeks.
         </div>
       ) : (
         <>
+          {pending.length > 0 && (
+            <p className="mb-4 text-xs text-[var(--muted-foreground)]">
+              Still computing stats for {pending.join(", ")}. Check again in a
+              minute.
+            </p>
+          )}
           <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
             <Stat
               label="Added"
