@@ -18,10 +18,13 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import RankCard from "@/components/gamification/RankCard";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
+  const t = await getTranslations("dashboard");
+
   // In the production standalone Playwright build, getServerSession can fail to
   // read the test JWT cookie. Decode the cookie directly as a fallback so that
   // visual-regression tests (which set a real signed cookie) still render the
@@ -64,11 +67,11 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard"
+        title={t("title")}
         description={
           firstName
-            ? `Welcome back, ${firstName}. Here is your week so far.`
-            : "Here is your week so far."
+            ? t("welcomeBackUser", { name: firstName })
+            : t("hereIsYourWeek")
         }
         actions={<ExportButton />}
       />
