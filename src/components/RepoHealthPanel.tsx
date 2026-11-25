@@ -19,7 +19,7 @@ function ScoreBar({ score, maxScore }: { score: number; maxScore: number }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--control)]">
       <div
-        className={`h-full rounded-full transition-all duration-500 ${color}`}
+        className={`h-full rounded-full transition-[width] duration-500 ${color}`}
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -158,7 +158,7 @@ export default function RepoHealthPanel({ health, isOpen, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--control)] transition-all hover:opacity-90 active:scale-95"
+              className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--control)] transition-[background-color,opacity,transform] hover:opacity-90 active:scale-95"
               aria-label="Close panel"
             >
               ✕

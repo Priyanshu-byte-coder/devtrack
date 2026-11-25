@@ -55,7 +55,7 @@ export default function OfflineBanner() {
 
   return (
     <div className="fixed bottom-4 left-1/2 z-[100] -translate-x-1/2">
-      <div className="flex items-center gap-3 rounded-full border border-amber-500/30 bg-amber-500/10 px-6 py-2.5 backdrop-blur-md shadow-lg shadow-amber-500/10 transition-all animate-in slide-in-from-bottom-4 duration-300">
+      <div className="flex items-center gap-3 rounded-full border border-amber-500/30 bg-amber-500/10 px-6 py-2.5 backdrop-blur-md shadow-lg shadow-amber-500/10 transition-[opacity,transform] animate-in slide-in-from-bottom-4 duration-300">
         <div className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
           <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
