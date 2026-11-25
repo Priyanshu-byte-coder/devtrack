@@ -262,6 +262,8 @@ export default function ResumePreview({
 
               {isEditMode ? (
                 <Textarea
+                  name="professionalSummary"
+                  aria-label="Professional Summary"
                   value={content.professionalSummary}
                   onChange={(e) => updateSummary(e.target.value)}
                   className="min-h-[150px] font-sans text-sm leading-relaxed"
@@ -313,6 +315,10 @@ export default function ResumePreview({
                         <div className="space-y-2">
                           <input
                             type="text"
+                            name={`bullet-repo-${idx}`}
+                            aria-label="Repository name"
+                            autoComplete="off"
+                            spellCheck={false}
                             value={bullet.repository}
                             onChange={(e) =>
                               updateBulletPoint(
@@ -325,6 +331,8 @@ export default function ResumePreview({
                             className="flex h-8 w-1/3 rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                           />
                           <Textarea
+                            name={`bullet-text-${idx}`}
+                            aria-label="Bullet point description"
                             value={bullet.text}
                             onChange={(e) =>
                               updateBulletPoint(idx, "text", e.target.value)
@@ -432,6 +440,9 @@ export default function ResumePreview({
                           <div className="grid grid-cols-2 gap-2">
                             <input
                               type="text"
+                              name={`project-name-${idx}`}
+                              aria-label="Project name"
+                              autoComplete="off"
                               value={proj.name}
                               onChange={(e) =>
                                 updateProject(idx, "name", e.target.value)
@@ -440,7 +451,12 @@ export default function ResumePreview({
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                             />
                             <input
-                              type="text"
+                              type="url"
+                              inputMode="url"
+                              name={`project-url-${idx}`}
+                              aria-label="Repository URL"
+                              autoComplete="off"
+                              spellCheck={false}
                               value={proj.url}
                               onChange={(e) =>
                                 updateProject(idx, "url", e.target.value)
@@ -479,6 +495,8 @@ export default function ResumePreview({
                     <div className="space-y-3">
                       {isEditMode ? (
                         <Textarea
+                          name={`project-description-${idx}`}
+                          aria-label="Project description"
                           value={proj.description}
                           onChange={(e) =>
                             updateProject(idx, "description", e.target.value)
@@ -561,6 +579,8 @@ export default function ResumePreview({
               <div className="space-y-4">
                 {isEditMode ? (
                   <Textarea
+                    name="skillSummary"
+                    aria-label="General Technical Summary"
                     value={content.skillSummary}
                     onChange={(e) => updateSkillSummary(e.target.value)}
                     className="min-h-[60px] text-xs"
@@ -583,6 +603,9 @@ export default function ResumePreview({
                           <div className="space-y-2">
                             <input
                               type="text"
+                              name={`skill-category-${idx}`}
+                              aria-label="Category Title"
+                              autoComplete="off"
                               value={cat.category}
                               onChange={(e) =>
                                 updateSkillCategory(
@@ -596,6 +619,9 @@ export default function ResumePreview({
                             />
                             <input
                               type="text"
+                              name={`skill-items-${idx}`}
+                              aria-label="Skills (comma separated)"
+                              autoComplete="off"
                               value={cat.skills.join(", ")}
                               onChange={(e) =>
                                 updateSkillCategory(
