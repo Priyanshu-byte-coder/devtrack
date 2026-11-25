@@ -24,7 +24,7 @@ function ScoreBar({ pct }: { pct: number }) {
       aria-valuemax={100}
     >
       <div
-        className={`h-full rounded-full transition-all duration-500 ${color}`}
+        className={`h-full rounded-full transition-[width] duration-500 ${color}`}
         style={{ width: `${pct}%` }}
       />
     </div>

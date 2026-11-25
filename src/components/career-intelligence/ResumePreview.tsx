@@ -185,7 +185,7 @@ export default function ResumePreview({
           type="button"
           onClick={() => setIsEditMode(!isEditMode)}
           className={cn(
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-300",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors duration-300",
             isEditMode
               ? "border-[var(--accent)] bg-accent/10 text-[var(--accent)]"
               : "border-[var(--border)] bg-[var(--card-muted)] hover:bg-border/10 text-[var(--foreground)]"
@@ -381,7 +381,7 @@ export default function ResumePreview({
                   <button
                     type="button"
                     onClick={addBulletPoint}
-                    className="w-full py-2 border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2 border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Bullet Point
@@ -521,7 +521,7 @@ export default function ResumePreview({
                   <button
                     type="button"
                     onClick={addProject}
-                    className="w-full py-2 border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2 border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Add Project
