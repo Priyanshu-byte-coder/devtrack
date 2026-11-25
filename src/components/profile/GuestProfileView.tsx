@@ -97,11 +97,11 @@ export default function GuestProfileView({
                 href={`https://github.com/sponsors/${encodeURIComponent(profile.login)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 border border-pink-500/40 bg-pink-500/10 px-2.5 py-1 font-medium text-pink-400 transition-colors hover:border-pink-500/80 hover:bg-pink-500/20 hover:text-pink-300"
+                className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-medium text-accent transition-colors hover:border-accent/80 hover:bg-accent/20"
                 title={`Sponsor @${profile.login} on GitHub`}
               >
                 <Heart
-                  className="h-3.5 w-3.5 fill-pink-500 text-pink-500"
+                  className="h-3.5 w-3.5 fill-accent text-accent"
                   aria-hidden="true"
                 />
                 Sponsor me

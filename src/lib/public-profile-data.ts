@@ -105,33 +105,16 @@ async function ghFetch(url: string, token?: string): Promise<Response> {
  * @param token - Optional GitHub personal access token.
  * @returns The number of public gists.
  */
-export async function fetchPublicUserInfo(
-  username: string,
-  token?: string
-): Promise<{ publicGists: number; hasSponsorsListing: boolean }> {
-  const res = await ghFetch(`${GITHUB_API}/users/${username}`, token);
-
-  if (!res.ok) throw new Error("Public GitHub metric unavailable");
-
-  const data = (await res.json()) as {
-    public_gists?: number;
-    has_sponsors_listing?: boolean;
-    has_sponsor_listing?: boolean;
-  };
-  return {
-    publicGists: data.public_gists ?? 0,
-    hasSponsorsListing: Boolean(
-      data.has_sponsors_listing || data.has_sponsor_listing
-    ),
-  };
-}
-
 export async function fetchPublicGists(
   username: string,
   token?: string
 ): Promise<number> {
-  const info = await fetchPublicUserInfo(username, token);
-  return info.publicGists;
+  const res = await ghFetch(`${GITHUB_API}/users/${username}`, token);
+
+  if (!res.ok) throw new Error("Public GitHub metric unavailable");
+
+  const data = (await res.json()) as { public_gists?: number };
+  return data.public_gists ?? 0;
 }
 
 /**
@@ -484,10 +467,7 @@ export async function fetchPublicProfile(
         pullRequests: stats.pullRequests,
       }))
     : Promise.all([
-        fetchPublicUserInfo(user.github_login).catch(() => ({
-          publicGists: 0,
-          hasSponsorsListing: false,
-        })),
+        fetchPublicGists(user.github_login).catch(() => 0),
         fetchPublicTopRepos(user.github_login, undefined, PROFILE_WINDOW_DAYS),
         fetchPublicContributions(
           user.github_login,
@@ -499,15 +479,15 @@ export async function fetchPublicProfile(
         fetchPublicPullRequests(user.github_login),
       ]).then(
         ([
-          userInfo,
+          publicGists,
           repos,
           contributions,
           streak,
           topLanguages,
           pullRequests,
         ]) => ({
-          publicGists: userInfo.publicGists,
-          hasSponsorsListing: userInfo.hasSponsorsListing,
+          publicGists,
+          hasSponsorsListing: false,
           repos,
           contributions,
           streak,
