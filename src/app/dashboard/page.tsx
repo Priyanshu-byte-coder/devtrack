@@ -1,3 +1,4 @@
+import ProfileStatCards from "@/components/ProfileStatCards";
 import type { Metadata } from "next";
 import StreakAtRiskBanner from "@/components/StreakAtRiskBanner";
 import ThrottleBanner from "@/components/ThrottleBanner";
@@ -101,6 +102,7 @@ export default async function DashboardPage() {
 
         <div className="grid gap-4 xl:grid-cols-3">
           <div className="min-w-0 space-y-4 xl:col-span-2">
+            <ProfileStatCards />
             {/* Reserves the loaded chart's height (its header wraps on phones). */}
             <div
               className="min-h-[388px] sm:min-h-[330px]"
