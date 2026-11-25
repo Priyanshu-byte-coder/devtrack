@@ -117,13 +117,13 @@ export default function StreakAtRiskBanner({
       <div className="flex items-center gap-3 self-end sm:self-auto">
         <Link
           href="/dashboard/activity#streaks"
-          className="inline-flex items-center justify-center rounded-lg bg-warning/20 px-3.5 py-1.5 text-xs font-semibold hover:bg-warning/30 transition-all active:scale-[0.98]"
+          className="inline-flex items-center justify-center rounded-lg bg-warning/20 px-3.5 py-1.5 text-xs font-semibold hover:bg-warning/30 transition-[background-color,transform] active:scale-[0.98]"
         >
           View streak
         </Link>
         <button
           onClick={() => setDismissed(true)}
-          className="rounded-lg p-1.5 opacity-70 hover:bg-warning/20 hover:opacity-100 transition-all"
+          className="rounded-lg p-1.5 opacity-70 hover:bg-warning/20 hover:opacity-100 transition-[background-color,opacity]"
           aria-label="Dismiss banner"
         >
           <X size={18} aria-hidden="true" />
