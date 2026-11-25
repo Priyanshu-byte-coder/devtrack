@@ -406,7 +406,7 @@ export default function WebhookManager() {
               placeholder="My Dashboard Integration"
               required
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             />
           </div>
 
@@ -421,7 +421,7 @@ export default function WebhookManager() {
               placeholder="https://your-server.com/webhook"
               required
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             />
           </div>
 
@@ -433,7 +433,7 @@ export default function WebhookManager() {
               value={formContentType}
               onChange={(e) => setFormContentType(e.target.value)}
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             >
               {CONTENT_TYPES.map((ct) => (
                 <option key={ct.value} value={ct.value}>
@@ -456,7 +456,7 @@ export default function WebhookManager() {
               onChange={(e) => setFormSecretToken(e.target.value)}
               placeholder="my-shared-secret"
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] font-mono"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)] font-mono"
             />
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
               DevTrack signs payloads with HMAC-SHA256. The signature is sent in
