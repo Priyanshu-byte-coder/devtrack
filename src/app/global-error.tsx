@@ -2,6 +2,12 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
+import {
+  DEFAULT_THEME,
+  getThemeDefinition,
+  LIGHT_THEME,
+  resolveThemeId,
+} from "@/lib/themes";
 import { Silkscreen } from "next/font/google";
 import "./globals.css";
 
@@ -26,28 +32,17 @@ export default function GlobalError({
 
     // Restore the saved theme because the root layout is unavailable.
     try {
-      const validThemes = [
-        "classic-dark",
-        "modern-light-blue",
-        "nordic-frost",
-        "cyberpunk-matrix",
-      ];
-
-      const storedTheme = localStorage.getItem("theme");
-
-      const theme = validThemes.includes(storedTheme || "")
-        ? storedTheme!
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "classic-dark"
-          : "modern-light-blue";
-
-      const isDark = theme !== "modern-light-blue";
+      const stored = resolveThemeId(localStorage.getItem("theme"));
+      const theme =
+        stored ??
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? DEFAULT_THEME
+          : LIGHT_THEME);
+      const isDark = getThemeDefinition(theme).mode === "dark";
 
       document.documentElement.dataset.theme = theme;
       document.documentElement.classList.toggle("dark", isDark);
-      document.documentElement.style.colorScheme = isDark
-        ? "dark"
-        : "light";
+      document.documentElement.style.colorScheme = isDark ? "dark" : "light";
     } catch {
       // Keep the default CSS theme if localStorage is unavailable.
     }
@@ -91,9 +86,7 @@ export default function GlobalError({
 
               <h1 className="font-pixel text-4xl leading-tight text-foreground sm:text-5xl md:text-6xl">
                 GAME
-                <span className="mt-3 block text-destructive">
-                  OVER
-                </span>
+                <span className="mt-3 block text-destructive">OVER</span>
               </h1>
             </div>
 
@@ -117,8 +110,8 @@ export default function GlobalError({
               </h2>
 
               <p className="mx-auto mb-8 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Looks like our system encountered an unexpected error.
-                Don't worry, your next run is just one click away.
+                Looks like our system encountered an unexpected error. Do not
+                worry, your next run is just one click away.
               </p>
 
               {/* Recovery actions */}
@@ -132,6 +125,7 @@ export default function GlobalError({
                   Try again
                 </button>
 
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- full reload after a crash */}
                 <a
                   href="/"
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2 border border-border bg-muted px-7 py-3 font-mono text-sm font-bold uppercase tracking-wider text-foreground transition-colors duration-200 hover:bg-control-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring sm:w-auto"
@@ -148,7 +142,7 @@ export default function GlobalError({
             </p>
 
             <p className="mt-2 font-mono text-[10px] text-muted-foreground">
-              DEVTRACK © {new Date().getFullYear()} // ERROR 500
+              DEVTRACK © {new Date().getFullYear()} {"// ERROR 500"}
             </p>
           </div>
         </main>

@@ -1,11 +1,20 @@
 "use client";
 
-import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   DEFAULT_THEME,
   getThemeDefinition,
-  isThemeId,
+  LIGHT_THEME,
   nextThemeId,
+  resolveThemeId,
   THEME_STORAGE_KEY,
   type ThemeId,
 } from "@/lib/themes";
@@ -20,7 +29,8 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const useSafeLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const useSafeLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -28,49 +38,67 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   const [theme, updateTheme] = useState<ThemeId | undefined>(undefined);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const storedTheme = localStorage.getItem("theme") || localStorage.getItem(THEME_STORAGE_KEY);
-        if (isThemeId(storedTheme)) {
-          updateTheme(storedTheme);
-          return;
-        }
-
-        // Respect prefers-color-scheme on first load
-        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        updateTheme(systemPrefersDark ? "classic-dark" : "modern-light-blue");
-      } catch (e) {
-        updateTheme(DEFAULT_THEME);
+    try {
+      const raw = localStorage.getItem(THEME_STORAGE_KEY);
+      const stored = resolveThemeId(raw);
+      if (stored) {
+        // Save the migrated id so legacy values only need resolving once.
+        if (stored !== raw) localStorage.setItem(THEME_STORAGE_KEY, stored);
+        updateTheme(stored);
+        return;
       }
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      updateTheme(systemPrefersDark ? DEFAULT_THEME : LIGHT_THEME);
+    } catch {
+      updateTheme(DEFAULT_THEME);
     }
   }, []);
+
+  const applied = useRef<ThemeId | undefined>(undefined);
 
   useSafeLayoutEffect(() => {
     if (!theme) return;
 
     const html = document.documentElement;
     const definition = getThemeDefinition(theme);
+    const apply = () => {
+      html.dataset.theme = theme;
+      html.classList.toggle("dark", definition.mode === "dark");
+      html.style.colorScheme = definition.mode;
+    };
 
-    html.dataset.theme = theme;
-    html.classList.toggle("dark", definition.mode === "dark");
-    html.style.colorScheme = definition.mode;
+    // The first apply only syncs what the inline script in layout.tsx set.
+    // On a real switch, pause transitions for a frame: otherwise every
+    // element with transition-colors fades its text while backgrounds snap,
+    // and headings vanish (light text on a light card) for ~300 ms.
+    if (applied.current === undefined || applied.current === theme) {
+      apply();
+    } else {
+      const pause = document.createElement("style");
+      pause.textContent = "*,*::before,*::after{transition:none!important}";
+      document.head.appendChild(pause);
+      apply();
+      void getComputedStyle(html).color;
+      requestAnimationFrame(() => requestAnimationFrame(() => pause.remove()));
+    }
+    applied.current = theme;
   }, [theme]);
 
   const setTheme = useCallback((nextTheme: ThemeId) => {
     updateTheme(nextTheme);
     try {
-      localStorage.setItem("theme", nextTheme);
       localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-    } catch (e) {}
+    } catch {}
   }, []);
 
   const toggleTheme = useCallback(() => {
     updateTheme((prev) => {
       const next = nextThemeId(prev ?? DEFAULT_THEME);
       try {
-        localStorage.setItem("theme", next);
         localStorage.setItem(THEME_STORAGE_KEY, next);
-      } catch (e) {}
+      } catch {}
       return next;
     });
   }, []);
@@ -85,9 +113,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 

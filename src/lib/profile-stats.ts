@@ -18,6 +18,7 @@ import type {
 export const PROFILE_STATS_QUERY = `
 query ProfileStats($login: String!, $since: DateTime!) {
   user(login: $login) {
+    hasSponsorsListing
     pullRequests { totalCount }
     repositories(ownerAffiliations: OWNER, privacy: PUBLIC, first: 30, orderBy: { field: PUSHED_AT, direction: DESC }) {
       nodes { primaryLanguage { name } }
@@ -37,6 +38,7 @@ query ProfileStats($login: String!, $since: DateTime!) {
 }`;
 
 export interface ProfileStatsNode {
+  hasSponsorsListing?: boolean;
   pullRequests: { totalCount: number };
   repositories: {
     nodes: Array<{ primaryLanguage: { name: string } | null } | null>;
@@ -59,6 +61,7 @@ export interface ProfileStatsNode {
 }
 
 export interface ProfileStats {
+  hasSponsorsListing?: boolean;
   pullRequests: number;
   /** Public commits per day over the window, and their total. */
   contributions: ContributionData;
@@ -126,6 +129,7 @@ export function buildProfileStats(
   );
 
   return {
+    hasSponsorsListing: Boolean(user.hasSponsorsListing),
     pullRequests: user.pullRequests.totalCount,
     contributions: {
       days: windowDays,

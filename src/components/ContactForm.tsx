@@ -168,7 +168,7 @@ export default function ContactForm() {
             onChange={(event) => handleChange("name", event.target.value)}
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? `${nameId}-error` : undefined}
-            className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-[#f8fafc] transition-colors placeholder:text-[#64748b] hover:border-[#2563eb]/50 focus:border-[#60a5fa] focus:bg-[#111b2f] focus:outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-[#f8fafc] transition-colors placeholder:text-[#64748b] hover:border-[#2563eb]/50 focus:border-[#60a5fa] focus:bg-[#111b2f] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             placeholder="Your name"
           />
           {errors.name ? (
@@ -192,7 +192,7 @@ export default function ContactForm() {
             onChange={(event) => handleChange("email", event.target.value)}
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? `${emailId}-error` : undefined}
-            className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-[#f8fafc] transition-colors placeholder:text-[#64748b] hover:border-[#2563eb]/50 focus:border-[#60a5fa] focus:bg-[#111b2f] focus:outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-[#f8fafc] transition-colors placeholder:text-[#64748b] hover:border-[#2563eb]/50 focus:border-[#60a5fa] focus:bg-[#111b2f] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             placeholder="you@example.com"
           />
           {errors.email ? (
@@ -215,7 +215,7 @@ export default function ContactForm() {
             onChange={(event) => handleChange("message", event.target.value)}
             aria-invalid={Boolean(errors.message)}
             aria-describedby={errors.message ? `${messageId}-error` : undefined}
-            className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-[#f8fafc] transition-colors placeholder:text-[#64748b] hover:border-[#2563eb]/50 focus:border-[#60a5fa] focus:bg-[#111b2f] focus:outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-[#0f172a] px-4 py-3 text-[#f8fafc] transition-colors placeholder:text-[#64748b] hover:border-[#2563eb]/50 focus:border-[#60a5fa] focus:bg-[#111b2f] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             placeholder="Tell us what you need help with"
           />
           {errors.message ? (
@@ -235,7 +235,7 @@ export default function ContactForm() {
           disabled={isSubmitting}
           className="inline-flex items-center justify-center rounded-2xl border border-[#3b82f6]/60 bg-[#3b82f6] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_-20px_rgba(59,130,246,0.8)] transition hover:bg-[#60a5fa] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Sending..." : "Send message"}
+          {isSubmitting ? "Sending…" : "Send message"}
         </button>
       </div>
     </form>

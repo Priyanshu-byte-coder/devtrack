@@ -10,6 +10,7 @@ The active migration is `migrations/20261011000000_canonical_schema.sql`. Its SQ
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `20261102000000_gamification.sql`             | `leaderboard_snapshots`, `user_progress` (with a trigger so XP, level, best tier and best rank never regress), `season_results` |
 | `20261110000000_weekly_digest_default_on.sql` | `users.weekly_digest_opt_in` defaults to `true`, so new accounts get the weekly digest                                          |
+| `20261125000000_allow_all_ui_locales.sql`     | `users.preferred_locale` allows every UI language (`en`, `es`, `hi`, `pt-BR`), not just `en`/`es`                               |
 
 **One-time data update for `20261110000000`.** Run once, right after that migration, to turn the digest on for accounts created before it. Don't run it again later, or it re-subscribes everyone who has unsubscribed since:
 

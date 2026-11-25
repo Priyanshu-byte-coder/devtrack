@@ -236,4 +236,12 @@ describe("estimateGuestRank", () => {
     const est = estimateGuestRank(guest(), []);
     expect(est).toMatchObject({ rank: 1, total: 1 });
   });
+
+  it("parses hasSponsorsListing on guest profile correctly (#250)", () => {
+    const withSponsors = buildGuestProfile(node({ hasSponsorsListing: true }), []);
+    expect(withSponsors.hasSponsorsListing).toBe(true);
+
+    const withoutSponsors = buildGuestProfile(node({ hasSponsorsListing: false }), []);
+    expect(withoutSponsors.hasSponsorsListing).toBe(false);
+  });
 });

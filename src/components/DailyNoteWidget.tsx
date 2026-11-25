@@ -92,7 +92,7 @@ export default function DailyNoteWidget() {
           placeholder="What will you code today?"
           aria-label="Today's coding plan"
           rows={3}
-          className="w-full resize-none rounded-md border border-[var(--border)] p-2 focus:outline-none transition focus:border-gray-500"
+          className="w-full resize-none rounded-md border border-[var(--border)] p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition focus:border-gray-500"
         />
 
         <div className="mt-2 flex items-center justify-between">

@@ -34,13 +34,13 @@ export default function NotFound() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/dashboard"
-            className="rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--accent-foreground)] shadow-md transition-all hover:opacity-90 active:scale-[0.98]"
+            className="rounded-lg bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--accent-foreground)] shadow-md transition-[opacity,transform] hover:opacity-90 active:scale-[0.98]"
           >
             Go Back to Dashboard
           </Link>
           <Link
             href="/"
-            className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-6 py-3 text-sm font-semibold text-[var(--card-foreground)] transition-all hover:bg-[var(--control)] active:scale-[0.98]"
+            className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-6 py-3 text-sm font-semibold text-[var(--card-foreground)] transition-[background-color,transform] hover:bg-[var(--control)] active:scale-[0.98]"
           >
             Go Home
           </Link>

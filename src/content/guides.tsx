@@ -540,6 +540,208 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "pull-request-checklist",
+    title: "Writing a pull request maintainers want to merge",
+    description:
+      "How to craft clear, focused pull requests that open-source maintainers want to review and merge, from commit hygiene to handling review feedback.",
+    published: "2026-11-25",
+    updated: "2026-11-25",
+    body: () => (
+      <>
+        <p>
+          Open-source maintainers spend hundreds of hours reviewing code outside
+          their day jobs. A pull request that is easy to review, thoroughly
+          tested, and respectful of their time is far more likely to be merged
+          promptly. Conversely, a massive pull request with no description,
+          failing tests, and unrelated edits often stalls for weeks.
+        </p>
+        <p>
+          Whether you are submitting your very first open-source fix or building
+          up your profile on a{" "}
+          <A href="/guides/github-activity-tracker">GitHub activity tracker</A>,
+          following this practical checklist ensures your contributions stand out
+          for the right reasons.
+        </p>
+
+        <h2>1. Keep pull requests small and focused</h2>
+        <p>
+          The single most effective way to speed up a code review is to limit
+          scope. A pull request should do one thing and do it well: fix a
+          specific bug, add an isolated component, or document an API.
+        </p>
+        <ul>
+          <li>
+            <strong>Avoid cosmetic scope creep:</strong> Do not reformat entire
+            unrelated files, alter lint rules, or reorganize folder structures
+            unless the issue explicitly calls for it. Large diffs filled with
+            whitespace changes obscure the core logic and trigger merge
+            conflicts.
+          </li>
+          <li>
+            <strong>Split compound features:</strong> If an implementation
+            requires a database migration, an API endpoint, and a complex UI,
+            consider opening separate PRs in logical stages. GitHub allows you
+            to publish early progress as a{" "}
+            <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests">
+              draft pull request
+            </A>{" "}
+            to signal that work is underway before requesting a final review.
+          </li>
+        </ul>
+
+        <h2>2. Link the issue and use closing keywords</h2>
+        <p>
+          Always connect your pull request to an existing issue. This gives
+          maintainers immediate context on why the change was proposed and
+          ensures GitHub automatically updates the tracking board.
+        </p>
+        <p>
+          Use official{" "}
+          <A href="https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue">
+            GitHub linking keywords
+          </A>{" "}
+          in your pull request description:
+        </p>
+        <Code>{`Closes #123\nFixes #123\nResolves #123`}</Code>
+        <p>
+          When your pull request is merged into the default branch, GitHub will
+          automatically close the linked issue. If your PR only partially
+          addresses a broader initiative, mention the issue number without a
+          closing keyword (e.g., &quot;Part of #123&quot;) so maintainers retain
+          ownership of when to close it.
+        </p>
+
+        <h2>3. Write a self-explanatory description</h2>
+        <p>
+          Never leave the pull request body blank. A helpful description answers
+          three core questions in under two minutes:
+        </p>
+        <ul>
+          <li>
+            <strong>What changed:</strong> A concise bulleted summary of the code
+            modifications.
+          </li>
+          <li>
+            <strong>Why:</strong> The background reasoning or bug reproduction
+            details that necessitated the change.
+          </li>
+          <li>
+            <strong>How to verify:</strong> Exact terminal commands, test
+            suites, or browser steps maintainers can follow to reproduce the fix
+            locally.
+          </li>
+        </ul>
+
+        <h2>4. Provide visual proof for UI changes</h2>
+        <p>
+          If your pull request modifies user interfaces, styles, or interactive
+          components, always include screenshots or a quick recording.
+        </p>
+        <p>
+          Capture both desktop and mobile viewports (e.g., at 390px width for
+          smartphones), and test both dark and light modes if the application
+          supports themes. Showing visual proof confirms you actually tested the
+          change in a browser rather than assuming the styling rendered
+          correctly.
+        </p>
+
+        <h2>5. Run tests, types, and lints locally</h2>
+        <p>
+          Never rely on the continuous integration (CI) pipeline as your personal
+          linter. Pushing code that breaks static checks wastes maintainer CI
+          runner minutes and clutters the commit history.
+        </p>
+        <p>
+          Before committing, run the project&apos;s local validation commands:
+        </p>
+        <Code>{`# Verify static typing\nnpx tsc --noEmit\n\n# Run code style and lint checks\nnpm run lint\n\n# Execute affected test suites\nnpm test`}</Code>
+        <p>
+          If the repository includes unit or integration tests, add test
+          coverage for your new code paths. Demonstrating that your change has
+          automated regression tests gives maintainers the confidence to hit
+          merge immediately.
+        </p>
+
+        <h2>6. Respect project guidelines and commit hygiene</h2>
+        <p>
+          Every open-source project has its own conventions defined in{" "}
+          <code>CONTRIBUTING.md</code>. Read it carefully before opening your
+          pull request.
+        </p>
+        <ul>
+          <li>
+            <strong>Commit messages:</strong> Follow the repository&apos;s style,
+            such as Conventional Commits (e.g., <code>feat(auth): ...</code> or{" "}
+            <code>fix(api): ...</code>).
+          </li>
+          <li>
+            <strong>Sign-off trailers:</strong> Many repositories require a
+            Developer Certificate of Origin (DCO). Ensure your commits include a{" "}
+            <A href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/managing-the-commit-signoff-policy-for-your-repository">
+              DCO sign-off trailer
+            </A>{" "}
+            using <code>git commit -s</code>.
+          </li>
+        </ul>
+
+        <h2>7. Respond graciously to review feedback</h2>
+        <p>
+          Code review is a collaborative discussion, not a personal critique.
+          When a maintainer requests adjustments:
+        </p>
+        <ul>
+          <li>
+            <strong>Acknowledge and clarify:</strong> If a suggestion is unclear,
+            politely ask for guidance rather than guessing.
+          </li>
+          <li>
+            <strong>Keep branches synced:</strong> If upstream changes while your
+            PR is under review, use{" "}
+            <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/keeping-your-pull-request-in-sync-with-the-base-branch">
+              GitHub&apos;s branch update mechanism
+            </A>{" "}
+            or rebase against upstream <code>main</code> to ensure a clean merge.
+          </li>
+          <li>
+            <strong>Notify when ready:</strong> After pushing requested changes,
+            leave a brief comment summarizing what was updated so the reviewer
+            knows it is ready for another look.
+          </li>
+        </ul>
+
+        <h2>How pull request quality powers your DevTrack score</h2>
+        <p>
+          In DevTrack, pull request activity is a primary signal of real-world
+          impact. The{" "}
+          <A href="/guides/devtrack-score">DevTrack score</A> allocates 30% of its
+          weight to Impact—measuring merged pull requests and constructive code
+          reviews across repositories. By focusing on concise, well-documented
+          contributions that maintainers merge quickly, you maximize your
+          productivity velocity, level up faster, and climb the public
+          leaderboard.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "How small should an open-source pull request be?",
+        a: "Ideally under 200 to 400 lines of code focused on a single issue. Smaller PRs are reviewed and merged substantially faster than multi-file refactors.",
+      },
+      {
+        q: "Which keywords automatically close an issue on GitHub?",
+        a: "GitHub supports 'Closes #123', 'Fixes #123', and 'Resolves #123' (and their past-tense variants). When merged into default branch, GitHub automatically marks the issue closed.",
+      },
+      {
+        q: "What should I do if a maintainer requests changes?",
+        a: "Review the comments carefully, implement the requested adjustments, run local tests to verify nothing broke, push the commit to your branch, and reply politely to confirm the updates are ready.",
+      },
+      {
+        q: "How does merged PR activity impact my DevTrack score?",
+        a: "Merged pull requests contribute to the Impact dimension, which represents 30% of your overall DevTrack score, as well as providing 50 XP per pull request toward your lifetime level.",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {

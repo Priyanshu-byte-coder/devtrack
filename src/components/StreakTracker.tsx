@@ -436,7 +436,7 @@ export default function StreakTracker() {
                         <div className="w-5 bg-[var(--card-muted)] rounded-sm flex items-end h-8 overflow-hidden">
                           <div
                             style={{ height: `${heightPercent}%` }}
-                            className={`w-full rounded-sm transition-all duration-300 ${
+                            className={`w-full rounded-sm transition-[height,width] duration-300 ${
                               isPeak
                                 ? "bg-[var(--accent)]"
                                 : "bg-accent/40 hover:bg-accent/60"
@@ -486,7 +486,7 @@ export default function StreakTracker() {
                     disabled={cancelling || freezeLoading}
                     className="rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-[var(--destructive)] transition hover:bg-destructive/20 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {cancelling ? "Removing..." : "Yes, remove"}
+                    {cancelling ? "Removing…" : "Yes, remove"}
                   </button>
                   <button
                     type="button"
@@ -545,7 +545,7 @@ export default function StreakTracker() {
                     : "bg-[var(--accent)] hover:opacity-90"
                 } text-[var(--accent-foreground)]`}
               >
-                {freezeLoading ? "Freezing..." : "Freeze Streak"}
+                {freezeLoading ? "Freezing…" : "Freeze Streak"}
               </button>
             </div>
           )}
@@ -731,7 +731,7 @@ function StreakCalendar({
           return (
             <div
               key={dateStr}
-              className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} transition-all hover:scale-110 hover:shadow-lg cursor-default ${
+              className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} transition-[transform,box-shadow] hover:scale-110 hover:shadow-lg cursor-default ${
                 isToday ? "ring-2 ring-offset-1 ring-[var(--accent)]" : ""
               }`}
               style={cellStyle}

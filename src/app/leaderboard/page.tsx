@@ -415,7 +415,7 @@ async function LeaderboardTable({
                             <Link
                               href={entry.profileUrl}
                               title={entry.username}
-                              className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none"
+                              className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:rounded"
                             >
                               @{entry.username}
                             </Link>

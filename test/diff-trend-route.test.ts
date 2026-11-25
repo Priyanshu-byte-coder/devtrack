@@ -251,4 +251,86 @@ describe("GET /api/metrics/diff-trend", () => {
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: "token_expired" });
   });
+
+  it("returns ready repos and pending list when some repositories are computing", async () => {
+    commits = [
+      { repo: "dev/ready", count: 5 },
+      { repo: "dev/computing", count: 3 },
+    ];
+    stats = {
+      "dev/ready": {
+        status: 200,
+        body: [contributors("dev", [{ w: CURRENT, a: 50, d: 10, c: 2 }])],
+      },
+      "dev/computing": {
+        status: 202,
+        body: {},
+      },
+    };
+
+    const res = await GET(request());
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.repos).toEqual(["dev/ready"]);
+    expect(body.pending).toEqual(["dev/computing"]);
+    expect(body.weeks.at(-1)).toMatchObject({ additions: 50, deletions: 10 });
+  });
+
+  it("reports 202 computing state when all repositories are pending", async () => {
+    commits = [
+      { repo: "dev/app1", count: 5 },
+      { repo: "dev/app2", count: 3 },
+    ];
+    stats = {
+      "dev/app1": { status: 202, body: {} },
+      "dev/app2": { status: 202, body: {} },
+    };
+
+    const res = await GET(request());
+    expect(res.status).toBe(202);
+    expect(await res.json()).toEqual({ computing: true });
+  });
+
+  it("does not cache partial results for 30 minutes so finished numbers are picked up quickly", async () => {
+    commits = [
+      { repo: "dev/ready", count: 5 },
+      { repo: "dev/pending", count: 3 },
+    ];
+    stats = {
+      "dev/ready": {
+        status: 200,
+        body: [contributors("dev", [{ w: CURRENT, a: 20, d: 5, c: 2 }])],
+      },
+      "dev/pending": {
+        status: 202,
+        body: {},
+      },
+    };
+
+    const first = await GET(request());
+    const firstBody = await first.json();
+    expect(first.status).toBe(200);
+    expect(firstBody.repos).toEqual(["dev/ready"]);
+    expect(firstBody.pending).toEqual(["dev/pending"]);
+
+    // Pending repo finishes computing stats in GitHub
+    stats["dev/pending"] = {
+      status: 200,
+      body: [contributors("dev", [{ w: CURRENT, a: 30, d: 15, c: 3 }])],
+    };
+
+    // Advance time past the partial TTL (60s), which is much shorter than 30 minutes
+    vi.advanceTimersByTime(65 * 1000);
+
+    const second = await GET(request());
+    const secondBody = await second.json();
+    expect(second.status).toBe(200);
+    expect(secondBody.repos).toEqual(["dev/ready", "dev/pending"]);
+    expect(secondBody.pending).toBeUndefined();
+    expect(secondBody.weeks.at(-1)).toMatchObject({
+      additions: 50,
+      deletions: 20,
+    });
+  });
 });

@@ -32,7 +32,7 @@ export default function GuidesIndex() {
           <li key={guide.slug}>
             <Link
               href={`/guides/${guide.slug}`}
-              className="pu-card flex h-full flex-col bg-[var(--card)] p-5 focus-visible:outline-none"
+              className="pu-card flex h-full flex-col bg-[var(--card)] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <span className="font-semibold text-[var(--card-foreground)]">
                 {guide.title}

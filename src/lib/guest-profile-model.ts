@@ -25,6 +25,7 @@ export interface GuestRepo {
 
 export interface GuestProfile {
   login: string;
+  hasSponsorsListing?: boolean;
   name: string | null;
   bio: string | null;
   /** When the GitHub account was created. */
@@ -49,6 +50,7 @@ export interface GuestProfile {
 /** GitHub's GraphQL `user` shape for the guest query. */
 export interface GuestUserNode {
   login: string;
+  hasSponsorsListing?: boolean;
   name: string | null;
   bio: string | null;
   createdAt: string;
@@ -115,6 +117,7 @@ export function buildGuestProfile(
 
   return {
     login: user.login,
+    hasSponsorsListing: Boolean(user.hasSponsorsListing),
     name: user.name?.trim() || null,
     bio: user.bio?.trim() || null,
     githubSince: user.createdAt,

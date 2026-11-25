@@ -1,3 +1,4 @@
+export type MetricStatusFilter = "all" | "open" | "merged";
 "use client";
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
@@ -105,17 +106,49 @@ function StatTile({
   );
 }
 
-function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
-  const peak = Math.max(1, ...weeks.flatMap((w) => [w.opened, w.merged]));
+export function WeeklyChart({
+  weeks,
+  filter = "all",
+}: {
+  weeks: PullRequestSummary["weeks"];
+  filter?: MetricStatusFilter;
+}) {
+  const series: Array<{ key: "opened" | "merged"; label: string; color: string }> =
+    filter === "open"
+      ? [{ key: "opened", label: "Opened", color: OPENED }]
+      : filter === "merged"
+        ? [{ key: "merged", label: "Merged", color: MERGED }]
+        : [
+            { key: "opened", label: "Opened", color: OPENED },
+            { key: "merged", label: "Merged", color: MERGED },
+          ];
+
+  const peak = Math.max(
+    1,
+    ...weeks.flatMap((w) =>
+      filter === "open"
+        ? [w.opened]
+        : filter === "merged"
+          ? [w.merged]
+          : [w.opened, w.merged]
+    )
+  );
+
   return (
     <div>
       <div
         className="flex h-32 items-end gap-1.5 border-b-2 border-[var(--border)] sm:gap-3"
         role="img"
-        aria-label={`PRs opened and merged per week: ${weeks
+        aria-label={`PRs ${filter} per week: ${weeks
           .map(
             (w) =>
-              `${weekLabel(w.weekStart)} ${w.opened} opened, ${w.merged} merged`
+              `${weekLabel(w.weekStart)} ${
+                filter === "all"
+                  ? `${w.opened} opened, ${w.merged} merged`
+                  : filter === "open"
+                    ? `${w.opened} opened`
+                    : `${w.merged} merged`
+              }`
           )
           .join("; ")}`}
       >
@@ -123,24 +156,30 @@ function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
           <div
             key={w.weekStart}
             className="flex h-full min-w-0 flex-1 items-end justify-center gap-0.5 sm:gap-1"
-            title={`Week of ${weekLabel(w.weekStart)}: ${w.opened} opened, ${w.merged} merged`}
+            title={`Week of ${weekLabel(w.weekStart)}: ${
+              filter === "all"
+                ? `${w.opened} opened, ${w.merged} merged`
+                : filter === "open"
+                  ? `${w.opened} opened`
+                  : `${w.merged} merged`
+            }`}
           >
-            {[
-              [w.opened, OPENED],
-              [w.merged, MERGED],
-            ].map(([count, color], i) => (
-              <div
-                key={i}
-                className="w-full max-w-4 transition-[height] duration-500"
-                style={{
-                  height: `${Math.max(Number(count) > 0 ? 6 : 2, (Number(count) / peak) * 100)}%`,
-                  background:
-                    Number(count) > 0
-                      ? String(color)
-                      : "color-mix(in srgb, var(--border) 70%, transparent)",
-                }}
-              />
-            ))}
+            {series.map(({ key, color }) => {
+              const count = w[key];
+              return (
+                <div
+                  key={key}
+                  className="w-full max-w-4 transition-[height] duration-500"
+                  style={{
+                    height: `${Math.max(Number(count) > 0 ? 6 : 2, (Number(count) / peak) * 100)}%`,
+                    background:
+                      Number(count) > 0
+                        ? String(color)
+                        : "color-mix(in srgb, var(--border) 70%, transparent)",
+                  }}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
@@ -156,10 +195,7 @@ function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
         ))}
       </div>
       <div className="mt-3 flex gap-4 text-xs text-[var(--muted-foreground)]">
-        {[
-          ["Opened", OPENED],
-          ["Merged", MERGED],
-        ].map(([label, color]) => (
+        {series.map(({ label, color }) => (
           <span key={label} className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5" style={{ background: color }} />
             {label}
@@ -187,6 +223,7 @@ export default function PRMetrics() {
     "devtrack:pr-metrics:range",
     "30d"
   );
+  const [statusFilter, setStatusFilter] = useState<MetricStatusFilter>("all");
   const [staleDays, setStaleDays] = usePersistentState(
     "devtrack:pr-metrics:staleThreshold",
     14
@@ -348,15 +385,49 @@ export default function PRMetrics() {
             />
           </div>
 
-          <Panel title="Weekly activity">
+          <Panel
+            title="Weekly activity"
+            aside={
+              <div
+                className={arcadeTabGroupClass}
+                role="group"
+                aria-label="Filter pull request status"
+              >
+                {(
+                  [
+                    { id: "all", label: "All" },
+                    { id: "open", label: "Open" },
+                    { id: "merged", label: "Merged" },
+                  ] as const
+                ).map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setStatusFilter(id)}
+                    aria-pressed={statusFilter === id}
+                    className={arcadeTabClass(statusFilter === id)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            }
+          >
             {s.opened === 0 ? (
               <Empty>No pull requests in this range yet.</Empty>
             ) : (
-              <WeeklyChart weeks={s.weeks} />
+              <WeeklyChart weeks={s.weeks} filter={statusFilter} />
             )}
           </Panel>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div
+            className={
+              statusFilter === "all"
+                ? "grid gap-4 lg:grid-cols-2"
+                : "grid gap-4 grid-cols-1"
+            }
+          >
+            {(statusFilter === "all" || statusFilter === "open") && (
             <Panel
               title={`Open now · ${s.openNow}${s.draftsNow ? ` (${s.draftsNow} draft)` : ""}`}
               aside={
@@ -428,7 +499,9 @@ export default function PRMetrics() {
                 </ul>
               )}
             </Panel>
+            )}
 
+            {(statusFilter === "all" || statusFilter === "merged") && (
             <Panel title="Recently merged">
               {s.recentMerged.length === 0 ? (
                 <Empty>No merges in this range yet.</Empty>
@@ -467,6 +540,7 @@ export default function PRMetrics() {
                 </ul>
               )}
             </Panel>
+            )}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">

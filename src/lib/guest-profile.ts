@@ -39,6 +39,7 @@ const GUEST_QUERY = `
 query GuestProfile($login: String!) {
   user(login: $login) {
     login
+    hasSponsorsListing
     name
     bio
     createdAt

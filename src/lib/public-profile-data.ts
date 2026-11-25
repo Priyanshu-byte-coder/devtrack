@@ -59,6 +59,7 @@ export interface PublicProfileData {
   username: string;
   bio: string | null;
   isSponsor: boolean;
+  hasSponsorsListing?: boolean;
   publicGists: number;
   memberSince: string | null;
   repos: TopRepo[];
@@ -455,6 +456,7 @@ export async function fetchPublicProfile(
         fetchPublicGists(user.github_login, githubToken).catch(() => 0),
       ]).then(([stats, freezes, publicGists]) => ({
         publicGists,
+        hasSponsorsListing: stats.hasSponsorsListing,
         repos: stats.repos,
         contributions: stats.contributions,
         streak: {
@@ -465,7 +467,7 @@ export async function fetchPublicProfile(
         pullRequests: stats.pullRequests,
       }))
     : Promise.all([
-        fetchPublicGists(user.github_login),
+        fetchPublicGists(user.github_login).catch(() => 0),
         fetchPublicTopRepos(user.github_login, undefined, PROFILE_WINDOW_DAYS),
         fetchPublicContributions(
           user.github_login,
@@ -485,6 +487,7 @@ export async function fetchPublicProfile(
           pullRequests,
         ]) => ({
           publicGists,
+          hasSponsorsListing: false,
           repos,
           contributions,
           streak,
@@ -494,7 +497,7 @@ export async function fetchPublicProfile(
       );
 
   const [
-    { publicGists, repos, contributions, streak, topLanguages, pullRequests },
+    { publicGists, hasSponsorsListing, repos, contributions, streak, topLanguages, pullRequests },
     achievementsCache,
     spotlight,
     weeklyGoalProgress,
@@ -553,6 +556,7 @@ export async function fetchPublicProfile(
     username: user.github_login,
     bio: user.bio ?? null,
     isSponsor: user.is_sponsor ?? false,
+    hasSponsorsListing,
     publicGists,
     memberSince: user.created_at ?? null,
     repos,

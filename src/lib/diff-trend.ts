@@ -10,6 +10,8 @@
 export const DIFF_TREND_WEEKS = 12;
 /** Repositories, ranked by the user's recent commits, whose lines are counted. */
 export const DIFF_TREND_REPO_LIMIT = 3;
+/** Cache TTL in seconds when some repositories are still computing stats. */
+export const DIFF_TREND_PARTIAL_TTL_SECONDS = 60;
 
 const WEEK_SECONDS = 7 * 24 * 60 * 60;
 
@@ -24,6 +26,8 @@ export interface DiffTrendResponse {
   weeks: DiffTrendWeek[];
   /** Repositories whose lines are included, most commits first. */
   repos: string[];
+  /** Repositories still being computed by GitHub (status 202). */
+  pending?: string[];
 }
 
 /** One entry of the `stats/contributors` response. */

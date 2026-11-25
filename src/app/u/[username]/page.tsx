@@ -11,7 +11,7 @@ import GitHubAchievements from "@/components/GitHubAchievements";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import { ArrowLeft, Moon, Sun } from "lucide-react";
+import { ArrowLeft, Heart, Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
@@ -418,6 +418,21 @@ export default async function PublicProfilePage({
                   {profile.publicGists} Gists
                 </a>
               )}
+              {profile.hasSponsorsListing && (
+                <a
+                  href={`https://github.com/sponsors/${encodeURIComponent(profile.username)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-medium text-accent transition-colors hover:border-accent/80 hover:bg-accent/20"
+                  title={`Sponsor @${profile.username} on GitHub`}
+                >
+                  <Heart
+                    className="h-3.5 w-3.5 fill-accent text-accent"
+                    aria-hidden="true"
+                  />
+                  Sponsor me
+                </a>
+              )}
             </>
           }
           actions={
@@ -763,7 +778,7 @@ function PublicLanguageBreakdown({
             </div>
             <div className="h-2 overflow-hidden bg-[var(--control)]">
               <div
-                className="h-full bg-[var(--accent)] transition-all duration-500"
+                className="h-full bg-[var(--accent)] transition-[width] duration-500"
                 style={{ width: `${lang.percentage}%` }}
               />
             </div>
@@ -885,7 +900,7 @@ function PublicTopRepos({
                 </div>
                 <div className="h-1.5 overflow-hidden bg-[var(--control)]">
                   <div
-                    className="h-full bg-[var(--accent)] transition-all duration-500"
+                    className="h-full bg-[var(--accent)] transition-[width] duration-500"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
