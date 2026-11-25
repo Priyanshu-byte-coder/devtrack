@@ -60,7 +60,7 @@ function TrendBadge({
       ? "bg-green-500/10 text-green-400 border-green-500/20"
       : direction === "down"
         ? "bg-red-500/10 text-red-400 border-red-500/20"
-        : "bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/20";
+        : "bg-accent/10 text-accent border-accent/20";
 
   const label =
     direction === "up"

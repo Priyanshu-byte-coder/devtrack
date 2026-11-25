@@ -20,7 +20,7 @@ import {
 
 const GRADE_COLORS: Record<ConsistencyScoreResult["grade"], string> = {
   S: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  A: "bg-[var(--accent)]/15 text-[var(--accent)] border-[var(--accent)]/30",
+  A: "bg-accent/15 text-accent border-accent/30",
   B: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
   C: "bg-orange-500/15 text-orange-400 border-orange-500/30",
   D: "bg-red-500/15 text-red-400 border-red-500/30",

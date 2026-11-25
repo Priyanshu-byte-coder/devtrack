@@ -55,8 +55,8 @@ const CATEGORY_LABELS: Record<GoalCategory, string> = {
 };
 
 const CATEGORY_BADGE_CLASSES: Record<GoalCategory, string> = {
-  "side-project": "bg-[var(--chart-7)]/10 text-[var(--chart-7)] border-[var(--chart-7)]/30",
-  work: "bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/30",
+  "side-project": "bg-accent-secondary/10 text-accent-secondary border-accent-secondary/30",
+  work: "bg-accent/10 text-accent border-accent/30",
   dsa: "bg-amber-500/10 text-amber-400 border-amber-500/30",
   "open-source": "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
 };
@@ -891,7 +891,7 @@ export default function GoalTracker() {
                           }}
                           disabled={goal.current >= goal.target}
                           aria-label={`Increment "${goal.title}" progress by 1`}
-                          className="rounded bg-[var(--accent)] px-2 py-1 text-xs text-[var(--accent-foreground)] hover:opacity-90 disabled:opacity-50"
+                          className="rounded bg-accent px-2 py-1 text-xs text-accent-foreground hover:opacity-90 disabled:opacity-50"
                         >
                           +1
                         </button>
