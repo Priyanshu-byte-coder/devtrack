@@ -102,7 +102,7 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
         data-state={isActive ? "active" : "inactive"}
         onClick={() => setActiveTab(value)}
         className={cn(
-          "relative inline-flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium transition-all",
+          "relative inline-flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm font-medium transition-colors",
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]",
           "disabled:pointer-events-none disabled:opacity-50",
           isActive
@@ -116,7 +116,7 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
         {/* Active underline */}
         <span
           className={cn(
-            "absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-all duration-200",
+            "absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-opacity duration-200",
             isActive ? "bg-[var(--accent)]" : "bg-transparent"
           )}
         />

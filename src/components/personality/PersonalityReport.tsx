@@ -78,7 +78,7 @@ export default function PersonalityReport() {
       )}
 
       {step === "idle" && (
-        <Card className="border-[var(--border)] bg-[var(--card)] hover:shadow-2xl transition-all duration-300">
+        <Card className="border-[var(--border)] bg-[var(--card)] hover:shadow-2xl transition-shadow duration-300">
           <CardHeader className="text-center py-8 space-y-2">
             <CardTitle className="text-xl font-bold">
               Discover Your Developer Archetype
@@ -92,7 +92,7 @@ export default function PersonalityReport() {
             <button
               type="button"
               onClick={() => fetchReport(false)}
-              className="group relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/20 px-8 py-3.5 hover:scale-[1.03] transition-all duration-300 active:scale-[0.98]"
+              className="group relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-indigo-500/20 px-8 py-3.5 hover:scale-[1.03] transition-transform duration-300 active:scale-[0.98]"
             >
               <Sparkles className="h-4.5 w-4.5" />
               Generate My Personality Report
