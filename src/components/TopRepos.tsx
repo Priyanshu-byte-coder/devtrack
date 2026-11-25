@@ -213,7 +213,7 @@ const RepoItem = memo(
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-[var(--control)]">
           <div
-            className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+            className="h-full rounded-full bg-[var(--accent)] transition-[width] duration-500"
             style={{ width: `${barWidth}%` }}
           />
         </div>
@@ -693,7 +693,7 @@ export default function TopRepos() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search repositories…"
               aria-label="Search repositories by name"
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-9 py-1.5 pr-10 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-9 py-1.5 pr-10 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             />
             {searchQuery.length > 0 && (
               <button

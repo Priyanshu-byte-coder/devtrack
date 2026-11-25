@@ -59,6 +59,7 @@ test("production pages hydrate with fresh CSP nonces and worker permission", asy
     document.addEventListener("securitypolicyviolation", (event) =>
       (window as any).cspViolations.push(event.violatedDirective)
     );
+    // A theme id saved before the 2026-11 rework; the boot script migrates it.
     localStorage.setItem("theme", "modern-light-blue");
   });
   const response = await page.goto("/");
@@ -87,7 +88,7 @@ test("production pages hydrate with fresh CSP nonces and worker permission", asy
   expect(inlineNonces.every((value) => value === nonce)).toBeTruthy();
   expect(
     await page.evaluate(() => document.documentElement.dataset.theme)
-  ).toBe("modern-light-blue");
+  ).toBe("daylight");
   expect(
     await page.evaluate(() =>
       (window as any).cspViolations.filter(

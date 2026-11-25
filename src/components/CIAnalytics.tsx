@@ -131,7 +131,7 @@ export default function CIAnalytics() {
           title={
             isRateLimited ? "GitHub API rate limit reached" : "Refresh CI data"
           }
-          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 active:scale-95"
+          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-[background-color,opacity,transform] hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 active:scale-95"
         >
           {loading ? (
             <svg

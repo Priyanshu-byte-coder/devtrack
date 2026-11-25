@@ -6,6 +6,7 @@ import {
   getThemeDefinition,
   isDarkTheme,
   nextThemeId,
+  resolveThemeId,
   type ThemeId,
 } from "../src/lib/themes";
 
@@ -33,7 +34,7 @@ describe("isThemeId", () => {
   });
 
   it("is case-sensitive (rejects mismatched casing)", () => {
-    expect(isThemeId("Classic-Dark")).toBe(false);
+    expect(isThemeId("Arcade")).toBe(false);
   });
 });
 
@@ -59,13 +60,13 @@ describe("getThemeDefinition", () => {
 
 describe("isDarkTheme", () => {
   it("returns true for dark-mode themes", () => {
-    expect(isDarkTheme("classic-dark")).toBe(true);
-    expect(isDarkTheme("nordic-frost")).toBe(true);
-    expect(isDarkTheme("cyberpunk-matrix")).toBe(true);
+    expect(isDarkTheme("arcade")).toBe(true);
+    expect(isDarkTheme("terminal")).toBe(true);
+    expect(isDarkTheme("synthwave")).toBe(true);
   });
 
   it("returns false for light-mode themes", () => {
-    expect(isDarkTheme("modern-light-blue")).toBe(false);
+    expect(isDarkTheme("daylight")).toBe(false);
   });
 
   it("falls back to the default theme's mode for an unrecognized id", () => {
@@ -107,5 +108,35 @@ describe("nextThemeId", () => {
     // fallbackIndex resolves to 0, so next should be THEME_OPTIONS[1]
     const result = nextThemeId("not-a-real-theme" as ThemeId);
     expect(result).toBe(THEME_OPTIONS[1].id);
+  });
+});
+describe("resolveThemeId", () => {
+  it("keeps current theme ids", () => {
+    for (const theme of THEME_OPTIONS) {
+      expect(resolveThemeId(theme.id)).toBe(theme.id);
+    }
+  });
+
+  it("maps themes saved before the rework to their closest new theme", () => {
+    expect(resolveThemeId("classic-dark")).toBe("arcade");
+    expect(resolveThemeId("nordic-frost")).toBe("arcade");
+    expect(resolveThemeId("modern-light-blue")).toBe("daylight");
+    expect(resolveThemeId("cyberpunk-matrix")).toBe("terminal");
+  });
+
+  it("returns null for anything else", () => {
+    expect(resolveThemeId("bogus")).toBeNull();
+    expect(resolveThemeId(null)).toBeNull();
+    expect(resolveThemeId("")).toBeNull();
+  });
+});
+
+describe("theme swatches", () => {
+  it("gives every theme three hex colours", () => {
+    for (const theme of THEME_OPTIONS) {
+      expect(theme.swatch).toHaveLength(3);
+      for (const colour of theme.swatch)
+        expect(colour).toMatch(/^#[0-9a-f]{6}$/i);
+    }
   });
 });

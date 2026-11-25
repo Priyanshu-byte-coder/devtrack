@@ -778,7 +778,7 @@ function PublicLanguageBreakdown({
             </div>
             <div className="h-2 overflow-hidden bg-[var(--control)]">
               <div
-                className="h-full bg-[var(--accent)] transition-all duration-500"
+                className="h-full bg-[var(--accent)] transition-[width] duration-500"
                 style={{ width: `${lang.percentage}%` }}
               />
             </div>
@@ -900,7 +900,7 @@ function PublicTopRepos({
                 </div>
                 <div className="h-1.5 overflow-hidden bg-[var(--control)]">
                   <div
-                    className="h-full bg-[var(--accent)] transition-all duration-500"
+                    className="h-full bg-[var(--accent)] transition-[width] duration-500"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>

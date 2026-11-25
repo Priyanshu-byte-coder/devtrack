@@ -103,7 +103,7 @@ export default function InactiveRepositoriesCard() {
             onClick={fetchInactiveRepos}
             disabled={loading}
             aria-label="Refresh inactive repositories"
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-[background-color,opacity,transform] hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
           >
             {loading ? (
               <svg
@@ -173,7 +173,7 @@ export default function InactiveRepositoriesCard() {
                   href={repo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block border border-[var(--border)] bg-[var(--control)] p-4 transition-all duration-200 hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-md"
+                  className="block border border-[var(--border)] bg-[var(--control)] p-4 transition-[border-color,transform,box-shadow] duration-200 hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">

@@ -271,7 +271,7 @@ export default function RepoContributionDistribution({
 
       {loading ? (
         <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-sm text-[var(--muted-foreground)]">
-          Loading repository distribution...
+          Loading repository distribution…
         </div>
       ) : error ? (
         <div className="border border-[var(--destructive)] bg-[var(--card)] p-4 text-sm text-[var(--destructive)]">

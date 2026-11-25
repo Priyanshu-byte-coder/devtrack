@@ -6,12 +6,14 @@ describe("normalizeLocale", () => {
   it("normalizes valid locales", () => {
     expect(normalizeLocale("en")).toBe("en");
     expect(normalizeLocale("es")).toBe("es");
+    expect(normalizeLocale("hi")).toBe("hi");
   });
 
   it("normalizes valid locales with region/case", () => {
     expect(normalizeLocale("en-US")).toBe("en");
     expect(normalizeLocale("EN-US")).toBe("en");
     expect(normalizeLocale("es-ES")).toBe("es");
+    expect(normalizeLocale("hi-IN")).toBe("hi");
   });
 
   it("returns null for invalid locale strings", () => {
@@ -108,6 +110,11 @@ describe("detectBrowserLocale", () => {
 describe("i18n translation lookup", () => {
   it("renders Spanish strings", async () => {
     await expect(translateMessage("es", "navigation.settings")).resolves.toBe("Configuración");
+  });
+
+  it("renders Hindi strings", async () => {
+    await expect(translateMessage("hi", "navigation.settings")).resolves.toBe("सेटिंग्स");
+    await expect(translateMessage("hi", "common.save")).resolves.toBe("सहेजें");
   });
 
   it("falls back to English when locale is unsupported", async () => {

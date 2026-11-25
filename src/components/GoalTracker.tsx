@@ -678,7 +678,7 @@ export default function GoalTracker() {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search goals..."
+                    placeholder="Search goals…"
                     aria-label="Search goals"
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-muted)] py-1.5 pl-3 pr-8 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] [&::-webkit-search-cancel-button]:appearance-none"
                   />
@@ -931,7 +931,7 @@ export default function GoalTracker() {
                       className="pointer-events-none absolute inset-0 z-10 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--card)_10px_12px)]"
                     />
                     <div
-                      className={`h-full transition-all duration-700 motion-reduce:transition-none ${
+                      className={`h-full transition-[width] duration-700 motion-reduce:transition-none ${
                         isSurpassed
                           ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
                           : completed
@@ -1130,7 +1130,7 @@ export default function GoalTracker() {
                 type="button"
                 onClick={() => setRecurrence(r)}
                 disabled={creating}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition-all ${
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition-colors ${
                   recurrence === r
                     ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
                     : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
@@ -1163,7 +1163,7 @@ export default function GoalTracker() {
           {creating ? (
             <>
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Creating Goal...
+              Creating Goal…
             </>
           ) : (
             "Create goal"
@@ -1179,7 +1179,7 @@ export default function GoalTracker() {
         isOpen={confirmingId !== null}
         title="Delete Tracking Goal"
         message={`Are you sure you want to permanently remove your "${activeConfirmingGoal?.title || "active coding"}" goal? This will erase all gathered progress history numbers parameters.`}
-        confirmLabel={deletingId ? "Deleting..." : "Permanently Delete"}
+        confirmLabel={deletingId ? "Deleting…" : "Permanently Delete"}
         cancelLabel="Keep Goal"
         onConfirm={() => {
           if (confirmingId) handleDelete(confirmingId);
