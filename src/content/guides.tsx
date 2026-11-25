@@ -742,6 +742,224 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "first-open-source-issue",
+    title: "How to pick your first open-source issue",
+    description:
+      "A practical guide to finding beginner-friendly issues on GitHub, evaluating scope, reading contributing guides, and making your first open-source contribution.",
+    published: "2026-11-25",
+    updated: "2026-11-25",
+    body: () => (
+      <>
+        <p>
+          Taking the leap from writing code in your own private projects to
+          contributing to an open-source codebase can feel intimidating. Many
+          aspiring contributors open a large repository, feel overwhelmed by the
+          sheer volume of directories, open issues, and pull requests, and close
+          the browser tab before typing a single command.
+        </p>
+        <p>
+          The secret to getting started in open source is not knowing every line of
+          the codebase; it is picking the right first issue. When you select an
+          issue that is clearly scoped, actively maintained, and appropriate for
+          your current skill level, your first contribution becomes an enjoyable,
+          confidence-building milestone. This guide covers how to find
+          approachable issues, evaluate scope, claim them courteously, and navigate
+          roadblocks.
+        </p>
+
+        <h2>Where to look: Labels that signal beginner friendliness</h2>
+        <p>
+          Open-source maintainers deliberately flag tasks suitable for newcomers
+          using standard labels. When searching repositories on{" "}
+          <A href="https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/filtering-and-searching-issues-and-pull-requests">
+            GitHub&apos;s issue search
+          </A>
+          , prioritize these established tags:
+        </p>
+        <ul>
+          <li>
+            <strong><code>good first issue</code>:</strong> The official GitHub
+            standard label for introductory tasks. Maintainers reserve these for
+            self-contained bugs, documentation additions, minor UI polish, or
+            straightforward unit test gaps that do not require deep architectural
+            context.
+          </li>
+          <li>
+            <strong><code>help wanted</code>:</strong> Indicates that maintainers
+            actively desire external community contributions because the core team
+            is focused on higher-priority roadmap epics.
+          </li>
+          <li>
+            <strong><code>documentation</code> or <code>docs</code>:</strong> Fixing
+            outdated README steps, correcting broken code snippets, or clarifying API
+            parameter tables is one of the highest-value ways to learn a project
+            while delivering immediate value.
+          </li>
+          <li>
+            <strong><code>type: testing</code> or <code>tests</code>:</strong> Adding
+            missing unit tests or edge-case assertions allows you to explore the
+            codebase safely with instant local feedback.
+          </li>
+        </ul>
+
+        <h2>Reading the project&apos;s CONTRIBUTING guide first</h2>
+        <p>
+          Before commenting on an issue or forking a repository, always look for
+          a <code>CONTRIBUTING.md</code> file in the repository root or <code>.github/</code> directory.
+          As documented in{" "}
+          <A href="https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors">
+            GitHub&apos;s guidelines for repository contributors
+          </A>
+          , this file contains the project&apos;s non-negotiable rules of engagement:
+        </p>
+        <ol>
+          <li>
+            <strong>Environment Setup:</strong> Required Node, Python, or Go
+            versions, package manager preferences (e.g. <code>pnpm</code> vs{" "}
+            <code>npm</code>), and commands to run local development servers.
+          </li>
+          <li>
+            <strong>Branching and Commit Conventions:</strong> Whether the project
+            mandates Conventional Commits (e.g. <code>feat:</code>, <code>fix:</code>),
+            Developer Certificate of Origin (DCO) sign-off lines, or specific branch
+            naming formats.
+          </li>
+          <li>
+            <strong>Testing and Linting Standards:</strong> The exact verification
+            commands (e.g. <code>npm run lint</code>, <code>pytest</code>,{" "}
+            <code>mix test</code>) that must pass before a pull request can be
+            merged.
+          </li>
+        </ol>
+
+        <h2>Sizing an issue: Green flags vs. red flags</h2>
+        <p>
+          Not all issues labeled &quot;beginner&quot; are actually easy. Learn to evaluate
+          an issue&apos;s true difficulty before investing hours of work:
+        </p>
+        <ul>
+          <li>
+            <strong>Green Flag — Clear Acceptance Criteria:</strong> The issue
+            description clearly identifies the affected files, expected behavior,
+            and acceptance criteria, or includes reproduction steps and screenshots.
+          </li>
+          <li>
+            <strong>Green Flag — Active Maintainer Engagement:</strong> Maintainers
+            have commented recently, merged other community PRs within the past
+            two weeks, and responded promptly to contributor inquiries.
+          </li>
+          <li>
+            <strong>Red Flag — Vague Architecture Refactors:</strong> Issues
+            titled <em>&quot;Refactor auth module&quot;</em> or <em>&quot;Improve performance&quot;</em>{" "}
+            are rarely suitable for first-time contributors; they often spark
+            prolonged architectural debates and stall in review.
+          </li>
+          <li>
+            <strong>Red Flag — Dormant Repositories:</strong> If the last commit
+            was nine months ago and unanswered PRs are piling up, your contribution
+            may sit unreviewed indefinitely regardless of quality.
+          </li>
+        </ul>
+
+        <h2>How to claim an issue politely</h2>
+        <p>
+          Avoid leaving generic comments like <em>&quot;Assign to me&quot;</em> or{" "}
+          <em>&quot;I want to work on this&quot;</em> without context. Maintainers receive dozens
+          of automated or abandoned claims every week. Instead, post a brief,
+          informed comment explaining your approach:
+        </p>
+        <pre className="overflow-x-auto rounded border border-base-300 bg-base-200 p-3 text-xs">
+          <code>
+{`Hi @maintainer! I'd love to work on this issue.
+
+My proposed plan:
+1. Locate the hardcoded color palette in src/components/...
+2. Replace static classes with semantic theme variables.
+3. Add a unit test verifying dark/light adaptability.
+
+Could you please assign this issue to me?`}
+          </code>
+        </pre>
+        <p>
+          This demonstrates that you read the issue description, understand the
+          task, and have a credible plan to deliver results.
+        </p>
+
+        <h2>What to do when you get stuck</h2>
+        <p>
+          Every developer gets stuck when working in an unfamiliar codebase. When
+          you hit an obstacle, follow this troubleshooting hierarchy:
+        </p>
+        <ul>
+          <li>
+            <strong>Inspect existing tests:</strong> Test files are living
+            documentation. Searching for how existing functions are called and
+            mocked in <code>test/</code> usually answers 90% of architectural questions.
+          </li>
+          <li>
+            <strong>Search closed PRs:</strong> Use GitHub search to look at recently
+            merged pull requests touching the same directory. See how other
+            contributors structured their solutions and solved similar problems.
+          </li>
+          <li>
+            <strong>Ask targeted questions on the issue:</strong> If an internal API
+            is ambiguous, leave a concise comment outlining what you tried, what you
+            observed, and your specific question. Maintainers are eager to help
+            contributors who demonstrate clear troubleshooting effort.
+          </li>
+        </ul>
+        <p>
+          Once your changes are coded and verified locally, follow our{" "}
+          <A href="/guides/pull-request-checklist">pull request checklist guide</A>{" "}
+          to prepare a clean, maintainer-ready PR, and learn about{" "}
+          <A href="/guides/devtrack-score">how the DevTrack score works</A>{" "}
+          to track your ongoing impact.
+        </p>
+
+        <h2>How early contributions build your DevTrack score</h2>
+        <p>
+          Picking and solving well-scoped open-source issues is the fastest way to
+          establish your public presence on the{" "}
+          <A href="/guides/devtrack-score">DevTrack global leaderboard</A>:
+        </p>
+        <ul>
+          <li>
+            <strong>Breadth across repositories:</strong> Contributing to diverse
+            projects boosts your DevTrack breadth score, proving that your skills
+            transfer across different tech stacks and team workflows.
+          </li>
+          <li>
+            <strong>Milestones and XP:</strong> Each merged pull request awards
+            experience points toward leveling up your player card and unlocking
+            community achievement badges.
+          </li>
+          <li>
+            <strong>Consistency over volume:</strong> Resolving one or two small
+            issues every week builds a reliable streak and sustainable momentum.
+          </li>
+        </ul>
+      </>
+    ),
+    faq: [
+      {
+        q: "What does the 'good first issue' label mean on GitHub?",
+        a: "The 'good first issue' label identifies introductory tasks curated by maintainers for first-time contributors. These are typically self-contained, clearly scoped bugs, documentation improvements, or small feature enhancements.",
+      },
+      {
+        q: "Should I start working on an issue before it is assigned to me?",
+        a: "It is best practice to leave a comment with your proposed approach and wait for maintainer confirmation. This prevents duplicated effort if another contributor is already working on the issue.",
+      },
+      {
+        q: "What should I do if a repository has no CONTRIBUTING.md file?",
+        a: "Inspect the README, check package.json or Makefile scripts, and examine recent merged pull requests to mirror the established testing, linting, and branch conventions.",
+      },
+      {
+        q: "How do merged issues and PRs affect my DevTrack score?",
+        a: "Merged PRs directly increase the Impact dimension (30% of your score), expand repository breadth, and award experience points (XP) to climb the global leaderboard.",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {
