@@ -131,7 +131,7 @@ export default function RepoComparisonPage() {
 
         <button
           onClick={addRepo}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded"
         >
           Add Repo
         </button>
@@ -142,7 +142,7 @@ export default function RepoComparisonPage() {
         {repos.map((repo) => (
           <div
             key={repo}
-            className="bg-gray-200 px-3 py-1 rounded flex gap-2 items-center"
+            className="bg-[var(--muted)] text-[var(--foreground)] border border-[var(--border)] px-3 py-1 rounded flex gap-2 items-center"
           >
             <span>{repo}</span>
             <button onClick={() => removeRepo(repo)}>❌</button>
@@ -153,7 +153,7 @@ export default function RepoComparisonPage() {
       {/* COMPARE BUTTON */}
       <button
         onClick={fetchRepoData}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-success text-success-foreground px-4 py-2 rounded"
         disabled={loading}
       >
         {loading ? "Comparing…" : "Compare Repositories"}
@@ -161,7 +161,7 @@ export default function RepoComparisonPage() {
 
       {/* EMPTY STATE */}
       {repos.length === 0 && (
-        <div className="text-gray-500">
+        <div className="text-[var(--muted-foreground)]">
           Add 2–5 repositories to compare
         </div>
       )}
