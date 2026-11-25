@@ -122,7 +122,7 @@ export default function ContributionAnalysisPanel({
                   <div className="h-2.5 w-full bg-[var(--card-muted)] rounded-full overflow-hidden border border-border/50">
                     <div
                       className={cn(
-                        "h-full rounded-full transition-all duration-1000",
+                        "h-full rounded-full transition-[width] duration-1000",
                         style.bar
                       )}
                       style={{ width: `${ds.score}%` }}

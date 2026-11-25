@@ -77,7 +77,7 @@ export default function Error({
           </button>
           <Link
             href="/dashboard"
-            className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm font-semibold text-[var(--card-foreground)] transition-all hover:bg-[var(--control)] active:scale-[0.98]"
+            className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-sm font-semibold text-[var(--card-foreground)] transition-[background-color,transform] hover:bg-[var(--control)] active:scale-[0.98]"
           >
             Go to Dashboard
           </Link>
