@@ -41,7 +41,7 @@ export default function ThrottleBanner() {
   return (
     <div
       role="status"
-      className="rounded-xl border border-amber-500/40 bg-[color-mix(in_srgb,#f59e0b_12%,var(--card))] px-5 py-3.5 flex items-center justify-between gap-4 shadow-lg"
+      className="rounded-xl border border-warning/40 bg-warning/10 px-5 py-3.5 flex items-center justify-between gap-4 shadow-lg"
     >
       <p className="text-sm text-[var(--card-foreground)]">
         Some features are temporarily unavailable due to usage limits. Data may
@@ -50,7 +50,7 @@ export default function ThrottleBanner() {
       <button
         type="button"
         onClick={() => setVisible(false)}
-        className="shrink-0 rounded-lg p-1 text-amber-300 hover:bg-amber-500/20 transition-colors"
+        className="shrink-0 rounded-lg p-1 text-warning hover:bg-warning/20 transition-colors"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
