@@ -44,3 +44,47 @@ describe("pull-request-checklist guide (#3801)", () => {
     expect(html).toContain("/guides/github-activity-tracker");
   });
 });
+
+describe("github-badges-on-your-website guide (#3803)", () => {
+  it("exists and is registered in GUIDES list", () => {
+    const guide = findGuide("github-badges-on-your-website");
+    expect(guide).toBeDefined();
+    expect(guide?.title).toBe("Show your GitHub stats on your portfolio site");
+    expect(GUIDES.some((g) => g.slug === "github-badges-on-your-website")).toBe(true);
+  });
+
+  it("has a description under 160 characters", () => {
+    const guide = findGuide("github-badges-on-your-website");
+    expect(guide?.description.length).toBeLessThanOrEqual(160);
+    expect(guide?.description.length).toBeGreaterThan(50);
+  });
+
+  it("has between 2 and 4 FAQ entries", () => {
+    const guide = findGuide("github-badges-on-your-website");
+    expect(guide?.faq.length).toBeGreaterThanOrEqual(2);
+    expect(guide?.faq.length).toBeLessThanOrEqual(4);
+    for (const item of guide?.faq ?? []) {
+      expect(item.q).toBeTruthy();
+      expect(item.a).toBeTruthy();
+    }
+  });
+
+  it("renders body with word count between 700 and 1200 words", () => {
+    const guide = findGuide("github-badges-on-your-website");
+    expect(guide).toBeDefined();
+    const html = renderToStaticMarkup(guide!.body() as any);
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const words = text.split(" ").filter(Boolean);
+    expect(words.length).toBeGreaterThanOrEqual(700);
+    expect(words.length).toBeLessThanOrEqual(1200);
+  });
+
+  it("links to GitHub documentation and internal DevTrack guides", () => {
+    const guide = findGuide("github-badges-on-your-website");
+    const html = renderToStaticMarkup(guide!.body() as any);
+    expect(html).toContain("https://docs.github.com");
+    expect(html).toContain("/guides/devtrack-score");
+    expect(html).toContain("/guides/github-activity-tracker");
+    expect(html).toContain("/guides/pull-request-checklist");
+  });
+});

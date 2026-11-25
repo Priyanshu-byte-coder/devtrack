@@ -742,6 +742,228 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "github-badges-on-your-website",
+    title: "Show your GitHub stats on your portfolio site",
+    description:
+      "How to showcase your GitHub coding streak, commit metrics, and DevTrack badges on your personal portfolio website with fast caching and accessible markup.",
+    published: "2026-11-26",
+    updated: "2026-11-26",
+    body: () => (
+      <>
+        <p>
+          A personal developer portfolio or GitHub profile README should
+          demonstrate more than a static list of technologies. Prospective
+          employers, open-source maintainers, and collaborators look for
+          consistent coding habits, active involvement in projects, and real
+          momentum. Showcasing live GitHub stats—such as your active daily
+          streak, annual commit volume, and DevTrack leaderboard rank—provides
+          immediate, verifiable proof of your technical craft.
+        </p>
+        <p>
+          Because badges render as vector SVGs, they remain crisp across high-DPI
+          retina displays and mobile browsers without requiring heavy JavaScript
+          bundles. Whether you build your portfolio with vanilla HTML, Next.js,
+          Astro, or maintain a{" "}
+          <A href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme">
+            GitHub profile README
+          </A>
+          , this guide walks through configuring, embedding, and optimizing dynamic
+          activity badges for peak speed and accessibility.
+        </p>
+
+        <h2>1. Available DevTrack Badge Endpoints</h2>
+        <p>
+          DevTrack exposes dedicated, lightweight SVG endpoints designed for
+          embedding directly in web pages and Markdown files. Each badge queries
+          your real-time contributions and formats the output into standard
+          Shields.io-compatible vector graphics:
+        </p>
+        <ul>
+          <li>
+            <strong>Streak Shield:</strong>{" "}
+            <code>/api/badge/streak-shield?user=username</code> displays your
+            current consecutive day streak, total active days, and frozen days.
+          </li>
+          <li>
+            <strong>Commit Volume:</strong>{" "}
+            <code>/api/badge/commits?user=username</code> highlights your verified
+            commit contributions over the current season or year.
+          </li>
+          <li>
+            <strong>Tier and Rank:</strong>{" "}
+            <code>/api/badge/rank?user=username</code> displays your public
+            ranking and tier badge (Bronze, Silver, Gold, Platinum, Diamond, or
+            Legend) as determined by your{" "}
+            <A href="/guides/devtrack-score">DevTrack score</A>.
+          </li>
+        </ul>
+        <p>
+          Each endpoint accepts an optional theme parameter (
+          <code>theme=dark</code>, <code>theme=light</code>, or{" "}
+          <code>theme=pixel</code>) to ensure visual harmony with your portfolio
+          website&apos;s color palette.
+        </p>
+
+        <h2>2. Embedding Badges Across Different Frameworks</h2>
+
+        <h3>HTML and Static Sites</h3>
+        <p>
+          If your portfolio is a static HTML page or compiled via static
+          generators, embed the badge using a standard image element wrapped in an
+          anchor link pointing to your public profile:
+        </p>
+        <Code>{`<a href="https://devtrack.live/u/your-username" target="_blank" rel="noopener noreferrer">\n  <img\n    src="https://devtrack.live/api/badge/streak-shield?user=your-username"\n    alt="Current GitHub commit streak tracked by DevTrack"\n    loading="lazy"\n    width="220"\n    height="32"\n  />\n</a>`}</Code>
+        <p>
+          Always include explicit width and height attributes (or CSS
+          aspect-ratio) to prevent Cumulative Layout Shift (CLS) as your portfolio
+          loads.
+        </p>
+
+        <h3>GitHub Profile READMEs</h3>
+        <p>
+          GitHub supports rendering badges directly inside your special profile
+          repository README. In Markdown syntax, combine an image link with an
+          outbound link:
+        </p>
+        <Code>{`[![DevTrack Streak](https://devtrack.live/api/badge/streak-shield?user=your-username)](https://devtrack.live/u/your-username)`}</Code>
+        <p>
+          GitHub routes all external Markdown images through its anonymous Camo
+          image proxy. DevTrack automatically sends compatible caching headers to
+          ensure Camo refreshes your statistics without displaying stale streak
+          numbers.
+        </p>
+
+        <h3>React, Next.js, and Modern Component Frameworks</h3>
+        <p>
+          In modern React applications, use standard JSX or Next.js components:
+        </p>
+        <Code>{`export function DevTrackStreakBadge({ username }: { username: string }) {\n  return (\n    <a\n      href={\`https://devtrack.live/u/\${username}\`}\n      target="_blank"\n      rel="noopener noreferrer"\n      className="inline-block transition-transform hover:scale-105"\n      aria-label="View DevTrack profile and full contribution statistics"\n    >\n      <img\n        src={\`https://devtrack.live/api/badge/streak-shield?user=\${username}\`}\n        alt={\`\${username}'s active GitHub commit streak\`}\n        loading="lazy"\n        className="h-8 w-auto"\n      />\n    </a>\n  );\n}`}</Code>
+
+        <h2>3. High Performance and Smart Caching Strategies</h2>
+        <p>
+          Embedding live remote images introduces network requests. If
+          configured poorly, dynamic badges can slow down portfolio rendering or
+          hit GitHub rate limits. DevTrack handles caching automatically using
+          edge-optimized HTTP headers:
+        </p>
+        <ul>
+          <li>
+            <strong>Edge CDN Caching:</strong> Badge responses include{" "}
+            <code>
+              Cache-Control: public, max-age=300, s-maxage=3600,
+              stale-while-revalidate=86400
+            </code>
+            . The CDN serves cached SVGs within seconds, eliminating redundant
+            database lookups.
+          </li>
+          <li>
+            <strong>GitHub Camo Compatibility:</strong> GitHub&apos;s proxy
+            respects <code>s-maxage=3600</code>, updating your profile badges
+            every hour while serving lightning-fast cached responses to
+            visitors.
+          </li>
+          <li>
+            <strong>Rate Limit Protection:</strong> GitHub enforces strict{" "}
+            <A href="https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting">
+              rate limits on API calls
+            </A>
+            . DevTrack manages background caching and token pools, ensuring your
+            badges never show 429 rate limit errors to prospective recruiters.
+          </li>
+        </ul>
+        <p>
+          Avoid adding query parameters like <code>?t=timestamp</code> to bust
+          caches. Doing so forces redundant requests, circumvents the CDN, and can
+          trigger temporary badge rate limits.
+        </p>
+
+        <h2>4. Accessibility and Semantic HTML Best Practices</h2>
+        <p>
+          Accessibility is essential for any professional portfolio. A recruiter
+          or hiring manager using a screen reader should understand the
+          information conveyed by your stats badges:
+        </p>
+        <ul>
+          <li>
+            <strong>Meaningful Alt Text:</strong> Never leave the alt attribute
+            blank or write generic text like &ldquo;image&rdquo;. Write
+            descriptive text that conveys the badge&apos;s content:{" "}
+            <code>alt="Developer GitHub commit streak: 45 consecutive days"</code>.
+          </li>
+          <li>
+            <strong>Wrapping Links:</strong> When the badge functions as a button
+            or link, provide an <code>aria-label</code> on the anchor tag to
+            explain where clicking takes the user:{" "}
+            <code>aria-label="Visit full DevTrack open source contributor profile"</code>.
+          </li>
+          <li>
+            <strong>Theme Contrast:</strong> Ensure your selected badge theme
+            passes WCAG 2.1 AA color contrast ratios against your website&apos;s
+            background. Use <code>theme=light</code> on light backgrounds and{" "}
+            <code>theme=dark</code> on dark mode pages.
+          </li>
+        </ul>
+
+        <h2>5. Growing Your Stats with Consistent Open-Source Contributions</h2>
+        <p>
+          Displaying badges is most impactful when backed by authentic,
+          continuous engagement. Your badges dynamically reflect your progress
+          across the ecosystem:
+        </p>
+        <ul>
+          <li>
+            <strong>Keep your streak intact:</strong> Commit clean, well-tested
+            code every day on your{" "}
+            <A href="/guides/github-activity-tracker">GitHub activity tracker</A>.
+            Even small documentation fixes or test additions keep momentum alive.
+          </li>
+          <li>
+            <strong>Review pull requests:</strong> Conducting constructive code
+            reviews demonstrates senior leadership and collaboration skills.
+          </li>
+          <li>
+            <strong>Follow best practices:</strong> Learn how to structure pull
+            requests by consulting our guide on{" "}
+            <A href="/guides/pull-request-checklist">
+              writing a pull request maintainers want to merge
+            </A>
+            .
+          </li>
+          <li>
+            <strong>Track your overall ranking:</strong> Climb the tiers from
+            Bronze to Legend on the{" "}
+            <A href="/leaderboard">global leaderboard</A>, and monitor your score
+            breakdown using our{" "}
+            <A href="/guides/devtrack-score">DevTrack score calculation guide</A>.
+          </li>
+        </ul>
+        <p>
+          By presenting your live stats cleanly, you transform your personal
+          website from a passive resume into an active showcase of your daily
+          engineering discipline.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "Why do my GitHub profile badges show cached or stale data?",
+        a: "GitHub caches images through its Camo proxy for up to an hour (s-maxage=3600). Changes reflect automatically once the CDN cache expires; do not use cache-busting query strings as they degrade performance.",
+      },
+      {
+        q: "How can I customize the badge color scheme to match my portfolio?",
+        a: "Add the theme query parameter to the badge URL: ?theme=dark for dark themes, ?theme=light for clean light backgrounds, or ?theme=pixel for high-contrast retro themes.",
+      },
+      {
+        q: "Do DevTrack badges count private GitHub contributions?",
+        a: "Badges only display public activity by default to protect privacy, but logged-in users who enable private repository synchronization in DevTrack settings can optionally include authenticated contribution counts.",
+      },
+      {
+        q: "How do badges affect my site's Core Web Vitals score?",
+        a: "Because badges are optimized vector SVGs served with strong caching headers and explicit dimensions, they load in milliseconds and produce zero Cumulative Layout Shift (CLS).",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {
