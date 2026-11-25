@@ -169,11 +169,11 @@ test("public profile page theme selector works without authentication", async ({
 });
 
 /**
- * Issue #3807: the theme can be switched from the sidebar, the top navbar and
- * the Settings page, and all three must stay in sync, also after a reload.
- * The sidebar and the Settings select live on /dashboard/settings; the top
- * navbar menu only renders outside the signed-in shell (it returns null under
- * /dashboard), so it is driven on a public profile page.
+ * Issue #3807: the theme can be switched from the sidebar menu, the top navbar
+ * menu and the Settings cards, and all three must stay in sync, also after a
+ * reload. The sidebar and the Settings cards live on /dashboard/settings; the
+ * top navbar menu only renders outside the signed-in shell (it returns null
+ * under /dashboard), so it is driven on a public profile page.
  */
 async function mockSettingsPageApis(page) {
   await page.route("**/api/user/settings**", async (route) => {
@@ -210,39 +210,57 @@ async function openSettings(page) {
     page.getByRole("heading", { name: "Settings", exact: true })
   ).toBeVisible({ timeout: 30_000 });
   return {
-    sidebar: page.getByRole("combobox", { name: "Select dashboard theme" }),
-    settingsCard: page.locator("#theme-select"),
+    sidebarTrigger: page.getByRole("button", {
+      name: /^Theme: .*Choose theme$/,
+    }),
+    settingsCard: (label) =>
+      page.getByRole("radio", { name: new RegExp(`^${label}`) }),
   };
 }
 
-test("sidebar and Settings theme selectors stay in sync, also after a reload", async ({
+async function pickFromMenu(page, trigger, label) {
+  await trigger.click();
+  await expect(page.getByRole("menu", { name: "Theme options" })).toBeVisible();
+  await page
+    .getByRole("menuitemradio", { name: new RegExp(`^${label}`) })
+    .click();
+}
+
+test("sidebar menu and Settings cards stay in sync, also after a reload", async ({
   page,
 }) => {
   await mockSettingsPageApis(page);
-  const { sidebar, settingsCard } = await openSettings(page);
-  await expect(sidebar).toBeVisible();
-  await expect(settingsCard).toBeVisible();
+  const { sidebarTrigger, settingsCard } = await openSettings(page);
+  await expect(sidebarTrigger).toBeVisible();
 
   // Sidebar -> Settings card and <html>
-  await sidebar.selectOption("nordic-frost");
-  await expect(settingsCard).toHaveValue("nordic-frost");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "nordic-frost");
+  await pickFromMenu(page, sidebarTrigger, "Synthwave");
+  await expect(sidebarTrigger).toHaveAccessibleName(
+    "Theme: Synthwave. Choose theme"
+  );
+  await expect(settingsCard("Synthwave")).toBeChecked();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "synthwave");
 
-  // Settings card -> sidebar and <html>
-  await settingsCard.selectOption("modern-light-blue");
-  await expect(sidebar).toHaveValue("modern-light-blue");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "modern-light-blue");
+  // Settings card -> sidebar and <html>, on a light theme
+  await settingsCard("Daylight").check({ force: true });
+  await expect(sidebarTrigger).toHaveAccessibleName(
+    "Theme: Daylight. Choose theme"
+  );
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "daylight");
   await expect(page.locator("html")).not.toHaveClass(/\bdark\b/);
 
-  // Back to a dark theme from the sidebar: both controls and <html> follow
-  await sidebar.selectOption("cyberpunk-matrix");
-  await expect(settingsCard).toHaveValue("cyberpunk-matrix");
+  // Back to a dark theme from the sidebar: card and <html> follow
+  await pickFromMenu(page, sidebarTrigger, "Terminal");
+  await expect(settingsCard("Terminal")).toBeChecked();
+  await expect(settingsCard("Daylight")).not.toBeChecked();
   await expect(page.locator("html")).toHaveClass(/\bdark\b/);
 
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(sidebar).toHaveValue("cyberpunk-matrix");
-  await expect(settingsCard).toHaveValue("cyberpunk-matrix");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "cyberpunk-matrix");
+  await expect(sidebarTrigger).toHaveAccessibleName(
+    "Theme: Terminal. Choose theme"
+  );
+  await expect(settingsCard("Terminal")).toBeChecked();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "terminal");
 });
 
 test("a theme picked in the top navbar shows in the sidebar and Settings, and the other way round", async ({
@@ -255,7 +273,10 @@ test("a theme picked in the top navbar shows in the sidebar and Settings, and th
   // restore it before opening Settings.
   const signedInCookies = await page.context().cookies();
   const signedOutSession = (route) =>
-    route.fulfill({ contentType: "application/json", body: JSON.stringify({}) });
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    });
   const signedInSession = (route) =>
     route.fulfill({
       contentType: "application/json",
@@ -266,43 +287,42 @@ test("a theme picked in the top navbar shows in the sidebar and Settings, and th
         expires: "2099-01-01T00:00:00.000Z",
       }),
     });
-  await page.context().clearCookies();
-  await page.route("**/api/auth/session**", signedOutSession);
-  await page.goto("/u/no-such-user-for-e2e-test", { waitUntil: "load" });
   const navbarToggle = page
     .getByRole("banner")
     .getByRole("button", { name: "Choose theme" });
+
+  await page.context().clearCookies();
+  await page.route("**/api/auth/session**", signedOutSession);
+  await page.goto("/u/no-such-user-for-e2e-test", { waitUntil: "load" });
   await expect(navbarToggle).toBeVisible({ timeout: 10_000 });
-  await navbarToggle.click();
-  await page
-    .getByRole("menuitemradio", { name: /Nordic Frost/i })
-    .click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "nordic-frost");
+  await pickFromMenu(page, navbarToggle, "Terminal");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "terminal");
 
   await page.unroute("**/api/auth/session**", signedOutSession);
   await page.context().addCookies(signedInCookies);
   await page.route("**/api/auth/session**", signedInSession);
-  const { sidebar, settingsCard } = await openSettings(page);
-  await expect(sidebar).toHaveValue("nordic-frost");
-  await expect(settingsCard).toHaveValue("nordic-frost");
+  const { sidebarTrigger, settingsCard } = await openSettings(page);
+  await expect(sidebarTrigger).toHaveAccessibleName(
+    "Theme: Terminal. Choose theme"
+  );
+  await expect(settingsCard("Terminal")).toBeChecked();
 
   // Settings card -> top navbar (checked on the public profile page)
-  await settingsCard.selectOption("modern-light-blue");
-  await expect(sidebar).toHaveValue("modern-light-blue");
+  await settingsCard("Daylight").check({ force: true });
+  await expect(sidebarTrigger).toHaveAccessibleName(
+    "Theme: Daylight. Choose theme"
+  );
 
   await page.context().clearCookies();
   await page.unroute("**/api/auth/session**", signedInSession);
   await page.route("**/api/auth/session**", signedOutSession);
   await page.goto("/u/no-such-user-for-e2e-test", { waitUntil: "load" });
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "modern-light-blue");
-  await page
-    .getByRole("banner")
-    .getByRole("button", { name: "Choose theme" })
-    .click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "daylight");
+  await navbarToggle.click();
   await expect(
-    page.getByRole("menuitemradio", { name: /Modern Light Blue/i })
+    page.getByRole("menuitemradio", { name: /^Daylight/ })
   ).toHaveAttribute("aria-checked", "true");
   await expect(
-    page.getByRole("menuitemradio", { name: /Nordic Frost/i })
+    page.getByRole("menuitemradio", { name: /^Terminal/ })
   ).toHaveAttribute("aria-checked", "false");
 });
