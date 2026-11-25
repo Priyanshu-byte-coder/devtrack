@@ -153,7 +153,7 @@ export default function PinnedReposWidget({
           return (
             <div
               key={repo.name}
-              className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-muted)] p-5 transition-all duration-300 hover:shadow-[var(--shadow-soft)] hover:border-accent/50 group"
+              className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card-muted)] p-5 transition-[box-shadow,border-color] duration-300 hover:shadow-[var(--shadow-soft)] hover:border-accent/50 group"
             >
               <div className="flex items-start justify-between">
                 <div className="min-w-0 flex-1">

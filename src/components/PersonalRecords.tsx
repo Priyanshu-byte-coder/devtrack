@@ -290,7 +290,7 @@ export default function PersonalRecords() {
     return (
       <WidgetSkeleton
         title="Personal Records"
-        className="transition-all duration-300"
+        className="transition-[width] duration-300"
       >
         <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 items-stretch">
           {[1, 2, 3, 4, 5].map((i) => (

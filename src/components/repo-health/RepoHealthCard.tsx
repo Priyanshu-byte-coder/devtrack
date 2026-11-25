@@ -40,7 +40,7 @@ function RepoHealthCard({ health, isSelected, onClick }: Props) {
       type="button"
       onClick={onClick}
       className={[
-        "w-full rounded-xl border p-3 text-left transition-all duration-150",
+        "w-full rounded-xl border p-3 text-left transition-colors duration-150",
         "hover:shadow-sm hover:-translate-y-px active:scale-[0.99]",
         isSelected
           ? `border-[var(--accent)] bg-accent/5 ring-1 ${ringClass}`
@@ -73,7 +73,7 @@ function RepoHealthCard({ health, isSelected, onClick }: Props) {
       {/* Mini score bar */}
       <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--border)]">
         <div
-          className="h-full rounded-full transition-all duration-500"
+          className="h-full rounded-full transition-[width] duration-500"
           style={{
             width: `${health.score}%`,
             backgroundColor:

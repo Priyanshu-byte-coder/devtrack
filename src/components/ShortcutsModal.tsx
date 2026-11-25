@@ -167,7 +167,7 @@ export default function ShortcutsModal({
           ref={closeBtnRef}
           type="button"
           onClick={onClose}
-          className="rounded-lg p-1 text-[var(--muted-foreground)] transition-all hover:bg-[var(--control)] hover:text-[var(--card-foreground)] hover:opacity-90 active:scale-95"
+          className="rounded-lg p-1 text-[var(--muted-foreground)] transition-[background-color,color,opacity,transform] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] hover:opacity-90 active:scale-95"
           aria-label="Close shortcuts"
         >
           ✕
@@ -194,7 +194,7 @@ export default function ShortcutsModal({
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-all hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] hover:opacity-90 active:scale-95"
+          className="rounded-lg bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-[background-color,color,opacity,transform] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] hover:opacity-90 active:scale-95"
         >
           Got it
         </button>

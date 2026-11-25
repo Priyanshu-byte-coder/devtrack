@@ -36,10 +36,10 @@ type CacheParamValue = boolean | number | string | null | undefined;
 type MemoryCacheEntry = { value: unknown; expiresAt: number };
 export const DEFAULT_METRICS_STALE_GRACE_SECONDS = 24 * 60 * 60;
 
-export type MetricsCacheOptions = {
+export type MetricsCacheOptions<T = unknown> = {
   bypass: boolean;
   key: string;
-  ttlSeconds: number;
+  ttlSeconds: number | ((fresh: T) => number);
   staleGraceSeconds?: number;
   fallbackToStaleOnError?: (error: unknown) => boolean;
 };
@@ -261,13 +261,15 @@ export async function cacheSet<T>(
  * @returns A promise resolving to the data.
  */
 async function loadMetricsCache<T>(
-  options: MetricsCacheOptions,
+  options: MetricsCacheOptions<T>,
   loadFresh: () => Promise<T>
 ): Promise<T> {
   let staleValue: T | null = null;
 
   if (!options.bypass) {
-    const cached = await cacheGet<T>(options.key, options.ttlSeconds);
+    const defaultTtl =
+      typeof options.ttlSeconds === "number" ? options.ttlSeconds : undefined;
+    const cached = await cacheGet<T>(options.key, defaultTtl);
 
     if (cached !== null) {
       return cached;
@@ -280,8 +282,12 @@ async function loadMetricsCache<T>(
 
   try {
     const fresh = await loadFresh();
+    const ttlSeconds =
+      typeof options.ttlSeconds === "function"
+        ? options.ttlSeconds(fresh)
+        : options.ttlSeconds;
 
-    await cacheSet(options.key, fresh, options.ttlSeconds);
+    await cacheSet(options.key, fresh, ttlSeconds);
 
     if (options.fallbackToStaleOnError) {
       const staleGraceSeconds =
@@ -291,7 +297,7 @@ async function loadMetricsCache<T>(
         await cacheSet(
           staleMetricsCacheKey(options.key),
           fresh,
-          options.ttlSeconds + staleGraceSeconds
+          ttlSeconds + staleGraceSeconds
         );
       }
     }
@@ -309,7 +315,7 @@ async function loadMetricsCache<T>(
 // Coalesce both ordinary cache misses and explicit refreshes for one scope.
 const metricFlights = new Map<string, Promise<unknown>>();
 export async function withMetricsCache<T>(
-  options: MetricsCacheOptions,
+  options: MetricsCacheOptions<T>,
   loadFresh: () => Promise<T>
 ): Promise<T> {
   const existing = metricFlights.get(options.key);

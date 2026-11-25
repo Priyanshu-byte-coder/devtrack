@@ -198,7 +198,7 @@ export default function NotificationBell() {
         ref={triggerRef}
         type="button"
         onClick={handleOpen}
-        className="relative rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-all hover:opacity-90 active:scale-95"
+        className="relative rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-[background-color,color,opacity,transform] hover:opacity-90 active:scale-95"
         aria-label="Notifications"
         title="Notifications"
         suppressHydrationWarning
@@ -294,7 +294,7 @@ export default function NotificationBell() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search notifications..."
                 aria-label="Search notifications"
-                className="w-full pl-3 pr-8 py-1.5 text-sm bg-[var(--control)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-shadow"
+                className="w-full pl-3 pr-8 py-1.5 text-sm bg-[var(--control)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-shadow"
               />
               {searchQuery && (
                 <button
