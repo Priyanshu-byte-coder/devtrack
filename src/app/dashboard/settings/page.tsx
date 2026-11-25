@@ -1153,7 +1153,7 @@ function SettingsPageContent() {
               />
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--control)]">
                 <div
-                  className={`h-full transition-all ${
+                  className={`h-full transition-[width] ${
                     bioDraft.length >= 490
                       ? "bg-red-500"
                       : bioDraft.length >= 450

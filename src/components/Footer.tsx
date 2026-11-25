@@ -89,7 +89,7 @@ function FooterLink({
     "group relative w-fit text-[14px] text-[var(--muted-foreground)] max-sm:w-full max-sm:py-2.5 transition-colors duration-200 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 text-left";
 
   const underline = (
-    <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--accent)] transition-all duration-300 group-hover:w-full" />
+    <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--accent)] transition-[width] duration-300 group-hover:w-full" />
   );
 
   if (onClick) {
