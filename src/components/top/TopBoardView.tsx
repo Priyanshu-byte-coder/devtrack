@@ -106,7 +106,7 @@ export default function TopBoardView({
               {/* The whole row opens the profile, via the overlay. */}
               <Link
                 href={`/u/${dev.login.toLowerCase()}`}
-                className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none"
+                className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:rounded"
               >
                 @{dev.login}
               </Link>

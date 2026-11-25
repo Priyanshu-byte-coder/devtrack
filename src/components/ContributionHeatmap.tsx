@@ -627,7 +627,7 @@ export default function ContributionHeatmap({
             <select
               value={selectedRepo}
               onChange={(e) => setSelectedRepo(e.target.value)}
-              className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus:ring-1 focus:ring-[var(--accent)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors max-w-[150px] truncate"
+              className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors max-w-[150px] truncate"
               aria-label="Filter by repository"
             >
               <option value="all">All Repositories</option>
@@ -641,7 +641,7 @@ export default function ContributionHeatmap({
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus:ring-1 focus:ring-[var(--accent)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
+              className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
               aria-label="Filter by language"
             >
               <option value="all">All Languages</option>

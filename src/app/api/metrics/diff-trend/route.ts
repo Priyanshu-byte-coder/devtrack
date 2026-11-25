@@ -21,6 +21,7 @@ import {
   authorWeeks,
   buildDiffTrendWeeks,
   type ContributorStats,
+  DIFF_TREND_PARTIAL_TTL_SECONDS,
   diffTrendWeekStarts,
   type DiffTrendResponse,
   lacksLineCounts,
@@ -37,11 +38,11 @@ type RepoCommit = {
   commit: { author: { date: string } };
 };
 
-/** The repository's per-author weekly stats, or null when it has none to give. */
+/** The repository's per-author weekly stats, null when none to give, or 'computing' when 202. */
 async function fetchContributorStats(
   token: string,
   repo: string
-): Promise<ContributorStats[] | null> {
+): Promise<ContributorStats[] | "computing" | null> {
   const [owner, name] = repo.split("/");
   const res = await githubRequest(
     `${GITHUB_API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/stats/contributors`,
@@ -53,7 +54,7 @@ async function fetchContributorStats(
       cache: "no-store",
     }
   );
-  if (res.status === 202) throw new StatsComputingError();
+  if (res.status === 202) return "computing";
   if (res.status === 401) throw new GitHubAuthError();
   // 204: empty repository. 403/404: access lost since the commits were made.
   if (!res.ok || res.status === 204) return null;
@@ -72,12 +73,16 @@ async function fetchDiffTrend(
     excludedOrgs: excludedOrgs.length > 0 ? excludedOrgs.join(",") : undefined,
   });
 
-  // A StatsComputingError escapes the loader, so a half-built answer is never cached.
+  // A StatsComputingError escapes the loader when all candidate repos are computing stats.
+  // When only some repos are computing, a shorter TTL is used so the next load picks up the finished numbers.
   return withMetricsCache(
     {
       bypass: cacheContext.bypass,
       key,
-      ttlSeconds: METRICS_CACHE_TTL_SECONDS["diff-trend"],
+      ttlSeconds: (data: DiffTrendResponse) =>
+        data.pending && data.pending.length > 0
+          ? DIFF_TREND_PARTIAL_TTL_SECONDS
+          : METRICS_CACHE_TTL_SECONDS["diff-trend"],
     },
     async () => {
       const weekStarts = diffTrendWeekStarts(new Date());
@@ -97,16 +102,31 @@ async function fetchDiffTrend(
         candidates.map((repo) => fetchContributorStats(token, repo))
       );
 
+      const pending: string[] = [];
       const repos: string[] = [];
       const repoWeeks: Array<ContributorStats["weeks"]> = [];
+
       candidates.forEach((repo, i) => {
-        const weeks = stats[i] && authorWeeks(stats[i], githubLogin);
+        const repoStat = stats[i];
+        if (repoStat === "computing") {
+          pending.push(repo);
+          return;
+        }
+        const weeks = repoStat && authorWeeks(repoStat, githubLogin);
         if (!weeks || lacksLineCounts(weeks, weekStarts)) return;
         repos.push(repo);
         repoWeeks.push(weeks);
       });
 
-      return { weeks: buildDiffTrendWeeks(weekStarts, repoWeeks), repos };
+      if (candidates.length > 0 && pending.length === candidates.length) {
+        throw new StatsComputingError();
+      }
+
+      return {
+        weeks: buildDiffTrendWeeks(weekStarts, repoWeeks),
+        repos,
+        ...(pending.length > 0 ? { pending } : {}),
+      };
     }
   );
 }

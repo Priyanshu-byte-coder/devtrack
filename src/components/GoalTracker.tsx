@@ -931,7 +931,7 @@ export default function GoalTracker() {
                       className="pointer-events-none absolute inset-0 z-10 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--card)_10px_12px)]"
                     />
                     <div
-                      className={`h-full transition-all duration-700 motion-reduce:transition-none ${
+                      className={`h-full transition-[width] duration-700 motion-reduce:transition-none ${
                         isSurpassed
                           ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
                           : completed
@@ -1130,7 +1130,7 @@ export default function GoalTracker() {
                 type="button"
                 onClick={() => setRecurrence(r)}
                 disabled={creating}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition-all ${
+                className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition-colors ${
                   recurrence === r
                     ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
                     : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
