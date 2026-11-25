@@ -40,7 +40,7 @@ export default function StreakAtRiskBanner({
   // Check whether the banner was dismissed today.
   useEffect(() => {
     try {
-      const dismissedDate = localStorage.getItem(DISMISSAL_KEY);
+      const dismissedDate = window.localStorage.getItem(DISMISSAL_KEY);
       setDismissed(dismissedDate === getTodayDate());
     } catch {
       setDismissed(false);
@@ -116,7 +116,7 @@ export default function StreakAtRiskBanner({
 
   const handleDismiss = () => {
     try {
-      localStorage.setItem(DISMISSAL_KEY, getTodayDate());
+      window.localStorage.setItem(DISMISSAL_KEY, getTodayDate());
     } catch {
       // Keep the banner dismissible when browser storage is unavailable.
     }
