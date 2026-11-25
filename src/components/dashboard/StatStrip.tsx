@@ -35,7 +35,7 @@ function Delta({ now, before }: { now: number; before: number }) {
   const up = now > before;
   return (
     <span
-      className={up ? "text-emerald-500" : "text-[var(--muted-foreground)]"}
+      className={up ? "text-success" : "text-[var(--muted-foreground)]"}
     >
       <span aria-hidden="true">{up ? "▲" : "▼"}</span>
       <span className="sr-only">{up ? "up" : "down"}</span>{" "}
@@ -51,7 +51,7 @@ function WeekMeter({ days }: { days: number }) {
       {Array.from({ length: 7 }, (_, i) => (
         <span
           key={i}
-          className={`h-2 flex-1 ${i < days ? "bg-emerald-500" : "bg-[var(--control)]"}`}
+          className={`h-2 flex-1 ${i < days ? "bg-success" : "bg-[var(--control)]"}`}
         />
       ))}
     </span>
