@@ -540,6 +540,126 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "github-contributions-explained",
+    title: "How GitHub counts your contributions (and why your streak might look different)",
+    description:
+      "How GitHub counts commits, PRs and reviews on your graph, why your streak may differ due to timezones or emails, and how to fix missing contributions.",
+    published: "2026-11-24",
+    updated: "2026-11-24",
+    body: () => (
+      <>
+        <p>
+          Developers often notice a difference between the commits they push and
+          what appears on their GitHub contribution graph or in DevTrack.
+          Understanding how GitHub counts contributions — and where discrepancies
+          originate — helps you ensure all your hard work is counted.
+        </p>
+        <h2>What GitHub counts as a contribution</h2>
+        <p>
+          According to{" "}
+          <A href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/managing-contribution-settings-on-your-profile/why-are-my-contributions-not-showing-up-on-my-profile">
+            GitHub&apos;s contribution guidelines
+          </A>
+          , only specific qualifying actions turn squares green:
+        </p>
+        <ul>
+          <li>
+            <strong>Commits</strong>: Must be made to the repository&apos;s
+            default branch (typically <code>main</code>) or the{" "}
+            <code>gh-pages</code> branch. Commits to feature branches only count
+            once the pull request is merged into the default branch.
+          </li>
+          <li>
+            <strong>Pull requests</strong>: Opening a pull request (or having it
+            merged).
+          </li>
+          <li>
+            <strong>Issues</strong>: Opening an issue in a standalone repository
+            (not a fork).
+          </li>
+          <li>
+            <strong>Code reviews</strong>: Submitting a pull request review in a
+            public or accessible repository.
+          </li>
+        </ul>
+        <h2>What GitHub does not count</h2>
+        <ul>
+          <li>
+            <strong>Commits in forks</strong>: Commits made to a fork do not
+            count on your graph unless they are merged into the upstream
+            parent repository.
+          </li>
+          <li>
+            <strong>Unlinked commit emails</strong>: If your local git author email
+            (<code>git config user.email</code>) is not added to your GitHub
+            account settings, GitHub cannot attribute the commit to your
+            profile.
+          </li>
+          <li>
+            <strong>Draft PRs and closed unmerged PRs</strong>: Work in closed
+            PRs that were never merged or draft commits on unmerged branches are
+            excluded.
+          </li>
+        </ul>
+        <h2>Private contributions</h2>
+        <p>
+          By default, GitHub only displays activity from public repositories. If
+          you contribute to private repositories or internal enterprise
+          organizations, you must enable{" "}
+          <strong>Include private contributions on my profile</strong> in your
+          GitHub profile settings. Without this toggle enabled, private commits
+          remain hidden from both GitHub and external analytics.
+        </p>
+        <h2>Time zone shifts (UTC vs. local time)</h2>
+        <p>
+          GitHub timestamps all contribution events in UTC. If you make a commit
+          at 1:00 AM local time in India (UTC+5:30) on Tuesday, it is recorded at
+          7:30 PM UTC on Monday. As a result, the contribution square will light
+          up on Monday rather than Tuesday. This UTC offset is the single most
+          common reason daily streaks appear interrupted or shifted.
+        </p>
+        <h2>How DevTrack counts your streak and score</h2>
+        <p>
+          DevTrack synchronizes with GitHub&apos;s API to compute your{" "}
+          <A href="/guides/github-streak">GitHub streak</A> and overall{" "}
+          <A href="/guides/devtrack-score">DevTrack score</A>. DevTrack tracks
+          active days across commits, PRs and reviews while accounting for
+          timezone boundaries so that genuine day-over-day dedication is accurately
+          reflected.
+        </p>
+        <h2>Checklist to fix missing contributions</h2>
+        <ul>
+          <li>
+            <strong>Verify your git email</strong>: Run <code>git config user.email</code> and ensure that exact address is listed under your GitHub Email Settings.
+          </li>
+          <li>
+            <strong>Check the branch</strong>: Verify that your commits are on the default branch or that your PR has been merged into <code>main</code>.
+          </li>
+          <li>
+            <strong>Enable private contributions</strong>: Go to your GitHub profile, click <strong>Contribution settings</strong>, and check <strong>Private contributions</strong>.
+          </li>
+          <li>
+            <strong>Check your fork status</strong>: If working in a fork, open a PR to upstream so your work merges into the primary project.
+          </li>
+        </ul>
+      </>
+    ),
+    faq: [
+      {
+        q: "Why are my GitHub contributions not showing up?",
+        a: "The most common reasons are using a local git commit email not linked to your GitHub account, committing to a non-default branch, working in a fork without merging upstream, or having private contributions disabled in profile settings.",
+      },
+      {
+        q: "Why does my streak look different in DevTrack compared to GitHub?",
+        a: "GitHub stores all timestamps in UTC, which can cause commits made after local midnight to land on the previous UTC calendar day. DevTrack normalizes activity across commits, PRs and reviews to track true active days.",
+      },
+      {
+        q: "Do commits in a fork count toward my GitHub streak?",
+        a: "No. GitHub does not count commits in a fork toward your profile contribution graph until those commits are merged into the upstream repository.",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {
