@@ -2,6 +2,12 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
+import {
+  DEFAULT_THEME,
+  getThemeDefinition,
+  LIGHT_THEME,
+  resolveThemeId,
+} from "@/lib/themes";
 import { Silkscreen } from "next/font/google";
 import "./globals.css";
 
@@ -26,22 +32,13 @@ export default function GlobalError({
 
     // Restore the saved theme because the root layout is unavailable.
     try {
-      const validThemes = [
-        "classic-dark",
-        "modern-light-blue",
-        "nordic-frost",
-        "cyberpunk-matrix",
-      ];
-
-      const storedTheme = localStorage.getItem("theme");
-
-      const theme = validThemes.includes(storedTheme || "")
-        ? storedTheme!
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "classic-dark"
-          : "modern-light-blue";
-
-      const isDark = theme !== "modern-light-blue";
+      const stored = resolveThemeId(localStorage.getItem("theme"));
+      const theme =
+        stored ??
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? DEFAULT_THEME
+          : LIGHT_THEME);
+      const isDark = getThemeDefinition(theme).mode === "dark";
 
       document.documentElement.dataset.theme = theme;
       document.documentElement.classList.toggle("dark", isDark);
