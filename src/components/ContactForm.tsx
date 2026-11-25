@@ -235,7 +235,7 @@ export default function ContactForm() {
           disabled={isSubmitting}
           className="inline-flex items-center justify-center rounded-2xl border border-[#3b82f6]/60 bg-[#3b82f6] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_-20px_rgba(59,130,246,0.8)] transition hover:bg-[#60a5fa] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Sending..." : "Send message"}
+          {isSubmitting ? "Sending…" : "Send message"}
         </button>
       </div>
     </form>

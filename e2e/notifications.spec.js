@@ -440,7 +440,7 @@ test("notification search filters and highlights correctly", async ({
   await expect(page.getByText("Beta alert message")).toBeVisible();
 
   // Verify search input is autodefocussed (focused)
-  const searchInput = page.getByPlaceholder("Search notifications...");
+  const searchInput = page.getByPlaceholder("Search notifications…");
   await expect(searchInput).toBeFocused();
 
   // Type "Alpha" into search

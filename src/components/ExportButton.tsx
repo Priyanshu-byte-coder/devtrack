@@ -792,7 +792,7 @@ export default function ExportButton() {
             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
           />
         </svg>
-        {busy ? "Exporting..." : "Export"}
+        {busy ? "Exporting…" : "Export"}
         <svg
           aria-hidden="true"
           className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
@@ -821,7 +821,7 @@ export default function ExportButton() {
             aria-label={`Export dashboard metrics as ${label}`}
             className="px-4 py-2 text-left text-sm text-[var(--card-foreground)] transition-colors hover:bg-[var(--card-muted)] disabled:opacity-50"
           >
-            {pending ? `Exporting ${label}...` : `Export ${label}`}
+            {pending ? `Exporting ${label}…` : `Export ${label}`}
           </button>
         ))}
       </div>

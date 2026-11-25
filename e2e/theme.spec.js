@@ -3,8 +3,7 @@ import { encode } from "next-auth/jwt";
 import { installDashboardApiMocks } from "./helpers/dashboard-mocks.js";
 
 const authSecret =
-  process.env.NEXTAUTH_SECRET ||
-  "test-nextauth-secret-for-playwright-tests";
+  process.env.NEXTAUTH_SECRET || "test-nextauth-secret-for-playwright-tests";
 
 test.beforeEach(async ({ page }) => {
   const sessionToken = await encode({
@@ -69,29 +68,43 @@ test.beforeEach(async ({ page }) => {
   await installDashboardApiMocks(page);
 });
 
-test("theme selector switches between themes on the dashboard", async ({ page }) => {
+test("theme selector switches between themes on the dashboard", async ({
+  page,
+}) => {
   await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Dashboard", exact: true })
   ).toBeVisible({ timeout: 30_000 });
 
-  const themeSelect = page.getByRole("combobox", {
-    name: "Select dashboard theme",
+  const sidebarTheme = page.getByRole("button", {
+    name: /^Theme: .*Choose theme$/,
   });
-  await expect(themeSelect).toBeVisible({ timeout: 10_000 });
+  await expect(sidebarTheme).toBeVisible({ timeout: 10_000 });
 
-  const initialValue = await themeSelect.inputValue();
-  const nextTheme =
-    initialValue === "classic-dark" ? "modern-light-blue" : "classic-dark";
-  await themeSelect.selectOption(nextTheme);
+  const initialTheme = await page.evaluate(
+    () => document.documentElement.dataset.theme
+  );
+  const [nextTheme, nextLabel] =
+    initialTheme === "arcade"
+      ? ["synthwave", "Synthwave"]
+      : ["arcade", "Arcade"];
 
-  await expect(themeSelect).toHaveValue(nextTheme);
+  await sidebarTheme.click();
+  await expect(page.getByRole("menu", { name: "Theme options" })).toBeVisible();
+  await page
+    .getByRole("menuitemradio", { name: new RegExp(nextLabel, "i") })
+    .click();
+
+  await expect(page.locator("html")).toHaveAttribute("data-theme", nextTheme);
+  await expect(sidebarTheme).toHaveAccessibleName(
+    `Theme: ${nextLabel}. Choose theme`
+  );
   const stored = await page.evaluate(() => localStorage.getItem("theme"));
   expect(stored).toBe(nextTheme);
 
   // Reload the page and verify theme persists
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(themeSelect).toHaveValue(nextTheme);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", nextTheme);
 });
 
 /**
@@ -123,16 +136,22 @@ test("public profile page theme selector works without authentication", async ({
   await expect(page).toHaveURL(/\/u\//);
 
   // AppNavbar uses the compact theme menu on public routes
-  const themeToggle = page.getByRole("banner").getByRole("button", { name: "Choose theme" });
+  const themeToggle = page
+    .getByRole("banner")
+    .getByRole("button", { name: "Choose theme" });
   await expect(themeToggle).toBeVisible({ timeout: 10000 });
 
-  const initialTheme = await page.evaluate(() => localStorage.getItem("theme") ?? "classic-dark");
-  const nextTheme = initialTheme === "classic-dark" ? "modern-light-blue" : "classic-dark";
-  const nextThemeLabel = nextTheme === "classic-dark" ? "Classic Dark" : "Modern Light Blue";
+  const initialTheme = await page.evaluate(
+    () => document.documentElement.dataset.theme
+  );
+  const nextTheme = initialTheme === "arcade" ? "daylight" : "arcade";
+  const nextThemeLabel = nextTheme === "arcade" ? "Arcade" : "Daylight";
 
   await themeToggle.click({ force: true });
   await expect(page.getByRole("menu", { name: "Theme options" })).toBeVisible();
-  await page.getByRole("menuitemradio", { name: new RegExp(nextThemeLabel, "i") }).click();
+  await page
+    .getByRole("menuitemradio", { name: new RegExp(nextThemeLabel, "i") })
+    .click();
 
   // Theme preference must be persisted to localStorage
   const stored = await page.evaluate(() => localStorage.getItem("theme"));
@@ -140,8 +159,12 @@ test("public profile page theme selector works without authentication", async ({
 
   // Reload the page and verify theme persists on the profile page
   await page.reload({ waitUntil: "load" });
-  await expect(page.getByRole("banner").getByRole("button", { name: "Choose theme" })).toBeVisible();
-  const storedAfterReload = await page.evaluate(() => localStorage.getItem("theme"));
+  await expect(
+    page.getByRole("banner").getByRole("button", { name: "Choose theme" })
+  ).toBeVisible();
+  const storedAfterReload = await page.evaluate(() =>
+    localStorage.getItem("theme")
+  );
   expect(storedAfterReload).toBe(nextTheme);
 });
 

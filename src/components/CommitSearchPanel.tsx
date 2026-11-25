@@ -125,7 +125,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search commits..."
+            placeholder="Search commits…"
             aria-label="Search commits by message or repository"
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-10 pr-10 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus:border-transparent transition-colors"
           />

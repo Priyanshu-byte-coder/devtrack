@@ -35,7 +35,7 @@ const SCRIPTS: Array<[prefix: string, script: BuddyScript]> = [
         "That gap above you is totally normal. Totally. Not. Huge.",
         "Fun fact: the person above you committed while you read this.",
         "Refreshing the page doesn't raise your rank. I checked. Twice.",
-        "You climbed a spot! ...Oh wait, that was someone below you falling.",
+        "You climbed a spot! …Oh wait, that was someone below you falling.",
         "I'd tell you your rank, but I don't want to make this weird.",
         "Everyone here started at zero. Some of them just didn't stay there.",
         "Streaks don't grow on trees, {name}. They grow on commits.",
