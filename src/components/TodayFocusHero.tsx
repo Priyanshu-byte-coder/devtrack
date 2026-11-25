@@ -179,7 +179,7 @@ export default function TodayFocusHero() {
             disabled={isClearing || isSaving}
             className={`${smallButton} text-[var(--muted-foreground)] hover:text-[var(--destructive)]`}
           >
-            {isClearing ? "Clearing..." : "Done"}
+            {isClearing ? "Clearing…" : "Done"}
           </button>
         </div>
       ) : (
@@ -206,7 +206,7 @@ export default function TodayFocusHero() {
             disabled={!inputValue.trim() || isSaving || isClearing}
             className={`${smallButton} primary-button`}
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Saving…" : "Save"}
           </button>
         </form>
       )}

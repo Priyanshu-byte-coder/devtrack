@@ -542,7 +542,7 @@ export default function ContributionHeatmap({
               aria-expanded={showPopover}
               className={arcadeTabClass(Boolean(customLabel))}
             >
-              {customLabel ?? "Custom..."}
+              {customLabel ?? "Custom…"}
             </button>
 
             {showPopover && (

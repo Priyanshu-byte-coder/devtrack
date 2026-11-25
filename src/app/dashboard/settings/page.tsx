@@ -1115,7 +1115,7 @@ function SettingsPageContent() {
                   disabled={savingWidgets}
                   className="mt-4 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
-                  {savingWidgets ? "Saving..." : "Save Widget Settings"}
+                  {savingWidgets ? "Saving…" : "Save Widget Settings"}
                 </button>
               </div>
             )}
@@ -1198,7 +1198,7 @@ function SettingsPageContent() {
                   }
                   className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
-                  {savingBio ? "Saving..." : "Save Bio"}
+                  {savingBio ? "Saving…" : "Save Bio"}
                 </button>
               </div>
             </div>
@@ -1470,14 +1470,14 @@ function SettingsPageContent() {
                   value={repoSearchQuery}
                   onChange={(e) => setRepoSearchQuery(e.target.value)}
                   disabled={saving}
-                  placeholder="Type to search your repositories..."
+                  placeholder="Type to search your repositories…"
                   aria-label="Search repositories to pin"
                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
 
                 {loadingRepos ? (
                   <div className="text-center py-4 text-xs text-[var(--muted-foreground)]">
-                    Loading your repositories...
+                    Loading your repositories…
                   </div>
                 ) : (
                   <div className="max-h-48 overflow-y-auto space-y-2 scrollbar-thin">
@@ -1591,7 +1591,7 @@ function SettingsPageContent() {
                 type="text"
                 value={webhookUrl ?? ""}
                 onChange={(e) => setWebhookUrl(e.target.value || null)}
-                placeholder="https://hooks.slack.com/services/... or https://discord.com/api/webhooks/..."
+                placeholder="https://hooks.slack.com/services/… or https://discord.com/api/webhooks/…"
                 className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
               />
 
@@ -1727,7 +1727,7 @@ function SettingsPageContent() {
                         className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-colors hover:bg-destructive/10 hover:text-[var(--error)] disabled:opacity-60"
                       >
                         {removingAccountId === account.githubId
-                          ? "Removing..."
+                          ? "Removing…"
                           : "Remove"}
                       </button>
                     </div>
@@ -1882,7 +1882,7 @@ function SettingsPageContent() {
                       setDiscordWebhook(e.target.value);
                       setIsDirty(true);
                     }}
-                    placeholder="https://discord.com/api/webhooks/..."
+                    placeholder="https://discord.com/api/webhooks/…"
                     className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-2 text-sm text-[var(--card-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
                   />
                 </div>
