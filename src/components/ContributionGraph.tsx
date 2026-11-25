@@ -465,7 +465,7 @@ export default function ContributionGraph() {
     return (
       <WidgetSkeleton
         title="Your Commits"
-        className="transition-all duration-300 fade-in-up"
+        className="transition-[opacity,transform] duration-300 fade-in-up"
       >
         <div className="flex justify-between items-center mb-4">
           <SkeletonBlock className="h-6 w-32" />
