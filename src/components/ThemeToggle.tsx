@@ -103,7 +103,7 @@ function CompactThemeToggle() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] transition-all duration-200 hover:bg-[var(--control)] active:scale-95"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] transition-[background-color,transform] duration-200 hover:bg-[var(--control)] active:scale-95"
         aria-label="Choose theme"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -188,7 +188,7 @@ function DefaultThemeToggle() {
   return (
     <label
       title={currentDescription}
-      className="inline-flex min-w-0 max-w-[240px] cursor-pointer items-center gap-3 px-frame bg-[var(--card)] px-3 py-2 text-[var(--card-foreground)] transition-all duration-300 hover:bg-[var(--control)] focus-within:border-[var(--accent)]"
+      className="inline-flex min-w-0 max-w-[240px] cursor-pointer items-center gap-3 px-frame bg-[var(--card)] px-3 py-2 text-[var(--card-foreground)] transition-colors duration-300 hover:bg-[var(--control)] focus-within:border-[var(--accent)]"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]">
         <PaletteIcon className="h-4 w-4" aria-hidden="true" />

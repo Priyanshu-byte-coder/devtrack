@@ -233,7 +233,7 @@ function Toast({ visible }: { visible: boolean }) {
       className="pointer-events-none fixed inset-x-0 bottom-6 flex justify-center px-4 z-50"
     >
       <div
-        className={`max-w-md rounded-full bg-[var(--foreground)] text-[var(--background)] px-4 py-2 text-sm shadow-lg shadow-black/10 transition-all duration-200 ease-out ${
+        className={`max-w-md rounded-full bg-[var(--foreground)] text-[var(--background)] px-4 py-2 text-sm shadow-lg shadow-black/10 transition-[opacity,transform] duration-200 ease-out ${
           visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
         }`}
       >

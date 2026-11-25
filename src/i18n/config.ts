@@ -1,4 +1,4 @@
-export const locales = ["en", "es"] as const;
+export const locales = ["en", "es", "hi"] as const;
 
 export type AppLocale = (typeof locales)[number];
 export type LocaleDirection = "ltr" | "rtl";
@@ -20,6 +20,11 @@ export const localeMetadata: Record<
   es: {
     label: "Spanish",
     nativeLabel: "Español",
+    direction: "ltr",
+  },
+  hi: {
+    label: "Hindi",
+    nativeLabel: "हिन्दी",
     direction: "ltr",
   },
 };

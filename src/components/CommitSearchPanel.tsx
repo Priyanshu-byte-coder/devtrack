@@ -151,7 +151,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
           onClick={handleToggle}
           aria-label={isOpen ? "Collapse commit list" : "Expand commit list"}
           aria-expanded={isOpen}
-          className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-all hover:opacity-90 active:scale-95"
+          className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--control)] px-3 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-[background-color,opacity,transform] hover:opacity-90 active:scale-95"
         >
           <svg
             className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -243,7 +243,7 @@ export default function CommitSearchPanel({ commits, loading }: CommitSearchPane
                 <div className="mt-2 flex justify-center">
                   <button
                     onClick={handleLoadMore}
-                    className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-1.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-all hover:opacity-90 active:scale-95"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-1.5 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control-hover)] transition-[background-color,opacity,transform] hover:opacity-90 active:scale-95"
                   >
                     Load more ({filteredCommits.length - visibleCount} remaining)
                   </button>
