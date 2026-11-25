@@ -742,6 +742,235 @@ export const GUIDES: Guide[] = [
       },
     ],
   },
+  {
+    slug: "code-review-for-beginners",
+    title:
+      "Reviewing other people's pull requests (and why it grows your profile)",
+    description:
+      "How reviewing open-source pull requests builds your technical reputation, shows up on your GitHub contribution graph, and powers your DevTrack score.",
+    published: "2026-11-25",
+    updated: "2026-11-25",
+    body: () => (
+      <>
+        <p>
+          Most developers entering open source believe there is only one way to
+          contribute: writing code and submitting a pull request. But open-source
+          maintainers face an overwhelming backlog of incoming pull requests,
+          triage tasks, and bug reports. High-quality peer code reviews are among
+          the rarest and most valued contributions in the ecosystem.
+        </p>
+        <p>
+          Reviewing code written by other contributors accelerates your learning,
+          deepens your codebase familiarity, expands your professional network,
+          and signals senior engineering maturity far more effectively than
+          minor typo fixes. This guide explains how to conduct thoughtful,
+          constructive code reviews, how reviews appear on GitHub and DevTrack,
+          and how to integrate peer review into your developer routine.
+        </p>
+
+        <h2>Why peer code review is an open-source superpower</h2>
+        <p>
+          In community-driven projects, maintainers are frequently volunteer
+          engineers with limited hours. Every incoming PR requires attention:
+          verifying edge cases, running test suites, and evaluating design
+          trade-offs. When you perform a preliminary review on another
+          contributor&apos;s pull request, you provide immediate relief:
+        </p>
+        <ul>
+          <li>
+            <strong>You spot regressions before maintainers do:</strong> Catching
+            syntax errors, broken imports, missing test assertions, or outdated
+            documentation saves maintainer time and speeds up merge velocity.
+          </li>
+          <li>
+            <strong>You learn diverse engineering patterns:</strong> Reading
+            other people&apos;s code exposes you to alternative idioms, library
+            features, architecture paradigms, and problem-solving strategies you
+            might never write yourself.
+          </li>
+          <li>
+            <strong>You build trust with project leadership:</strong> Maintainers
+            notice thoughtful reviewers. Over time, active reviewers are routinely
+            invited into triage teams and granted repository commit access.
+          </li>
+        </ul>
+        <p>
+          If you are also authoring contributions, pair this practice with our{" "}
+          <A href="/guides/pull-request-checklist">pull request checklist guide</A>{" "}
+          to write PRs maintainers love to merge.
+        </p>
+
+        <h2>How code reviews appear on GitHub</h2>
+        <p>
+          GitHub treats code reviews as first-class contributions. When you submit
+          a formal review on a pull request in a public repository, your activity
+          is recorded in multiple visible locations:
+        </p>
+        <ul>
+          <li>
+            <strong>Contribution Graph:</strong> Under{" "}
+            <A href="https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/managing-contribution-settings-on-your-profile/viewing-contributions-on-your-profile">
+              GitHub&apos;s contribution settings
+            </A>
+            , code review submissions in public repositories generate green
+            contribution squares on your activity heatmap and appear in your monthly
+            contribution breakdown timeline.
+          </li>
+          <li>
+            <strong>Pull Request Timeline:</strong> Submitting a review via{" "}
+            <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews">
+              GitHub&apos;s review interface
+            </A>{" "}
+            creates a permanent record of your feedback, demonstrating your
+            analytical communication and code-inspection skills to future employers.
+          </li>
+          <li>
+            <strong>Achievement Badges:</strong> Submitting pull request reviews
+            contributes directly to GitHub achievement criteria, including the
+            Pull Shark and Galaxy Brain badges.
+          </li>
+        </ul>
+
+        <h2>The anatomy of a great review: What to look for</h2>
+        <p>
+          You do not need to be the creator of a project to leave an insightful
+          review. Start with these concrete evaluation dimensions:
+        </p>
+        <ol>
+          <li>
+            <strong>Scope and Issue Alignment:</strong> Does the PR solve the
+            linked issue without unnecessary scope creep? Check whether unrelated
+            dependency upgrades or style reformatting slipped into the diff.
+          </li>
+          <li>
+            <strong>Edge Cases and Error Handling:</strong> What happens when
+            input is <code>null</code>, empty, or unexpected? Are API network
+            failures, timeouts, and exceptions caught gracefully?
+          </li>
+          <li>
+            <strong>Test Coverage:</strong> Does the PR introduce new unit or
+            integration tests covering both happy and failure paths? Do existing
+            regression tests pass without modification?
+          </li>
+          <li>
+            <strong>Documentation and Types:</strong> Are public functions
+            commented? Are TypeScript interfaces or API docs updated to reflect
+            changed parameters or return types?
+          </li>
+          <li>
+            <strong>Readability and Naming:</strong> Are variable and function
+            names clear, expressive, and consistent with the repository&apos;s
+            established conventions?
+          </li>
+        </ol>
+
+        <h2>Review etiquette: Empathy, clarity, and suggestions</h2>
+        <p>
+          Technical precision is only half of effective code review; the other half
+          is tone and psychological safety. Follow these core principles:
+        </p>
+        <ul>
+          <li>
+            <strong>Ask questions rather than giving commands:</strong> Instead of
+            writing <em>&quot;Change this to a map&quot;</em>, write{" "}
+            <em>&quot;Could we use <code>map()</code> here to avoid mutating the array? What do you think?&quot;</em>
+          </li>
+          <li>
+            <strong>Use GitHub suggestion blocks:</strong> Instead of describing a
+            diff in prose, use GitHub&apos;s{" "}
+            <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request">
+              suggested change syntax
+            </A>{" "}
+            (<code>```suggestion</code>) so the author can apply your change with a
+            single click.
+          </li>
+          <li>
+            <strong>Distinguish blockers from nits:</strong> Prefix non-essential
+            style preferences with <code>nit:</code> (for trivial nitpicks) or{" "}
+            <code>non-blocking:</code> so the contributor knows their PR won&apos;t
+            be held up over minor formatting differences.
+          </li>
+          <li>
+            <strong>Celebrate good solutions:</strong> When an author comes up with
+            an elegant algorithm or writes clean tests, say so! Positive
+            reinforcement makes open source welcoming and builds lasting teamwork.
+          </li>
+        </ul>
+
+        <h2>Choosing the right review verdict</h2>
+        <p>
+          When submitting your review on GitHub, you are presented with three options:
+        </p>
+        <ul>
+          <li>
+            <strong>Comment:</strong> Leaves general feedback or asks clarifying
+            questions without explicitly approving or blocking the pull request.
+            This is the safest and most courteous option for non-maintainers.
+          </li>
+          <li>
+            <strong>Approve:</strong> Signals that you have tested or thoroughly
+            examined the changes and endorse merging them. In projects requiring peer
+            review, approvals help maintainers identify ready PRs quickly.
+          </li>
+          <li>
+            <strong>Request Changes:</strong> Blocks the pull request until specific
+            bugs, security vulnerabilities, or architecture flaws are corrected.
+            Use this sparingly and reserve it for concrete, demonstrable issues.
+          </li>
+        </ul>
+
+        <h2>How code reviews grow your DevTrack score</h2>
+        <p>
+          DevTrack is designed to reward well-rounded open-source contributors, not
+          just volume committers. On the{" "}
+          <A href="/guides/devtrack-score">DevTrack global leaderboard</A>, code
+          reviews feed directly into your developer metrics:
+        </p>
+        <ul>
+          <li>
+            <strong>The Impact Dimension (30% of total score):</strong> Reviews
+            performed across repositories demonstrate collaborative breadth and
+            technical leadership, preventing single-repository commit grinding from
+            skewing leaderboard rankings.
+          </li>
+          <li>
+            <strong>Gamification XP and Badges:</strong> Conducting constructive
+            reviews awards substantial experience points (XP) toward leveling up
+            your player profile card, unlocking milestone achievements, and
+            earning collaborative badges.
+          </li>
+          <li>
+            <strong>Network and Visibility:</strong> When other builders see your
+            reviews on their PRs, they explore your DevTrack profile, follow your
+            work, and review your submissions in return.
+          </li>
+        </ul>
+        <p>
+          Combine regular code review with consistent daily contributions to build
+          a sustainable streak, climb your language leaderboards, and showcase
+          credible engineering teamwork on your public profile.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "Can anyone review an open-source pull request even without maintainer permissions?",
+        a: "Yes! Any GitHub user can review public pull requests. While non-maintainer reviews do not satisfy required approval gates, maintainers deeply appreciate community members who test changes, spot regressions, and triage incoming contributions.",
+      },
+      {
+        q: "Do pull request reviews count as contributions on GitHub?",
+        a: "Yes. Submitting a review on a pull request in any public repository counts toward your GitHub contribution heatmap and timeline, generating contribution squares just like commits and opened pull requests.",
+      },
+      {
+        q: "What is the difference between Comment, Approve, and Request Changes?",
+        a: "'Comment' provides feedback without a formal verdict; 'Approve' signals that the changes look solid and ready to merge; 'Request Changes' formally flags blockers that must be resolved before merging.",
+      },
+      {
+        q: "How does review activity impact my DevTrack score?",
+        a: "Code reviews contribute to the Impact dimension (30% of your total DevTrack score) and award experience points (XP) toward your level progression and collaborative badges.",
+      },
+    ],
+  },
 ];
 
 export function findGuide(slug: string) {
