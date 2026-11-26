@@ -349,6 +349,49 @@
       }
     }
   },
+  "repoComparison": {
+    "title": "Análise de comparação de repositórios",
+    "inputPlaceholder": "proprietário/repositório (ex: facebook/react)",
+    "inputAria": "Identificador do repositório no formato proprietário/repositório",
+    "addRepo": "Adicionar repositório",
+    "addRepoAria": "Adicionar repositório à lista de comparação",
+    "removeRepoAria": "Remover {repo} da comparação",
+    "compareRepos": "Comparar repositórios",
+    "comparing": "Comparando…",
+    "compareAria": "Comparar repositórios adicionados",
+    "emptyState": "Adicione de 2 a 5 repositórios para comparar",
+    "resultsHeading": "Resultados da comparação",
+    "chartHeading": "Gráfico de comparação",
+    "chartAria": "Gráfico de barras de comparação de repositórios",
+    "metrics": {
+      "stars": "⭐ Estrelas: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Observadores: {count}",
+      "issues": "🐛 Problemas: {count}"
+    },
+    "chartSeries": {
+      "stars": "Estrelas",
+      "forks": "Forks",
+      "watchers": "Observadores"
+    },
+    "errors": {
+      "format": "Use o formato proprietário/repositório, por exemplo facebook/react.",
+      "missingOwnerOrRepo": "Insira tanto o proprietário quanto o nome do repositório.",
+      "noSpaces": "Nomes de repositório não podem conter espaços.",
+      "maxRepos": "Você pode comparar até 5 repositórios por vez.",
+      "minRepos": "Adicione pelo menos 2 repositórios para comparar.",
+      "notFound": "Esse repositório não existe no GitHub.",
+      "networkCheck": "Não foi possível conectar ao GitHub para verificar esse repositório. Tente novamente.",
+      "loadData": "Não foi possível carregar os dados do repositório. Tente novamente."
+    },
+    "loading": {
+      "label": "Carregando comparação de repositórios"
+    },
+    "error": {
+      "heading": "Algo deu errado",
+      "tryAgain": "Tentar novamente"
+    }
+  },
   "settings": {
     "title": "Configurações",
     "loadingLabel": "Carregando configurações",
@@ -457,245 +500,174 @@
       "generateFailed": "Falha ao gerar seu relatório de personalidade"
     }
   },
-  "activity": {
-    "title": "Atividade",
-    "description": "Com que frequência, com que consistência e quando você programa.",
-    "sections": {
-      "contributions": "Contribuições",
-      "streaksAndConsistency": "Sequências e consistência",
-      "whenYouCode": "Quando você programa"
-    },
-    "widgets": {
-      "contributionHeatmap": {
-        "regionTitle": "Mapa de calor de contribuições"
+  "repoHealth": {
+    "explorer": {
+      "backToDashboard": "Voltar ao painel",
+      "dashboard": "Painel",
+      "title": "Explorador de Saúde do Repositório",
+      "description": "Detalhamento interativo de saúde para seus repositórios mais ativos",
+      "analysisWindow": "Janela de análise",
+      "windowOptions": {
+        "7": "Últimos 7 dias",
+        "30": "Últimos 30 dias",
+        "90": "Últimos 90 dias"
       },
-      "weeklySummary": {
-        "regionTitle": "Resumo semanal"
-      },
-      "streakTracker": {
-        "regionTitle": "Rastreador de sequência"
-      },
-      "consistencyScore": {
-        "regionTitle": "Pontuação de consistência"
-      },
-      "codingActivityInsights": {
-        "regionTitle": "Insights de atividade de código"
-      },
-      "productiveHours": {
-        "regionTitle": "Horas produtivas"
-      }
-    },
-    "contributionHeatmap": {
-      "title": "Mapa de calor de contribuições",
-      "subtitle": "Últimos {days} dias de atividade de commits.",
-      "rangeGroupAria": "Intervalo",
-      "showRangeAria": "Mostrar intervalo de {days} dias",
-      "customButton": "Personalizado…",
-      "customPopoverTitle": "Intervalo personalizado",
-      "startDate": "Data de início",
-      "endDate": "Data de término",
-      "apply": "Aplicar",
-      "errors": {
-        "selectBoth": "Por favor, selecione ambas as datas.",
-        "startBeforeEnd": "A data de início deve ser anterior à data de término.",
-        "futureDate": "A data de término não pode ser no futuro.",
-        "maxRange": "O intervalo máximo é de 2 anos."
-      },
-      "themeDefault": "Padrão",
-      "themeColourBlind": "Acessível para daltônicos",
-      "themeCustom": "Tema",
-      "filterLabel": "Filtro:",
-      "filterRepoAria": "Filtrar por repositório",
-      "filterLangAria": "Filtrar por linguagem",
-      "allRepos": "Todos os repositórios",
-      "allLangs": "Todas as linguagens",
-      "legendLess": "Menos",
-      "legendMore": "Mais",
-      "commitsSummary": "Mapa de calor de contribuições mostrando {commits} em {days} dias.",
-      "commitsShown": "{commits} commits mostrados em {days} dias.",
-      "updatedJustNow": "Atualizado agora mesmo",
-      "updatedMinAgo": "Atualizado há {minutes} min",
-      "refreshPrompt": "Por favor, tente atualizar a página.",
-      "errorLoading": "Falha ao carregar o mapa de calor de contribuições.",
-      "futureDateAria": "Data futura em {date}",
-      "cellAria": "{commits} em {date}",
-      "days": {
-        "sun": "Dom",
-        "mon": "Seg",
-        "tue": "Ter",
-        "wed": "Qua",
-        "thu": "Qui",
-        "fri": "Sex",
-        "sat": "Sáb"
-      },
-      "insights": {
-        "title": "Insights de contribuição",
-        "panelAria": "Painel de insights de contribuição",
-        "noData": "Nenhum dado de contribuição disponível para este intervalo.",
-        "mostProductiveDay": "Dia mais produtivo",
-        "mostProductiveDayDesc": "Dia com maior média de commits",
-        "avgWeekly": "Média de contribuições semanais",
-        "avgWeeklyDesc": "Commits por período de 7 dias",
-        "longestStreak": "Maior sequência",
-        "longestStreakDesc": "Máximo de dias ativos consecutivos",
-        "longestInactive": "Maior período inativo",
-        "longestInactiveDesc": "Máximo de dias consecutivos sem commits",
-        "monthlyTrend": "Tendência mensal",
-        "monthlyTrendDesc": "Mês recente comparado ao mês anterior",
-        "bestMonth": "Melhor mês",
-        "bestMonthDesc": "Maior total ({commits} commits)",
-        "trendIncreasing": "Crescente",
-        "trendDecreasing": "Decrescente",
-        "trendStable": "Estável",
-        "dayUnit": "dia",
-        "daysUnit": "dias"
-      }
-    },
-    "dailyBreakdown": {
-      "title": "Detalhamento diário",
-      "ariaLabel": "Detalhamento diário para {date}",
-      "closePanel": "Fechar painel",
-      "empty": "Nenhum dado de commit disponível para este dia.",
-      "commitCount": "{count} commit",
-      "commitsCount": "{count} commits"
-    },
-    "weeklySummary": {
-      "title": "Esta semana",
-      "summarise": "Resumir",
-      "generateAria": "Gerar resumo com IA",
-      "downloadAria": "Baixar relatório semanal",
-      "expandAria": "Expandir resumo semanal",
-      "collapseAria": "Recolher resumo semanal",
-      "loadingAria": "Carregando resumo semanal",
-      "reconnectMessage": "Sua conexão com o GitHub não é mais válida. Reconecte sua conta do GitHub para continuar sincronizando dados.",
-      "reconnectButton": "Reconectar GitHub",
-      "errorMessage": "Não foi possível carregar seu resumo semanal no momento. Tente novamente em instantes.",
-      "generatingSummary": "Gerando resumo…",
-      "copyFailed": "Falha ao copiar o resumo.",
-      "aiSummaryHeading": "Resumo de IA",
-      "copyAria": "Copiar resumo de IA para a área de transferência",
-      "copyLabel": "Copiar",
-      "rateLimitHours": "Resumo já gerado hoje. Próximo disponível em {hours}h {minutes}m.",
-      "rateLimitMinutes": "Resumo já gerado hoje. Próximo disponível em {minutes}m.",
-      "commits": "Commits",
-      "prsMerged": "PRs mesclados",
-      "issuesResolved": "Problemas resolvidos",
-      "activeDays": "Dias ativos",
-      "lastWeek": "Semana passada",
-      "thisWeek": "Esta semana",
-      "productivityScore": "Pontuação de produtividade",
-      "vsLastWeek": "em relação à semana passada",
-      "streak": "Sequência",
-      "dayStreak": "Sequência de {count} dias",
-      "topRepo": "Repositório principal"
-    },
-    "consistencyScore": {
-      "title": "Pontuação de consistência",
-      "loadingAria": "Carregando pontuação de consistência",
-      "errorMessage": "Não foi possível carregar sua pontuação de consistência no momento. Tente novamente em instantes.",
-      "tryAgain": "Tentar novamente",
-      "empty": "Nenhuma atividade de contribuição disponível.",
-      "weeklyConsistency": "Consistência semanal",
-      "streakQuality": "Qualidade da sequência",
-      "longestGap": "Maior intervalo",
-      "recentActivity": "Atividade recente",
-      "active": "Ativo",
-      "inactive": "Inativo",
-      "days": "{count} dias",
-      "activeDays": "Dias ativos"
-    },
-    "productiveHours": {
-      "title": "Horas mais produtivas",
-      "aboutChart": "Sobre este gráfico",
-      "chartDescription": "Mostra sua média de commits por hora e dia da semana no intervalo de datas selecionado, ajustado ao seu fuso horário local.",
-      "subtitle": "Últimos {days} dias — atividade de commits por hora e dia",
-      "rangeGroupAria": "Intervalo",
-      "showRangeAria": "Mostrar intervalo de {days} dias",
-      "customButton": "Personalizado…",
-      "customPopoverTitle": "Intervalo personalizado",
-      "startDate": "Data de início",
-      "endDate": "Data de término",
-      "apply": "Aplicar",
-      "errors": {
-        "selectBoth": "Por favor, selecione ambas as datas.",
-        "startBeforeEnd": "A data de início deve ser anterior à data de término.",
-        "futureDate": "A data de término não pode ser no futuro.",
-        "maxRange": "O intervalo máximo é de 2 anos."
-      },
-      "themeDefault": "Padrão",
-      "themeColourBlind": "Acessível para daltônicos",
-      "themeCustom": "Tema",
-      "legendLess": "Menos",
-      "legendMore": "Mais",
-      "errorLoading": "Falha ao carregar dados de horas produtivas.",
-      "refreshPrompt": "Por favor, tente atualizar a página.",
-      "commitsAnalysed": "{total} commits analisados.",
-      "peakBanner": "🔥 Pico: {day} {hour} — média {avg} commits",
-      "updatedJustNow": "Atualizado agora mesmo",
-      "updatedMinAgo": "Atualizado há {minutes} min",
-      "tooltip": "{day} {hour} — média {avg} {unit}",
-      "commitUnit": "commit",
-      "commitsUnit": "commits",
-      "days": {
-        "Sun": "Dom",
-        "Mon": "Seg",
-        "Tue": "Ter",
-        "Wed": "Qua",
-        "Thu": "Qui",
-        "Fri": "Sex",
-        "Sat": "Sáb"
-      },
-      "daysFull": {
-        "Sunday": "Domingo",
-        "Monday": "Segunda-feira",
-        "Tuesday": "Terça-feira",
-        "Wednesday": "Quarta-feira",
-        "Thursday": "Quinta-feira",
-        "Friday": "Sexta-feira",
-        "Saturday": "Sábado"
-      }
-    },
-    "codingActivityInsights": {
-      "title": "Insights de atividade de código",
+      "refreshAria": "Atualizar pontuações de saúde",
       "refresh": "Atualizar",
-      "refreshing": "Atualizando",
-      "refreshAria": "Atualizar insights de atividade de código",
-      "loadingAria": "Carregando insights de atividade de código",
-      "error": "Não foi possível carregar seus insights de produtividade de IA no momento. Tente novamente em instantes.",
+      "loadError": "Não foi possível carregar os dados de saúde do repositório. Tente novamente.",
       "tryAgain": "Tentar novamente",
-      "emptyState": "Atividade de programação insuficiente detectada para gerar insights de produtividade com IA.",
-      "lastDays": "Últimos {days} dias",
-      "commitsByHour": "Commits por hora",
-      "localTimezone": "Fuso horário local",
-      "mostActive": "Mais ativo",
-      "leastActive": "Menos ativo",
-      "consistency": "Consistência",
-      "weeklyConsistency": "{score}% de consistência semanal",
-      "productivity": "Produtividade",
-      "dailyAverage": "Média diária",
-      "commitsPerDay": "{count} commits/dia",
-      "bestDay": "Melhor dia",
-      "withCommits": "{time} com {commits}",
-      "productivitySummary": "Resumo de produtividade de IA",
-      "recommendations": "Recomendações inteligentes",
-      "trends": {
-        "improving": "↑ {percent}% Melhorando",
-        "declining": "↓ {percent}% Em declínio",
-        "stable": "Atividade estável"
-      },
-      "productivityLevels": {
-        "Excellent": "🟢 Excelente",
-        "Very Good": "🔵 Muito bom",
-        "Good": "🟡 Bom",
-        "Moderate": "🟠 Moderado",
-        "Low": "🔴 Baixo"
-      },
-      "commitCount": "{count} commit",
-      "commitsCount": "{count} commits"
+      "repoListAria": "Lista de repositórios",
+      "repositories": "Repositórios",
+      "noRepos": "Nenhum repositório encontrado para este período. Tente uma janela de análise mais ampla.",
+      "detailAria": "Detalhes de saúde do repositório",
+      "selectPromptTitle": "Selecione um repositório",
+      "selectPromptDesc": "Escolha um repositório da lista à esquerda para ver o detalhamento completo de saúde e recomendações."
     },
-    "streakMilestone": {
-      "celebration": "🎉 Você alcançou uma sequência de {streak} dias! Continue assim!",
-      "dismiss": "Dispensar banner de marco"
+    "card": {
+      "selectAria": "Selecionar {repo} — pontuação de saúde {score}, {label}",
+      "points": "pts"
+    },
+    "detail": {
+      "openOnGithub": "Abrir {repo} no GitHub",
+      "github": "GitHub",
+      "gradeAria": "Nota: {letter}, {label}",
+      "scoreLabel": "Pontuação: {score}/{max}"
+    },
+    "grades": {
+      "green": "Saudável",
+      "yellow": "Requer atenção",
+      "red": "Em risco"
+    },
+    "gauge": {
+      "ariaLabel": "Pontuação de saúde do repositório: {score} de {max}",
+      "outOf": "de {max}"
+    },
+    "radar": {
+      "ariaLabel": "Gráfico de radar de pontuação de saúde",
+      "title": "Visão geral das dimensões",
+      "description": "Cada eixo é normalizado de 0 a 100 para equilíbrio visual.",
+      "scoreLabel": "Pontuação",
+      "metrics": {
+        "commits": "Commits",
+        "prRate": "Taxa de PR",
+        "prSpeed": "Velocidade de PR",
+        "issues": "Issues",
+        "activity": "Atividade"
+      }
+    },
+    "breakdown": {
+      "sectionAria": "Detalhamento da pontuação",
+      "heading": "Detalhamento da Pontuação",
+      "footer": "Passe o cursor sobre os nomes das métricas para limites de destino. Peso total: 100 pts.",
+      "measuredValueAria": "Valor medido: {value}",
+      "pointsAria": "{earned} de {max} pontos",
+      "metrics": {
+        "commitFrequency": {
+          "label": "Frequência de commits",
+          "tip": "Meta: 10 ou mais commits na janela de análise",
+          "rawSingular": "{count} commit",
+          "rawPlural": "{count} commits"
+        },
+        "prMergeRate": {
+          "label": "Taxa de merge de PR",
+          "tip": "Meta: 100% dos PRs abertos mesclados"
+        },
+        "prTurnaround": {
+          "label": "Tempo de resposta de PR",
+          "tip": "Meta: média inferior a 24 horas",
+          "noPrs": "Sem PRs",
+          "hoursAvg": "{hours}h méd."
+        },
+        "openIssues": {
+          "label": "Issues abertas",
+          "tip": "Meta: 0 issues abertas",
+          "rawSingular": "{count} issue aberta",
+          "rawPlural": "{count} issues abertas"
+        },
+        "recentActivity": {
+          "label": "Atividade recente",
+          "tip": "Meta: commit nos últimos 7 dias",
+          "unknown": "Desconhecido",
+          "today": "Hoje",
+          "daysAgo": "há {days}d"
+        }
+      }
+    },
+    "insights": {
+      "heading": "Recomendações",
+      "empty": "Nenhuma recomendação no momento — todas as métricas estão boas.",
+      "actionsBadgeSingle": "{count} ação",
+      "actionsBadgePlural": "{count} ações",
+      "rules": {
+        "noCommits": {
+          "title": "Sem commits recentes",
+          "description": "Nenhum commit foi detectado na janela de análise. Commits regulares mantêm o repositório ativo e a pontuação saudável."
+        },
+        "lowCommits": {
+          "title": "Baixa frequência de commits",
+          "description": "Apenas {count} commit(s) na janela de análise. Mire em 10 ou mais por período para alcançar uma pontuação completa de commits."
+        },
+        "goodCommits": {
+          "title": "Forte atividade de commits",
+          "description": "{count} commits na janela de análise — igual ou acima do limite saudável de 10."
+        },
+        "lowMergeRate": {
+          "title": "Baixa taxa de merge de PR",
+          "description": "Apenas {rate}% dos PRs abertos foram mesclados. Revise e feche pull requests obsoletos para melhorar este sinal."
+        },
+        "goodMergeRate": {
+          "title": "Excelente taxa de merge de PR",
+          "description": "{rate}% dos PRs abertos foram mesclados — indicador saudável de revisão de código ativa."
+        },
+        "slowPrs": {
+          "title": "Ciclo longo de revisão de PR",
+          "description": "O tempo médio de abertura de PR é de {days} dia(s). Revisões mais rápidas reduzem o risco de integração e aumentam a velocidade."
+        },
+        "moderatePrs": {
+          "title": "Tempo de revisão de PR acima da média",
+          "description": "O tempo médio de abertura de PR é de {hours}h. Mire em menos de 48 horas para um ciclo de revisão saudável."
+        },
+        "fastPrs": {
+          "title": "Resolução rápida de PR",
+          "description": "PRs são revisados e fechados em menos de 24 horas em média — excelente velocidade de revisão."
+        },
+        "highIssues": {
+          "title": "Alto número de issues abertas",
+          "description": "{count} issues abertas detectadas. Faça triagem e feche problemas resolvidos ou duplicados para reduzir a pressão no backlog."
+        },
+        "moderateIssues": {
+          "title": "Backlog de issues crescendo",
+          "description": "{count} issues abertas. Considere agendar uma sessão de triagem para tickets mais antigos."
+        },
+        "noIssues": {
+          "title": "Nenhuma issue aberta",
+          "description": "O backlog de issues está limpo — todos os problemas relatados foram tratados ou fechados."
+        },
+        "noCommitData": {
+          "title": "Histórico de commits indisponível",
+          "description": "Não foi possível determinar a data do último commit. Verifique as permissões de acesso ao repositório."
+        },
+        "staleRepo": {
+          "title": "O repositório pode estar inativo",
+          "description": "O último commit foi há {days} dias. Envie uma atualização se este projeto ainda estiver ativo."
+        },
+        "lowActivity": {
+          "title": "Atividade recente reduzida",
+          "description": "O último commit foi há {days} dias. Atividade constante mantém a pontuação de recência alta."
+        },
+        "activeRepo": {
+          "title": "Mantido ativamente",
+          "descriptionToday": "O último commit foi hoje — excelente sinal de recência.",
+          "descriptionDays": "O último commit foi há {days} dia(s) — excelente sinal de recência."
+        }
+      },
+      "metricNames": {
+        "commitFrequency": "Frequência de commits",
+        "prMergeRate": "Taxa de merge de PR",
+        "prTurnaround": "Tempo de resposta de PR",
+        "openIssues": "Issues abertas",
+        "recentActivity": "Atividade recente"
+      }
     }
   }
 }

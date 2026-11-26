@@ -1,8 +1,9 @@
 "use client";
 
 import { memo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { RepoHealthScore } from "@/types/repo-health";
-import { gradeLetter, gradeLabel } from "@/lib/repo-health-insights";
+import { gradeLetter } from "@/lib/repo-health-insights";
 
 interface Props {
   health: RepoHealthScore;
@@ -29,9 +30,12 @@ const GRADE_RING: Record<string, string> = {
  * progress bar.  Clicking selects the repo and shows the detailed breakdown.
  */
 function RepoHealthCard({ health, isSelected, onClick }: Props) {
+  const t = useTranslations("repoHealth");
+  const locale = useLocale();
   const shortName = health.repo.split("/")[1] ?? health.repo;
   const letter = gradeLetter(health.score);
-  const label = gradeLabel(health.grade);
+  const label = t(`grades.${health.grade}`);
+  const formattedScore = new Intl.NumberFormat(locale).format(health.score);
   const badgeClass = GRADE_BADGE[health.grade] ?? GRADE_BADGE.red;
   const ringClass = GRADE_RING[health.grade] ?? GRADE_RING.red;
 
@@ -47,7 +51,11 @@ function RepoHealthCard({ health, isSelected, onClick }: Props) {
           : "border-[var(--border)] bg-[var(--card)] hover:border-accent/40",
       ].join(" ")}
       aria-pressed={isSelected}
-      aria-label={`Select ${health.repo} — health score ${health.score}, ${label}`}
+      aria-label={t("card.selectAria", {
+        repo: health.repo,
+        score: formattedScore,
+        label,
+      })}
     >
       <div className="flex items-center justify-between gap-2">
         {/* Repo name */}
@@ -67,7 +75,9 @@ function RepoHealthCard({ health, isSelected, onClick }: Props) {
       {/* Owner and numeric score */}
       <div className="mt-1 flex items-center justify-between text-xs text-[var(--muted-foreground)]">
         <span className="truncate">{health.repo.split("/")[0] ?? ""}</span>
-        <span className="tabular-nums">{health.score} pts</span>
+        <span className="tabular-nums">
+          {formattedScore} {t("card.points")}
+        </span>
       </div>
 
       {/* Mini score bar */}

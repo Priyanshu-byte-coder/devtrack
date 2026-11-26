@@ -349,6 +349,49 @@
       }
     }
   },
+  "repoComparison": {
+    "title": "Repository Comparison Analytics",
+    "inputPlaceholder": "owner/repo (e.g. facebook/react)",
+    "inputAria": "Repository identifier in owner/repo format",
+    "addRepo": "Add Repo",
+    "addRepoAria": "Add repository to comparison list",
+    "removeRepoAria": "Remove {repo} from comparison",
+    "compareRepos": "Compare Repositories",
+    "comparing": "Comparing…",
+    "compareAria": "Compare added repositories",
+    "emptyState": "Add 2–5 repositories to compare",
+    "resultsHeading": "Comparison Results",
+    "chartHeading": "Comparison Chart",
+    "chartAria": "Repository comparison bar chart",
+    "metrics": {
+      "stars": "⭐ Stars: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Watchers: {count}",
+      "issues": "🐛 Issues: {count}"
+    },
+    "chartSeries": {
+      "stars": "Stars",
+      "forks": "Forks",
+      "watchers": "Watchers"
+    },
+    "errors": {
+      "format": "Use the owner/repo format, for example facebook/react.",
+      "missingOwnerOrRepo": "Enter both an owner and a repository name.",
+      "noSpaces": "Repository names cannot contain spaces.",
+      "maxRepos": "You can compare up to 5 repositories at a time.",
+      "minRepos": "Add at least 2 repositories to compare.",
+      "notFound": "That repository does not exist on GitHub.",
+      "networkCheck": "Could not reach GitHub to check that repository. Try again.",
+      "loadData": "Could not load repository data. Try again."
+    },
+    "loading": {
+      "label": "Loading repo comparison"
+    },
+    "error": {
+      "heading": "Something went wrong",
+      "tryAgain": "Try again"
+    }
+  },
   "settings": {
     "title": "Settings",
     "loadingLabel": "Loading settings",
@@ -457,245 +500,174 @@
       "generateFailed": "Failed to generate your personality report"
     }
   },
-  "activity": {
-    "title": "Activity",
-    "description": "How often, how consistently and when you code.",
-    "sections": {
-      "contributions": "Contributions",
-      "streaksAndConsistency": "Streaks & consistency",
-      "whenYouCode": "When you code"
-    },
-    "widgets": {
-      "contributionHeatmap": {
-        "regionTitle": "Contribution Heatmap"
+  "repoHealth": {
+    "explorer": {
+      "backToDashboard": "Back to dashboard",
+      "dashboard": "Dashboard",
+      "title": "Repository Health Explorer",
+      "description": "Interactive health breakdown for your most active repositories",
+      "analysisWindow": "Analysis window",
+      "windowOptions": {
+        "7": "Last 7 days",
+        "30": "Last 30 days",
+        "90": "Last 90 days"
       },
-      "weeklySummary": {
-        "regionTitle": "Weekly Summary"
-      },
-      "streakTracker": {
-        "regionTitle": "Streak Tracker"
-      },
-      "consistencyScore": {
-        "regionTitle": "Consistency Score"
-      },
-      "codingActivityInsights": {
-        "regionTitle": "Coding Activity Insights"
-      },
-      "productiveHours": {
-        "regionTitle": "Productive Hours"
-      }
-    },
-    "contributionHeatmap": {
-      "title": "Contribution Heatmap",
-      "subtitle": "Last {days} days of commit activity.",
-      "rangeGroupAria": "Range",
-      "showRangeAria": "Show {days}-day range",
-      "customButton": "Custom…",
-      "customPopoverTitle": "Custom range",
-      "startDate": "Start date",
-      "endDate": "End date",
-      "apply": "Apply",
-      "errors": {
-        "selectBoth": "Please select both dates.",
-        "startBeforeEnd": "Start date must be before end date.",
-        "futureDate": "End date can't be in the future.",
-        "maxRange": "Max range is 2 years."
-      },
-      "themeDefault": "Default",
-      "themeColourBlind": "Colour-blind",
-      "themeCustom": "Theme",
-      "filterLabel": "Filter:",
-      "filterRepoAria": "Filter by repository",
-      "filterLangAria": "Filter by language",
-      "allRepos": "All Repositories",
-      "allLangs": "All Languages",
-      "legendLess": "Less",
-      "legendMore": "More",
-      "commitsSummary": "Contribution heatmap showing {commits} across {days} days.",
-      "commitsShown": "{commits} commits shown across {days} days.",
-      "updatedJustNow": "Updated just now",
-      "updatedMinAgo": "Updated {minutes} min ago",
-      "refreshPrompt": "Please try refreshing.",
-      "errorLoading": "Failed to load contribution heatmap.",
-      "futureDateAria": "Future date on {date}",
-      "cellAria": "{commits} on {date}",
-      "days": {
-        "sun": "Sun",
-        "mon": "Mon",
-        "tue": "Tue",
-        "wed": "Wed",
-        "thu": "Thu",
-        "fri": "Fri",
-        "sat": "Sat"
-      },
-      "insights": {
-        "title": "Contribution Insights",
-        "panelAria": "Contribution Insights Panel",
-        "noData": "No contribution data available for this range.",
-        "mostProductiveDay": "Most Productive Day",
-        "mostProductiveDayDesc": "Day with highest average commits",
-        "avgWeekly": "Avg Weekly Contributions",
-        "avgWeeklyDesc": "Commits per 7 calendar days",
-        "longestStreak": "Longest Streak",
-        "longestStreakDesc": "Max consecutive active days",
-        "longestInactive": "Longest Inactive Period",
-        "longestInactiveDesc": "Max consecutive days with zero commits",
-        "monthlyTrend": "Monthly Trend",
-        "monthlyTrendDesc": "Recent month vs preceding month",
-        "bestMonth": "Best Month",
-        "bestMonthDesc": "Highest total ({commits} commits)",
-        "trendIncreasing": "Increasing",
-        "trendDecreasing": "Decreasing",
-        "trendStable": "Stable",
-        "dayUnit": "day",
-        "daysUnit": "days"
-      }
-    },
-    "dailyBreakdown": {
-      "title": "Daily Breakdown",
-      "ariaLabel": "Daily breakdown for {date}",
-      "closePanel": "Close panel",
-      "empty": "No commit data available for this day.",
-      "commitCount": "{count} commit",
-      "commitsCount": "{count} commits"
-    },
-    "weeklySummary": {
-      "title": "This Week",
-      "summarise": "Summarise",
-      "generateAria": "Generate AI summary",
-      "downloadAria": "Download weekly report",
-      "expandAria": "Expand weekly summary",
-      "collapseAria": "Collapse weekly summary",
-      "loadingAria": "Loading weekly summary",
-      "reconnectMessage": "Your GitHub connection is no longer valid. Reconnect your GitHub account to continue syncing data.",
-      "reconnectButton": "Reconnect GitHub",
-      "errorMessage": "We couldn't load your weekly summary right now. Please try again in a moment.",
-      "generatingSummary": "Generating summary…",
-      "copyFailed": "Failed to copy the summary.",
-      "aiSummaryHeading": "AI Summary",
-      "copyAria": "Copy AI summary to clipboard",
-      "copyLabel": "Copy",
-      "rateLimitHours": "Summary already generated today. Next available in {hours}h {minutes}m.",
-      "rateLimitMinutes": "Summary already generated today. Next available in {minutes}m.",
-      "commits": "Commits",
-      "prsMerged": "PRs Merged",
-      "issuesResolved": "Issues Resolved",
-      "activeDays": "Active Days",
-      "lastWeek": "Last week",
-      "thisWeek": "This week",
-      "productivityScore": "Productivity Score",
-      "vsLastWeek": "vs last week",
-      "streak": "Streak",
-      "dayStreak": "{count} day streak",
-      "topRepo": "Top repo"
-    },
-    "consistencyScore": {
-      "title": "Consistency Score",
-      "loadingAria": "Loading consistency score",
-      "errorMessage": "We couldn't load your consistency score right now. Please try again in a moment.",
-      "tryAgain": "Try again",
-      "empty": "No contribution activity available.",
-      "weeklyConsistency": "Weekly Consistency",
-      "streakQuality": "Streak Quality",
-      "longestGap": "Longest Gap",
-      "recentActivity": "Recent Activity",
-      "active": "Active",
-      "inactive": "Inactive",
-      "days": "{count} days",
-      "activeDays": "Active Days"
-    },
-    "productiveHours": {
-      "title": "Most Productive Hours",
-      "aboutChart": "About this chart",
-      "chartDescription": "Shows your average commits per hour and day of week over the selected date range, adjusted to your local timezone.",
-      "subtitle": "Last {days} days — commit activity by hour & day",
-      "rangeGroupAria": "Range",
-      "showRangeAria": "Show {days}-day range",
-      "customButton": "Custom…",
-      "customPopoverTitle": "Custom range",
-      "startDate": "Start date",
-      "endDate": "End date",
-      "apply": "Apply",
-      "errors": {
-        "selectBoth": "Please select both dates.",
-        "startBeforeEnd": "Start date must be before end date.",
-        "futureDate": "End date can't be in the future.",
-        "maxRange": "Max range is 2 years."
-      },
-      "themeDefault": "Default",
-      "themeColourBlind": "Colour-blind",
-      "themeCustom": "Theme",
-      "legendLess": "Less",
-      "legendMore": "More",
-      "errorLoading": "Failed to load productive hours data.",
-      "refreshPrompt": "Please try refreshing.",
-      "commitsAnalysed": "{total} commits analysed.",
-      "peakBanner": "🔥 Peak: {day} {hour} — avg {avg} commits",
-      "updatedJustNow": "Updated just now",
-      "updatedMinAgo": "Updated {minutes} min ago",
-      "tooltip": "{day} {hour} — avg {avg} {unit}",
-      "commitUnit": "commit",
-      "commitsUnit": "commits",
-      "days": {
-        "Sun": "Sun",
-        "Mon": "Mon",
-        "Tue": "Tue",
-        "Wed": "Wed",
-        "Thu": "Thu",
-        "Fri": "Fri",
-        "Sat": "Sat"
-      },
-      "daysFull": {
-        "Sunday": "Sunday",
-        "Monday": "Monday",
-        "Tuesday": "Tuesday",
-        "Wednesday": "Wednesday",
-        "Thursday": "Thursday",
-        "Friday": "Friday",
-        "Saturday": "Saturday"
-      }
-    },
-    "codingActivityInsights": {
-      "title": "Coding Activity Insights",
+      "refreshAria": "Refresh health scores",
       "refresh": "Refresh",
-      "refreshing": "Refreshing",
-      "refreshAria": "Refresh coding activity insights",
-      "loadingAria": "Loading coding activity insights",
-      "error": "We couldn't load your AI Productivity Insights right now. Please try again in a moment.",
+      "loadError": "Unable to load repository health data. Please try again.",
       "tryAgain": "Try again",
-      "emptyState": "Not enough coding activity was detected to generate AI-powered productivity insights yet.",
-      "lastDays": "Last {days} days",
-      "commitsByHour": "Commits by hour",
-      "localTimezone": "Local timezone",
-      "mostActive": "Most active",
-      "leastActive": "Least active",
-      "consistency": "Consistency",
-      "weeklyConsistency": "{score}% weekly consistency",
-      "productivity": "Productivity",
-      "dailyAverage": "Daily Average",
-      "commitsPerDay": "{count} commits/day",
-      "bestDay": "Best day",
-      "withCommits": "{time} with {commits}",
-      "productivitySummary": "AI Productivity Summary",
-      "recommendations": "Smart Recommendations",
-      "trends": {
-        "improving": "↑ {percent}% Improving",
-        "declining": "↓ {percent}% Declining",
-        "stable": "Stable Activity"
-      },
-      "productivityLevels": {
-        "Excellent": "🟢 Excellent",
-        "Very Good": "🔵 Very Good",
-        "Good": "🟡 Good",
-        "Moderate": "🟠 Moderate",
-        "Low": "🔴 Low"
-      },
-      "commitCount": "{count} commit",
-      "commitsCount": "{count} commits"
+      "repoListAria": "Repository list",
+      "repositories": "Repositories",
+      "noRepos": "No repositories found for this period. Try a wider analysis window.",
+      "detailAria": "Repository health detail",
+      "selectPromptTitle": "Select a repository",
+      "selectPromptDesc": "Choose a repository from the list on the left to see its full health breakdown and recommendations."
     },
-    "streakMilestone": {
-      "celebration": "🎉 You reached a {streak}-day streak! Keep it up!",
-      "dismiss": "Dismiss milestone banner"
+    "card": {
+      "selectAria": "Select {repo} — health score {score}, {label}",
+      "points": "pts"
+    },
+    "detail": {
+      "openOnGithub": "Open {repo} on GitHub",
+      "github": "GitHub",
+      "gradeAria": "Grade: {letter}, {label}",
+      "scoreLabel": "Score: {score}/{max}"
+    },
+    "grades": {
+      "green": "Healthy",
+      "yellow": "Needs Attention",
+      "red": "At Risk"
+    },
+    "gauge": {
+      "ariaLabel": "Repository health score: {score} out of {max}",
+      "outOf": "out of {max}"
+    },
+    "radar": {
+      "ariaLabel": "Health score radar chart",
+      "title": "Dimension Overview",
+      "description": "Each axis is normalised to 0–100 for visual balance.",
+      "scoreLabel": "Score",
+      "metrics": {
+        "commits": "Commits",
+        "prRate": "PR Rate",
+        "prSpeed": "PR Speed",
+        "issues": "Issues",
+        "activity": "Activity"
+      }
+    },
+    "breakdown": {
+      "sectionAria": "Score breakdown",
+      "heading": "Score Breakdown",
+      "footer": "Hover metric names for target thresholds. Total weight: 100 pts.",
+      "measuredValueAria": "Measured value: {value}",
+      "pointsAria": "{earned} of {max} points",
+      "metrics": {
+        "commitFrequency": {
+          "label": "Commit Frequency",
+          "tip": "Target: 10 or more commits in the analysis window",
+          "rawSingular": "{count} commit",
+          "rawPlural": "{count} commits"
+        },
+        "prMergeRate": {
+          "label": "PR Merge Rate",
+          "tip": "Target: 100% of opened PRs merged"
+        },
+        "prTurnaround": {
+          "label": "PR Turnaround",
+          "tip": "Target: under 24 hours average",
+          "noPrs": "No PRs",
+          "hoursAvg": "{hours}h avg"
+        },
+        "openIssues": {
+          "label": "Open Issues",
+          "tip": "Target: 0 open issues",
+          "rawSingular": "{count} open issue",
+          "rawPlural": "{count} open issues"
+        },
+        "recentActivity": {
+          "label": "Recent Activity",
+          "tip": "Target: commit within the last 7 days",
+          "unknown": "Unknown",
+          "today": "Today",
+          "daysAgo": "{days}d ago"
+        }
+      }
+    },
+    "insights": {
+      "heading": "Recommendations",
+      "empty": "No recommendations at this time — all metrics look good.",
+      "actionsBadgeSingle": "{count} action",
+      "actionsBadgePlural": "{count} actions",
+      "rules": {
+        "noCommits": {
+          "title": "No recent commits",
+          "description": "No commits were detected in the analysis window. Regular commits keep the repository active and the score healthy."
+        },
+        "lowCommits": {
+          "title": "Low commit frequency",
+          "description": "Only {count} commit(s) in the analysis window. Aim for 10 or more per period to reach a full commit score."
+        },
+        "goodCommits": {
+          "title": "Strong commit activity",
+          "description": "{count} commits in the analysis window — at or above the healthy threshold of 10."
+        },
+        "lowMergeRate": {
+          "title": "Low PR merge rate",
+          "description": "Only {rate}% of opened PRs were merged. Review and close stale pull requests to improve this signal."
+        },
+        "goodMergeRate": {
+          "title": "Excellent PR merge rate",
+          "description": "{rate}% of opened PRs were merged — healthy indicator of active code review."
+        },
+        "slowPrs": {
+          "title": "Long PR review cycle",
+          "description": "Average PR open time is {days} day(s). Faster reviews reduce integration risk and improve velocity."
+        },
+        "moderatePrs": {
+          "title": "PR review time above average",
+          "description": "Average PR open time is {hours}h. Target under 48 hours for a healthy review cycle."
+        },
+        "fastPrs": {
+          "title": "Fast PR turnaround",
+          "description": "PRs are reviewed and closed in under 24 hours on average — excellent review velocity."
+        },
+        "highIssues": {
+          "title": "High open issue count",
+          "description": "{count} open issues detected. Triage and close resolved or duplicate issues to reduce backlog pressure."
+        },
+        "moderateIssues": {
+          "title": "Issue backlog growing",
+          "description": "{count} open issues. Consider scheduling a triage session for older tickets."
+        },
+        "noIssues": {
+          "title": "No open issues",
+          "description": "Issue backlog is clear — all reported problems have been addressed or closed."
+        },
+        "noCommitData": {
+          "title": "Commit history unavailable",
+          "description": "Could not determine the date of the last commit. Verify repository access permissions."
+        },
+        "staleRepo": {
+          "title": "Repository may be stale",
+          "description": "The last commit was {days} days ago. Push an update if this project is still active."
+        },
+        "lowActivity": {
+          "title": "Reduced recent activity",
+          "description": "Last commit was {days} days ago. Consistent activity keeps the recency score high."
+        },
+        "activeRepo": {
+          "title": "Actively maintained",
+          "descriptionToday": "Last commit was today — excellent recency signal.",
+          "descriptionDays": "Last commit was {days} day(s) ago — excellent recency signal."
+        }
+      },
+      "metricNames": {
+        "commitFrequency": "Commit Frequency",
+        "prMergeRate": "PR Merge Rate",
+        "prTurnaround": "PR Turnaround",
+        "openIssues": "Open Issues",
+        "recentActivity": "Recent Activity"
+      }
     }
   }
 }
