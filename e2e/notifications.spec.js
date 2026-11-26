@@ -538,12 +538,10 @@ test("notification panel: unread badge displays count, panel open marks all read
 
   /**
    * Note on Issue #3806 Step 2 ("Mark an individual notification as read"):
-   * Neither NotificationBell (src/components/NotificationBell.tsx) nor the backend API
-   * (/api/notifications/route.ts) provides an individual mark-as-read control.
-   * Notification items are static text rows without individual read toggles, and
-   * PATCH /api/notifications unconditionally marks all unread notifications as read.
-   * Per Section 4.4 ("No artificial implementation"), we do not fabricate UI actions
-   * or call an imaginary API endpoint.
+   * NotificationBell (src/components/NotificationBell.tsx) and the notifications API
+   * (src/app/api/notifications/route.ts) do not expose an individual mark-as-read
+   * action. Notification items have no per-item read control; opening the panel uses
+   * the existing bulk PATCH behavior to mark all unread notifications as read.
    */
 
   // 2. Open notification bell
