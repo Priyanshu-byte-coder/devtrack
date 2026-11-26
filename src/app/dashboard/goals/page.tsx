@@ -7,16 +7,16 @@ import {
   GoalTracker,
   MilestonePlanner,
 } from "@/components/dashboard/widgets";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = { title: "Goals" };
 
-export default function GoalsPage() {
+export default async function GoalsPage() {
+  const t = await getTranslations("goals");
+
   return (
     <>
-      <PageHeader
-        title="Goals"
-        description="What you are aiming for, and how far along you are."
-      />
+      <PageHeader title={t("pageTitle")} description={t("pageDescription")} />
 
       <div className="grid gap-4 xl:grid-cols-3">
         <div className="min-w-0 xl:col-span-2">
@@ -28,7 +28,7 @@ export default function GoalsPage() {
         </div>
       </div>
 
-      <SectionTitle>Milestones &amp; achievements</SectionTitle>
+      <SectionTitle>{t("sections.milestonesAndAchievements")}</SectionTitle>
       <div className="grid gap-4 xl:grid-cols-2">
         <MilestonePlanner />
         <Achievements />

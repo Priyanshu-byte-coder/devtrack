@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 interface GoalHistoryEntry {
   id: string;
@@ -14,16 +15,19 @@ interface GoalHistoryEntry {
   completed: boolean;
 }
 
-function formatWeekOf(dateStr: string): string {
+function formatWeekOf(dateStr: string, locale: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleDateString(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
-  });
+  }).format(date);
 }
 
 export default function GoalHistory() {
+  const t = useTranslations("goals");
+  const locale = useLocale();
+
   const [history, setHistory] = useState<GoalHistoryEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,18 +41,18 @@ export default function GoalHistory() {
       const res = await fetch("/api/goals/history");
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Failed to load goal history.");
+        setError(data.error ?? t("history.failedToLoad"));
         return;
       }
       const data: { history: GoalHistoryEntry[] } = await res.json();
       setHistory(data.history ?? []);
       setFetched(true);
     } catch {
-      setError("Network error. Could not load goal history.");
+      setError(t("history.networkError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Fetch only when the section is first opened
   useEffect(() => {
@@ -56,6 +60,8 @@ export default function GoalHistory() {
       fetchHistory();
     }
   }, [open, fetched, fetchHistory]);
+
+  const numberFormatter = new Intl.NumberFormat(locale);
 
   return (
     <div className="mt-6 border-t border-[var(--border)] pt-4">
@@ -66,7 +72,7 @@ export default function GoalHistory() {
         aria-expanded={open}
         aria-controls="goal-history-panel"
       >
-        <span>Past Goals</span>
+        <span>{t("history.title")}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -91,7 +97,7 @@ export default function GoalHistory() {
               aria-busy="true"
               className="space-y-3"
             >
-              <span className="sr-only">Loading goal history</span>
+              <span className="sr-only">{t("history.loading")}</span>
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
@@ -110,20 +116,19 @@ export default function GoalHistory() {
                 onClick={fetchHistory}
                 className="underline hover:opacity-70 font-medium"
               >
-                Retry
+                {t("actions.retry")}
               </button>
             </div>
           )}
 
           {!loading && !error && fetched && history.length === 0 && (
             <p className="text-sm text-[var(--muted-foreground)]">
-              No past goals yet. Completed or expired recurring goals will
-              appear here.
+              {t("history.empty")}
             </p>
           )}
 
           {!loading && !error && history.length > 0 && (
-            <ul className="space-y-2" aria-label="Past goals">
+            <ul className="space-y-2" aria-label={t("history.ariaLabel")}>
               {history.map((entry) => {
                 const pct =
                   entry.target > 0
@@ -142,7 +147,11 @@ export default function GoalHistory() {
                       <div className="flex items-center gap-2 min-w-0">
                         <span
                           className="text-base leading-none"
-                          aria-label={entry.completed ? "Completed" : "Missed"}
+                          aria-label={
+                            entry.completed
+                              ? t("milestones.completed")
+                              : t("status.missed")
+                          }
                         >
                           {entry.completed ? "✅" : "❌"}
                         </span>
@@ -158,8 +167,11 @@ export default function GoalHistory() {
                         }`}
                       >
                         {entry.completed
-                          ? "Completed"
-                          : `Missed (${entry.achieved}/${entry.target})`}
+                          ? t("milestones.completed")
+                          : t("status.missedWithStats", {
+                              achieved: numberFormatter.format(entry.achieved),
+                              target: numberFormatter.format(entry.target),
+                            })}
                       </span>
                     </div>
 
@@ -173,8 +185,11 @@ export default function GoalHistory() {
                     </div>
 
                     <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
-                      Week of {formatWeekOf(entry.period_start)} &middot;{" "}
-                      {entry.achieved}/{entry.target} {entry.goal_unit}
+                      {t("history.weekOf", {
+                        date: formatWeekOf(entry.period_start, locale),
+                      })}{" "}
+                      &middot; {numberFormatter.format(entry.achieved)}/
+                      {numberFormatter.format(entry.target)} {entry.goal_unit}
                     </p>
                   </li>
                 );

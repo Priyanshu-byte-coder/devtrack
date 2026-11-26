@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useDashboardWidgetA11y } from "@/components/dashboard/DashboardWidgetA11yContext";
 import {
   filterGoals,
@@ -41,17 +43,20 @@ interface Goal {
   } | null;
 }
 
-const RECURRENCE_LABELS: Record<Recurrence, string> = {
-  none: "One-time",
-  weekly: "Weekly",
-  monthly: "Monthly",
+const RECURRENCE_KEYS: Record<Recurrence, "none" | "weekly" | "monthly"> = {
+  none: "none",
+  weekly: "weekly",
+  monthly: "monthly",
 };
 
-const CATEGORY_LABELS: Record<GoalCategory, string> = {
-  "side-project": "Side Project",
-  work: "Work",
-  dsa: "DSA",
-  "open-source": "Open Source",
+const CATEGORY_KEYS: Record<
+  GoalCategory,
+  "sideProject" | "work" | "dsa" | "openSource"
+> = {
+  "side-project": "sideProject",
+  work: "work",
+  dsa: "dsa",
+  "open-source": "openSource",
 };
 
 const CATEGORY_BADGE_CLASSES: Record<GoalCategory, string> = {
@@ -68,10 +73,13 @@ const CATEGORY_OPTIONS: GoalCategory[] = [
   "open-source",
 ];
 
-const STATUS_FILTER_OPTIONS: { value: GoalStatusFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "active", label: "Active" },
-  { value: "completed", label: "Completed" },
+const STATUS_FILTER_OPTIONS: {
+  value: GoalStatusFilter;
+  labelKey: "all" | "active" | "completed";
+}[] = [
+  { value: "all", labelKey: "all" },
+  { value: "active", labelKey: "active" },
+  { value: "completed", labelKey: "completed" },
 ];
 
 export function useGoalTracker() {
@@ -369,6 +377,9 @@ export function useGoalTracker() {
 }
 
 export default function GoalTracker() {
+  const t = useTranslations("goals");
+  const locale = useLocale();
+
   const {
     goals,
     setGoals,
@@ -410,6 +421,29 @@ export default function GoalTracker() {
     getCompletionLabel,
   } = useGoalTracker();
 
+  const getTranslatedCompletionLabel = useCallback(
+    (goal: Goal): string => {
+      if (goal.current >= goal.target) {
+        if (goal.current > goal.target) return t("status.goalSurpassed");
+        if (goal.recurrence === "weekly") return t("status.completedThisWeek");
+        if (goal.recurrence === "monthly")
+          return t("status.completedThisMonth");
+        return t("status.completed");
+      }
+
+      if (goal.deadline) {
+        const msLeft = new Date(goal.deadline).getTime() - Date.now();
+        const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+        if (daysLeft < 0) return t("status.overdue");
+        if (daysLeft === 0) return t("status.dueToday");
+        return t("status.daysLeft", { days: daysLeft });
+      }
+
+      return "";
+    },
+    [t]
+  );
+
   const { setSummary, setIsUpdating } = useDashboardWidgetA11y("goal-tracker");
 
   useEffect(() => {
@@ -423,10 +457,8 @@ export default function GoalTracker() {
     const completedCount = goals.filter(
       (goal) => goal.current >= goal.target
     ).length;
-    setSummary(
-      `${activeCount} active goal${activeCount === 1 ? "" : "s"}. ${completedCount} completed.`
-    );
-  }, [goals, setSummary]);
+    setSummary(t("a11y.summary", { activeCount, completedCount }));
+  }, [goals, setSummary, t]);
 
   const filterVisibility = shouldShowGoalFilters(goals);
 
@@ -483,7 +515,7 @@ export default function GoalTracker() {
       });
 
       if (!response.ok) {
-        setShareError("Failed to update goal sharing. Please try again.");
+        setShareError(t("messages.updateSharingFailed"));
         return;
       }
 
@@ -495,9 +527,7 @@ export default function GoalTracker() {
         )
       );
     } catch {
-      setShareError(
-        "Failed to update goal sharing. Please check your connection."
-      );
+      setShareError(t("messages.updateSharingConnection"));
     } finally {
       setSharingGoalId(null);
     }
@@ -505,7 +535,7 @@ export default function GoalTracker() {
 
   const copyGoalShareLink = async (goalId: string) => {
     if (!githubLogin) {
-      setShareError("Unable to build share link for this account.");
+      setShareError(t("messages.unableToBuildShareLink"));
       return;
     }
 
@@ -516,15 +546,36 @@ export default function GoalTracker() {
     );
 
     if (!(await copyText(shareUrl, goalId))) {
-      setShareError("Failed to copy share link. Please copy it manually.");
+      setShareError(t("messages.copyShareLinkFailed"));
     }
+  };
+
+  const numberFormatter = new Intl.NumberFormat(locale);
+
+  const getTranslatedCompletionLabel = (goal: Goal): string => {
+    if (goal.current >= goal.target) {
+      if (goal.current > goal.target) return t("status.goalSurpassed");
+      if (goal.recurrence === "weekly") return t("status.completedThisWeek");
+      if (goal.recurrence === "monthly") return t("status.completedThisMonth");
+      return t("status.completed");
+    }
+
+    if (goal.deadline) {
+      const msLeft = new Date(goal.deadline).getTime() - Date.now();
+      const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+      if (daysLeft < 0) return t("status.overdue");
+      if (daysLeft === 0) return t("status.dueToday");
+      return t("status.daysLeft", { days: daysLeft });
+    }
+
+    return "";
   };
 
   const activeConfirmingGoal = goals.find((g) => g.id === confirmingId);
 
   if (loading) {
     return (
-      <WidgetSkeleton title="weekly goals" className="h-full">
+      <WidgetSkeleton title={t("empty.loadingWeeklyGoals")} className="h-full">
         <div className="flex justify-between items-center mb-4">
           <SkeletonBlock className="h-[35px] w-16" />
           <SkeletonBlock className="h-[35px] w-20" />
@@ -550,17 +601,17 @@ export default function GoalTracker() {
             aria-hidden="true"
             className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]"
           >
-            Quest log
+            {t("sections.questLog")}
           </p>
           <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Goals
+            {t("sections.goals")}
           </h2>
         </div>
         <button
           onClick={handleSync}
           disabled={syncing}
-          title="Refresh commit-based goals from GitHub"
-          aria-label="Refresh commit goals"
+          title={t("actions.refreshCommitGoalsTitle")}
+          aria-label={t("actions.refreshCommitGoalsAria")}
           className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-xs text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-[var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg
@@ -576,7 +627,7 @@ export default function GoalTracker() {
               clipRule="evenodd"
             />
           </svg>
-          {syncing ? "Syncing…" : "Refresh"}
+          {syncing ? t("actions.syncing") : t("actions.refresh")}
         </button>
       </div>
 
@@ -588,7 +639,7 @@ export default function GoalTracker() {
             type="button"
             onClick={() => setSyncError(null)}
             className="text-[var(--destructive)] hover:opacity-70 font-semibold"
-            aria-label="Dismiss error"
+            aria-label={t("a11y.dismissErrorAria")}
           >
             ✕
           </button>
@@ -602,7 +653,7 @@ export default function GoalTracker() {
           <button
             onClick={() => setDeleteError(null)}
             className="text-[var(--destructive)] hover:opacity-80 ml-2"
-            aria-label="Dismiss error"
+            aria-label={t("a11y.dismissErrorAria")}
           >
             ✕
           </button>
@@ -617,7 +668,7 @@ export default function GoalTracker() {
             type="button"
             onClick={() => setShareError(null)}
             className="text-[var(--destructive)] hover:opacity-80 ml-2"
-            aria-label="Dismiss sharing error"
+            aria-label={t("a11y.dismissShareErrorAria")}
           >
             ✕
           </button>
@@ -627,15 +678,14 @@ export default function GoalTracker() {
       {goals.length === 0 ? (
         // The create form sits right below, so a one-line hint beats a second call to action.
         <p className="mt-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm text-[var(--muted-foreground)]">
-          No goals yet. Set your first one below and it will update from your
-          GitHub activity.
+          {t("empty.noGoalsYet")}
         </p>
       ) : (
         <>
           {goals.some((g) => g.category) && (
             <div
               role="group"
-              aria-label="Filter goals by category"
+              aria-label={t("a11y.filterByCategory")}
               className="mb-3 flex flex-wrap gap-1.5"
             >
               <button
@@ -648,7 +698,7 @@ export default function GoalTracker() {
                     : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
                 }`}
               >
-                All
+                {t("actions.all")}
               </button>
               {CATEGORY_OPTIONS.map((c) => (
                 <button
@@ -678,15 +728,15 @@ export default function GoalTracker() {
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search goals…"
-                    aria-label="Search goals"
+                    placeholder={t("empty.searchPlaceholder")}
+                    aria-label={t("a11y.searchGoalsAria")}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-muted)] py-1.5 pl-3 pr-8 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] [&::-webkit-search-cancel-button]:appearance-none"
                   />
                   {searchQuery && (
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      aria-label="Clear search"
+                      aria-label={t("a11y.clearSearchAria")}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
                     >
                       ×
@@ -697,24 +747,32 @@ export default function GoalTracker() {
               {filterVisibility.status && (
                 <div
                   role="group"
-                  aria-label="Filter goals by status"
+                  aria-label={t("a11y.filterByStatus")}
                   className="flex flex-wrap gap-1.5"
                 >
-                  {STATUS_FILTER_OPTIONS.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setStatusFilter(value)}
-                      aria-pressed={statusFilter === value}
-                      className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
-                        statusFilter === value
-                          ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
-                          : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  {STATUS_FILTER_OPTIONS.map(({ value, label }) => {
+                    const statusLabel =
+                      value === "all"
+                        ? t("actions.all")
+                        : value === "active"
+                          ? t("actions.active")
+                          : t("actions.completed");
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setStatusFilter(value)}
+                        aria-pressed={statusFilter === value}
+                        className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${
+                          statusFilter === value
+                            ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]"
+                            : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
+                        }`}
+                      >
+                        {statusLabel}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -725,7 +783,7 @@ export default function GoalTracker() {
               role="status"
               className="rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm text-[var(--muted-foreground)]"
             >
-              No goals match your search
+              {t("empty.noGoalsMatchSearch")}
             </p>
           )}
 
@@ -748,7 +806,7 @@ export default function GoalTracker() {
               const isDeleting = deletingId === goal.id;
               const completed = goal.current >= goal.target;
               const isSurpassed = goal.current > goal.target;
-              const completionLabel = getCompletionLabel(goal);
+              const completionLabel = getTranslatedCompletionLabel(goal);
               const isAutoSynced =
                 goal.unit === "commits" || goal.unit === "prs";
 
@@ -757,7 +815,13 @@ export default function GoalTracker() {
                   key={goal.id}
                   className="relative rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)]"
                   tabIndex={0}
-                  aria-label={`Goal: ${goal.title}. ${goal.current} of ${goal.target} ${goal.unit}. ${getCompletionLabel(goal) || "In progress"}`}
+                  aria-label={t("a11y.goalLabel", {
+                    title: goal.title,
+                    current: numberFormatter.format(goal.current),
+                    target: numberFormatter.format(goal.target),
+                    unit: goal.unit,
+                    status: completionLabel || t("a11y.inProgress"),
+                  })}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -781,7 +845,7 @@ export default function GoalTracker() {
                           <span
                             className={`text-xs font-medium px-2 py-0.5 rounded-full border ${CATEGORY_BADGE_CLASSES[goal.category]}`}
                           >
-                            {CATEGORY_LABELS[goal.category]}
+                            {t(`categories.${CATEGORY_KEYS[goal.category]}`)}
                           </span>
                         )}
                         {goal.recurrence !== "none" && (
@@ -792,15 +856,21 @@ export default function GoalTracker() {
                                 : "bg-[var(--card-muted)] text-[var(--muted-foreground)] border-[var(--border)]"
                             }`}
                           >
-                            {RECURRENCE_LABELS[goal.recurrence]}
+                            {t(
+                              `recurrence.${RECURRENCE_KEYS[goal.recurrence]}`
+                            )}
                           </span>
                         )}
                         {isAutoSynced && (
                           <span
                             title={
                               goal.last_synced_at
-                                ? `Last synced: ${new Date(goal.last_synced_at).toLocaleTimeString()}`
-                                : "Auto-synced from GitHub commits"
+                                ? t("status.lastSynced", {
+                                    time: new Date(
+                                      goal.last_synced_at
+                                    ).toLocaleTimeString(locale),
+                                  })
+                                : t("status.autoSyncedTooltip")
                             }
                             className="inline-flex items-center gap-0.5 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-medium text-[var(--accent)]"
                           >
@@ -813,21 +883,23 @@ export default function GoalTracker() {
                             >
                               <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
                             </svg>
-                            Auto-synced
+                            {t("status.autoSyncedBadge")}
                           </span>
                         )}
                       </div>
                       {completed ? (
                         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-500">
                           <span className="bg-emerald-500/15 px-1.5 py-0.5 font-pixel text-[10px] uppercase tracking-[0.12em]">
-                            ★ Quest complete
+                            {t("status.questComplete")}
                           </span>
                           {completionLabel}
                         </span>
                       ) : completionLabel ? (
                         <span
                           className={`text-xs font-medium ${
-                            completionLabel.includes("Overdue")
+                            completionLabel.includes("Overdue") ||
+                            completionLabel.includes("Atrasado") ||
+                            completionLabel.includes("देरी")
                               ? "text-red-500"
                               : "text-orange-500"
                           }`}
@@ -837,12 +909,18 @@ export default function GoalTracker() {
                       ) : null}
                       {goal.recurrence === "weekly" && goal.week_start && (
                         <span className="text-xs text-[var(--muted-foreground)]">
-                          Week:{" "}
                           {(() => {
                             const start = new Date(goal.week_start);
                             const end = new Date(start);
                             end.setDate(start.getDate() + 6);
-                            return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+                            const dFormat = new Intl.DateTimeFormat(locale, {
+                              month: "short",
+                              day: "numeric",
+                            });
+                            return t("status.weekLabel", {
+                              start: dFormat.format(start),
+                              end: dFormat.format(end),
+                            });
                           })()}
                         </span>
                       )}
@@ -855,18 +933,26 @@ export default function GoalTracker() {
                           }`}
                           title={`Previous period ended ${new Date(
                             goal.last_period.period_end
-                          ).toLocaleDateString()}`}
+                          ).toLocaleDateString(locale)}`}
                         >
-                          Last period: {goal.last_period.completed ? "✓" : "○"}{" "}
-                          {goal.last_period.achieved}/{goal.last_period.target}{" "}
-                          {goal.unit}
+                          {t("status.lastPeriod", {
+                            symbol: goal.last_period.completed ? "✓" : "○",
+                            achieved: numberFormatter.format(
+                              goal.last_period.achieved
+                            ),
+                            target: numberFormatter.format(
+                              goal.last_period.target
+                            ),
+                            unit: goal.unit,
+                          })}
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span className="text-[var(--muted-foreground)]">
-                        {goal.current}/{goal.target} {goal.unit}
+                        {numberFormatter.format(goal.current)}/
+                        {numberFormatter.format(goal.target)} {goal.unit}
                       </span>
 
                       {!isAutoSynced && (
@@ -890,7 +976,9 @@ export default function GoalTracker() {
                             }
                           }}
                           disabled={goal.current >= goal.target}
-                          aria-label={`Increment "${goal.title}" progress by 1`}
+                          aria-label={t("a11y.incrementProgressAria", {
+                            title: goal.title,
+                          })}
                           className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
                         >
                           +1
@@ -902,8 +990,10 @@ export default function GoalTracker() {
                         onClick={() => setConfirmingId(goal.id)}
                         disabled={isDeleting}
                         className="text-[var(--muted-foreground)] hover:text-[var(--destructive)] transition-colors disabled:opacity-50"
-                        aria-label={`Delete goal: ${goal.title}`}
-                        title="Delete goal"
+                        aria-label={t("a11y.deleteGoalAria", {
+                          title: goal.title,
+                        })}
+                        title={t("actions.deleteGoal")}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -945,7 +1035,11 @@ export default function GoalTracker() {
                       aria-valuenow={goal.current}
                       aria-valuemin={0}
                       aria-valuemax={goal.target}
-                      aria-label={`Goal progress: ${goal.current} of ${goal.target} ${goal.unit}`}
+                      aria-label={t("a11y.goalProgress", {
+                        current: numberFormatter.format(goal.current),
+                        target: numberFormatter.format(goal.target),
+                        unit: goal.unit,
+                      })}
                     />
                   </div>
 
@@ -953,10 +1047,10 @@ export default function GoalTracker() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-medium text-[var(--card-foreground)]">
-                          Share this goal
+                          {t("form.shareThisGoalTitle")}
                         </p>
                         <p className="text-xs text-[var(--muted-foreground)]">
-                          Make this goal visible on a public share page.
+                          {t("form.shareThisGoalDesc")}
                         </p>
                       </div>
 
@@ -971,9 +1065,11 @@ export default function GoalTracker() {
                               event.currentTarget.checked
                             )
                           }
-                          aria-label={`Make "${goal.title}" public`}
+                          aria-label={t("a11y.makePublicAria", {
+                            title: goal.title,
+                          })}
                         />
-                        Public
+                        {t("actions.public")}
                       </label>
                     </div>
 
@@ -985,7 +1081,7 @@ export default function GoalTracker() {
                       >
                         <CopyFeedback
                           copied={isCopied(goal.id)}
-                          label="Copy share link"
+                          label={t("actions.copyShareLink")}
                         />
                       </button>
                     )}
@@ -1000,8 +1096,8 @@ export default function GoalTracker() {
       {lastUpdated && (
         <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
           {minutesAgo === 0
-            ? "Updated just now"
-            : `Updated ${minutesAgo} min ago`}
+            ? t("messages.updatedJustNow")
+            : t("messages.updatedMinAgo", { minutes: minutesAgo })}
         </p>
       )}
 
@@ -1016,7 +1112,7 @@ export default function GoalTracker() {
             htmlFor="goal-title"
             className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
           >
-            Goal title
+            {t("form.goalTitleLabel")}
           </label>
           <input
             id="goal-title"
@@ -1024,7 +1120,7 @@ export default function GoalTracker() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={100}
-            placeholder="Make 10 commits"
+            placeholder={t("form.goalTitlePlaceholder")}
             required
             disabled={creating}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition placeholder:text-[var(--muted-foreground)] focus-visible:border-[var(--accent)]"
@@ -1037,7 +1133,7 @@ export default function GoalTracker() {
               htmlFor="goal-target"
               className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
             >
-              Target
+              {t("form.targetLabel")}
             </label>
             <input
               id="goal-target"
@@ -1055,7 +1151,7 @@ export default function GoalTracker() {
               htmlFor="goal-unit"
               className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
             >
-              Unit
+              {t("form.unitLabel")}
             </label>
             <select
               id="goal-unit"
@@ -1064,11 +1160,11 @@ export default function GoalTracker() {
               disabled={creating}
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
             >
-              <option value="commits">Commits ⚡</option>
-              <option value="prs">PRs ⚡</option>
-              <option value="hours">Hours</option>
-              <option value="streak">Streak (days)</option>
-              <option value="language">Lines of Code</option>
+              <option value="commits">{t("units.commits")}</option>
+              <option value="prs">{t("units.prs")}</option>
+              <option value="hours">{t("units.hours")}</option>
+              <option value="streak">{t("units.streak")}</option>
+              <option value="language">{t("units.language")}</option>
             </select>
           </div>
         </div>
@@ -1078,7 +1174,7 @@ export default function GoalTracker() {
             htmlFor="goal-category"
             className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
           >
-            Category (Optional)
+            {t("categories.categoryLabel")}
           </label>
           <select
             id="goal-category"
@@ -1087,7 +1183,7 @@ export default function GoalTracker() {
             disabled={creating}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
           >
-            <option value="">No category</option>
+            <option value="">{t("categories.noCategory")}</option>
             {CATEGORY_OPTIONS.map((c) => (
               <option key={c} value={c}>
                 {CATEGORY_LABELS[c]}
@@ -1102,7 +1198,7 @@ export default function GoalTracker() {
               htmlFor="goal-deadline"
               className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
             >
-              Deadline (Optional)
+              {t("form.deadlineLabel")}
             </label>
             <input
               id="goal-deadline"
@@ -1121,7 +1217,7 @@ export default function GoalTracker() {
             id="recurrence-label"
             className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
           >
-            Recurrence
+            {t("recurrence.recurrenceLabel")}
           </span>
           <div className="flex gap-2">
             {(["none", "weekly", "monthly"] as Recurrence[]).map((r) => (
@@ -1136,22 +1232,22 @@ export default function GoalTracker() {
                     : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)]"
                 }`}
               >
-                {RECURRENCE_LABELS[r]}
+                {t(`recurrence.${RECURRENCE_KEYS[r]}`)}
               </button>
             ))}
           </div>
           {recurrence !== "none" && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
               {recurrence === "weekly"
-                ? "Resets every Monday."
-                : "Resets on the 1st of each month."}
+                ? t("recurrence.resetsWeekly")
+                : t("recurrence.resetsMonthly")}
             </p>
           )}
         </div>
 
         {(unit === "commits" || unit === "prs") && (
           <p className="text-xs text-[var(--muted-foreground)] rounded-lg bg-accent/10 px-3 py-2">
-            ⚡ This goal will auto-update from your GitHub activity.
+            {t("form.autoUpdateNotice")}
           </p>
         )}
 
@@ -1163,10 +1259,10 @@ export default function GoalTracker() {
           {creating ? (
             <>
               <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Creating Goal…
+              {t("actions.creatingGoal")}
             </>
           ) : (
-            "Create goal"
+            t("actions.createGoal")
           )}
         </button>
         {createError && (
@@ -1177,10 +1273,14 @@ export default function GoalTracker() {
       {/* 🎯 Reusable Project Confirmation Overlay Component */}
       <ConfirmModal
         isOpen={confirmingId !== null}
-        title="Delete Tracking Goal"
-        message={`Are you sure you want to permanently remove your "${activeConfirmingGoal?.title || "active coding"}" goal? This will erase all gathered progress history numbers parameters.`}
-        confirmLabel={deletingId ? "Deleting…" : "Permanently Delete"}
-        cancelLabel="Keep Goal"
+        title={t("messages.deleteConfirmTitle")}
+        message={t("messages.deleteConfirmMessage", {
+          title: activeConfirmingGoal?.title || "active coding",
+        })}
+        confirmLabel={
+          deletingId ? t("actions.deleting") : t("actions.permanentlyDelete")
+        }
+        cancelLabel={t("actions.keepGoal")}
         onConfirm={() => {
           if (confirmingId) handleDelete(confirmingId);
         }}

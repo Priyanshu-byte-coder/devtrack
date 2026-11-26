@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Target,
   Plus,
@@ -52,7 +54,7 @@ function getStatus(milestone: Milestone): MilestoneStatus {
   return "behind";
 }
 
-function getForecastDate(milestone: Milestone): string | null {
+function getForecastDate(milestone: Milestone, locale: string): string | null {
   const { current_value, target_value, created_at } = milestone;
   if (current_value <= 0) return null;
 
@@ -63,55 +65,41 @@ function getForecastDate(milestone: Milestone): string | null {
 
   const msNeeded = remaining / rate;
   const forecastDate = new Date(Date.now() + msNeeded);
-  return forecastDate.toLocaleDateString("en-US", {
+  return forecastDate.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
 }
 
-const STATUS_CONFIG: Record<
-  MilestoneStatus,
-  { label: string; color: string; icon: ReactNode }
-> = {
-  completed: {
-    label: "Completed",
-    color: "#10b981",
-    icon: <CheckCircle2 size={12} />,
-  },
-  "on-track": {
-    label: "On track",
-    color: "#6ba8ff",
-    icon: <TrendingUp size={12} />,
-  },
-  "at-risk": {
-    label: "At risk",
-    color: "#f59e0b",
-    icon: <AlertTriangle size={12} />,
-  },
-  behind: { label: "Behind", color: "#ef4444", icon: <Clock size={12} /> },
-};
-
 function StatusBadge({
   status,
   count,
+  label,
+  color,
+  icon,
 }: {
   status: MilestoneStatus;
   count?: number;
+  label: string;
+  color: string;
+  icon: ReactNode;
 }) {
-  const config = STATUS_CONFIG[status];
   return (
     <span
       className="inline-flex items-center gap-1 px-2 py-0.5 font-pixel text-[10px] uppercase tracking-[0.1em]"
-      style={{ background: `${config.color}22`, color: config.color }}
+      style={{ background: `${color}22`, color }}
     >
-      {config.icon} {config.label}
+      {icon} {label}
       {count !== undefined && <span className="tabular-nums">× {count}</span>}
     </span>
   );
 }
 
 export default function MilestonePlanner() {
+  const t = useTranslations("goals");
+  const locale = useLocale();
+
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -161,7 +149,7 @@ export default function MilestonePlanner() {
           unit:
             form.unit ||
             CATEGORY_OPTIONS.find((c) => c.value === form.category)?.label ||
-            "units",
+            t("milestones.unitsFallback"),
           targetDate: form.targetDate,
           category: form.category,
         }),
@@ -169,7 +157,7 @@ export default function MilestonePlanner() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setError(
-          (data as { error?: string }).error ?? "Failed to create milestone."
+          (data as { error?: string }).error ?? t("milestones.failedToCreate")
         );
         return;
       }
@@ -186,11 +174,11 @@ export default function MilestonePlanner() {
       });
       setShowForm(false);
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("milestones.networkError"));
     } finally {
       setSaving(false);
     }
-  }, [form]);
+  }, [form, t]);
 
   const handleIncrement = useCallback(
     async (id: string) => {
@@ -239,7 +227,7 @@ export default function MilestonePlanner() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            title: `${milestone.title} (Copy)`,
+            title: `${milestone.title} ${t("milestones.copySuffix")}`,
             description: milestone.description,
             targetValue: milestone.target_value,
             currentValue: milestone.current_value,
@@ -256,7 +244,7 @@ export default function MilestonePlanner() {
         loadMilestones();
       }
     },
-    [milestones, loadMilestones]
+    [milestones, loadMilestones, t]
   );
 
   const statusCounts = milestones.reduce(
@@ -267,17 +255,60 @@ export default function MilestonePlanner() {
     {} as Record<string, number>
   );
 
+  const statusConfig: Record<
+    MilestoneStatus,
+    { label: string; color: string; icon: ReactNode }
+  > = {
+    completed: {
+      label: t("milestones.completed"),
+      color: "#10b981",
+      icon: <CheckCircle2 size={12} />,
+    },
+    "on-track": {
+      label: t("milestones.onTrack"),
+      color: "#6ba8ff",
+      icon: <TrendingUp size={12} />,
+    },
+    "at-risk": {
+      label: t("milestones.atRisk"),
+      color: "#f59e0b",
+      icon: <AlertTriangle size={12} />,
+    },
+    behind: {
+      label: t("milestones.behind"),
+      color: "#ef4444",
+      icon: <Clock size={12} />,
+    },
+  };
+
+  const getCategoryLabel = (categoryVal: string) => {
+    switch (categoryVal) {
+      case "commits":
+        return t("milestones.categoryCommits");
+      case "streak":
+        return t("milestones.categoryStreak");
+      case "projects":
+        return t("milestones.categoryProjects");
+      case "custom":
+        return t("milestones.categoryCustom");
+      default:
+        return categoryVal;
+    }
+  };
+
   const fieldClass =
     "w-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]";
   const labelClass = "mb-1 block text-xs text-[var(--muted-foreground)]";
   const iconButton =
     "inline-flex h-7 min-w-7 items-center justify-center border border-[var(--border)] px-1.5 text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-40";
-  const dueLabel = (date: string) =>
-    new Date(date).toLocaleDateString("en-US", {
+  const dueLabel = (date: string) => {
+    const dStr = new Date(date).toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
+    return t("milestones.dueLabel", { date: dStr });
+  };
 
   return (
     <div className="px-frame bg-[var(--card)] p-6">
@@ -286,7 +317,7 @@ export default function MilestonePlanner() {
         <div className="flex items-center gap-2.5">
           <Target className="h-5 w-5 text-[var(--accent)]" aria-hidden="true" />
           <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Milestone Planner
+            {t("milestones.title")}
           </h2>
           {milestones.length > 0 && (
             <span className="bg-[var(--control)] px-2 py-0.5 font-pixel text-[10px] text-[var(--accent)]">
@@ -300,20 +331,27 @@ export default function MilestonePlanner() {
           aria-expanded={showForm}
           className="px-btn px-btn-sm"
         >
-          <Plus className="h-3.5 w-3.5" aria-hidden="true" /> Add milestone
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" />{" "}
+          {t("milestones.addMilestoneBtn")}
         </button>
       </div>
 
       {/* Summary chips */}
       {milestones.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
-          {Object.entries(statusCounts).map(([status, count]) => (
-            <StatusBadge
-              key={status}
-              status={status as MilestoneStatus}
-              count={count}
-            />
-          ))}
+          {Object.entries(statusCounts).map(([status, count]) => {
+            const config = statusConfig[status as MilestoneStatus];
+            return (
+              <StatusBadge
+                key={status}
+                status={status as MilestoneStatus}
+                count={count}
+                label={config.label}
+                color={config.color}
+                icon={config.icon}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -330,7 +368,7 @@ export default function MilestonePlanner() {
           <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="milestone-title" className={labelClass}>
-                Title *
+                {t("milestones.formTitle")}
               </label>
               <input
                 id="milestone-title"
@@ -338,14 +376,14 @@ export default function MilestonePlanner() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, title: e.target.value }))
                 }
-                placeholder="e.g. Reach 500 commits"
+                placeholder={t("milestones.formTitlePlaceholder")}
                 maxLength={100}
                 className={fieldClass}
               />
             </div>
             <div>
               <label htmlFor="milestone-category" className={labelClass}>
-                Category
+                {t("milestones.formCategory")}
               </label>
               <select
                 id="milestone-category"
@@ -360,14 +398,14 @@ export default function MilestonePlanner() {
               >
                 {CATEGORY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>
-                    {c.icon} {c.label}
+                    {c.icon} {getCategoryLabel(c.value)}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label htmlFor="milestone-date" className={labelClass}>
-                Target date *
+                {t("milestones.formTargetDate")}
               </label>
               <input
                 id="milestone-date"
@@ -381,7 +419,7 @@ export default function MilestonePlanner() {
             </div>
             <div>
               <label htmlFor="milestone-target" className={labelClass}>
-                Target value *
+                {t("milestones.formTargetValue")}
               </label>
               <input
                 id="milestone-target"
@@ -397,7 +435,7 @@ export default function MilestonePlanner() {
             </div>
             <div>
               <label htmlFor="milestone-current" className={labelClass}>
-                Current value
+                {t("milestones.formCurrentValue")}
               </label>
               <input
                 id="milestone-current"
@@ -418,7 +456,7 @@ export default function MilestonePlanner() {
               onClick={() => setShowForm(false)}
               className="px-btn px-btn-sm px-btn-ghost"
             >
-              Cancel
+              {t("actions.cancel")}
             </button>
             <button
               type="button"
@@ -426,7 +464,9 @@ export default function MilestonePlanner() {
               disabled={saving}
               className="px-btn px-btn-sm disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving…" : "Add milestone"}
+              {saving
+                ? t("milestones.saving")
+                : t("milestones.addMilestoneBtn")}
             </button>
           </div>
         </div>
@@ -435,7 +475,7 @@ export default function MilestonePlanner() {
       {/* Milestone list */}
       {loading ? (
         <div className="py-8 text-center text-sm text-[var(--muted-foreground)]">
-          Loading milestones…
+          {t("milestones.loading")}
         </div>
       ) : milestones.length === 0 ? (
         <div className="flex flex-col items-center py-8 text-center">
@@ -444,7 +484,7 @@ export default function MilestonePlanner() {
             aria-hidden="true"
           />
           <p className="text-sm text-[var(--muted-foreground)]">
-            No milestones yet. Set a big target and track the climb.
+            {t("milestones.empty")}
           </p>
         </div>
       ) : (
@@ -455,9 +495,10 @@ export default function MilestonePlanner() {
               Math.round((m.current_value / m.target_value) * 100),
               100
             );
-            const forecast = getForecastDate(m);
+            const forecast = getForecastDate(m, locale);
             const isExpanded = expanded === m.id;
-            const statusColor = STATUS_CONFIG[status].color;
+            const config = statusConfig[status];
+            const statusColor = config.color;
 
             return (
               <li
@@ -473,10 +514,15 @@ export default function MilestonePlanner() {
                       <span className="text-sm font-semibold text-[var(--foreground)]">
                         {m.title}
                       </span>
-                      <StatusBadge status={status} />
+                      <StatusBadge
+                        status={status}
+                        label={config.label}
+                        color={config.color}
+                        icon={config.icon}
+                      />
                     </div>
                     <div className="mt-0.5 text-xs text-[var(--muted-foreground)]">
-                      {m.current_value}/{m.target_value} {m.unit} · Due{" "}
+                      {m.current_value}/{m.target_value} {m.unit} ·{" "}
                       {dueLabel(m.target_date)}
                     </div>
                   </div>
@@ -485,7 +531,9 @@ export default function MilestonePlanner() {
                       type="button"
                       onClick={() => handleIncrement(m.id)}
                       disabled={status === "completed"}
-                      aria-label={`Add 1 to ${m.title}`}
+                      aria-label={t("milestones.addOneAria", {
+                        title: m.title,
+                      })}
                       className={`${iconButton} font-pixel`}
                     >
                       +1
@@ -496,8 +544,8 @@ export default function MilestonePlanner() {
                       aria-expanded={isExpanded}
                       aria-label={
                         isExpanded
-                          ? `Hide details for ${m.title}`
-                          : `Show details for ${m.title}`
+                          ? t("milestones.hideDetailsAria", { title: m.title })
+                          : t("milestones.showDetailsAria", { title: m.title })
                       }
                       className={iconButton}
                     >
@@ -510,8 +558,10 @@ export default function MilestonePlanner() {
                     <button
                       type="button"
                       onClick={() => handleDuplicate(m.id)}
-                      aria-label={`Duplicate ${m.title}`}
-                      title="Duplicate milestone"
+                      aria-label={t("milestones.duplicateAria", {
+                        title: m.title,
+                      })}
+                      title={t("milestones.duplicateTitle")}
                       className={iconButton}
                     >
                       <Copy size={14} />
@@ -519,7 +569,9 @@ export default function MilestonePlanner() {
                     <button
                       type="button"
                       onClick={() => handleDelete(m.id)}
-                      aria-label={`Delete ${m.title}`}
+                      aria-label={t("milestones.deleteAria", {
+                        title: m.title,
+                      })}
                       className={`${iconButton} border-transparent text-[var(--destructive)]`}
                     >
                       <Trash2 size={14} />
@@ -539,9 +591,11 @@ export default function MilestonePlanner() {
                   <span className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent_0_10px,var(--background)_10px_12px)]" />
                 </div>
                 <div className="mt-1 flex justify-between text-[11px] text-[var(--muted-foreground)]">
-                  <span>{pct}% complete</span>
+                  <span>{t("milestones.completePct", { pct })}</span>
                   {forecast && status !== "completed" && (
-                    <span>Forecast: {forecast}</span>
+                    <span>
+                      {t("milestones.forecastLabel", { date: forecast })}
+                    </span>
                   )}
                 </div>
 
@@ -550,11 +604,13 @@ export default function MilestonePlanner() {
                   <div className="mt-3 bg-[var(--control)] p-2.5 text-xs text-[var(--muted-foreground)]">
                     {m.description && <p className="mb-1.5">{m.description}</p>}
                     <p>
-                      Created: {new Date(m.created_at).toLocaleDateString()}
+                      {t("milestones.createdLabel", {
+                        date: new Date(m.created_at).toLocaleDateString(locale),
+                      })}
                     </p>
                     {status === "completed" && (
                       <p className="mt-1 font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--success)]">
-                        ★ Milestone achieved
+                        {t("milestones.achievedBadge")}
                       </p>
                     )}
                   </div>
