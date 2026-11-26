@@ -391,5 +391,70 @@
     "loadFailed": "GitHub achievements could not be loaded right now.",
     "empty": "No public GitHub achievements available yet.",
     "badgeAlt": "{title} GitHub achievement badge"
+  },
+  "personality": {
+    "header": {
+      "title": "Personality",
+      "description": "Your developer archetype, read from commit times, streaks, PR habits and top repos."
+    },
+    "card": {
+      "badge": "Code Personality Report",
+      "downloadPng": "Download as PNG",
+      "downloadAria": "Download personality card as PNG",
+      "generating": "Generating…",
+      "traits": {
+        "workingStyle": "Working Style",
+        "commitPattern": "Commit Pattern",
+        "collaboration": "Collaboration"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "Night Owl",
+        "Early Bird": "Early Bird",
+        "9-to-5 Developer": "9-to-5 Developer"
+      },
+      "commitPattern": {
+        "Sprinter": "Sprinter",
+        "Marathoner": "Marathoner"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "Solo Coder",
+        "Team Player": "Team Player",
+        "Open Source Hero": "Open Source Hero"
+      }
+    },
+    "radar": {
+      "title": "Your Personality Radar",
+      "description": "How your traits compare across five dimensions.",
+      "ariaLabel": "Developer personality radar chart",
+      "scoreLabel": "Score",
+      "metrics": {
+        "nightOwl": "Night Owl",
+        "sprintEnergy": "Sprint Energy",
+        "collaboration": "Collaboration",
+        "perfectionism": "Perfectionism",
+        "consistency": "Consistency"
+      }
+    },
+    "initial": {
+      "title": "Discover Your Developer Archetype",
+      "description": "Uses your existing GitHub stats already tracked in DevTrack — no extra setup, no new permissions.",
+      "generateButton": "Generate My Personality Report"
+    },
+    "loading": {
+      "title": "Analyzing your coding patterns…",
+      "subtitle": "Crunching commit times, PR history, and streaks."
+    },
+    "ready": {
+      "regenerate": "Regenerate report",
+      "successToast": "Your code personality report is ready!"
+    },
+    "errors": {
+      "errorPrefix": "Error:",
+      "rateLimitWithRetry": "Rate limit reached. Try again in {minutes} min.",
+      "rateLimit": "Rate limit reached. Try again later.",
+      "generateFailed": "Failed to generate your personality report"
+    }
   }
 }

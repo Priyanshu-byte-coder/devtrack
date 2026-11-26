@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 import {
     Radar,
     RadarChart,
@@ -25,7 +26,7 @@ interface RadarDatum {
  * pattern, collaboration style) are mapped to a representative intensity
  * score rather than plotted as raw enums.
  */
-function toRadarData(report: PersonalityReport): RadarDatum[] {
+function toRadarData(report: PersonalityReport, t: (key: string) => string): RadarDatum[] {
     const nightOwlIntensity =
         report.workingStyle === "Night Owl"
             ? Math.max(report.nightCommitPct, 60)
@@ -43,16 +44,17 @@ function toRadarData(report: PersonalityReport): RadarDatum[] {
                 : 25;
 
     return [
-        { metric: "Night Owl", value: nightOwlIntensity },
-        { metric: "Sprint Energy", value: sprintIntensity },
-        { metric: "Collaboration", value: collaborationIntensity },
-        { metric: "Perfectionism", value: report.perfectionismScore },
-        { metric: "Consistency", value: report.commitPattern === "Marathoner" ? 80 : 45 },
+        { metric: t("radar.metrics.nightOwl"), value: nightOwlIntensity },
+        { metric: t("radar.metrics.sprintEnergy"), value: sprintIntensity },
+        { metric: t("radar.metrics.collaboration"), value: collaborationIntensity },
+        { metric: t("radar.metrics.perfectionism"), value: report.perfectionismScore },
+        { metric: t("radar.metrics.consistency"), value: report.commitPattern === "Marathoner" ? 80 : 45 },
     ];
 }
 
 function PersonalityRadar({ report }: Props) {
-    const data = toRadarData(report);
+    const t = useTranslations("personality");
+    const data = toRadarData(report, t);
     const color = "var(--accent)";
 
     return (
@@ -60,7 +62,7 @@ function PersonalityRadar({ report }: Props) {
             <RadarChart
                 data={data}
                 margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
-                aria-label="Developer personality radar chart"
+                aria-label={t("radar.ariaLabel")}
             >
                 <PolarGrid stroke="var(--border)" />
                 <PolarAngleAxis
@@ -71,7 +73,7 @@ function PersonalityRadar({ report }: Props) {
                     }}
                 />
                 <Radar
-                    name="Score"
+                    name={t("radar.scoreLabel")}
                     dataKey="value"
                     stroke={color}
                     fill={color}
