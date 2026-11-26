@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit2, Eye, Info, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import { CopyFeedback } from "@/components/ui/copy-feedback";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { cn } from "@/lib/utils";
@@ -20,16 +21,31 @@ interface ResumePreviewProps {
   onContentChange: (content: ResumeContent) => void;
 }
 
+const PRESET_ROLE_KEYS: Record<string, string> = {
+  "Machine Learning Engineer": "machineLearningEngineer",
+  "Frontend Developer": "frontendDeveloper",
+  "Backend Developer": "backendDeveloper",
+  "Full Stack Developer": "fullStackDeveloper",
+  "DevOps Engineer": "devOpsEngineer",
+  "Data Analyst": "dataAnalyst",
+};
+
 export default function ResumePreview({
   content,
   onContentChange,
 }: ResumePreviewProps) {
+  const t = useTranslations("careerIntelligence");
+  const locale = useLocale();
   const [isEditMode, setIsEditMode] = useState(false);
   const { copy, isCopied } = useCopyToClipboard();
 
+  const roleDisplay = PRESET_ROLE_KEYS[content.role]
+    ? t(`roles.preset.${PRESET_ROLE_KEYS[content.role]}.title`)
+    : content.role;
+
   const handleCopySection = async (sectionName: string, text: string) => {
     if (!(await copy(text, sectionName))) {
-      toast.error("Failed to copy section.");
+      toast.error(t("errors.copySectionFailed"));
     }
   };
 
@@ -61,7 +77,7 @@ export default function ResumePreview({
     const newBullets = [
       ...content.bulletPoints,
       {
-        text: "New achievement bullet point…",
+        text: t("preview.experience.newBulletText"),
         repository: "",
         confidence: 100,
         technologies: [],
@@ -101,10 +117,10 @@ export default function ResumePreview({
     const newProjects = [
       ...content.projectDescriptions,
       {
-        name: "New Project",
+        name: t("preview.projects.newProjectName"),
         nameWithOwner: "owner/repo",
         url: "https://github.com/",
-        description: "Project description…",
+        description: t("preview.projects.newProjectDesc"),
         highlights: [],
         technologies: [],
       },
@@ -144,7 +160,10 @@ export default function ResumePreview({
   const addSkillCategory = () => {
     const newSkills = [
       ...content.skills,
-      { category: "New Category", skills: ["Skill 1", "Skill 2"] },
+      {
+        category: t("preview.skills.newCategoryTitle"),
+        skills: ["Skill 1", "Skill 2"],
+      },
     ];
     onContentChange({
       ...content,
@@ -174,10 +193,9 @@ export default function ResumePreview({
         <div className="flex items-center gap-2">
           <Info className="h-4 w-4 text-[var(--accent)]" />
           <span className="text-xs text-[var(--muted-foreground)]">
-            Tailored to{" "}
-            <span className="font-semibold text-[var(--foreground)]">
-              {content.role}
-            </span>
+            {t("preview.tailoredTo", {
+              role: roleDisplay,
+            })}
           </span>
         </div>
 
@@ -194,12 +212,12 @@ export default function ResumePreview({
           {isEditMode ? (
             <>
               <Eye className="h-3.5 w-3.5" />
-              Preview Mode
+              {t("preview.previewMode")}
             </>
           ) : (
             <>
               <Edit2 className="h-3.5 w-3.5" />
-              Edit Content
+              {t("preview.editContent")}
             </>
           )}
         </button>
@@ -214,25 +232,25 @@ export default function ResumePreview({
                 value="summary"
                 className="py-3 font-semibold text-xs uppercase tracking-wider"
               >
-                Professional Summary
+                {t("preview.tabs.summary")}
               </TabsTrigger>
               <TabsTrigger
                 value="experience"
                 className="py-3 font-semibold text-xs uppercase tracking-wider"
               >
-                Experience Bullet Points
+                {t("preview.tabs.experience")}
               </TabsTrigger>
               <TabsTrigger
                 value="projects"
                 className="py-3 font-semibold text-xs uppercase tracking-wider"
               >
-                Project Highlights
+                {t("preview.tabs.projects")}
               </TabsTrigger>
               <TabsTrigger
                 value="skills"
                 className="py-3 font-semibold text-xs uppercase tracking-wider"
               >
-                Skills & Tech
+                {t("preview.tabs.skills")}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -242,7 +260,7 @@ export default function ResumePreview({
             <TabsContent value="summary" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h4 className="text-sm font-bold text-[var(--foreground)]">
-                  Professional Summary
+                  {t("preview.summary.title")}
                 </h4>
                 <button
                   type="button"
@@ -250,7 +268,7 @@ export default function ResumePreview({
                     handleCopySection("summary", content.professionalSummary)
                   }
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  title="Copy Section"
+                  title={t("preview.summary.copyTitle")}
                 >
                   <CopyFeedback
                     copied={isCopied("summary")}
@@ -262,6 +280,8 @@ export default function ResumePreview({
 
               {isEditMode ? (
                 <Textarea
+                  name="professionalSummary"
+                  aria-label={t("preview.summary.ariaLabel")}
                   value={content.professionalSummary}
                   onChange={(e) => updateSummary(e.target.value)}
                   className="min-h-[150px] font-sans text-sm leading-relaxed"
@@ -279,7 +299,7 @@ export default function ResumePreview({
             <TabsContent value="experience" className="space-y-6">
               <div className="flex justify-between items-center">
                 <h4 className="text-sm font-bold text-[var(--foreground)]">
-                  Experience Bullet Points
+                  {t("preview.experience.title")}
                 </h4>
                 <button
                   type="button"
@@ -292,7 +312,7 @@ export default function ResumePreview({
                     )
                   }
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  title="Copy All Bullets"
+                  title={t("preview.experience.copyTitle")}
                 >
                   <CopyFeedback
                     copied={isCopied("experience")}
@@ -313,6 +333,10 @@ export default function ResumePreview({
                         <div className="space-y-2">
                           <input
                             type="text"
+                            name={`bullet-repo-${idx}`}
+                            aria-label={t("preview.experience.repoAria")}
+                            autoComplete="off"
+                            spellCheck={false}
                             value={bullet.repository}
                             onChange={(e) =>
                               updateBulletPoint(
@@ -321,26 +345,37 @@ export default function ResumePreview({
                                 e.target.value
                               )
                             }
-                            placeholder="Repository Name"
+                            placeholder={t(
+                              "preview.experience.repoPlaceholder"
+                            )}
                             className="flex h-8 w-1/3 rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                           />
                           <Textarea
+                            name={`bullet-text-${idx}`}
+                            aria-label={t("preview.experience.bulletAria")}
                             value={bullet.text}
                             onChange={(e) =>
                               updateBulletPoint(idx, "text", e.target.value)
                             }
                             className="min-h-[60px] text-xs font-sans"
-                            placeholder="Bullet Point Text"
+                            placeholder={t(
+                              "preview.experience.bulletPlaceholder"
+                            )}
                           />
                         </div>
                       ) : (
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-[var(--accent)] uppercase">
-                              {bullet.repository || "general contribution"}
+                              {bullet.repository ||
+                                t("preview.experience.generalContribution")}
                             </span>
-                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-mono border border-emerald-500/20">
-                              {bullet.confidence}% AI confidence
+                            <span className="text-[10px] bg-success/10 text-success px-1.5 py-0.5 rounded font-mono border border-success/20">
+                              {t("preview.experience.aiConfidence", {
+                                confidence: new Intl.NumberFormat(
+                                  locale
+                                ).format(bullet.confidence),
+                              })}
                             </span>
                           </div>
                           <p className="text-sm text-[var(--foreground)] font-sans leading-relaxed">
@@ -367,8 +402,8 @@ export default function ResumePreview({
                         <button
                           type="button"
                           onClick={() => deleteBulletPoint(idx)}
-                          className="p-2 rounded text-rose-400 hover:bg-rose-500/10"
-                          title="Delete Bullet"
+                          className="p-2 rounded text-destructive hover:bg-destructive/10"
+                          title={t("preview.experience.deleteBullet")}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -384,7 +419,7 @@ export default function ResumePreview({
                     className="w-full py-2 border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    Add Bullet Point
+                    {t("preview.experience.addBullet")}
                   </button>
                 )}
               </div>
@@ -394,7 +429,7 @@ export default function ResumePreview({
             <TabsContent value="projects" className="space-y-6">
               <div className="flex justify-between items-center">
                 <h4 className="text-sm font-bold text-[var(--foreground)]">
-                  Project Highlights
+                  {t("preview.projects.title")}
                 </h4>
                 <button
                   type="button"
@@ -410,7 +445,7 @@ export default function ResumePreview({
                     )
                   }
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  title="Copy All Projects"
+                  title={t("preview.projects.copyTitle")}
                 >
                   <CopyFeedback
                     copied={isCopied("projects")}
@@ -432,20 +467,30 @@ export default function ResumePreview({
                           <div className="grid grid-cols-2 gap-2">
                             <input
                               type="text"
+                              name={`project-name-${idx}`}
+                              aria-label={t("preview.projects.nameAria")}
+                              autoComplete="off"
                               value={proj.name}
                               onChange={(e) =>
                                 updateProject(idx, "name", e.target.value)
                               }
-                              placeholder="Project Name"
+                              placeholder={t(
+                                "preview.projects.namePlaceholder"
+                              )}
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                             />
                             <input
-                              type="text"
+                              type="url"
+                              inputMode="url"
+                              name={`project-url-${idx}`}
+                              aria-label={t("preview.projects.urlAria")}
+                              autoComplete="off"
+                              spellCheck={false}
                               value={proj.url}
                               onChange={(e) =>
                                 updateProject(idx, "url", e.target.value)
                               }
-                              placeholder="Repository URL"
+                              placeholder={t("preview.projects.urlPlaceholder")}
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                             />
                           </div>
@@ -468,8 +513,8 @@ export default function ResumePreview({
                         <button
                           type="button"
                           onClick={() => deleteProject(idx)}
-                          className="p-1.5 rounded text-rose-400 hover:bg-rose-500/10"
-                          title="Delete Project"
+                          className="p-1.5 rounded text-destructive hover:bg-destructive/10"
+                          title={t("preview.projects.deleteProject")}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -479,12 +524,14 @@ export default function ResumePreview({
                     <div className="space-y-3">
                       {isEditMode ? (
                         <Textarea
+                          name={`project-description-${idx}`}
+                          aria-label={t("preview.projects.descAria")}
                           value={proj.description}
                           onChange={(e) =>
                             updateProject(idx, "description", e.target.value)
                           }
                           className="min-h-[65px] text-xs"
-                          placeholder="Project Description"
+                          placeholder={t("preview.projects.descPlaceholder")}
                         />
                       ) : (
                         <p className="text-sm font-sans text-[var(--foreground)] leading-relaxed">
@@ -524,7 +571,7 @@ export default function ResumePreview({
                     className="w-full py-2 border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-colors flex items-center justify-center gap-1.5"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    Add Project
+                    {t("preview.projects.addProject")}
                   </button>
                 )}
               </div>
@@ -534,7 +581,7 @@ export default function ResumePreview({
             <TabsContent value="skills" className="space-y-6">
               <div className="flex justify-between items-center">
                 <h4 className="text-sm font-bold text-[var(--foreground)]">
-                  Technical Skills & Categories
+                  {t("preview.skills.title")}
                 </h4>
                 <button
                   type="button"
@@ -548,7 +595,7 @@ export default function ResumePreview({
                     )
                   }
                   className="p-1 rounded hover:bg-[var(--card-muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  title="Copy Skills"
+                  title={t("preview.skills.copyTitle")}
                 >
                   <CopyFeedback
                     copied={isCopied("skills")}
@@ -561,10 +608,12 @@ export default function ResumePreview({
               <div className="space-y-4">
                 {isEditMode ? (
                   <Textarea
+                    name="skillSummary"
+                    aria-label={t("preview.skills.summaryAria")}
                     value={content.skillSummary}
                     onChange={(e) => updateSkillSummary(e.target.value)}
                     className="min-h-[60px] text-xs"
-                    placeholder="General Technical Summary"
+                    placeholder={t("preview.skills.summaryPlaceholder")}
                   />
                 ) : (
                   <p className="text-sm font-sans text-[var(--foreground)] leading-relaxed italic">
@@ -583,6 +632,9 @@ export default function ResumePreview({
                           <div className="space-y-2">
                             <input
                               type="text"
+                              name={`skill-category-${idx}`}
+                              aria-label={t("preview.skills.categoryAria")}
+                              autoComplete="off"
                               value={cat.category}
                               onChange={(e) =>
                                 updateSkillCategory(
@@ -591,11 +643,16 @@ export default function ResumePreview({
                                   e.target.value
                                 )
                               }
-                              placeholder="Category Title"
+                              placeholder={t(
+                                "preview.skills.categoryPlaceholder"
+                              )}
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)] font-semibold"
                             />
                             <input
                               type="text"
+                              name={`skill-items-${idx}`}
+                              aria-label={t("preview.skills.itemsAria")}
+                              autoComplete="off"
                               value={cat.skills.join(", ")}
                               onChange={(e) =>
                                 updateSkillCategory(
@@ -604,7 +661,7 @@ export default function ResumePreview({
                                   e.target.value.split(",").map((s) => s.trim())
                                 )
                               }
-                              placeholder="Skills (comma separated)"
+                              placeholder={t("preview.skills.itemsPlaceholder")}
                               className="flex h-8 w-full rounded-md border border-[var(--border)] bg-[var(--control)] px-3 text-xs text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                             />
                           </div>
@@ -632,10 +689,11 @@ export default function ResumePreview({
                           <button
                             type="button"
                             onClick={() => deleteSkillCategory(idx)}
-                            className="p-1 rounded text-rose-400 hover:bg-rose-500/10 text-xs flex items-center gap-1"
+                            className="p-1 rounded text-destructive hover:bg-destructive/10 text-xs flex items-center gap-1"
+                            title={t("preview.skills.deleteCategory")}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            Delete Category
+                            {t("preview.skills.deleteCategory")}
                           </button>
                         </div>
                       )}
@@ -649,7 +707,7 @@ export default function ResumePreview({
                       className="border border-dashed border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--accent)] transition-all flex items-center justify-center gap-1.5 min-h-[100px]"
                     >
                       <Plus className="h-3.5 w-3.5" />
-                      Add Skill Category
+                      {t("preview.skills.addCategory")}
                     </button>
                   )}
                 </div>

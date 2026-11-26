@@ -1,5 +1,6 @@
-export type MetricStatusFilter = "all" | "open" | "merged";
 "use client";
+
+export type MetricStatusFilter = "all" | "open" | "merged";
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import {
@@ -113,7 +114,11 @@ export function WeeklyChart({
   weeks: PullRequestSummary["weeks"];
   filter?: MetricStatusFilter;
 }) {
-  const series: Array<{ key: "opened" | "merged"; label: string; color: string }> =
+  const series: Array<{
+    key: "opened" | "merged";
+    label: string;
+    color: string;
+  }> =
     filter === "open"
       ? [{ key: "opened", label: "Opened", color: OPENED }]
       : filter === "merged"
@@ -428,32 +433,88 @@ export default function PRMetrics() {
             }
           >
             {(statusFilter === "all" || statusFilter === "open") && (
-            <Panel
-              title={`Open now · ${s.openNow}${s.draftsNow ? ` (${s.draftsNow} draft)` : ""}`}
-              aside={
-                <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
-                  Stale after
-                  <select
-                    value={staleDays}
-                    onChange={(e) => setStaleDays(Number(e.target.value))}
-                    className="border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)]"
-                  >
-                    {[7, 14, 30].map((d) => (
-                      <option key={d} value={d}>
-                        {d} days
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              }
-            >
-              {s.openList.length === 0 ? (
-                <Empty>Nothing open. Clean slate.</Empty>
-              ) : (
-                <ul className="space-y-1.5">
-                  {s.openList.map((p) => {
-                    const stale = p.ageDays >= staleDays;
-                    return (
+              <Panel
+                title={`Open now · ${s.openNow}${s.draftsNow ? ` (${s.draftsNow} draft)` : ""}`}
+                aside={
+                  <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                    Stale after
+                    <select
+                      value={staleDays}
+                      onChange={(e) => setStaleDays(Number(e.target.value))}
+                      className="border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)]"
+                    >
+                      {[7, 14, 30].map((d) => (
+                        <option key={d} value={d}>
+                          {d} days
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                }
+              >
+                {s.openList.length === 0 ? (
+                  <Empty>Nothing open. Clean slate.</Empty>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {s.openList.map((p) => {
+                      const stale = p.ageDays >= staleDays;
+                      return (
+                        <li key={p.url}>
+                          <a
+                            href={safeExternalHref(p.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
+                          >
+                            <GitPullRequest
+                              className="h-4 w-4 shrink-0"
+                              style={{ color: p.isDraft ? CLOSED : OPENED }}
+                              aria-hidden="true"
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent)]">
+                                {p.title}
+                              </span>
+                              <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
+                                {p.repo} #{p.number}
+                                {p.isDraft
+                                  ? " · draft"
+                                  : p.reviewed
+                                    ? " · reviewed"
+                                    : " · awaiting review"}
+                              </span>
+                            </span>
+                            <span
+                              className="shrink-0 font-pixel text-[10px] uppercase"
+                              style={{
+                                color: stale
+                                  ? STALE
+                                  : "var(--muted-foreground)",
+                              }}
+                              title={
+                                stale
+                                  ? `Open longer than ${staleDays} days`
+                                  : undefined
+                              }
+                            >
+                              {p.ageDays}d{stale ? " ⚠" : ""}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </Panel>
+            )}
+
+            {(statusFilter === "all" || statusFilter === "merged") && (
+              <Panel title="Recently merged">
+                {s.recentMerged.length === 0 ? (
+                  <Empty>No merges in this range yet.</Empty>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {s.recentMerged.map((p) => (
                       <li key={p.url}>
                         <a
                           href={safeExternalHref(p.url)}
@@ -461,9 +522,9 @@ export default function PRMetrics() {
                           rel="noopener noreferrer"
                           className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
                         >
-                          <GitPullRequest
+                          <GitMerge
                             className="h-4 w-4 shrink-0"
-                            style={{ color: p.isDraft ? CLOSED : OPENED }}
+                            style={{ color: MERGED }}
                             aria-hidden="true"
                           />
                           <span className="min-w-0 flex-1">
@@ -471,75 +532,21 @@ export default function PRMetrics() {
                               {p.title}
                             </span>
                             <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
-                              {p.repo} #{p.number}
-                              {p.isDraft
-                                ? " · draft"
-                                : p.reviewed
-                                  ? " · reviewed"
-                                  : " · awaiting review"}
+                              {p.repo} #{p.number} · {timeAgo(p.mergedAt)}
                             </span>
                           </span>
                           <span
-                            className="shrink-0 font-pixel text-[10px] uppercase"
-                            style={{
-                              color: stale ? STALE : "var(--muted-foreground)",
-                            }}
-                            title={
-                              stale
-                                ? `Open longer than ${staleDays} days`
-                                : undefined
-                            }
+                            className="shrink-0 font-pixel text-[10px] uppercase text-[var(--muted-foreground)]"
+                            title="Time from opening to merge"
                           >
-                            {p.ageDays}d{stale ? " ⚠" : ""}
+                            {formatDuration(p.hoursToMerge)}
                           </span>
                         </a>
                       </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Panel>
-            )}
-
-            {(statusFilter === "all" || statusFilter === "merged") && (
-            <Panel title="Recently merged">
-              {s.recentMerged.length === 0 ? (
-                <Empty>No merges in this range yet.</Empty>
-              ) : (
-                <ul className="space-y-1.5">
-                  {s.recentMerged.map((p) => (
-                    <li key={p.url}>
-                      <a
-                        href={safeExternalHref(p.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
-                      >
-                        <GitMerge
-                          className="h-4 w-4 shrink-0"
-                          style={{ color: MERGED }}
-                          aria-hidden="true"
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent)]">
-                            {p.title}
-                          </span>
-                          <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
-                            {p.repo} #{p.number} · {timeAgo(p.mergedAt)}
-                          </span>
-                        </span>
-                        <span
-                          className="shrink-0 font-pixel text-[10px] uppercase text-[var(--muted-foreground)]"
-                          title="Time from opening to merge"
-                        >
-                          {formatDuration(p.hoursToMerge)}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Panel>
+                    ))}
+                  </ul>
+                )}
+              </Panel>
             )}
           </div>
 
