@@ -616,6 +616,18 @@ export default function ContributionHeatmap({
           >
             Colour-blind
           </button>
+          <button
+            type="button"
+            onClick={() => setTheme("theme")}
+            style={
+              theme === "theme"
+                ? { backgroundColor: themeConfig.accent, color: "var(--card)" }
+                : undefined
+            }
+            className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
+          >
+            Theme
+          </button>
 
           {/* Repository and Language Filters */}
           <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-2 mt-1 w-full sm:border-t-0 sm:border-l sm:pt-0 sm:mt-0 sm:pl-2 sm:w-auto">
