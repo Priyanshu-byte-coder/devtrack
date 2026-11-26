@@ -171,6 +171,184 @@
     "signInWithGitHub": "Iniciar sesión con GitHub",
     "licenseLine": "Licencia MIT · Autoalojable · Gratis para siempre"
   },
+  "careerIntelligence": {
+    "header": {
+      "title": "Currículum",
+      "description": "Convierte tu trabajo en GitHub en un currículum optimizado para ATS adaptado a un puesto.",
+      "reScan": "Volver a escanear GitHub",
+      "reScanTooltip": "Los análisis se guardan en caché durante 24 horas"
+    },
+    "errors": {
+      "rateLimited": "Se alcanzó el límite de solicitudes de GitHub. Inténtalo de nuevo en unos minutos.",
+      "sessionExpired": "Tu sesión ha expirado. Inicia sesión de nuevo.",
+      "analyzeFailed": "No se pudo analizar tu actividad en GitHub.",
+      "pickRoleFirst": "Elige un puesto objetivo primero.",
+      "generateFailed": "No se pudo generar el currículum.",
+      "exportFailed": "No se pudo exportar el currículum.",
+      "downloadFailed": "Error al descargar el archivo.",
+      "copyFailed": "No se pudo copiar el contenido del currículum.",
+      "copySectionFailed": "No se pudo copiar la sección."
+    },
+    "steps": {
+      "footprint": "Tu huella en GitHub",
+      "targetRole": "Puesto objetivo",
+      "reviewAndDownload": "Revisar y descargar"
+    },
+    "analysis": {
+      "fetchingRepos": "Obteniendo tus repositorios…",
+      "readingPrs": "Leyendo pull requests fusionadas…",
+      "detectingTech": "Detectando lenguajes y frameworks…",
+      "scoringDomains": "Puntuando dominios de ingeniería…",
+      "durationHint": "Normalmente entre 20 y 60 segundos, según la cantidad de repositorios que tengas.",
+      "promptTitle": "Escanea tus repositorios y pull requests fusionadas",
+      "promptDescription": "DevTrack lee hasta 50 repositorios para identificar tus lenguajes, frameworks e impacto. No se publica nada en GitHub.",
+      "analyzeButton": "Analizar actividad de GitHub"
+    },
+    "stats": {
+      "prsMerged": "PRs fusionadas",
+      "repositories": "Repositorios",
+      "languages": "Lenguajes",
+      "linesAdded": "Líneas añadidas",
+      "linesRemoved": "Líneas eliminadas",
+      "reviews": "Revisiones"
+    },
+    "panel": {
+      "engineeringDomains": "Dominios de ingeniería",
+      "evidence": "Evidencia: {evidence}",
+      "technologyStack": "Pila tecnológica",
+      "languages": "Lenguajes",
+      "frameworks": "Frameworks y librerías",
+      "tools": "Herramientas y plataformas",
+      "confidence": {
+        "high": "alta",
+        "medium": "media",
+        "low": "baja"
+      },
+      "topRepositories": "Principales repositorios y contribuciones",
+      "complexity": "Complejidad {complexity}",
+      "prsMergedBadge": "{count} PRs fusionadas",
+      "noDescription": "No hay descripción disponible."
+    },
+    "domains": {
+      "Frontend": "Frontend",
+      "Backend": "Backend",
+      "AI_ML": "IA / ML",
+      "DevOps": "DevOps",
+      "DataScience": "Ciencia de datos",
+      "Security": "Seguridad",
+      "Mobile": "Móvil",
+      "Systems": "Sistemas",
+      "FullStack": "Full-stack"
+    },
+    "roles": {
+      "subtitle": "La redacción, las habilidades y los proyectos se eligen para coincidir con el puesto que elijas.",
+      "generateResume": "Generar currículum",
+      "writingResume": "Escribiendo tu currículum…",
+      "regenerate": "Regenerar",
+      "generatingDraftHint": "Redactando cada sección a partir de tus datos reales de contribución…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "Ingeniero de Machine Learning",
+          "description": "Crea modelos, canalizaciones de entrenamiento, PLN y aplicaciones de redes neuronales."
+        },
+        "frontendDeveloper": {
+          "title": "Desarrollador Frontend",
+          "description": "Crea interfaces de usuario atractivas y responsivas y aplicaciones web interactivas."
+        },
+        "backendDeveloper": {
+          "title": "Desarrollador Backend",
+          "description": "Diseña APIs escalables, microservicios, bases de datos y capas de autenticación."
+        },
+        "fullStackDeveloper": {
+          "title": "Desarrollador Full Stack",
+          "description": "Gestiona la ingeniería tanto del lado del cliente como del servidor."
+        },
+        "devOpsEngineer": {
+          "title": "Ingeniero DevOps",
+          "description": "Gestiona infraestructura, canalizaciones CI/CD, contenedorización y la nube."
+        },
+        "dataAnalyst": {
+          "title": "Analista de datos",
+          "description": "Extrae información, realiza análisis estadísticos y crea paneles."
+        }
+      },
+      "custom": {
+        "title": "Otro puesto",
+        "description": "Escribe cualquier título de trabajo para adaptar el currículum a él.",
+        "placeholder": "ej. Site Reliability Engineer, SRE, Developer Advocate…",
+        "button": "Usar puesto",
+        "selected": "Seleccionado: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "Descargar PDF",
+      "preparingPdf": "Preparando PDF…",
+      "markdown": "Markdown",
+      "json": "JSON",
+      "copyAsText": "Copiar como texto",
+      "note": "Las modificaciones que hagas a continuación se incluyen en la descarga.",
+      "summaryHeading": "RESUMEN",
+      "skillsHeading": "HABILIDADES TÉCNICAS",
+      "contributionsHeading": "CONTRIBUCIONES CLAVE",
+      "projectsHeading": "PROYECTOS"
+    },
+    "preview": {
+      "tailoredTo": "Adaptado a {role}",
+      "previewMode": "Modo vista previa",
+      "editContent": "Editar contenido",
+      "tabs": {
+        "summary": "Resumen profesional",
+        "experience": "Puntos clave de experiencia",
+        "projects": "Proyectos destacados",
+        "skills": "Habilidades y tecnologías"
+      },
+      "summary": {
+        "title": "Resumen profesional",
+        "copyTitle": "Copiar sección",
+        "ariaLabel": "Resumen profesional"
+      },
+      "experience": {
+        "title": "Puntos clave de experiencia",
+        "copyTitle": "Copiar todos los puntos",
+        "repoAria": "Nombre del repositorio",
+        "repoPlaceholder": "Nombre del repositorio",
+        "bulletAria": "Descripción del punto de experiencia",
+        "bulletPlaceholder": "Texto del punto de experiencia",
+        "generalContribution": "contribución general",
+        "aiConfidence": "{confidence}% de confianza de IA",
+        "deleteBullet": "Eliminar punto",
+        "addBullet": "Añadir punto de experiencia",
+        "newBulletText": "Nuevo logro alcanzado…"
+      },
+      "projects": {
+        "title": "Proyectos destacados",
+        "copyTitle": "Copiar todos los proyectos",
+        "nameAria": "Nombre del proyecto",
+        "namePlaceholder": "Nombre del proyecto",
+        "urlAria": "URL del repositorio",
+        "urlPlaceholder": "URL del repositorio",
+        "descAria": "Descripción del proyecto",
+        "descPlaceholder": "Descripción del proyecto",
+        "deleteProject": "Eliminar proyecto",
+        "addProject": "Añadir proyecto",
+        "newProjectName": "Nuevo proyecto",
+        "newProjectDesc": "Descripción del proyecto…"
+      },
+      "skills": {
+        "title": "Habilidades técnicas y categorías",
+        "copyTitle": "Copiar habilidades",
+        "summaryAria": "Resumen técnico general",
+        "summaryPlaceholder": "Resumen técnico general",
+        "categoryAria": "Título de la categoría",
+        "categoryPlaceholder": "Título de la categoría",
+        "itemsAria": "Habilidades (separadas por comas)",
+        "itemsPlaceholder": "Habilidades (separadas por comas)",
+        "deleteCategory": "Eliminar categoría",
+        "addCategory": "Añadir categoría de habilidades",
+        "newCategoryTitle": "Nueva categoría"
+      }
+    }
+  },
   "settings": {
     "title": "Configuración",
     "loadingLabel": "Cargando configuración",
