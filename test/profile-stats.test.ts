@@ -110,4 +110,18 @@ describe("buildProfileStats", () => {
     // "Resource not accessible by integration" failed every member profile.
     expect(PROFILE_STATS_QUERY).not.toMatch(/gists/);
   });
+
+  it("parses hasSponsorsListing from node correctly (#250)", () => {
+    const withSponsors = buildProfileStats(
+      { ...node(), hasSponsorsListing: true },
+      30
+    );
+    expect(withSponsors.hasSponsorsListing).toBe(true);
+
+    const withoutSponsors = buildProfileStats(
+      { ...node(), hasSponsorsListing: false },
+      30
+    );
+    expect(withoutSponsors.hasSponsorsListing).toBe(false);
+  });
 });

@@ -419,7 +419,7 @@ function mockMetricResponse(path) {
 
 test.describe("visual regression screenshots", () => {
   test("landing page full page screenshot in dark mode", async ({ page }) => {
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
     await page.goto("/", { waitUntil: "load" });
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await stabilize(page);
@@ -430,7 +430,7 @@ test.describe("visual regression screenshots", () => {
   });
 
   test("sign-in page screenshot", async ({ page }) => {
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
     await page.goto("/auth/signin", { waitUntil: "load" });
     await expect(
       page.getByRole("button", { name: "Sign in with GitHub" })
@@ -466,7 +466,7 @@ test.describe("visual regression screenshots", () => {
       globalThis.Date = MockDate;
     });
 
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
     await page.goto("/dashboard", { waitUntil: "load" });
     await expect(
       page.getByRole("heading", { name: "Dashboard", exact: true })
@@ -480,8 +480,8 @@ test.describe("visual regression screenshots", () => {
     });
 
     await page.evaluate(() => {
-      window.localStorage.setItem("theme", "modern-light-blue");
-      document.documentElement.dataset.theme = "modern-light-blue";
+      window.localStorage.setItem("theme", "daylight");
+      document.documentElement.dataset.theme = "daylight";
       document.documentElement.classList.remove("dark");
     });
     await page.emulateMedia({ colorScheme: "light" });
@@ -504,7 +504,7 @@ test.describe("visual regression screenshots", () => {
     page,
   }) => {
     await mockDashboardApis(page);
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
     await page.goto("/u/playwright-user", { waitUntil: "load" });
     await expect(
       page.getByRole("heading", { name: "@playwright-user", exact: false })
@@ -517,7 +517,7 @@ test.describe("visual regression screenshots", () => {
   // The leaderboard row collapses from a table into a card below `sm`, so it
   // is captured at both widths: a phone and the standard desktop clip.
   test("leaderboard screenshot on a phone", async ({ page }) => {
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto("/leaderboard", { waitUntil: "load" });
     await expect(
@@ -536,7 +536,7 @@ test.describe("visual regression screenshots", () => {
   });
 
   test("leaderboard screenshot on desktop", async ({ page }) => {
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
     await page.goto("/leaderboard", { waitUntil: "load" });
     await expect(
       page.getByRole("heading", { name: "Leaderboard", exact: true })
@@ -552,7 +552,7 @@ test.describe("visual regression screenshots", () => {
   });
 
   test("404 page screenshot", async ({ page }) => {
-    await setTheme(page, "classic-dark");
+    await setTheme(page, "arcade");
 
     const response = await page.goto("/visual-regression-missing-page", {
       waitUntil: "load",

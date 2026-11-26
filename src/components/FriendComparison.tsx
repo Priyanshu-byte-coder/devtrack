@@ -224,7 +224,7 @@ function FriendComparison() {
               value={friendUsername}
               onChange={(e) => setFriendUsername(e.target.value)}
               className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm"
-              placeholder="GitHub username..."
+              placeholder="GitHub username…"
             />
           </div>
 
@@ -239,7 +239,7 @@ function FriendComparison() {
             <button
               type="button"
               onClick={clearComparison}
-              className="w-full sm:w-auto shrink-0 whitespace-nowrap rounded-md bg-red-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800"
+              className="w-full sm:w-auto shrink-0 whitespace-nowrap rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
             >
               Clear
             </button>
@@ -249,7 +249,7 @@ function FriendComparison() {
 
       {/* ERROR */}
       {error && (
-        <div className="mb-4 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -313,7 +313,7 @@ function FriendComparison() {
       {friendData && (
         <button
           onClick={clearComparison}
-          className="mt-4 text-sm text-[var(--muted-foreground)] hover:text-red-500"
+          className="mt-4 text-sm text-[var(--muted-foreground)] hover:text-destructive"
         >
           Clear Comparison
         </button>

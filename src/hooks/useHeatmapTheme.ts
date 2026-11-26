@@ -1,9 +1,15 @@
 "use client";
 
 // import { CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
-import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-export type HeatmapTheme = "default" | "colour-blind-friendly";
+export type HeatmapTheme = "default" | "colour-blind-friendly" | "theme";
 
 export interface HeatmapThemeConfig {
   accent: string;
@@ -19,18 +25,17 @@ export interface HeatmapThemeConfig {
 
 const STORAGE_KEY = "heatmap-theme";
 const getThemeFromCookie = (): HeatmapTheme | null => {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(new RegExp('(^| )theme=([^;]+)'));
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp("(^| )theme=([^;]+)"));
   return match ? (match[2] as HeatmapTheme) : null;
 };
-
 
 const themeConfigs: Record<HeatmapTheme, HeatmapThemeConfig> = {
   default: {
     accent: "rgba(33, 110, 57, 1)",
     secondary: "rgba(48, 161, 78, 1)",
-    missed: "rgba(148, 163, 184, 0.15)",
-    border: "rgba(148, 163, 184, 0.35)",
+    missed: "var(--card-muted)",
+    border: "var(--border)",
     text: "var(--card-foreground)",
     levelOne: "rgba(155, 233, 168, 0.85)",
     levelTwo: "rgba(64, 196, 99, 0.9)",
@@ -40,13 +45,24 @@ const themeConfigs: Record<HeatmapTheme, HeatmapThemeConfig> = {
   "colour-blind-friendly": {
     accent: "rgba(8, 81, 156, 1)",
     secondary: "rgba(33, 113, 181, 1)",
-    missed: "rgba(148, 163, 184, 0.15)",
-    border: "rgba(148, 163, 184, 0.35)",
+    missed: "var(--card-muted)",
+    border: "var(--border)",
     text: "var(--foreground)",
     levelOne: "rgba(207, 232, 255, 0.9)",
     levelTwo: "rgba(107, 174, 214, 0.95)",
     levelThree: "rgba(33, 113, 181, 0.98)",
     levelFour: "rgba(8, 81, 156, 1)",
+  },
+  theme: {
+    accent: "var(--accent)",
+    secondary: "var(--accent)",
+    missed: "var(--card-muted)",
+    border: "var(--border)",
+    text: "var(--card-foreground)",
+    levelOne: "color-mix(in srgb, var(--accent) 25%, var(--card))",
+    levelTwo: "color-mix(in srgb, var(--accent) 50%, var(--card))",
+    levelThree: "color-mix(in srgb, var(--accent) 75%, var(--card))",
+    levelFour: "color-mix(in srgb, var(--accent) 100%, var(--card))",
   },
 };
 
@@ -54,7 +70,10 @@ export function getHeatmapThemeConfig(theme: HeatmapTheme): HeatmapThemeConfig {
   return themeConfigs[theme] ?? themeConfigs.default;
 }
 
-export function getHeatmapCellStyle(count: number, config: HeatmapThemeConfig): CSSProperties {
+export function getHeatmapCellStyle(
+  count: number,
+  config: HeatmapThemeConfig
+): CSSProperties {
   if (count === 0) {
     return {
       backgroundColor: config.missed,
@@ -89,7 +108,10 @@ export function getHeatmapCellStyle(count: number, config: HeatmapThemeConfig): 
   };
 }
 
-export function getCalendarCellStyle(count: number, config: HeatmapThemeConfig): CSSProperties {
+export function getCalendarCellStyle(
+  count: number,
+  config: HeatmapThemeConfig
+): CSSProperties {
   if (count === 0) {
     return {
       backgroundColor: config.missed,
@@ -132,8 +154,10 @@ export function useHeatmapTheme() {
     setMounted(true);
     if (typeof window === "undefined") return;
 
-    const saved = window.localStorage.getItem(STORAGE_KEY) as HeatmapTheme | null;
-    if (saved === "colour-blind-friendly") {
+    const saved = window.localStorage.getItem(
+      STORAGE_KEY
+    ) as HeatmapTheme | null;
+    if (saved === "colour-blind-friendly" || saved === "theme") {
       _setTheme(saved);
       return;
     }
@@ -146,7 +170,9 @@ export function useHeatmapTheme() {
       try {
         window.localStorage.setItem(STORAGE_KEY, t);
       } catch (e) {}
-      window.dispatchEvent(new CustomEvent("heatmap-theme-changed", { detail: t }));
+      window.dispatchEvent(
+        new CustomEvent("heatmap-theme-changed", { detail: t })
+      );
     }
 
     _setTheme(t);
@@ -171,7 +197,10 @@ export function useHeatmapTheme() {
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("heatmap-theme-changed", onCustom as EventListener);
+      window.removeEventListener(
+        "heatmap-theme-changed",
+        onCustom as EventListener
+      );
     };
   }, []);
 

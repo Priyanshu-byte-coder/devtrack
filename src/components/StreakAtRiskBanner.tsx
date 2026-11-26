@@ -11,30 +11,56 @@ interface StreakAtRiskBannerProps {
   hasStreakFreeze?: boolean;
 }
 
+const DISMISSAL_KEY = "streak-banner-dismissed-date";
+
+function getTodayDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export default function StreakAtRiskBanner({
   lastCommitDate: propsLastCommitDate,
   currentStreak: propsCurrentStreak,
   hasStreakFreeze,
 }: StreakAtRiskBannerProps) {
   const { selectedAccount } = useAccount();
+
   const [dismissed, setDismissed] = useState(false);
+  const [dismissalChecked, setDismissalChecked] = useState(false);
   const [lastCommitDate, setLastCommitDate] = useState(propsLastCommitDate);
   const [currentStreak, setCurrentStreak] = useState(propsCurrentStreak);
   const [hasStreakFreezeState, setHasStreakFreezeState] =
     useState(hasStreakFreeze);
   const [isAtRisk, setIsAtRisk] = useState(false);
 
+  // Check whether the banner was dismissed today.
   useEffect(() => {
-    // If props weren't passed (e.g. from a Server Component), fetch them
+    try {
+      const dismissedDate = window.localStorage.getItem(DISMISSAL_KEY);
+      setDismissed(dismissedDate === getTodayDate());
+    } catch {
+      setDismissed(false);
+    } finally {
+      setDismissalChecked(true);
+    }
+  }, []);
+
+  // Fetch streak data when props aren't provided.
+  useEffect(() => {
     if (propsLastCommitDate === undefined || propsCurrentStreak === undefined) {
       const url =
         selectedAccount !== null
           ? `/api/metrics/streak?accountId=${encodeURIComponent(selectedAccount)}`
           : "/api/metrics/streak";
+
       fetch(url)
         .then((r) => r.json())
         .then((data) => {
-          setLastCommitDate(data.lastCommitDate);
+          setLastCommitDate(data.lastCommitDate ?? null);
           setCurrentStreak(data.current);
         })
         .catch(() => {});
@@ -44,6 +70,7 @@ export default function StreakAtRiskBanner({
     }
   }, [propsLastCommitDate, propsCurrentStreak, selectedAccount]);
 
+  // Check streak freeze status.
   useEffect(() => {
     if (hasStreakFreeze === undefined) {
       fetch("/api/streak/freeze")
@@ -57,6 +84,7 @@ export default function StreakAtRiskBanner({
     }
   }, [hasStreakFreeze]);
 
+  // Determine whether the streak is at risk.
   useEffect(() => {
     if (
       dismissed ||
@@ -70,17 +98,15 @@ export default function StreakAtRiskBanner({
     }
 
     const now = new Date();
-    // 1. Check if current time is past 20:00 (8pm)
+
+    // Only show the banner after 8 PM.
     if (now.getHours() < 20) {
       setIsAtRisk(false);
       return;
     }
 
-    // 2. Check if lastCommitDate is NOT today
-    // Convert to local YYYY-MM-DD for comparison
-    const todayStr = now.toLocaleDateString("en-CA"); // "YYYY-MM-DD" in local time
-    // lastCommitDate comes as "YYYY-MM-DD" from API
-    if (lastCommitDate === todayStr) {
+    // Check whether the last commit was today.
+    if (lastCommitDate === getTodayDate()) {
       setIsAtRisk(false);
       return;
     }
@@ -88,9 +114,19 @@ export default function StreakAtRiskBanner({
     setIsAtRisk(true);
   }, [lastCommitDate, currentStreak, hasStreakFreezeState, dismissed]);
 
-  // Guard: hide banner when streak freeze is confirmed active (true) or
-  // still loading (undefined). Only render when we know for sure the user
-  // has no freeze (hasStreakFreezeState === false) and the streak is at risk.
+  const handleDismiss = () => {
+    try {
+      window.localStorage.setItem(DISMISSAL_KEY, getTodayDate());
+    } catch {
+      // Keep the banner dismissible when browser storage is unavailable.
+    }
+
+    setDismissed(true);
+  };
+
+  if (!dismissalChecked) return null;
+
+  // Hide while loading freeze status or when the streak is not at risk.
   if (!isAtRisk || dismissed || hasStreakFreezeState !== false) return null;
 
   return (
@@ -114,16 +150,18 @@ export default function StreakAtRiskBanner({
           </p>
         </div>
       </div>
+
       <div className="flex items-center gap-3 self-end sm:self-auto">
         <Link
           href="/dashboard/activity#streaks"
-          className="inline-flex items-center justify-center rounded-lg bg-warning/20 px-3.5 py-1.5 text-xs font-semibold hover:bg-warning/30 transition-all active:scale-[0.98]"
+          className="inline-flex items-center justify-center rounded-lg bg-warning/20 px-3.5 py-1.5 text-xs font-semibold hover:bg-warning/30 transition-[background-color,transform] active:scale-[0.98]"
         >
           View streak
         </Link>
+
         <button
-          onClick={() => setDismissed(true)}
-          className="rounded-lg p-1.5 opacity-70 hover:bg-warning/20 hover:opacity-100 transition-all"
+          onClick={handleDismiss}
+          className="rounded-lg p-1.5 opacity-70 hover:bg-warning/20 hover:opacity-100 transition-[background-color,opacity]"
           aria-label="Dismiss banner"
         >
           <X size={18} aria-hidden="true" />

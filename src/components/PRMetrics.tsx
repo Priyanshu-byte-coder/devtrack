@@ -1,5 +1,7 @@
 "use client";
 
+export type MetricStatusFilter = "all" | "open" | "merged";
+
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import {
   ExternalLink,
@@ -105,17 +107,53 @@ function StatTile({
   );
 }
 
-function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
-  const peak = Math.max(1, ...weeks.flatMap((w) => [w.opened, w.merged]));
+export function WeeklyChart({
+  weeks,
+  filter = "all",
+}: {
+  weeks: PullRequestSummary["weeks"];
+  filter?: MetricStatusFilter;
+}) {
+  const series: Array<{
+    key: "opened" | "merged";
+    label: string;
+    color: string;
+  }> =
+    filter === "open"
+      ? [{ key: "opened", label: "Opened", color: OPENED }]
+      : filter === "merged"
+        ? [{ key: "merged", label: "Merged", color: MERGED }]
+        : [
+            { key: "opened", label: "Opened", color: OPENED },
+            { key: "merged", label: "Merged", color: MERGED },
+          ];
+
+  const peak = Math.max(
+    1,
+    ...weeks.flatMap((w) =>
+      filter === "open"
+        ? [w.opened]
+        : filter === "merged"
+          ? [w.merged]
+          : [w.opened, w.merged]
+    )
+  );
+
   return (
     <div>
       <div
         className="flex h-32 items-end gap-1.5 border-b-2 border-[var(--border)] sm:gap-3"
         role="img"
-        aria-label={`PRs opened and merged per week: ${weeks
+        aria-label={`PRs ${filter} per week: ${weeks
           .map(
             (w) =>
-              `${weekLabel(w.weekStart)} ${w.opened} opened, ${w.merged} merged`
+              `${weekLabel(w.weekStart)} ${
+                filter === "all"
+                  ? `${w.opened} opened, ${w.merged} merged`
+                  : filter === "open"
+                    ? `${w.opened} opened`
+                    : `${w.merged} merged`
+              }`
           )
           .join("; ")}`}
       >
@@ -123,24 +161,30 @@ function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
           <div
             key={w.weekStart}
             className="flex h-full min-w-0 flex-1 items-end justify-center gap-0.5 sm:gap-1"
-            title={`Week of ${weekLabel(w.weekStart)}: ${w.opened} opened, ${w.merged} merged`}
+            title={`Week of ${weekLabel(w.weekStart)}: ${
+              filter === "all"
+                ? `${w.opened} opened, ${w.merged} merged`
+                : filter === "open"
+                  ? `${w.opened} opened`
+                  : `${w.merged} merged`
+            }`}
           >
-            {[
-              [w.opened, OPENED],
-              [w.merged, MERGED],
-            ].map(([count, color], i) => (
-              <div
-                key={i}
-                className="w-full max-w-4 transition-[height] duration-500"
-                style={{
-                  height: `${Math.max(Number(count) > 0 ? 6 : 2, (Number(count) / peak) * 100)}%`,
-                  background:
-                    Number(count) > 0
-                      ? String(color)
-                      : "color-mix(in srgb, var(--border) 70%, transparent)",
-                }}
-              />
-            ))}
+            {series.map(({ key, color }) => {
+              const count = w[key];
+              return (
+                <div
+                  key={key}
+                  className="w-full max-w-4 transition-[height] duration-500"
+                  style={{
+                    height: `${Math.max(Number(count) > 0 ? 6 : 2, (Number(count) / peak) * 100)}%`,
+                    background:
+                      Number(count) > 0
+                        ? String(color)
+                        : "color-mix(in srgb, var(--border) 70%, transparent)",
+                  }}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
@@ -156,10 +200,7 @@ function WeeklyChart({ weeks }: { weeks: PullRequestSummary["weeks"] }) {
         ))}
       </div>
       <div className="mt-3 flex gap-4 text-xs text-[var(--muted-foreground)]">
-        {[
-          ["Opened", OPENED],
-          ["Merged", MERGED],
-        ].map(([label, color]) => (
+        {series.map(({ label, color }) => (
           <span key={label} className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5" style={{ background: color }} />
             {label}
@@ -187,6 +228,7 @@ export default function PRMetrics() {
     "devtrack:pr-metrics:range",
     "30d"
   );
+  const [statusFilter, setStatusFilter] = useState<MetricStatusFilter>("all");
   const [staleDays, setStaleDays] = usePersistentState(
     "devtrack:pr-metrics:staleThreshold",
     14
@@ -348,41 +390,131 @@ export default function PRMetrics() {
             />
           </div>
 
-          <Panel title="Weekly activity">
+          <Panel
+            title="Weekly activity"
+            aside={
+              <div
+                className={arcadeTabGroupClass}
+                role="group"
+                aria-label="Filter pull request status"
+              >
+                {(
+                  [
+                    { id: "all", label: "All" },
+                    { id: "open", label: "Open" },
+                    { id: "merged", label: "Merged" },
+                  ] as const
+                ).map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setStatusFilter(id)}
+                    aria-pressed={statusFilter === id}
+                    className={arcadeTabClass(statusFilter === id)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            }
+          >
             {s.opened === 0 ? (
               <Empty>No pull requests in this range yet.</Empty>
             ) : (
-              <WeeklyChart weeks={s.weeks} />
+              <WeeklyChart weeks={s.weeks} filter={statusFilter} />
             )}
           </Panel>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Panel
-              title={`Open now · ${s.openNow}${s.draftsNow ? ` (${s.draftsNow} draft)` : ""}`}
-              aside={
-                <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
-                  Stale after
-                  <select
-                    value={staleDays}
-                    onChange={(e) => setStaleDays(Number(e.target.value))}
-                    className="border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)]"
-                  >
-                    {[7, 14, 30].map((d) => (
-                      <option key={d} value={d}>
-                        {d} days
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              }
-            >
-              {s.openList.length === 0 ? (
-                <Empty>Nothing open. Clean slate.</Empty>
-              ) : (
-                <ul className="space-y-1.5">
-                  {s.openList.map((p) => {
-                    const stale = p.ageDays >= staleDays;
-                    return (
+          <div
+            className={
+              statusFilter === "all"
+                ? "grid gap-4 lg:grid-cols-2"
+                : "grid gap-4 grid-cols-1"
+            }
+          >
+            {(statusFilter === "all" || statusFilter === "open") && (
+              <Panel
+                title={`Open now · ${s.openNow}${s.draftsNow ? ` (${s.draftsNow} draft)` : ""}`}
+                aside={
+                  <label className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                    Stale after
+                    <select
+                      value={staleDays}
+                      onChange={(e) => setStaleDays(Number(e.target.value))}
+                      className="border border-[var(--border)] bg-[var(--card)] px-1.5 py-0.5 text-[11px] text-[var(--foreground)]"
+                    >
+                      {[7, 14, 30].map((d) => (
+                        <option key={d} value={d}>
+                          {d} days
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                }
+              >
+                {s.openList.length === 0 ? (
+                  <Empty>Nothing open. Clean slate.</Empty>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {s.openList.map((p) => {
+                      const stale = p.ageDays >= staleDays;
+                      return (
+                        <li key={p.url}>
+                          <a
+                            href={safeExternalHref(p.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
+                          >
+                            <GitPullRequest
+                              className="h-4 w-4 shrink-0"
+                              style={{ color: p.isDraft ? CLOSED : OPENED }}
+                              aria-hidden="true"
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent)]">
+                                {p.title}
+                              </span>
+                              <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
+                                {p.repo} #{p.number}
+                                {p.isDraft
+                                  ? " · draft"
+                                  : p.reviewed
+                                    ? " · reviewed"
+                                    : " · awaiting review"}
+                              </span>
+                            </span>
+                            <span
+                              className="shrink-0 font-pixel text-[10px] uppercase"
+                              style={{
+                                color: stale
+                                  ? STALE
+                                  : "var(--muted-foreground)",
+                              }}
+                              title={
+                                stale
+                                  ? `Open longer than ${staleDays} days`
+                                  : undefined
+                              }
+                            >
+                              {p.ageDays}d{stale ? " ⚠" : ""}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </Panel>
+            )}
+
+            {(statusFilter === "all" || statusFilter === "merged") && (
+              <Panel title="Recently merged">
+                {s.recentMerged.length === 0 ? (
+                  <Empty>No merges in this range yet.</Empty>
+                ) : (
+                  <ul className="space-y-1.5">
+                    {s.recentMerged.map((p) => (
                       <li key={p.url}>
                         <a
                           href={safeExternalHref(p.url)}
@@ -390,9 +522,9 @@ export default function PRMetrics() {
                           rel="noopener noreferrer"
                           className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
                         >
-                          <GitPullRequest
+                          <GitMerge
                             className="h-4 w-4 shrink-0"
-                            style={{ color: p.isDraft ? CLOSED : OPENED }}
+                            style={{ color: MERGED }}
                             aria-hidden="true"
                           />
                           <span className="min-w-0 flex-1">
@@ -400,73 +532,22 @@ export default function PRMetrics() {
                               {p.title}
                             </span>
                             <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
-                              {p.repo} #{p.number}
-                              {p.isDraft
-                                ? " · draft"
-                                : p.reviewed
-                                  ? " · reviewed"
-                                  : " · awaiting review"}
+                              {p.repo} #{p.number} · {timeAgo(p.mergedAt)}
                             </span>
                           </span>
                           <span
-                            className="shrink-0 font-pixel text-[10px] uppercase"
-                            style={{
-                              color: stale ? STALE : "var(--muted-foreground)",
-                            }}
-                            title={
-                              stale
-                                ? `Open longer than ${staleDays} days`
-                                : undefined
-                            }
+                            className="shrink-0 font-pixel text-[10px] uppercase text-[var(--muted-foreground)]"
+                            title="Time from opening to merge"
                           >
-                            {p.ageDays}d{stale ? " ⚠" : ""}
+                            {formatDuration(p.hoursToMerge)}
                           </span>
                         </a>
                       </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </Panel>
-
-            <Panel title="Recently merged">
-              {s.recentMerged.length === 0 ? (
-                <Empty>No merges in this range yet.</Empty>
-              ) : (
-                <ul className="space-y-1.5">
-                  {s.recentMerged.map((p) => (
-                    <li key={p.url}>
-                      <a
-                        href={safeExternalHref(p.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-3 bg-[var(--card)] px-3 py-2 hover:outline hover:outline-2 hover:outline-[var(--border)]"
-                      >
-                        <GitMerge
-                          className="h-4 w-4 shrink-0"
-                          style={{ color: MERGED }}
-                          aria-hidden="true"
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm text-[var(--card-foreground)] group-hover:text-[var(--accent)]">
-                            {p.title}
-                          </span>
-                          <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
-                            {p.repo} #{p.number} · {timeAgo(p.mergedAt)}
-                          </span>
-                        </span>
-                        <span
-                          className="shrink-0 font-pixel text-[10px] uppercase text-[var(--muted-foreground)]"
-                          title="Time from opening to merge"
-                        >
-                          {formatDuration(p.hoursToMerge)}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Panel>
+                    ))}
+                  </ul>
+                )}
+              </Panel>
+            )}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">

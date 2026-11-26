@@ -9,7 +9,11 @@ import LeaderboardFilters from "@/components/leaderboard/LeaderboardFilters";
 import LeaderboardSkeleton from "@/app/leaderboard/LeaderboardSkeleton";
 import SponsorBadge from "@/components/SponsorBadge";
 import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
-import Podium, { type PodiumPlace } from "@/components/leaderboard/Podium";
+import Podium, {
+  type PodiumChase,
+  type PodiumPlace,
+} from "@/components/leaderboard/Podium";
+import { getFollowing } from "@/lib/github-following";
 import DevLookup from "@/components/landing/arcade/DevLookup";
 import SponsorSlot from "@/components/sponsor/SponsorSlot";
 import { SIGN_IN_HREF } from "@/components/landing/arcade/types";
@@ -51,6 +55,12 @@ export const metadata: Metadata = {
 
 type LeaderboardTab = "overall" | "streak" | "commits" | "prs";
 type LeaderboardPeriod = "week" | "month" | "all";
+type LeaderboardView = "everyone" | "following";
+type LeaderboardFiltersState = {
+  lang?: string;
+  period: LeaderboardPeriod;
+  view: LeaderboardView;
+};
 
 const tabs: Array<{ id: LeaderboardTab; label: string; metric: string }> = [
   { id: "overall", label: "Overall", metric: "score" },
@@ -67,6 +77,14 @@ const periods: Record<LeaderboardPeriod, string> = {
 
 const fmt = new Intl.NumberFormat("en-US");
 
+/** What the podium chase counts in, per tab. */
+const chaseUnit: Record<LeaderboardTab, string> = {
+  overall: "points",
+  streak: "days",
+  commits: "commits",
+  prs: "PRs",
+};
+
 /**
  * Rows the table renders. The board ranks everyone; past this a signed-in
  * player still sees their own row, after a gap.
@@ -81,7 +99,7 @@ function isLeaderboardPeriod(
 
 function leaderboardHref(
   tab: LeaderboardTab,
-  filters: { lang?: string; period: LeaderboardPeriod }
+  filters: LeaderboardFiltersState
 ): string {
   const params = new URLSearchParams({ tab });
 
@@ -91,6 +109,10 @@ function leaderboardHref(
 
   if (filters.period !== "all") {
     params.set("period", filters.period);
+  }
+
+  if (filters.view === "following") {
+    params.set("view", "following");
   }
 
   return `/leaderboard?${params.toString()}`;
@@ -111,11 +133,16 @@ function seasonDaysLeft(now = new Date()) {
   return last - now.getUTCDate() + 1;
 }
 
-async function viewerLogin(): Promise<string | null> {
+type Viewer = { login: string; token?: string } | null;
+
+async function viewerSession(): Promise<Viewer> {
   const session = await getServerSession(authOptions);
-  return typeof session?.githubLogin === "string"
-    ? session.githubLogin.toLowerCase()
-    : null;
+  if (typeof session?.githubLogin !== "string") return null;
+  return {
+    login: session.githubLogin.toLowerCase(),
+    token:
+      typeof session.accessToken === "string" ? session.accessToken : undefined,
+  };
 }
 
 /** Larger avatar for the podium; leaderboard avatars are requested at 96px. */
@@ -130,12 +157,20 @@ async function LeaderboardTable({
   viewer,
 }: {
   activeTab: LeaderboardTab;
-  filters: { lang?: string; period: LeaderboardPeriod };
-  viewer: string | null;
+  filters: LeaderboardFiltersState;
+  viewer: Viewer;
 }) {
   const hasFilters = Boolean(filters.lang) || filters.period !== "all";
+  const followingView = filters.view === "following";
 
-  let leaderboard = await getLeaderboardData(false, { period: filters.period });
+  if (followingView && !viewer) return <FollowingSignIn />;
+
+  let [leaderboard, following] = await Promise.all([
+    getLeaderboardData(false, { period: filters.period }),
+    viewer
+      ? getFollowing(viewer.login, viewer.token)
+      : Promise.resolve(new Set<string>()),
+  ]);
   if (leaderboard && filters.lang) {
     leaderboard = await filterLeaderboardByLanguage(leaderboard, filters.lang);
   }
@@ -170,9 +205,16 @@ async function LeaderboardTable({
   const showMovement =
     activeTab === "overall" && overall.length > 0 && !filters.lang;
   const isYou = (entry: LeaderboardEntry) =>
-    viewer !== null && entry.username.toLowerCase() === viewer;
-  const shown = rows.slice(0, SHOWN_ROWS);
-  const viewerRow = rows.find(isYou);
+    viewer !== null && entry.username.toLowerCase() === viewer.login;
+  const isFollowed = (entry: LeaderboardEntry) =>
+    following.has(entry.username.toLowerCase());
+  // The Following view keeps everyone's global rank, but lists only you and
+  // the people you follow on GitHub.
+  const listRows = followingView
+    ? rows.filter((entry) => isYou(entry) || isFollowed(entry))
+    : rows;
+  const shown = listRows.slice(0, SHOWN_ROWS);
+  const viewerRow = listRows.find(isYou);
   const viewerBelow =
     viewerRow && !shown.includes(viewerRow) ? viewerRow : null;
 
@@ -201,12 +243,39 @@ async function LeaderboardTable({
     tier: entry.tier,
     scoreV2: entry.scoreV2,
     isYou: isYou(entry),
+    isFollowed: isFollowed(entry),
   }));
-  const rest = viewerBelow ? [...shown.slice(3), viewerBelow] : shown.slice(3);
-  const climbers = showMovement
-    ? biggestClimbers(rows, baseline.ranks, baseline.date !== null)
-    : [];
+  const viewerIndex = rows.findIndex(isYou);
+  const chase: PodiumChase = !viewer
+    ? { kind: "signed-out" }
+    : viewerIndex === -1
+      ? { kind: "off-board" }
+      : viewerIndex < 3
+        ? { kind: "on-podium", rank: rows[viewerIndex].rank }
+        : {
+            kind: "chasing",
+            rank: rows[viewerIndex].rank,
+            value: getMetricValue(rows[viewerIndex], activeTab),
+            target: getMetricValue(rows[2], activeTab),
+            unit: chaseUnit[activeTab],
+          };
+  const podiumCaption = [
+    activeMeta.label,
+    activeTab === "streak" ? null : periods[filters.period],
+    filters.lang ?? null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const listed = followingView ? shown : shown.slice(3);
+  const rest = viewerBelow ? [...listed, viewerBelow] : listed;
+  const climbers =
+    showMovement && !followingView
+      ? biggestClimbers(rows, baseline.ranks, baseline.date !== null)
+      : [];
   const viewerOnBoard = rows.some(isYou);
+  const followedOnBoard = followingView
+    ? listRows.filter((entry) => !isYou(entry)).length
+    : 0;
 
   return (
     <>
@@ -246,7 +315,11 @@ async function LeaderboardTable({
         </div>
       ) : (
         <>
-          <Podium places={podium} />
+          {followingView ? (
+            <FollowingHeader count={followedOnBoard} />
+          ) : (
+            <Podium places={podium} caption={podiumCaption} chase={chase} />
+          )}
 
           {climbers.length > 0 && (
             <Climbers climbers={climbers} since={baselineLabel} />
@@ -254,7 +327,11 @@ async function LeaderboardTable({
 
           {rest.length > 0 && (
             <section
-              aria-label={`Ranks 4 to ${shown.length}`}
+              aria-label={
+                followingView
+                  ? "You and the players you follow"
+                  : `Ranks 4 to ${shown.length}`
+              }
               className="px-frame bg-[var(--card)]"
             >
               {/* Column headings only make sense once the row is a real
@@ -277,6 +354,7 @@ async function LeaderboardTable({
               <ul className="divide-y-2 divide-dashed divide-[var(--border)]">
                 {rest.map((entry, index) => {
                   const you = isYou(entry);
+                  const followed = !you && isFollowed(entry);
                   return (
                     <Fragment key={entry.id}>
                       {entry === viewerBelow && (
@@ -290,10 +368,13 @@ async function LeaderboardTable({
                       )}
                       <Reveal
                         as="li"
-                        className={`relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--control)] ${
+                        id={you ? "you" : undefined}
+                        className={`relative flex scroll-mt-24 items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--control)] ${
                           you
                             ? "bg-accent/10 shadow-[inset_4px_0_0_0_var(--accent)]"
-                            : ""
+                            : followed
+                              ? "shadow-[inset_4px_0_0_0_var(--accent-secondary)]"
+                              : ""
                         }`}
                         y={8}
                         amount={0}
@@ -334,13 +415,18 @@ async function LeaderboardTable({
                             <Link
                               href={entry.profileUrl}
                               title={entry.username}
-                              className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none"
+                              className="truncate font-mono text-sm font-semibold text-[var(--card-foreground)] after:absolute after:inset-0 hover:text-[var(--accent)] focus-visible:text-[var(--accent)] focus-visible:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:rounded"
                             >
                               @{entry.username}
                             </Link>
                             {you && (
                               <span className="shrink-0 font-pixel text-[10px] uppercase text-[var(--accent)]">
                                 You
+                              </span>
+                            )}
+                            {followed && (
+                              <span className="shrink-0 font-pixel text-[10px] uppercase text-[var(--accent-secondary)]">
+                                Following
                               </span>
                             )}
                             {entry.tier && (
@@ -396,9 +482,9 @@ async function LeaderboardTable({
             </section>
           )}
 
-          {rows.length > shown.length && (
+          {listRows.length > shown.length && (
             <p className="mt-3 font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-              Top {fmt.format(shown.length)} of {fmt.format(rows.length)}{" "}
+              Top {fmt.format(shown.length)} of {fmt.format(listRows.length)}{" "}
               players
             </p>
           )}
@@ -465,6 +551,44 @@ function Climbers({
   );
 }
 
+/** Heading for the Following view: how many people you follow are ranked. */
+function FollowingHeader({ count }: { count: number }) {
+  return (
+    <section
+      aria-label="Players you follow"
+      className="px-frame mb-8 bg-[var(--card)] px-4 py-4 sm:px-6"
+    >
+      <p className="font-pixel text-xs uppercase tracking-[0.16em] text-[var(--accent-secondary)]">
+        Your circle
+      </p>
+      <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
+        {count === 0
+          ? "Nobody you follow on GitHub is on the board yet. Share your profile and challenge them to join."
+          : `${fmt.format(count)} ${count === 1 ? "player" : "players"} you follow on GitHub ${count === 1 ? "is" : "are"} on the board. Ranks are their global ranks.`}
+      </p>
+    </section>
+  );
+}
+
+/** The Following view needs to know who you are. */
+function FollowingSignIn() {
+  return (
+    <section className="px-frame px-frame-accent bg-[var(--card)] px-6 py-10 text-center">
+      <p className="font-pixel text-lg uppercase text-[var(--card-foreground)]">
+        See your circle
+      </p>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--muted-foreground)]">
+        Sign in with GitHub to see where the people you follow rank.
+      </p>
+      <div className="-m-1 mt-6">
+        <a href={SIGN_IN_HREF} className="px-btn">
+          Press start
+        </a>
+      </div>
+    </section>
+  );
+}
+
 /** For anyone not on the board: how to get on it, or where they'd land. */
 function JoinPanel({ signedIn }: { signedIn: boolean }) {
   return (
@@ -504,7 +628,12 @@ function JoinPanel({ signedIn }: { signedIn: boolean }) {
 export default async function LeaderboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; lang?: string; period?: string }>;
+  searchParams: Promise<{
+    tab?: string;
+    lang?: string;
+    period?: string;
+    view?: string;
+  }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const activeTab = tabs.some((tab) => tab.id === resolvedSearchParams.tab)
@@ -513,8 +642,14 @@ export default async function LeaderboardPage({
   const period = isLeaderboardPeriod(resolvedSearchParams.period)
     ? resolvedSearchParams.period
     : "all";
-  const filters = { lang: resolvedSearchParams.lang, period };
-  const viewer = await viewerLogin();
+  const view: LeaderboardView =
+    resolvedSearchParams.view === "following" ? "following" : "everyone";
+  const filters: LeaderboardFiltersState = {
+    lang: resolvedSearchParams.lang,
+    period,
+    view,
+  };
+  const viewer = await viewerSession();
   const daysLeft = seasonDaysLeft();
   const seasonName = new Date().toLocaleDateString("en-US", {
     month: "short",
@@ -572,13 +707,32 @@ export default async function LeaderboardPage({
           })}
         </nav>
 
-        <Suspense fallback={null}>
-          <LeaderboardFilters />
-        </Suspense>
+        <div className="flex flex-wrap items-center gap-2">
+          {viewer && (
+            <nav aria-label="Show" className={arcadeTabGroupClass}>
+              {(["everyone", "following"] as const).map((option) => (
+                <Link
+                  key={option}
+                  href={leaderboardHref(activeTab, {
+                    ...filters,
+                    view: option,
+                  })}
+                  aria-current={option === view ? "page" : undefined}
+                  className={arcadeTabClass(option === view)}
+                >
+                  {option === "everyone" ? "Everyone" : "Following"}
+                </Link>
+              ))}
+            </nav>
+          )}
+          <Suspense fallback={null}>
+            <LeaderboardFilters />
+          </Suspense>
+        </div>
       </div>
 
       <Suspense
-        key={`${activeTab}-${filters.lang ?? ""}-${filters.period}`}
+        key={`${activeTab}-${filters.lang ?? ""}-${filters.period}-${filters.view}`}
         fallback={<LeaderboardSkeleton />}
       >
         <LeaderboardTable

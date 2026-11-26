@@ -70,15 +70,10 @@
   --chart-8: #40d9c2;
 }
 
-html[data-theme="classic-dark"],
-html.dark {
-  color-scheme: dark;
-  --card: #111111;
-  --card-muted: #1a1a1a;
-  --border: #2a2a2a;
-}
-
-html[data-theme="modern-light-blue"] {
+/* Themes. Arcade is :root above (the navy brand look the landing page and
+   podium use). Each other theme redefines the full token set, so it reads as
+   its own cabinet rather than a tinted copy of Arcade. */
+html[data-theme="daylight"] {
   color-scheme: light;
   --background: #f6f8fc;
   --foreground: #0f172a;
@@ -115,78 +110,80 @@ html[data-theme="modern-light-blue"] {
   --chart-8: #14b8a6;
 }
 
-html[data-theme="nordic-frost"] {
+/* Green-phosphor CRT: everything glows green, amber for highlights. */
+html[data-theme="terminal"] {
   color-scheme: dark;
-  --background: #07131f;
-  --foreground: #eaf4ff;
-  --muted: #111f31;
-  --muted-foreground: #9eb6ce;
-  --card: #0c1a2a;
-  --card-foreground: #eaf4ff;
-  --card-muted: #122436;
-  --border: #213447;
-  --accent: #59e3d0;
-  --accent-secondary: #6ad1ff;
-  --ring: #8af2e7;
-  --focus-ring: #8af2e7;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --destructive: #fb7185;
-  --accent-soft: rgba(89, 227, 208, 0.14);
-  --accent-foreground: #04111a;
-  --control: #122031;
-  --control-hover: #173046;
-  --tooltip: #0a1624;
-  --tooltip-foreground: #eaf4ff;
-  --destructive-muted: rgba(251, 113, 133, 0.1);
-  --destructive-muted-border: rgba(251, 113, 133, 0.28);
+  --background: #020a04;
+  --foreground: #c4ffd0;
+  --muted: #08160c;
+  --muted-foreground: #6fbf83;
+  --card: #051009;
+  --card-foreground: #c4ffd0;
+  --card-muted: #0a1d10;
+  --border: #15401f;
+  --accent: #39ff6a;
+  --accent-secondary: #ffb000;
+  --ring: #7dffa0;
+  --focus-ring: #7dffa0;
+  --success: #39ff6a;
+  --warning: #ffb000;
+  --destructive: #ff5f56;
+  --accent-soft: rgba(57, 255, 106, 0.12);
+  --accent-foreground: #021006;
+  --control: #0a1d10;
+  --control-hover: #102a17;
+  --tooltip: #051009;
+  --tooltip-foreground: #c4ffd0;
+  --destructive-muted: rgba(255, 95, 86, 0.1);
+  --destructive-muted-border: rgba(255, 95, 86, 0.3);
   --destructive-foreground: #ffffff;
-  --shadow-soft: 0 16px 34px -24px rgba(4, 16, 29, 0.78);
-  --shadow-medium: 0 24px 45px -28px rgba(4, 16, 29, 0.86);
-  --chart-2: #67e8f9;
-  --chart-3: #a5f3fc;
-  --chart-4: #5eead4;
-  --chart-5: #34d399;
-  --chart-6: #22c55e;
-  --chart-7: #7dd3fc;
-  --chart-8: #2dd4bf;
+  --shadow-soft: 0 16px 34px -24px rgba(0, 0, 0, 0.9);
+  --shadow-medium: 0 24px 45px -28px rgba(0, 0, 0, 0.95);
+  --chart-2: #ffb000;
+  --chart-3: #2de0c4;
+  --chart-4: #9dff5c;
+  --chart-5: #ff8a3d;
+  --chart-6: #e8ff6b;
+  --chart-7: #5cd6ff;
+  --chart-8: #1fb85a;
 }
 
-html[data-theme="cyberpunk-matrix"] {
+/* Purple night with hot-pink and cyan neon. */
+html[data-theme="synthwave"] {
   color-scheme: dark;
-  --background: #050608;
-  --foreground: #e8ffe8;
-  --muted: #0d140d;
-  --muted-foreground: #98b698;
-  --card: #0a100a;
-  --card-foreground: #e8ffe8;
-  --card-muted: #101810;
-  --border: #1c2a1c;
-  --accent: #6dff76;
-  --accent-secondary: #b16cff;
-  --ring: #8dff9a;
-  --focus-ring: #8dff9a;
-  --success: #2dd4bf;
-  --warning: #facc15;
-  --destructive: #f87171;
-  --accent-soft: rgba(109, 255, 118, 0.12);
-  --accent-foreground: #041104;
-  --control: #0f170f;
-  --control-hover: #162016;
-  --tooltip: #0a0f0a;
-  --tooltip-foreground: #e8ffe8;
-  --destructive-muted: rgba(248, 113, 113, 0.1);
-  --destructive-muted-border: rgba(248, 113, 113, 0.28);
+  --background: #12052b;
+  --foreground: #fbeaff;
+  --muted: #1f0b45;
+  --muted-foreground: #b9a3d9;
+  --card: #1a0a3b;
+  --card-foreground: #fbeaff;
+  --card-muted: #241050;
+  --border: #3a1f6b;
+  --accent: #ff4fd8;
+  --accent-secondary: #29e0ff;
+  --ring: #ff9df0;
+  --focus-ring: #ff9df0;
+  --success: #3dffb5;
+  --warning: #ffd23f;
+  --destructive: #ff5c7a;
+  --accent-soft: rgba(255, 79, 216, 0.14);
+  --accent-foreground: #1a0526;
+  --control: #241050;
+  --control-hover: #2e1563;
+  --tooltip: #1a0a3b;
+  --tooltip-foreground: #fbeaff;
+  --destructive-muted: rgba(255, 92, 122, 0.1);
+  --destructive-muted-border: rgba(255, 92, 122, 0.3);
   --destructive-foreground: #ffffff;
-  --shadow-soft: 0 16px 34px -24px rgba(0, 0, 0, 0.85);
-  --shadow-medium: 0 24px 45px -28px rgba(0, 0, 0, 0.9);
-  --chart-2: #34d399;
-  --chart-3: #a78bfa;
-  --chart-4: #22d3ee;
-  --chart-5: #f472b6;
-  --chart-6: #facc15;
-  --chart-7: #6dff76;
-  --chart-8: #2dd4bf;
+  --shadow-soft: 0 16px 34px -24px rgba(6, 0, 20, 0.85);
+  --shadow-medium: 0 24px 45px -28px rgba(6, 0, 20, 0.9);
+  --chart-2: #29e0ff;
+  --chart-3: #ffd23f;
+  --chart-4: #b388ff;
+  --chart-5: #ff8a5c;
+  --chart-6: #3dffb5;
+  --chart-7: #ff4fd8;
+  --chart-8: #7c9bff;
 }
 
 html {
@@ -2568,6 +2565,273 @@ html.dark .cabinet-screen::after {
   }
 
   .cab-coin {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────
+   LEADERBOARD PODIUM STAGE
+   An arcade victory screen. The stage is always a night scene (tinted by
+   the theme accent) so the medal colours and fireworks read the same on
+   every theme. Every loop uses steps() for the pixel feel and is switched
+   off for reduced motion.
+   ───────────────────────────────────────── */
+.podium-stage {
+  background-color: #0c0824;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1.5px),
+    radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.5px),
+    radial-gradient(
+      ellipse 70% 60% at 50% 32%,
+      color-mix(in srgb, var(--accent) 30%, #1a1045) 0%,
+      #120b33 55%,
+      #08051a 100%
+    );
+  background-size:
+    53px 47px,
+    23px 29px,
+    100% 100%;
+  background-position:
+    7px 11px,
+    18px 3px,
+    0 0;
+}
+
+/* Marquee lights along the top edge: two sets of square bulbs swap. */
+.podium-bulbs {
+  position: relative;
+  height: 14px;
+  background-color: #1a1040;
+  background-image:
+    linear-gradient(90deg, #ffe68f 0 6px, transparent 6px),
+    linear-gradient(90deg, #5a3d0c 0 6px, transparent 6px);
+  background-size:
+    24px 6px,
+    24px 6px;
+  background-position:
+    6px 4px,
+    18px 4px;
+  background-repeat: repeat-x;
+  box-shadow: inset 0 -2px 0 0 #05030f;
+  animation: podium-bulbs 0.8s steps(1, end) infinite;
+}
+
+@keyframes podium-bulbs {
+  50% {
+    background-position:
+      18px 4px,
+      6px 4px;
+  }
+}
+
+.podium-sign {
+  background: linear-gradient(
+    180deg,
+    #fff6c4 0 40%,
+    #f5b52a 40% 72%,
+    #c4840f 72% 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(2px 2px 0 #05030f);
+}
+
+/* Manga focus rays behind the champion. */
+.podium-rays {
+  position: absolute;
+  left: -700px;
+  top: -700px;
+  width: 1400px;
+  height: 1400px;
+  background: repeating-conic-gradient(
+    rgba(255, 214, 102, 0.16) 0deg 6deg,
+    transparent 6deg 15deg
+  );
+  -webkit-mask-image: radial-gradient(circle, #000 0 8%, transparent 32%);
+  mask-image: radial-gradient(circle, #000 0 8%, transparent 32%);
+  animation: podium-spin 90s steps(180, end) infinite;
+}
+
+@keyframes podium-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* A stepped glow that pulses around the champion's avatar. */
+.podium-aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    0 0 0 10px rgba(255, 214, 102, 0.22),
+    0 0 0 20px rgba(255, 214, 102, 0.1);
+  animation: podium-aura 1.6s steps(2, end) infinite;
+}
+
+@keyframes podium-aura {
+  50% {
+    box-shadow:
+      0 0 0 14px rgba(255, 214, 102, 0.26),
+      0 0 0 26px rgba(255, 214, 102, 0.08);
+  }
+}
+
+/* Fighting-game nameplate. */
+.podium-plate {
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.podium-crown {
+  animation: podium-crown 1.4s steps(2, end) infinite;
+}
+
+@keyframes podium-crown {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.podium-fireworks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.podium-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.podium-burst i {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  opacity: 0;
+  animation: podium-spark 3.4s steps(8, end) infinite;
+  animation-delay: var(--d);
+}
+
+.podium-burst i:nth-child(even) {
+  width: 4px;
+  height: 4px;
+  left: -2px;
+  top: -2px;
+}
+
+@keyframes podium-spark {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  38% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 1;
+  }
+  50%,
+  100% {
+    transform: translate(var(--dx), calc(var(--dy) + 14px));
+    opacity: 0;
+  }
+}
+
+.podium-confetti span {
+  position: absolute;
+  top: -12px;
+  width: 6px;
+  height: 6px;
+  opacity: 0;
+  animation-name: podium-confetti;
+  animation-timing-function: steps(20, end);
+  animation-iteration-count: infinite;
+}
+
+.podium-confetti span:nth-child(3n) {
+  width: 4px;
+  height: 8px;
+}
+
+@keyframes podium-confetti {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(14px, 420px) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* Camera flashes in the crowd. */
+.podium-flash {
+  position: absolute;
+  top: 40%;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  opacity: 0;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
+  animation: podium-flash 4s steps(1, end) infinite;
+}
+
+@keyframes podium-flash {
+  0%,
+  4% {
+    opacity: 1;
+  }
+  6%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Finish-line checks under the blocks. */
+.podium-floor {
+  background-color: #f4f1e8;
+  background-image: repeating-conic-gradient(#0c0824 0 25%, transparent 0 50%);
+  background-size: 16px 16px;
+  box-shadow: inset 0 -2px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+.podium-meter-tip {
+  animation: podium-tip 0.9s steps(1, end) infinite;
+}
+
+@keyframes podium-tip {
+  50% {
+    background: #fff6c4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .podium-bulbs,
+  .podium-rays,
+  .podium-aura::before,
+  .podium-crown,
+  .podium-meter-tip {
+    animation: none;
+  }
+
+  .podium-fireworks,
+  .podium-confetti,
+  .podium-flash {
     display: none;
   }
 }

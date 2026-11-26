@@ -618,7 +618,7 @@ Maintainers and WOCS mentors set the level from the work actually done, so a PR 
 
 ### Ground rules
 
-- Work on one or two issues at a time and release any you can't finish. The [7-day auto-unassign](#guidelines) still applies.
+- Work on one or two issues at a time (5 at most) and release any you can't finish with `/unassign`. The [7-day auto-unassign](#guidelines) still applies.
 - One branch per issue, never commit to `main`, and keep each PR to its issue.
 - Only merged PRs count. Filler or point-farming PRs are closed without review.
 - Questions about points or the program: the [Code Social Discord](https://discord.gg/MSTNyRSPYW) (`#wocs-help`) or `codesocialcommunity@gmail.com`. Questions about DevTrack itself: the issue, or [Discussions](https://github.com/Priyanshu-byte-coder/devtrack/discussions).
@@ -691,7 +691,7 @@ Do not open a PR for an issue that is already assigned to someone else.
 <details>
 <summary><strong>Can I work on multiple issues at the same time?</strong></summary>
 
-Prefer one issue at a time so reviews stay manageable. The per-contributor assignment limit is temporarily disabled, but maintainers may still ask you to finish an in-progress issue before picking up another.
+You can hold at most **5 open issues** at a time; the bot won't assign a sixth until you finish or release one. To release an issue, comment `/unassign` on it. Prefer one or two at a time so reviews stay manageable.
 </details>
 
 <details>

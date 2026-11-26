@@ -2,11 +2,11 @@
   "common": {
     "appName": "DevTrack",
     "save": "Save",
-    "saving": "Saving...",
+    "saving": "Saving…",
     "reset": "Reset",
     "remove": "Remove",
-    "removing": "Removing...",
-    "loading": "Loading...",
+    "removing": "Removing…",
+    "loading": "Loading…",
     "settings": "Settings",
     "dashboard": "Dashboard",
     "signIn": "Sign in",
@@ -57,7 +57,104 @@
     "nightOwlTitle": "Night Owl Milestone: You push code between Midnight and 4 AM!",
     "earlyBirdTitle": "Early Bird Milestone: You push code between 5 AM and 8 AM!",
     "profileLinkCopied": "Profile link copied!",
-    "profileLinkCopyFailed": "Failed to copy link"
+    "profileLinkCopyFailed": "Failed to copy link",
+    "welcomeBackUser": "Welcome back, {name}. Here is your week so far.",
+    "hereIsYourWeek": "Here is your week so far.",
+    "thisWeek": "This week",
+    "thisWeekAriaLabel": "this week",
+    "streak": "Streak",
+    "commits": "Commits",
+    "prsMerged": "PRs merged",
+    "activeDays": "Active days",
+    "keepItGoing": "keep it going",
+    "commitTodayToStart": "commit today to start one",
+    "lastWeekEqual": "= last week",
+    "vsLastWeek": "{count} vs last week",
+    "up": "up",
+    "down": "down",
+    "unavailableRightNow": "Unavailable right now",
+    "season": {
+      "thisSeason": "This season",
+      "monthSeason": "{month} season",
+      "notOnLeaderboardTitle": "You're not on the leaderboard yet",
+      "notOnLeaderboardDescription": "Make your profile public and join the leaderboard to get a tier, earn XP and see how you rank against developers worldwide.",
+      "joinLeaderboard": "Join the leaderboard",
+      "seeWhosOnIt": "See who's on it",
+      "addToReadme": "Add to your README →",
+      "viewLeaderboard": "View leaderboard →",
+      "ofTotalOnBoard": "of {total} on the board",
+      "scoreOutOfThousand": "{score} / 1000 score",
+      "xpAppearsAfterUpdate": "XP appears after the next daily update.",
+      "bestThisFar": "Best this far: {tier}",
+      "bestRank": "best rank #{rank}"
+    },
+    "streakTracker": {
+      "title": "Commit Streaks",
+      "currentStreak": "Current Streak",
+      "longestStreak": "Longest Streak",
+      "activeDaysWindow": "Active Days ({days}d)",
+      "lastCommit": "Last Commit",
+      "currentStreakTooltip": "Current consecutive coding days",
+      "longestStreakTooltip": "Your longest streak ever",
+      "activeDaysTooltip": "Days you made commits in the {window}",
+      "lastCommitTooltip": "Your most recent commit",
+      "dataWindowLabel": "Last {days} days",
+      "daysUnit": "days",
+      "dayUnit": "day",
+      "loadingStreak": "Loading streak tracker",
+      "partialHistoryNotice": "Streak counts use partial history: {reason}",
+      "partialHistoryDefaultReason": "Some commits could not be collected.",
+      "tryAgain": "Try again",
+      "noContributionDataTitle": "No contribution data found",
+      "noContributionDataDesc": "Start committing to build your streak and track your coding activity.",
+      "openGithub": "Open GitHub",
+      "milestoneBadgeReached": "{label} reached",
+      "milestoneRemaining": " · {count} {unit} to {target}",
+      "milestone30": "30-day milestone",
+      "milestone14": "2-week milestone",
+      "milestone7": "7-day milestone",
+      "milestone3": "3-day milestone",
+      "thisMonthActiveDays": "This month: {count} active days",
+      "firstMonthTracked": "First month tracked!",
+      "trendUpVsLastMonth": "↑{percent}% vs last month",
+      "trendDownVsLastMonth": "↓{percent}% vs last month",
+      "trendSameVsLastMonth": "=0% vs last month",
+      "mostActiveDay": "Most Active Day",
+      "avgCommitsPerDay": "avg {count} commits",
+      "updatedJustNow": "Updated just now",
+      "updatedMinAgo": "Updated {minutes} min ago",
+      "freezeActiveToday": "Freeze active today",
+      "removeFreezeQuestion": "Remove freeze?",
+      "removingFreeze": "Removing…",
+      "yesRemove": "Yes, remove",
+      "keepFreeze": "Keep",
+      "cancelFreeze": "Cancel freeze",
+      "streakFreezeTitle": "Streak Freeze",
+      "freezesAvailable": "❄️ {count} available",
+      "streakFreezeHelpTooltip": "A streak freeze protects your streak for one missed day. You can only use one freeze at a time.",
+      "freezing": "Freezing…",
+      "freezeStreakButton": "Freeze Streak",
+      "freezeModalTitle": "❄️ Use a Streak Freeze?",
+      "freezeModalMessage": "This will consume 1 of your available freezes. Your streak will be protected for today.",
+      "freezeModalConfirm": "Yes, Freeze",
+      "freezeModalCancel": "Cancel",
+      "copyStatsAriaLabel": "Copy streak stats to clipboard",
+      "saveImageButton": "Save image",
+      "downloadStatsAriaLabel": "Download streak stats as image",
+      "moreInfoAbout": "More info about {label}",
+      "prevMonth": "← Prev",
+      "nextMonth": "Next →",
+      "prevMonthAriaLabel": "Previous month",
+      "nextMonthAriaLabel": "Next month",
+      "legendCommitted": "Committed",
+      "legendFrozen": "Frozen",
+      "legendMissed": "Missed",
+      "legendFuture": "Future",
+      "calendarFootnote": "Frozen days are set via the streak freeze feature above.",
+      "statusFrozen": "Frozen",
+      "statusCommitted": "Committed",
+      "statusMissed": "Missed"
+    }
   },
   "auth": {
     "signInFailed": "Sign-in failed",
@@ -73,6 +170,184 @@
     "tagline": "Track streaks, PR velocity & coding growth.",
     "signInWithGitHub": "Sign in with GitHub",
     "licenseLine": "MIT License · Self-hostable · Free forever"
+  },
+  "careerIntelligence": {
+    "header": {
+      "title": "Resume",
+      "description": "Turn your GitHub work into an ATS-friendly resume tailored to a role.",
+      "reScan": "Re-scan GitHub",
+      "reScanTooltip": "Analyses are cached for 24 hours"
+    },
+    "errors": {
+      "rateLimited": "GitHub's rate limit was reached. Try again in a few minutes.",
+      "sessionExpired": "Your session expired. Sign in again.",
+      "analyzeFailed": "Could not analyze your GitHub activity.",
+      "pickRoleFirst": "Pick a target role first.",
+      "generateFailed": "Could not generate the resume.",
+      "exportFailed": "Could not export the resume.",
+      "downloadFailed": "Failed to download file.",
+      "copyFailed": "Failed to copy resume content.",
+      "copySectionFailed": "Failed to copy section."
+    },
+    "steps": {
+      "footprint": "Your GitHub footprint",
+      "targetRole": "Target role",
+      "reviewAndDownload": "Review and download"
+    },
+    "analysis": {
+      "fetchingRepos": "Fetching your repositories…",
+      "readingPrs": "Reading merged pull requests…",
+      "detectingTech": "Detecting languages and frameworks…",
+      "scoringDomains": "Scoring engineering domains…",
+      "durationHint": "Usually 20–60 seconds, depending on how many repositories you have.",
+      "promptTitle": "Scan your repositories and merged pull requests",
+      "promptDescription": "DevTrack reads up to 50 repositories to work out your languages, frameworks and impact. Nothing is posted to GitHub.",
+      "analyzeButton": "Analyze GitHub activity"
+    },
+    "stats": {
+      "prsMerged": "PRs Merged",
+      "repositories": "Repositories",
+      "languages": "Languages",
+      "linesAdded": "Lines Added",
+      "linesRemoved": "Lines Removed",
+      "reviews": "Reviews"
+    },
+    "panel": {
+      "engineeringDomains": "Engineering Domains",
+      "evidence": "Evidence: {evidence}",
+      "technologyStack": "Technology Stack",
+      "languages": "Languages",
+      "frameworks": "Frameworks & Libraries",
+      "tools": "Tools & Platforms",
+      "confidence": {
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      },
+      "topRepositories": "Top Repositories & Contributions",
+      "complexity": "{complexity} Complexity",
+      "prsMergedBadge": "{count} PRs Merged",
+      "noDescription": "No description available."
+    },
+    "domains": {
+      "Frontend": "Frontend",
+      "Backend": "Backend",
+      "AI_ML": "AI / ML",
+      "DevOps": "DevOps",
+      "DataScience": "Data science",
+      "Security": "Security",
+      "Mobile": "Mobile",
+      "Systems": "Systems",
+      "FullStack": "Full-stack"
+    },
+    "roles": {
+      "subtitle": "Wording, skills and projects are picked to match the role you choose.",
+      "generateResume": "Generate resume",
+      "writingResume": "Writing your resume…",
+      "regenerate": "Regenerate",
+      "generatingDraftHint": "Drafting each section from your real contribution data…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "Machine Learning Engineer",
+          "description": "Build models, training pipelines, NLP, and neural network applications."
+        },
+        "frontendDeveloper": {
+          "title": "Frontend Developer",
+          "description": "Create beautiful, responsive user interfaces and interactive web apps."
+        },
+        "backendDeveloper": {
+          "title": "Backend Developer",
+          "description": "Design scalable APIs, microservices, databases, and auth layers."
+        },
+        "fullStackDeveloper": {
+          "title": "Full Stack Developer",
+          "description": "Handle both client-side and server-side engineering."
+        },
+        "devOpsEngineer": {
+          "title": "DevOps Engineer",
+          "description": "Manage infrastructure, CI/CD pipelines, containerization, and cloud."
+        },
+        "dataAnalyst": {
+          "title": "Data Analyst",
+          "description": "Extract insights, perform statistical analysis, and build dashboards."
+        }
+      },
+      "custom": {
+        "title": "Another role",
+        "description": "Type any job title to tailor the resume to it.",
+        "placeholder": "e.g. Site Reliability Engineer, SRE, Developer Advocate…",
+        "button": "Use role",
+        "selected": "Selected: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "Download PDF",
+      "preparingPdf": "Preparing PDF…",
+      "markdown": "Markdown",
+      "json": "JSON",
+      "copyAsText": "Copy as text",
+      "note": "Edits you make below are included in the download.",
+      "summaryHeading": "SUMMARY",
+      "skillsHeading": "TECHNICAL SKILLS",
+      "contributionsHeading": "KEY CONTRIBUTIONS",
+      "projectsHeading": "PROJECTS"
+    },
+    "preview": {
+      "tailoredTo": "Tailored to {role}",
+      "previewMode": "Preview Mode",
+      "editContent": "Edit Content",
+      "tabs": {
+        "summary": "Professional Summary",
+        "experience": "Experience Bullet Points",
+        "projects": "Project Highlights",
+        "skills": "Skills & Tech"
+      },
+      "summary": {
+        "title": "Professional Summary",
+        "copyTitle": "Copy Section",
+        "ariaLabel": "Professional Summary"
+      },
+      "experience": {
+        "title": "Experience Bullet Points",
+        "copyTitle": "Copy All Bullets",
+        "repoAria": "Repository name",
+        "repoPlaceholder": "Repository Name",
+        "bulletAria": "Bullet point description",
+        "bulletPlaceholder": "Bullet Point Text",
+        "generalContribution": "general contribution",
+        "aiConfidence": "{confidence}% AI confidence",
+        "deleteBullet": "Delete Bullet",
+        "addBullet": "Add Bullet Point",
+        "newBulletText": "New achievement bullet point…"
+      },
+      "projects": {
+        "title": "Project Highlights",
+        "copyTitle": "Copy All Projects",
+        "nameAria": "Project name",
+        "namePlaceholder": "Project Name",
+        "urlAria": "Repository URL",
+        "urlPlaceholder": "Repository URL",
+        "descAria": "Project description",
+        "descPlaceholder": "Project Description",
+        "deleteProject": "Delete Project",
+        "addProject": "Add Project",
+        "newProjectName": "New Project",
+        "newProjectDesc": "Project description…"
+      },
+      "skills": {
+        "title": "Technical Skills & Categories",
+        "copyTitle": "Copy Skills",
+        "summaryAria": "General Technical Summary",
+        "summaryPlaceholder": "General Technical Summary",
+        "categoryAria": "Category Title",
+        "categoryPlaceholder": "Category Title",
+        "itemsAria": "Skills (comma separated)",
+        "itemsPlaceholder": "Skills (comma separated)",
+        "deleteCategory": "Delete Category",
+        "addCategory": "Add Skill Category",
+        "newCategoryTitle": "New Category"
+      }
+    }
   },
   "settings": {
     "title": "Settings",
@@ -95,14 +370,14 @@
     "connectedAccountsDescription": "Link additional GitHub accounts and switch between them on the dashboard.",
     "addGitHubAccount": "Add GitHub Account",
     "noLinkedAccounts": "No linked GitHub accounts yet.",
-    "loadingLinkedAccounts": "Loading linked accounts...",
+    "loadingLinkedAccounts": "Loading linked accounts…",
     "apiKey": "API Key",
     "discordTitle": "Discord Integration",
     "discordDescription": "Receive streak reminders and milestone alerts in your Discord server.",
     "timezoneLabel": "Timezone (For 8 PM reminders)",
     "saveDiscord": "Save Discord Settings",
     "testNotification": "Test Notification",
-    "testing": "Testing...",
+    "testing": "Testing…",
     "muteNotifications": "Mute Notifications",
     "unmuteNow": "Unmute Now",
     "unsavedTitle": "Unsaved Changes",
@@ -116,5 +391,70 @@
     "loadFailed": "GitHub achievements could not be loaded right now.",
     "empty": "No public GitHub achievements available yet.",
     "badgeAlt": "{title} GitHub achievement badge"
+  },
+  "personality": {
+    "header": {
+      "title": "Personality",
+      "description": "Your developer archetype, read from commit times, streaks, PR habits and top repos."
+    },
+    "card": {
+      "badge": "Code Personality Report",
+      "downloadPng": "Download as PNG",
+      "downloadAria": "Download personality card as PNG",
+      "generating": "Generating…",
+      "traits": {
+        "workingStyle": "Working Style",
+        "commitPattern": "Commit Pattern",
+        "collaboration": "Collaboration"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "Night Owl",
+        "Early Bird": "Early Bird",
+        "9-to-5 Developer": "9-to-5 Developer"
+      },
+      "commitPattern": {
+        "Sprinter": "Sprinter",
+        "Marathoner": "Marathoner"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "Solo Coder",
+        "Team Player": "Team Player",
+        "Open Source Hero": "Open Source Hero"
+      }
+    },
+    "radar": {
+      "title": "Your Personality Radar",
+      "description": "How your traits compare across five dimensions.",
+      "ariaLabel": "Developer personality radar chart",
+      "scoreLabel": "Score",
+      "metrics": {
+        "nightOwl": "Night Owl",
+        "sprintEnergy": "Sprint Energy",
+        "collaboration": "Collaboration",
+        "perfectionism": "Perfectionism",
+        "consistency": "Consistency"
+      }
+    },
+    "initial": {
+      "title": "Discover Your Developer Archetype",
+      "description": "Uses your existing GitHub stats already tracked in DevTrack — no extra setup, no new permissions.",
+      "generateButton": "Generate My Personality Report"
+    },
+    "loading": {
+      "title": "Analyzing your coding patterns…",
+      "subtitle": "Crunching commit times, PR history, and streaks."
+    },
+    "ready": {
+      "regenerate": "Regenerate report",
+      "successToast": "Your code personality report is ready!"
+    },
+    "errors": {
+      "errorPrefix": "Error:",
+      "rateLimitWithRetry": "Rate limit reached. Try again in {minutes} min.",
+      "rateLimit": "Rate limit reached. Try again later.",
+      "generateFailed": "Failed to generate your personality report"
+    }
   }
 }

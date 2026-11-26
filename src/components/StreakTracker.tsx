@@ -22,9 +22,9 @@ import {
 import ConfirmModal from "@/components/ConfirmModal";
 import { CopyFeedback } from "@/components/ui/copy-feedback";
 import { SkeletonBlock } from "./WidgetSkeleton";
+import { useLocale, useTranslations } from "next-intl";
 
 const DATA_WINDOW_DAYS = 90;
-const dataWindowLabel = `Last ${DATA_WINDOW_DAYS} days`;
 
 const STREAK_MILESTONES = [7, 30, 50, 100, 200, 365];
 
@@ -52,6 +52,9 @@ interface FreezeData {
 export { useStreakTracker } from "@/hooks/useStreakTracker";
 
 export default function StreakTracker() {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
+
   const {
     selectedAccount,
     data,
@@ -106,10 +109,12 @@ export default function StreakTracker() {
       setSummary(null);
       return;
     }
+    const currentFormatted = new Intl.NumberFormat(locale).format(data.current);
+    const longestFormatted = new Intl.NumberFormat(locale).format(data.longest);
     setSummary(
-      `Current streak: ${data.current} days. Longest streak: ${data.longest} days.`
+      `Current streak: ${currentFormatted} days. Longest streak: ${longestFormatted} days.`
     );
-  }, [data, setSummary]);
+  }, [data, locale, setSummary]);
 
   if (loading) {
     return (
@@ -119,12 +124,15 @@ export default function StreakTracker() {
             role="status"
             className="mb-3 text-xs text-[var(--muted-foreground)]"
           >
-            Streak counts use partial history:{" "}
-            {data.partialReason ?? "Some commits could not be collected."}
+            {t("streakTracker.partialHistoryNotice", {
+              reason:
+                data.partialReason ??
+                t("streakTracker.partialHistoryDefaultReason"),
+            })}
           </p>
         )}
         <div role="status" aria-live="polite" aria-busy="true">
-          <span className="sr-only">Loading streak tracker</span>
+          <span className="sr-only">{t("streakTracker.loadingStreak")}</span>
           <SkeletonBlock className="h-8 w-36 mb-4" />
           <div
             aria-hidden="true"
@@ -146,7 +154,7 @@ export default function StreakTracker() {
   if (error) {
     return (
       <div className="px-frame bg-[var(--card)] p-6">
-        <SectionHeader title="Commit Streaks" />
+        <SectionHeader title={t("streakTracker.title")} />
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
@@ -154,7 +162,7 @@ export default function StreakTracker() {
             onClick={fetchStreak}
             className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
-            Try again
+            {t("streakTracker.tryAgain")}
           </button>
         </div>
       </div>
@@ -170,11 +178,10 @@ export default function StreakTracker() {
         <div className="flex h-full flex-col items-center justify-center text-center">
           <div className="mb-4 text-4xl">📉</div>
 
-          <SectionHeader title="No contribution data found" />
+          <SectionHeader title={t("streakTracker.noContributionDataTitle")} />
 
           <p className="mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
-            Start committing to build your streak and track your coding
-            activity.
+            {t("streakTracker.noContributionDataDesc")}
           </p>
 
           <a
@@ -183,64 +190,88 @@ export default function StreakTracker() {
             rel="noopener noreferrer"
             className="mt-4 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent-foreground)] transition-opacity hover:opacity-90"
           >
-            Open GitHub
+            {t("streakTracker.openGithub")}
           </a>
         </div>
       </div>
     );
   }
   const MILESTONES = [
-    { days: 30, label: "30-day milestone", icon: Medal },
-    { days: 14, label: "2-week milestone", icon: Star },
-    { days: 7, label: "7-day milestone", icon: Flame },
-    { days: 3, label: "3-day milestone", icon: Sparkles },
+    { days: 30, label: t("streakTracker.milestone30"), icon: Medal },
+    { days: 14, label: t("streakTracker.milestone14"), icon: Star },
+    { days: 7, label: t("streakTracker.milestone7"), icon: Flame },
+    { days: 3, label: t("streakTracker.milestone3"), icon: Sparkles },
   ];
 
   const badge = MILESTONES.find((m) => (data?.current ?? 0) >= m.days);
   const nextMilestone = [...MILESTONES]
     .reverse()
     .find((m) => (data?.current ?? 0) < m.days);
-  const activeDayData = calculateActiveDayInsights(contributionData?.data);
-  const monthlyTrend = calculateMonthlyTrend(contributionData);
+  const activeDayData = calculateActiveDayInsights(
+    contributionData?.data,
+    locale
+  );
+  const monthlyTrend = calculateMonthlyTrend(contributionData, locale, t);
+
+  const formattedDataWindowDays = new Intl.NumberFormat(locale).format(
+    DATA_WINDOW_DAYS
+  );
+  const dataWindowLabel = t("streakTracker.dataWindowLabel", {
+    days: formattedDataWindowDays,
+  });
+
+  const remainingDaysToNext = nextMilestone
+    ? nextMilestone.days - (data?.current ?? 0)
+    : 0;
+  const remainingDaysFormatted = new Intl.NumberFormat(locale).format(
+    remainingDaysToNext
+  );
+  const targetDaysFormatted = nextMilestone
+    ? new Intl.NumberFormat(locale).format(nextMilestone.days)
+    : "";
 
   const stats = data
     ? [
         {
-          label: "Current Streak",
-          value: animatedCurrent,
-          unit: "days",
+          label: t("streakTracker.currentStreak"),
+          value: new Intl.NumberFormat(locale).format(animatedCurrent),
+          unit: t("streakTracker.daysUnit"),
           highlight: data.current > 0,
           icon: Flame,
-          tooltip: "Current consecutive coding days",
+          tooltip: t("streakTracker.currentStreakTooltip"),
         },
         {
-          label: "Longest Streak",
-          value: animatedLongest,
-          unit: "days",
+          label: t("streakTracker.longestStreak"),
+          value: new Intl.NumberFormat(locale).format(animatedLongest),
+          unit: t("streakTracker.daysUnit"),
           highlight: false,
           icon: Trophy,
-          tooltip: "Your longest streak ever",
+          tooltip: t("streakTracker.longestStreakTooltip"),
         },
         {
-          label: `Active Days (${DATA_WINDOW_DAYS}d)`,
-          value: animatedActiveDays,
-          unit: "days",
+          label: t("streakTracker.activeDaysWindow", {
+            days: formattedDataWindowDays,
+          }),
+          value: new Intl.NumberFormat(locale).format(animatedActiveDays),
+          unit: t("streakTracker.daysUnit"),
           highlight: false,
           icon: Calendar,
-          tooltip: `Days you made commits in the ${dataWindowLabel.toLowerCase()}`,
+          tooltip: t("streakTracker.activeDaysTooltip", {
+            window: dataWindowLabel.toLowerCase(),
+          }),
         },
         {
-          label: "Last Commit",
+          label: t("streakTracker.lastCommit"),
           value: data.lastCommitDate
-            ? new Date(data.lastCommitDate).toLocaleDateString("en-US", {
+            ? new Intl.DateTimeFormat(locale, {
                 month: "short",
                 day: "numeric",
-              })
+              }).format(new Date(data.lastCommitDate))
             : "—",
           unit: "",
           highlight: false,
           icon: Zap,
-          tooltip: "Your most recent commit",
+          tooltip: t("streakTracker.lastCommitTooltip"),
         },
       ]
     : [];
@@ -260,7 +291,7 @@ export default function StreakTracker() {
               type="button"
               onClick={handleCopy}
               className="cursor-pointer flex h-8 items-center justify-center rounded-md px-2 text-sm text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-colors"
-              aria-label="Copy streak stats to clipboard"
+              aria-label={t("streakTracker.copyStatsAriaLabel")}
             >
               <CopyFeedback
                 copied={copied}
@@ -273,7 +304,7 @@ export default function StreakTracker() {
               onClick={handleDownload}
               disabled={isDownloading}
               className="flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--control)] disabled:opacity-70"
-              aria-label="Download streak stats as image"
+              aria-label={t("streakTracker.downloadStatsAriaLabel")}
             >
               {isDownloading ? (
                 <span className="w-4 h-4 rounded-full border-2 border-[var(--border)] border-t-[var(--foreground)] animate-spin" />
@@ -294,7 +325,7 @@ export default function StreakTracker() {
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
               )}
-              <span>Save image</span>
+              <span>{t("streakTracker.saveImageButton")}</span>
             </button>
           </div>
         )}
@@ -305,7 +336,7 @@ export default function StreakTracker() {
         >
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <SectionHeader title="Commit Streaks" />
+              <SectionHeader title={t("streakTracker.title")} />
             </div>
             {data && <div className="h-8 w-24" />}
           </div>
@@ -342,13 +373,15 @@ export default function StreakTracker() {
                   )}
                 </div>
                 <div className="mt-1 flex items-center justify-center gap-1 text-xs text-[var(--muted-foreground)]">
-                  <span>{stat.label}</span>
+                  <span className="break-words">{stat.label}</span>
 
                   <button
                     type="button"
-                    aria-label={`More info about ${stat.label}`}
+                    aria-label={t("streakTracker.moreInfoAbout", {
+                      label: stat.label,
+                    })}
                     title={stat.tooltip}
-                    className="text-[var(--muted-foreground)] hover:text-[var(--accent)]"
+                    className="text-[var(--muted-foreground)] hover:text-[var(--accent)] shrink-0"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -374,10 +407,11 @@ export default function StreakTracker() {
           {monthlyTrend.isValid && (
             <div className="mt-3 flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2.5 text-xs shadow-sm">
               <span className="text-[var(--muted-foreground)]">
-                This month:{" "}
-                <strong className="font-semibold text-[var(--card-foreground)]">
-                  {monthlyTrend.thisMonth} active days
-                </strong>
+                {t("streakTracker.thisMonthActiveDays", {
+                  count: new Intl.NumberFormat(locale).format(
+                    monthlyTrend.thisMonth
+                  ),
+                })}
               </span>
               <span className={monthlyTrend.colorClass}>
                 ({monthlyTrend.text})
@@ -388,13 +422,22 @@ export default function StreakTracker() {
             <div className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2">
               <badge.icon
                 size={18}
-                className="text-[var(--accent)]"
+                className="text-[var(--accent)] shrink-0"
                 aria-hidden="true"
               />
-              <span className="text-sm font-medium text-[var(--accent)]">
-                {badge.label} reached
+              <span className="text-sm font-medium text-[var(--accent)] break-words text-center">
+                {t("streakTracker.milestoneBadgeReached", {
+                  label: badge.label,
+                })}
                 {nextMilestone &&
-                  ` · ${nextMilestone.days - (data?.current ?? 0)} ${nextMilestone.days - (data?.current ?? 0) === 1 ? "day" : "days"} to ${nextMilestone.days}`}
+                  t("streakTracker.milestoneRemaining", {
+                    count: remainingDaysFormatted,
+                    unit:
+                      remainingDaysToNext === 1
+                        ? t("streakTracker.dayUnit")
+                        : t("streakTracker.daysUnit"),
+                    target: targetDaysFormatted,
+                  })}
               </span>
             </div>
           )}
@@ -404,13 +447,19 @@ export default function StreakTracker() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <div className="text-xs font-medium text-[var(--muted-foreground)]">
-                    Most Active Day
+                    {t("streakTracker.mostActiveDay")}
                   </div>
                   <div className="text-sm font-semibold text-[var(--card-foreground)] mt-0.5">
                     {activeDayData.peakDay.label}{" "}
                     <span className="text-xs font-normal text-[var(--muted-foreground)]">
-                      (avg {activeDayData.peakDay.avgCommits.toFixed(1)}{" "}
-                      commits)
+                      (
+                      {t("streakTracker.avgCommitsPerDay", {
+                        count: new Intl.NumberFormat(locale, {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 1,
+                        }).format(activeDayData.peakDay.avgCommits),
+                      })}
+                      )
                     </span>
                   </div>
                 </div>
@@ -427,16 +476,21 @@ export default function StreakTracker() {
                         : 15;
                     const isPeak = item.label === activeDayData.peakDay?.label;
 
+                    const avgCommitsFormatted = new Intl.NumberFormat(locale, {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    }).format(item.avgCommits);
+
                     return (
                       <div
                         key={item.label}
                         className="flex flex-col items-center gap-1 group relative cursor-default"
-                        title={`${item.label}: avg ${item.avgCommits.toFixed(1)} commits`}
+                        title={`${item.label}: ${t("streakTracker.avgCommitsPerDay", { count: avgCommitsFormatted })}`}
                       >
                         <div className="w-5 bg-[var(--card-muted)] rounded-sm flex items-end h-8 overflow-hidden">
                           <div
                             style={{ height: `${heightPercent}%` }}
-                            className={`w-full rounded-sm transition-all duration-300 ${
+                            className={`w-full rounded-sm transition-[height,width] duration-300 ${
                               isPeak
                                 ? "bg-[var(--accent)]"
                                 : "bg-accent/40 hover:bg-accent/60"
@@ -458,8 +512,10 @@ export default function StreakTracker() {
           {lastUpdated && (
             <p className="mt-2 text-right text-xs text-[var(--muted-foreground)]">
               {minutesAgo === 0
-                ? "Updated just now"
-                : `Updated ${minutesAgo} min ago`}
+                ? t("streakTracker.updatedJustNow")
+                : t("streakTracker.updatedMinAgo", {
+                    minutes: new Intl.NumberFormat(locale).format(minutesAgo),
+                  })}
             </p>
           )}
 
@@ -472,13 +528,13 @@ export default function StreakTracker() {
                   aria-hidden="true"
                 />
                 <span className="text-sm font-medium text-[var(--accent)]">
-                  Freeze active today
+                  {t("streakTracker.freezeActiveToday")}
                 </span>
               </div>
               {confirmCancel ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-[var(--muted-foreground)]">
-                    Remove freeze?
+                    {t("streakTracker.removeFreezeQuestion")}
                   </span>
                   <button
                     type="button"
@@ -486,7 +542,9 @@ export default function StreakTracker() {
                     disabled={cancelling || freezeLoading}
                     className="rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-[var(--destructive)] transition hover:bg-destructive/20 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {cancelling ? "Removing..." : "Yes, remove"}
+                    {cancelling
+                      ? t("streakTracker.removingFreeze")
+                      : t("streakTracker.yesRemove")}
                   </button>
                   <button
                     type="button"
@@ -494,7 +552,7 @@ export default function StreakTracker() {
                     disabled={cancelling || freezeLoading}
                     className="rounded-md border border-[var(--border)] px-2.5 py-1 text-xs font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--control)] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Keep
+                    {t("streakTracker.keepFreeze")}
                   </button>
                 </div>
               ) : (
@@ -504,7 +562,7 @@ export default function StreakTracker() {
                   disabled={cancelling || freezeLoading}
                   className="rounded-md border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--control)] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Cancel freeze
+                  {t("streakTracker.cancelFreeze")}
                 </button>
               )}
             </div>
@@ -514,22 +572,21 @@ export default function StreakTracker() {
             <div className="mt-4 flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-[var(--foreground)]">
-                  Streak Freeze
+                  {t("streakTracker.streakFreezeTitle")}
                 </span>
                 <span className="text-xs text-[var(--muted-foreground)]">
-                  ❄️ 1 available
+                  {t("streakTracker.freezesAvailable", { count: 1 })}
                 </span>
                 <div className="group relative cursor-help">
                   <span
                     className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--card-muted)] text-[10px] font-bold text-[var(--muted-foreground)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] transition-colors"
                     role="img"
-                    aria-label="A streak freeze protects your streak for one missed day. You can only use one freeze at a time."
+                    aria-label={t("streakTracker.streakFreezeHelpTooltip")}
                   >
                     ?
                   </span>
                   <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 w-64 rounded-lg bg-[var(--foreground)] px-3 py-2 text-xs font-medium leading-relaxed text-[var(--background)] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-20 shadow-lg text-center">
-                    A streak freeze protects your streak for one missed day. You
-                    can only use one freeze at a time.
+                    {t("streakTracker.streakFreezeHelpTooltip")}
                     <div className="absolute top-full left-1/2 h-1 w-1 -translate-x-1/2 border-4 border-t-[var(--foreground)] border-transparent" />
                   </div>
                 </div>
@@ -545,7 +602,9 @@ export default function StreakTracker() {
                     : "bg-[var(--accent)] hover:opacity-90"
                 } text-[var(--accent-foreground)]`}
               >
-                {freezeLoading ? "Freezing..." : "Freeze Streak"}
+                {freezeLoading
+                  ? t("streakTracker.freezing")
+                  : t("streakTracker.freezeStreakButton")}
               </button>
             </div>
           )}
@@ -568,6 +627,8 @@ export default function StreakTracker() {
                 }
                 currentMonth={calendarMonth}
                 onMonthChange={setCalendarMonth}
+                locale={locale}
+                t={t}
               />
             </>
           ) : null}
@@ -575,10 +636,10 @@ export default function StreakTracker() {
       </div>
       <ConfirmModal
         isOpen={showFreezeConfirm}
-        title="❄️ Use a Streak Freeze?"
-        message={`This will consume 1 of your available freezes. Your streak will be protected for today.`}
-        confirmLabel="Yes, Freeze"
-        cancelLabel="Cancel"
+        title={t("streakTracker.freezeModalTitle")}
+        message={t("streakTracker.freezeModalMessage")}
+        confirmLabel={t("streakTracker.freezeModalConfirm")}
+        cancelLabel={t("streakTracker.freezeModalCancel")}
         onConfirm={() => {
           setShowFreezeConfirm(false);
           handleApplyFreeze();
@@ -595,6 +656,8 @@ interface StreakCalendarProps {
   freezeDates: string[];
   currentMonth: Date;
   onMonthChange: (date: Date) => void;
+  locale?: string;
+  t?: (key: string, values?: Record<string, string | number>) => string;
 }
 
 function toLocalDateStr(d: Date): string {
@@ -606,6 +669,8 @@ function StreakCalendar({
   freezeDates,
   currentMonth,
   onMonthChange,
+  locale = "en-US",
+  t,
 }: StreakCalendarProps) {
   const today = new Date();
   const year = currentMonth.getFullYear();
@@ -617,11 +682,16 @@ function StreakCalendar({
   const startingDayOfWeek = firstDay.getDay();
 
   const { getCalendarStyle, themeConfig } = useHeatmapTheme();
-  const monthName = firstDay.toLocaleDateString("en-US", {
+  const monthName = new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
+  }).format(firstDay);
+
+  const dayLabels = Array.from({ length: 7 }, (_, i) => {
+    // 2026-01-04 was a Sunday
+    const d = new Date(2026, 0, 4 + i);
+    return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(d);
   });
-  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const calendarDays: Array<{ date: Date | null; dayOfMonth: number | null }> =
     [];
@@ -641,6 +711,15 @@ function StreakCalendar({
   const handleNextMonth = () => onMonthChange(new Date(year, month + 1));
   const freezeSet = new Set(freezeDates);
 
+  const prevMonthText = t ? t("streakTracker.prevMonth") : "← Prev";
+  const nextMonthText = t ? t("streakTracker.nextMonth") : "Next →";
+  const prevMonthAriaLabel = t
+    ? t("streakTracker.prevMonthAriaLabel")
+    : "Previous month";
+  const nextMonthAriaLabel = t
+    ? t("streakTracker.nextMonthAriaLabel")
+    : "Next month";
+
   return (
     <div className="mt-6 pt-6 border-t border-[var(--border)]">
       {/* Calendar Header */}
@@ -652,25 +731,25 @@ function StreakCalendar({
           <button
             onClick={handlePrevMonth}
             className="rounded-md px-2 py-1 hover:bg-[var(--control)] transition-colors text-sm font-medium"
-            aria-label="Previous month"
+            aria-label={prevMonthAriaLabel}
           >
-            ← Prev
+            {prevMonthText}
           </button>
           <button
             onClick={handleNextMonth}
             className="rounded-md px-2 py-1 hover:bg-[var(--control)] transition-colors text-sm font-medium"
-            aria-label="Next month"
+            aria-label={nextMonthAriaLabel}
           >
-            Next →
+            {nextMonthText}
           </button>
         </div>
       </div>
 
       {/* Day labels */}
       <div className="mb-3 grid grid-cols-7 gap-1">
-        {dayLabels.map((label) => (
+        {dayLabels.map((label, i) => (
           <div
-            key={label}
+            key={i}
             className="text-center text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider"
           >
             {label}
@@ -695,19 +774,25 @@ function StreakCalendar({
           let borderColor = "border border-[var(--border)]";
           let statusText = "";
 
+          const statusFrozen = t ? t("streakTracker.statusFrozen") : "Frozen";
+          const statusCommitted = t
+            ? t("streakTracker.statusCommitted")
+            : "Committed";
+          const statusMissed = t ? t("streakTracker.statusMissed") : "Missed";
+
           if (!isFuture) {
             if (isFrozen) {
               bgColor = "bg-accent/20";
               borderColor = "border border-accent/40";
-              statusText = "Frozen";
+              statusText = statusFrozen;
             } else if (commitCount > 0) {
               bgColor = "bg-[var(--accent)]";
               borderColor = "border border-[var(--accent)]";
-              statusText = "Committed";
+              statusText = statusCommitted;
             } else {
               bgColor = "bg-muted-foreground/20";
               borderColor = "border border-muted-foreground/30";
-              statusText = "Missed";
+              statusText = statusMissed;
             }
           }
 
@@ -720,18 +805,31 @@ function StreakCalendar({
               ? undefined
               : getCalendarStyle(commitCount);
 
-          const tooltipText = !isFuture
-            ? `${dayData.date.toLocaleDateString("en-US", {
+          const formattedDay = !isFuture
+            ? new Intl.DateTimeFormat(locale, {
                 weekday: "short",
                 month: "short",
                 day: "numeric",
-              })}: ${statusText}${!isFrozen && commitCount > 0 ? ` (${commitCount})` : ""}`
+              }).format(dayData.date)
             : "";
+
+          const formattedCommitCount = new Intl.NumberFormat(locale).format(
+            commitCount
+          );
+
+          const tooltipText = !isFuture
+            ? `${formattedDay}: ${statusText}${!isFrozen && commitCount > 0 ? ` (${formattedCommitCount})` : ""}`
+            : "";
+
+          const formattedDayOfMonth =
+            dayData.dayOfMonth !== null
+              ? new Intl.NumberFormat(locale).format(dayData.dayOfMonth)
+              : null;
 
           return (
             <div
               key={dateStr}
-              className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} transition-all hover:scale-110 hover:shadow-lg cursor-default ${
+              className={`group relative aspect-square rounded-lg ${bgColor} ${borderColor} transition-[transform,box-shadow] hover:scale-110 hover:shadow-lg cursor-default ${
                 isToday ? "ring-2 ring-offset-1 ring-[var(--accent)]" : ""
               }`}
               style={cellStyle}
@@ -739,7 +837,7 @@ function StreakCalendar({
             >
               {!isFuture && (
                 <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-[var(--accent-foreground)] opacity-0 group-hover:opacity-100 transition-opacity">
-                  {dayData.dayOfMonth}
+                  {formattedDayOfMonth}
                 </span>
               )}
               {!isFuture && tooltipText && (
@@ -758,30 +856,32 @@ function StreakCalendar({
         <div className="flex items-center gap-3">
           <div className="h-4 w-4 rounded-md bg-[var(--accent)]" />
           <span className="text-[var(--card-foreground)] font-medium">
-            Committed
+            {t ? t("streakTracker.legendCommitted") : "Committed"}
           </span>
         </div>
         <div className="flex items-center gap-3">
           <div className="h-4 w-4 rounded-md border border-accent/40 bg-accent/20" />
           <span className="text-[var(--card-foreground)] font-medium">
-            Frozen
+            {t ? t("streakTracker.legendFrozen") : "Frozen"}
           </span>
         </div>
         <div className="flex items-center gap-3">
           <div className="h-4 w-4 rounded-md border border-muted-foreground/30 bg-muted-foreground/20" />
           <span className="text-[var(--card-foreground)] font-medium">
-            Missed
+            {t ? t("streakTracker.legendMissed") : "Missed"}
           </span>
         </div>
         <div className="flex items-center gap-3">
           <div className="h-4 w-4 rounded-md border-2 border-[var(--border)]" />
           <span className="text-[var(--card-foreground)] font-medium">
-            Future
+            {t ? t("streakTracker.legendFuture") : "Future"}
           </span>
         </div>
       </div>
       <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-        Frozen days are set via the streak freeze feature above.
+        {t
+          ? t("streakTracker.calendarFootnote")
+          : "Frozen days are set via the streak freeze feature above."}
       </p>
     </div>
   );
@@ -796,7 +896,8 @@ interface WeekdayInsight {
 }
 
 export function calculateActiveDayInsights(
-  data: Record<string, number> | undefined | null
+  data: Record<string, number> | undefined | null,
+  locale = "en-US"
 ): {
   insights: WeekdayInsight[];
   peakDay: WeekdayInsight | null;
@@ -806,16 +907,14 @@ export function calculateActiveDayInsights(
     return { insights: [], peakDay: null, isValid: false };
   }
 
-  const dayNames = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  const shortNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayNames = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(2026, 0, 4 + i); // Sunday
+    return new Intl.DateTimeFormat(locale, { weekday: "long" }).format(d);
+  });
+  const shortNames = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(2026, 0, 4 + i);
+    return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(d);
+  });
 
   const totals = [0, 0, 0, 0, 0, 0, 0];
   const counts = [0, 0, 0, 0, 0, 0, 0];
@@ -874,7 +973,9 @@ interface MonthlyTrendResult {
 }
 
 export function calculateMonthlyTrend(
-  contrib: ContributionData | undefined | null
+  contrib: ContributionData | undefined | null,
+  locale = "en-US",
+  t?: (key: string, values?: Record<string, string | number>) => string
 ): MonthlyTrendResult {
   if (!contrib || !contrib.data) {
     return {
@@ -940,20 +1041,26 @@ export function calculateMonthlyTrend(
   let colorClass = "";
 
   if (lastMonth === 0) {
-    text = "First month tracked!";
+    text = t ? t("streakTracker.firstMonthTracked") : "First month tracked!";
     colorClass = "text-[var(--accent)] font-medium";
   } else {
     const deltaCalc = ((thisMonth - lastMonth) / lastMonth) * 100;
-    const formatted = deltaCalc.toFixed(0);
+    const formatted = new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 0,
+    }).format(Math.abs(deltaCalc));
 
     if (deltaCalc > 0) {
-      text = `↑${formatted}% vs last month`;
+      text = t
+        ? t("streakTracker.trendUpVsLastMonth", { percent: formatted })
+        : `↑${formatted}% vs last month`;
       colorClass = "text-[var(--success)] font-medium";
     } else if (deltaCalc < 0) {
-      text = `↓${Math.abs(deltaCalc).toFixed(0)}% vs last month`;
+      text = t
+        ? t("streakTracker.trendDownVsLastMonth", { percent: formatted })
+        : `↓${formatted}% vs last month`;
       colorClass = "text-[var(--destructive)] font-medium";
     } else {
-      text = `=0% vs last month`;
+      text = t ? t("streakTracker.trendSameVsLastMonth") : `=0% vs last month`;
       colorClass = "text-[var(--muted-foreground)] font-medium";
     }
   }

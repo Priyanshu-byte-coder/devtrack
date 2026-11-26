@@ -1,4 +1,5 @@
 import withPWAInit from "@ducanh2912/next-pwa";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -12,7 +13,12 @@ const withPWA = withPWAInit({
     document: "/offline.html",
   },
   customWorkerSrc: "src/service-worker",
-  publicExcludes: ["!noprecache/**/*", "!assets/**/*", "!openapi.yaml", "!*.txt"],
+  publicExcludes: [
+    "!noprecache/**/*",
+    "!assets/**/*",
+    "!openapi.yaml",
+    "!*.txt",
+  ],
   cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
   cacheStartUrl: false,
@@ -86,13 +92,29 @@ const nextConfig = {
   // Query strings are carried over automatically.
   async redirects() {
     return [
-      { source: "/settings", destination: "/dashboard/settings", permanent: true },
+      {
+        source: "/settings",
+        destination: "/dashboard/settings",
+        permanent: true,
+      },
       { source: "/friend-compare", destination: "/compare", permanent: true },
       // The social pages were retired; old links land on the dashboard.
       { source: "/rooms/:path*", destination: "/dashboard", permanent: false },
-      { source: "/dashboard/:page(community|friends|rooms)/:path*", destination: "/dashboard", permanent: false },
-      { source: "/project-tutor", destination: "/dashboard/project-tutor", permanent: true },
-      { source: "/profile-card", destination: "/dashboard/settings", permanent: true },
+      {
+        source: "/dashboard/:page(community|friends|rooms)/:path*",
+        destination: "/dashboard",
+        permanent: false,
+      },
+      {
+        source: "/project-tutor",
+        destination: "/dashboard/project-tutor",
+        permanent: true,
+      },
+      {
+        source: "/profile-card",
+        destination: "/dashboard/settings",
+        permanent: true,
+      },
     ];
   },
   async headers() {
@@ -122,4 +144,11 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(withPWA(nextConfig));
+export default withSentryConfig(withNextIntl(withPWA(nextConfig)), {
+  org: "devtrack-v5",
+  project: "devtrack",
+  // Source maps upload only when SENTRY_AUTH_TOKEN is set (production builds).
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+  silent: !process.env.CI,
+});

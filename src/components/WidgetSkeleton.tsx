@@ -18,7 +18,7 @@ export default function WidgetSkeleton({
       aria-live="polite"
       aria-busy="true"
     >
-      <span className="sr-only">Loading {title || "widget"}...</span>
+      <span className="sr-only">Loading {title || "widget"}…</span>
       {children}
     </div>
   );

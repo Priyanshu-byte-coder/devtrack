@@ -396,44 +396,63 @@ export default function WebhookManager() {
           className="mb-6 border border-[var(--border)] bg-[var(--control)] p-4 space-y-4"
         >
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-name"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Name
             </label>
             <input
+              id="webhook-name"
+              name="name"
               type="text"
+              autoComplete="off"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               placeholder="My Dashboard Integration"
               required
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-url"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Payload URL
             </label>
             <input
+              id="webhook-url"
+              name="url"
               type="url"
+              inputMode="url"
+              autoComplete="off"
+              spellCheck={false}
               value={formUrl}
               onChange={(e) => setFormUrl(e.target.value)}
               placeholder="https://your-server.com/webhook"
               required
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-content-type"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Content-Type
             </label>
             <select
+              id="webhook-content-type"
+              name="contentType"
               value={formContentType}
               onChange={(e) => setFormContentType(e.target.value)}
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             >
               {CONTENT_TYPES.map((ct) => (
                 <option key={ct.value} value={ct.value}>
@@ -444,19 +463,26 @@ export default function WebhookManager() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-secret-token"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Secret Token{" "}
               <span className="normal-case font-normal text-[var(--muted-foreground)]">
                 (optional — leave blank to auto-generate)
               </span>
             </label>
             <input
+              id="webhook-secret-token"
+              name="secretToken"
               type="text"
+              autoComplete="off"
+              spellCheck={false}
               value={formSecretToken}
               onChange={(e) => setFormSecretToken(e.target.value)}
               placeholder="my-shared-secret"
               disabled={creating}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--accent)] font-mono"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)] font-mono"
             />
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
               DevTrack signs payloads with HMAC-SHA256. The signature is sent in
@@ -479,7 +505,7 @@ export default function WebhookManager() {
                 {activityAlertEvents.map((event) => (
                   <label
                     key={event.value}
-                    className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-all text-sm ${
+                    className={`flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors text-sm ${
                       formEvents.includes(event.value)
                         ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
                         : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
@@ -487,6 +513,9 @@ export default function WebhookManager() {
                   >
                     <input
                       type="checkbox"
+                      name="events"
+                      value={event.value}
+                      aria-label={event.label}
                       checked={formEvents.includes(event.value)}
                       onChange={() => toggleEvent(event.value)}
                       disabled={creating}
@@ -534,7 +563,7 @@ export default function WebhookManager() {
                 {otherEvents.map((event) => (
                   <label
                     key={event.value}
-                    className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all text-sm ${
+                    className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-colors text-sm ${
                       formEvents.includes(event.value)
                         ? "border-[var(--accent)] bg-accent/10 text-[var(--foreground)]"
                         : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-accent/50"
@@ -542,6 +571,9 @@ export default function WebhookManager() {
                   >
                     <input
                       type="checkbox"
+                      name="events"
+                      value={event.value}
+                      aria-label={event.label}
                       checked={formEvents.includes(event.value)}
                       onChange={() => toggleEvent(event.value)}
                       disabled={creating}
@@ -586,7 +618,7 @@ export default function WebhookManager() {
             disabled={creating || formEvents.length === 0}
             className="w-full rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {creating ? "Creating..." : "Create Webhook"}
+            {creating ? "Creating…" : "Create Webhook"}
           </button>
         </form>
       )}
@@ -702,7 +734,7 @@ export default function WebhookManager() {
                     className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium text-[var(--foreground)] hover:bg-accent/10 transition-colors disabled:opacity-60"
                     title="Send test payload"
                   >
-                    {testingId === webhook.id ? "Testing..." : "Test"}
+                    {testingId === webhook.id ? "Testing…" : "Test"}
                   </button>
                   <button
                     onClick={() => handleDelete(webhook.id)}
@@ -760,7 +792,7 @@ export default function WebhookManager() {
               disabled={testingId === selectedWebhook}
               className="px-3 py-1.5 rounded-lg bg-[var(--accent)] text-sm font-medium text-white hover:opacity-90 disabled:opacity-60 transition-opacity"
             >
-              {testingId === selectedWebhook ? "Sending..." : "Send Test"}
+              {testingId === selectedWebhook ? "Sending…" : "Send Test"}
             </button>
             <button
               onClick={() => handleRotateSecret(selectedWebhook)}

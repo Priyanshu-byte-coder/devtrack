@@ -335,7 +335,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               >
                 <Sparkles className="h-4 w-4 animate-pulse text-[var(--muted-foreground)]" />
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  Generating summary...
+                  Generating summary…
                 </span>
               </div>
             )}
@@ -501,7 +501,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                     <div className="flex-1">
                       <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
                         <div
-                          className="h-full bg-[var(--muted-foreground)] opacity-50 rounded-full transition-all duration-500 ease-out"
+                          className="h-full bg-[var(--muted-foreground)] opacity-50 rounded-full transition-[width] duration-500 ease-out"
                           style={{
                             width: `${((issuesLastWeek / maxIssues) * 100).toFixed(0)}%`,
                           }}

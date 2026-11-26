@@ -1,0 +1,460 @@
+{
+  "common": {
+    "appName": "DevTrack",
+    "save": "Salvar",
+    "saving": "Salvando…",
+    "reset": "Redefinir",
+    "remove": "Remover",
+    "removing": "Removendo…",
+    "loading": "Carregando…",
+    "settings": "Configurações",
+    "dashboard": "Painel",
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "backToHome": "Voltar ao início",
+    "backToDashboard": "Voltar ao Painel",
+    "cancel": "Cancelar",
+    "language": "Idioma"
+  },
+  "navigation": {
+    "main": "Navegação principal",
+    "overview": "Visão geral",
+    "resume": "Currículo",
+    "personality": "Personalidade",
+    "leaderboard": "Classificação",
+    "home": "Início",
+    "features": "Recursos",
+    "openMenu": "Abrir menu de navegação",
+    "closeMenu": "Fechar menu de navegação",
+    "loggedInAs": "Conectado como",
+    "settings": "Configurações",
+    "signInCta": "Entrar",
+    "signOutCta": "Sair",
+    "openDashboard": "Abrir painel",
+    "compare": "Comparar"
+  },
+  "dashboard": {
+    "overviewEyebrow": "Visão geral do painel",
+    "title": "Painel",
+    "subtitle": "sua atividade de código em resumo",
+    "welcomeBack": "Boas-vindas",
+    "welcomeBackUser": "Boas-vindas, {name}. Aqui está sua semana até agora.",
+    "hereIsYourWeek": "Aqui está sua semana até agora.",
+    "thisWeek": "Esta semana",
+    "thisWeekAriaLabel": "esta semana",
+    "streak": "Sequência",
+    "commits": "Commits",
+    "prsMerged": "PRs mesclados",
+    "activeDays": "Dias ativos",
+    "keepItGoing": "continue firme",
+    "commitTodayToStart": "faça um commit hoje para iniciar",
+    "lastWeekEqual": "= semana passada",
+    "vsLastWeek": "{count} vs semana passada",
+    "up": "acima",
+    "down": "abaixo",
+    "unavailableRightNow": "Indisponível no momento",
+    "goodMorning": "Bom dia",
+    "goodAfternoon": "Boa tarde",
+    "goodEvening": "Boa noite",
+    "midnightOil": "Trabalhando até tarde",
+    "syncedJustNow": "Sincronizado agora mesmo",
+    "syncedMinutesAgo": "Sincronizado há {minutes} min",
+    "shareProfile": "Compartilhar perfil",
+    "viewPublicProfile": "Ver seu perfil público",
+    "yearInCode": "Ano em Código",
+    "newFeature": "Novo recurso",
+    "resumeGenerator": "Gerador de Currículo",
+    "resumeHeadline": "Gere um currículo compatível com ATS baseado no seu código real",
+    "resumeDescription": "Analise suas contribuições do GitHub, PRs mesclados e linhas de código modificadas para gerar tópicos profissionais automaticamente.",
+    "buildResume": "Gerar Currículo",
+    "nightOwl": "Coruja Noturna",
+    "earlyBird": "Madrugador",
+    "nightOwlTitle": "Meta Coruja Noturna: você envia código entre meia-noite e 4h!",
+    "earlyBirdTitle": "Meta Madrugador: você envia código entre 5h e 8h!",
+    "profileLinkCopied": "Link do perfil copiado!",
+    "profileLinkCopyFailed": "Falha ao copiar o link",
+    "season": {
+      "thisSeason": "Esta temporada",
+      "monthSeason": "Temporada de {month}",
+      "notOnLeaderboardTitle": "Você ainda não está na classificação",
+      "notOnLeaderboardDescription": "Torne seu perfil público e entre na classificação para conquistar um nível, ganhar XP e ver sua posição global.",
+      "joinLeaderboard": "Entrar na classificação",
+      "seeWhosOnIt": "Ver participantes",
+      "addToReadme": "Adicionar ao seu README →",
+      "viewLeaderboard": "Ver classificação →",
+      "ofTotalOnBoard": "de {total} no ranking",
+      "scoreOutOfThousand": "{score} / 1000 pontos",
+      "xpAppearsAfterUpdate": "O XP aparecerá após a próxima atualização diária.",
+      "bestThisFar": "Melhor até agora: {tier}",
+      "bestRank": "melhor posição #{rank}"
+    },
+    "streakTracker": {
+      "title": "Sequências de Commits",
+      "currentStreak": "Sequência Atual",
+      "longestStreak": "Maior Sequência",
+      "activeDaysWindow": "Dias Ativos ({days}d)",
+      "lastCommit": "Último Commit",
+      "currentStreakTooltip": "Dias consecutivos atuais programando",
+      "longestStreakTooltip": "Sua maior sequência histórica",
+      "activeDaysTooltip": "Dias em que você fez commits nos {window}",
+      "lastCommitTooltip": "Seu commit mais recente",
+      "dataWindowLabel": "Últimos {days} dias",
+      "daysUnit": "dias",
+      "dayUnit": "dia",
+      "loadingStreak": "Carregando rastreador de sequência",
+      "partialHistoryNotice": "A contagem de sequência usa histórico parcial: {reason}",
+      "partialHistoryDefaultReason": "Não foi possível coletar alguns commits.",
+      "tryAgain": "Tentar novamente",
+      "noContributionDataTitle": "Nenhum dado de contribuição encontrado",
+      "noContributionDataDesc": "Comece a fazer commits para construir sua sequência e acompanhar sua atividade.",
+      "openGithub": "Abrir GitHub",
+      "milestoneBadgeReached": "Meta de {label} alcançada",
+      "milestoneRemaining": " · {count} {unit} para {target}",
+      "milestone30": "Meta de 30 dias",
+      "milestone14": "Meta de 2 semanas",
+      "milestone7": "Meta de 7 dias",
+      "milestone3": "Meta de 3 dias",
+      "thisMonthActiveDays": "Este mês: {count} dias ativos",
+      "firstMonthTracked": "Primeiro mês registrado!",
+      "trendUpVsLastMonth": "↑{percent}% vs mês passado",
+      "trendDownVsLastMonth": "↓{percent}% vs mês passado",
+      "trendSameVsLastMonth": "=0% vs mês passado",
+      "mostActiveDay": "Dia Mais Ativo",
+      "avgCommitsPerDay": "média de {count} commits",
+      "updatedJustNow": "Atualizado agora mesmo",
+      "updatedMinAgo": "Atualizado há {minutes} min",
+      "freezeActiveToday": "Congelamento ativo hoje",
+      "removeFreezeQuestion": "Remover congelamento?",
+      "removingFreeze": "Removendo…",
+      "yesRemove": "Sim, remover",
+      "keepFreeze": "Manter",
+      "cancelFreeze": "Cancelar congelamento",
+      "streakFreezeTitle": "Congelamento de Sequência",
+      "freezesAvailable": "❄️ {count} disponível",
+      "streakFreezeHelpTooltip": "O congelamento protege sua sequência por um dia sem commits. É possível usar apenas um por vez.",
+      "freezing": "Congelando…",
+      "freezeStreakButton": "Congelar Sequência",
+      "freezeModalTitle": "❄️ Usar Congelamento de Sequência?",
+      "freezeModalMessage": "Isso consumirá 1 dos seus congelamentos disponíveis. Sua sequência estará protegida por hoje.",
+      "freezeModalConfirm": "Sim, congelar",
+      "freezeModalCancel": "Cancelar",
+      "copyStatsAriaLabel": "Copiar estatísticas de sequência para a área de transferência",
+      "saveImageButton": "Salvar imagem",
+      "downloadStatsAriaLabel": "Baixar estatísticas de sequência como imagem",
+      "moreInfoAbout": "Mais informações sobre {label}",
+      "prevMonth": "← Ant",
+      "nextMonth": "Próx →",
+      "prevMonthAriaLabel": "Mês anterior",
+      "nextMonthAriaLabel": "Próximo mês",
+      "legendCommitted": "Comitado",
+      "legendFrozen": "Congelado",
+      "legendMissed": "Não comitado",
+      "legendFuture": "Futuro",
+      "calendarFootnote": "Dias congelados são definidos pela função de congelamento de sequência acima.",
+      "statusFrozen": "Congelado",
+      "statusCommitted": "Comitado",
+      "statusMissed": "Não comitado"
+    }
+  },
+  "auth": {
+    "signInFailed": "Falha ao entrar",
+    "githubError": "Falha no login com GitHub. Isso geralmente é causado por credenciais OAuth incorretas ou URL de retorno incompatível. Verifique as configurações do seu aplicativo OAuth no GitHub e tente novamente.",
+    "oauthCallbackError": "Não foi possível concluir o retorno do OAuth. Tente entrar novamente.",
+    "oauthSigninError": "Não foi possível iniciar o fluxo de login com o GitHub. Tente novamente.",
+    "configurationError": "Erro de configuração no servidor. Entre em contato com o administrador do site.",
+    "accessDeniedError": "Acesso negado. Você pode ter cancelado a autorização do GitHub.",
+    "verificationError": "O link de acesso expirou ou já foi utilizado.",
+    "defaultError": "Ocorreu um erro inesperado de autenticação. Tente novamente.",
+    "welcome": "BEM-VINDO",
+    "back": "DE VOLTA.",
+    "tagline": "Acompanhe sequências, velocidade de PRs e evolução no código.",
+    "signInWithGitHub": "Entrar com o GitHub",
+    "licenseLine": "Licença MIT · Auto-hospedável · Gratuito para sempre"
+  },
+  "careerIntelligence": {
+    "header": {
+      "title": "Currículo",
+      "description": "Transforme seu trabalho no GitHub em um currículo compatível com ATS adaptado a uma vaga.",
+      "reScan": "Verificar o GitHub novamente",
+      "reScanTooltip": "As análises ficam em cache por 24 horas"
+    },
+    "errors": {
+      "rateLimited": "O limite de requisições do GitHub foi atingido. Tente novamente em alguns minutos.",
+      "sessionExpired": "Sua sessão expirou. Faça login novamente.",
+      "analyzeFailed": "Não foi possível analisar sua atividade no GitHub.",
+      "pickRoleFirst": "Escolha um cargo pretendido primeiro.",
+      "generateFailed": "Não foi possível gerar o currículo.",
+      "exportFailed": "Não foi possível exportar o currículo.",
+      "downloadFailed": "Falha ao baixar o arquivo.",
+      "copyFailed": "Falha ao copiar o conteúdo do currículo.",
+      "copySectionFailed": "Falha ao copiar a seção."
+    },
+    "steps": {
+      "footprint": "Sua presença no GitHub",
+      "targetRole": "Cargo pretendido",
+      "reviewAndDownload": "Revisar e baixar"
+    },
+    "analysis": {
+      "fetchingRepos": "Buscando seus repositórios…",
+      "readingPrs": "Lendo pull requests mesclados…",
+      "detectingTech": "Detectando linguagens e frameworks…",
+      "scoringDomains": "Pontuando áreas de engenharia…",
+      "durationHint": "Geralmente de 20 a 60 segundos, dependendo de quantos repositórios você possui.",
+      "promptTitle": "Analise seus repositórios e pull requests mesclados",
+      "promptDescription": "O DevTrack analisa até 50 repositórios para identificar suas linguagens, frameworks e impacto. Nada é publicado no GitHub.",
+      "analyzeButton": "Analisar atividade do GitHub"
+    },
+    "stats": {
+      "prsMerged": "PRs mesclados",
+      "repositories": "Repositórios",
+      "languages": "Linguagens",
+      "linesAdded": "Linhas adicionadas",
+      "linesRemoved": "Linhas removidas",
+      "reviews": "Revisões"
+    },
+    "panel": {
+      "engineeringDomains": "Áreas de engenharia",
+      "evidence": "Evidências: {evidence}",
+      "technologyStack": "Stack tecnológica",
+      "languages": "Linguagens",
+      "frameworks": "Frameworks e bibliotecas",
+      "tools": "Ferramentas e plataformas",
+      "confidence": {
+        "high": "alta",
+        "medium": "média",
+        "low": "baixa"
+      },
+      "topRepositories": "Principais repositórios e contribuições",
+      "complexity": "Complexidade {complexity}",
+      "prsMergedBadge": "{count} PRs mesclados",
+      "noDescription": "Nenhuma descrição disponível."
+    },
+    "domains": {
+      "Frontend": "Frontend",
+      "Backend": "Backend",
+      "AI_ML": "IA / ML",
+      "DevOps": "DevOps",
+      "DataScience": "Ciência de dados",
+      "Security": "Segurança",
+      "Mobile": "Mobile",
+      "Systems": "Sistemas",
+      "FullStack": "Full-stack"
+    },
+    "roles": {
+      "subtitle": "Palavras, habilidades e projetos são selecionados de acordo com o cargo escolhido.",
+      "generateResume": "Gerar currículo",
+      "writingResume": "Criando seu currículo…",
+      "regenerate": "Regenerar",
+      "generatingDraftHint": "Escrevendo cada seção com base em seus dados reais de contribuição…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "Engenheiro de Machine Learning",
+          "description": "Construa modelos, pipelines de treinamento, PLN e aplicações de redes neurais."
+        },
+        "frontendDeveloper": {
+          "title": "Desenvolvedor Frontend",
+          "description": "Crie interfaces de usuário responsivas, modernas e aplicações web interativas."
+        },
+        "backendDeveloper": {
+          "title": "Desenvolvedor Backend",
+          "description": "Projete APIs escaláveis, microsserviços, bancos de dados e camadas de autenticação."
+        },
+        "fullStackDeveloper": {
+          "title": "Desenvolvedor Full Stack",
+          "description": "Trabalhe tanto na engenharia client-side quanto server-side."
+        },
+        "devOpsEngineer": {
+          "title": "Engenheiro DevOps",
+          "description": "Gerencie infraestrutura, pipelines de CI/CD, conteinerização e nuvem."
+        },
+        "dataAnalyst": {
+          "title": "Analista de dados",
+          "description": "Extraia insights, execute análises estatísticas e construa painéis."
+        }
+      },
+      "custom": {
+        "title": "Outro cargo",
+        "description": "Digite qualquer título de cargo para adaptar o currículo a ele.",
+        "placeholder": "ex.: Site Reliability Engineer, SRE, Developer Advocate…",
+        "button": "Usar cargo",
+        "selected": "Selecionado: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "Baixar PDF",
+      "preparingPdf": "Preparando PDF…",
+      "markdown": "Markdown",
+      "json": "JSON",
+      "copyAsText": "Copiar como texto",
+      "note": "As edições feitas abaixo são incluídas no download.",
+      "summaryHeading": "RESUMO",
+      "skillsHeading": "HABILIDADES TÉCNICAS",
+      "contributionsHeading": "PRINCIPAIS CONTRIBUIÇÕES",
+      "projectsHeading": "PROJETOS"
+    },
+    "preview": {
+      "tailoredTo": "Adaptado para {role}",
+      "previewMode": "Modo de visualização",
+      "editContent": "Editar conteúdo",
+      "tabs": {
+        "summary": "Resumo profissional",
+        "experience": "Pontos de experiência",
+        "projects": "Destaques de projetos",
+        "skills": "Habilidades e tecnologias"
+      },
+      "summary": {
+        "title": "Resumo profissional",
+        "copyTitle": "Copiar seção",
+        "ariaLabel": "Resumo profissional"
+      },
+      "experience": {
+        "title": "Pontos de experiência",
+        "copyTitle": "Copiar todos os tópicos",
+        "repoAria": "Nome do repositório",
+        "repoPlaceholder": "Nome do repositório",
+        "bulletAria": "Descrição do tópico",
+        "bulletPlaceholder": "Texto do tópico",
+        "generalContribution": "contribuição geral",
+        "aiConfidence": "{confidence}% de confiança da IA",
+        "deleteBullet": "Excluir tópico",
+        "addBullet": "Adicionar ponto de experiência",
+        "newBulletText": "Novo ponto de conquista…"
+      },
+      "projects": {
+        "title": "Destaques de projetos",
+        "copyTitle": "Copiar todos os projetos",
+        "nameAria": "Nome do projeto",
+        "namePlaceholder": "Nome do projeto",
+        "urlAria": "URL do repositório",
+        "urlPlaceholder": "URL do repositório",
+        "descAria": "Descrição do projeto",
+        "descPlaceholder": "Descrição do projeto",
+        "deleteProject": "Excluir projeto",
+        "addProject": "Adicionar projeto",
+        "newProjectName": "Novo projeto",
+        "newProjectDesc": "Descrição do projeto…"
+      },
+      "skills": {
+        "title": "Habilidades técnicas e categorias",
+        "copyTitle": "Copiar habilidades",
+        "summaryAria": "Resumo técnico geral",
+        "summaryPlaceholder": "Resumo técnico geral",
+        "categoryAria": "Título da categoria",
+        "categoryPlaceholder": "Título da categoria",
+        "itemsAria": "Habilidades (separadas por vírgula)",
+        "itemsPlaceholder": "Habilidades (separadas por vírgula)",
+        "deleteCategory": "Excluir categoria",
+        "addCategory": "Adicionar categoria de habilidades",
+        "newCategoryTitle": "Nova categoria"
+      }
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "loadingLabel": "Carregando configurações",
+    "languageTitle": "Idioma",
+    "languageDescription": "Escolha o idioma de exibição usado no DevTrack.",
+    "languageSelectLabel": "Idioma de exibição",
+    "languageSaved": "Preferência de idioma salva",
+    "languageSaveFailed": "Falha ao salvar preferência de idioma",
+    "profileTitle": "Configurações de perfil",
+    "profileDescription": "Gerencie seu perfil público, preferências do painel e integrações.",
+    "appearanceTitle": "Aparência",
+    "appearanceDescription": "Escolha o tema adequado ao seu fluxo de trabalho.",
+    "weeklyDigestTitle": "Resumo semanal por e-mail",
+    "weeklyDigestDescription": "Um e-mail semanal resumindo seus hábitos de programação. Ativado por padrão; desative aqui quando quiser.",
+    "notificationsTitle": "Notificações",
+    "notificationsDescription": "Envie um resumo semanal da sua atividade para o Slack ou Discord via webhook.",
+    "webhookUrl": "URL do Webhook",
+    "connectedAccountsTitle": "Contas conectadas",
+    "connectedAccountsDescription": "Vincule contas adicionais do GitHub e alterne entre elas no painel.",
+    "addGitHubAccount": "Adicionar conta do GitHub",
+    "noLinkedAccounts": "Nenhuma conta do GitHub vinculada ainda.",
+    "loadingLinkedAccounts": "Carregando contas vinculadas…",
+    "apiKey": "Chave de API",
+    "discordTitle": "Integração com Discord",
+    "discordDescription": "Receba lembretes de sequência e alertas de metas no seu servidor Discord.",
+    "timezoneLabel": "Fuso horário (Para lembretes às 20h)",
+    "saveDiscord": "Salvar configurações do Discord",
+    "testNotification": "Testar notificação",
+    "testing": "Testando…",
+    "muteNotifications": "Silenciar notificações",
+    "unmuteNow": "Reativar agora",
+    "unsavedTitle": "Alterações não salvas",
+    "unsavedMessage": "Você tem alterações não salvas nas suas configurações. Se sair agora, o progresso será perdido.",
+    "leaveAnyway": "Sair mesmo assim",
+    "stayAndSave": "Ficar e salvar"
+  },
+  "achievements": {
+    "title": "Conquistas do GitHub",
+    "loading": "Carregando conquistas do GitHub",
+    "loadFailed": "Não foi possível carregar as conquistas do GitHub no momento.",
+    "empty": "Nenhuma conquista pública do GitHub disponível ainda.",
+    "badgeAlt": "Emblema de conquista do GitHub: {title}"
+  },
+  "personality": {
+    "header": {
+      "title": "Personalidade",
+      "description": "Seu arquétipo de desenvolvedor, extraído de horários de commits, sequências, hábitos de PR e principais repositórios."
+    },
+    "card": {
+      "badge": "Relatório de Personalidade de Código",
+      "downloadPng": "Baixar como PNG",
+      "downloadAria": "Baixar cartão de personalidade como PNG",
+      "generating": "Gerando…",
+      "traits": {
+        "workingStyle": "Estilo de trabalho",
+        "commitPattern": "Padrão de commits",
+        "collaboration": "Colaboração"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "Coruja da noite",
+        "Early Bird": "Madrugador",
+        "9-to-5 Developer": "Desenvolvedor das 9 às 17"
+      },
+      "commitPattern": {
+        "Sprinter": "Velocista (Sprinter)",
+        "Marathoner": "Maratonista"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "Programador solo",
+        "Team Player": "Jogador de equipe",
+        "Open Source Hero": "Herói do código aberto"
+      }
+    },
+    "radar": {
+      "title": "Seu radar de personalidade",
+      "description": "Como seus traços se comparam em cinco dimensões.",
+      "ariaLabel": "Gráfico de radar de personalidade do desenvolvedor",
+      "scoreLabel": "Pontuação",
+      "metrics": {
+        "nightOwl": "Coruja da noite",
+        "sprintEnergy": "Energia de sprint",
+        "collaboration": "Colaboração",
+        "perfectionism": "Perfeccionismo",
+        "consistency": "Consistência"
+      }
+    },
+    "initial": {
+      "title": "Descubra seu arquétipo de desenvolvedor",
+      "description": "Usa suas estatísticas existentes do GitHub já rastreadas no DevTrack — sem configuração extra, sem novas permissões.",
+      "generateButton": "Gerar meu relatório de personalidade"
+    },
+    "loading": {
+      "title": "Analisando seus padrões de código…",
+      "subtitle": "Processando horários de commit, histórico de PR e sequências."
+    },
+    "ready": {
+      "regenerate": "Gerar relatório novamente",
+      "successToast": "Seu relatório de personalidade de código está pronto!"
+    },
+    "errors": {
+      "errorPrefix": "Erro:",
+      "rateLimitWithRetry": "Limite de taxa atingido. Tente novamente em {minutes} min.",
+      "rateLimit": "Limite de taxa atingido. Tente novamente mais tarde.",
+      "generateFailed": "Falha ao gerar seu relatório de personalidade"
+    }
+  }
+}

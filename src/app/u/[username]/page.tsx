@@ -11,7 +11,7 @@ import GitHubAchievements from "@/components/GitHubAchievements";
 import ShareProfileSection from "@/components/ShareProfileSection";
 import SponsorBadge from "@/components/SponsorBadge";
 import PinnedReposWidget from "@/components/PinnedReposWidget";
-import { Moon, Sun } from "lucide-react";
+import { ArrowLeft, Heart, Moon, Sun } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { getUserByGithubId } from "@/lib/supabase";
 import type { PublicProfileData } from "@/lib/public-profile-data";
@@ -350,6 +350,16 @@ export default async function PublicProfilePage({
         ]}
       />
       <main className="mx-auto w-full max-w-6xl px-4 py-8 text-[var(--foreground)] sm:px-6 lg:px-8">
+        {isOwner && (
+          <Link
+            href="/dashboard"
+            className="mb-6 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--card-foreground)] hover:border-accent/40"
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft size={14} aria-hidden="true" />
+            Back to dashboard
+          </Link>
+        )}
         <PlayerCard
           login={profile.username}
           eyebrow={isOwner ? "Player 1 · you" : "Player · DevTrack member"}
@@ -364,7 +374,7 @@ export default async function PublicProfilePage({
               {profile.isNightOwl && (
                 <span
                   title="Night Owl Milestone Badge"
-                  className="inline-flex items-center gap-1 border border-indigo-500/40 bg-indigo-500/10 px-2 py-0.5 font-bold text-indigo-400"
+                  className="inline-flex items-center gap-1 border border-accent/40 bg-accent/10 px-2 py-0.5 font-bold text-accent"
                 >
                   <Moon className="h-3 w-3" aria-hidden="true" />
                   Night Owl
@@ -373,7 +383,7 @@ export default async function PublicProfilePage({
               {profile.isEarlyBird && (
                 <span
                   title="Early Bird Milestone Badge"
-                  className="inline-flex items-center gap-1 border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-bold text-amber-400"
+                  className="inline-flex items-center gap-1 border border-warning/40 bg-warning/10 px-2 py-0.5 font-bold text-warning"
                 >
                   <Sun className="h-3 w-3" aria-hidden="true" />
                   Early Bird
@@ -406,6 +416,21 @@ export default async function PublicProfilePage({
                   className="inline-flex items-center border border-[var(--border)] bg-[var(--control)] px-2.5 py-1 font-medium text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)]"
                 >
                   {profile.publicGists} Gists
+                </a>
+              )}
+              {profile.hasSponsorsListing && (
+                <a
+                  href={`https://github.com/sponsors/${encodeURIComponent(profile.username)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 border border-accent/40 bg-accent/10 px-2.5 py-1 font-medium text-accent transition-colors hover:border-accent/80 hover:bg-accent/20"
+                  title={`Sponsor @${profile.username} on GitHub`}
+                >
+                  <Heart
+                    className="h-3.5 w-3.5 fill-accent text-accent"
+                    aria-hidden="true"
+                  />
+                  Sponsor me
                 </a>
               )}
             </>
@@ -698,7 +723,7 @@ function PublicStreakTracker({
         Commit Streaks
       </h2>
       {streak.complete === false && (
-        <p role="status" className="mb-3 text-sm text-amber-500">
+        <p role="status" className="mb-3 text-sm text-warning">
           {streak.partialReason ?? "Streak history is incomplete."}
         </p>
       )}
@@ -753,7 +778,7 @@ function PublicLanguageBreakdown({
             </div>
             <div className="h-2 overflow-hidden bg-[var(--control)]">
               <div
-                className="h-full bg-[var(--accent)] transition-all duration-500"
+                className="h-full bg-[var(--accent)] transition-[width] duration-500"
                 style={{ width: `${lang.percentage}%` }}
               />
             </div>
@@ -875,7 +900,7 @@ function PublicTopRepos({
                 </div>
                 <div className="h-1.5 overflow-hidden bg-[var(--control)]">
                   <div
-                    className="h-full bg-[var(--accent)] transition-all duration-500"
+                    className="h-full bg-[var(--accent)] transition-[width] duration-500"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
