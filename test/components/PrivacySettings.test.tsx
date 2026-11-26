@@ -119,11 +119,8 @@ describe("PrivacySettings", () => {
     expect(screen.getByText("Preparing export…")).toBeInTheDocument();
 
     // Resolve request
-    const dummyBlob = new Blob(["PK mock zip content"], {
-      type: "application/zip",
-    });
     resolveExport!(
-      new Response(dummyBlob, {
+      new Response("PK mock zip content", {
         status: 200,
         headers: { "Content-Type": "application/zip" },
       })
@@ -189,11 +186,8 @@ describe("PrivacySettings", () => {
   });
 
   it("handles successful ZIP export by generating and revoking object URL and showing status message", async () => {
-    const dummyBlob = new Blob(["mock zip binary"], {
-      type: "application/zip",
-    });
     fetchMock.mockResolvedValue(
-      new Response(dummyBlob, {
+      new Response("mock zip binary", {
         status: 200,
         headers: { "Content-Type": "application/zip" },
       })
