@@ -13,6 +13,7 @@ import RankMovementBadge from "./RankMovementBadge";
 import LevelUpCelebration from "./LevelUpCelebration";
 import { AnimatedNumber } from "@/components/motion/AnimatedNumber";
 import { buttonVariants } from "@/components/ui/button";
+import { getLocale, getTranslations } from "next-intl/server";
 
 const CARD = "px-frame bg-[var(--card)] p-4 sm:p-5";
 
@@ -22,6 +23,8 @@ const CARD = "px-frame bg-[var(--card)] p-4 sm:p-5";
  * leaderboard get an invitation instead, which is the point of the card.
  */
 export default async function RankCard({ githubId }: { githubId?: string }) {
+  const t = await getTranslations("dashboard");
+  const locale = await getLocale();
   const isPlaywright = process.env.PLAYWRIGHT_TEST === "true";
   const user = isPlaywright
     ? { id: "fixture-1" }
@@ -42,27 +45,26 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
     return (
       <section className={CARD} aria-labelledby="rank-card-title">
         <p className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-          This season
+          {t("season.thisSeason")}
         </p>
         <h2
           id="rank-card-title"
           className="mt-1 font-pixel text-xl uppercase text-[var(--card-foreground)]"
         >
-          You&apos;re not on the leaderboard yet
+          {t("season.notOnLeaderboardTitle")}
         </h2>
         <p className="mt-1 max-w-prose text-sm text-[var(--muted-foreground)]">
-          Make your profile public and join the leaderboard to get a tier, earn
-          XP and see how you rank against developers worldwide.
+          {t("season.notOnLeaderboardDescription")}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href="/claim" className={buttonVariants({ size: "sm" })}>
-            Join the leaderboard
+            {t("season.joinLeaderboard")}
           </Link>
           <Link
             href="/leaderboard"
             className={buttonVariants({ size: "sm", variant: "outline" })}
           >
-            See who&apos;s on it
+            {t("season.seeWhosOnIt")}
           </Link>
         </div>
       </section>
@@ -76,10 +78,14 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
     baseline.ranks[me.id],
     baseline.date !== null
   );
-  const season = new Date().toLocaleDateString("en-US", {
+  const season = new Intl.DateTimeFormat(locale, {
     month: "long",
     timeZone: "UTC",
-  });
+  }).format(new Date());
+
+  const formattedRankedLength = new Intl.NumberFormat(locale).format(
+    ranked.length
+  );
 
   return (
     <section className={CARD} aria-labelledby="rank-card-title">
@@ -93,20 +99,20 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
           id="rank-card-title"
           className="font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]"
         >
-          {season} season
+          {t("season.monthSeason", { month: season })}
         </p>
         <div className="flex flex-wrap gap-x-4 gap-y-1">
           <Link
             href={`/u/${me.username.toLowerCase()}#readme-badges`}
             className="text-xs font-medium text-[var(--accent)] hover:underline"
           >
-            Add to your README →
+            {t("season.addToReadme")}
           </Link>
           <Link
             href="/leaderboard"
             className="text-xs font-medium text-[var(--accent)] hover:underline"
           >
-            View leaderboard →
+            {t("season.viewLeaderboard")}
           </Link>
         </div>
       </div>
@@ -120,14 +126,16 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
             <RankMovementBadge movement={movement} />
           </div>
           <p className="text-xs text-[var(--muted-foreground)]">
-            of {ranked.length} on the board
+            {t("season.ofTotalOnBoard", { total: formattedRankedLength })}
           </p>
         </div>
 
         <div className="space-y-1.5">
           <TierBadge tier={me.tier} score={me.scoreV2} />
           <p className="font-mono text-xs tabular-nums text-[var(--muted-foreground)]">
-            <AnimatedNumber value={me.scoreV2} /> / 1000 score
+            {t("season.scoreOutOfThousand", {
+              score: new Intl.NumberFormat(locale).format(me.scoreV2),
+            })}
           </p>
         </div>
 
@@ -135,15 +143,21 @@ export default async function RankCard({ githubId }: { githubId?: string }) {
           <XpBar xp={progress.xp} />
         ) : (
           <p className="text-xs text-[var(--muted-foreground)]">
-            XP appears after the next daily update.
+            {t("season.xpAppearsAfterUpdate")}
           </p>
         )}
       </div>
 
       {progress && progress.bestTier !== me.tier && (
         <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-          Best this far: {TIER_STYLE[progress.bestTier].label}
-          {progress.bestRank ? ` · best rank #${progress.bestRank}` : ""}
+          {t("season.bestThisFar", {
+            tier: TIER_STYLE[progress.bestTier].label,
+          })}
+          {progress.bestRank
+            ? ` · ${t("season.bestRank", {
+                rank: new Intl.NumberFormat(locale).format(progress.bestRank),
+              })}`
+            : ""}
         </p>
       )}
     </section>
