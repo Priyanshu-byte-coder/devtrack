@@ -1239,6 +1239,20 @@ function SettingsPageContent() {
                     className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
                   />
                 </label>
+                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-[var(--foreground)]">
+                  <span>Theme</span>
+                  <input
+                    type="radio"
+                    name="heatmap-theme"
+                    value="theme"
+                    checked={theme === "theme"}
+                    onChange={() => {
+                      setTheme("theme");
+                      setIsDirty(true);
+                    }}
+                    className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
+                  />
+                </label>
               </div>
             </div>
 
