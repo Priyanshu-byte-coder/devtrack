@@ -374,7 +374,7 @@ export default async function PublicProfilePage({
               {profile.isNightOwl && (
                 <span
                   title="Night Owl Milestone Badge"
-                  className="inline-flex items-center gap-1 border border-indigo-500/40 bg-indigo-500/10 px-2 py-0.5 font-bold text-indigo-400"
+                  className="inline-flex items-center gap-1 border border-accent/40 bg-accent/10 px-2 py-0.5 font-bold text-accent"
                 >
                   <Moon className="h-3 w-3" aria-hidden="true" />
                   Night Owl
@@ -383,7 +383,7 @@ export default async function PublicProfilePage({
               {profile.isEarlyBird && (
                 <span
                   title="Early Bird Milestone Badge"
-                  className="inline-flex items-center gap-1 border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-bold text-amber-400"
+                  className="inline-flex items-center gap-1 border border-warning/40 bg-warning/10 px-2 py-0.5 font-bold text-warning"
                 >
                   <Sun className="h-3 w-3" aria-hidden="true" />
                   Early Bird
@@ -723,7 +723,7 @@ function PublicStreakTracker({
         Commit Streaks
       </h2>
       {streak.complete === false && (
-        <p role="status" className="mb-3 text-sm text-amber-500">
+        <p role="status" className="mb-3 text-sm text-warning">
           {streak.partialReason ?? "Streak history is incomplete."}
         </p>
       )}
