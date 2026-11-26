@@ -1,44 +1,58 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAccount } from "@/components/AccountContext";
 import type { InactiveRepo } from "@/types/inactive-repos";
 
 const THRESHOLDS = [30, 60, 90] as const;
 type ThresholdDays = (typeof THRESHOLDS)[number];
 
-function formatLastActive(value: string): string {
+function formatLastActive(
+  value: string,
+  locale: string,
+  unknownText: string
+): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Unknown date";
+    return unknownText;
   }
 
-  return date.toLocaleDateString(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
-  });
-}
-
-function formatVisibility(value: InactiveRepo["visibility"]): string {
-  if (value === "internal") {
-    return "internal";
-  }
-
-  if (value === "unknown") {
-    return "unknown";
-  }
-
-  return value;
+  }).format(date);
 }
 
 export default function InactiveRepositoriesCard() {
+  const t = useTranslations("repositories");
+  const locale = useLocale();
   const { selectedAccount } = useAccount();
   const [thresholdDays, setThresholdDays] = useState<ThresholdDays>(30);
   const [repos, setRepos] = useState<InactiveRepo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const formatVisibility = useCallback(
+    (value: InactiveRepo["visibility"]): string => {
+      if (value === "internal") {
+        return t("inactiveRepos.visibility.internal");
+      }
+      if (value === "unknown") {
+        return t("inactiveRepos.visibility.unknown");
+      }
+      if (value === "public") {
+        return t("inactiveRepos.visibility.public");
+      }
+      if (value === "private") {
+        return t("inactiveRepos.visibility.private");
+      }
+      return value;
+    },
+    [t]
+  );
 
   const fetchInactiveRepos = useCallback(() => {
     setLoading(true);
@@ -61,12 +75,10 @@ export default function InactiveRepositoriesCard() {
         setRepos(payload.repos ?? []);
       })
       .catch(() => {
-        setError(
-          "We couldn't load inactive repositories right now. Please try again in a moment."
-        );
+        setError(t("inactiveRepos.failedToLoad"));
       })
       .finally(() => setLoading(false));
-  }, [selectedAccount, thresholdDays]);
+  }, [selectedAccount, thresholdDays, t]);
 
   useEffect(() => {
     fetchInactiveRepos();
@@ -77,10 +89,10 @@ export default function InactiveRepositoriesCard() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Inactive Repository Reminder
+            {t("inactiveRepos.title")}
           </h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-            Repositories without recent pushes in your selected window
+            {t("inactiveRepos.description")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -89,12 +101,12 @@ export default function InactiveRepositoriesCard() {
             onChange={(event) =>
               setThresholdDays(Number(event.target.value) as ThresholdDays)
             }
-            aria-label="Select inactivity threshold"
+            aria-label={t("inactiveRepos.thresholdAria")}
             className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--card-foreground)]"
           >
             {THRESHOLDS.map((days) => (
               <option key={days} value={days}>
-                {days} days
+                {t("inactiveRepos.thresholdOption", { days })}
               </option>
             ))}
           </select>
@@ -102,7 +114,7 @@ export default function InactiveRepositoriesCard() {
             type="button"
             onClick={fetchInactiveRepos}
             disabled={loading}
-            aria-label="Refresh inactive repositories"
+            aria-label={t("inactiveRepos.refreshAria")}
             className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-[background-color,opacity,transform] hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-60 hover:opacity-90 active:scale-95"
           >
             {loading ? (
@@ -128,7 +140,7 @@ export default function InactiveRepositoriesCard() {
                 ></path>
               </svg>
             ) : null}
-            <span>Refresh</span>
+            <span>{t("actions.refresh")}</span>
           </button>
         </div>
       </div>
@@ -141,7 +153,7 @@ export default function InactiveRepositoriesCard() {
             aria-busy="true"
             className="space-y-3"
           >
-            <span className="sr-only">Loading inactive repositories</span>
+            <span className="sr-only">{t("inactiveRepos.loading")}</span>
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
@@ -158,12 +170,12 @@ export default function InactiveRepositoriesCard() {
               onClick={fetchInactiveRepos}
               className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
             >
-              Try again
+              {t("actions.tryAgain")}
             </button>
           </div>
         ) : repos.length === 0 ? (
           <p className="rounded-lg border border-dashed border-[var(--border)] bg-[var(--card-muted)] p-4 text-sm text-[var(--muted-foreground)]">
-            Nice! No inactive repositories for this period.
+            {t("inactiveRepos.noInactive")}
           </p>
         ) : (
           <ul className="space-y-3 stagger-children">
@@ -186,15 +198,27 @@ export default function InactiveRepositoriesCard() {
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                        Open on GitHub
+                        {t("inactiveRepos.openOnGithub")}
                       </p>
                     </div>
 
                     <div className="flex shrink-0 flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--muted-foreground)] sm:text-right">
                       <span>
-                        Last active: {formatLastActive(repo.lastActiveAt)}
+                        {t("inactiveRepos.lastActive", {
+                          date: formatLastActive(
+                            repo.lastActiveAt,
+                            locale,
+                            t("inactiveRepos.unknownDate")
+                          ),
+                        })}
                       </span>
-                      <span>{repo.inactiveDays} inactive days</span>
+                      <span>
+                        {t("inactiveRepos.inactiveDays", {
+                          days: new Intl.NumberFormat(locale).format(
+                            repo.inactiveDays
+                          ),
+                        })}
+                      </span>
                     </div>
                   </div>
                 </a>

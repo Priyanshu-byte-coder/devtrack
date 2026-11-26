@@ -1,10 +1,12 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import RepoCarousel from "./RepoCarousel";
 import { ExplorerRepoCardData } from "@/lib/repo-analytics-types";
 import { SkeletonBlock } from "@/components/WidgetSkeleton";
 
 export default function RepoAnalyticsExplorer() {
+  const t = useTranslations("repositories");
   const [repos, setRepos] = useState<ExplorerRepoCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,17 +39,16 @@ export default function RepoAnalyticsExplorer() {
     <section className="px-frame min-w-0 bg-[var(--card)] p-4 sm:p-6">
       <div className="mb-4">
         <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-          Repo analytics
+          {t("analytics.title")}
         </h2>
         <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-          Your repositories by recent activity. Open one for contributors,
-          timeline, health and languages.
+          {t("analytics.description")}
         </p>
       </div>
 
       {loading ? (
         <div role="status" aria-busy="true" className="space-y-4">
-          <span className="sr-only">Loading repositories</span>
+          <span className="sr-only">{t("analytics.loading")}</span>
           <div className="grid grid-cols-3 gap-3">
             {[1, 2, 3].map((i) => (
               <SkeletonBlock key={i} className="h-[72px]" />
@@ -63,7 +64,7 @@ export default function RepoAnalyticsExplorer() {
         <div className="border-2 border-red-500/40 p-4 text-sm">
           <p className="text-[var(--card-foreground)]">{error}</p>
           <button type="button" onClick={fetchRepos} className="px-btn mt-3">
-            Try again
+            {t("actions.tryAgain")}
           </button>
         </div>
       ) : (

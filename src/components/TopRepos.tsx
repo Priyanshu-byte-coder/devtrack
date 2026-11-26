@@ -2,6 +2,7 @@
 import SectionHeader from "./SectionHeader";
 
 import { useCallback, useEffect, useState, memo, useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAccount } from "@/components/AccountContext";
 import type { RepoHealthScore } from "@/types/repo-health";
 import RepoHealthPanel from "@/components/RepoHealthPanel";
@@ -27,6 +28,8 @@ interface RepoItemProps {
   onSelectHealth: (name: string) => void;
   onTogglePin: (name: string) => void;
   onToggleBookmark: (name: string) => void;
+  t: (key: string, values?: Record<string, string | number>) => string;
+  locale: string;
 }
 
 const RepoItem = memo(
@@ -43,13 +46,17 @@ const RepoItem = memo(
     onSelectHealth,
     onTogglePin,
     onToggleBookmark,
+    t,
+    locale,
   }: RepoItemProps) => {
     const badgeTitle = health
-      ? `Commits: ${health.signals.commitFrequency} | PR Merge Rate: ${Math.round(
-          health.signals.prMergeRate * 100
-        )}% | Avg PR Time: ${Math.round(
-          health.signals.avgPrOpenTimeHours
-        )}h | Open Issues: ${health.signals.openIssuesCount} | Last Commit: ${health.signals.daysSinceLastCommit} days ago`
+      ? t("topRepos.healthBadgeTitle", {
+          commitFrequency: health.signals.commitFrequency,
+          prMergeRate: Math.round(health.signals.prMergeRate * 100),
+          avgPrTime: Math.round(health.signals.avgPrOpenTimeHours),
+          openIssues: health.signals.openIssuesCount,
+          daysSinceLastCommit: health.signals.daysSinceLastCommit,
+        })
       : undefined;
 
     const badgeClass =
@@ -60,25 +67,28 @@ const RepoItem = memo(
           : "bg-destructive/15 text-[var(--destructive)] border border-destructive/25";
 
     const visibleLanguages = repo.languages
-      ? getVisibleLanguages(repo.languages)
+      ? getVisibleLanguages(repo.languages, t("topRepos.otherLanguage"))
       : [];
     const codebaseSize = getCodebaseSizeFromLanguages(repo.languages);
 
     const sizeConfig: Record<
       CodebaseSize,
-      { classes: string; ariaLabel: string }
+      { classes: string; ariaLabel: string; label: string }
     > = {
       Small: {
         classes: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-        ariaLabel: "Small codebase, under 50KB total code",
+        ariaLabel: t("topRepos.codebaseSizeSmallAria"),
+        label: t("topRepos.codebaseSizeSmall"),
       },
       Medium: {
         classes: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-        ariaLabel: "Medium codebase, between 50KB and 500KB total code",
+        ariaLabel: t("topRepos.codebaseSizeMediumAria"),
+        label: t("topRepos.codebaseSizeMedium"),
       },
       Large: {
         classes: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-        ariaLabel: "Large codebase, over 500KB total code",
+        ariaLabel: t("topRepos.codebaseSizeLargeAria"),
+        label: t("topRepos.codebaseSizeLarge"),
       },
     };
 
@@ -92,9 +102,11 @@ const RepoItem = memo(
               className="truncate text-[var(--card-foreground)] transition-colors hover:text-[var(--accent)] text-left font-medium"
               title={[
                 repo.name,
-                repo.description ?? "No description",
+                repo.description ?? t("topRepos.noDescription"),
                 repo.languages?.[0]
-                  ? `Language: ${repo.languages[0].name}`
+                  ? t("topRepos.languageTooltip", {
+                      language: repo.languages[0].name,
+                    })
                   : null,
               ]
                 .filter(Boolean)
@@ -106,7 +118,7 @@ const RepoItem = memo(
               {shortName}
               {isPinned && (
                 <span className="ml-2 inline-flex items-center rounded-md bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--accent)] ring-1 ring-inset ring-[color-mix(in_srgb,var(--accent)_20%,transparent)] align-middle">
-                  Pinned
+                  {t("topRepos.pinnedBadge")}
                 </span>
               )}
             </button>
@@ -115,8 +127,8 @@ const RepoItem = memo(
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors shrink-0"
-              title="Open in GitHub"
-              aria-label={`Open ${repo.name} in GitHub`}
+              title={t("actions.openInGithub")}
+              aria-label={`${t("actions.openInGithub")}: ${repo.name}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -144,20 +156,20 @@ const RepoItem = memo(
                 onClick={() => onSelectHealth(repo.name)}
                 className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold cursor-pointer ${badgeClass}`}
                 title={badgeTitle}
-                aria-label={`View health breakdown for ${shortName}`}
+                aria-label={t("topRepos.viewHealthAria", { name: shortName })}
               >
                 {health.score}
               </button>
             ) : (
               <span
                 className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--control)] px-2 py-0.5 text-xs font-semibold text-[var(--muted-foreground)]"
-                title="Not enough data to calculate health score"
+                title={t("topRepos.noHealthDataTitle")}
               >
                 --
               </span>
             )}
             <span className="text-[var(--muted-foreground)]">
-              {repo.commits} commit{repo.commits !== 1 ? "s" : ""}
+              {t("topRepos.commitsCount", { count: repo.commits })}
             </span>
             <button
               type="button"
@@ -165,13 +177,13 @@ const RepoItem = memo(
               className="ml-1 p-1 hover:bg-[var(--card-muted)] rounded-md transition-colors"
               title={
                 isBookmarked
-                  ? `Remove ${shortName} from bookmarks`
-                  : `Bookmark ${shortName}`
+                  ? t("topRepos.bookmarkRemoveAria", { name: shortName })
+                  : t("topRepos.bookmarkAddAria", { name: shortName })
               }
               aria-label={
                 isBookmarked
-                  ? `Remove ${repo.name} from bookmarks`
-                  : `Bookmark ${repo.name}`
+                  ? t("topRepos.bookmarkRemoveAria", { name: repo.name })
+                  : t("topRepos.bookmarkAddAria", { name: repo.name })
               }
             >
               <Bookmark
@@ -184,10 +196,14 @@ const RepoItem = memo(
               className="p-1 hover:bg-[var(--card-muted)] rounded-md transition-colors"
               title={
                 isPinned
-                  ? `Unpin ${shortName} repository`
-                  : `Pin ${shortName} repository`
+                  ? t("topRepos.pinRemoveTitle", { name: shortName })
+                  : t("topRepos.pinAddTitle", { name: shortName })
               }
-              aria-label={isPinned ? `Unpin ${repo.name}` : `Pin ${repo.name}`}
+              aria-label={
+                isPinned
+                  ? t("topRepos.pinRemoveAria", { name: repo.name })
+                  : t("topRepos.pinAddAria", { name: repo.name })
+              }
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -242,7 +258,7 @@ const RepoItem = memo(
                   aria-label={sizeConfig[codebaseSize].ariaLabel}
                   title={sizeConfig[codebaseSize].ariaLabel}
                 >
-                  {codebaseSize} Codebase
+                  {sizeConfig[codebaseSize].label}
                 </span>
               )}
             </div>
@@ -301,7 +317,10 @@ function getLanguageColor(name: string): string {
   return LANGUAGE_COLORS[name] ?? FALLBACK_LANGUAGE_COLOR;
 }
 
-function getVisibleLanguages(languages: RepoLanguage[]): RepoLanguage[] {
+function getVisibleLanguages(
+  languages: RepoLanguage[],
+  otherLabel = "Other"
+): RepoLanguage[] {
   const sorted = [...languages].sort((a, b) => b.percentage - a.percentage);
 
   if (sorted.length <= 3) {
@@ -312,7 +331,7 @@ function getVisibleLanguages(languages: RepoLanguage[]): RepoLanguage[] {
       return [
         ...sorted,
         {
-          name: "Other",
+          name: otherLabel,
           bytes: 0,
           percentage: otherPercentage,
         },
@@ -330,7 +349,7 @@ function getVisibleLanguages(languages: RepoLanguage[]): RepoLanguage[] {
   return [
     ...topLanguages,
     {
-      name: "Other",
+      name: otherLabel,
       bytes: 0,
       percentage: otherPercentage,
     },
@@ -338,6 +357,8 @@ function getVisibleLanguages(languages: RepoLanguage[]): RepoLanguage[] {
 }
 
 export default function TopRepos() {
+  const t = useTranslations("repositories");
+  const locale = useLocale();
   const { selectedAccount } = useAccount();
   const [partialReason, setPartialReason] = useState<string | null>(null);
   const [repos, setRepos] = useState<Repo[]>([]);
@@ -410,41 +431,44 @@ export default function TopRepos() {
     );
   }, []);
 
-  const togglePin = useCallback((repoFullName: string) => {
-    setPinError(null);
+  const togglePin = useCallback(
+    (repoFullName: string) => {
+      setPinError(null);
 
-    setPinnedRepos((prevPins) => {
-      const isPinned = prevPins.includes(repoFullName);
-      let newPinsArray: string[];
+      setPinnedRepos((prevPins) => {
+        const isPinned = prevPins.includes(repoFullName);
+        let newPinsArray: string[];
 
-      if (isPinned) {
-        newPinsArray = prevPins.filter((name) => name !== repoFullName);
-      } else {
-        if (prevPins.length >= 3) {
-          setPinError("Maximum 3 pins allowed");
-          return prevPins;
+        if (isPinned) {
+          newPinsArray = prevPins.filter((name) => name !== repoFullName);
+        } else {
+          if (prevPins.length >= 3) {
+            setPinError(t("topRepos.maxPinsError"));
+            return prevPins;
+          }
+          newPinsArray = [...prevPins, repoFullName];
         }
-        newPinsArray = [...prevPins, repoFullName];
-      }
 
-      fetch("/api/user/settings", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ pinned_repos: newPinsArray }),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to update pins");
+        fetch("/api/user/settings", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ pinned_repos: newPinsArray }),
         })
-        .catch((err) => {
-          console.error(err);
-          setPinnedRepos(prevPins);
-        });
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to update pins");
+          })
+          .catch((err) => {
+            console.error(err);
+            setPinnedRepos(prevPins);
+          });
 
-      return newPinsArray;
-    });
-  }, []);
+        return newPinsArray;
+      });
+    },
+    [t]
+  );
 
   const fetchRepos = useCallback(() => {
     setLoading(true);
@@ -466,17 +490,13 @@ export default function TopRepos() {
           );
         }
       )
-      .catch(() =>
-        setError(
-          "We couldn't load your top repositories right now. Please try again in a moment."
-        )
-      )
+      .catch(() => setError(t("topRepos.failedToLoad")))
       .finally(() => {
         setLoading(false);
         setLastUpdated(new Date());
         setMinutesAgo(0);
       });
-  }, [days, selectedAccount]);
+  }, [days, selectedAccount, t]);
 
   const fetchHealthScores = useCallback(() => {
     setHealthLoading(true);
@@ -574,13 +594,19 @@ export default function TopRepos() {
           role="status"
           className="mb-3 text-xs text-[var(--muted-foreground)]"
         >
-          Repository counts use partial history: {partialReason}
+          {t("topRepos.partialHistoryNotice", { reason: partialReason })}
         </p>
       )}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <SectionHeader
-            title={`Top Repositories${!loading && repos.length > 0 ? ` (${repos.length})` : ""}`}
+            title={
+              !loading && repos.length > 0
+                ? t("topRepos.titleWithCount", {
+                    count: new Intl.NumberFormat(locale).format(repos.length),
+                  })
+                : t("topRepos.title")
+            }
           />
 
           {pinError && (
@@ -590,19 +616,19 @@ export default function TopRepos() {
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          aria-label="Select time range for top repositories"
+          aria-label={t("topRepos.timeRangeAria")}
           className="rounded-lg border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-sm text-[var(--card-foreground)]"
         >
-          <option value={7}>Last 7d</option>
-          <option value={30}>Last 30d</option>
-          <option value={90}>Last 90d</option>
+          <option value={7}>{t("actions.timeRanges.last7d")}</option>
+          <option value={30}>{t("actions.timeRanges.last30d")}</option>
+          <option value={90}>{t("actions.timeRanges.last90d")}</option>
         </select>
       </div>
 
       <div
         className={`${arcadeTabGroupClass} mb-4`}
         role="group"
-        aria-label="Repositories to show"
+        aria-label={t("topRepos.filterTabsAria")}
       >
         <button
           type="button"
@@ -610,7 +636,7 @@ export default function TopRepos() {
           aria-pressed={activeTab === "all"}
           className={arcadeTabClass(activeTab === "all")}
         >
-          All Recommended
+          {t("actions.allRecommended")}
         </button>
         <button
           type="button"
@@ -618,10 +644,10 @@ export default function TopRepos() {
           aria-pressed={activeTab === "saved"}
           className={arcadeTabClass(activeTab === "saved")}
         >
-          <span>Saved Projects</span>
+          <span>{t("actions.savedProjects")}</span>
           {bookmarkedRepos.length > 0 && (
             <span className="bg-[var(--accent)] px-1.5 py-0.5 text-[10px] text-white">
-              {bookmarkedRepos.length}
+              {new Intl.NumberFormat(locale).format(bookmarkedRepos.length)}
             </span>
           )}
         </button>
@@ -634,7 +660,7 @@ export default function TopRepos() {
           aria-busy="true"
           className="space-y-5 mt-4"
         >
-          <span className="sr-only">Loading top repositories</span>
+          <span className="sr-only">{t("topRepos.loading")}</span>
           <div aria-hidden="true" className="space-y-5">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i}>
@@ -655,7 +681,7 @@ export default function TopRepos() {
             onClick={fetchRepos}
             className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
-            Try again
+            {t("actions.tryAgain")}
           </button>
         </div>
       ) : repos.length === 0 ? (
@@ -663,12 +689,11 @@ export default function TopRepos() {
           <div className="mb-3 text-4xl">📦</div>
 
           <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-            No repositories found
+            {t("topRepos.noReposFound")}
           </h3>
 
           <p className="mt-2 max-w-sm text-sm text-[var(--muted-foreground)]">
-            Push your first commit on GitHub to get started and see repository
-            activity here.
+            {t("topRepos.noReposFoundDesc")}
           </p>
 
           <a
@@ -677,7 +702,7 @@ export default function TopRepos() {
             rel="noopener noreferrer"
             className="mt-4 inline-flex rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-[var(--control)]"
           >
-            Create Repository
+            {t("actions.createRepository")}
           </a>
         </div>
       ) : (
@@ -691,15 +716,15 @@ export default function TopRepos() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search repositories…"
-              aria-label="Search repositories by name"
+              placeholder={t("topRepos.searchPlaceholder")}
+              aria-label={t("topRepos.searchAria")}
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--control)] px-9 py-1.5 pr-10 text-sm text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus:border-[var(--accent)]"
             />
             {searchQuery.length > 0 && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                aria-label="Clear search"
+                aria-label={t("actions.clearSearch")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
               >
                 ✕
@@ -712,9 +737,9 @@ export default function TopRepos() {
               type="button"
               onClick={() => handleSort("name")}
               className="flex items-center gap-1 hover:text-[var(--card-foreground)] transition-colors"
-              aria-label="Sort by repository name"
+              aria-label={t("topRepos.sortByRepoName")}
             >
-              Repository
+              {t("topRepos.tableHeaderRepo")}
               <span aria-hidden="true">
                 {sortColumn === "name"
                   ? sortDirection === "asc"
@@ -727,9 +752,9 @@ export default function TopRepos() {
               type="button"
               onClick={() => handleSort("commits")}
               className="flex items-center gap-1 hover:text-[var(--card-foreground)] transition-colors"
-              aria-label="Sort by commit count"
+              aria-label={t("topRepos.sortByCommitCount")}
             >
-              Commits
+              {t("topRepos.tableHeaderCommits")}
               <span aria-hidden="true">
                 {sortColumn === "commits"
                   ? sortDirection === "asc"
@@ -742,7 +767,7 @@ export default function TopRepos() {
           <ul className="space-y-3">
             {filteredRepos.length === 0 ? (
               <p className="text-sm text-[var(--muted-foreground)] py-4 text-center">
-                No repos match your search.
+                {t("topRepos.noReposMatch")}
               </p>
             ) : (
               filteredRepos.map((repo, idx) => {
@@ -771,6 +796,8 @@ export default function TopRepos() {
                     onSelectHealth={setActiveHealthRepo}
                     onTogglePin={togglePin}
                     onToggleBookmark={handleToggleBookmark}
+                    t={t}
+                    locale={locale}
                   />
                 );
               })
@@ -782,8 +809,8 @@ export default function TopRepos() {
       {lastUpdated && (
         <p className="text-xs text-[var(--muted-foreground)] mt-2 text-right">
           {minutesAgo === 0
-            ? "Updated just now"
-            : `Updated ${minutesAgo} min ago`}
+            ? t("topRepos.updatedJustNow")
+            : t("topRepos.updatedMinAgo", { minutes: minutesAgo })}
         </p>
       )}
 
