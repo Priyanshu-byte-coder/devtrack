@@ -499,5 +499,175 @@
       "rateLimit": "Límite de velocidad alcanzado. Inténtalo de nuevo más tarde.",
       "generateFailed": "Error al generar tu informe de personalidad"
     }
+  },
+  "repoHealth": {
+    "explorer": {
+      "backToDashboard": "Volver al panel",
+      "dashboard": "Panel",
+      "title": "Explorador de Salud del Repositorio",
+      "description": "Desglose interactivo de salud para tus repositorios más activos",
+      "analysisWindow": "Ventana de análisis",
+      "windowOptions": {
+        "7": "Últimos 7 días",
+        "30": "Últimos 30 días",
+        "90": "Últimos 90 días"
+      },
+      "refreshAria": "Actualizar puntuaciones de salud",
+      "refresh": "Actualizar",
+      "loadError": "No se pudieron cargar los datos de salud del repositorio. Inténtalo de nuevo.",
+      "tryAgain": "Intentar de nuevo",
+      "repoListAria": "Lista de repositorios",
+      "repositories": "Repositorios",
+      "noRepos": "No se encontraron repositorios para este período. Prueba con una ventana de análisis más amplia.",
+      "detailAria": "Detalle de salud del repositorio",
+      "selectPromptTitle": "Selecciona un repositorio",
+      "selectPromptDesc": "Elige un repositorio de la lista de la izquierda para ver su desglose de salud completo y recomendaciones."
+    },
+    "card": {
+      "selectAria": "Seleccionar {repo} — puntuación de salud {score}, {label}",
+      "points": "pts"
+    },
+    "detail": {
+      "openOnGithub": "Abrir {repo} en GitHub",
+      "github": "GitHub",
+      "gradeAria": "Calificación: {letter}, {label}",
+      "scoreLabel": "Puntuación: {score}/{max}"
+    },
+    "grades": {
+      "green": "Saludable",
+      "yellow": "Requiere atención",
+      "red": "En riesgo"
+    },
+    "gauge": {
+      "ariaLabel": "Puntuación de salud del repositorio: {score} de {max}",
+      "outOf": "de {max}"
+    },
+    "radar": {
+      "ariaLabel": "Gráfico de radar de puntuación de salud",
+      "title": "Resumen de dimensiones",
+      "description": "Cada eje está normalizado de 0 a 100 para un equilibrio visual.",
+      "scoreLabel": "Puntuación",
+      "metrics": {
+        "commits": "Commits",
+        "prRate": "Tasa de PR",
+        "prSpeed": "Velocidad de PR",
+        "issues": "Issues",
+        "activity": "Actividad"
+      }
+    },
+    "breakdown": {
+      "sectionAria": "Desglose de puntuación",
+      "heading": "Desglose de Puntuación",
+      "footer": "Pasa el cursor sobre los nombres de las métricas para ver los umbrales objetivo. Peso total: 100 pts.",
+      "measuredValueAria": "Valor medido: {value}",
+      "pointsAria": "{earned} de {max} puntos",
+      "metrics": {
+        "commitFrequency": {
+          "label": "Frecuencia de commits",
+          "tip": "Objetivo: 10 o más commits en la ventana de análisis",
+          "rawSingular": "{count} commit",
+          "rawPlural": "{count} commits"
+        },
+        "prMergeRate": {
+          "label": "Tasa de fusión de PR",
+          "tip": "Objetivo: 100% de los PR abiertos fusionados"
+        },
+        "prTurnaround": {
+          "label": "Tiempo de resolución de PR",
+          "tip": "Objetivo: promedio menor a 24 horas",
+          "noPrs": "Sin PRs",
+          "hoursAvg": "{hours}h prom."
+        },
+        "openIssues": {
+          "label": "Issues abiertos",
+          "tip": "Objetivo: 0 issues abiertos",
+          "rawSingular": "{count} issue abierto",
+          "rawPlural": "{count} issues abiertos"
+        },
+        "recentActivity": {
+          "label": "Actividad reciente",
+          "tip": "Objetivo: commit en los últimos 7 días",
+          "unknown": "Desconocido",
+          "today": "Hoy",
+          "daysAgo": "hace {days}d"
+        }
+      }
+    },
+    "insights": {
+      "heading": "Recomendaciones",
+      "empty": "No hay recomendaciones en este momento; todas las métricas se ven bien.",
+      "actionsBadgeSingle": "{count} acción",
+      "actionsBadgePlural": "{count} acciones",
+      "rules": {
+        "noCommits": {
+          "title": "Sin commits recientes",
+          "description": "No se detectaron commits en la ventana de análisis. Los commits regulares mantienen activo el repositorio y la puntuación saludable."
+        },
+        "lowCommits": {
+          "title": "Baja frecuencia de commits",
+          "description": "Solo {count} commit(s) en la ventana de análisis. Apunta a 10 o más por período para alcanzar una puntuación completa de commits."
+        },
+        "goodCommits": {
+          "title": "Fuerte actividad de commits",
+          "description": "{count} commits en la ventana de análisis — igual o superior al umbral saludable de 10."
+        },
+        "lowMergeRate": {
+          "title": "Baja tasa de fusión de PR",
+          "description": "Solo se fusionó el {rate}% de los PR abiertos. Revisa y cierra pull requests obsoletos para mejorar esta señal."
+        },
+        "goodMergeRate": {
+          "title": "Excelente tasa de fusión de PR",
+          "description": "Se fusionó el {rate}% de los PR abiertos — indicador saludable de revisión de código activa."
+        },
+        "slowPrs": {
+          "title": "Ciclo largo de revisión de PR",
+          "description": "El tiempo promedio de apertura de PR es de {days} día(s). Revisiones más rápidas reducen el riesgo de integración y mejoran la velocidad."
+        },
+        "moderatePrs": {
+          "title": "Tiempo de revisión de PR por encima del promedio",
+          "description": "El tiempo promedio de apertura de PR es de {hours}h. Apunta a menos de 48 horas para un ciclo de revisión saludable."
+        },
+        "fastPrs": {
+          "title": "Rápida resolución de PR",
+          "description": "Los PR se revisan y cierran en menos de 24 horas en promedio — excelente velocidad de revisión."
+        },
+        "highIssues": {
+          "title": "Alto número de issues abiertos",
+          "description": "Se detectaron {count} issues abiertos. Clasifica y cierra problemas resueltos o duplicados para reducir la presión del backlog."
+        },
+        "moderateIssues": {
+          "title": "Backlog de issues en aumento",
+          "description": "{count} issues abiertos. Considera programar una sesión de triaje para tickets más antiguos."
+        },
+        "noIssues": {
+          "title": "Sin issues abiertos",
+          "description": "El backlog de issues está despejado — todos los problemas reportados han sido atendidos o cerrados."
+        },
+        "noCommitData": {
+          "title": "Historial de commits no disponible",
+          "description": "No se pudo determinar la fecha del último commit. Verifica los permisos de acceso al repositorio."
+        },
+        "staleRepo": {
+          "title": "El repositorio puede estar inactivo",
+          "description": "El último commit fue hace {days} días. Publica una actualización si este proyecto sigue activo."
+        },
+        "lowActivity": {
+          "title": "Actividad reciente reducida",
+          "description": "El último commit fue hace {days} días. La actividad constante mantiene alta la puntuación de recencia."
+        },
+        "activeRepo": {
+          "title": "Mantenido activamente",
+          "descriptionToday": "El último commit fue hoy — excelente señal de recencia.",
+          "descriptionDays": "El último commit fue hace {days} día(s) — excelente señal de recencia."
+        }
+      },
+      "metricNames": {
+        "commitFrequency": "Frecuencia de commits",
+        "prMergeRate": "Tasa de fusión de PR",
+        "prTurnaround": "Tiempo de resolución de PR",
+        "openIssues": "Issues abiertos",
+        "recentActivity": "Actividad reciente"
+      }
+    }
   }
 }
