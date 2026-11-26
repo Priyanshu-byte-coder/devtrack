@@ -171,6 +171,184 @@
     "signInWithGitHub": "Entrar com o GitHub",
     "licenseLine": "Licença MIT · Auto-hospedável · Gratuito para sempre"
   },
+  "careerIntelligence": {
+    "header": {
+      "title": "Currículo",
+      "description": "Transforme seu trabalho no GitHub em um currículo compatível com ATS adaptado a uma vaga.",
+      "reScan": "Verificar o GitHub novamente",
+      "reScanTooltip": "As análises ficam em cache por 24 horas"
+    },
+    "errors": {
+      "rateLimited": "O limite de requisições do GitHub foi atingido. Tente novamente em alguns minutos.",
+      "sessionExpired": "Sua sessão expirou. Faça login novamente.",
+      "analyzeFailed": "Não foi possível analisar sua atividade no GitHub.",
+      "pickRoleFirst": "Escolha um cargo pretendido primeiro.",
+      "generateFailed": "Não foi possível gerar o currículo.",
+      "exportFailed": "Não foi possível exportar o currículo.",
+      "downloadFailed": "Falha ao baixar o arquivo.",
+      "copyFailed": "Falha ao copiar o conteúdo do currículo.",
+      "copySectionFailed": "Falha ao copiar a seção."
+    },
+    "steps": {
+      "footprint": "Sua presença no GitHub",
+      "targetRole": "Cargo pretendido",
+      "reviewAndDownload": "Revisar e baixar"
+    },
+    "analysis": {
+      "fetchingRepos": "Buscando seus repositórios…",
+      "readingPrs": "Lendo pull requests mesclados…",
+      "detectingTech": "Detectando linguagens e frameworks…",
+      "scoringDomains": "Pontuando áreas de engenharia…",
+      "durationHint": "Geralmente de 20 a 60 segundos, dependendo de quantos repositórios você possui.",
+      "promptTitle": "Analise seus repositórios e pull requests mesclados",
+      "promptDescription": "O DevTrack analisa até 50 repositórios para identificar suas linguagens, frameworks e impacto. Nada é publicado no GitHub.",
+      "analyzeButton": "Analisar atividade do GitHub"
+    },
+    "stats": {
+      "prsMerged": "PRs mesclados",
+      "repositories": "Repositórios",
+      "languages": "Linguagens",
+      "linesAdded": "Linhas adicionadas",
+      "linesRemoved": "Linhas removidas",
+      "reviews": "Revisões"
+    },
+    "panel": {
+      "engineeringDomains": "Áreas de engenharia",
+      "evidence": "Evidências: {evidence}",
+      "technologyStack": "Stack tecnológica",
+      "languages": "Linguagens",
+      "frameworks": "Frameworks e bibliotecas",
+      "tools": "Ferramentas e plataformas",
+      "confidence": {
+        "high": "alta",
+        "medium": "média",
+        "low": "baixa"
+      },
+      "topRepositories": "Principais repositórios e contribuições",
+      "complexity": "Complexidade {complexity}",
+      "prsMergedBadge": "{count} PRs mesclados",
+      "noDescription": "Nenhuma descrição disponível."
+    },
+    "domains": {
+      "Frontend": "Frontend",
+      "Backend": "Backend",
+      "AI_ML": "IA / ML",
+      "DevOps": "DevOps",
+      "DataScience": "Ciência de dados",
+      "Security": "Segurança",
+      "Mobile": "Mobile",
+      "Systems": "Sistemas",
+      "FullStack": "Full-stack"
+    },
+    "roles": {
+      "subtitle": "Palavras, habilidades e projetos são selecionados de acordo com o cargo escolhido.",
+      "generateResume": "Gerar currículo",
+      "writingResume": "Criando seu currículo…",
+      "regenerate": "Regenerar",
+      "generatingDraftHint": "Escrevendo cada seção com base em seus dados reais de contribuição…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "Engenheiro de Machine Learning",
+          "description": "Construa modelos, pipelines de treinamento, PLN e aplicações de redes neurais."
+        },
+        "frontendDeveloper": {
+          "title": "Desenvolvedor Frontend",
+          "description": "Crie interfaces de usuário responsivas, modernas e aplicações web interativas."
+        },
+        "backendDeveloper": {
+          "title": "Desenvolvedor Backend",
+          "description": "Projete APIs escaláveis, microsserviços, bancos de dados e camadas de autenticação."
+        },
+        "fullStackDeveloper": {
+          "title": "Desenvolvedor Full Stack",
+          "description": "Trabalhe tanto na engenharia client-side quanto server-side."
+        },
+        "devOpsEngineer": {
+          "title": "Engenheiro DevOps",
+          "description": "Gerencie infraestrutura, pipelines de CI/CD, conteinerização e nuvem."
+        },
+        "dataAnalyst": {
+          "title": "Analista de dados",
+          "description": "Extraia insights, execute análises estatísticas e construa painéis."
+        }
+      },
+      "custom": {
+        "title": "Outro cargo",
+        "description": "Digite qualquer título de cargo para adaptar o currículo a ele.",
+        "placeholder": "ex.: Site Reliability Engineer, SRE, Developer Advocate…",
+        "button": "Usar cargo",
+        "selected": "Selecionado: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "Baixar PDF",
+      "preparingPdf": "Preparando PDF…",
+      "markdown": "Markdown",
+      "json": "JSON",
+      "copyAsText": "Copiar como texto",
+      "note": "As edições feitas abaixo são incluídas no download.",
+      "summaryHeading": "RESUMO",
+      "skillsHeading": "HABILIDADES TÉCNICAS",
+      "contributionsHeading": "PRINCIPAIS CONTRIBUIÇÕES",
+      "projectsHeading": "PROJETOS"
+    },
+    "preview": {
+      "tailoredTo": "Adaptado para {role}",
+      "previewMode": "Modo de visualização",
+      "editContent": "Editar conteúdo",
+      "tabs": {
+        "summary": "Resumo profissional",
+        "experience": "Pontos de experiência",
+        "projects": "Destaques de projetos",
+        "skills": "Habilidades e tecnologias"
+      },
+      "summary": {
+        "title": "Resumo profissional",
+        "copyTitle": "Copiar seção",
+        "ariaLabel": "Resumo profissional"
+      },
+      "experience": {
+        "title": "Pontos de experiência",
+        "copyTitle": "Copiar todos os tópicos",
+        "repoAria": "Nome do repositório",
+        "repoPlaceholder": "Nome do repositório",
+        "bulletAria": "Descrição do tópico",
+        "bulletPlaceholder": "Texto do tópico",
+        "generalContribution": "contribuição geral",
+        "aiConfidence": "{confidence}% de confiança da IA",
+        "deleteBullet": "Excluir tópico",
+        "addBullet": "Adicionar ponto de experiência",
+        "newBulletText": "Novo ponto de conquista…"
+      },
+      "projects": {
+        "title": "Destaques de projetos",
+        "copyTitle": "Copiar todos os projetos",
+        "nameAria": "Nome do projeto",
+        "namePlaceholder": "Nome do projeto",
+        "urlAria": "URL do repositório",
+        "urlPlaceholder": "URL do repositório",
+        "descAria": "Descrição do projeto",
+        "descPlaceholder": "Descrição do projeto",
+        "deleteProject": "Excluir projeto",
+        "addProject": "Adicionar projeto",
+        "newProjectName": "Novo projeto",
+        "newProjectDesc": "Descrição do projeto…"
+      },
+      "skills": {
+        "title": "Habilidades técnicas e categorias",
+        "copyTitle": "Copiar habilidades",
+        "summaryAria": "Resumo técnico geral",
+        "summaryPlaceholder": "Resumo técnico geral",
+        "categoryAria": "Título da categoria",
+        "categoryPlaceholder": "Título da categoria",
+        "itemsAria": "Habilidades (separadas por vírgula)",
+        "itemsPlaceholder": "Habilidades (separadas por vírgula)",
+        "deleteCategory": "Excluir categoria",
+        "addCategory": "Adicionar categoria de habilidades",
+        "newCategoryTitle": "Nova categoria"
+      }
+    }
+  },
   "settings": {
     "title": "Configurações",
     "loadingLabel": "Carregando configurações",
@@ -213,5 +391,70 @@
     "loadFailed": "Não foi possível carregar as conquistas do GitHub no momento.",
     "empty": "Nenhuma conquista pública do GitHub disponível ainda.",
     "badgeAlt": "Emblema de conquista do GitHub: {title}"
+  },
+  "personality": {
+    "header": {
+      "title": "Personalidade",
+      "description": "Seu arquétipo de desenvolvedor, extraído de horários de commits, sequências, hábitos de PR e principais repositórios."
+    },
+    "card": {
+      "badge": "Relatório de Personalidade de Código",
+      "downloadPng": "Baixar como PNG",
+      "downloadAria": "Baixar cartão de personalidade como PNG",
+      "generating": "Gerando…",
+      "traits": {
+        "workingStyle": "Estilo de trabalho",
+        "commitPattern": "Padrão de commits",
+        "collaboration": "Colaboração"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "Coruja da noite",
+        "Early Bird": "Madrugador",
+        "9-to-5 Developer": "Desenvolvedor das 9 às 17"
+      },
+      "commitPattern": {
+        "Sprinter": "Velocista (Sprinter)",
+        "Marathoner": "Maratonista"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "Programador solo",
+        "Team Player": "Jogador de equipe",
+        "Open Source Hero": "Herói do código aberto"
+      }
+    },
+    "radar": {
+      "title": "Seu radar de personalidade",
+      "description": "Como seus traços se comparam em cinco dimensões.",
+      "ariaLabel": "Gráfico de radar de personalidade do desenvolvedor",
+      "scoreLabel": "Pontuação",
+      "metrics": {
+        "nightOwl": "Coruja da noite",
+        "sprintEnergy": "Energia de sprint",
+        "collaboration": "Colaboração",
+        "perfectionism": "Perfeccionismo",
+        "consistency": "Consistência"
+      }
+    },
+    "initial": {
+      "title": "Descubra seu arquétipo de desenvolvedor",
+      "description": "Usa suas estatísticas existentes do GitHub já rastreadas no DevTrack — sem configuração extra, sem novas permissões.",
+      "generateButton": "Gerar meu relatório de personalidade"
+    },
+    "loading": {
+      "title": "Analisando seus padrões de código…",
+      "subtitle": "Processando horários de commit, histórico de PR e sequências."
+    },
+    "ready": {
+      "regenerate": "Gerar relatório novamente",
+      "successToast": "Seu relatório de personalidade de código está pronto!"
+    },
+    "errors": {
+      "errorPrefix": "Erro:",
+      "rateLimitWithRetry": "Limite de taxa atingido. Tente novamente em {minutes} min.",
+      "rateLimit": "Limite de taxa atingido. Tente novamente mais tarde.",
+      "generateFailed": "Falha ao gerar seu relatório de personalidade"
+    }
   }
 }

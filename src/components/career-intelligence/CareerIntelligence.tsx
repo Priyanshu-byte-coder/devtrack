@@ -6,6 +6,7 @@ import { RefreshCw, ScanSearch, Sparkles } from "lucide-react";
 import PageHeader from "@/components/shell/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useLocale, useTranslations } from "next-intl";
 
 import RoleSelector from "./RoleSelector";
 import ContributionAnalysisPanel from "./ContributionAnalysisPanel";
@@ -21,15 +22,19 @@ import type {
   ExportFormat,
 } from "@/types/cv-types";
 
-const ANALYSIS_STEPS = [
-  { until: 25, text: "Fetching your repositories…" },
-  { until: 55, text: "Reading merged pull requests…" },
-  { until: 80, text: "Detecting languages and frameworks…" },
-  { until: 97, text: "Scoring engineering domains…" },
+const ANALYSIS_STEP_KEYS = [
+  { until: 25, key: "fetchingRepos" as const },
+  { until: 55, key: "readingPrs" as const },
+  { until: 80, key: "detectingTech" as const },
+  { until: 97, key: "scoringDomains" as const },
 ];
 
 /** Turns an API error body ({ error }) or plain text into a readable message. */
-async function readError(res: Response, fallback: string): Promise<string> {
+async function readError(
+  res: Response,
+  fallback: string,
+  t: (key: string) => string
+): Promise<string> {
   const text = await res.text().catch(() => "");
   try {
     const parsed = JSON.parse(text) as { error?: unknown; message?: unknown };
@@ -40,13 +45,13 @@ async function readError(res: Response, fallback: string): Promise<string> {
       return parsed.error;
     }
     if (parsed.error === "GITHUB_RATE_LIMITED") {
-      return "GitHub's rate limit was reached. Try again in a few minutes.";
+      return t("errors.rateLimited");
     }
     if (typeof parsed.message === "string") return parsed.message;
   } catch {
     // not JSON
   }
-  if (res.status === 401) return "Your session expired. Sign in again.";
+  if (res.status === 401) return t("errors.sessionExpired");
   return fallback;
 }
 
@@ -83,10 +88,15 @@ function StepHeading({
 }
 
 export default function CareerIntelligence() {
+  const t = useTranslations("careerIntelligence");
+  const locale = useLocale();
+
   const [step, setStep] = useState<CVFlowStep>("idle");
   const [restoring, setRestoring] = useState(true);
   const [progressValue, setProgressValue] = useState(0);
-  const [progressText, setProgressText] = useState(ANALYSIS_STEPS[0].text);
+  const [progressKey, setProgressKey] = useState<
+    (typeof ANALYSIS_STEP_KEYS)[number]["key"]
+  >(ANALYSIS_STEP_KEYS[0].key);
   const [analysis, setAnalysis] = useState<ContributionClassification | null>(
     null
   );
@@ -123,14 +133,14 @@ export default function CareerIntelligence() {
 
   const startProgress = () => {
     setProgressValue(0);
-    setProgressText(ANALYSIS_STEPS[0].text);
+    setProgressKey(ANALYSIS_STEP_KEYS[0].key);
     let value = 0;
     progressTimer.current = setInterval(() => {
-      const current = ANALYSIS_STEPS.find((s) => value < s.until);
+      const current = ANALYSIS_STEP_KEYS.find((s) => value < s.until);
       if (!current) return;
       value += 1;
       setProgressValue(value);
-      setProgressText(current.text);
+      setProgressKey(current.key);
     }, 120);
   };
 
@@ -147,9 +157,7 @@ export default function CareerIntelligence() {
     try {
       const res = await fetch("/api/cv/analyze", { method: "POST" });
       if (!res.ok) {
-        throw new Error(
-          await readError(res, "Could not analyze your GitHub activity.")
-        );
+        throw new Error(await readError(res, t("errors.analyzeFailed"), t));
       }
       const data = (await res.json()) as {
         analysis: ContributionClassification;
@@ -169,7 +177,7 @@ export default function CareerIntelligence() {
 
   const handleGenerate = async (regenerate = false) => {
     if (!selectedRole) {
-      toast.error("Pick a target role first.");
+      toast.error(t("errors.pickRoleFirst"));
       return;
     }
 
@@ -183,7 +191,7 @@ export default function CareerIntelligence() {
         body: JSON.stringify({ role: selectedRole, regenerate, analysis }),
       });
       if (!res.ok) {
-        throw new Error(await readError(res, "Could not generate the resume."));
+        throw new Error(await readError(res, t("errors.generateFailed"), t));
       }
       const data = (await res.json()) as { content: ResumeContent };
       setResumeContent(data.content);
@@ -212,7 +220,7 @@ export default function CareerIntelligence() {
         body: JSON.stringify({ format, content: resumeContent }),
       });
       if (!res.ok) {
-        throw new Error(await readError(res, "Could not export the resume."));
+        throw new Error(await readError(res, t("errors.exportFailed"), t));
       }
 
       const blob = await res.blob();
@@ -229,7 +237,7 @@ export default function CareerIntelligence() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to download file."
+        err instanceof Error ? err.message : t("errors.downloadFailed")
       );
     } finally {
       setStep("generated");
@@ -243,18 +251,18 @@ export default function CareerIntelligence() {
   return (
     <div className="max-w-5xl">
       <PageHeader
-        title="Resume"
-        description="Turn your GitHub work into an ATS-friendly resume tailored to a role."
+        title={t("header.title")}
+        description={t("header.description")}
         actions={
           analysis && !busy ? (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleAnalyze}
-              title="Analyses are cached for 24 hours"
+              title={t("header.reScanTooltip")}
             >
               <ScanSearch aria-hidden="true" />
-              Re-scan GitHub
+              {t("header.reScan")}
             </Button>
           ) : null
         }
@@ -275,7 +283,7 @@ export default function CareerIntelligence() {
           <div id="resume-step-1">
             <StepHeading
               n={1}
-              title="Your GitHub footprint"
+              title={t("steps.footprint")}
               done={Boolean(analysis)}
             />
           </div>
@@ -288,15 +296,16 @@ export default function CareerIntelligence() {
           ) : step === "analyzing" ? (
             <div className="px-frame bg-[var(--card)] p-5" aria-live="polite">
               <div className="mb-2 flex justify-between text-sm">
-                <span className="text-[var(--foreground)]">{progressText}</span>
+                <span className="text-[var(--foreground)]">
+                  {t(`analysis.${progressKey}`)}
+                </span>
                 <span className="tabular-nums text-[var(--muted-foreground)]">
-                  {progressValue}%
+                  {new Intl.NumberFormat(locale).format(progressValue)}%
                 </span>
               </div>
               <Progress value={progressValue} />
               <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-                Usually 20–60 seconds, depending on how many repositories you
-                have.
+                {t("analysis.durationHint")}
               </p>
             </div>
           ) : analysis ? (
@@ -311,16 +320,15 @@ export default function CareerIntelligence() {
             <div className="flex flex-wrap items-center justify-between gap-4 px-frame bg-[var(--card)] p-5">
               <div className="max-w-xl">
                 <p className="text-sm font-medium text-[var(--foreground)]">
-                  Scan your repositories and merged pull requests
+                  {t("analysis.promptTitle")}
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  DevTrack reads up to 50 repositories to work out your
-                  languages, frameworks and impact. Nothing is posted to GitHub.
+                  {t("analysis.promptDescription")}
                 </p>
               </div>
               <Button onClick={handleAnalyze}>
                 <ScanSearch aria-hidden="true" />
-                Analyze GitHub activity
+                {t("analysis.analyzeButton")}
               </Button>
             </div>
           )}
@@ -330,12 +338,15 @@ export default function CareerIntelligence() {
         {analysis && step !== "analyzing" && (
           <section aria-labelledby="resume-step-2">
             <div id="resume-step-2">
-              <StepHeading n={2} title="Target role" done={hasResume} />
+              <StepHeading
+                n={2}
+                title={t("steps.targetRole")}
+                done={hasResume}
+              />
             </div>
             <div className="px-frame bg-[var(--card)] p-5">
               <p className="mb-4 text-sm text-[var(--muted-foreground)]">
-                Wording, skills and projects are picked to match the role you
-                choose.
+                {t("roles.subtitle")}
               </p>
               <RoleSelector
                 selectedRole={selectedRole}
@@ -349,8 +360,8 @@ export default function CareerIntelligence() {
                 >
                   <Sparkles aria-hidden="true" />
                   {step === "generating"
-                    ? "Writing your resume…"
-                    : "Generate resume"}
+                    ? t("roles.writingResume")
+                    : t("roles.generateResume")}
                 </Button>
                 {hasResume && resumeContent?.role === selectedRole && (
                   <Button
@@ -358,7 +369,7 @@ export default function CareerIntelligence() {
                     onClick={() => handleGenerate(true)}
                   >
                     <RefreshCw aria-hidden="true" />
-                    Regenerate
+                    {t("roles.regenerate")}
                   </Button>
                 )}
                 {step === "generating" && (
@@ -366,7 +377,7 @@ export default function CareerIntelligence() {
                     className="text-xs text-[var(--muted-foreground)]"
                     aria-live="polite"
                   >
-                    Drafting each section from your real contribution data…
+                    {t("roles.generatingDraftHint")}
                   </span>
                 )}
               </div>
@@ -385,7 +396,7 @@ export default function CareerIntelligence() {
               id="resume-step-3"
               className="flex flex-wrap items-center justify-between gap-3"
             >
-              <StepHeading n={3} title="Review and download" />
+              <StepHeading n={3} title={t("steps.reviewAndDownload")} />
             </div>
             <div className="mb-4">
               <ExportPanel

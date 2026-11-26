@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { toPng } from "html-to-image";
+import { useTranslations } from "next-intl";
 import {
   Download,
   Sparkles,
@@ -26,6 +27,7 @@ const WORKING_STYLE_ICON: Record<string, typeof Moon> = {
 
 /** Beautiful, shareable archetype card with a one-click PNG download. */
 export default function PersonalityCard({ report, username }: Props) {
+  const t = useTranslations("personality");
   const cardRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -63,7 +65,7 @@ export default function PersonalityCard({ report, username }: Props) {
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
               <Sparkles size={12} />
-              Code Personality Report
+              {t("card.badge")}
             </span>
             <span className="text-xs font-medium text-[var(--muted-foreground)]">
               devtrack.live/u/{username}
@@ -86,18 +88,18 @@ export default function PersonalityCard({ report, username }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <TraitBox
               icon={WorkingStyleIcon}
-              label="Working Style"
-              value={report.workingStyle}
+              label={t("card.traits.workingStyle")}
+              value={t(`enums.workingStyle.${report.workingStyle}` as any)}
             />
             <TraitBox
               icon={Zap}
-              label="Commit Pattern"
-              value={report.commitPattern}
+              label={t("card.traits.commitPattern")}
+              value={t(`enums.commitPattern.${report.commitPattern}` as any)}
             />
             <TraitBox
               icon={Users}
-              label="Collaboration"
-              value={report.collaborationStyle}
+              label={t("card.traits.collaboration")}
+              value={t(`enums.collaborationStyle.${report.collaborationStyle}` as any)}
             />
           </div>
 
@@ -126,18 +128,18 @@ export default function PersonalityCard({ report, username }: Props) {
         type="button"
         onClick={handleDownload}
         disabled={downloading}
-        aria-label="Download personality card as PNG"
+        aria-label={t("card.downloadAria")}
         className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] hover:bg-[var(--control)] transition-colors disabled:cursor-not-allowed disabled:opacity-60"
       >
         {downloading ? (
           <>
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            Generating…
+            {t("card.generating")}
           </>
         ) : (
           <>
             <Download size={16} />
-            Download as PNG
+            {t("card.downloadPng")}
           </>
         )}
       </button>

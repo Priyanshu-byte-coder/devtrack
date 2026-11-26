@@ -9,6 +9,7 @@ import {
   Minus,
   Eye,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { ContributionScores, DomainScore } from "@/types/cv-types";
 
@@ -17,7 +18,15 @@ interface ContributionStatsProps {
   domains: DomainScore[];
 }
 
-function Counter({ value, className }: { value: number; className?: string }) {
+function Counter({
+  value,
+  locale,
+  className,
+}: {
+  value: number;
+  locale: string;
+  className?: string;
+}) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -44,54 +53,61 @@ function Counter({ value, className }: { value: number; className?: string }) {
     return () => clearInterval(timer);
   }, [value]);
 
-  return <span className={className}>{count.toLocaleString()}</span>;
+  return (
+    <span className={className}>
+      {new Intl.NumberFormat(locale).format(count)}
+    </span>
+  );
 }
 
 export default function ContributionStats({
   scores,
-  domains,
+  domains: _domains,
 }: ContributionStatsProps) {
+  const t = useTranslations("careerIntelligence");
+  const locale = useLocale();
+
   // Count total technologies
-  const totalTech = scores.topLanguages.length; // We can show a base of languages or approximate it
+  const totalTech = scores.topLanguages.length;
 
   const stats = [
     {
-      label: "PRs Merged",
+      label: t("stats.prsMerged"),
       value: scores.totalPRsMerged,
       icon: GitPullRequest,
       colorClass: "text-purple-500",
       bgBorderClass: "hover:border-purple-500/30",
     },
     {
-      label: "Repositories",
+      label: t("stats.repositories"),
       value: scores.totalReposContributed,
       icon: FolderGit2,
       colorClass: "text-blue-500",
       bgBorderClass: "hover:border-blue-500/30",
     },
     {
-      label: "Languages",
+      label: t("stats.languages"),
       value: totalTech,
       icon: Code2,
       colorClass: "text-amber-500",
       bgBorderClass: "hover:border-amber-500/30",
     },
     {
-      label: "Lines Added",
+      label: t("stats.linesAdded"),
       value: scores.totalAdditions,
       icon: Plus,
       colorClass: "text-emerald-500",
       bgBorderClass: "hover:border-emerald-500/30",
     },
     {
-      label: "Lines Removed",
+      label: t("stats.linesRemoved"),
       value: scores.totalDeletions,
       icon: Minus,
       colorClass: "text-rose-500",
       bgBorderClass: "hover:border-rose-500/30",
     },
     {
-      label: "Reviews",
+      label: t("stats.reviews"),
       value: scores.totalReviews,
       icon: Eye,
       colorClass: "text-indigo-500",
@@ -113,7 +129,7 @@ export default function ContributionStats({
               {stat.label}
             </p>
             <div className="mt-1 text-xl font-semibold tabular-nums text-[var(--foreground)]">
-              <Counter value={stat.value} />
+              <Counter value={stat.value} locale={locale} />
             </div>
           </div>
         );
