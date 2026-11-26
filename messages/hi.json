@@ -213,5 +213,70 @@
     "loadFailed": "GitHub उपलब्धियां अभी लोड नहीं की जा सकीं।",
     "empty": "अभी तक कोई सार्वजनिक GitHub उपलब्धियां उपलब्ध नहीं हैं।",
     "badgeAlt": "{title} GitHub उपलब्धि बैज"
+  },
+  "personality": {
+    "header": {
+      "title": "पर्सनालिटी",
+      "description": "आपका डेवलपर आर्कटाइप, कमिट समय, स्ट्रीक्स, PR आदतों और शीर्ष रिपॉजिटरी से निर्धारित।"
+    },
+    "card": {
+      "badge": "कोड पर्सनालिटी रिपोर्ट",
+      "downloadPng": "PNG के रूप में डाउनलोड करें",
+      "downloadAria": "पर्सनालिटी कार्ड को PNG के रूप में डाउनलोड करें",
+      "generating": "तैयार किया जा रहा है…",
+      "traits": {
+        "workingStyle": "कार्य शैली",
+        "commitPattern": "कमिट पैटर्न",
+        "collaboration": "सहयोग"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "नाईट आउल",
+        "Early Bird": "अर्ली बर्ड",
+        "9-to-5 Developer": "9-से-5 डेवलपर"
+      },
+      "commitPattern": {
+        "Sprinter": "स्प्रिंटर",
+        "Marathoner": "मैराथनर"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "सोलो कोडर",
+        "Team Player": "टीम प्लेयर",
+        "Open Source Hero": "ओपन सोर्स हीरो"
+      }
+    },
+    "radar": {
+      "title": "आपका पर्सनालिटी रडार",
+      "description": "पांच आयामों में आपके लक्षणों की तुलना।",
+      "ariaLabel": "डेवलपर पर्सनालिटी रडार चार्ट",
+      "scoreLabel": "स्कोर",
+      "metrics": {
+        "nightOwl": "नाईट आउल",
+        "sprintEnergy": "स्प्रिंट एनर्जी",
+        "collaboration": "सहयोग",
+        "perfectionism": "परफेक्शनिज़्म",
+        "consistency": "निरंतरता"
+      }
+    },
+    "initial": {
+      "title": "अपने डेवलपर आर्कटाइप की खोज करें",
+      "description": "DevTrack में पहले से ट्रैक किए गए आपके मौजूदा GitHub आंकड़ों का उपयोग करता है — कोई अतिरिक्त सेटअप नहीं, कोई नई अनुमति नहीं।",
+      "generateButton": "मेरी पर्सनालिटी रिपोर्ट जनरेट करें"
+    },
+    "loading": {
+      "title": "आपके कोडिंग पैटर्न का विश्लेषण किया जा रहा है…",
+      "subtitle": "कमिट समय, PR इतिहास और स्ट्रीक्स का विश्लेषण जारी है।"
+    },
+    "ready": {
+      "regenerate": "रिपोर्ट फिर से जनरेट करें",
+      "successToast": "आपकी कोड पर्सनालिटी रिपोर्ट तैयार है!"
+    },
+    "errors": {
+      "errorPrefix": "त्रुटि:",
+      "rateLimitWithRetry": "दर सीमा पार हो गई। {minutes} मिनट में पुनः प्रयास करें।",
+      "rateLimit": "दर सीमा पार हो गई। कृपया बाद में पुन: प्रयास करें।",
+      "generateFailed": "आपकी पर्सनालिटी रिपोर्ट जनरेट करने में विफल"
+    }
   }
 }
