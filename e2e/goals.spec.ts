@@ -462,11 +462,11 @@ test("[Goals E2E] full lifecycle: create goal, mark progress, delete via confirm
 
   /**
    * Note on Issue #3804 Step 2 ("Edit its target"):
-   * GoalTracker component (src/components/GoalTracker.tsx) only provides target input
-   * during goal creation. There is no edit-target UI control, modal, or inline edit
-   * exposed in the frontend, although PATCH /api/goals/:id supports updating target.
-   * Per Section 4.4 ("No artificial implementation"), we do not fabricate UI actions
-   * or call PATCH via page.evaluate().
+   * GoalTracker component (src/components/GoalTracker.tsx) only exposes the target
+   * input during goal creation. It currently has no edit-target control, modal, or
+   * inline edit, although PATCH /api/goals/:id supports updating the target.
+   * Therefore, this E2E test covers the supported create, progress, and delete
+   * flows, but cannot cover target editing through the current UI.
    */
 
   // 3. Mark progress: click the "+1" button for manual unit goal
