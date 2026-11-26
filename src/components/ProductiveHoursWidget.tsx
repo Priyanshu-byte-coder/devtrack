@@ -401,6 +401,18 @@ export default function ProductiveHoursWidget() {
           >
             Colour-blind
           </button>
+          <button
+            type="button"
+            onClick={() => setTheme("theme")}
+            style={
+              theme === "theme"
+                ? { backgroundColor: themeConfig.accent, color: "var(--card)" }
+                : undefined
+            }
+            className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
+          >
+            Theme
+          </button>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">

@@ -3,6 +3,7 @@
 import { domainDisplayName } from "@/lib/cv/domain-labels";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Award, Sparkles, FolderKanban } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type {
   ContributionClassification,
@@ -76,7 +77,12 @@ const DOMAIN_STYLES: Record<
 export default function ContributionAnalysisPanel({
   analysis,
 }: ContributionAnalysisPanelProps) {
+  const t = useTranslations("careerIntelligence");
+  const locale = useLocale();
   const { techStack, domains, repositoryAnalyses } = analysis;
+
+  const getDomainName = (dom: string) =>
+    t.has(`domains.${dom}`) ? t(`domains.${dom}`) : domainDisplayName(dom);
 
   const renderConfidenceBadge = (confidence: "high" | "medium" | "low") => {
     const styles = {
@@ -91,7 +97,7 @@ export default function ContributionAnalysisPanel({
           styles[confidence]
         )}
       >
-        {confidence}
+        {t(`panel.confidence.${confidence}`)}
       </span>
     );
   };
@@ -104,7 +110,7 @@ export default function ContributionAnalysisPanel({
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Award className="h-5 w-5 text-[var(--accent)]" />
             <h3 className="text-base font-semibold text-[var(--foreground)]">
-              Engineering Domains
+              {t("panel.engineeringDomains")}
             </h3>
           </div>
 
@@ -115,9 +121,11 @@ export default function ContributionAnalysisPanel({
                 <div key={ds.domain} className="space-y-1.5">
                   <div className="flex justify-between items-center text-sm font-semibold">
                     <span className="text-[var(--foreground)]">
-                      {domainDisplayName(ds.domain)}
+                      {getDomainName(ds.domain)}
                     </span>
-                    <span className={style.text}>{ds.score}%</span>
+                    <span className={style.text}>
+                      {new Intl.NumberFormat(locale).format(ds.score)}%
+                    </span>
                   </div>
                   <div className="h-2.5 w-full bg-[var(--card-muted)] rounded-full overflow-hidden border border-border/50">
                     <div
@@ -130,7 +138,9 @@ export default function ContributionAnalysisPanel({
                   </div>
                   {ds.evidence.length > 0 && (
                     <p className="text-[10px] text-[var(--muted-foreground)] italic">
-                      Evidence: {ds.evidence.slice(0, 2).join(" • ")}
+                      {t("panel.evidence", {
+                        evidence: ds.evidence.slice(0, 2).join(" • "),
+                      })}
                     </p>
                   )}
                 </div>
@@ -144,7 +154,7 @@ export default function ContributionAnalysisPanel({
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
             <Sparkles className="h-5 w-5 text-[var(--accent)]" />
             <h3 className="text-base font-semibold text-[var(--foreground)]">
-              Technology Stack
+              {t("panel.technologyStack")}
             </h3>
           </div>
 
@@ -153,7 +163,7 @@ export default function ContributionAnalysisPanel({
             {techStack.languages.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                  Languages
+                  {t("panel.languages")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {techStack.languages.slice(0, 10).map((tech) => (
@@ -174,7 +184,7 @@ export default function ContributionAnalysisPanel({
             {techStack.frameworks.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                  Frameworks & Libraries
+                  {t("panel.frameworks")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {techStack.frameworks.slice(0, 10).map((tech) => (
@@ -195,7 +205,7 @@ export default function ContributionAnalysisPanel({
             {techStack.tools.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                  Tools & Platforms
+                  {t("panel.tools")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {techStack.tools.slice(0, 10).map((tech) => (
@@ -220,7 +230,7 @@ export default function ContributionAnalysisPanel({
         <div className="flex items-center gap-2 pb-2 border-b border-[var(--border)]">
           <FolderKanban className="h-5 w-5 text-[var(--accent)]" />
           <h3 className="text-base font-semibold text-[var(--foreground)]">
-            Top Repositories & Contributions
+            {t("panel.topRepositories")}
           </h3>
         </div>
 
@@ -245,20 +255,24 @@ export default function ContributionAnalysisPanel({
                     variant="secondary"
                     className="text-[10px] px-2 py-0.5 border border-[var(--border)] uppercase font-semibold"
                   >
-                    {repo.complexity} Complexity
+                    {t("panel.complexity", { complexity: repo.complexity })}
                   </Badge>
                   {repo.prsMerged > 0 && (
                     <Badge
                       variant="success"
                       className="text-[10px] px-2 py-0.5 font-semibold"
                     >
-                      {repo.prsMerged} PRs Merged
+                      {t("panel.prsMergedBadge", {
+                        count: new Intl.NumberFormat(locale).format(
+                          repo.prsMerged
+                        ),
+                      })}
                     </Badge>
                   )}
                 </div>
 
                 <p className="text-xs text-[var(--muted-foreground)] line-clamp-2">
-                  {repo.description ?? "No description available."}
+                  {repo.description ?? t("panel.noDescription")}
                 </p>
 
                 {/* Detected domains */}
@@ -275,7 +289,7 @@ export default function ContributionAnalysisPanel({
                           style.border
                         )}
                       >
-                        {domainDisplayName(dom)}
+                        {getDomainName(dom)}
                       </span>
                     );
                   })}
