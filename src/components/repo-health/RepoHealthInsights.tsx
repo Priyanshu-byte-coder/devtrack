@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { HealthInsight } from "@/lib/repo-health-insights";
 
 interface Props {
@@ -39,14 +40,18 @@ const SEVERITY_STYLES: Record<
  * `@/lib/repo-health-insights` and are fully data-driven.
  */
 function RepoHealthInsights({ insights }: Props) {
+  const t = useTranslations("repoHealth");
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(locale);
+
   if (insights.length === 0) {
     return (
-      <section aria-label="Recommendations">
+      <section aria-label={t("insights.heading")}>
         <h3 className="mb-3 text-sm font-semibold text-[var(--card-foreground)]">
-          Recommendations
+          {t("insights.heading")}
         </h3>
         <p className="text-sm text-[var(--muted-foreground)]">
-          No recommendations at this time — all metrics look good.
+          {t("insights.empty")}
         </p>
       </section>
     );
@@ -58,12 +63,18 @@ function RepoHealthInsights({ insights }: Props) {
   const ordered = [...warnings, ...infos, ...successes];
 
   return (
-    <section aria-label="Recommendations">
+    <section aria-label={t("insights.heading")}>
       <h3 className="mb-3 text-sm font-semibold text-[var(--card-foreground)]">
-        Recommendations
+        {t("insights.heading")}
         {warnings.length > 0 && (
           <span className="ml-2 inline-flex items-center rounded-full bg-destructive/15 px-1.5 py-0.5 text-xs font-medium text-[var(--destructive)]">
-            {warnings.length} action{warnings.length !== 1 ? "s" : ""}
+            {warnings.length === 1
+              ? t("insights.actionsBadgeSingle", {
+                  count: numberFormatter.format(warnings.length),
+                })
+              : t("insights.actionsBadgePlural", {
+                  count: numberFormatter.format(warnings.length),
+                })}
           </span>
         )}
       </h3>
@@ -71,6 +82,42 @@ function RepoHealthInsights({ insights }: Props) {
       <ul className="space-y-2" role="list">
         {ordered.map((insight) => {
           const styles = SEVERITY_STYLES[insight.severity];
+
+          const title = insight.ruleKey
+            ? t(`insights.rules.${insight.ruleKey}.title`)
+            : insight.title;
+
+          let description = insight.description;
+          if (insight.ruleKey === "activeRepo") {
+            const days = insight.params?.days;
+            if (days === 0 || (typeof days === "number" && days <= 0)) {
+              description = t("insights.rules.activeRepo.descriptionToday");
+            } else {
+              description = t("insights.rules.activeRepo.descriptionDays", {
+                days:
+                  typeof days === "number"
+                    ? numberFormatter.format(days)
+                    : String(days),
+              });
+            }
+          } else if (insight.ruleKey) {
+            const formattedParams: Record<string, string | number> = {};
+            if (insight.params) {
+              for (const [k, v] of Object.entries(insight.params)) {
+                formattedParams[k] =
+                  typeof v === "number" ? numberFormatter.format(v) : v;
+              }
+            }
+            description = t(
+              `insights.rules.${insight.ruleKey}.description`,
+              formattedParams
+            );
+          }
+
+          const metricLabel = insight.metricKey
+            ? t(`insights.metricNames.${insight.metricKey}`)
+            : insight.metric;
+
           return (
             <li
               key={insight.id}
@@ -85,13 +132,13 @@ function RepoHealthInsights({ insights }: Props) {
                 </span>
                 <div>
                   <p className={`text-xs font-semibold ${styles.text}`}>
-                    {insight.title}
+                    {title}
                   </p>
                   <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
-                    {insight.description}
+                    {description}
                   </p>
                   <span className="mt-1 inline-block text-[10px] font-medium uppercase tracking-wide text-muted-foreground/70">
-                    {insight.metric}
+                    {metricLabel}
                   </span>
                 </div>
               </div>

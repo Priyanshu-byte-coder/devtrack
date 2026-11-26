@@ -47,6 +47,8 @@ test.beforeEach(async ({ page }) => {
   let mockSettings = {
     id: "1",
     github_login: "playwright-user",
+    bio: "",
+    timezone: "UTC",
     is_public: false,
     leaderboard_opt_in: false,
     has_wakatime_key: false,
@@ -130,4 +132,118 @@ test("settings page saves and reflects changes", async ({ page }) => {
 
   // It should now be checked (our mock returns the patched value)
   await expect(publicProfileCheckbox).toBeChecked();
+});
+
+test("saving settings: bio, timezone, visibility persists across reload", async ({
+  page,
+}) => {
+  await page.goto("/dashboard/settings");
+  await expect(
+    page.getByRole("heading", { name: "Settings", exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+
+  // 1. Change profile bio
+  const bioInput = page.locator("#profile-bio");
+  await bioInput.scrollIntoViewIfNeeded();
+  await bioInput.fill(
+    "Software Engineer passionate about open source and distributed systems."
+  );
+
+  const saveBioButton = page.getByRole("button", { name: "Save Bio" });
+  await saveBioButton.click();
+  await expect(page.getByText("Bio saved successfully!")).toBeVisible({
+    timeout: 10_000,
+  });
+
+  // 2. Change timezone
+  const timezoneSelect = page.locator("#timezone-select");
+  await timezoneSelect.scrollIntoViewIfNeeded();
+  await timezoneSelect.selectOption("Asia/Kolkata");
+
+  const saveDiscordButton = page.getByRole("button", {
+    name: /save discord|save settings/i,
+  });
+  await saveDiscordButton.click();
+  await expect(
+    page.getByText(/discord settings saved successfully|discord webhook removed/i)
+  ).toBeVisible({ timeout: 10_000 });
+
+  // 3. Change profile visibility
+  const toggleLabel = page.locator("label").filter({
+    has: page.locator("input[aria-label='Toggle Public Profile']"),
+  });
+  const toggleTrack = toggleLabel.locator("div").first();
+  const publicProfileCheckbox = page.locator(
+    "input[aria-label='Toggle Public Profile']"
+  );
+
+  await expect(publicProfileCheckbox).not.toBeChecked();
+  await toggleTrack.click();
+  await expect(publicProfileCheckbox).toBeChecked();
+
+  // 4. Reload page and verify persistence
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Settings", exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+
+  // Verify bio persisted
+  await expect(page.locator("#profile-bio")).toHaveValue(
+    "Software Engineer passionate about open source and distributed systems."
+  );
+
+  // Verify timezone persisted
+  await expect(page.locator("#timezone-select")).toHaveValue("Asia/Kolkata");
+
+  // Verify profile visibility persisted
+  await expect(
+    page.locator("input[aria-label='Toggle Public Profile']")
+  ).toBeChecked();
+});
+
+test("saving settings: handles failure path when save request fails", async ({
+  page,
+}) => {
+  // Override PATCH to return an error response
+  await page.route("**/api/user/settings**", async (route) => {
+    if (route.request().method() === "PATCH") {
+      return route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Failed to update settings" }),
+      });
+    }
+    return route.fallback();
+  });
+
+  await page.goto("/dashboard/settings");
+  await expect(
+    page.getByRole("heading", { name: "Settings", exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+
+  // Attempt to save bio with failing backend
+  const bioInput = page.locator("#profile-bio");
+  await bioInput.scrollIntoViewIfNeeded();
+  await bioInput.fill("Temporary bio text that will fail to save");
+
+  const saveBioButton = page.getByRole("button", { name: "Save Bio" });
+  await saveBioButton.click();
+
+  // Expect error feedback
+  await expect(
+    page.getByText(/failed to update bio|failed to update settings/i)
+  ).toBeVisible({ timeout: 10_000 });
+
+  // Ensure false success is NOT displayed
+  await expect(page.getByText("Bio saved successfully!")).not.toBeVisible();
+
+  // Reload and verify the bio change was not persisted
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Settings", exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+
+  await expect(page.locator("#profile-bio")).not.toHaveValue(
+    "Temporary bio text that will fail to save"
+  );
 });

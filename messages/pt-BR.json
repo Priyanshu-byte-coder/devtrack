@@ -171,6 +171,227 @@
     "signInWithGitHub": "Entrar com o GitHub",
     "licenseLine": "Licença MIT · Auto-hospedável · Gratuito para sempre"
   },
+  "careerIntelligence": {
+    "header": {
+      "title": "Currículo",
+      "description": "Transforme seu trabalho no GitHub em um currículo compatível com ATS adaptado a uma vaga.",
+      "reScan": "Verificar o GitHub novamente",
+      "reScanTooltip": "As análises ficam em cache por 24 horas"
+    },
+    "errors": {
+      "rateLimited": "O limite de requisições do GitHub foi atingido. Tente novamente em alguns minutos.",
+      "sessionExpired": "Sua sessão expirou. Faça login novamente.",
+      "analyzeFailed": "Não foi possível analisar sua atividade no GitHub.",
+      "pickRoleFirst": "Escolha um cargo pretendido primeiro.",
+      "generateFailed": "Não foi possível gerar o currículo.",
+      "exportFailed": "Não foi possível exportar o currículo.",
+      "downloadFailed": "Falha ao baixar o arquivo.",
+      "copyFailed": "Falha ao copiar o conteúdo do currículo.",
+      "copySectionFailed": "Falha ao copiar a seção."
+    },
+    "steps": {
+      "footprint": "Sua presença no GitHub",
+      "targetRole": "Cargo pretendido",
+      "reviewAndDownload": "Revisar e baixar"
+    },
+    "analysis": {
+      "fetchingRepos": "Buscando seus repositórios…",
+      "readingPrs": "Lendo pull requests mesclados…",
+      "detectingTech": "Detectando linguagens e frameworks…",
+      "scoringDomains": "Pontuando áreas de engenharia…",
+      "durationHint": "Geralmente de 20 a 60 segundos, dependendo de quantos repositórios você possui.",
+      "promptTitle": "Analise seus repositórios e pull requests mesclados",
+      "promptDescription": "O DevTrack analisa até 50 repositórios para identificar suas linguagens, frameworks e impacto. Nada é publicado no GitHub.",
+      "analyzeButton": "Analisar atividade do GitHub"
+    },
+    "stats": {
+      "prsMerged": "PRs mesclados",
+      "repositories": "Repositórios",
+      "languages": "Linguagens",
+      "linesAdded": "Linhas adicionadas",
+      "linesRemoved": "Linhas removidas",
+      "reviews": "Revisões"
+    },
+    "panel": {
+      "engineeringDomains": "Áreas de engenharia",
+      "evidence": "Evidências: {evidence}",
+      "technologyStack": "Stack tecnológica",
+      "languages": "Linguagens",
+      "frameworks": "Frameworks e bibliotecas",
+      "tools": "Ferramentas e plataformas",
+      "confidence": {
+        "high": "alta",
+        "medium": "média",
+        "low": "baixa"
+      },
+      "topRepositories": "Principais repositórios e contribuições",
+      "complexity": "Complexidade {complexity}",
+      "prsMergedBadge": "{count} PRs mesclados",
+      "noDescription": "Nenhuma descrição disponível."
+    },
+    "domains": {
+      "Frontend": "Frontend",
+      "Backend": "Backend",
+      "AI_ML": "IA / ML",
+      "DevOps": "DevOps",
+      "DataScience": "Ciência de dados",
+      "Security": "Segurança",
+      "Mobile": "Mobile",
+      "Systems": "Sistemas",
+      "FullStack": "Full-stack"
+    },
+    "roles": {
+      "subtitle": "Palavras, habilidades e projetos são selecionados de acordo com o cargo escolhido.",
+      "generateResume": "Gerar currículo",
+      "writingResume": "Criando seu currículo…",
+      "regenerate": "Regenerar",
+      "generatingDraftHint": "Escrevendo cada seção com base em seus dados reais de contribuição…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "Engenheiro de Machine Learning",
+          "description": "Construa modelos, pipelines de treinamento, PLN e aplicações de redes neurais."
+        },
+        "frontendDeveloper": {
+          "title": "Desenvolvedor Frontend",
+          "description": "Crie interfaces de usuário responsivas, modernas e aplicações web interativas."
+        },
+        "backendDeveloper": {
+          "title": "Desenvolvedor Backend",
+          "description": "Projete APIs escaláveis, microsserviços, bancos de dados e camadas de autenticação."
+        },
+        "fullStackDeveloper": {
+          "title": "Desenvolvedor Full Stack",
+          "description": "Trabalhe tanto na engenharia client-side quanto server-side."
+        },
+        "devOpsEngineer": {
+          "title": "Engenheiro DevOps",
+          "description": "Gerencie infraestrutura, pipelines de CI/CD, conteinerização e nuvem."
+        },
+        "dataAnalyst": {
+          "title": "Analista de dados",
+          "description": "Extraia insights, execute análises estatísticas e construa painéis."
+        }
+      },
+      "custom": {
+        "title": "Outro cargo",
+        "description": "Digite qualquer título de cargo para adaptar o currículo a ele.",
+        "placeholder": "ex.: Site Reliability Engineer, SRE, Developer Advocate…",
+        "button": "Usar cargo",
+        "selected": "Selecionado: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "Baixar PDF",
+      "preparingPdf": "Preparando PDF…",
+      "markdown": "Markdown",
+      "json": "JSON",
+      "copyAsText": "Copiar como texto",
+      "note": "As edições feitas abaixo são incluídas no download.",
+      "summaryHeading": "RESUMO",
+      "skillsHeading": "HABILIDADES TÉCNICAS",
+      "contributionsHeading": "PRINCIPAIS CONTRIBUIÇÕES",
+      "projectsHeading": "PROJETOS"
+    },
+    "preview": {
+      "tailoredTo": "Adaptado para {role}",
+      "previewMode": "Modo de visualização",
+      "editContent": "Editar conteúdo",
+      "tabs": {
+        "summary": "Resumo profissional",
+        "experience": "Pontos de experiência",
+        "projects": "Destaques de projetos",
+        "skills": "Habilidades e tecnologias"
+      },
+      "summary": {
+        "title": "Resumo profissional",
+        "copyTitle": "Copiar seção",
+        "ariaLabel": "Resumo profissional"
+      },
+      "experience": {
+        "title": "Pontos de experiência",
+        "copyTitle": "Copiar todos os tópicos",
+        "repoAria": "Nome do repositório",
+        "repoPlaceholder": "Nome do repositório",
+        "bulletAria": "Descrição do tópico",
+        "bulletPlaceholder": "Texto do tópico",
+        "generalContribution": "contribuição geral",
+        "aiConfidence": "{confidence}% de confiança da IA",
+        "deleteBullet": "Excluir tópico",
+        "addBullet": "Adicionar ponto de experiência",
+        "newBulletText": "Novo ponto de conquista…"
+      },
+      "projects": {
+        "title": "Destaques de projetos",
+        "copyTitle": "Copiar todos os projetos",
+        "nameAria": "Nome do projeto",
+        "namePlaceholder": "Nome do projeto",
+        "urlAria": "URL do repositório",
+        "urlPlaceholder": "URL do repositório",
+        "descAria": "Descrição do projeto",
+        "descPlaceholder": "Descrição do projeto",
+        "deleteProject": "Excluir projeto",
+        "addProject": "Adicionar projeto",
+        "newProjectName": "Novo projeto",
+        "newProjectDesc": "Descrição do projeto…"
+      },
+      "skills": {
+        "title": "Habilidades técnicas e categorias",
+        "copyTitle": "Copiar habilidades",
+        "summaryAria": "Resumo técnico geral",
+        "summaryPlaceholder": "Resumo técnico geral",
+        "categoryAria": "Título da categoria",
+        "categoryPlaceholder": "Título da categoria",
+        "itemsAria": "Habilidades (separadas por vírgula)",
+        "itemsPlaceholder": "Habilidades (separadas por vírgula)",
+        "deleteCategory": "Excluir categoria",
+        "addCategory": "Adicionar categoria de habilidades",
+        "newCategoryTitle": "Nova categoria"
+      }
+    }
+  },
+  "repoComparison": {
+    "title": "Análise de comparação de repositórios",
+    "inputPlaceholder": "proprietário/repositório (ex: facebook/react)",
+    "inputAria": "Identificador do repositório no formato proprietário/repositório",
+    "addRepo": "Adicionar repositório",
+    "addRepoAria": "Adicionar repositório à lista de comparação",
+    "removeRepoAria": "Remover {repo} da comparação",
+    "compareRepos": "Comparar repositórios",
+    "comparing": "Comparando…",
+    "compareAria": "Comparar repositórios adicionados",
+    "emptyState": "Adicione de 2 a 5 repositórios para comparar",
+    "resultsHeading": "Resultados da comparação",
+    "chartHeading": "Gráfico de comparação",
+    "chartAria": "Gráfico de barras de comparação de repositórios",
+    "metrics": {
+      "stars": "⭐ Estrelas: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Observadores: {count}",
+      "issues": "🐛 Problemas: {count}"
+    },
+    "chartSeries": {
+      "stars": "Estrelas",
+      "forks": "Forks",
+      "watchers": "Observadores"
+    },
+    "errors": {
+      "format": "Use o formato proprietário/repositório, por exemplo facebook/react.",
+      "missingOwnerOrRepo": "Insira tanto o proprietário quanto o nome do repositório.",
+      "noSpaces": "Nomes de repositório não podem conter espaços.",
+      "maxRepos": "Você pode comparar até 5 repositórios por vez.",
+      "minRepos": "Adicione pelo menos 2 repositórios para comparar.",
+      "notFound": "Esse repositório não existe no GitHub.",
+      "networkCheck": "Não foi possível conectar ao GitHub para verificar esse repositório. Tente novamente.",
+      "loadData": "Não foi possível carregar os dados do repositório. Tente novamente."
+    },
+    "loading": {
+      "label": "Carregando comparação de repositórios"
+    },
+    "error": {
+      "heading": "Algo deu errado",
+      "tryAgain": "Tentar novamente"
+    }
+  },
   "settings": {
     "title": "Configurações",
     "loadingLabel": "Carregando configurações",

@@ -6,9 +6,8 @@
  * can be flooded to exhaust GitHub's token-exchange quota or to probe for
  * valid OAuth codes:
  *
- *   POST /api/auth/signin/*      — OAuth initiation
  *   GET  /api/auth/callback/*    — OAuth code exchange
- *   GET  /api/auth/link-github/* — Secondary account link flow
+ *   GET  /api/auth/link-github/callback — Secondary account link code exchange
  *
  * The module under test is src/lib/auth-rate-limit.ts, which wraps the shared
  * createMemoryFixedWindowRateLimiter factory with an auth-specific namespace
@@ -39,13 +38,9 @@ async function freshLimiter() {
 // ─── isAuthSensitivePath ─────────────────────────────────────────────────────
 
 describe("isAuthSensitivePath", () => {
-  it("returns true for /api/auth/signin/github", () => {
-    expect(isAuthSensitivePath("/api/auth/signin/github")).toBe(true);
-  });
-
-  it("returns true for /api/auth/signin and sub-paths", () => {
-    expect(isAuthSensitivePath("/api/auth/signin")).toBe(true);
-    expect(isAuthSensitivePath("/api/auth/signin/email")).toBe(true);
+  it("does not rate-limit OAuth initiation so interrupted sign-in can be retried", () => {
+    expect(isAuthSensitivePath("/api/auth/signin")).toBe(false);
+    expect(isAuthSensitivePath("/api/auth/signin/github")).toBe(false);
   });
 
   it("returns true for /api/auth/callback/github", () => {
@@ -53,7 +48,7 @@ describe("isAuthSensitivePath", () => {
   });
 
   it("returns true for /api/auth/link-github and sub-paths", () => {
-    expect(isAuthSensitivePath("/api/auth/link-github")).toBe(true);
+    expect(isAuthSensitivePath("/api/auth/link-github")).toBe(false);
     expect(isAuthSensitivePath("/api/auth/link-github/callback")).toBe(true);
   });
 
@@ -136,8 +131,12 @@ describe("checkAuthRateLimit — basic behaviour", () => {
 // ─── window expiry ───────────────────────────────────────────────────────────
 
 describe("checkAuthRateLimit — window expiry", () => {
-  beforeEach(() => { vi.useFakeTimers(); });
-  afterEach(() => { vi.useRealTimers(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("resets the counter after AUTH_WINDOW_MS elapses", async () => {
     const { checkAuthRateLimit: check } = await freshLimiter();
@@ -217,8 +216,12 @@ describe("checkAuthRateLimit — custom limit override (dev / test mode)", () =>
 // ─── reset timestamp ─────────────────────────────────────────────────────────
 
 describe("checkAuthRateLimit — reset timestamp", () => {
-  beforeEach(() => { vi.useFakeTimers(); });
-  afterEach(() => { vi.useRealTimers(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("reset points to the end of the current 15-minute fixed window", async () => {
     vi.setSystemTime(new Date(0));
