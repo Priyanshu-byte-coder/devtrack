@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { BreakdownRow } from "@/lib/repo-health-insights";
 
 interface Props {
@@ -43,43 +44,118 @@ function ScoreBar({ pct }: { pct: number }) {
  *   – Tooltip with target description
  */
 function RepoHealthBreakdown({ rows }: Props) {
+  const t = useTranslations("repoHealth");
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(locale);
+
+  const getLocalizedRawValue = (row: BreakdownRow): string => {
+    if (!row.key || row.rawSignal === undefined) return row.rawValue;
+    switch (row.key) {
+      case "commitFrequency": {
+        const count = row.rawSignal;
+        const formatted = numberFormatter.format(count);
+        return t(
+          count === 1
+            ? "breakdown.metrics.commitFrequency.rawSingular"
+            : "breakdown.metrics.commitFrequency.rawPlural",
+          { count: formatted }
+        );
+      }
+      case "prMergeRate": {
+        const pctVal = Math.round(row.rawSignal * 100);
+        return `${numberFormatter.format(pctVal)}%`;
+      }
+      case "prTurnaround": {
+        const hours = row.rawSignal;
+        if (hours === 0) {
+          return t("breakdown.metrics.prTurnaround.noPrs");
+        }
+        return t("breakdown.metrics.prTurnaround.hoursAvg", {
+          hours: numberFormatter.format(Math.round(hours)),
+        });
+      }
+      case "openIssues": {
+        const count = row.rawSignal;
+        const formatted = numberFormatter.format(count);
+        return t(
+          count === 1
+            ? "breakdown.metrics.openIssues.rawSingular"
+            : "breakdown.metrics.openIssues.rawPlural",
+          { count: formatted }
+        );
+      }
+      case "recentActivity": {
+        const days = row.rawSignal;
+        if (days >= 9999) {
+          return t("breakdown.metrics.recentActivity.unknown");
+        }
+        if (days === 0) {
+          return t("breakdown.metrics.recentActivity.today");
+        }
+        return t("breakdown.metrics.recentActivity.daysAgo", {
+          days: numberFormatter.format(days),
+        });
+      }
+      default:
+        return row.rawValue;
+    }
+  };
+
   return (
-    <section aria-label="Score breakdown">
+    <section aria-label={t("breakdown.sectionAria")}>
       <h3 className="mb-3 text-sm font-semibold text-[var(--card-foreground)]">
-        Score Breakdown
+        {t("breakdown.heading")}
       </h3>
 
       <div className="space-y-4">
         {rows.map((row) => {
           const pct = Math.round((row.earned / row.maxScore) * 100);
+          const localizedLabel = row.key
+            ? t(`breakdown.metrics.${row.key}.label`)
+            : row.label;
+          const localizedTip = row.key
+            ? t(`breakdown.metrics.${row.key}.tip`)
+            : row.tip;
+          const localizedRawValue = getLocalizedRawValue(row);
+          const formattedEarned = numberFormatter.format(row.earned);
+          const formattedMaxScore = numberFormatter.format(row.maxScore);
+          const formattedWeightPct = numberFormatter.format(row.weightPct);
+
           return (
-            <div key={row.label}>
+            <div key={row.key ?? row.label}>
               <div className="mb-1 flex items-center justify-between gap-2 text-xs">
                 {/* Metric name + tooltip */}
                 <span
                   className="font-medium text-[var(--card-foreground)] cursor-help"
-                  title={row.tip}
+                  title={localizedTip}
                 >
-                  {row.label}
+                  {localizedLabel}
                 </span>
 
                 <span className="shrink-0 flex items-center gap-2 tabular-nums text-[var(--muted-foreground)]">
                   {/* Raw signal value */}
                   <span
                     className="rounded bg-[var(--control)] px-1.5 py-0.5 font-mono"
-                    aria-label={`Measured value: ${row.rawValue}`}
+                    aria-label={t("breakdown.measuredValueAria", {
+                      value: localizedRawValue,
+                    })}
                   >
-                    {row.rawValue}
+                    {localizedRawValue}
                   </span>
 
                   {/* Earned / max */}
-                  <span aria-label={`${row.earned} of ${row.maxScore} points`}>
+                  <span
+                    aria-label={t("breakdown.pointsAria", {
+                      earned: formattedEarned,
+                      max: formattedMaxScore,
+                    })}
+                  >
                     <span className="font-semibold text-[var(--card-foreground)]">
-                      {row.earned}
+                      {formattedEarned}
                     </span>
-                    <span>/{row.maxScore}</span>
+                    <span>/{formattedMaxScore}</span>
                     <span className="ml-1 text-muted-foreground/70">
-                      ({row.weightPct}%)
+                      ({formattedWeightPct}%)
                     </span>
                   </span>
                 </span>
@@ -92,7 +168,7 @@ function RepoHealthBreakdown({ rows }: Props) {
       </div>
 
       <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-        Hover metric names for target thresholds. Total weight: 100 pts.
+        {t("breakdown.footer")}
       </p>
     </section>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Props {
   score: number;
@@ -21,6 +22,11 @@ const GRADE_COLOR: Record<string, string> = {
  * charting library dependency and remains accessible to screen readers.
  */
 function RepoHealthGauge({ score, grade }: Props) {
+  const t = useTranslations("repoHealth");
+  const locale = useLocale();
+  const formattedScore = new Intl.NumberFormat(locale).format(score);
+  const formattedMax = new Intl.NumberFormat(locale).format(100);
+
   // Geometry constants
   const CX = 100;
   const CY = 95;
@@ -61,7 +67,10 @@ function RepoHealthGauge({ score, grade }: Props) {
         viewBox="20 15 160 95"
         className="w-full max-w-[200px]"
         role="img"
-        aria-label={`Repository health score: ${score} out of 100`}
+        aria-label={t("gauge.ariaLabel", {
+          score: formattedScore,
+          max: formattedMax,
+        })}
       >
         {/* Background track */}
         <path
@@ -94,7 +103,7 @@ function RepoHealthGauge({ score, grade }: Props) {
           fill={color}
           aria-hidden="true"
         >
-          {score}
+          {formattedScore}
         </text>
 
         {/* "/ 100" label */}
@@ -107,7 +116,7 @@ function RepoHealthGauge({ score, grade }: Props) {
           fill="var(--muted-foreground)"
           aria-hidden="true"
         >
-          out of 100
+          {t("gauge.outOf", { max: formattedMax })}
         </text>
       </svg>
     </div>
