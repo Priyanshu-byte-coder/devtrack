@@ -213,5 +213,70 @@
     "loadFailed": "Não foi possível carregar as conquistas do GitHub no momento.",
     "empty": "Nenhuma conquista pública do GitHub disponível ainda.",
     "badgeAlt": "Emblema de conquista do GitHub: {title}"
+  },
+  "personality": {
+    "header": {
+      "title": "Personalidade",
+      "description": "Seu arquétipo de desenvolvedor, extraído de horários de commits, sequências, hábitos de PR e principais repositórios."
+    },
+    "card": {
+      "badge": "Relatório de Personalidade de Código",
+      "downloadPng": "Baixar como PNG",
+      "downloadAria": "Baixar cartão de personalidade como PNG",
+      "generating": "Gerando…",
+      "traits": {
+        "workingStyle": "Estilo de trabalho",
+        "commitPattern": "Padrão de commits",
+        "collaboration": "Colaboração"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "Coruja da noite",
+        "Early Bird": "Madrugador",
+        "9-to-5 Developer": "Desenvolvedor das 9 às 17"
+      },
+      "commitPattern": {
+        "Sprinter": "Velocista (Sprinter)",
+        "Marathoner": "Maratonista"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "Programador solo",
+        "Team Player": "Jogador de equipe",
+        "Open Source Hero": "Herói do código aberto"
+      }
+    },
+    "radar": {
+      "title": "Seu radar de personalidade",
+      "description": "Como seus traços se comparam em cinco dimensões.",
+      "ariaLabel": "Gráfico de radar de personalidade do desenvolvedor",
+      "scoreLabel": "Pontuação",
+      "metrics": {
+        "nightOwl": "Coruja da noite",
+        "sprintEnergy": "Energia de sprint",
+        "collaboration": "Colaboração",
+        "perfectionism": "Perfeccionismo",
+        "consistency": "Consistência"
+      }
+    },
+    "initial": {
+      "title": "Descubra seu arquétipo de desenvolvedor",
+      "description": "Usa suas estatísticas existentes do GitHub já rastreadas no DevTrack — sem configuração extra, sem novas permissões.",
+      "generateButton": "Gerar meu relatório de personalidade"
+    },
+    "loading": {
+      "title": "Analisando seus padrões de código…",
+      "subtitle": "Processando horários de commit, histórico de PR e sequências."
+    },
+    "ready": {
+      "regenerate": "Gerar relatório novamente",
+      "successToast": "Seu relatório de personalidade de código está pronto!"
+    },
+    "errors": {
+      "errorPrefix": "Erro:",
+      "rateLimitWithRetry": "Limite de taxa atingido. Tente novamente em {minutes} min.",
+      "rateLimit": "Limite de taxa atingido. Tente novamente mais tarde.",
+      "generateFailed": "Falha ao gerar seu relatório de personalidade"
+    }
   }
 }
