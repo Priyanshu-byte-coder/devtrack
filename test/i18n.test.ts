@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { detectBrowserLocale, detectLocale, normalizeLocale } from "@/i18n/detection";
+import {
+  detectBrowserLocale,
+  detectLocale,
+  normalizeLocale,
+} from "@/i18n/detection";
 import { translateMessage } from "@/i18n/translate";
 
 describe("normalizeLocale", () => {
@@ -56,10 +60,12 @@ describe("detectLocale", () => {
       locale: "es",
       source: "cookie",
     });
-    expect(detectLocale({ preferredLocale: null, cookieLocale: "es" })).toEqual({
-      locale: "es",
-      source: "cookie",
-    });
+    expect(detectLocale({ preferredLocale: null, cookieLocale: "es" })).toEqual(
+      {
+        locale: "es",
+        source: "cookie",
+      }
+    );
   });
 
   it("uses browserLocale when preferred and cookie are missing", () => {
@@ -109,20 +115,40 @@ describe("detectBrowserLocale", () => {
 
 describe("i18n translation lookup", () => {
   it("renders Spanish strings", async () => {
-    await expect(translateMessage("es", "navigation.settings")).resolves.toBe("Configuración");
+    await expect(translateMessage("es", "navigation.settings")).resolves.toBe(
+      "Configuración"
+    );
+  });
+
+  it("renders projectTutor strings in Spanish, Hindi, and English", async () => {
+    await expect(translateMessage("es", "projectTutor.title")).resolves.toBe(
+      "Tutor de proyectos"
+    );
+    await expect(translateMessage("hi", "projectTutor.title")).resolves.toBe(
+      "प्रोजेक्ट ट्यूटर"
+    );
+    await expect(translateMessage("en", "projectTutor.title")).resolves.toBe(
+      "Project tutor"
+    );
   });
 
   it("renders Hindi strings", async () => {
-    await expect(translateMessage("hi", "navigation.settings")).resolves.toBe("सेटिंग्स");
+    await expect(translateMessage("hi", "navigation.settings")).resolves.toBe(
+      "सेटिंग्स"
+    );
     await expect(translateMessage("hi", "common.save")).resolves.toBe("सहेजें");
   });
 
   it("falls back to English when locale is unsupported", async () => {
-    await expect(translateMessage("fr", "navigation.settings")).resolves.toBe("Settings");
+    await expect(translateMessage("fr", "navigation.settings")).resolves.toBe(
+      "Settings"
+    );
   });
 
   it("returns the key for missing translations", async () => {
-    await expect(translateMessage("es", "missing.example")).resolves.toBe("missing.example");
+    await expect(translateMessage("es", "missing.example")).resolves.toBe(
+      "missing.example"
+    );
   });
 });
 

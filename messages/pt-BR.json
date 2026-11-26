@@ -456,5 +456,50 @@
       "rateLimit": "Limite de taxa atingido. Tente novamente mais tarde.",
       "generateFailed": "Falha ao gerar seu relatório de personalidade"
     }
+  },
+  "projectTutor": {
+    "title": "Tutor de projetos",
+    "description": "Cole um repositório do GitHub para obter uma visão geral, possíveis perguntas de entrevista e um tutor para tirar dúvidas.",
+    "repoUrlLabel": "URL do repositório do GitHub",
+    "repoUrlPlaceholder": "https://github.com/owner/repo",
+    "analyze": "Analisar",
+    "analyzing": "Analisando…",
+    "analyzingAria": "Analisando repositório",
+    "emptyState": "Funciona melhor com seus próprios projetos: o tutor lê o README, as linguagens e a estrutura.",
+    "tabs": {
+      "ariaLabel": "Seções do tutor de projetos",
+      "overview": "Visão geral",
+      "interviewQuestions": "Perguntas de entrevista",
+      "askTutor": "Pergunte ao tutor"
+    },
+    "analysis": {
+      "empty": "Nenhuma visão geral foi gerada para este repositório."
+    },
+    "questions": {
+      "levels": {
+        "easy": "Aquecimento",
+        "medium": "Principal",
+        "advanced": "Aprofundamento"
+      },
+      "empty": "Nenhuma pergunta foi gerada para este repositório."
+    },
+    "chat": {
+      "empty": "Pergunte sobre decisões de design, compensações ou como uma parte do projeto funciona.",
+      "thinking": "Pensando…",
+      "questionLabel": "Sua pergunta",
+      "questionPlaceholder": "Pergunte sobre este projeto…",
+      "sendAria": "Enviar",
+      "noResponse": "Sem resposta."
+    },
+    "errors": {
+      "analyzeFailed": "Falha ao analisar o repositório. Tente novamente.",
+      "chatFailed": "Falha ao obter uma resposta. Tente novamente.",
+      "tutorUnavailable": "O tutor está indisponível no momento.",
+      "unauthorized": "Não autorizado",
+      "rateLimitExceeded": "Limite de taxa excedido. Tente novamente mais tarde.",
+      "repoUrlRequired": "URL do repositório obrigatória",
+      "invalidGithubUrl": "URL do GitHub inválida",
+      "somethingWentWrong": "Algo deu errado"
+    }
   }
 }
