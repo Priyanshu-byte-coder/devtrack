@@ -36,14 +36,36 @@ jobs:
               /\b(take|tackle|handle|pick)\s+(this|it|up)\b/,               // "take this", "pick it up"
             ];
 
-            if (!PATTERNS.some(re => re.test(comment))) return;
-
             // Skip bots
             if (context.payload.comment.user.type === 'Bot') return;
 
             const { owner, repo } = context.repo;
             const issueNumber = context.payload.issue.number;
             const commenter = context.payload.comment.user.login;
+
+            // /unassign: let an assignee hand the issue back.
+            if (/^\/unassign\b/.test(comment)) {
+              const { data: current } = await github.rest.issues.get({
+                owner, repo, issue_number: issueNumber,
+              });
+              const assignees = (current.assignees || []).map(a => a.login);
+              if (!assignees.includes(commenter)) return;
+              await github.rest.issues.removeAssignees({
+                owner, repo, issue_number: issueNumber, assignees: [commenter],
+              });
+              if (assignees.length === 1) {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: issueNumber, name: 'status:assigned',
+                }).catch(() => {});
+              }
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issueNumber,
+                body: `@${commenter} unassigned. This issue is open for someone else now.`,
+              });
+              return;
+            }
+
+            if (!PATTERNS.some(re => re.test(comment))) return;
 
             // Fetch live issue state — do NOT use context.payload.issue which
             // is a stale webhook snapshot and causes a race condition where
@@ -72,23 +94,24 @@ jobs:
               return;
             }
 
-            // NOTE: per-contributor issue limit is temporarily disabled
-            // TODO: re-enable when needed by restoring the block below
-            /*
-            // Limit: max 2 open issues assigned per contributor
-            const allAssigned = await github.paginate(github.rest.issues.listForRepo, {
-              owner, repo, assignee: commenter, state: 'open', per_page: 50,
-            });
-            const openIssueCount = allAssigned.filter(i => !i.pull_request).length;
-
-            if (openIssueCount >= 2) {
-              await github.rest.issues.createComment({
-                owner, repo, issue_number: issueNumber,
-                body: `@${commenter} You already have ${openIssueCount} open issue(s) assigned. Complete those first before picking up more.`,
+            // Cap: at most MAX_OPEN open issues per contributor, so a few
+            // people can't claim the whole backlog. Maintainers are exempt.
+            const MAX_OPEN = 5;
+            const association = context.payload.comment.author_association;
+            if (!['OWNER', 'MEMBER', 'COLLABORATOR'].includes(association)) {
+              const assigned = await github.paginate(github.rest.issues.listForRepo, {
+                owner, repo, assignee: commenter, state: 'open', per_page: 100,
               });
-              return;
+              const open = assigned.filter(i => !i.pull_request);
+              if (open.length >= MAX_OPEN) {
+                const list = open.slice(0, MAX_OPEN).map(i => `#${i.number}`).join(', ');
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issueNumber,
+                  body: `@${commenter} You already have ${open.length} open issues assigned (${list}${open.length > MAX_OPEN ? ', …' : ''}). The limit is ${MAX_OPEN} at a time so everyone gets a chance. Finish or unassign one (comment \`/unassign\` on it) and then ask again.`,
+                });
+                return;
+              }
             }
-            */
 
             // Assign
             await github.rest.issues.addAssignees({

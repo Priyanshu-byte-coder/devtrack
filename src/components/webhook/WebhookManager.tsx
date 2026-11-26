@@ -396,11 +396,17 @@ export default function WebhookManager() {
           className="mb-6 border border-[var(--border)] bg-[var(--control)] p-4 space-y-4"
         >
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-name"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Name
             </label>
             <input
+              id="webhook-name"
+              name="name"
               type="text"
+              autoComplete="off"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               placeholder="My Dashboard Integration"
@@ -411,11 +417,19 @@ export default function WebhookManager() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-url"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Payload URL
             </label>
             <input
+              id="webhook-url"
+              name="url"
               type="url"
+              inputMode="url"
+              autoComplete="off"
+              spellCheck={false}
               value={formUrl}
               onChange={(e) => setFormUrl(e.target.value)}
               placeholder="https://your-server.com/webhook"
@@ -426,10 +440,15 @@ export default function WebhookManager() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-content-type"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Content-Type
             </label>
             <select
+              id="webhook-content-type"
+              name="contentType"
               value={formContentType}
               onChange={(e) => setFormContentType(e.target.value)}
               disabled={creating}
@@ -444,14 +463,21 @@ export default function WebhookManager() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <label
+              htmlFor="webhook-secret-token"
+              className="mb-1 block text-xs font-medium uppercase tracking-wide text-[var(--muted-foreground)]"
+            >
               Secret Token{" "}
               <span className="normal-case font-normal text-[var(--muted-foreground)]">
                 (optional — leave blank to auto-generate)
               </span>
             </label>
             <input
+              id="webhook-secret-token"
+              name="secretToken"
               type="text"
+              autoComplete="off"
+              spellCheck={false}
               value={formSecretToken}
               onChange={(e) => setFormSecretToken(e.target.value)}
               placeholder="my-shared-secret"
@@ -487,6 +513,9 @@ export default function WebhookManager() {
                   >
                     <input
                       type="checkbox"
+                      name="events"
+                      value={event.value}
+                      aria-label={event.label}
                       checked={formEvents.includes(event.value)}
                       onChange={() => toggleEvent(event.value)}
                       disabled={creating}
@@ -542,6 +571,9 @@ export default function WebhookManager() {
                   >
                     <input
                       type="checkbox"
+                      name="events"
+                      value={event.value}
+                      aria-label={event.label}
                       checked={formEvents.includes(event.value)}
                       onChange={() => toggleEvent(event.value)}
                       disabled={creating}
