@@ -349,6 +349,49 @@
       }
     }
   },
+  "repoComparison": {
+    "title": "Repository Comparison Analytics",
+    "inputPlaceholder": "owner/repo (e.g. facebook/react)",
+    "inputAria": "Repository identifier in owner/repo format",
+    "addRepo": "Add Repo",
+    "addRepoAria": "Add repository to comparison list",
+    "removeRepoAria": "Remove {repo} from comparison",
+    "compareRepos": "Compare Repositories",
+    "comparing": "Comparing…",
+    "compareAria": "Compare added repositories",
+    "emptyState": "Add 2–5 repositories to compare",
+    "resultsHeading": "Comparison Results",
+    "chartHeading": "Comparison Chart",
+    "chartAria": "Repository comparison bar chart",
+    "metrics": {
+      "stars": "⭐ Stars: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Watchers: {count}",
+      "issues": "🐛 Issues: {count}"
+    },
+    "chartSeries": {
+      "stars": "Stars",
+      "forks": "Forks",
+      "watchers": "Watchers"
+    },
+    "errors": {
+      "format": "Use the owner/repo format, for example facebook/react.",
+      "missingOwnerOrRepo": "Enter both an owner and a repository name.",
+      "noSpaces": "Repository names cannot contain spaces.",
+      "maxRepos": "You can compare up to 5 repositories at a time.",
+      "minRepos": "Add at least 2 repositories to compare.",
+      "notFound": "That repository does not exist on GitHub.",
+      "networkCheck": "Could not reach GitHub to check that repository. Try again.",
+      "loadData": "Could not load repository data. Try again."
+    },
+    "loading": {
+      "label": "Loading repo comparison"
+    },
+    "error": {
+      "heading": "Something went wrong",
+      "tryAgain": "Try again"
+    }
+  },
   "settings": {
     "title": "Settings",
     "loadingLabel": "Loading settings",
@@ -455,6 +498,176 @@
       "rateLimitWithRetry": "Rate limit reached. Try again in {minutes} min.",
       "rateLimit": "Rate limit reached. Try again later.",
       "generateFailed": "Failed to generate your personality report"
+    }
+  },
+  "repoHealth": {
+    "explorer": {
+      "backToDashboard": "Back to dashboard",
+      "dashboard": "Dashboard",
+      "title": "Repository Health Explorer",
+      "description": "Interactive health breakdown for your most active repositories",
+      "analysisWindow": "Analysis window",
+      "windowOptions": {
+        "7": "Last 7 days",
+        "30": "Last 30 days",
+        "90": "Last 90 days"
+      },
+      "refreshAria": "Refresh health scores",
+      "refresh": "Refresh",
+      "loadError": "Unable to load repository health data. Please try again.",
+      "tryAgain": "Try again",
+      "repoListAria": "Repository list",
+      "repositories": "Repositories",
+      "noRepos": "No repositories found for this period. Try a wider analysis window.",
+      "detailAria": "Repository health detail",
+      "selectPromptTitle": "Select a repository",
+      "selectPromptDesc": "Choose a repository from the list on the left to see its full health breakdown and recommendations."
+    },
+    "card": {
+      "selectAria": "Select {repo} — health score {score}, {label}",
+      "points": "pts"
+    },
+    "detail": {
+      "openOnGithub": "Open {repo} on GitHub",
+      "github": "GitHub",
+      "gradeAria": "Grade: {letter}, {label}",
+      "scoreLabel": "Score: {score}/{max}"
+    },
+    "grades": {
+      "green": "Healthy",
+      "yellow": "Needs Attention",
+      "red": "At Risk"
+    },
+    "gauge": {
+      "ariaLabel": "Repository health score: {score} out of {max}",
+      "outOf": "out of {max}"
+    },
+    "radar": {
+      "ariaLabel": "Health score radar chart",
+      "title": "Dimension Overview",
+      "description": "Each axis is normalised to 0–100 for visual balance.",
+      "scoreLabel": "Score",
+      "metrics": {
+        "commits": "Commits",
+        "prRate": "PR Rate",
+        "prSpeed": "PR Speed",
+        "issues": "Issues",
+        "activity": "Activity"
+      }
+    },
+    "breakdown": {
+      "sectionAria": "Score breakdown",
+      "heading": "Score Breakdown",
+      "footer": "Hover metric names for target thresholds. Total weight: 100 pts.",
+      "measuredValueAria": "Measured value: {value}",
+      "pointsAria": "{earned} of {max} points",
+      "metrics": {
+        "commitFrequency": {
+          "label": "Commit Frequency",
+          "tip": "Target: 10 or more commits in the analysis window",
+          "rawSingular": "{count} commit",
+          "rawPlural": "{count} commits"
+        },
+        "prMergeRate": {
+          "label": "PR Merge Rate",
+          "tip": "Target: 100% of opened PRs merged"
+        },
+        "prTurnaround": {
+          "label": "PR Turnaround",
+          "tip": "Target: under 24 hours average",
+          "noPrs": "No PRs",
+          "hoursAvg": "{hours}h avg"
+        },
+        "openIssues": {
+          "label": "Open Issues",
+          "tip": "Target: 0 open issues",
+          "rawSingular": "{count} open issue",
+          "rawPlural": "{count} open issues"
+        },
+        "recentActivity": {
+          "label": "Recent Activity",
+          "tip": "Target: commit within the last 7 days",
+          "unknown": "Unknown",
+          "today": "Today",
+          "daysAgo": "{days}d ago"
+        }
+      }
+    },
+    "insights": {
+      "heading": "Recommendations",
+      "empty": "No recommendations at this time — all metrics look good.",
+      "actionsBadgeSingle": "{count} action",
+      "actionsBadgePlural": "{count} actions",
+      "rules": {
+        "noCommits": {
+          "title": "No recent commits",
+          "description": "No commits were detected in the analysis window. Regular commits keep the repository active and the score healthy."
+        },
+        "lowCommits": {
+          "title": "Low commit frequency",
+          "description": "Only {count} commit(s) in the analysis window. Aim for 10 or more per period to reach a full commit score."
+        },
+        "goodCommits": {
+          "title": "Strong commit activity",
+          "description": "{count} commits in the analysis window — at or above the healthy threshold of 10."
+        },
+        "lowMergeRate": {
+          "title": "Low PR merge rate",
+          "description": "Only {rate}% of opened PRs were merged. Review and close stale pull requests to improve this signal."
+        },
+        "goodMergeRate": {
+          "title": "Excellent PR merge rate",
+          "description": "{rate}% of opened PRs were merged — healthy indicator of active code review."
+        },
+        "slowPrs": {
+          "title": "Long PR review cycle",
+          "description": "Average PR open time is {days} day(s). Faster reviews reduce integration risk and improve velocity."
+        },
+        "moderatePrs": {
+          "title": "PR review time above average",
+          "description": "Average PR open time is {hours}h. Target under 48 hours for a healthy review cycle."
+        },
+        "fastPrs": {
+          "title": "Fast PR turnaround",
+          "description": "PRs are reviewed and closed in under 24 hours on average — excellent review velocity."
+        },
+        "highIssues": {
+          "title": "High open issue count",
+          "description": "{count} open issues detected. Triage and close resolved or duplicate issues to reduce backlog pressure."
+        },
+        "moderateIssues": {
+          "title": "Issue backlog growing",
+          "description": "{count} open issues. Consider scheduling a triage session for older tickets."
+        },
+        "noIssues": {
+          "title": "No open issues",
+          "description": "Issue backlog is clear — all reported problems have been addressed or closed."
+        },
+        "noCommitData": {
+          "title": "Commit history unavailable",
+          "description": "Could not determine the date of the last commit. Verify repository access permissions."
+        },
+        "staleRepo": {
+          "title": "Repository may be stale",
+          "description": "The last commit was {days} days ago. Push an update if this project is still active."
+        },
+        "lowActivity": {
+          "title": "Reduced recent activity",
+          "description": "Last commit was {days} days ago. Consistent activity keeps the recency score high."
+        },
+        "activeRepo": {
+          "title": "Actively maintained",
+          "descriptionToday": "Last commit was today — excellent recency signal.",
+          "descriptionDays": "Last commit was {days} day(s) ago — excellent recency signal."
+        }
+      },
+      "metricNames": {
+        "commitFrequency": "Commit Frequency",
+        "prMergeRate": "PR Merge Rate",
+        "prTurnaround": "PR Turnaround",
+        "openIssues": "Open Issues",
+        "recentActivity": "Recent Activity"
+      }
     }
   }
 }

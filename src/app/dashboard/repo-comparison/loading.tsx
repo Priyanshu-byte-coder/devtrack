@@ -1,5 +1,9 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import PixelLoader from "@/components/buddy/PixelLoader";
 
 export default function Loading() {
-  return <PixelLoader label="Loading repo comparison" />;
+  const t = useTranslations("repoComparison.loading");
+  return <PixelLoader label={t("label")} />;
 }
