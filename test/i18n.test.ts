@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { detectBrowserLocale, detectLocale, normalizeLocale } from "@/i18n/detection";
+import {
+  detectBrowserLocale,
+  detectLocale,
+  normalizeLocale,
+} from "@/i18n/detection";
 import { translateMessage } from "@/i18n/translate";
 
 describe("normalizeLocale", () => {
@@ -56,10 +60,12 @@ describe("detectLocale", () => {
       locale: "es",
       source: "cookie",
     });
-    expect(detectLocale({ preferredLocale: null, cookieLocale: "es" })).toEqual({
-      locale: "es",
-      source: "cookie",
-    });
+    expect(detectLocale({ preferredLocale: null, cookieLocale: "es" })).toEqual(
+      {
+        locale: "es",
+        source: "cookie",
+      }
+    );
   });
 
   it("uses browserLocale when preferred and cookie are missing", () => {
@@ -109,20 +115,43 @@ describe("detectBrowserLocale", () => {
 
 describe("i18n translation lookup", () => {
   it("renders Spanish strings", async () => {
-    await expect(translateMessage("es", "navigation.settings")).resolves.toBe("Configuración");
+    await expect(translateMessage("es", "navigation.settings")).resolves.toBe(
+      "Configuración"
+    );
   });
 
   it("renders Hindi strings", async () => {
-    await expect(translateMessage("hi", "navigation.settings")).resolves.toBe("सेटिंग्स");
+    await expect(translateMessage("hi", "navigation.settings")).resolves.toBe(
+      "सेटिंग्स"
+    );
     await expect(translateMessage("hi", "common.save")).resolves.toBe("सहेजें");
   });
 
   it("falls back to English when locale is unsupported", async () => {
-    await expect(translateMessage("fr", "navigation.settings")).resolves.toBe("Settings");
+    await expect(translateMessage("fr", "navigation.settings")).resolves.toBe(
+      "Settings"
+    );
   });
 
   it("returns the key for missing translations", async () => {
-    await expect(translateMessage("es", "missing.example")).resolves.toBe("missing.example");
+    await expect(translateMessage("es", "missing.example")).resolves.toBe(
+      "missing.example"
+    );
+  });
+
+  it("renders activity strings in Spanish and Hindi", async () => {
+    await expect(translateMessage("es", "activity.title")).resolves.toBe(
+      "Actividad"
+    );
+    await expect(
+      translateMessage("es", "activity.contributionHeatmap.title")
+    ).resolves.toBe("Mapa de calor de contribuciones");
+    await expect(translateMessage("hi", "activity.title")).resolves.toBe(
+      "गतिविधि"
+    );
+    await expect(
+      translateMessage("hi", "activity.contributionHeatmap.title")
+    ).resolves.toBe("योगदान हीटमैप");
   });
 });
 
