@@ -349,6 +349,49 @@
       }
     }
   },
+  "repoComparison": {
+    "title": "Repository Comparison Analytics",
+    "inputPlaceholder": "owner/repo (e.g. facebook/react)",
+    "inputAria": "Repository identifier in owner/repo format",
+    "addRepo": "Add Repo",
+    "addRepoAria": "Add repository to comparison list",
+    "removeRepoAria": "Remove {repo} from comparison",
+    "compareRepos": "Compare Repositories",
+    "comparing": "Comparing…",
+    "compareAria": "Compare added repositories",
+    "emptyState": "Add 2–5 repositories to compare",
+    "resultsHeading": "Comparison Results",
+    "chartHeading": "Comparison Chart",
+    "chartAria": "Repository comparison bar chart",
+    "metrics": {
+      "stars": "⭐ Stars: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Watchers: {count}",
+      "issues": "🐛 Issues: {count}"
+    },
+    "chartSeries": {
+      "stars": "Stars",
+      "forks": "Forks",
+      "watchers": "Watchers"
+    },
+    "errors": {
+      "format": "Use the owner/repo format, for example facebook/react.",
+      "missingOwnerOrRepo": "Enter both an owner and a repository name.",
+      "noSpaces": "Repository names cannot contain spaces.",
+      "maxRepos": "You can compare up to 5 repositories at a time.",
+      "minRepos": "Add at least 2 repositories to compare.",
+      "notFound": "That repository does not exist on GitHub.",
+      "networkCheck": "Could not reach GitHub to check that repository. Try again.",
+      "loadData": "Could not load repository data. Try again."
+    },
+    "loading": {
+      "label": "Loading repo comparison"
+    },
+    "error": {
+      "heading": "Something went wrong",
+      "tryAgain": "Try again"
+    }
+  },
   "settings": {
     "title": "Settings",
     "loadingLabel": "Loading settings",
