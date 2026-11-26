@@ -171,6 +171,184 @@
     "signInWithGitHub": "GitHub के साथ साइन इन करें",
     "licenseLine": "MIT License · सेल्फ-होस्टेबल · हमेशा के लिए मुफ़्त"
   },
+  "careerIntelligence": {
+    "header": {
+      "title": "बायोडाटा",
+      "description": "अपने GitHub कार्य को किसी पद के अनुरूप ATS-अनुकूल बायोडाटा में बदलें।",
+      "reScan": "GitHub को फिर से स्कैन करें",
+      "reScanTooltip": "विश्लेषण 24 घंटों के लिए कैश किए जाते हैं"
+    },
+    "errors": {
+      "rateLimited": "GitHub की अनुरोध सीमा पूरी हो गई। कुछ मिनटों में पुनः प्रयास करें।",
+      "sessionExpired": "आपका सत्र समाप्त हो गया है। कृपया पुनः साइन इन करें।",
+      "analyzeFailed": "आपकी GitHub गतिविधि का विश्लेषण नहीं किया जा सका।",
+      "pickRoleFirst": "पहले एक लक्षित पद चुनें।",
+      "generateFailed": "बायोडाटा तैयार नहीं किया जा सका।",
+      "exportFailed": "बायोडाटा निर्यात नहीं किया जा सका।",
+      "downloadFailed": "फ़ाइल डाउनलोड करने में विफल।",
+      "copyFailed": "बायोडाटा सामग्री कॉपी करने में विफल।",
+      "copySectionFailed": "अनुभाग कॉपी करने में विफल।"
+    },
+    "steps": {
+      "footprint": "आपका GitHub पदचिह्न",
+      "targetRole": "लक्षित पद",
+      "reviewAndDownload": "समीक्षा करें और डाउनलोड करें"
+    },
+    "analysis": {
+      "fetchingRepos": "आपकी रिपॉजिटरी लाई जा रही हैं…",
+      "readingPrs": "मर्ज किए गए पुल अनुरोध पढ़े जा रहे हैं…",
+      "detectingTech": "भाषाओं और फ्रेमवर्क का पता लगाया जा रहा है…",
+      "scoringDomains": "इंजीनियरिंग डोमेन का स्कोर किया जा रहा है…",
+      "durationHint": "आमतौर पर 20-60 सेकंड, यह इस पर निर्भर करता है कि आपके पास कितनी रिपॉजिटरी हैं।",
+      "promptTitle": "अपनी रिपॉजिटरी और मर्ज किए गए पुल अनुरोधों को स्कैन करें",
+      "promptDescription": "DevTrack आपकी भाषाओं, फ्रेमवर्क और प्रभाव का पता लगाने के लिए 50 रिपॉजिटरी तक पढ़ता है। GitHub पर कुछ भी पोस्ट नहीं किया जाता है।",
+      "analyzeButton": "GitHub गतिविधि का विश्लेषण करें"
+    },
+    "stats": {
+      "prsMerged": "मर्ज किए गए PR",
+      "repositories": "रिपॉजिटरी",
+      "languages": "भाषाएं",
+      "linesAdded": "जोड़ी गई पंक्तियां",
+      "linesRemoved": "हटाई गई पंक्तियां",
+      "reviews": "समीक्षाएं"
+    },
+    "panel": {
+      "engineeringDomains": "इंजीनियरिंग डोमेन",
+      "evidence": "साक्ष्य: {evidence}",
+      "technologyStack": "प्रौद्योगिकी स्टैक",
+      "languages": "भाषाएं",
+      "frameworks": "फ्रेमवर्क और लाइब्रेरी",
+      "tools": "उपकरण और प्लेटफॉर्म",
+      "confidence": {
+        "high": "उच्च",
+        "medium": "मध्यम",
+        "low": "निम्न"
+      },
+      "topRepositories": "शीर्ष रिपॉजिटरी और योगदान",
+      "complexity": "{complexity} जटिलता",
+      "prsMergedBadge": "{count} PR मर्ज किए गए",
+      "noDescription": "कोई विवरण उपलब्ध नहीं है।"
+    },
+    "domains": {
+      "Frontend": "फ़्रंटएंड",
+      "Backend": "बैकएंड",
+      "AI_ML": "AI / ML",
+      "DevOps": "DevOps",
+      "DataScience": "डेटा साइंस",
+      "Security": "सुरक्षा",
+      "Mobile": "मोबाइल",
+      "Systems": "सिस्टम्स",
+      "FullStack": "फुल-स्टैक"
+    },
+    "roles": {
+      "subtitle": "आपके द्वारा चुने गए पद से मेल खाने के लिए शब्दों, कौशल और परियोजनाओं को चुना जाता है।",
+      "generateResume": "बायोडाटा तैयार करें",
+      "writingResume": "आपका बायोडाटा लिखा जा रहा है…",
+      "regenerate": "पुनः उत्पन्न करें",
+      "generatingDraftHint": "आपके वास्तविक योगदान डेटा से प्रत्येक अनुभाग का मसौदा तैयार किया जा रहा है…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "मशीन लर्निंग इंजीनियर",
+          "description": "मॉडल, प्रशिक्षण पाइपलाइन, एनएलपी और न्यूरल नेटवर्क एप्लिकेशन बनाएं।"
+        },
+        "frontendDeveloper": {
+          "title": "फ़्रंटएंड डेवलपर",
+          "description": "सुंदर, प्रतिक्रियाशील यूजर इंटरफेस और इंटरैक्टिव वेब ऐप बनाएं।"
+        },
+        "backendDeveloper": {
+          "title": "बैकएंड डेवलपर",
+          "description": "स्केलेबल एपीआई, माइक्रोसर्विस, डेटाबेस और प्रमाणीकरण लेयर्स डिज़ाइन करें।"
+        },
+        "fullStackDeveloper": {
+          "title": "फुल स्टैक डेवलपर",
+          "description": "क्लाइंट-साइड और सर्वर-साइड दोनों इंजीनियरिंग संभालें।"
+        },
+        "devOpsEngineer": {
+          "title": "डेवऑप्स इंजीनियर",
+          "description": "इन्फ्रास्ट्रक्चर, सीआई/सीडी पाइपलाइन, कंटेनरीकरण और क्लाउड प्रबंधित करें।"
+        },
+        "dataAnalyst": {
+          "title": "डेटा विश्लेषक",
+          "description": "इनसाइट्स निकालें, सांख्यिकीय विश्लेषण करें और डैशबोर्ड बनाएं।"
+        }
+      },
+      "custom": {
+        "title": "अन्य पद",
+        "description": "बायोडाटा को उसके अनुरूप बनाने के लिए कोई भी पद नाम टाइप करें।",
+        "placeholder": "उदा. साइट विश्वसनीयता इंजीनियर, एसआरई, डेवलपर एडवोकेट…",
+        "button": "पद का उपयोग करें",
+        "selected": "चयनित: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "PDF डाउनलोड करें",
+      "preparingPdf": "PDF तैयार हो रहा है…",
+      "markdown": "मार्कडाउन",
+      "json": "JSON",
+      "copyAsText": "टेक्स्ट के रूप में कॉपी करें",
+      "note": "नीचे किए गए आपके संपादन डाउनलोड में शामिल किए जाएंगे।",
+      "summaryHeading": "सारांश",
+      "skillsHeading": "तकनीकी कौशल",
+      "contributionsHeading": "प्रमुख योगदान",
+      "projectsHeading": "परियोजनाएं"
+    },
+    "preview": {
+      "tailoredTo": "{role} के लिए अनुकूलित",
+      "previewMode": "पूर्वावलोकन मोड",
+      "editContent": "सामग्री संपादित करें",
+      "tabs": {
+        "summary": "व्यावसायिक सारांश",
+        "experience": "अनुभव के मुख्य बिंदु",
+        "projects": "परियोजना की मुख्य बातें",
+        "skills": "कौशल और तकनीक"
+      },
+      "summary": {
+        "title": "व्यावसायिक सारांश",
+        "copyTitle": "अनुभाग कॉपी करें",
+        "ariaLabel": "व्यावसायिक सारांश"
+      },
+      "experience": {
+        "title": "अनुभव के मुख्य बिंदु",
+        "copyTitle": "सभी बिंदु कॉपी करें",
+        "repoAria": "रिपॉजिटरी का नाम",
+        "repoPlaceholder": "रिपॉजिटरी का नाम",
+        "bulletAria": "मुख्य बिंदु का विवरण",
+        "bulletPlaceholder": "मुख्य बिंदु का टेक्स्ट",
+        "generalContribution": "सामान्य योगदान",
+        "aiConfidence": "{confidence}% AI विश्वास",
+        "deleteBullet": "बिंदु हटाएं",
+        "addBullet": "मुख्य बिंदु जोड़ें",
+        "newBulletText": "नया उपलब्धि बिंदु…"
+      },
+      "projects": {
+        "title": "परियोजना की मुख्य बातें",
+        "copyTitle": "सभी परियोजनाएं कॉपी करें",
+        "nameAria": "परियोजना का नाम",
+        "namePlaceholder": "परियोजना का नाम",
+        "urlAria": "रिपॉजिटरी URL",
+        "urlPlaceholder": "रिपॉजिटरी URL",
+        "descAria": "परियोजना का विवरण",
+        "descPlaceholder": "परियोजना का विवरण",
+        "deleteProject": "परियोजना हटाएं",
+        "addProject": "परियोजना जोड़ें",
+        "newProjectName": "नई परियोजना",
+        "newProjectDesc": "परियोजना का विवरण…"
+      },
+      "skills": {
+        "title": "तकनीकी कौशल और श्रेणियां",
+        "copyTitle": "कौशल कॉपी करें",
+        "summaryAria": "सामान्य तकनीकी सारांश",
+        "summaryPlaceholder": "सामान्य तकनीकी सारांश",
+        "categoryAria": "श्रेणी का शीर्षक",
+        "categoryPlaceholder": "श्रेणी का शीर्षक",
+        "itemsAria": "कौशल (अल्पविराम से अलग किए गए)",
+        "itemsPlaceholder": "कौशल (अल्पविराम से अलग किए गए)",
+        "deleteCategory": "श्रेणी हटाएं",
+        "addCategory": "कौशल श्रेणी जोड़ें",
+        "newCategoryTitle": "नई श्रेणी"
+      }
+    }
+  },
   "settings": {
     "title": "सेटिंग्स",
     "loadingLabel": "सेटिंग्स लोड हो रही हैं",
