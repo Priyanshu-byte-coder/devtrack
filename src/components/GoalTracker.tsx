@@ -676,6 +676,9 @@ export default function GoalTracker() {
                 <div className="relative">
                   <input
                     type="search"
+                    name="search"
+                    autoComplete="off"
+                    spellCheck={false}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search goals…"
@@ -963,6 +966,7 @@ export default function GoalTracker() {
                       <label className="inline-flex items-center gap-2 text-sm text-[var(--card-foreground)]">
                         <input
                           type="checkbox"
+                          name="is_public"
                           checked={Boolean(goal.is_public)}
                           disabled={sharingGoalId === goal.id}
                           onChange={(event) =>
@@ -1020,13 +1024,16 @@ export default function GoalTracker() {
           </label>
           <input
             id="goal-title"
+            name="title"
             type="text"
+            autoComplete="off"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={100}
             placeholder="Make 10 commits"
             required
             disabled={creating}
+            aria-label="Goal title"
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition placeholder:text-[var(--muted-foreground)] focus-visible:border-[var(--accent)]"
           />
         </div>
@@ -1041,12 +1048,16 @@ export default function GoalTracker() {
             </label>
             <input
               id="goal-target"
+              name="target"
               type="number"
+              inputMode="numeric"
+              autoComplete="off"
               min={1}
               max={10000}
               value={target}
               onChange={(e) => setTarget(Number(e.target.value))}
               disabled={creating}
+              aria-label="Target"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
             />
           </div>
@@ -1059,6 +1070,8 @@ export default function GoalTracker() {
             </label>
             <select
               id="goal-unit"
+              name="unit"
+              aria-label="Unit"
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               disabled={creating}
@@ -1082,6 +1095,8 @@ export default function GoalTracker() {
           </label>
           <select
             id="goal-category"
+            name="category"
+            aria-label="Category (Optional)"
             value={category}
             onChange={(e) => setCategory(e.target.value as GoalCategory | "")}
             disabled={creating}
@@ -1106,11 +1121,14 @@ export default function GoalTracker() {
             </label>
             <input
               id="goal-deadline"
+              name="deadline"
               type="date"
+              autoComplete="off"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
               disabled={creating}
               min={new Date().toISOString().split("T")[0]}
+              aria-label="Deadline (Optional)"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] transition focus-visible:border-[var(--accent)]"
             />
           </div>
