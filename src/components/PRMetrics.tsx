@@ -1,5 +1,7 @@
 "use client";
 
+export type MetricStatusFilter = "all" | "open" | "merged";
+
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import {
   ExternalLink,
@@ -17,8 +19,6 @@ import {
   hudLabelClass,
 } from "@/components/ui/arcade";
 import type { PullRequestRange, PullRequestSummary } from "@/lib/pull-requests";
-
-export type MetricStatusFilter = "all" | "open" | "merged";
 
 const OPENED = "#6ba8ff";
 const MERGED = "#34d399";
