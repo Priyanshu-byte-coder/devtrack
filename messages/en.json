@@ -171,6 +171,227 @@
     "signInWithGitHub": "Sign in with GitHub",
     "licenseLine": "MIT License · Self-hostable · Free forever"
   },
+  "careerIntelligence": {
+    "header": {
+      "title": "Resume",
+      "description": "Turn your GitHub work into an ATS-friendly resume tailored to a role.",
+      "reScan": "Re-scan GitHub",
+      "reScanTooltip": "Analyses are cached for 24 hours"
+    },
+    "errors": {
+      "rateLimited": "GitHub's rate limit was reached. Try again in a few minutes.",
+      "sessionExpired": "Your session expired. Sign in again.",
+      "analyzeFailed": "Could not analyze your GitHub activity.",
+      "pickRoleFirst": "Pick a target role first.",
+      "generateFailed": "Could not generate the resume.",
+      "exportFailed": "Could not export the resume.",
+      "downloadFailed": "Failed to download file.",
+      "copyFailed": "Failed to copy resume content.",
+      "copySectionFailed": "Failed to copy section."
+    },
+    "steps": {
+      "footprint": "Your GitHub footprint",
+      "targetRole": "Target role",
+      "reviewAndDownload": "Review and download"
+    },
+    "analysis": {
+      "fetchingRepos": "Fetching your repositories…",
+      "readingPrs": "Reading merged pull requests…",
+      "detectingTech": "Detecting languages and frameworks…",
+      "scoringDomains": "Scoring engineering domains…",
+      "durationHint": "Usually 20–60 seconds, depending on how many repositories you have.",
+      "promptTitle": "Scan your repositories and merged pull requests",
+      "promptDescription": "DevTrack reads up to 50 repositories to work out your languages, frameworks and impact. Nothing is posted to GitHub.",
+      "analyzeButton": "Analyze GitHub activity"
+    },
+    "stats": {
+      "prsMerged": "PRs Merged",
+      "repositories": "Repositories",
+      "languages": "Languages",
+      "linesAdded": "Lines Added",
+      "linesRemoved": "Lines Removed",
+      "reviews": "Reviews"
+    },
+    "panel": {
+      "engineeringDomains": "Engineering Domains",
+      "evidence": "Evidence: {evidence}",
+      "technologyStack": "Technology Stack",
+      "languages": "Languages",
+      "frameworks": "Frameworks & Libraries",
+      "tools": "Tools & Platforms",
+      "confidence": {
+        "high": "high",
+        "medium": "medium",
+        "low": "low"
+      },
+      "topRepositories": "Top Repositories & Contributions",
+      "complexity": "{complexity} Complexity",
+      "prsMergedBadge": "{count} PRs Merged",
+      "noDescription": "No description available."
+    },
+    "domains": {
+      "Frontend": "Frontend",
+      "Backend": "Backend",
+      "AI_ML": "AI / ML",
+      "DevOps": "DevOps",
+      "DataScience": "Data science",
+      "Security": "Security",
+      "Mobile": "Mobile",
+      "Systems": "Systems",
+      "FullStack": "Full-stack"
+    },
+    "roles": {
+      "subtitle": "Wording, skills and projects are picked to match the role you choose.",
+      "generateResume": "Generate resume",
+      "writingResume": "Writing your resume…",
+      "regenerate": "Regenerate",
+      "generatingDraftHint": "Drafting each section from your real contribution data…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "Machine Learning Engineer",
+          "description": "Build models, training pipelines, NLP, and neural network applications."
+        },
+        "frontendDeveloper": {
+          "title": "Frontend Developer",
+          "description": "Create beautiful, responsive user interfaces and interactive web apps."
+        },
+        "backendDeveloper": {
+          "title": "Backend Developer",
+          "description": "Design scalable APIs, microservices, databases, and auth layers."
+        },
+        "fullStackDeveloper": {
+          "title": "Full Stack Developer",
+          "description": "Handle both client-side and server-side engineering."
+        },
+        "devOpsEngineer": {
+          "title": "DevOps Engineer",
+          "description": "Manage infrastructure, CI/CD pipelines, containerization, and cloud."
+        },
+        "dataAnalyst": {
+          "title": "Data Analyst",
+          "description": "Extract insights, perform statistical analysis, and build dashboards."
+        }
+      },
+      "custom": {
+        "title": "Another role",
+        "description": "Type any job title to tailor the resume to it.",
+        "placeholder": "e.g. Site Reliability Engineer, SRE, Developer Advocate…",
+        "button": "Use role",
+        "selected": "Selected: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "Download PDF",
+      "preparingPdf": "Preparing PDF…",
+      "markdown": "Markdown",
+      "json": "JSON",
+      "copyAsText": "Copy as text",
+      "note": "Edits you make below are included in the download.",
+      "summaryHeading": "SUMMARY",
+      "skillsHeading": "TECHNICAL SKILLS",
+      "contributionsHeading": "KEY CONTRIBUTIONS",
+      "projectsHeading": "PROJECTS"
+    },
+    "preview": {
+      "tailoredTo": "Tailored to {role}",
+      "previewMode": "Preview Mode",
+      "editContent": "Edit Content",
+      "tabs": {
+        "summary": "Professional Summary",
+        "experience": "Experience Bullet Points",
+        "projects": "Project Highlights",
+        "skills": "Skills & Tech"
+      },
+      "summary": {
+        "title": "Professional Summary",
+        "copyTitle": "Copy Section",
+        "ariaLabel": "Professional Summary"
+      },
+      "experience": {
+        "title": "Experience Bullet Points",
+        "copyTitle": "Copy All Bullets",
+        "repoAria": "Repository name",
+        "repoPlaceholder": "Repository Name",
+        "bulletAria": "Bullet point description",
+        "bulletPlaceholder": "Bullet Point Text",
+        "generalContribution": "general contribution",
+        "aiConfidence": "{confidence}% AI confidence",
+        "deleteBullet": "Delete Bullet",
+        "addBullet": "Add Bullet Point",
+        "newBulletText": "New achievement bullet point…"
+      },
+      "projects": {
+        "title": "Project Highlights",
+        "copyTitle": "Copy All Projects",
+        "nameAria": "Project name",
+        "namePlaceholder": "Project Name",
+        "urlAria": "Repository URL",
+        "urlPlaceholder": "Repository URL",
+        "descAria": "Project description",
+        "descPlaceholder": "Project Description",
+        "deleteProject": "Delete Project",
+        "addProject": "Add Project",
+        "newProjectName": "New Project",
+        "newProjectDesc": "Project description…"
+      },
+      "skills": {
+        "title": "Technical Skills & Categories",
+        "copyTitle": "Copy Skills",
+        "summaryAria": "General Technical Summary",
+        "summaryPlaceholder": "General Technical Summary",
+        "categoryAria": "Category Title",
+        "categoryPlaceholder": "Category Title",
+        "itemsAria": "Skills (comma separated)",
+        "itemsPlaceholder": "Skills (comma separated)",
+        "deleteCategory": "Delete Category",
+        "addCategory": "Add Skill Category",
+        "newCategoryTitle": "New Category"
+      }
+    }
+  },
+  "repoComparison": {
+    "title": "Repository Comparison Analytics",
+    "inputPlaceholder": "owner/repo (e.g. facebook/react)",
+    "inputAria": "Repository identifier in owner/repo format",
+    "addRepo": "Add Repo",
+    "addRepoAria": "Add repository to comparison list",
+    "removeRepoAria": "Remove {repo} from comparison",
+    "compareRepos": "Compare Repositories",
+    "comparing": "Comparing…",
+    "compareAria": "Compare added repositories",
+    "emptyState": "Add 2–5 repositories to compare",
+    "resultsHeading": "Comparison Results",
+    "chartHeading": "Comparison Chart",
+    "chartAria": "Repository comparison bar chart",
+    "metrics": {
+      "stars": "⭐ Stars: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Watchers: {count}",
+      "issues": "🐛 Issues: {count}"
+    },
+    "chartSeries": {
+      "stars": "Stars",
+      "forks": "Forks",
+      "watchers": "Watchers"
+    },
+    "errors": {
+      "format": "Use the owner/repo format, for example facebook/react.",
+      "missingOwnerOrRepo": "Enter both an owner and a repository name.",
+      "noSpaces": "Repository names cannot contain spaces.",
+      "maxRepos": "You can compare up to 5 repositories at a time.",
+      "minRepos": "Add at least 2 repositories to compare.",
+      "notFound": "That repository does not exist on GitHub.",
+      "networkCheck": "Could not reach GitHub to check that repository. Try again.",
+      "loadData": "Could not load repository data. Try again."
+    },
+    "loading": {
+      "label": "Loading repo comparison"
+    },
+    "error": {
+      "heading": "Something went wrong",
+      "tryAgain": "Try again"
+    }
+  },
   "settings": {
     "title": "Settings",
     "loadingLabel": "Loading settings",

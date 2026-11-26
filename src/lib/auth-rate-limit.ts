@@ -11,10 +11,12 @@
  * and contact namespaces so the counters never interfere with each other.
  *
  * Protected paths (see AUTH_SENSITIVE_PREFIXES):
- *   POST /api/auth/signin/*      — OAuth initiation
  *   GET  /api/auth/callback/*    — OAuth callback / code exchange
- *   GET  /api/auth/link-github   — Secondary account link initiation
  *   GET  /api/auth/link-github/* — Secondary account link callback
+ *
+ * OAuth initiation is intentionally excluded. It does not exchange credentials,
+ * and counting it means a cancelled browser redirect can exhaust the limit
+ * before the user gets a chance to retry.
  *
  * Deliberately NOT rate-limited by this module:
  *   GET /api/auth/session        — called on every page render
@@ -37,14 +39,12 @@ export const AUTH_LIMIT = 5;
 
 /**
  * Path prefixes whose requests count toward the authentication rate limit.
- * Only the OAuth initiation and callback routes are included; session and
- * CSRF endpoints are excluded because they are called on every page render
- * and blocking them would lock users out of the UI.
+ * Callback routes remain protected; initiation, session, and CSRF endpoints
+ * are excluded so retries and normal page renders cannot lock users out.
  */
 export const AUTH_SENSITIVE_PREFIXES = [
-  "/api/auth/signin",
   "/api/auth/callback",
-  "/api/auth/link-github",
+  "/api/auth/link-github/callback",
 ] as const;
 
 const authLimiter = createMemoryFixedWindowRateLimiter({
@@ -62,7 +62,7 @@ const authLimiter = createMemoryFixedWindowRateLimiter({
  */
 export function checkAuthRateLimit(
   ip: string,
-  limit: number = AUTH_LIMIT,
+  limit: number = AUTH_LIMIT
 ): MemoryRateLimitResult {
   return authLimiter.check(`auth:${ip}`, limit);
 }

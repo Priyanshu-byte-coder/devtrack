@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -12,17 +13,21 @@ import {
 } from "recharts";
 
 export default function RepoComparisonPage() {
+  const t = useTranslations("repoComparison");
+  const locale = useLocale();
+  const numberFormatter = new Intl.NumberFormat(locale);
+
   const [input, setInput] = useState("");
   const [repos, setRepos] = useState<string[]>([]);
   const [repoData, setRepoData] = useState<any[]>([]);
   const chartData = repoData?.length
-  ? repoData.map((repo) => ({
-      name: repo.name.split("/")[1],
-      stars: repo.stars,
-      forks: repo.forks,
-      watchers: repo.watchers,
-    }))
-  : [];
+    ? repoData.map((repo) => ({
+        name: repo.name.split("/")[1],
+        stars: repo.stars,
+        forks: repo.forks,
+        watchers: repo.watchers,
+      }))
+    : [];
   const [loading, setLoading] = useState(false);
 
   const addRepo = async () => {
@@ -30,36 +35,34 @@ export default function RepoComparisonPage() {
     const parts = trimmed.split("/");
 
     if (parts.length !== 2) {
-      toast.error("Use the owner/repo format, for example facebook/react.");
+      toast.error(t("errors.format"));
       return;
     }
 
     const [owner, repo] = parts;
 
     if (!owner || !repo) {
-      toast.error("Enter both an owner and a repository name.");
+      toast.error(t("errors.missingOwnerOrRepo"));
       return;
     }
 
     if (trimmed.includes(" ")) {
-      toast.error("Repository names cannot contain spaces.");
+      toast.error(t("errors.noSpaces"));
       return;
     }
 
     if (repos.includes(trimmed)) return;
 
     if (repos.length >= 5) {
-      toast.error("You can compare up to 5 repositories at a time.");
+      toast.error(t("errors.maxRepos"));
       return;
     }
 
     try {
-      const res = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}`
-      );
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
 
       if (!res.ok) {
-        toast.error("That repository does not exist on GitHub.");
+        toast.error(t("errors.notFound"));
         return;
       }
 
@@ -68,7 +71,7 @@ export default function RepoComparisonPage() {
       setRepos([...repos, data.full_name]);
       setInput("");
     } catch {
-      toast.error("Could not reach GitHub to check that repository. Try again.");
+      toast.error(t("errors.networkCheck"));
     }
   };
 
@@ -78,7 +81,7 @@ export default function RepoComparisonPage() {
 
   const fetchRepoData = async () => {
     if (repos.length < 2) {
-      toast.error("Add at least 2 repositories to compare.");
+      toast.error(t("errors.minRepos"));
       return;
     }
 
@@ -88,9 +91,7 @@ export default function RepoComparisonPage() {
     try {
       const results = await Promise.all(
         repos.map(async (fullName) => {
-          const res = await fetch(
-            `https://api.github.com/repos/${fullName}`
-          );
+          const res = await fetch(`https://api.github.com/repos/${fullName}`);
 
           if (!res.ok) return null;
 
@@ -106,9 +107,11 @@ export default function RepoComparisonPage() {
         })
       );
 
-      setRepoData(results.filter((r): r is NonNullable<typeof r> => r !== null));
+      setRepoData(
+        results.filter((r): r is NonNullable<typeof r> => r !== null)
+      );
     } catch {
-      toast.error("Could not load repository data. Try again.");
+      toast.error(t("errors.loadData"));
     }
 
     setLoading(false);
@@ -116,24 +119,24 @@ export default function RepoComparisonPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">
-        Repository Comparison Analytics
-      </h1>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
 
       {/* INPUT */}
       <div className="flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="owner/repo (e.g. facebook/react)"
+          placeholder={t("inputPlaceholder")}
+          aria-label={t("inputAria")}
           className="border p-2 rounded w-80"
         />
 
         <button
           onClick={addRepo}
+          aria-label={t("addRepoAria")}
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          Add Repo
+          {t("addRepo")}
         </button>
       </div>
 
@@ -145,7 +148,12 @@ export default function RepoComparisonPage() {
             className="bg-gray-200 px-3 py-1 rounded flex gap-2 items-center"
           >
             <span>{repo}</span>
-            <button onClick={() => removeRepo(repo)}>❌</button>
+            <button
+              onClick={() => removeRepo(repo)}
+              aria-label={t("removeRepoAria", { repo })}
+            >
+              <span aria-hidden="true">❌</span>
+            </button>
           </div>
         ))}
       </div>
@@ -155,29 +163,44 @@ export default function RepoComparisonPage() {
         onClick={fetchRepoData}
         className="bg-green-600 text-white px-4 py-2 rounded"
         disabled={loading}
+        aria-label={t("compareAria")}
       >
-        {loading ? "Comparing…" : "Compare Repositories"}
+        {loading ? t("comparing") : t("compareRepos")}
       </button>
 
       {/* EMPTY STATE */}
       {repos.length === 0 && (
-        <div className="text-gray-500">
-          Add 2–5 repositories to compare
-        </div>
+        <div className="text-gray-500">{t("emptyState")}</div>
       )}
 
       {/* RESULTS */}
       {repoData.length > 0 && (
         <div className="border rounded p-4">
-          <h2 className="font-bold mb-3">Comparison Results</h2>
+          <h2 className="font-bold mb-3">{t("resultsHeading")}</h2>
 
           {repoData.map((repo) => (
             <div key={repo.name} className="mb-3 p-2 border rounded">
               <p className="font-semibold">{repo.name}</p>
-              <p>⭐ Stars: {repo.stars}</p>
-              <p>🍴 Forks: {repo.forks}</p>
-              <p>👀 Watchers: {repo.watchers}</p>
-              <p>🐛 Issues: {repo.issues}</p>
+              <p>
+                {t("metrics.stars", {
+                  count: numberFormatter.format(repo.stars),
+                })}
+              </p>
+              <p>
+                {t("metrics.forks", {
+                  count: numberFormatter.format(repo.forks),
+                })}
+              </p>
+              <p>
+                {t("metrics.watchers", {
+                  count: numberFormatter.format(repo.watchers),
+                })}
+              </p>
+              <p>
+                {t("metrics.issues", {
+                  count: numberFormatter.format(repo.issues),
+                })}
+              </p>
             </div>
           ))}
         </div>
@@ -185,20 +208,33 @@ export default function RepoComparisonPage() {
       {/* CHART */}
       {repoData.length > 0 && (
         <div className="w-full h-96 border rounded p-4 mt-6">
-          <h2 className="font-bold mb-3">📊 Comparison Chart</h2>
+          <h2 className="font-bold mb-3">📊 {t("chartHeading")}</h2>
 
-          <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData}>
-          <XAxis
-            dataKey="name"
-            tick={{ fill: "#7698fe", fontSize: 12 }}
-          />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="stars" fill="#3b82f6" />
-          <Bar dataKey="forks" fill="#10b981" />
-          <Bar dataKey="watchers" fill="#f59e0b" />
-          </BarChart>
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            aria-label={t("chartAria")}
+          >
+            <BarChart data={chartData} aria-label={t("chartAria")}>
+              <XAxis dataKey="name" tick={{ fill: "#7698fe", fontSize: 12 }} />
+              <YAxis />
+              <Tooltip />
+              <Bar
+                dataKey="stars"
+                fill="#3b82f6"
+                name={t("chartSeries.stars")}
+              />
+              <Bar
+                dataKey="forks"
+                fill="#10b981"
+                name={t("chartSeries.forks")}
+              />
+              <Bar
+                dataKey="watchers"
+                fill="#f59e0b"
+                name={t("chartSeries.watchers")}
+              />
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}
