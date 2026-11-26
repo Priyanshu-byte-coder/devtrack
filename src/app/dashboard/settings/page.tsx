@@ -935,6 +935,7 @@ function SettingsPageContent() {
                 <div className="relative">
                   <input
                     type="checkbox"
+                    name="is_public"
                     checked={settings.is_public}
                     aria-label="Toggle Public Profile"
                     onChange={(e) => handleTogglePublic(e.target.checked)}
@@ -982,7 +983,10 @@ function SettingsPageContent() {
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
-                  type="text"
+                  type="url"
+                  name="profileUrl"
+                  autoComplete="off"
+                  spellCheck={false}
                   value={profileUrl}
                   readOnly
                   aria-label="Public profile URL"
@@ -1026,6 +1030,7 @@ function SettingsPageContent() {
                     <div className="relative">
                       <input
                         type="checkbox"
+                        name="show_weekly_goals"
                         checked={settings.show_weekly_goals ?? false}
                         aria-label="Toggle weekly goal progress on profile"
                         onChange={async (e) => {
@@ -1092,6 +1097,9 @@ function SettingsPageContent() {
                     >
                       <input
                         type="checkbox"
+                        name="public_widgets"
+                        value={key}
+                        aria-label={label}
                         checked={publicWidgets.includes(key)}
                         onChange={(e) =>
                           handleToggleWidget(key, e.target.checked)
@@ -1141,6 +1149,9 @@ function SettingsPageContent() {
               </div>
 
               <textarea
+                id="profile-bio"
+                name="bio"
+                aria-label="Profile Bio"
                 value={bioDraft}
                 onChange={(e) => {
                   setBioDraft(e.target.value);
@@ -1217,6 +1228,7 @@ function SettingsPageContent() {
                     type="radio"
                     name="heatmap-theme"
                     value="default"
+                    aria-label="Default heatmap colour scheme"
                     checked={theme === "default"}
                     onChange={() => {
                       setTheme("default");
@@ -1231,9 +1243,24 @@ function SettingsPageContent() {
                     type="radio"
                     name="heatmap-theme"
                     value="colour-blind-friendly"
+                    aria-label="Colour-blind friendly heatmap colour scheme"
                     checked={theme === "colour-blind-friendly"}
                     onChange={() => {
                       setTheme("colour-blind-friendly");
+                      setIsDirty(true);
+                    }}
+                    className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
+                  />
+                </label>
+                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--control)] px-4 py-3 text-[var(--foreground)]">
+                  <span>Theme</span>
+                  <input
+                    type="radio"
+                    name="heatmap-theme"
+                    value="theme"
+                    checked={theme === "theme"}
+                    onChange={() => {
+                      setTheme("theme");
                       setIsDirty(true);
                     }}
                     className="accent-[var(--accent)] focus-visible:ring-[var(--accent)]"
@@ -1308,6 +1335,7 @@ function SettingsPageContent() {
                 </label>
                 <select
                   id="preferred-locale"
+                  name="preferredLocale"
                   value={preferredLocale}
                   disabled={savingLanguage}
                   onChange={(event) =>
@@ -1350,6 +1378,7 @@ function SettingsPageContent() {
                 <div className="relative">
                   <input
                     type="checkbox"
+                    name="leaderboard_opt_in"
                     checked={settings.leaderboard_opt_in}
                     aria-label="Toggle Public Leaderboard"
                     onChange={(e) => handleToggleLeaderboard(e.target.checked)}
@@ -1466,7 +1495,10 @@ function SettingsPageContent() {
                   Search & Pin Repositories
                 </h3>
                 <input
-                  type="text"
+                  type="search"
+                  name="repoSearchQuery"
+                  autoComplete="off"
+                  spellCheck={false}
                   value={repoSearchQuery}
                   onChange={(e) => setRepoSearchQuery(e.target.value)}
                   disabled={saving}
@@ -1545,6 +1577,7 @@ function SettingsPageContent() {
                 <div className="relative">
                   <input
                     type="checkbox"
+                    name="weekly_digest_opt_in"
                     checked={settings.weekly_digest_opt_in}
                     aria-label="Toggle Weekly Email Digest"
                     onChange={(e) => handleToggleWeeklyDigest(e.target.checked)}
@@ -1584,11 +1617,20 @@ function SettingsPageContent() {
             </div>
 
             <div className="mt-4">
-              <label className="text-sm font-medium text-[var(--card-foreground)]">
+              <label
+                htmlFor="settings-webhook-url"
+                className="text-sm font-medium text-[var(--card-foreground)]"
+              >
                 {t("webhookUrl")}
               </label>
               <input
-                type="text"
+                id="settings-webhook-url"
+                name="webhook_url"
+                type="url"
+                inputMode="url"
+                autoComplete="off"
+                spellCheck={false}
+                aria-label={t("webhookUrl")}
                 value={webhookUrl ?? ""}
                 onChange={(e) => setWebhookUrl(e.target.value || null)}
                 placeholder="https://hooks.slack.com/services/… or https://discord.com/api/webhooks/…"
@@ -1815,6 +1857,9 @@ function SettingsPageContent() {
                                   <div className="relative">
                                     <input
                                       type="checkbox"
+                                      name="org_toggle"
+                                      value={org.login}
+                                      aria-label={`Toggle ${org.login}`}
                                       checked={isEnabled}
                                       onChange={(e) =>
                                         handleToggleOrg(
@@ -1876,7 +1921,12 @@ function SettingsPageContent() {
                 <div className="flex gap-2">
                   <input
                     id="discord-webhook"
-                    type="text"
+                    name="discord_webhook"
+                    type="url"
+                    inputMode="url"
+                    autoComplete="off"
+                    spellCheck={false}
+                    aria-label={t("webhookUrl")}
                     value={discordWebhook}
                     onChange={(e) => {
                       setDiscordWebhook(e.target.value);
@@ -1897,6 +1947,7 @@ function SettingsPageContent() {
                 </label>
                 <select
                   id="timezone-select"
+                  name="timezone"
                   value={timezone}
                   onChange={(e) => {
                     setTimezone(e.target.value);
@@ -1980,6 +2031,9 @@ function SettingsPageContent() {
                   ) : (
                     <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                       <select
+                        id="discord-mute-duration"
+                        name="discord_mute_duration"
+                        aria-label="Discord mute duration"
                         value={muteDuration}
                         onChange={(e) =>
                           setMuteDuration(Number(e.target.value))

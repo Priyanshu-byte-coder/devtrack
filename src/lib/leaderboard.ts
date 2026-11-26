@@ -327,7 +327,7 @@ function getPeriodSince(period: LeaderboardPeriod): string | undefined {
     return undefined;
   }
 
-  const days = period === "week" ? 7 : 30;
+  const days = period === "week" ? 6 : 29;
   return toDateStr(new Date(Date.now() - days * 86400000));
 }
 

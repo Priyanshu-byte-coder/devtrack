@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import DiffTrendChart from "../../src/components/DiffTrendChart";
 
@@ -39,6 +39,10 @@ describe("DiffTrendChart", () => {
   });
 
   afterEach(() => {
+    // Unmount first: recharts' ResponsiveContainer reads ResizeObserver in an
+    // effect, and removing the stub while the chart is still mounted made
+    // this test fail intermittently with "ResizeObserver is not defined".
+    cleanup();
     vi.unstubAllGlobals();
   });
 
@@ -126,8 +130,6 @@ describe("DiffTrendChart", () => {
     render(<DiffTrendChart />);
 
     expect(await screen.findByText("+1.5K")).toBeInTheDocument();
-    expect(
-      screen.queryByText(/Still computing stats/)
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Still computing stats/)).not.toBeInTheDocument();
   });
 });

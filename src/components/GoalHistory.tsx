@@ -153,7 +153,7 @@ export default function GoalHistory() {
                       <span
                         className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
                           entry.completed
-                            ? "bg-emerald-500/15 text-emerald-500"
+                            ? "bg-success/15 text-success"
                             : "bg-destructive/10 text-[var(--destructive)]"
                         }`}
                       >
@@ -166,7 +166,7 @@ export default function GoalHistory() {
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--card-muted)]">
                       <div
                         className={`h-full rounded-full ${
-                          entry.completed ? "bg-emerald-500" : "bg-accent/50"
+                          entry.completed ? "bg-success" : "bg-accent/50"
                         }`}
                         style={{ width: `${pct}%` }}
                       />
