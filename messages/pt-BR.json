@@ -349,6 +349,49 @@
       }
     }
   },
+  "repoComparison": {
+    "title": "Análise de comparação de repositórios",
+    "inputPlaceholder": "proprietário/repositório (ex: facebook/react)",
+    "inputAria": "Identificador do repositório no formato proprietário/repositório",
+    "addRepo": "Adicionar repositório",
+    "addRepoAria": "Adicionar repositório à lista de comparação",
+    "removeRepoAria": "Remover {repo} da comparação",
+    "compareRepos": "Comparar repositórios",
+    "comparing": "Comparando…",
+    "compareAria": "Comparar repositórios adicionados",
+    "emptyState": "Adicione de 2 a 5 repositórios para comparar",
+    "resultsHeading": "Resultados da comparação",
+    "chartHeading": "Gráfico de comparação",
+    "chartAria": "Gráfico de barras de comparação de repositórios",
+    "metrics": {
+      "stars": "⭐ Estrelas: {count}",
+      "forks": "🍴 Forks: {count}",
+      "watchers": "👀 Observadores: {count}",
+      "issues": "🐛 Problemas: {count}"
+    },
+    "chartSeries": {
+      "stars": "Estrelas",
+      "forks": "Forks",
+      "watchers": "Observadores"
+    },
+    "errors": {
+      "format": "Use o formato proprietário/repositório, por exemplo facebook/react.",
+      "missingOwnerOrRepo": "Insira tanto o proprietário quanto o nome do repositório.",
+      "noSpaces": "Nomes de repositório não podem conter espaços.",
+      "maxRepos": "Você pode comparar até 5 repositórios por vez.",
+      "minRepos": "Adicione pelo menos 2 repositórios para comparar.",
+      "notFound": "Esse repositório não existe no GitHub.",
+      "networkCheck": "Não foi possível conectar ao GitHub para verificar esse repositório. Tente novamente.",
+      "loadData": "Não foi possível carregar os dados do repositório. Tente novamente."
+    },
+    "loading": {
+      "label": "Carregando comparação de repositórios"
+    },
+    "error": {
+      "heading": "Algo deu errado",
+      "tryAgain": "Tentar novamente"
+    }
+  },
   "settings": {
     "title": "Configurações",
     "loadingLabel": "Carregando configurações",

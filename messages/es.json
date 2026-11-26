@@ -349,6 +349,49 @@
       }
     }
   },
+  "repoComparison": {
+    "title": "Analítica de comparación de repositorios",
+    "inputPlaceholder": "propietario/repositorio (ej. facebook/react)",
+    "inputAria": "Identificador de repositorio en formato propietario/repositorio",
+    "addRepo": "Agregar repositorio",
+    "addRepoAria": "Agregar repositorio a la lista de comparación",
+    "removeRepoAria": "Eliminar {repo} de la comparación",
+    "compareRepos": "Comparar repositorios",
+    "comparing": "Comparando…",
+    "compareAria": "Comparar repositorios agregados",
+    "emptyState": "Agrega de 2 a 5 repositorios para comparar",
+    "resultsHeading": "Resultados de la comparación",
+    "chartHeading": "Gráfico de comparación",
+    "chartAria": "Gráfico de barras de comparación de repositorios",
+    "metrics": {
+      "stars": "⭐ Estrellas: {count}",
+      "forks": "🍴 Bifurcaciones: {count}",
+      "watchers": "👀 Observadores: {count}",
+      "issues": "🐛 Problemas: {count}"
+    },
+    "chartSeries": {
+      "stars": "Estrellas",
+      "forks": "Bifurcaciones",
+      "watchers": "Observadores"
+    },
+    "errors": {
+      "format": "Usa el formato propietario/repositorio, por ejemplo facebook/react.",
+      "missingOwnerOrRepo": "Ingresa tanto el propietario como el nombre del repositorio.",
+      "noSpaces": "Los nombres de los repositorios no pueden contener espacios.",
+      "maxRepos": "Puedes comparar hasta 5 repositorios a la vez.",
+      "minRepos": "Agrega al menos 2 repositorios para comparar.",
+      "notFound": "Ese repositorio no existe en GitHub.",
+      "networkCheck": "No se pudo conectar con GitHub para verificar ese repositorio. Inténtalo de nuevo.",
+      "loadData": "No se pudieron cargar los datos del repositorio. Inténtalo de nuevo."
+    },
+    "loading": {
+      "label": "Cargando comparación de repositorios"
+    },
+    "error": {
+      "heading": "Algo salió mal",
+      "tryAgain": "Intentar de nuevo"
+    }
+  },
   "settings": {
     "title": "Configuración",
     "loadingLabel": "Cargando configuración",
