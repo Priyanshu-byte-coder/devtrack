@@ -57,7 +57,104 @@
     "nightOwlTitle": "नाइट आउल मील का पत्थर: आप आधी रात से सुबह 4 बजे के बीच कोड पुश करते हैं!",
     "earlyBirdTitle": "अर्ली बर्ड मील का पत्थर: आप सुबह 5 बजे से सुबह 8 बजे के बीच कोड पुश करते हैं!",
     "profileLinkCopied": "प्रोफ़ाइल लिंक कॉपी हो गया!",
-    "profileLinkCopyFailed": "लिंक कॉपी करने में विफल"
+    "profileLinkCopyFailed": "लिंक कॉपी करने में विफल",
+    "welcomeBackUser": "वापसी पर स्वागत है, {name}। यहाँ अब तक का आपका सप्ताह है।",
+    "hereIsYourWeek": "यहाँ अब तक का आपका सप्ताह है।",
+    "thisWeek": "इस सप्ताह",
+    "thisWeekAriaLabel": "इस सप्ताह",
+    "streak": "स्ट्रीक",
+    "commits": "कमिट्स",
+    "prsMerged": "मर्ज किए गए PR",
+    "activeDays": "सक्रिय दिन",
+    "keepItGoing": "इसे जारी रखें",
+    "commitTodayToStart": "शुरू करने के लिए आज कमिट करें",
+    "lastWeekEqual": "= पिछला सप्ताह",
+    "vsLastWeek": "{count} बनाम पिछला सप्ताह",
+    "up": "ऊपर",
+    "down": "नीचे",
+    "unavailableRightNow": "अभी उपलब्ध नहीं है",
+    "season": {
+      "thisSeason": "इस सीज़न",
+      "monthSeason": "{month} सीज़न",
+      "notOnLeaderboardTitle": "आप अभी लीडरबोर्ड पर नहीं हैं",
+      "notOnLeaderboardDescription": "टियर पाने, XP अर्जित करने और दुनिया भर के डेवलपर्स के मुकाबले अपनी रैंक देखने के लिए अपनी प्रोफ़ाइल सार्वजनिक करें और लीडरबोर्ड में शामिल हों।",
+      "joinLeaderboard": "लीडरबोर्ड में शामिल हों",
+      "seeWhosOnIt": "देखें कौन इस पर है",
+      "addToReadme": "अपने README में जोड़ें →",
+      "viewLeaderboard": "लीडरबोर्ड देखें →",
+      "ofTotalOnBoard": "बोर्ड पर कुल {total} में से",
+      "scoreOutOfThousand": "{score} / 1000 स्कोर",
+      "xpAppearsAfterUpdate": "XP अगले दैनिक अपडेट के बाद दिखाई देगा।",
+      "bestThisFar": "अब तक का सर्वश्रेष्ठ: {tier}",
+      "bestRank": "सर्वश्रेष्ठ रैंक #{rank}"
+    },
+    "streakTracker": {
+      "title": "कमिट स्ट्रीक्स",
+      "currentStreak": "वर्तमान स्ट्रीक",
+      "longestStreak": "सबसे लंबी स्ट्रीक",
+      "activeDaysWindow": "सक्रिय दिन ({days}दिन)",
+      "lastCommit": "अंतिम कमिट",
+      "currentStreakTooltip": "वर्तमान लगातार कोडिंग दिन",
+      "longestStreakTooltip": "आपकी अब तक की सबसे लंबी स्ट्रीक",
+      "activeDaysTooltip": "{window} में आपके द्वारा कमिट किए गए दिन",
+      "lastCommitTooltip": "आपका सबसे हालिया कमिट",
+      "dataWindowLabel": "पिछले {days} दिन",
+      "daysUnit": "दिन",
+      "dayUnit": "दिन",
+      "loadingStreak": "स्ट्रीक ट्रैकर लोड हो रहा है",
+      "partialHistoryNotice": "स्ट्रीक गणना आंशिक इतिहास का उपयोग करती है: {reason}",
+      "partialHistoryDefaultReason": "कुछ कमिट एकत्र नहीं किए जा सके।",
+      "tryAgain": "पुनः प्रयास करें",
+      "noContributionDataTitle": "कोई योगदान डेटा नहीं मिला",
+      "noContributionDataDesc": "अपनी स्ट्रीक बनाने और अपनी कोडिंग गतिविधि को ट्रैक करने के लिए कमिट करना शुरू करें।",
+      "openGithub": "GitHub खोलें",
+      "milestoneBadgeReached": "{label} पूरा हुआ",
+      "milestoneRemaining": " · {target} तक {count} {unit} शेष",
+      "milestone30": "30-दिवसीय मील का पत्थर",
+      "milestone14": "2-सप्ताह का मील का पत्थर",
+      "milestone7": "7-दिवसीय मील का पत्थर",
+      "milestone3": "3-दिवसीय मील का पत्थर",
+      "thisMonthActiveDays": "इस महीने: {count} सक्रिय दिन",
+      "firstMonthTracked": "पहला महीना ट्रैक किया गया!",
+      "trendUpVsLastMonth": "↑{percent}% बनाम पिछला महीना",
+      "trendDownVsLastMonth": "↓{percent}% बनाम पिछला महीना",
+      "trendSameVsLastMonth": "=0% बनाम पिछला महीना",
+      "mostActiveDay": "सबसे सक्रिय दिन",
+      "avgCommitsPerDay": "औसत {count} कमिट्स",
+      "updatedJustNow": "अभी-अभी अपडेट किया गया",
+      "updatedMinAgo": "{minutes} मिनट पहले अपडेट किया गया",
+      "freezeActiveToday": "आज फ्रीज़ सक्रिय है",
+      "removeFreezeQuestion": "फ्रीज़ हटाएं?",
+      "removingFreeze": "हटाया जा रहा है…",
+      "yesRemove": "हाँ, हटाएं",
+      "keepFreeze": "रखें",
+      "cancelFreeze": "फ्रीज़ रद्द करें",
+      "streakFreezeTitle": "स्ट्रीक फ्रीज़",
+      "freezesAvailable": "❄️ {count} उपलब्ध",
+      "streakFreezeHelpTooltip": "एक स्ट्रीक फ्रीज़ छूटे हुए एक दिन के लिए आपकी स्ट्रीक की सुरक्षा करता है। आप एक समय में केवल एक फ्रीज़ का उपयोग कर सकते हैं।",
+      "freezing": "फ्रीज़ हो रहा है…",
+      "freezeStreakButton": "स्ट्रीक फ्रीज़ करें",
+      "freezeModalTitle": "❄️ स्ट्रीक फ्रीज़ का उपयोग करें?",
+      "freezeModalMessage": "यह आपके उपलब्ध फ्रीज़ में से 1 का उपभोग करेगा। आज के लिए आपकी स्ट्रीक सुरक्षित रहेगी।",
+      "freezeModalConfirm": "हाँ, फ्रीज़ करें",
+      "freezeModalCancel": "रद्द करें",
+      "copyStatsAriaLabel": "स्ट्रीक आंकड़े क्लिपबोर्ड पर कॉपी करें",
+      "saveImageButton": "छवि सहेजें",
+      "downloadStatsAriaLabel": "स्ट्रीक आंकड़े छवि के रूप में डाउनलोड करें",
+      "moreInfoAbout": "{label} के बारे में अधिक जानकारी",
+      "prevMonth": "← पिछला",
+      "nextMonth": "अगला →",
+      "prevMonthAriaLabel": "पिछला महीना",
+      "nextMonthAriaLabel": "अगला महीना",
+      "legendCommitted": "कमिट किया गया",
+      "legendFrozen": "फ्रीज़ किया गया",
+      "legendMissed": "छूट गया",
+      "legendFuture": "भविष्य",
+      "calendarFootnote": "फ्रीज़ किए गए दिन ऊपर दिए गए स्ट्रीक फ्रीज़ फ़ीचर के माध्यम से सेट किए जाते हैं।",
+      "statusFrozen": "फ्रीज़ किया गया",
+      "statusCommitted": "कमिट किया गया",
+      "statusMissed": "छूट गया"
+    }
   },
   "auth": {
     "signInFailed": "साइन-इन विफल रहा",
@@ -73,6 +170,227 @@
     "tagline": "अपनी स्ट्रीक, PR गति और कोडिंग प्रगति को ट्रैक करें।",
     "signInWithGitHub": "GitHub के साथ साइन इन करें",
     "licenseLine": "MIT License · सेल्फ-होस्टेबल · हमेशा के लिए मुफ़्त"
+  },
+  "careerIntelligence": {
+    "header": {
+      "title": "बायोडाटा",
+      "description": "अपने GitHub कार्य को किसी पद के अनुरूप ATS-अनुकूल बायोडाटा में बदलें।",
+      "reScan": "GitHub को फिर से स्कैन करें",
+      "reScanTooltip": "विश्लेषण 24 घंटों के लिए कैश किए जाते हैं"
+    },
+    "errors": {
+      "rateLimited": "GitHub की अनुरोध सीमा पूरी हो गई। कुछ मिनटों में पुनः प्रयास करें।",
+      "sessionExpired": "आपका सत्र समाप्त हो गया है। कृपया पुनः साइन इन करें।",
+      "analyzeFailed": "आपकी GitHub गतिविधि का विश्लेषण नहीं किया जा सका।",
+      "pickRoleFirst": "पहले एक लक्षित पद चुनें।",
+      "generateFailed": "बायोडाटा तैयार नहीं किया जा सका।",
+      "exportFailed": "बायोडाटा निर्यात नहीं किया जा सका।",
+      "downloadFailed": "फ़ाइल डाउनलोड करने में विफल।",
+      "copyFailed": "बायोडाटा सामग्री कॉपी करने में विफल।",
+      "copySectionFailed": "अनुभाग कॉपी करने में विफल।"
+    },
+    "steps": {
+      "footprint": "आपका GitHub पदचिह्न",
+      "targetRole": "लक्षित पद",
+      "reviewAndDownload": "समीक्षा करें और डाउनलोड करें"
+    },
+    "analysis": {
+      "fetchingRepos": "आपकी रिपॉजिटरी लाई जा रही हैं…",
+      "readingPrs": "मर्ज किए गए पुल अनुरोध पढ़े जा रहे हैं…",
+      "detectingTech": "भाषाओं और फ्रेमवर्क का पता लगाया जा रहा है…",
+      "scoringDomains": "इंजीनियरिंग डोमेन का स्कोर किया जा रहा है…",
+      "durationHint": "आमतौर पर 20-60 सेकंड, यह इस पर निर्भर करता है कि आपके पास कितनी रिपॉजिटरी हैं।",
+      "promptTitle": "अपनी रिपॉजिटरी और मर्ज किए गए पुल अनुरोधों को स्कैन करें",
+      "promptDescription": "DevTrack आपकी भाषाओं, फ्रेमवर्क और प्रभाव का पता लगाने के लिए 50 रिपॉजिटरी तक पढ़ता है। GitHub पर कुछ भी पोस्ट नहीं किया जाता है।",
+      "analyzeButton": "GitHub गतिविधि का विश्लेषण करें"
+    },
+    "stats": {
+      "prsMerged": "मर्ज किए गए PR",
+      "repositories": "रिपॉजिटरी",
+      "languages": "भाषाएं",
+      "linesAdded": "जोड़ी गई पंक्तियां",
+      "linesRemoved": "हटाई गई पंक्तियां",
+      "reviews": "समीक्षाएं"
+    },
+    "panel": {
+      "engineeringDomains": "इंजीनियरिंग डोमेन",
+      "evidence": "साक्ष्य: {evidence}",
+      "technologyStack": "प्रौद्योगिकी स्टैक",
+      "languages": "भाषाएं",
+      "frameworks": "फ्रेमवर्क और लाइब्रेरी",
+      "tools": "उपकरण और प्लेटफॉर्म",
+      "confidence": {
+        "high": "उच्च",
+        "medium": "मध्यम",
+        "low": "निम्न"
+      },
+      "topRepositories": "शीर्ष रिपॉजिटरी और योगदान",
+      "complexity": "{complexity} जटिलता",
+      "prsMergedBadge": "{count} PR मर्ज किए गए",
+      "noDescription": "कोई विवरण उपलब्ध नहीं है।"
+    },
+    "domains": {
+      "Frontend": "फ़्रंटएंड",
+      "Backend": "बैकएंड",
+      "AI_ML": "AI / ML",
+      "DevOps": "DevOps",
+      "DataScience": "डेटा साइंस",
+      "Security": "सुरक्षा",
+      "Mobile": "मोबाइल",
+      "Systems": "सिस्टम्स",
+      "FullStack": "फुल-स्टैक"
+    },
+    "roles": {
+      "subtitle": "आपके द्वारा चुने गए पद से मेल खाने के लिए शब्दों, कौशल और परियोजनाओं को चुना जाता है।",
+      "generateResume": "बायोडाटा तैयार करें",
+      "writingResume": "आपका बायोडाटा लिखा जा रहा है…",
+      "regenerate": "पुनः उत्पन्न करें",
+      "generatingDraftHint": "आपके वास्तविक योगदान डेटा से प्रत्येक अनुभाग का मसौदा तैयार किया जा रहा है…",
+      "preset": {
+        "machineLearningEngineer": {
+          "title": "मशीन लर्निंग इंजीनियर",
+          "description": "मॉडल, प्रशिक्षण पाइपलाइन, एनएलपी और न्यूरल नेटवर्क एप्लिकेशन बनाएं।"
+        },
+        "frontendDeveloper": {
+          "title": "फ़्रंटएंड डेवलपर",
+          "description": "सुंदर, प्रतिक्रियाशील यूजर इंटरफेस और इंटरैक्टिव वेब ऐप बनाएं।"
+        },
+        "backendDeveloper": {
+          "title": "बैकएंड डेवलपर",
+          "description": "स्केलेबल एपीआई, माइक्रोसर्विस, डेटाबेस और प्रमाणीकरण लेयर्स डिज़ाइन करें।"
+        },
+        "fullStackDeveloper": {
+          "title": "फुल स्टैक डेवलपर",
+          "description": "क्लाइंट-साइड और सर्वर-साइड दोनों इंजीनियरिंग संभालें।"
+        },
+        "devOpsEngineer": {
+          "title": "डेवऑप्स इंजीनियर",
+          "description": "इन्फ्रास्ट्रक्चर, सीआई/सीडी पाइपलाइन, कंटेनरीकरण और क्लाउड प्रबंधित करें।"
+        },
+        "dataAnalyst": {
+          "title": "डेटा विश्लेषक",
+          "description": "इनसाइट्स निकालें, सांख्यिकीय विश्लेषण करें और डैशबोर्ड बनाएं।"
+        }
+      },
+      "custom": {
+        "title": "अन्य पद",
+        "description": "बायोडाटा को उसके अनुरूप बनाने के लिए कोई भी पद नाम टाइप करें।",
+        "placeholder": "उदा. साइट विश्वसनीयता इंजीनियर, एसआरई, डेवलपर एडवोकेट…",
+        "button": "पद का उपयोग करें",
+        "selected": "चयनित: {role}"
+      }
+    },
+    "export": {
+      "downloadPdf": "PDF डाउनलोड करें",
+      "preparingPdf": "PDF तैयार हो रहा है…",
+      "markdown": "मार्कडाउन",
+      "json": "JSON",
+      "copyAsText": "टेक्स्ट के रूप में कॉपी करें",
+      "note": "नीचे किए गए आपके संपादन डाउनलोड में शामिल किए जाएंगे।",
+      "summaryHeading": "सारांश",
+      "skillsHeading": "तकनीकी कौशल",
+      "contributionsHeading": "प्रमुख योगदान",
+      "projectsHeading": "परियोजनाएं"
+    },
+    "preview": {
+      "tailoredTo": "{role} के लिए अनुकूलित",
+      "previewMode": "पूर्वावलोकन मोड",
+      "editContent": "सामग्री संपादित करें",
+      "tabs": {
+        "summary": "व्यावसायिक सारांश",
+        "experience": "अनुभव के मुख्य बिंदु",
+        "projects": "परियोजना की मुख्य बातें",
+        "skills": "कौशल और तकनीक"
+      },
+      "summary": {
+        "title": "व्यावसायिक सारांश",
+        "copyTitle": "अनुभाग कॉपी करें",
+        "ariaLabel": "व्यावसायिक सारांश"
+      },
+      "experience": {
+        "title": "अनुभव के मुख्य बिंदु",
+        "copyTitle": "सभी बिंदु कॉपी करें",
+        "repoAria": "रिपॉजिटरी का नाम",
+        "repoPlaceholder": "रिपॉजिटरी का नाम",
+        "bulletAria": "मुख्य बिंदु का विवरण",
+        "bulletPlaceholder": "मुख्य बिंदु का टेक्स्ट",
+        "generalContribution": "सामान्य योगदान",
+        "aiConfidence": "{confidence}% AI विश्वास",
+        "deleteBullet": "बिंदु हटाएं",
+        "addBullet": "मुख्य बिंदु जोड़ें",
+        "newBulletText": "नया उपलब्धि बिंदु…"
+      },
+      "projects": {
+        "title": "परियोजना की मुख्य बातें",
+        "copyTitle": "सभी परियोजनाएं कॉपी करें",
+        "nameAria": "परियोजना का नाम",
+        "namePlaceholder": "परियोजना का नाम",
+        "urlAria": "रिपॉजिटरी URL",
+        "urlPlaceholder": "रिपॉजिटरी URL",
+        "descAria": "परियोजना का विवरण",
+        "descPlaceholder": "परियोजना का विवरण",
+        "deleteProject": "परियोजना हटाएं",
+        "addProject": "परियोजना जोड़ें",
+        "newProjectName": "नई परियोजना",
+        "newProjectDesc": "परियोजना का विवरण…"
+      },
+      "skills": {
+        "title": "तकनीकी कौशल और श्रेणियां",
+        "copyTitle": "कौशल कॉपी करें",
+        "summaryAria": "सामान्य तकनीकी सारांश",
+        "summaryPlaceholder": "सामान्य तकनीकी सारांश",
+        "categoryAria": "श्रेणी का शीर्षक",
+        "categoryPlaceholder": "श्रेणी का शीर्षक",
+        "itemsAria": "कौशल (अल्पविराम से अलग किए गए)",
+        "itemsPlaceholder": "कौशल (अल्पविराम से अलग किए गए)",
+        "deleteCategory": "श्रेणी हटाएं",
+        "addCategory": "कौशल श्रेणी जोड़ें",
+        "newCategoryTitle": "नई श्रेणी"
+      }
+    }
+  },
+  "repoComparison": {
+    "title": "रिपॉजिटरी तुलना विश्लेषण",
+    "inputPlaceholder": "मालिक/रिपॉजिटरी (उदा. facebook/react)",
+    "inputAria": "मालिक/रिपॉजिटरी प्रारूप में रिपॉजिटरी पहचानकर्ता",
+    "addRepo": "रिपो जोड़ें",
+    "addRepoAria": "तुलना सूची में रिपॉजिटरी जोड़ें",
+    "removeRepoAria": "तुलना से {repo} हटाएं",
+    "compareRepos": "रिपॉजिटरी की तुलना करें",
+    "comparing": "तुलना की जा रही है…",
+    "compareAria": "जोड़ी गई रिपॉजिटरी की तुलना करें",
+    "emptyState": "तुलना करने के लिए 2–5 रिपॉजिटरी जोड़ें",
+    "resultsHeading": "तुलना परिणाम",
+    "chartHeading": "तुलना चार्ट",
+    "chartAria": "रिपॉजिटरी तुलना बार चार्ट",
+    "metrics": {
+      "stars": "⭐ सितारे: {count}",
+      "forks": "🍴 फोर्क्स: {count}",
+      "watchers": "👀 दर्शक: {count}",
+      "issues": "🐛 मुद्दे: {count}"
+    },
+    "chartSeries": {
+      "stars": "सितारे",
+      "forks": "फोर्क्स",
+      "watchers": "दर्शक"
+    },
+    "errors": {
+      "format": "मालिक/रिपॉजिटरी प्रारूप का उपयोग करें, उदाहरण के लिए facebook/react।",
+      "missingOwnerOrRepo": "मालिक और रिपॉजिटरी दोनों का नाम दर्ज करें।",
+      "noSpaces": "रिपॉजिटरी नामों में रिक्त स्थान नहीं हो सकते।",
+      "maxRepos": "आप एक बार में अधिकतम 5 रिपॉजिटरी की तुलना कर सकते हैं।",
+      "minRepos": "तुलना करने के लिए कम से कम 2 रिपॉजिटरी जोड़ें।",
+      "notFound": "वह रिपॉजिटरी GitHub पर मौजूद नहीं है।",
+      "networkCheck": "उस रिपॉजिटरी की जांच के लिए GitHub से संपर्क नहीं हो सका। पुनः प्रयास करें।",
+      "loadData": "रिपॉजिटरी डेटा लोड नहीं किया जा सका। पुनः प्रयास करें।"
+    },
+    "loading": {
+      "label": "रिपॉजिटरी तुलना लोड हो रही है"
+    },
+    "error": {
+      "heading": "कुछ गलत हो गया",
+      "tryAgain": "पुनः प्रयास करें"
+    }
   },
   "settings": {
     "title": "सेटिंग्स",
@@ -116,5 +434,240 @@
     "loadFailed": "GitHub उपलब्धियां अभी लोड नहीं की जा सकीं।",
     "empty": "अभी तक कोई सार्वजनिक GitHub उपलब्धियां उपलब्ध नहीं हैं।",
     "badgeAlt": "{title} GitHub उपलब्धि बैज"
+  },
+  "personality": {
+    "header": {
+      "title": "पर्सनालिटी",
+      "description": "आपका डेवलपर आर्कटाइप, कमिट समय, स्ट्रीक्स, PR आदतों और शीर्ष रिपॉजिटरी से निर्धारित।"
+    },
+    "card": {
+      "badge": "कोड पर्सनालिटी रिपोर्ट",
+      "downloadPng": "PNG के रूप में डाउनलोड करें",
+      "downloadAria": "पर्सनालिटी कार्ड को PNG के रूप में डाउनलोड करें",
+      "generating": "तैयार किया जा रहा है…",
+      "traits": {
+        "workingStyle": "कार्य शैली",
+        "commitPattern": "कमिट पैटर्न",
+        "collaboration": "सहयोग"
+      }
+    },
+    "enums": {
+      "workingStyle": {
+        "Night Owl": "नाईट आउल",
+        "Early Bird": "अर्ली बर्ड",
+        "9-to-5 Developer": "9-से-5 डेवलपर"
+      },
+      "commitPattern": {
+        "Sprinter": "स्प्रिंटर",
+        "Marathoner": "मैराथनर"
+      },
+      "collaborationStyle": {
+        "Solo Coder": "सोलो कोडर",
+        "Team Player": "टीम प्लेयर",
+        "Open Source Hero": "ओपन सोर्स हीरो"
+      }
+    },
+    "radar": {
+      "title": "आपका पर्सनालिटी रडार",
+      "description": "पांच आयामों में आपके लक्षणों की तुलना।",
+      "ariaLabel": "डेवलपर पर्सनालिटी रडार चार्ट",
+      "scoreLabel": "स्कोर",
+      "metrics": {
+        "nightOwl": "नाईट आउल",
+        "sprintEnergy": "स्प्रिंट एनर्जी",
+        "collaboration": "सहयोग",
+        "perfectionism": "परफेक्शनिज़्म",
+        "consistency": "निरंतरता"
+      }
+    },
+    "initial": {
+      "title": "अपने डेवलपर आर्कटाइप की खोज करें",
+      "description": "DevTrack में पहले से ट्रैक किए गए आपके मौजूदा GitHub आंकड़ों का उपयोग करता है — कोई अतिरिक्त सेटअप नहीं, कोई नई अनुमति नहीं।",
+      "generateButton": "मेरी पर्सनालिटी रिपोर्ट जनरेट करें"
+    },
+    "loading": {
+      "title": "आपके कोडिंग पैटर्न का विश्लेषण किया जा रहा है…",
+      "subtitle": "कमिट समय, PR इतिहास और स्ट्रीक्स का विश्लेषण जारी है।"
+    },
+    "ready": {
+      "regenerate": "रिपोर्ट फिर से जनरेट करें",
+      "successToast": "आपकी कोड पर्सनालिटी रिपोर्ट तैयार है!"
+    },
+    "errors": {
+      "errorPrefix": "त्रुटि:",
+      "rateLimitWithRetry": "दर सीमा पार हो गई। {minutes} मिनट में पुनः प्रयास करें।",
+      "rateLimit": "दर सीमा पार हो गई। कृपया बाद में पुन: प्रयास करें।",
+      "generateFailed": "आपकी पर्सनालिटी रिपोर्ट जनरेट करने में विफल"
+    }
+  },
+  "repoHealth": {
+    "explorer": {
+      "backToDashboard": "डैशबोर्ड पर वापस जाएं",
+      "dashboard": "डैशबोर्ड",
+      "title": "रिपॉजिटरी हेल्थ एक्सप्लोरर",
+      "description": "आपकी सबसे सक्रिय रिपॉजिटरी के लिए इंटरैक्टिव स्वास्थ्य विश्लेषण",
+      "analysisWindow": "विश्लेषण विंडो",
+      "windowOptions": {
+        "7": "पिछले 7 दिन",
+        "30": "पिछले 30 दिन",
+        "90": "पिछले 90 दिन"
+      },
+      "refreshAria": "हेल्थ स्कोर रिफ्रेश करें",
+      "refresh": "रिफ्रेश करें",
+      "loadError": "रिपॉजिटरी हेल्थ डेटा लोड करने में असमर्थ। कृपया पुनः प्रयास करें।",
+      "tryAgain": "पुनः प्रयास करें",
+      "repoListAria": "रिपॉजिटरी सूची",
+      "repositories": "रिपॉजिटरी",
+      "noRepos": "इस अवधि के लिए कोई रिपॉजिटरी नहीं मिली। व्यापक विश्लेषण विंडो आज़माएं।",
+      "detailAria": "रिपॉजिटरी हेल्थ विवरण",
+      "selectPromptTitle": "एक रिपॉजिटरी चुनें",
+      "selectPromptDesc": "पूर्ण स्वास्थ्य विश्लेषण और सिफारिशें देखने के लिए बाईं ओर की सूची से एक रिपॉजिटरी चुनें।"
+    },
+    "card": {
+      "selectAria": "{repo} चुनें — हेल्थ स्कोर {score}, {label}",
+      "points": "अंक"
+    },
+    "detail": {
+      "openOnGithub": "GitHub पर {repo} खोलें",
+      "github": "GitHub",
+      "gradeAria": "ग्रेड: {letter}, {label}",
+      "scoreLabel": "स्कोर: {score}/{max}"
+    },
+    "grades": {
+      "green": "स्वस्थ",
+      "yellow": "ध्यान देने योग्य",
+      "red": "जोखिम में"
+    },
+    "gauge": {
+      "ariaLabel": "रिपॉजिटरी हेल्थ स्कोर: {max} में से {score}",
+      "outOf": "{max} में से"
+    },
+    "radar": {
+      "ariaLabel": "हेल्थ स्कोर रडार चार्ट",
+      "title": "आयाम अवलोकन",
+      "description": "दृश्य संतुलन के लिए प्रत्येक अक्ष को 0–100 पर सामान्यीकृत किया गया है।",
+      "scoreLabel": "स्कोर",
+      "metrics": {
+        "commits": "कमिट्स",
+        "prRate": "PR दर",
+        "prSpeed": "PR गति",
+        "issues": "इश्यूज़",
+        "activity": "गतिविधि"
+      }
+    },
+    "breakdown": {
+      "sectionAria": "स्कोर विश्लेषण",
+      "heading": "स्कोर विश्लेषण",
+      "footer": "लक्ष्य सीमा देखने के लिए मीट्रिक नामों पर माउस ले जाएं। कुल वेटेज: 100 अंक।",
+      "measuredValueAria": "मापा गया मान: {value}",
+      "pointsAria": "{max} में से {earned} अंक",
+      "metrics": {
+        "commitFrequency": {
+          "label": "कमिट आवृत्ति",
+          "tip": "लक्ष्य: विश्लेषण विंडो में 10 या अधिक कमिट",
+          "rawSingular": "{count} कमिट",
+          "rawPlural": "{count} कमिट्स"
+        },
+        "prMergeRate": {
+          "label": "PR मर्ज दर",
+          "tip": "लक्ष्य: 100% खोले गए PR मर्ज हुए"
+        },
+        "prTurnaround": {
+          "label": "PR टर्नअराउंड समय",
+          "tip": "लक्ष्य: औसत 24 घंटे से कम",
+          "noPrs": "कोई PR नहीं",
+          "hoursAvg": "{hours}घं औसत"
+        },
+        "openIssues": {
+          "label": "खुले इश्यूज़",
+          "tip": "लक्ष्य: 0 खुले इश्यूज़",
+          "rawSingular": "{count} खुला इश्यू",
+          "rawPlural": "{count} खुले इश्यूज़"
+        },
+        "recentActivity": {
+          "label": "हालिया गतिविधि",
+          "tip": "लक्ष्य: पिछले 7 दिनों के भीतर कमिट",
+          "unknown": "अज्ञात",
+          "today": "आज",
+          "daysAgo": "{days} दिन पहले"
+        }
+      }
+    },
+    "insights": {
+      "heading": "सिफारिशें",
+      "empty": "इस समय कोई सिफारिश नहीं है — सभी मीट्रिक्स अच्छे दिख रहे हैं।",
+      "actionsBadgeSingle": "{count} कार्रवाई",
+      "actionsBadgePlural": "{count} कार्रवाइयां",
+      "rules": {
+        "noCommits": {
+          "title": "कोई हालिया कमिट नहीं",
+          "description": "विश्लेषण विंडो में कोई कमिट नहीं मिला। नियमित कमिट रिपॉजिटरी को सक्रिय और स्कोर को स्वस्थ रखते हैं।"
+        },
+        "lowCommits": {
+          "title": "कम कमिट आवृत्ति",
+          "description": "विश्लेषण विंडो में केवल {count} कमिट। पूर्ण कमिट स्कोर तक पहुंचने के लिए प्रति अवधि 10 या अधिक का लक्ष्य रखें।"
+        },
+        "goodCommits": {
+          "title": "मजबूत कमिट गतिविधि",
+          "description": "विश्लेषण विंडो में {count} कमिट — 10 की स्वस्थ सीमा पर या उससे ऊपर।"
+        },
+        "lowMergeRate": {
+          "title": "कम PR मर्ज दर",
+          "description": "खोले गए केवल {rate}% PR मर्ज किए गए। इस सिग्नल को बेहतर बनाने के लिए पुराने पुल अनुरोधों की समीक्षा करें और बंद करें।"
+        },
+        "goodMergeRate": {
+          "title": "उत्कृष्ट PR मर्ज दर",
+          "description": "खोले गए {rate}% PR मर्ज किए गए — सक्रिय कोड समीक्षा का स्वस्थ संकेतक।"
+        },
+        "slowPrs": {
+          "title": "लंबा PR समीक्षा चक्र",
+          "description": "औसत PR खुला समय {days} दिन है। तेज़ समीक्षाएं एकीकरण जोखिम को कम करती हैं और गति में सुधार करती हैं।"
+        },
+        "moderatePrs": {
+          "title": "PR समीक्षा समय औसत से ऊपर",
+          "description": "औसत PR खुला समय {hours} घंटे है। स्वस्थ समीक्षा चक्र के लिए 48 घंटे से कम का लक्ष्य रखें।"
+        },
+        "fastPrs": {
+          "title": "तेज़ PR टर्नअराउंड",
+          "description": "PR की समीक्षा और समापन औसतन 24 घंटे से कम समय में होता है — उत्कृष्ट समीक्षा गति।"
+        },
+        "highIssues": {
+          "title": "अधिक खुले इश्यूज़",
+          "description": "{count} खुले इश्यूज़ मिले। बैकलॉग दबाव को कम करने के लिए हल किए गए या डुप्लिकेट मुद्दों को छांटें और बंद करें।"
+        },
+        "moderateIssues": {
+          "title": "इश्यू बैकलॉग बढ़ रहा है",
+          "description": "{count} खुले इश्यूज़। पुराने टिकटों के लिए एक ट्राइएज सत्र निर्धारित करने पर विचार करें।"
+        },
+        "noIssues": {
+          "title": "कोई खुला इश्यू नहीं",
+          "description": "इश्यू बैकलॉग साफ है — रिपोर्ट की गई सभी समस्याओं का समाधान कर दिया गया है या बंद कर दिया गया है।"
+        },
+        "noCommitData": {
+          "title": "कमिट इतिहास अनुपलब्ध",
+          "description": "अंतिम कमिट की तारीख निर्धारित नहीं की जा सकी। रिपॉजिटरी एक्सेस अनुमतियों को सत्यापित करें।"
+        },
+        "staleRepo": {
+          "title": "रिपॉजिटरी पुरानी हो सकती है",
+          "description": "अंतिम कमिट {days} दिन पहले था। यदि यह प्रोजेक्ट अभी भी सक्रिय है तो एक अपडेट पुश करें।"
+        },
+        "lowActivity": {
+          "title": "कम हुई हालिया गतिविधि",
+          "description": "अंतिम कमिट {days} दिन पहले था। निरंतर गतिविधि से रेसेंसी स्कोर ऊंचा रहता है।"
+        },
+        "activeRepo": {
+          "title": "सक्रिय रूप से प्रबंधित",
+          "descriptionToday": "अंतिम कमिट आज था — उत्कृष्ट रेसेंसी सिग्नल।",
+          "descriptionDays": "अंतिम कमिट {days} दिन पहले था — उत्कृष्ट रेसेंसी सिग्नल।"
+        }
+      },
+      "metricNames": {
+        "commitFrequency": "कमिट आवृत्ति",
+        "prMergeRate": "PR मर्ज दर",
+        "prTurnaround": "PR टर्नअराउंड",
+        "openIssues": "खुले इश्यूज़",
+        "recentActivity": "हालिया गतिविधि"
+      }
+    }
   }
 }

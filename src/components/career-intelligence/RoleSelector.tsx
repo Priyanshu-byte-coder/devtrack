@@ -11,6 +11,7 @@ import {
   BarChart3,
   Plus,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { TargetRole } from "@/types/cv-types";
 
@@ -18,6 +19,13 @@ interface RoleCard {
   role: TargetRole;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
+  key:
+    | "machineLearningEngineer"
+    | "frontendDeveloper"
+    | "backendDeveloper"
+    | "fullStackDeveloper"
+    | "devOpsEngineer"
+    | "dataAnalyst";
 }
 
 const PRESET_ROLES: RoleCard[] = [
@@ -26,35 +34,41 @@ const PRESET_ROLES: RoleCard[] = [
     description:
       "Build models, training pipelines, NLP, and neural network applications.",
     icon: Brain,
+    key: "machineLearningEngineer",
   },
   {
     role: "Frontend Developer",
     description:
       "Create beautiful, responsive user interfaces and interactive web apps.",
     icon: Layout,
+    key: "frontendDeveloper",
   },
   {
     role: "Backend Developer",
     description:
       "Design scalable APIs, microservices, databases, and auth layers.",
     icon: Server,
+    key: "backendDeveloper",
   },
   {
     role: "Full Stack Developer",
     description: "Handle both client-side and server-side engineering.",
     icon: Layers,
+    key: "fullStackDeveloper",
   },
   {
     role: "DevOps Engineer",
     description:
       "Manage infrastructure, CI/CD pipelines, containerization, and cloud.",
     icon: Settings,
+    key: "devOpsEngineer",
   },
   {
     role: "Data Analyst",
     description:
       "Extract insights, perform statistical analysis, and build dashboards.",
     icon: BarChart3,
+    key: "dataAnalyst",
   },
 ];
 
@@ -69,8 +83,9 @@ export default function RoleSelector({
   onRoleSelect,
   disabled = false,
 }: RoleSelectorProps) {
+  const t = useTranslations("careerIntelligence");
   const [customRoleText, setCustomRoleText] = useState("");
-  const [isCustomSelected, setIsCustomSelected] = useState(false);
+  const [_isCustomSelected, setIsCustomSelected] = useState(false);
 
   const isPreset = (role: TargetRole | null): boolean => {
     if (!role) return false;
@@ -121,10 +136,10 @@ export default function RoleSelector({
               </div>
               <div className="min-w-0 space-y-0.5">
                 <h4 className="text-sm font-medium text-[var(--foreground)]">
-                  {preset.role}
+                  {t(`roles.preset.${preset.key}.title`)}
                 </h4>
                 <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-                  {preset.description}
+                  {t(`roles.preset.${preset.key}.description`)}
                 </p>
               </div>
             </button>
@@ -154,10 +169,10 @@ export default function RoleSelector({
           </div>
           <div>
             <h4 className="text-sm font-medium text-[var(--foreground)]">
-              Another role
+              {t("roles.custom.title")}
             </h4>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Type any job title to tailor the resume to it.
+              {t("roles.custom.description")}
             </p>
           </div>
         </div>
@@ -168,7 +183,7 @@ export default function RoleSelector({
             disabled={disabled}
             value={customRoleText}
             onChange={(e) => setCustomRoleText(e.target.value)}
-            placeholder="e.g. Site Reliability Engineer, SRE, Developer Advocate…"
+            placeholder={t("roles.custom.placeholder")}
             className="flex h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-sm text-[var(--foreground)] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
           />
           <button
@@ -176,13 +191,13 @@ export default function RoleSelector({
             disabled={disabled || !customRoleText.trim()}
             className={buttonVariants({ variant: "outline" })}
           >
-            Use role
+            {t("roles.custom.button")}
           </button>
         </form>
 
         {!isPreset(selectedRole) && selectedRole && (
           <div className="mt-3 text-xs text-[var(--accent)] font-medium">
-            Selected: {selectedRole}
+            {t("roles.custom.selected", { role: selectedRole })}
           </div>
         )}
       </div>

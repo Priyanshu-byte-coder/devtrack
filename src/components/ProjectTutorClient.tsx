@@ -21,9 +21,9 @@ const TABS: { id: Tab; label: string; icon: typeof FileText }[] = [
 ];
 
 const LEVELS: { id: keyof Questions; label: string; dot: string }[] = [
-  { id: "easy", label: "Warm-up", dot: "bg-emerald-500" },
-  { id: "medium", label: "Core", dot: "bg-amber-500" },
-  { id: "advanced", label: "Deep dive", dot: "bg-rose-500" },
+  { id: "easy", label: "Warm-up", dot: "bg-success" },
+  { id: "medium", label: "Core", dot: "bg-warning" },
+  { id: "advanced", label: "Deep dive", dot: "bg-destructive" },
 ];
 
 async function postTutor(body: Record<string, string>) {
