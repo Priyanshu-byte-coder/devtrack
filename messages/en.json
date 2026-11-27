@@ -435,239 +435,172 @@
     "empty": "No public GitHub achievements available yet.",
     "badgeAlt": "{title} GitHub achievement badge"
   },
-  "personality": {
-    "header": {
-      "title": "Personality",
-      "description": "Your developer archetype, read from commit times, streaks, PR habits and top repos."
+  "goals": {
+    "pageTitle": "Goals",
+    "pageDescription": "What you are aiming for, and how far along you are.",
+    "sections": {
+      "questLog": "Quest log",
+      "goals": "Goals",
+      "milestonesAndAchievements": "Milestones & achievements"
     },
-    "card": {
-      "badge": "Code Personality Report",
-      "downloadPng": "Download as PNG",
-      "downloadAria": "Download personality card as PNG",
-      "generating": "Generating…",
-      "traits": {
-        "workingStyle": "Working Style",
-        "commitPattern": "Commit Pattern",
-        "collaboration": "Collaboration"
-      }
+    "a11y": {
+      "summary": "{activeCount, plural, one {# active goal} other {# active goals}}. {completedCount, plural, one {# completed} other {# completed}}.",
+      "goalLabel": "Goal: {title}. {current} of {target} {unit}. {status}",
+      "inProgress": "In progress",
+      "goalProgress": "Goal progress: {current} of {target} {unit}",
+      "makePublicAria": "Make \"{title}\" public",
+      "deleteGoalAria": "Delete goal: {title}",
+      "incrementProgressAria": "Increment \"{title}\" progress by 1",
+      "filterByCategory": "Filter goals by category",
+      "filterByStatus": "Filter goals by status",
+      "searchGoalsAria": "Search goals",
+      "clearSearchAria": "Clear search",
+      "dismissErrorAria": "Dismiss error",
+      "dismissShareErrorAria": "Dismiss sharing error"
     },
-    "enums": {
-      "workingStyle": {
-        "Night Owl": "Night Owl",
-        "Early Bird": "Early Bird",
-        "9-to-5 Developer": "9-to-5 Developer"
-      },
-      "commitPattern": {
-        "Sprinter": "Sprinter",
-        "Marathoner": "Marathoner"
-      },
-      "collaborationStyle": {
-        "Solo Coder": "Solo Coder",
-        "Team Player": "Team Player",
-        "Open Source Hero": "Open Source Hero"
-      }
-    },
-    "radar": {
-      "title": "Your Personality Radar",
-      "description": "How your traits compare across five dimensions.",
-      "ariaLabel": "Developer personality radar chart",
-      "scoreLabel": "Score",
-      "metrics": {
-        "nightOwl": "Night Owl",
-        "sprintEnergy": "Sprint Energy",
-        "collaboration": "Collaboration",
-        "perfectionism": "Perfectionism",
-        "consistency": "Consistency"
-      }
-    },
-    "initial": {
-      "title": "Discover Your Developer Archetype",
-      "description": "Uses your existing GitHub stats already tracked in DevTrack — no extra setup, no new permissions.",
-      "generateButton": "Generate My Personality Report"
-    },
-    "loading": {
-      "title": "Analyzing your coding patterns…",
-      "subtitle": "Crunching commit times, PR history, and streaks."
-    },
-    "ready": {
-      "regenerate": "Regenerate report",
-      "successToast": "Your code personality report is ready!"
-    },
-    "errors": {
-      "errorPrefix": "Error:",
-      "rateLimitWithRetry": "Rate limit reached. Try again in {minutes} min.",
-      "rateLimit": "Rate limit reached. Try again later.",
-      "generateFailed": "Failed to generate your personality report"
-    }
-  },
-  "repoHealth": {
-    "explorer": {
-      "backToDashboard": "Back to dashboard",
-      "dashboard": "Dashboard",
-      "title": "Repository Health Explorer",
-      "description": "Interactive health breakdown for your most active repositories",
-      "analysisWindow": "Analysis window",
-      "windowOptions": {
-        "7": "Last 7 days",
-        "30": "Last 30 days",
-        "90": "Last 90 days"
-      },
-      "refreshAria": "Refresh health scores",
+    "actions": {
       "refresh": "Refresh",
-      "loadError": "Unable to load repository health data. Please try again.",
-      "tryAgain": "Try again",
-      "repoListAria": "Repository list",
-      "repositories": "Repositories",
-      "noRepos": "No repositories found for this period. Try a wider analysis window.",
-      "detailAria": "Repository health detail",
-      "selectPromptTitle": "Select a repository",
-      "selectPromptDesc": "Choose a repository from the list on the left to see its full health breakdown and recommendations."
+      "syncing": "Syncing…",
+      "refreshCommitGoalsAria": "Refresh commit goals",
+      "refreshCommitGoalsTitle": "Refresh commit-based goals from GitHub",
+      "createGoal": "Create goal",
+      "creatingGoal": "Creating Goal…",
+      "deleteGoal": "Delete goal",
+      "permanentlyDelete": "Permanently Delete",
+      "deleting": "Deleting…",
+      "keepGoal": "Keep Goal",
+      "copyShareLink": "Copy share link",
+      "retry": "Retry",
+      "all": "All",
+      "active": "Active",
+      "completed": "Completed",
+      "public": "Public",
+      "cancel": "Cancel",
+      "addMilestone": "Add milestone",
+      "saving": "Saving…"
     },
-    "card": {
-      "selectAria": "Select {repo} — health score {score}, {label}",
-      "points": "pts"
+    "categories": {
+      "sideProject": "Side Project",
+      "work": "Work",
+      "dsa": "DSA",
+      "openSource": "Open Source",
+      "noCategory": "No category",
+      "categoryLabel": "Category (Optional)"
     },
-    "detail": {
-      "openOnGithub": "Open {repo} on GitHub",
-      "github": "GitHub",
-      "gradeAria": "Grade: {letter}, {label}",
-      "scoreLabel": "Score: {score}/{max}"
+    "recurrence": {
+      "recurrenceLabel": "Recurrence",
+      "none": "One-time",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "resetsWeekly": "Resets every Monday.",
+      "resetsMonthly": "Resets on the 1st of each month."
     },
-    "grades": {
-      "green": "Healthy",
-      "yellow": "Needs Attention",
-      "red": "At Risk"
+    "units": {
+      "commits": "Commits ⚡",
+      "prs": "PRs ⚡",
+      "hours": "Hours",
+      "streak": "Streak (days)",
+      "language": "Lines of Code"
     },
-    "gauge": {
-      "ariaLabel": "Repository health score: {score} out of {max}",
-      "outOf": "out of {max}"
+    "status": {
+      "questComplete": "★ Quest complete",
+      "goalSurpassed": "Goal surpassed! 🎯",
+      "completedThisWeek": "Completed this week ✓",
+      "completedThisMonth": "Completed this month ✓",
+      "completed": "Completed ✓",
+      "overdue": "Overdue ⚠️",
+      "dueToday": "Due today ⏳",
+      "daysLeft": "{days}d left",
+      "autoSyncedBadge": "Auto-synced",
+      "lastSynced": "Last synced: {time}",
+      "autoSyncedTooltip": "Auto-synced from GitHub commits",
+      "weekLabel": "Week: {start} – {end}",
+      "lastPeriod": "Last period: {symbol} {achieved}/{target} {unit}",
+      "missedWithStats": "Missed ({achieved}/{target})",
+      "missed": "Missed"
     },
-    "radar": {
-      "ariaLabel": "Health score radar chart",
-      "title": "Dimension Overview",
-      "description": "Each axis is normalised to 0–100 for visual balance.",
-      "scoreLabel": "Score",
-      "metrics": {
-        "commits": "Commits",
-        "prRate": "PR Rate",
-        "prSpeed": "PR Speed",
-        "issues": "Issues",
-        "activity": "Activity"
-      }
+    "form": {
+      "goalTitleLabel": "Goal title",
+      "goalTitlePlaceholder": "Make 10 commits",
+      "targetLabel": "Target",
+      "unitLabel": "Unit",
+      "deadlineLabel": "Deadline (Optional)",
+      "autoUpdateNotice": "⚡ This goal will auto-update from your GitHub activity.",
+      "shareThisGoalTitle": "Share this goal",
+      "shareThisGoalDesc": "Make this goal visible on a public share page."
     },
-    "breakdown": {
-      "sectionAria": "Score breakdown",
-      "heading": "Score Breakdown",
-      "footer": "Hover metric names for target thresholds. Total weight: 100 pts.",
-      "measuredValueAria": "Measured value: {value}",
-      "pointsAria": "{earned} of {max} points",
-      "metrics": {
-        "commitFrequency": {
-          "label": "Commit Frequency",
-          "tip": "Target: 10 or more commits in the analysis window",
-          "rawSingular": "{count} commit",
-          "rawPlural": "{count} commits"
-        },
-        "prMergeRate": {
-          "label": "PR Merge Rate",
-          "tip": "Target: 100% of opened PRs merged"
-        },
-        "prTurnaround": {
-          "label": "PR Turnaround",
-          "tip": "Target: under 24 hours average",
-          "noPrs": "No PRs",
-          "hoursAvg": "{hours}h avg"
-        },
-        "openIssues": {
-          "label": "Open Issues",
-          "tip": "Target: 0 open issues",
-          "rawSingular": "{count} open issue",
-          "rawPlural": "{count} open issues"
-        },
-        "recentActivity": {
-          "label": "Recent Activity",
-          "tip": "Target: commit within the last 7 days",
-          "unknown": "Unknown",
-          "today": "Today",
-          "daysAgo": "{days}d ago"
-        }
-      }
+    "empty": {
+      "noGoalsYet": "No goals yet. Set your first one below and it will update from your GitHub activity.",
+      "noGoalsMatchSearch": "No goals match your search",
+      "searchPlaceholder": "Search goals…",
+      "loadingWeeklyGoals": "weekly goals"
     },
-    "insights": {
-      "heading": "Recommendations",
-      "empty": "No recommendations at this time — all metrics look good.",
-      "actionsBadgeSingle": "{count} action",
-      "actionsBadgePlural": "{count} actions",
-      "rules": {
-        "noCommits": {
-          "title": "No recent commits",
-          "description": "No commits were detected in the analysis window. Regular commits keep the repository active and the score healthy."
-        },
-        "lowCommits": {
-          "title": "Low commit frequency",
-          "description": "Only {count} commit(s) in the analysis window. Aim for 10 or more per period to reach a full commit score."
-        },
-        "goodCommits": {
-          "title": "Strong commit activity",
-          "description": "{count} commits in the analysis window — at or above the healthy threshold of 10."
-        },
-        "lowMergeRate": {
-          "title": "Low PR merge rate",
-          "description": "Only {rate}% of opened PRs were merged. Review and close stale pull requests to improve this signal."
-        },
-        "goodMergeRate": {
-          "title": "Excellent PR merge rate",
-          "description": "{rate}% of opened PRs were merged — healthy indicator of active code review."
-        },
-        "slowPrs": {
-          "title": "Long PR review cycle",
-          "description": "Average PR open time is {days} day(s). Faster reviews reduce integration risk and improve velocity."
-        },
-        "moderatePrs": {
-          "title": "PR review time above average",
-          "description": "Average PR open time is {hours}h. Target under 48 hours for a healthy review cycle."
-        },
-        "fastPrs": {
-          "title": "Fast PR turnaround",
-          "description": "PRs are reviewed and closed in under 24 hours on average — excellent review velocity."
-        },
-        "highIssues": {
-          "title": "High open issue count",
-          "description": "{count} open issues detected. Triage and close resolved or duplicate issues to reduce backlog pressure."
-        },
-        "moderateIssues": {
-          "title": "Issue backlog growing",
-          "description": "{count} open issues. Consider scheduling a triage session for older tickets."
-        },
-        "noIssues": {
-          "title": "No open issues",
-          "description": "Issue backlog is clear — all reported problems have been addressed or closed."
-        },
-        "noCommitData": {
-          "title": "Commit history unavailable",
-          "description": "Could not determine the date of the last commit. Verify repository access permissions."
-        },
-        "staleRepo": {
-          "title": "Repository may be stale",
-          "description": "The last commit was {days} days ago. Push an update if this project is still active."
-        },
-        "lowActivity": {
-          "title": "Reduced recent activity",
-          "description": "Last commit was {days} days ago. Consistent activity keeps the recency score high."
-        },
-        "activeRepo": {
-          "title": "Actively maintained",
-          "descriptionToday": "Last commit was today — excellent recency signal.",
-          "descriptionDays": "Last commit was {days} day(s) ago — excellent recency signal."
-        }
-      },
-      "metricNames": {
-        "commitFrequency": "Commit Frequency",
-        "prMergeRate": "PR Merge Rate",
-        "prTurnaround": "PR Turnaround",
-        "openIssues": "Open Issues",
-        "recentActivity": "Recent Activity"
-      }
+    "messages": {
+      "targetGreaterThanZero": "Target must be greater than 0.",
+      "failedToLoadGoals": "Failed to load goals (HTTP {status})",
+      "failedToLoadGoalsGeneric": "Failed to load goals. Please try again.",
+      "failedToSyncGoals": "Failed to sync goals. Please try again.",
+      "failedToRefreshGoals": "Failed to refresh goals after creation.",
+      "failedToCreateGoal": "Failed to create goal. Please try again.",
+      "failedToDeleteGoal": "Failed to delete goal. Please try again.",
+      "failedToDeleteGoalConnection": "Failed to delete goal. Please check your connection.",
+      "networkErrorSync": "Network error. Failed to sync goals.",
+      "rateLimitReached": "GitHub rate limit reached. Please try again later.",
+      "unauthorized": "Unauthorized. Please log in again.",
+      "tokenExpired": "GitHub sync failed: Expired token or missing repo scope.",
+      "syncFailedGeneric": "Sync failed. Please try again.",
+      "updateSharingFailed": "Failed to update goal sharing. Please try again.",
+      "updateSharingConnection": "Failed to update goal sharing. Please check your connection.",
+      "unableToBuildShareLink": "Unable to build share link for this account.",
+      "copyShareLinkFailed": "Failed to copy share link. Please copy it manually.",
+      "updatedJustNow": "Updated just now",
+      "updatedMinAgo": "Updated {minutes} min ago",
+      "deleteConfirmTitle": "Delete Tracking Goal",
+      "deleteConfirmMessage": "Are you sure you want to permanently remove your \"{title}\" goal? This will erase all gathered progress history numbers parameters."
+    },
+    "history": {
+      "title": "Past Goals",
+      "loading": "Loading goal history",
+      "failedToLoad": "Failed to load goal history.",
+      "networkError": "Network error. Could not load goal history.",
+      "empty": "No past goals yet. Completed or expired recurring goals will appear here.",
+      "ariaLabel": "Past goals",
+      "weekOf": "Week of {date}"
+    },
+    "milestones": {
+      "title": "Milestone Planner",
+      "completed": "Completed",
+      "onTrack": "On track",
+      "atRisk": "At risk",
+      "behind": "Behind",
+      "loading": "Loading milestones…",
+      "empty": "No milestones yet. Set a big target and track the climb.",
+      "addMilestoneBtn": "Add milestone",
+      "formTitle": "Title *",
+      "formTitlePlaceholder": "e.g. Reach 500 commits",
+      "formCategory": "Category",
+      "formTargetDate": "Target date *",
+      "formTargetValue": "Target value *",
+      "formCurrentValue": "Current value",
+      "categoryCommits": "Commits",
+      "categoryStreak": "Streak Days",
+      "categoryProjects": "Projects",
+      "categoryCustom": "Custom",
+      "unitsFallback": "units",
+      "dueLabel": "Due {date}",
+      "forecastLabel": "Forecast: {date}",
+      "completePct": "{pct}% complete",
+      "createdLabel": "Created: {date}",
+      "achievedBadge": "★ Milestone achieved",
+      "addOneAria": "Add 1 to {title}",
+      "showDetailsAria": "Show details for {title}",
+      "hideDetailsAria": "Hide details for {title}",
+      "duplicateAria": "Duplicate {title}",
+      "duplicateTitle": "Duplicate milestone",
+      "deleteAria": "Delete {title}",
+      "copySuffix": "(Copy)",
+      "failedToCreate": "Failed to create milestone.",
+      "networkError": "Network error. Please try again."
     }
   },
   "projectTutor": {
