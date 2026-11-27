@@ -1,0 +1,23 @@
+# Netlify build settings. Netlify detects Next.js and adds its Next.js
+# runtime (SSR, route handlers, proxy, image CDN) on its own.
+#
+# Deploys are manual, like on Vercel: every production deploy costs credits
+# and empties the CDN, so merges are batched and shipped together.
+# Scheduled jobs are not defined here: GitHub Actions calls the cron routes
+# on the production domain (see .github/workflows/hourly-jobs.yml).
+#
+# Production environment variables (set in the Netlify UI, not here):
+# everything in .env.example's production list, plus
+#   TRUSTED_PROXY=netlify          real visitor IPs for rate limiting
+#   PUBLIC_PAGE_CACHE=on           CDN caching of signed-out public pages
+#   PUBLIC_PAGE_RENDER_HOST=devtrack-984.netlify.app
+#                                  render those pages from this site, not
+#                                  devtrack.live (drop it once the domain moves)
+#   NEXT_PUBLIC_HOSTED_ON=netlify  "powered by Netlify" footer link
+
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

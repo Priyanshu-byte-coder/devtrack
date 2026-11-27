@@ -1,13 +1,15 @@
 "use client";
+
+import { useTranslations } from "next-intl";
+
 type Props = {
   streak: number;
   onDismiss?: () => void;
 };
 
-export default function StreakMilestoneBanner({
-  streak,
-  onDismiss,
-}: Props) {
+export default function StreakMilestoneBanner({ streak, onDismiss }: Props) {
+  const t = useTranslations("activity.streakMilestone");
+
   return (
     <div
       role="status"
@@ -18,14 +20,12 @@ export default function StreakMilestoneBanner({
         color: "var(--accent-foreground)",
       }}
     >
-      <div>
-        🎉 You reached a {streak}-day streak! Keep it up!
-      </div>
+      <div>{t("celebration", { streak })}</div>
 
       <button
         type="button"
         onClick={() => onDismiss?.()}
-        aria-label="Dismiss milestone banner"
+        aria-label={t("dismiss")}
         className="ml-4 rounded-md p-1 opacity-70 hover:opacity-100 transition-opacity"
       >
         ✕
@@ -33,4 +33,3 @@ export default function StreakMilestoneBanner({
     </div>
   );
 }
-

@@ -32,6 +32,62 @@
     "signOutCta": "Sair",
     "openDashboard": "Abrir painel",
     "compare": "Comparar",
+    "dashboard": "Painel",
+    "sections": {
+      "play": "Jogar",
+      "stats": "Estatísticas",
+      "powerUps": "Poderes",
+      "options": "Opções"
+    },
+    "items": {
+      "hq": "QG",
+      "leaderboard": "Classificação",
+      "duel": "Desafiar um amigo",
+      "topDevs": "Top devs",
+      "yearInCode": "Ano em código",
+      "activity": "Atividade",
+      "pullRequests": "Pull requests",
+      "repositories": "Repositórios",
+      "goals": "Metas",
+      "careerIntelligence": "Currículo com IA",
+      "personality": "Personalidade",
+      "projectTutor": "Tutor de projeto",
+      "settings": "Configurações"
+    },
+    "tabs": {
+      "hq": "QG",
+      "board": "Quadro",
+      "duel": "Duelo",
+      "goals": "Metas",
+      "menu": "Menu",
+      "openMenuAria": "Abrir menu completo",
+      "quickNavAria": "Navegação rápida"
+    },
+    "playerChip": {
+      "player1": "Jogador 1",
+      "viewCard": "Ver seu cartão de jogador",
+      "goPublic": "Torne-se público para ter um cartão"
+    },
+    "lookup": {
+      "aria": "Buscar um desenvolvedor",
+      "srLabel": "Nome de usuário do GitHub para buscar",
+      "placeholder": "Buscar dev",
+      "submitAria": "Buscar",
+      "invalid": "Esse não é um usuário válido do GitHub."
+    },
+    "accountMenu": {
+      "aria": "Menu da conta",
+      "defaultName": "Conta",
+      "publicProfile": "Perfil público",
+      "settings": "Configurações",
+      "signOut": "Sair"
+    },
+    "shell": {
+      "featuredAria": "Destaque",
+      "navigationDialogAria": "Navegação",
+      "closeNavAria": "Fechar navegação",
+      "openNavAria": "Abrir navegação"
+    },
     "notifications": {
       "title": "Notificações",
       "bellAria": "Notificações",
@@ -738,6 +794,247 @@
       "repoUrlRequired": "URL do repositório obrigatória",
       "invalidGithubUrl": "URL do GitHub inválida",
       "somethingWentWrong": "Algo deu errado"
+    }
+  },
+  "activity": {
+    "title": "Atividade",
+    "description": "Com que frequência, com que consistência e quando você programa.",
+    "sections": {
+      "contributions": "Contribuições",
+      "streaksAndConsistency": "Sequências e consistência",
+      "whenYouCode": "Quando você programa"
+    },
+    "widgets": {
+      "contributionHeatmap": {
+        "regionTitle": "Mapa de calor de contribuições"
+      },
+      "weeklySummary": {
+        "regionTitle": "Resumo semanal"
+      },
+      "streakTracker": {
+        "regionTitle": "Rastreador de sequência"
+      },
+      "consistencyScore": {
+        "regionTitle": "Pontuação de consistência"
+      },
+      "codingActivityInsights": {
+        "regionTitle": "Insights de atividade de código"
+      },
+      "productiveHours": {
+        "regionTitle": "Horas produtivas"
+      }
+    },
+    "contributionHeatmap": {
+      "title": "Mapa de calor de contribuições",
+      "subtitle": "Últimos {days} dias de atividade de commits.",
+      "rangeGroupAria": "Intervalo",
+      "showRangeAria": "Mostrar intervalo de {days} dias",
+      "customButton": "Personalizado…",
+      "customPopoverTitle": "Intervalo personalizado",
+      "startDate": "Data de início",
+      "endDate": "Data de término",
+      "apply": "Aplicar",
+      "errors": {
+        "selectBoth": "Por favor, selecione ambas as datas.",
+        "startBeforeEnd": "A data de início deve ser anterior à data de término.",
+        "futureDate": "A data de término não pode ser no futuro.",
+        "maxRange": "O intervalo máximo é de 2 anos."
+      },
+      "themeDefault": "Padrão",
+      "themeColourBlind": "Acessível para daltônicos",
+      "themeCustom": "Tema",
+      "filterLabel": "Filtro:",
+      "filterRepoAria": "Filtrar por repositório",
+      "filterLangAria": "Filtrar por linguagem",
+      "allRepos": "Todos os repositórios",
+      "allLangs": "Todas as linguagens",
+      "legendLess": "Menos",
+      "legendMore": "Mais",
+      "commitsSummary": "Mapa de calor de contribuições mostrando {commits} em {days} dias.",
+      "commitsShown": "{commits} commits mostrados em {days} dias.",
+      "updatedJustNow": "Atualizado agora mesmo",
+      "updatedMinAgo": "Atualizado há {minutes} min",
+      "refreshPrompt": "Por favor, tente atualizar a página.",
+      "errorLoading": "Falha ao carregar o mapa de calor de contribuições.",
+      "futureDateAria": "Data futura em {date}",
+      "cellAria": "{commits} em {date}",
+      "days": {
+        "sun": "Dom",
+        "mon": "Seg",
+        "tue": "Ter",
+        "wed": "Qua",
+        "thu": "Qui",
+        "fri": "Sex",
+        "sat": "Sáb"
+      },
+      "insights": {
+        "title": "Insights de contribuição",
+        "panelAria": "Painel de insights de contribuição",
+        "noData": "Nenhum dado de contribuição disponível para este intervalo.",
+        "mostProductiveDay": "Dia mais produtivo",
+        "mostProductiveDayDesc": "Dia com maior média de commits",
+        "avgWeekly": "Média de contribuições semanais",
+        "avgWeeklyDesc": "Commits por período de 7 dias",
+        "longestStreak": "Maior sequência",
+        "longestStreakDesc": "Máximo de dias ativos consecutivos",
+        "longestInactive": "Maior período inativo",
+        "longestInactiveDesc": "Máximo de dias consecutivos sem commits",
+        "monthlyTrend": "Tendência mensal",
+        "monthlyTrendDesc": "Mês recente comparado ao mês anterior",
+        "bestMonth": "Melhor mês",
+        "bestMonthDesc": "Maior total ({commits} commits)",
+        "trendIncreasing": "Crescente",
+        "trendDecreasing": "Decrescente",
+        "trendStable": "Estável",
+        "dayUnit": "dia",
+        "daysUnit": "dias"
+      }
+    },
+    "dailyBreakdown": {
+      "title": "Detalhamento diário",
+      "ariaLabel": "Detalhamento diário para {date}",
+      "closePanel": "Fechar painel",
+      "empty": "Nenhum dado de commit disponível para este dia.",
+      "commitCount": "{count} commit",
+      "commitsCount": "{count} commits"
+    },
+    "weeklySummary": {
+      "title": "Esta semana",
+      "summarise": "Resumir",
+      "generateAria": "Gerar resumo com IA",
+      "downloadAria": "Baixar relatório semanal",
+      "expandAria": "Expandir resumo semanal",
+      "collapseAria": "Recolher resumo semanal",
+      "loadingAria": "Carregando resumo semanal",
+      "reconnectMessage": "Sua conexão com o GitHub não é mais válida. Reconecte sua conta do GitHub para continuar sincronizando dados.",
+      "reconnectButton": "Reconectar GitHub",
+      "errorMessage": "Não foi possível carregar seu resumo semanal no momento. Tente novamente em instantes.",
+      "generatingSummary": "Gerando resumo…",
+      "copyFailed": "Falha ao copiar o resumo.",
+      "aiSummaryHeading": "Resumo de IA",
+      "copyAria": "Copiar resumo de IA para a área de transferência",
+      "copyLabel": "Copiar",
+      "rateLimitHours": "Resumo já gerado hoje. Próximo disponível em {hours}h {minutes}m.",
+      "rateLimitMinutes": "Resumo já gerado hoje. Próximo disponível em {minutes}m.",
+      "commits": "Commits",
+      "prsMerged": "PRs mesclados",
+      "issuesResolved": "Problemas resolvidos",
+      "activeDays": "Dias ativos",
+      "lastWeek": "Semana passada",
+      "thisWeek": "Esta semana",
+      "productivityScore": "Pontuação de produtividade",
+      "vsLastWeek": "em relação à semana passada",
+      "streak": "Sequência",
+      "dayStreak": "Sequência de {count} dias",
+      "topRepo": "Repositório principal"
+    },
+    "consistencyScore": {
+      "title": "Pontuação de consistência",
+      "loadingAria": "Carregando pontuação de consistência",
+      "errorMessage": "Não foi possível carregar sua pontuação de consistência no momento. Tente novamente em instantes.",
+      "tryAgain": "Tentar novamente",
+      "empty": "Nenhuma atividade de contribuição disponível.",
+      "weeklyConsistency": "Consistência semanal",
+      "streakQuality": "Qualidade da sequência",
+      "longestGap": "Maior intervalo",
+      "recentActivity": "Atividade recente",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "days": "{count} dias",
+      "activeDays": "Dias ativos"
+    },
+    "productiveHours": {
+      "title": "Horas mais produtivas",
+      "aboutChart": "Sobre este gráfico",
+      "chartDescription": "Mostra sua média de commits por hora e dia da semana no intervalo de datas selecionado, ajustado ao seu fuso horário local.",
+      "subtitle": "Últimos {days} dias — atividade de commits por hora e dia",
+      "rangeGroupAria": "Intervalo",
+      "showRangeAria": "Mostrar intervalo de {days} dias",
+      "customButton": "Personalizado…",
+      "customPopoverTitle": "Intervalo personalizado",
+      "startDate": "Data de início",
+      "endDate": "Data de término",
+      "apply": "Aplicar",
+      "errors": {
+        "selectBoth": "Por favor, selecione ambas as datas.",
+        "startBeforeEnd": "A data de início deve ser anterior à data de término.",
+        "futureDate": "A data de término não pode ser no futuro.",
+        "maxRange": "O intervalo máximo é de 2 anos."
+      },
+      "themeDefault": "Padrão",
+      "themeColourBlind": "Acessível para daltônicos",
+      "themeCustom": "Tema",
+      "legendLess": "Menos",
+      "legendMore": "Mais",
+      "errorLoading": "Falha ao carregar dados de horas produtivas.",
+      "refreshPrompt": "Por favor, tente atualizar a página.",
+      "commitsAnalysed": "{total} commits analisados.",
+      "peakBanner": "🔥 Pico: {day} {hour} — média {avg} commits",
+      "updatedJustNow": "Atualizado agora mesmo",
+      "updatedMinAgo": "Atualizado há {minutes} min",
+      "tooltip": "{day} {hour} — média {avg} {unit}",
+      "commitUnit": "commit",
+      "commitsUnit": "commits",
+      "days": {
+        "Sun": "Dom",
+        "Mon": "Seg",
+        "Tue": "Ter",
+        "Wed": "Qua",
+        "Thu": "Qui",
+        "Fri": "Sex",
+        "Sat": "Sáb"
+      },
+      "daysFull": {
+        "Sunday": "Domingo",
+        "Monday": "Segunda-feira",
+        "Tuesday": "Terça-feira",
+        "Wednesday": "Quarta-feira",
+        "Thursday": "Quinta-feira",
+        "Friday": "Sexta-feira",
+        "Saturday": "Sábado"
+      }
+    },
+    "codingActivityInsights": {
+      "title": "Insights de atividade de código",
+      "refresh": "Atualizar",
+      "refreshing": "Atualizando",
+      "refreshAria": "Atualizar insights de atividade de código",
+      "loadingAria": "Carregando insights de atividade de código",
+      "error": "Não foi possível carregar seus insights de produtividade de IA no momento. Tente novamente em instantes.",
+      "tryAgain": "Tentar novamente",
+      "emptyState": "Atividade de programação insuficiente detectada para gerar insights de produtividade com IA.",
+      "lastDays": "Últimos {days} dias",
+      "commitsByHour": "Commits por hora",
+      "localTimezone": "Fuso horário local",
+      "mostActive": "Mais ativo",
+      "leastActive": "Menos ativo",
+      "consistency": "Consistência",
+      "weeklyConsistency": "{score}% de consistência semanal",
+      "productivity": "Produtividade",
+      "dailyAverage": "Média diária",
+      "commitsPerDay": "{count} commits/dia",
+      "bestDay": "Melhor dia",
+      "withCommits": "{time} com {commits}",
+      "productivitySummary": "Resumo de produtividade de IA",
+      "recommendations": "Recomendações inteligentes",
+      "trends": {
+        "improving": "↑ {percent}% Melhorando",
+        "declining": "↓ {percent}% Em declínio",
+        "stable": "Atividade estável"
+      },
+      "productivityLevels": {
+        "Excellent": "🟢 Excelente",
+        "Very Good": "🔵 Muito bom",
+        "Good": "🟡 Bom",
+        "Moderate": "🟠 Moderado",
+        "Low": "🔴 Baixo"
+      },
+      "commitCount": "{count} commit",
+      "commitsCount": "{count} commits"
+    },
+    "streakMilestone": {
+      "celebration": "🎉 Você alcançou uma sequência de {streak} dias! Continue assim!",
+      "dismiss": "Dispensar banner de marco"
     }
   }
 }

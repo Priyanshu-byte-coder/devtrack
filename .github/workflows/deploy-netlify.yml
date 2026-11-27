@@ -1,0 +1,94 @@
+name: Deploy to Netlify
+
+# Builds main on a Linux runner and uploads it to the Netlify project with the
+# Netlify CLI, like "Deploy to production" does for Vercel. Netlify isn't
+# connected to the repo, so merges never deploy by themselves (each
+# production deploy costs Netlify credits and empties its CDN).
+#
+#   Actions > Deploy to Netlify > Run workflow
+#   production unticked: a draft deploy with its own URL, nothing goes live
+#   production ticked:   publishes to the Netlify project's live address
+#
+# The build reads its environment variables from the Netlify project itself.
+# Requires the repository secret NETLIFY_AUTH_TOKEN
+# (Netlify > User settings > Applications > Personal access tokens).
+on:
+  workflow_dispatch:
+    inputs:
+      production:
+        description: "Publish to the live Netlify address (unticked = draft deploy)"
+        type: boolean
+        default: false
+      skip_ci_check:
+        description: "Deploy even if CI on the latest main commit hasn't passed"
+        type: boolean
+        default: false
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: deploy-netlify
+  cancel-in-progress: false
+
+env:
+  NETLIFY_SITE_ID: 7dcbfbd5-f216-4ff3-94dc-4f67297737a9
+
+jobs:
+  deploy:
+    if: github.repository == 'Priyanshu-byte-coder/devtrack' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check CI passed on the latest main commit
+        if: ${{ !inputs.skip_ci_check }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          conclusion=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow CI --branch main \
+            --commit "$SHA" --limit 1 --json conclusion --jq '.[0].conclusion // ""')
+          echo "CI on ${SHA::7}: ${conclusion:-not finished}"
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::CI hasn't passed on ${SHA::7}. Wait for it, or re-run with skip_ci_check."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # deploy --build runs the build and uploads in one go: Netlify's Next.js
+      # runtime swaps the CDN files into the publish folder only for the
+      # length of that command. Its log is kept visible (no --json).
+      - name: Build and deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          PRODUCTION: ${{ inputs.production }}
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "::error::Add the NETLIFY_AUTH_TOKEN repository secret first."
+            exit 1
+          fi
+          flags=(--build --context production --message "main ${GITHUB_SHA::7}")
+          if [ "$PRODUCTION" = "true" ]; then flags+=(--prod); fi
+          npx --yes netlify-cli@27.20.1 deploy "${flags[@]}" 2>&1 | tee deploy.log
+          url=$(grep -oE 'https://[a-z0-9-]+(--[a-z0-9-]+)?\.netlify\.app' deploy.log | tail -1)
+          kind=$([ "$PRODUCTION" = "true" ] && echo "Production" || echo "Draft")
+          echo "$kind deploy of \`${GITHUB_SHA::7}\`: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: List what was published
+        if: always()
+        run: |
+          for d in .netlify/static .netlify/static/_next/static .next/static; do
+            echo "$d: $(find "$d" -type f 2>/dev/null | wc -l) files"
+          done
+          grep -rl "powered by Netlify" .next/server .next/static 2>/dev/null | head -3             || echo "::warning::Footer link not in the build: NEXT_PUBLIC_HOSTED_ON was missing at build time"
