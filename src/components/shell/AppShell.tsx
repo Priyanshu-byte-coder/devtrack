@@ -3,6 +3,7 @@
 import Link from "@/components/Link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   ExternalLink,
@@ -44,21 +45,24 @@ function Brand() {
 }
 
 function SidebarNav({ pathname }: { pathname: string }) {
+  const t = useTranslations("navigation");
+
   return (
     <nav
-      aria-label="Dashboard"
+      aria-label={t("dashboard")}
       className="flex-1 space-y-4 overflow-y-auto px-3 py-3"
     >
       {APP_NAV.map((section) => (
         <div key={section.label} className={section.accent}>
           <p className="mb-1 flex items-center gap-2 px-2 font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
             <span aria-hidden="true" className="h-2 w-2 bg-[var(--nav-c)]" />
-            {section.label}
+            {section.key ? t(`sections.${section.key}`) : section.label}
           </p>
           <ul className="space-y-px">
             {section.items.map((item) => {
               const active = isNavItemActive(item, pathname);
               const Icon = item.icon;
+              const itemLabel = item.key ? t(`items.${item.key}`) : item.label;
               return (
                 <li key={item.href}>
                   <Link
@@ -84,10 +88,10 @@ function SidebarNav({ pathname }: { pathname: string }) {
                       className={`h-4 w-4 shrink-0 ${active || item.highlight ? "text-[var(--nav-c)]" : ""}`}
                       aria-hidden="true"
                     />
-                    <span className="truncate">{item.label}</span>
+                    <span className="truncate">{itemLabel}</span>
                     {item.highlight && (
                       <span
-                        aria-label="Featured"
+                        aria-label={t("shell.featuredAria")}
                         className="ml-auto font-pixel text-[10px] text-[#f2c14e]"
                       >
                         ★
@@ -106,6 +110,7 @@ function SidebarNav({ pathname }: { pathname: string }) {
 
 /** "Player 1": your login, linking to your public card (or to going public). */
 function PlayerChip({ publicLogin }: { publicLogin: string | null }) {
+  const t = useTranslations("navigation");
   const { data: session } = useSession();
   const login = session?.githubLogin;
   if (!login) return null;
@@ -127,13 +132,13 @@ function PlayerChip({ publicLogin }: { publicLogin: string | null }) {
       />
       <span className="min-w-0 flex-1">
         <span className="block font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--accent)]">
-          Player 1
+          {t("playerChip.player1")}
         </span>
         <span className="block truncate font-mono text-[13px] font-semibold text-[var(--foreground)]">
           @{login}
         </span>
         <span className="block text-[11px] text-[var(--muted-foreground)]">
-          {publicLogin ? "View your player card" : "Go public to get a card"}
+          {publicLogin ? t("playerChip.viewCard") : t("playerChip.goPublic")}
         </span>
       </span>
     </Link>
@@ -142,13 +147,14 @@ function PlayerChip({ publicLogin }: { publicLogin: string | null }) {
 
 /** Jump to anyone's player card from anywhere in the dashboard. */
 function SidebarLookup() {
+  const t = useTranslations("navigation");
   const router = useRouter();
   const [value, setValue] = useState("");
   const [invalid, setInvalid] = useState(false);
   return (
     <form
       role="search"
-      aria-label="Look up a developer"
+      aria-label={t("lookup.aria")}
       className="mx-3 mt-3"
       onSubmit={(event) => {
         event.preventDefault();
@@ -163,7 +169,7 @@ function SidebarLookup() {
       }}
     >
       <label htmlFor="sidebar-lookup" className="sr-only">
-        GitHub username to look up
+        {t("lookup.srLabel")}
       </label>
       <div className="flex border-2 border-[var(--border)] bg-[var(--background)] focus-within:border-[var(--accent)]">
         <Search
@@ -177,7 +183,7 @@ function SidebarLookup() {
             setValue(event.target.value);
             setInvalid(false);
           }}
-          placeholder="Look up a dev"
+          placeholder={t("lookup.placeholder")}
           autoComplete="off"
           spellCheck={false}
           aria-invalid={invalid || undefined}
@@ -185,7 +191,7 @@ function SidebarLookup() {
         />
         <button
           type="submit"
-          aria-label="Look up"
+          aria-label={t("lookup.submitAria")}
           className="px-2 font-pixel text-[10px] text-[var(--accent)] hover:bg-[var(--control)]"
         >
           ▶
@@ -193,7 +199,7 @@ function SidebarLookup() {
       </div>
       {invalid && (
         <p role="alert" className="mt-1 text-[11px] text-[var(--destructive)]">
-          That isn&apos;t a valid GitHub username.
+          {t("lookup.invalid")}
         </p>
       )}
     </form>
@@ -201,14 +207,16 @@ function SidebarLookup() {
 }
 
 function AccountMenu({ publicLogin }: { publicLogin: string | null }) {
+  const t = useTranslations("navigation");
   const { data: session } = useSession();
-  const name = session?.user?.name || session?.githubLogin || "Account";
+  const name =
+    session?.user?.name || session?.githubLogin || t("accountMenu.defaultName");
   const login = session?.githubLogin;
   return (
     <details className="group relative">
       <summary
         className="flex cursor-pointer list-none items-center gap-2 rounded-lg p-1 pr-2 hover:bg-[var(--control)] [&::-webkit-details-marker]:hidden"
-        aria-label="Account menu"
+        aria-label={t("accountMenu.aria")}
       >
         {login ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -234,7 +242,7 @@ function AccountMenu({ publicLogin }: { publicLogin: string | null }) {
             className="flex items-center gap-2 px-3 py-2 hover:bg-[var(--control)]"
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            Public profile
+            {t("accountMenu.publicProfile")}
           </Link>
         )}
         <Link
@@ -242,7 +250,7 @@ function AccountMenu({ publicLogin }: { publicLogin: string | null }) {
           className="flex items-center gap-2 px-3 py-2 hover:bg-[var(--control)]"
         >
           <Settings className="h-4 w-4" aria-hidden="true" />
-          Settings
+          {t("settings")}
         </Link>
         <button
           type="button"
@@ -250,7 +258,7 @@ function AccountMenu({ publicLogin }: { publicLogin: string | null }) {
           className="flex w-full items-center gap-2 px-3 py-2 text-left text-[var(--destructive)] hover:bg-[var(--control)]"
         >
           <LogOut className="h-4 w-4" aria-hidden="true" />
-          Sign out
+          {t("accountMenu.signOut")}
         </button>
       </div>
     </details>
@@ -262,6 +270,7 @@ function AccountMenu({ publicLogin }: { publicLogin: string | null }) {
  * bar. Every dashboard tab renders inside it.
  */
 export default function AppShell({ children }: { children: ReactNode }) {
+  const t = useTranslations("navigation");
   const pathname = usePathname();
   const { data: session } = useSession();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -297,6 +306,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }, [session]);
 
   const current = activeNavItem(pathname);
+  const currentTitle = current
+    ? current.key
+      ? t(`items.${current.key}`)
+      : current.label
+    : pathname.startsWith("/compare")
+      ? t("compare")
+      : t("dashboard");
   const publicLogin = settings?.isPublic
     ? (session?.githubLogin ?? null)
     : null;
@@ -329,11 +345,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
           className="fixed inset-0 z-50 lg:hidden"
           role="dialog"
           aria-modal="true"
-          aria-label="Navigation"
+          aria-label={t("shell.navigationDialogAria")}
         >
           <button
             type="button"
-            aria-label="Close navigation"
+            aria-label={t("shell.closeNavAria")}
             className="absolute inset-0 bg-black/50"
             onClick={() => setDrawerOpen(false)}
           />
@@ -341,7 +357,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
-              aria-label="Close navigation"
+              aria-label={t("shell.closeNavAria")}
               className="absolute right-2 top-3 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--control)]"
             >
               <X className="h-4 w-4" />
@@ -362,14 +378,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            aria-label="Open navigation"
+            aria-label={t("shell.openNavAria")}
             className="-ml-2 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--control)] lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </button>
           <p className="truncate text-sm font-medium text-[var(--muted-foreground)]">
-            {current?.label ??
-              (pathname.startsWith("/compare") ? "Compare" : "Dashboard")}
+            {currentTitle}
           </p>
           <div className="hidden min-w-0 overflow-x-auto md:block [&>div]:mt-0 [&>div]:flex-nowrap">
             <AccountToggle />

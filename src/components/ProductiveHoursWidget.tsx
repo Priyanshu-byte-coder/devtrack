@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
 import { arcadeTabClass, arcadeTabGroupClass } from "@/components/ui/arcade";
 
@@ -63,7 +64,35 @@ function formatDateKey(d: Date): string {
 }
 
 export default function ProductiveHoursWidget() {
+  const t = useTranslations("activity.productiveHours");
+  const locale = useLocale();
   const { themeConfig, theme, setTheme } = useHeatmapTheme();
+
+  const dayLabels = useMemo(
+    () => [
+      t("days.Sun"),
+      t("days.Mon"),
+      t("days.Tue"),
+      t("days.Wed"),
+      t("days.Thu"),
+      t("days.Fri"),
+      t("days.Sat"),
+    ],
+    [t]
+  );
+
+  const dayFull = useMemo(
+    () => [
+      t("daysFull.Sunday"),
+      t("daysFull.Monday"),
+      t("daysFull.Tuesday"),
+      t("daysFull.Wednesday"),
+      t("daysFull.Thursday"),
+      t("daysFull.Friday"),
+      t("daysFull.Saturday"),
+    ],
+    [t]
+  );
 
   const [grid, setGrid] = useState<HourlyCell[]>([]);
   const [peak, setPeak] = useState<HourlyCell | null>(null);
@@ -148,15 +177,15 @@ export default function ProductiveHoursWidget() {
     const today = new Date().toISOString().slice(0, 10);
 
     if (!customFrom || !customTo) {
-      setCustomError("Please select both dates.");
+      setCustomError(t("errors.selectBoth"));
       return;
     }
     if (customFrom > customTo) {
-      setCustomError("Start date must be before end date.");
+      setCustomError(t("errors.startBeforeEnd"));
       return;
     }
     if (customTo > today) {
-      setCustomError("End date can't be in the future.");
+      setCustomError(t("errors.futureDate"));
       return;
     }
     const msPerDay = 1_000 * 60 * 60 * 24;
@@ -164,20 +193,20 @@ export default function ProductiveHoursWidget() {
       (new Date(customTo).getTime() - new Date(customFrom).getTime()) /
       msPerDay;
     if (diff > 365 * 2) {
-      setCustomError("Max range is 2 years.");
+      setCustomError(t("errors.maxRange"));
       return;
     }
 
     const fmt = (d: string) => {
       const [year, month, day] = d.split("-").map(Number);
-      return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+      return new Date(year, month - 1, day).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
       });
     };
     setCustomLabel(`${fmt(customFrom)} – ${fmt(customTo)}`);
     setShowPopover(false);
-  }, [customFrom, customTo]);
+  }, [customFrom, customTo, locale, t]);
 
   const { currentFrom, currentTo } = useMemo(() => {
     if (customLabel && customFrom && customTo) {
@@ -219,7 +248,7 @@ export default function ProductiveHoursWidget() {
       })
       .catch(() => {
         if (!active) return;
-        setError("Failed to load productive hours data.");
+        setError(t("errorLoading"));
       })
       .finally(() => {
         if (!active) return;
@@ -229,7 +258,7 @@ export default function ProductiveHoursWidget() {
     return () => {
       active = false;
     };
-  }, [currentFrom, currentTo]);
+  }, [currentFrom, currentTo, t]);
 
   useEffect(() => {
     if (!lastUpdated) return;
@@ -281,37 +310,38 @@ export default function ProductiveHoursWidget() {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-              Most Productive Hours
+              {t("title")}
             </h2>
             <div className="group relative">
               <span
                 className="flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-[var(--border)] text-[10px] text-[var(--muted-foreground)]"
-                aria-label="About this chart"
+                aria-label={t("aboutChart")}
               >
                 ?
               </span>
               <div className="pointer-events-none absolute left-0 top-5 z-50 hidden w-64 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-xs text-[var(--muted-foreground)] shadow-lg group-hover:block">
-                Shows your average commits per hour and day of week over the
-                selected date range, adjusted to your local timezone.
+                {t("chartDescription")}
               </div>
             </div>
           </div>
           <p className="text-sm text-[var(--muted-foreground)]">
-            {customLabel
-              ? customLabel
-              : `Last ${selectedDays} days — commit activity by hour & day`}
+            {customLabel ? customLabel : t("subtitle", { days: selectedDays })}
           </p>
         </div>
 
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Preset range pills */}
-          <div className={arcadeTabGroupClass} role="group" aria-label="Range">
+          <div
+            className={arcadeTabGroupClass}
+            role="group"
+            aria-label={t("rangeGroupAria")}
+          >
             {PRESET_RANGES.map((r) => (
               <button
                 key={r.days}
                 onClick={() => handleRangeChange(r.days)}
-                aria-label={`Show ${r.days}-day range`}
+                aria-label={t("showRangeAria", { days: r.days })}
                 aria-pressed={selectedDays === r.days && !customLabel}
                 className={arcadeTabClass(
                   selectedDays === r.days && !customLabel
@@ -326,18 +356,19 @@ export default function ProductiveHoursWidget() {
             <button
               onClick={() => setShowPopover((v) => !v)}
               className={arcadeTabClass(Boolean(customLabel))}
+              aria-label={customLabel ?? t("customButton")}
             >
-              {customLabel ?? "Custom…"}
+              {customLabel ?? t("customButton")}
             </button>
 
             {showPopover && (
               <div className="absolute right-0 top-10 z-50 w-72 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-lg">
                 <p className="mb-3 text-sm font-medium text-[var(--foreground)]">
-                  Custom range
+                  {t("customPopoverTitle")}
                 </p>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[var(--muted-foreground)]">
-                    Start date
+                    {t("startDate")}
                     <input
                       type="date"
                       value={customFrom}
@@ -352,7 +383,7 @@ export default function ProductiveHoursWidget() {
                     />
                   </label>
                   <label className="text-xs text-[var(--muted-foreground)]">
-                    End date
+                    {t("endDate")}
                     <input
                       type="date"
                       value={customTo}
@@ -370,7 +401,7 @@ export default function ProductiveHoursWidget() {
                     onClick={handleCustomApply}
                     className="mt-2 w-full rounded-md bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--background)] transition-opacity hover:opacity-90"
                   >
-                    Apply
+                    {t("apply")}
                   </button>
                 </div>
               </div>
@@ -387,7 +418,7 @@ export default function ProductiveHoursWidget() {
             }
             className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
-            Default
+            {t("themeDefault")}
           </button>
           <button
             type="button"
@@ -399,7 +430,7 @@ export default function ProductiveHoursWidget() {
             }
             className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
-            Colour-blind
+            {t("themeColourBlind")}
           </button>
           <button
             type="button"
@@ -411,12 +442,12 @@ export default function ProductiveHoursWidget() {
             }
             className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
-            Theme
+            {t("themeCustom")}
           </button>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-          <span>Less</span>
+          <span>{t("legendLess")}</span>
           <div className="flex items-center gap-1">
             {[0, maxAvg * 0.25, maxAvg * 0.5, maxAvg * 0.75, maxAvg].map(
               (v, i) => (
@@ -431,7 +462,7 @@ export default function ProductiveHoursWidget() {
               )
             )}
           </div>
-          <span>More</span>
+          <span>{t("legendMore")}</span>
         </div>
       </div>
 
@@ -440,7 +471,7 @@ export default function ProductiveHoursWidget() {
       ) : error ? (
         <div className="flex h-[140px] items-center rounded-lg border border-destructive/30 bg-destructive/10 px-4">
           <p className="text-sm text-[var(--destructive)]">
-            {error} Please try refreshing.
+            {error} {t("refreshPrompt")}
           </p>
         </div>
       ) : (
@@ -470,7 +501,7 @@ export default function ProductiveHoursWidget() {
               {/* 7 × 24 grid */}
               <div className="grid" style={gridStyle}>
                 {/* Day-of-week row labels (col 1) */}
-                {DAY_LABELS.map((label, rowIndex) => (
+                {dayLabels.map((label, rowIndex) => (
                   <div
                     key={label}
                     className="flex items-center justify-end pr-2 text-[10px] text-[var(--muted-foreground)]"
@@ -485,7 +516,7 @@ export default function ProductiveHoursWidget() {
                 ))}
 
                 {/* Data cells */}
-                {DAY_LABELS.map((_, rowIndex) =>
+                {dayLabels.map((_, rowIndex) =>
                   HOURS.map((hour) => {
                     const cell = cellMap.get(`${rowIndex}-${hour}`);
                     const avg = cell?.avg ?? 0;
@@ -493,7 +524,13 @@ export default function ProductiveHoursWidget() {
                     const showTooltipBelow = rowIndex < 2;
                     const isNearRightEdge = hour >= 21;
 
-                    const tooltipText = `${DAY_FULL[rowIndex]} ${formatHour(hour)} — avg ${avg.toFixed(1)} commit${avg === 1 ? "" : "s"}`;
+                    const unit = avg === 1 ? t("commitUnit") : t("commitsUnit");
+                    const tooltipText = t("tooltip", {
+                      day: dayFull[rowIndex],
+                      hour: formatHour(hour),
+                      avg: avg.toFixed(1),
+                      unit,
+                    });
 
                     return (
                       <button
@@ -543,19 +580,22 @@ export default function ProductiveHoursWidget() {
 
           <div className="mt-4 flex items-center justify-between gap-4 text-xs text-[var(--muted-foreground)]">
             <p>
-              {totalCommits} commits analysed.
+              {t("commitsAnalysed", { total: totalCommits })}
               {peak && peak.avg > 0 && (
                 <span className="ml-2 font-medium text-[var(--foreground)]">
-                  🔥 Peak: {DAY_FULL[peak.day]} {formatHour(peak.hour)} — avg{" "}
-                  {peak.avg.toFixed(1)} commits
+                  {t("peakBanner", {
+                    day: dayFull[peak.day],
+                    hour: formatHour(peak.hour),
+                    avg: peak.avg.toFixed(1),
+                  })}
                 </span>
               )}
             </p>
             {lastUpdated && (
               <p>
                 {minutesAgo === 0
-                  ? "Updated just now"
-                  : `Updated ${minutesAgo} min ago`}
+                  ? t("updatedJustNow")
+                  : t("updatedMinAgo", { minutes: minutesAgo })}
               </p>
             )}
           </div>
