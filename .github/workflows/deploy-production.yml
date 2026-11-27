@@ -21,6 +21,7 @@ on:
 
 permissions:
   actions: read
+  contents: read
 
 concurrency:
   group: deploy-production
@@ -31,6 +32,10 @@ jobs:
     if: github.repository == 'Priyanshu-byte-coder/devtrack' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Shows the live commit under "Deployments" on the repo page.
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Check CI passed on the latest main commit
         if: ${{ !inputs.skip_ci_check }}
@@ -49,6 +54,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Deploy to Vercel production
+        id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -60,4 +66,46 @@ jobs:
           fi
           npm install --global vercel@54.18.7
           url=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
-          echo "Deployed ${GITHUB_SHA::7} to production: $url" >> "$GITHUB_STEP_SUMMARY"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # Lists what this deploy shipped: every main commit since the last
+      # successful run of this workflow (the previous production commit).
+      - name: Summarise what shipped
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          repo="$GITHUB_REPOSITORY"
+          prev=$(gh run list --repo "$repo" --workflow deploy-production.yml --branch main \
+            --status success --limit 1 --json headSha --jq '.[0].headSha // ""')
+          {
+            echo "## Production is now at [\`${GITHUB_SHA::7}\`](https://github.com/$repo/commit/$GITHUB_SHA)"
+            echo
+            echo "Live: $URL"
+            echo
+            if [ -z "$prev" ]; then
+              echo "No earlier successful deploy found, so there is nothing to compare against."
+            elif [ "$prev" = "$GITHUB_SHA" ]; then
+              echo "Same commit as the previous deploy (\`${prev::7}\`): nothing new shipped, this was a redeploy."
+            else
+              gh api "repos/$repo/compare/$prev...$GITHUB_SHA" > compare.json
+              commits=$(jq '.total_commits' compare.json)
+              prs=$(jq -r '.commits[].commit.message | split("\n")[0]' compare.json | grep -cE '\(#[0-9]+\)$' || true)
+              echo "Previous production: [\`${prev::7}\`](https://github.com/$repo/commit/$prev) · [full diff](https://github.com/$repo/compare/${prev::7}...${GITHUB_SHA::7})"
+              echo
+              echo "### Shipped $prs PRs ($commits commits)"
+              echo
+              echo "| PR | Title | Author |"
+              echo "|---|---|---|"
+              jq -r '.commits | reverse | .[] | [(.commit.message | split("\n")[0]), (.author.login // .commit.author.name)] | @tsv' compare.json |
+                while IFS=$'\t' read -r subject author; do
+                  pr=$(grep -oE '\(#[0-9]+\)$' <<<"$subject" | tr -dc '0-9' || true)
+                  title=$(sed -E 's/ \(#[0-9]+\)$//; s/\|/\|/g' <<<"$subject")
+                  if [ -n "$pr" ]; then
+                    echo "| [#$pr](https://github.com/$repo/pull/$pr) | $title | @$author |"
+                  else
+                    echo "| (direct commit) | $title | @$author |"
+                  fi
+                done
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
