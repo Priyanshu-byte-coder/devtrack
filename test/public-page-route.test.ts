@@ -3,16 +3,66 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { GET } from "@/app/api/public-page/route";
 
-const call = (src: string | null) =>
+const call = (src: string | null, origin = "https://devtrack.live") =>
   GET(
     new NextRequest(
-      "https://devtrack.live/api/public-page" +
+      `${origin}/api/public-page` +
         (src === null ? "" : `?src=${encodeURIComponent(src)}`)
     )
   );
 
+const okPage = () =>
+  new Response("<html>ok</html>", {
+    headers: { "content-type": "text/html; charset=utf-8" },
+  });
+
 beforeEach(() => vi.stubGlobal("fetch", vi.fn()));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  delete process.env.PUBLIC_PAGE_RENDER_HOST;
+});
+
+describe("render origin", () => {
+  const fetchedOrigin = () =>
+    new URL(String(vi.mocked(fetch).mock.calls[0][0])).origin;
+
+  it("renders from devtrack.live when no render host is configured", async () => {
+    vi.mocked(fetch).mockResolvedValue(okPage());
+    await call("/leaderboard", "https://devtrack-984.netlify.app");
+    expect(fetchedOrigin()).toBe("https://devtrack.live");
+  });
+
+  it("renders from the configured host and its per-deploy addresses", async () => {
+    process.env.PUBLIC_PAGE_RENDER_HOST = "devtrack-984.netlify.app";
+    vi.mocked(fetch).mockResolvedValue(okPage());
+    await call("/leaderboard", "https://devtrack-984.netlify.app");
+    expect(fetchedOrigin()).toBe("https://devtrack-984.netlify.app");
+
+    vi.mocked(fetch).mockClear();
+    vi.mocked(fetch).mockResolvedValue(okPage());
+    await call(
+      "/leaderboard",
+      "https://6b09648fcc93--devtrack-984.netlify.app"
+    );
+    expect(fetchedOrigin()).toBe(
+      "https://6b09648fcc93--devtrack-984.netlify.app"
+    );
+  });
+
+  it("ignores hosts that only resemble the configured one", async () => {
+    process.env.PUBLIC_PAGE_RENDER_HOST = "devtrack-984.netlify.app";
+    for (const origin of [
+      "https://evil.example",
+      "https://x.y--devtrack-984.netlify.app",
+      "https://devtrack-984.netlify.app.evil.example",
+    ]) {
+      vi.mocked(fetch).mockClear();
+      vi.mocked(fetch).mockResolvedValue(okPage());
+      await call("/leaderboard", origin);
+      expect(fetchedOrigin()).toBe("https://devtrack.live");
+    }
+  });
+});
 
 describe("public page cache route", () => {
   it("renders the page without cookies and returns it cacheable", async () => {

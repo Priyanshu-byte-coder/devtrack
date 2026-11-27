@@ -19,15 +19,22 @@ function normalizeIp(value: string | null | undefined): string | null {
  *                  spoofed by the client. Safe to trust when VERCEL=1.
  * - "cloudflare" — cf-connecting-ip is set by Cloudflare. Safe to trust
  *                  when the request actually comes through Cloudflare.
+ * - "netlify"    — x-nf-client-connection-ip is set by Netlify's edge.
  * - "none"       — No trusted proxy. All forwarding headers are ignored;
  *                  falls back to "unknown" to avoid spoofing.
  *
  * Set TRUSTED_PROXY in your environment. Defaults to "vercel" when the
  * VERCEL env var is present (set automatically by Vercel), otherwise "none".
  */
-function getTrustedProxy(): "vercel" | "cloudflare" | "none" {
+function getTrustedProxy(): "vercel" | "cloudflare" | "netlify" | "none" {
   const raw = process.env.TRUSTED_PROXY;
-  if (raw === "vercel" || raw === "cloudflare" || raw === "none") return raw;
+  if (
+    raw === "vercel" ||
+    raw === "cloudflare" ||
+    raw === "netlify" ||
+    raw === "none"
+  )
+    return raw;
   // Auto-detect: if running on Vercel infra, trust Vercel's headers
   if (process.env.VERCEL === "1") return "vercel";
   return "none";
@@ -64,6 +71,13 @@ export function getClientIp(req: Pick<NextRequest, "headers">): string {
     );
   }
 
+  if (proxy === "netlify") {
+    // Netlify sets x-nf-client-connection-ip to the original client IP.
+    return (
+      normalizeIp(req.headers.get("x-nf-client-connection-ip")) ?? "unknown"
+    );
+  }
+
   // proxy === "none": no trusted proxy configured.
   // Do NOT read any forwarding headers — they are client-controlled.
   // Log a dev warning so misconfigured deployments are caught early.
@@ -75,8 +89,8 @@ export function getClientIp(req: Pick<NextRequest, "headers">): string {
     if (hasForwardingHeader) {
       console.warn(
         "[rate-limit] Forwarding header present but TRUSTED_PROXY is not set. " +
-        "Set TRUSTED_PROXY=vercel or TRUSTED_PROXY=cloudflare in your environment. " +
-        "Falling back to 'unknown' to prevent IP spoofing."
+          "Set TRUSTED_PROXY=vercel or TRUSTED_PROXY=cloudflare in your environment. " +
+          "Falling back to 'unknown' to prevent IP spoofing."
       );
     }
   }

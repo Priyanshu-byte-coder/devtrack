@@ -5,8 +5,8 @@ const BADGE_LIMIT = 20;
 
 // Sliding window counter entry — O(1) per client instead of O(N) timestamps.
 type Entry = {
-  prevCount: number;   // requests counted in the previous window
-  currCount: number;   // requests counted in the current window
+  prevCount: number; // requests counted in the previous window
+  currCount: number; // requests counted in the current window
   windowStart: number; // epoch ms, quantized to WINDOW_MS boundaries
 };
 
@@ -65,10 +65,11 @@ export function checkBadgeRateLimit(ip: string): BadgeRateLimitResult {
 }
 
 export function getBadgeClientIp(req: NextRequest): string {
-  // Use Vercel's trusted IP header or fallback to connection IP
-  // Do NOT blindly trust x-forwarded-for as it can be easily spoofed
+  // Use the host's trusted IP header (Vercel or Netlify) or fallback to
+  // connection IP. Do NOT blindly trust x-forwarded-for as it can be easily spoofed
   return (
     req.headers.get("x-vercel-forwarded-for") ||
+    req.headers.get("x-nf-client-connection-ip") ||
     req.headers.get("x-real-ip") ||
     (req as NextRequest & { ip?: string }).ip ||
     "unknown"
