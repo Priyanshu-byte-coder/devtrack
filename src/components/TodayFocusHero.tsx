@@ -184,30 +184,36 @@ export default function TodayFocusHero() {
         </div>
       ) : (
         <form
-          className="flex gap-2"
+          className="space-y-2.5"
           onSubmit={(event) => {
             event.preventDefault();
             void handleSave();
           }}
         >
-          <label className="sr-only" htmlFor="today-focus-input">
-            Write your main dev goal for today
-          </label>
-          <input
-            id="today-focus-input"
-            value={inputValue}
-            onChange={(event) => setInputValue(event.target.value)}
-            disabled={isSaving || isClearing}
-            placeholder={prompt}
-            className={inputClass}
-          />
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isSaving || isClearing}
-            className={`${smallButton} primary-button`}
+          <label
+            htmlFor="today-focus-input"
+            className="block text-xs font-normal text-[var(--muted-foreground)] leading-relaxed"
           >
-            {isSaving ? "Saving…" : "Save"}
-          </button>
+            {prompt}
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="today-focus-input"
+              value={inputValue}
+              onChange={(event) => setInputValue(event.target.value)}
+              disabled={isSaving || isClearing}
+              placeholder="e.g. Fix the login bug…"
+              aria-label={prompt}
+              className={inputClass}
+            />
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isSaving || isClearing}
+              className={`${smallButton} primary-button`}
+            >
+              {isSaving ? "Saving…" : "Save"}
+            </button>
+          </div>
         </form>
       )}
     </section>
