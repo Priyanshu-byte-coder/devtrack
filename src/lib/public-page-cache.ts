@@ -110,10 +110,14 @@ export interface PublicCacheRequest {
 /**
  * Production only. Preview deployments sit behind Vercel's deployment
  * protection, which the handler's cookie-less render request can't pass,
- * and local and test runs have no CDN to gain from.
+ * and local and test runs have no CDN to gain from. Hosts other than Vercel
+ * opt in with PUBLIC_PAGE_CACHE=on.
  */
 export function publicPageCacheEnabled(): boolean {
-  return process.env.VERCEL_ENV === "production";
+  return (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.PUBLIC_PAGE_CACHE === "on"
+  );
 }
 
 export function isCacheablePath(pathname: string): boolean {
