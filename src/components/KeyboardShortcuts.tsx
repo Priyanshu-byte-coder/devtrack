@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 import { useTheme } from "@/components/ThemeContext";
 import ShortcutsModal from "@/components/ShortcutsModal";
 
 export default function KeyboardShortcuts() {
+  const t = useTranslations("navigation.shortcuts");
   const [isOpen, setIsOpen] = useState(false);
 
   const [announcement, setAnnouncement] = useState("");
@@ -16,17 +18,24 @@ export default function KeyboardShortcuts() {
 
   useEffect(() => {
     if (keyboardToggleRef.current && theme !== undefined) {
-      setAnnouncement(`${themeDefinition?.name ?? "Theme"} enabled`);
+      setAnnouncement(
+        t("themeAnnouncement", { name: themeDefinition?.name ?? "Theme" })
+      );
     }
     keyboardToggleRef.current = false;
-  }, [theme, themeDefinition]);
+  }, [theme, themeDefinition, t]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
       if (activeElement) {
         const tagName = activeElement.tagName.toLowerCase();
-        if (tagName === "input" || tagName === "textarea" || tagName === "select") return;
+        if (
+          tagName === "input" ||
+          tagName === "textarea" ||
+          tagName === "select"
+        )
+          return;
         if (activeElement.getAttribute("contenteditable") === "true") return;
       }
 
@@ -87,7 +96,7 @@ export default function KeyboardShortcuts() {
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] hover:text-[var(--card-foreground)]"
-        aria-label="Show keyboard shortcuts"
+        aria-label={t("buttonAria")}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         suppressHydrationWarning
@@ -95,9 +104,13 @@ export default function KeyboardShortcuts() {
         <kbd className="rounded bg-[var(--control)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--card-foreground)]">
           ?
         </kbd>
-        <span>Shortcuts</span>
+        <span>{t("buttonLabel")}</span>
       </button>
-      <ShortcutsModal isOpen={isOpen} onClose={() => setIsOpen(false)} anchorRef={triggerRef} />
+      <ShortcutsModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        anchorRef={triggerRef}
+      />
     </div>
   );
 }
