@@ -66,6 +66,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # deploy --build runs the build and uploads in one go: Netlify's Next.js
+      # runtime swaps the CDN files into the publish folder only for the
+      # length of that command. Its log is kept visible (no --json).
       - name: Build and deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -75,9 +78,17 @@ jobs:
             echo "::error::Add the NETLIFY_AUTH_TOKEN repository secret first."
             exit 1
           fi
-          flags=(--build --json --message "main ${GITHUB_SHA::7}")
+          flags=(--build --context production --message "main ${GITHUB_SHA::7}")
           if [ "$PRODUCTION" = "true" ]; then flags+=(--prod); fi
-          npx --yes netlify-cli@27.20.1 deploy "${flags[@]}" > deploy.json
-          url=$(jq -r 'if .url then .url else .deploy_url end' deploy.json)
+          npx --yes netlify-cli@27.20.1 deploy "${flags[@]}" 2>&1 | tee deploy.log
+          url=$(grep -oE 'https://[a-z0-9-]+(--[a-z0-9-]+)?\.netlify\.app' deploy.log | tail -1)
           kind=$([ "$PRODUCTION" = "true" ] && echo "Production" || echo "Draft")
           echo "$kind deploy of \`${GITHUB_SHA::7}\`: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: List what was published
+        if: always()
+        run: |
+          for d in .netlify/static .netlify/static/_next/static .next/static; do
+            echo "$d: $(find "$d" -type f 2>/dev/null | wc -l) files"
+          done
+          grep -rl "powered by Netlify" .next/server .next/static 2>/dev/null | head -3             || echo "::warning::Footer link not in the build: NEXT_PUBLIC_HOSTED_ON was missing at build time"
