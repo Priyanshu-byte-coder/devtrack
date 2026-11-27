@@ -31,7 +31,32 @@
     "signInCta": "Sign in",
     "signOutCta": "Sign out",
     "openDashboard": "Open dashboard",
-    "compare": "Compare"
+    "compare": "Compare",
+    "notifications": {
+      "title": "Notifications",
+      "bellAria": "Notifications",
+      "bellTitle": "Notifications",
+      "statusUnread": "{count, plural, one {# unread notification} other {# unread notifications}}",
+      "statusNoUnread": "No unread notifications",
+      "allCaughtUp": "All caught up",
+      "clearAll": "Clear all",
+      "clearing": "Clearing…",
+      "clearAllAria": "Clear all notifications",
+      "closeAria": "Close notifications",
+      "searchPlaceholder": "Search notifications…",
+      "searchAria": "Search notifications",
+      "clearSearchAria": "Clear search",
+      "loading": "Loading notifications…",
+      "failedToLoad": "Failed to load notifications",
+      "retry": "Retry",
+      "noResults": "No results for '{query}'",
+      "noNotificationsYet": "No notifications yet",
+      "failedToMarkRead": "Failed to mark notifications as read",
+      "timeJustNow": "just now",
+      "timeMinutesAgo": "{count}m ago",
+      "timeHoursAgo": "{count}h ago",
+      "timeDaysAgo": "{count}d ago"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Dashboard overview",

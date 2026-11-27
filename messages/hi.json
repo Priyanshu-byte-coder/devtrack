@@ -31,7 +31,32 @@
     "signInCta": "साइन इन करें",
     "signOutCta": "साइन आउट करें",
     "openDashboard": "डैशबोर्ड खोलें",
-    "compare": "तुलना करें"
+    "compare": "तुलना करें",
+    "notifications": {
+      "title": "सूचनाएं",
+      "bellAria": "सूचनाएं",
+      "bellTitle": "सूचनाएं",
+      "statusUnread": "{count, plural, one {# न पढ़ी गई सूचना} other {# न पढ़ी गई सूचनाएं}}",
+      "statusNoUnread": "कोई न पढ़ी गई सूचना नहीं",
+      "allCaughtUp": "सब कुछ देख लिया",
+      "clearAll": "सभी हटाएं",
+      "clearing": "हटाया जा रहा है…",
+      "clearAllAria": "सभी सूचनाएं हटाएं",
+      "closeAria": "सूचनाएं बंद करें",
+      "searchPlaceholder": "सूचनाएं खोजें…",
+      "searchAria": "सूचनाएं खोजें",
+      "clearSearchAria": "खोज साफ़ करें",
+      "loading": "सूचनाएं लोड हो रही हैं…",
+      "failedToLoad": "सूचनाएं लोड करने में विफल",
+      "retry": "पुनः प्रयास करें",
+      "noResults": "'{query}' के लिए कोई परिणाम नहीं",
+      "noNotificationsYet": "अभी कोई सूचना नहीं है",
+      "failedToMarkRead": "सूचनाओं को पढ़ा हुआ चिह्नित करने में विफल",
+      "timeJustNow": "अभी-अभी",
+      "timeMinutesAgo": "{count} मिनट पहले",
+      "timeHoursAgo": "{count} घंटे पहले",
+      "timeDaysAgo": "{count} दिन पहले"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "डैशबोर्ड अवलोकन",

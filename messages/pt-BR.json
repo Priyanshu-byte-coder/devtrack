@@ -31,7 +31,32 @@
     "signInCta": "Entrar",
     "signOutCta": "Sair",
     "openDashboard": "Abrir painel",
-    "compare": "Comparar"
+    "compare": "Comparar",
+    "notifications": {
+      "title": "Notificações",
+      "bellAria": "Notificações",
+      "bellTitle": "Notificações",
+      "statusUnread": "{count, plural, one {# notificação não lida} other {# notificações não lidas}}",
+      "statusNoUnread": "Nenhuma notificação não lida",
+      "allCaughtUp": "Tudo em dia",
+      "clearAll": "Limpar tudo",
+      "clearing": "Limpando…",
+      "clearAllAria": "Limpar todas as notificações",
+      "closeAria": "Fechar notificações",
+      "searchPlaceholder": "Buscar notificações…",
+      "searchAria": "Buscar notificações",
+      "clearSearchAria": "Limpar busca",
+      "loading": "Carregando notificações…",
+      "failedToLoad": "Falha ao carregar notificações",
+      "retry": "Tentar novamente",
+      "noResults": "Nenhum resultado para '{query}'",
+      "noNotificationsYet": "Nenhuma notificação ainda",
+      "failedToMarkRead": "Falha ao marcar notificações como lidas",
+      "timeJustNow": "agora mesmo",
+      "timeMinutesAgo": "há {count}m",
+      "timeHoursAgo": "há {count}h",
+      "timeDaysAgo": "há {count}d"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Visão geral do painel",
