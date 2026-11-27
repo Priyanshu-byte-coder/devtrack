@@ -370,7 +370,7 @@ export default function ResumePreview({
                               {bullet.repository ||
                                 t("preview.experience.generalContribution")}
                             </span>
-                            <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded font-mono border border-emerald-500/20">
+                            <span className="text-[10px] bg-success/10 text-success px-1.5 py-0.5 rounded font-mono border border-success/20">
                               {t("preview.experience.aiConfidence", {
                                 confidence: new Intl.NumberFormat(
                                   locale
@@ -402,7 +402,7 @@ export default function ResumePreview({
                         <button
                           type="button"
                           onClick={() => deleteBulletPoint(idx)}
-                          className="p-2 rounded text-rose-400 hover:bg-rose-500/10"
+                          className="p-2 rounded text-destructive hover:bg-destructive/10"
                           title={t("preview.experience.deleteBullet")}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -513,7 +513,7 @@ export default function ResumePreview({
                         <button
                           type="button"
                           onClick={() => deleteProject(idx)}
-                          className="p-1.5 rounded text-rose-400 hover:bg-rose-500/10"
+                          className="p-1.5 rounded text-destructive hover:bg-destructive/10"
                           title={t("preview.projects.deleteProject")}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -689,7 +689,7 @@ export default function ResumePreview({
                           <button
                             type="button"
                             onClick={() => deleteSkillCategory(idx)}
-                            className="p-1 rounded text-rose-400 hover:bg-rose-500/10 text-xs flex items-center gap-1"
+                            className="p-1 rounded text-destructive hover:bg-destructive/10 text-xs flex items-center gap-1"
                             title={t("preview.skills.deleteCategory")}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
