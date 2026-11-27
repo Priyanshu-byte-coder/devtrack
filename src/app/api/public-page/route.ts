@@ -124,16 +124,17 @@ export async function GET(req: NextRequest) {
     page.status === 200 ||
     page.status === 404 ||
     (page.status >= 301 && page.status <= 308);
-  headers.set(
-    "Cache-Control",
-    !cacheable
-      ? "no-store"
-      : body.includes(GITHUB_BUSY_MARKER)
-        ? BUSY_CDN_CACHE_CONTROL
-        : body.includes(GUEST_PROFILE_MARKER)
-          ? GUEST_CDN_CACHE_CONTROL
-          : cdnCacheControlFor(target.pathname)
-  );
+  const cacheControl = !cacheable
+    ? "no-store"
+    : body.includes(GITHUB_BUSY_MARKER)
+      ? BUSY_CDN_CACHE_CONTROL
+      : body.includes(GUEST_PROFILE_MARKER)
+        ? GUEST_CDN_CACHE_CONTROL
+        : cdnCacheControlFor(target.pathname);
+  headers.set("Cache-Control", cacheControl);
+  // Netlify's CDN ignores Cache-Control on function responses and only caches
+  // what carries its own header. Vercel ignores this one.
+  headers.set("Netlify-CDN-Cache-Control", cacheControl);
 
   return new Response(req.method === "HEAD" ? null : body, {
     status: page.status,
