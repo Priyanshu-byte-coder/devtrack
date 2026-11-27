@@ -10,6 +10,9 @@
 # everything in .env.example's production list, plus
 #   TRUSTED_PROXY=netlify          real visitor IPs for rate limiting
 #   PUBLIC_PAGE_CACHE=on           CDN caching of signed-out public pages
+#   PUBLIC_PAGE_RENDER_HOST=devtrack-984.netlify.app
+#                                  render those pages from this site, not
+#                                  devtrack.live (drop it once the domain moves)
 #   NEXT_PUBLIC_HOSTED_ON=netlify  "powered by Netlify" footer link
 
 [build]
