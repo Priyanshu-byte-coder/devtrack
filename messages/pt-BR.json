@@ -87,6 +87,42 @@
       "navigationDialogAria": "Navegação",
       "closeNavAria": "Fechar navegação",
       "openNavAria": "Abrir navegação"
+    },
+    "onboarding": {
+      "nextBtnText": "Avançar ▶",
+      "prevBtnText": "◀ Voltar",
+      "doneBtnText": "Começar a jogar",
+      "progressText": "{current} / {total}",
+      "steps": {
+        "welcome": {
+          "title": "Jogador 1 pronto",
+          "description": "Sua atividade no GitHub agora é um jogo: sequências, XP, níveis e uma classificação global. Quer um tour de 20 segundos?"
+        },
+        "stats": {
+          "title": "Sua semana",
+          "description": "Sequência, commits, PRs mesclados e dias ativos, comparados com a semana passada. Eles atualizam sozinhos."
+        },
+        "rank": {
+          "title": "Classificação, nível e XP",
+          "description": "Seu lugar nesta temporada, seu nível e XP para o próximo nível. As classificações atualizam todos os dias."
+        },
+        "activity": {
+          "title": "Atividade",
+          "description": "Seus commits ao longo do tempo. Mude o intervalo ou o tipo de gráfico para ver seu ritmo."
+        },
+        "focus": {
+          "title": "Foco de hoje",
+          "description": "Escreva o que você está construindo hoje. Metas pequenas mantêm as sequências vivas."
+        },
+        "nav": {
+          "title": "Mais modos",
+          "description": "Pull requests, repositórios, metas, Ano em código e seu perfil público vivem aqui."
+        },
+        "gameOn": {
+          "title": "Jogo iniciado",
+          "description": "Suba no ranking, mostre seus emblemas no README e desafie amigos para duelos."
+        }
+      }
     }
   },
   "dashboard": {

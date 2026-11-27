@@ -162,6 +162,36 @@ describe("i18n translation lookup", () => {
     expect(getKeys(ptBR).sort()).toEqual(enKeys);
   });
 
+  it("verifies onboarding dictionary parity across all locales", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const en = require("../messages/en.json").navigation.onboarding;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const es = require("../messages/es.json").navigation.onboarding;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const hi = require("../messages/hi.json").navigation.onboarding;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ptBR = require("../messages/pt-BR.json").navigation.onboarding;
+
+    const getKeys = (obj: Record<string, unknown>, prefix = ""): string[] => {
+      let keys: string[] = [];
+      for (const [k, v] of Object.entries(obj)) {
+        const full = prefix ? `${prefix}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          keys = keys.concat(getKeys(v as Record<string, unknown>, full));
+        } else {
+          keys.push(full);
+        }
+      }
+      return keys;
+    };
+
+    const enKeys = getKeys(en).sort();
+    expect(enKeys.length).toBe(18);
+    expect(getKeys(es).sort()).toEqual(enKeys);
+    expect(getKeys(hi).sort()).toEqual(enKeys);
+    expect(getKeys(ptBR).sort()).toEqual(enKeys);
+  });
+
   it("verifies navigation dictionary parity across all locales", () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const en = require("../messages/en.json").navigation;
