@@ -468,3 +468,118 @@ test("notification search filters and highlights correctly", async ({
   await expect(page.getByText("Alpha notification message")).toBeVisible();
   await expect(page.getByText("Beta alert message")).toBeVisible();
 });
+
+test("notification panel: unread badge displays count, panel open marks all read, and badge updates", async ({
+  page,
+}) => {
+  let mockNotifications = [
+    {
+      id: "notif-1",
+      type: "info",
+      message: "Pull request #42 was merged into main",
+      read: false,
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "notif-2",
+      type: "achievement",
+      message: "You achieved a 7-day coding streak!",
+      read: false,
+      created_at: new Date().toISOString(),
+    },
+  ];
+  let mockUnreadCount = 2;
+
+  await page.route("**/api/notifications**", async (route) => {
+    if (route.request().method() === "PATCH") {
+      mockNotifications = mockNotifications.map((n) => ({ ...n, read: true }));
+      mockUnreadCount = 0;
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+      return;
+    }
+
+    if (route.request().method() === "DELETE") {
+      mockNotifications = [];
+      mockUnreadCount = 0;
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        notifications: mockNotifications,
+        unreadCount: mockUnreadCount,
+      }),
+    });
+  });
+
+  await page.goto("/dashboard", { waitUntil: "load" });
+
+  await expect(
+    page.getByRole("heading", { name: "Dashboard", exact: true })
+  ).toBeVisible({ timeout: 30000 });
+
+  // 1. Verify unread badge displays count '2' on the bell icon before opening
+  const bellButton = page
+    .getByRole("button", { name: /Notifications/ })
+    .first();
+  await expect(bellButton).toBeVisible({ timeout: 10000 });
+
+  const unreadBadge = bellButton.locator("span");
+  await expect(unreadBadge).toBeVisible({ timeout: 5000 });
+  await expect(unreadBadge).toHaveText("2");
+
+  /**
+   * Note on Issue #3806 Step 2 ("Mark an individual notification as read"):
+   * NotificationBell (src/components/NotificationBell.tsx) and the notifications API
+   * (src/app/api/notifications/route.ts) do not expose an individual mark-as-read
+   * action. Notification items have no per-item read control; opening the panel uses
+   * the existing bulk PATCH behavior to mark all unread notifications as read.
+   */
+
+  // 2. Open notification bell
+  await bellButton.click();
+
+  // Verify dropdown panel opens
+  const drawerHeading = page.getByRole("heading", { name: "Notifications" });
+  await expect(drawerHeading).toBeVisible({ timeout: 5000 });
+
+  // Verify notifications are listed
+  await expect(
+    page.getByText("Pull request #42 was merged into main")
+  ).toBeVisible();
+  await expect(
+    page.getByText("You achieved a 7-day coding streak!")
+  ).toBeVisible();
+
+  // 3. Verify bulk mark-as-read on panel open:
+  // Unread badge on the bell icon disappears (count reset to 0)
+  await expect(unreadBadge).not.toBeVisible({ timeout: 5000 });
+
+  // "All caught up" indicator is visible in panel header
+  await expect(page.getByText("All caught up")).toBeVisible({ timeout: 5000 });
+
+  // Notifications remain visible in the panel
+  await expect(
+    page.getByText("Pull request #42 was merged into main")
+  ).toBeVisible();
+
+  // 4. Test "Clear all" action clears notifications from panel
+  const clearAllButton = page.getByRole("button", {
+    name: "Clear all notifications",
+  });
+  await expect(clearAllButton).toBeVisible();
+  await clearAllButton.click();
+
+  // Verify empty state is rendered
+  await expect(page.getByText("No notifications yet")).toBeVisible({
+    timeout: 5000,
+  });
+});

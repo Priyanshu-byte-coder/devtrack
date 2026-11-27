@@ -262,6 +262,8 @@ export default function WrappedExperience() {
   const levelColor = LEVEL_COLORS[slide % LEVEL_COLORS.length];
   const isLast = slide === slides.length - 1;
 
+  // Year in Code is deliberately an always-dark arcade cabinet (see .wrapped-screen in globals.css).
+  // Light text colours (text-slate-*) are intentionally preserved across all themes for contrast on the dark background.
   return (
     <div className="wrapped-root wrapped-screen relative overflow-hidden text-slate-50">
       <div aria-hidden="true" className="px-scanlines absolute inset-0" />
@@ -303,7 +305,7 @@ export default function WrappedExperience() {
           </section>
         ) : error ? (
           <section className="grid flex-1 place-items-center py-16">
-            <div className="max-w-xl border-2 border-rose-400/50 bg-rose-500/10 p-6 text-center">
+            <div className="max-w-xl border-2 border-destructive/50 bg-destructive/10 p-6 text-center">
               <p className="font-pixel text-[10px] uppercase tracking-[0.2em] text-rose-300">
                 Game over
               </p>
@@ -314,7 +316,7 @@ export default function WrappedExperience() {
               <button
                 type="button"
                 onClick={() => setReloadKey((value) => value + 1)}
-                className="mt-5 border-2 border-rose-200 bg-rose-100 px-4 py-2 font-pixel text-xs uppercase tracking-[0.12em] text-rose-950 hover:bg-white"
+                className="mt-5 border-2 border-destructive bg-destructive px-4 py-2 font-pixel text-xs uppercase tracking-[0.12em] text-destructive-foreground hover:bg-destructive/90"
               >
                 ▶ Continue
               </button>
@@ -490,7 +492,7 @@ export default function WrappedExperience() {
                 </div>
 
                 {stats.partial && (
-                  <p className="border-2 border-amber-300/40 bg-amber-300/10 p-3 text-sm text-amber-100">
+                  <p className="border-2 border-warning/40 bg-warning/10 p-3 text-sm text-amber-100">
                     {stats.year} is still in progress, so this recap uses
                     year-to-date data.
                   </p>
