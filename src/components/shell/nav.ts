@@ -18,6 +18,8 @@ import {
 export type NavItem = {
   href: string;
   label: string;
+  /** Translation key suffix in navigation.items (e.g. 'hq', 'leaderboard'). */
+  key?: string;
   icon: LucideIcon;
   /** Other routes that belong to this item (e.g. sub-pages). */
   match?: string[];
@@ -27,6 +29,8 @@ export type NavItem = {
 
 export type NavSection = {
   label: string;
+  /** Translation key suffix in navigation.sections (e.g. 'play', 'stats'). */
+  key?: string;
   /** Section colour key, a literal class so Tailwind sees it. */
   accent: string;
   items: NavItem[];
@@ -39,19 +43,27 @@ export type NavSection = {
 export const APP_NAV: NavSection[] = [
   {
     label: "Play",
+    key: "play",
     accent: "[--nav-c:#f2c14e]",
     items: [
-      { href: "/dashboard", label: "HQ", icon: LayoutDashboard },
-      { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+      { href: "/dashboard", label: "HQ", key: "hq", icon: LayoutDashboard },
+      {
+        href: "/leaderboard",
+        label: "Leaderboard",
+        key: "leaderboard",
+        icon: Trophy,
+      },
       {
         href: "/compare",
         label: "Duel a friend",
+        key: "duel",
         icon: Swords,
       },
-      { href: "/top", label: "Top devs", icon: Crown },
+      { href: "/top", label: "Top devs", key: "topDevs", icon: Crown },
       {
         href: "/wrapped",
         label: "Year in Code",
+        key: "yearInCode",
         icon: Sparkles,
         highlight: true,
       },
@@ -59,44 +71,68 @@ export const APP_NAV: NavSection[] = [
   },
   {
     label: "Stats",
+    key: "stats",
     accent: "[--nav-c:#6ba8ff]",
     items: [
-      { href: "/dashboard/activity", label: "Activity", icon: Activity },
+      {
+        href: "/dashboard/activity",
+        label: "Activity",
+        key: "activity",
+        icon: Activity,
+      },
       {
         href: "/dashboard/pull-requests",
         label: "Pull requests",
+        key: "pullRequests",
         icon: GitPullRequest,
       },
       {
         href: "/dashboard/repositories",
         label: "Repositories",
+        key: "repositories",
         icon: FolderGit2,
         match: ["/dashboard/repo-health", "/dashboard/repo-comparison"],
       },
-      { href: "/dashboard/goals", label: "Goals", icon: Target },
+      { href: "/dashboard/goals", label: "Goals", key: "goals", icon: Target },
     ],
   },
   {
     label: "Power-ups",
+    key: "powerUps",
     accent: "[--nav-c:#c77dff]",
     items: [
       {
         href: "/dashboard/career-intelligence",
         label: "AI resume",
+        key: "careerIntelligence",
         icon: FileText,
       },
-      { href: "/dashboard/personality", label: "Personality", icon: Brain },
+      {
+        href: "/dashboard/personality",
+        label: "Personality",
+        key: "personality",
+        icon: Brain,
+      },
       {
         href: "/dashboard/project-tutor",
         label: "Project tutor",
+        key: "projectTutor",
         icon: GraduationCap,
       },
     ],
   },
   {
     label: "Options",
+    key: "options",
     accent: "[--nav-c:#94a3b8]",
-    items: [{ href: "/dashboard/settings", label: "Settings", icon: Settings }],
+    items: [
+      {
+        href: "/dashboard/settings",
+        label: "Settings",
+        key: "settings",
+        icon: Settings,
+      },
+    ],
   },
 ];
 

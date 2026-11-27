@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useHeatmapTheme } from "@/hooks/useHeatmapTheme";
 import DailyBreakdownSheet from "@/components/DailyBreakdownSheet";
 import { getContributionInsights } from "@/lib/contribution-insights";
@@ -142,6 +143,9 @@ function buildHeatmap(
 export default function ContributionHeatmap({
   days = DEFAULT_DAYS,
 }: ContributionHeatmapProps) {
+  const t = useTranslations("activity.contributionHeatmap");
+  const locale = useLocale();
+
   const { selectedAccount } = useAccount();
   const [data, setData] = useState<Record<string, number>>({});
   const [commits, setCommits] = useState<CommitItem[]>([]);
@@ -155,6 +159,24 @@ export default function ContributionHeatmap({
   const [minutesAgo, setMinutesAgo] = useState(0);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const handleCloseSheet = useCallback(() => setSelectedDate(null), []);
+
+  const monthFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { month: "short" }),
+    [locale]
+  );
+
+  const dayLabels = useMemo(
+    () => [
+      t("days.sun"),
+      t("days.mon"),
+      t("days.tue"),
+      t("days.wed"),
+      t("days.thu"),
+      t("days.fri"),
+      t("days.sat"),
+    ],
+    [t]
+  );
 
   // Range state
   const [selectedDays, setSelectedDays] = useState(days);
@@ -227,15 +249,15 @@ export default function ContributionHeatmap({
     const today = new Date().toISOString().slice(0, 10);
 
     if (!customFrom || !customTo) {
-      setCustomError("Please select both dates.");
+      setCustomError(t("errors.selectBoth"));
       return;
     }
     if (customFrom > customTo) {
-      setCustomError("Start date must be before end date.");
+      setCustomError(t("errors.startBeforeEnd"));
       return;
     }
     if (customTo > today) {
-      setCustomError("End date can't be in the future.");
+      setCustomError(t("errors.futureDate"));
       return;
     }
     const msPerDay = 1000 * 60 * 60 * 24;
@@ -243,13 +265,13 @@ export default function ContributionHeatmap({
       (new Date(customTo).getTime() - new Date(customFrom).getTime()) /
       msPerDay;
     if (diff > 365 * 2) {
-      setCustomError("Max range is 2 years.");
+      setCustomError(t("errors.maxRange"));
       return;
     }
 
     const fmt = (d: string) => {
       const [year, month, day] = d.split("-").map(Number);
-      return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+      return new Date(year, month - 1, day).toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
       });
@@ -309,7 +331,7 @@ export default function ContributionHeatmap({
       })
       .catch((err) => {
         if (!active) return;
-        setError("Failed to load contribution heatmap.");
+        setError(t("errorLoading"));
         console.error("Error loading heatmap data:", err);
       })
       .finally(() => {
@@ -320,7 +342,7 @@ export default function ContributionHeatmap({
     return () => {
       active = false;
     };
-  }, [currentFrom, currentTo, selectedDays, selectedAccount]);
+  }, [currentFrom, currentTo, selectedDays, selectedAccount, t]);
 
   useEffect(() => {
     if (!lastUpdated) return;
@@ -440,7 +462,7 @@ export default function ContributionHeatmap({
       }
     }
     return markers;
-  }, [cells, weekCount]);
+  }, [cells, weekCount, monthFormatter]);
 
   // Shared matrix geometries matching baseline canvas dimensions
   const totalGridWidth =
@@ -496,30 +518,85 @@ export default function ContributionHeatmap({
     };
   }, [cells]);
 
-  const heatmapSummary = `Contribution heatmap showing ${formatCommitCount(totalCommits)} across ${displayDays} days.`;
+  const heatmapSummary = t("commitsSummary", {
+    commits: formatCommitCount(totalCommits),
+    days: displayDays,
+  });
+
+  const localizedWeekday = useMemo(() => {
+    const WEEKDAY_INDICES: Record<string, number> = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+    const idx = WEEKDAY_INDICES[insights.mostProductiveWeekday];
+    if (idx !== undefined) {
+      const d = new Date(2023, 0, 1 + idx);
+      return new Intl.DateTimeFormat(locale, { weekday: "long" }).format(d);
+    }
+    return insights.mostProductiveWeekday;
+  }, [insights.mostProductiveWeekday, locale]);
+
+  const localizedBestMonth = useMemo(() => {
+    if (!insights.bestMonth || insights.bestMonth === "N/A") return "N/A";
+    const parts = insights.bestMonth.split(" ");
+    if (parts.length === 2) {
+      const MONTH_NAMES = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const monthIdx = MONTH_NAMES.indexOf(parts[0]);
+      const year = parseInt(parts[1], 10);
+      if (monthIdx !== -1 && !isNaN(year)) {
+        return new Intl.DateTimeFormat(locale, {
+          month: "long",
+          year: "numeric",
+        }).format(new Date(year, monthIdx, 1));
+      }
+    }
+    return insights.bestMonth;
+  }, [insights.bestMonth, locale]);
 
   return (
     <div className="w-full overflow-hidden px-frame bg-[var(--card)] p-4 sm:p-6">
       <div className="mb-4 flex flex-col items-start justify-between gap-3">
         <div className="w-full">
           <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Contribution Heatmap
+            {t("title")}
           </h2>
           <p className="text-xs text-[var(--muted-foreground)] dark:text-gray-300">
             {customLabel
               ? `${customLabel}`
-              : `Last ${selectedDays} days of commit activity.`}
+              : t("subtitle", { days: selectedDays })}
           </p>
         </div>
 
         <div className="flex w-full flex-wrap items-center gap-2">
           {/* Range buttons */}
-          <div className={arcadeTabGroupClass} role="group" aria-label="Range">
+          <div
+            className={arcadeTabGroupClass}
+            role="group"
+            aria-label={t("rangeGroupAria")}
+          >
             {PRESET_RANGES.map((r) => (
               <button
                 key={r.days}
                 onClick={() => handleRangeChange(r.days)}
-                aria-label={`Show ${r.days}-day range`}
+                aria-label={t("showRangeAria", { days: r.days })}
                 aria-pressed={selectedDays === r.days && !customLabel}
                 className={arcadeTabClass(
                   selectedDays === r.days && !customLabel
@@ -536,23 +613,23 @@ export default function ContributionHeatmap({
               onClick={() => setShowPopover((v) => !v)}
               aria-label={
                 customLabel
-                  ? `Custom date range: ${customLabel}`
-                  : "Select custom date range"
+                  ? `${t("customPopoverTitle")}: ${customLabel}`
+                  : t("customButton")
               }
               aria-expanded={showPopover}
               className={arcadeTabClass(Boolean(customLabel))}
             >
-              {customLabel ?? "Custom…"}
+              {customLabel ?? t("customButton")}
             </button>
 
             {showPopover && (
               <div className="absolute right-0 top-10 z-50 w-72 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-lg">
                 <p className="text-sm font-medium text-[var(--foreground)] mb-3">
-                  Custom range
+                  {t("customPopoverTitle")}
                 </p>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[var(--muted-foreground)]">
-                    Start date
+                    {t("startDate")}
                     <input
                       type="date"
                       value={customFrom}
@@ -567,7 +644,7 @@ export default function ContributionHeatmap({
                     />
                   </label>
                   <label className="text-xs text-[var(--muted-foreground)]">
-                    End date
+                    {t("endDate")}
                     <input
                       type="date"
                       value={customTo}
@@ -585,7 +662,7 @@ export default function ContributionHeatmap({
                     onClick={handleCustomApply}
                     className="mt-2 w-full rounded-md bg-[var(--accent)] px-3 py-1 text-xs font-medium text-[var(--background)] transition-opacity hover:opacity-90 active:scale-95"
                   >
-                    Apply
+                    {t("apply")}
                   </button>
                 </div>
               </div>
@@ -602,7 +679,7 @@ export default function ContributionHeatmap({
             }
             className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
-            Default
+            {t("themeDefault")}
           </button>
           <button
             type="button"
@@ -614,7 +691,7 @@ export default function ContributionHeatmap({
             }
             className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
-            Colour-blind
+            {t("themeColourBlind")}
           </button>
           <button
             type="button"
@@ -626,23 +703,23 @@ export default function ContributionHeatmap({
             }
             className="px-2 py-1 font-pixel text-[10px] uppercase tracking-[0.08em] text-[var(--muted-foreground)]"
           >
-            Theme
+            {t("themeCustom")}
           </button>
 
           {/* Repository and Language Filters */}
           <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-2 mt-1 w-full sm:border-t-0 sm:border-l sm:pt-0 sm:mt-0 sm:pl-2 sm:w-auto">
             <div className="flex items-center gap-1 text-[11px] text-[var(--muted-foreground)] dark:text-gray-300">
               <Filter className="h-3 w-3" />
-              <span>Filter:</span>
+              <span>{t("filterLabel")}</span>
             </div>
 
             <select
               value={selectedRepo}
               onChange={(e) => setSelectedRepo(e.target.value)}
               className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors max-w-[150px] truncate"
-              aria-label="Filter by repository"
+              aria-label={t("filterRepoAria")}
             >
-              <option value="all">All Repositories</option>
+              <option value="all">{t("allRepos")}</option>
               {uniqueRepos.map((repo) => (
                 <option key={repo} value={repo}>
                   {repo.split("/")[1] ?? repo}
@@ -654,9 +731,9 @@ export default function ContributionHeatmap({
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
               className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
-              aria-label="Filter by language"
+              aria-label={t("filterLangAria")}
             >
-              <option value="all">All Languages</option>
+              <option value="all">{t("allLangs")}</option>
               {uniqueLanguages.map((lang) => (
                 <option key={lang} value={lang}>
                   {lang}
@@ -668,7 +745,7 @@ export default function ContributionHeatmap({
 
         {/* Legend - Less / More */}
         <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-          <span className="dark:text-gray-300">Less</span>
+          <span className="dark:text-gray-300">{t("legendLess")}</span>
           <div className="flex items-center gap-1">
             {[
               0,
@@ -690,7 +767,7 @@ export default function ContributionHeatmap({
               );
             })}
           </div>
-          <span className="dark:text-gray-300">More</span>
+          <span className="dark:text-gray-300">{t("legendMore")}</span>
         </div>
       </div>
 
@@ -699,7 +776,7 @@ export default function ContributionHeatmap({
       ) : error ? (
         <div className="flex h-[180px] items-center rounded-lg border border-destructive/30 bg-destructive/10 px-4">
           <p className="text-sm text-[var(--destructive)]">
-            {error} Please try refreshing.
+            {error} {t("refreshPrompt")}
           </p>
         </div>
       ) : (
@@ -748,7 +825,7 @@ export default function ContributionHeatmap({
 
               {/* Grid System Area mapping identical columns */}
               <div className="grid items-center" style={gridStyle}>
-                {DAY_LABELS.map((label, rowIndex) => (
+                {dayLabels.map((label, rowIndex) => (
                   <div
                     key={label}
                     className="flex items-center justify-end pr-2 text-[10px] text-[var(--muted-foreground)] dark:text-gray-500"
@@ -768,12 +845,15 @@ export default function ContributionHeatmap({
                   const isFuture = cell.date > today;
                   const showTooltipBelow = dayIndex < 2;
                   const isNearRightEdge = weekIndex >= weekCount - 3;
-                  const formattedDate = cell.date.toLocaleDateString("en-US", {
+                  const formattedDate = cell.date.toLocaleDateString(locale, {
                     weekday: "short",
                     month: "short",
                     day: "numeric",
                   });
-                  const accessibleLabel = `${formatCommitCount(cell.count)} on ${cell.dateKey}`;
+                  const accessibleLabel = t("cellAria", {
+                    commits: formatCommitCount(cell.count),
+                    date: cell.dateKey,
+                  });
                   const tooltip = `${formatCommitCount(cell.count)} on ${formattedDate}`;
 
                   return (
@@ -783,7 +863,7 @@ export default function ContributionHeatmap({
                       title={isFuture ? "" : tooltip}
                       aria-label={
                         isFuture
-                          ? `Future date on ${cell.dateKey}`
+                          ? t("futureDateAria", { date: cell.dateKey })
                           : accessibleLabel
                       }
                       disabled={isFuture}
@@ -826,13 +906,16 @@ export default function ContributionHeatmap({
           {/* Commits shown + Updated timestamp */}
           <div className="mt-4 flex items-center justify-between gap-4 text-xs text-[var(--muted-foreground)] dark:text-gray-400">
             <p>
-              {totalCommits} commits shown across {displayDays} days.
+              {t("commitsShown", {
+                commits: totalCommits,
+                days: displayDays,
+              })}
             </p>
             {lastUpdated && (
               <p>
                 {minutesAgo === 0
-                  ? "Updated just now"
-                  : `Updated ${minutesAgo} min ago`}
+                  ? t("updatedJustNow")
+                  : t("updatedMinAgo", { minutes: minutesAgo })}
               </p>
             )}
           </div>
@@ -840,18 +923,18 @@ export default function ContributionHeatmap({
           {/* Contribution Insights section */}
           <div className="mt-6 border-t border-[var(--border)] pt-6">
             <h3 className="mb-4 font-pixel text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
-              Contribution Insights
+              {t("insights.title")}
             </h3>
 
             {inRangeDays.length === 0 ? (
               <p className="text-xs text-[var(--muted-foreground)]">
-                No contribution data available for this range.
+                {t("insights.noData")}
               </p>
             ) : (
               <div
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
                 role="region"
-                aria-label="Contribution Insights Panel"
+                aria-label={t("insights.panelAria")}
               >
                 {/* Most Productive Weekday */}
                 <div className="stat-cell flex flex-col justify-between p-4 [--stat-c:#6ba8ff]">
@@ -861,15 +944,15 @@ export default function ContributionHeatmap({
                       aria-hidden="true"
                     />
                     <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                      Most Productive Day
+                      {t("insights.mostProductiveDay")}
                     </span>
                   </div>
                   <div>
                     <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
-                      {insights.mostProductiveWeekday}
+                      {localizedWeekday}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
-                      Day with highest average commits
+                      {t("insights.mostProductiveDayDesc")}
                     </p>
                   </div>
                 </div>
@@ -882,15 +965,18 @@ export default function ContributionHeatmap({
                       aria-hidden="true"
                     />
                     <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                      Avg Weekly Contributions
+                      {t("insights.avgWeekly")}
                     </span>
                   </div>
                   <div>
                     <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
-                      {insights.averageWeeklyContributions.toFixed(1)}
+                      {insights.averageWeeklyContributions.toLocaleString(
+                        locale,
+                        { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+                      )}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
-                      Commits per 7 calendar days
+                      {t("insights.avgWeeklyDesc")}
                     </p>
                   </div>
                 </div>
@@ -903,16 +989,18 @@ export default function ContributionHeatmap({
                       aria-hidden="true"
                     />
                     <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                      Longest Streak
+                      {t("insights.longestStreak")}
                     </span>
                   </div>
                   <div>
                     <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
                       {insights.longestStreak}{" "}
-                      {insights.longestStreak === 1 ? "day" : "days"}
+                      {insights.longestStreak === 1
+                        ? t("insights.dayUnit")
+                        : t("insights.daysUnit")}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
-                      Max consecutive active days
+                      {t("insights.longestStreakDesc")}
                     </p>
                   </div>
                 </div>
@@ -925,16 +1013,18 @@ export default function ContributionHeatmap({
                       aria-hidden="true"
                     />
                     <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                      Longest Inactive Period
+                      {t("insights.longestInactive")}
                     </span>
                   </div>
                   <div>
                     <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white">
                       {insights.longestInactivePeriod}{" "}
-                      {insights.longestInactivePeriod === 1 ? "day" : "days"}
+                      {insights.longestInactivePeriod === 1
+                        ? t("insights.dayUnit")
+                        : t("insights.daysUnit")}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
-                      Max consecutive days with zero commits
+                      {t("insights.longestInactiveDesc")}
                     </p>
                   </div>
                 </div>
@@ -947,7 +1037,7 @@ export default function ContributionHeatmap({
                       aria-hidden="true"
                     />
                     <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                      Monthly Trend
+                      {t("insights.monthlyTrend")}
                     </span>
                   </div>
                   <div>
@@ -960,10 +1050,14 @@ export default function ContributionHeatmap({
                             : "bg-blue-500/10 text-blue-400 border-blue-500/20"
                       }`}
                     >
-                      {insights.monthlyTrend}
+                      {insights.monthlyTrend === "Increasing"
+                        ? t("insights.trendIncreasing")
+                        : insights.monthlyTrend === "Decreasing"
+                          ? t("insights.trendDecreasing")
+                          : t("insights.trendStable")}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-2">
-                      Recent month vs preceding month
+                      {t("insights.monthlyTrendDesc")}
                     </p>
                   </div>
                 </div>
@@ -976,15 +1070,17 @@ export default function ContributionHeatmap({
                       aria-hidden="true"
                     />
                     <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wide">
-                      Best Month
+                      {t("insights.bestMonth")}
                     </span>
                   </div>
                   <div>
                     <span className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)] dark:text-white truncate block">
-                      {insights.bestMonth}
+                      {localizedBestMonth}
                     </span>
                     <p className="text-[11px] text-[var(--muted-foreground)] mt-1">
-                      Highest total ({insights.bestMonthTotal} commits)
+                      {t("insights.bestMonthDesc", {
+                        commits: insights.bestMonthTotal,
+                      })}
                     </p>
                   </div>
                 </div>

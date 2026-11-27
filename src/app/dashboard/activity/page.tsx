@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import PageHeader, { SectionTitle } from "@/components/shell/PageHeader";
 import {
   CodingActivityInsights,
@@ -11,18 +12,17 @@ import {
 
 export const metadata: Metadata = { title: "Activity" };
 
-export default function ActivityPage() {
+export default async function ActivityPage() {
+  const t = await getTranslations("activity");
+
   return (
     <>
-      <PageHeader
-        title="Activity"
-        description="How often, how consistently and when you code."
-      />
+      <PageHeader title={t("title")} description={t("description")} />
 
-      <SectionTitle>Contributions</SectionTitle>
+      <SectionTitle>{t("sections.contributions")}</SectionTitle>
       <ContributionHeatmap />
 
-      <SectionTitle>Streaks &amp; consistency</SectionTitle>
+      <SectionTitle>{t("sections.streaksAndConsistency")}</SectionTitle>
       <div id="streaks" className="grid scroll-mt-20 gap-4 xl:grid-cols-2">
         <StreakTracker />
         <div className="space-y-4">
@@ -31,7 +31,7 @@ export default function ActivityPage() {
         </div>
       </div>
 
-      <SectionTitle>When you code</SectionTitle>
+      <SectionTitle>{t("sections.whenYouCode")}</SectionTitle>
       <div className="grid gap-4 xl:grid-cols-2">
         <ProductiveHours />
         <CodingActivityInsights />
