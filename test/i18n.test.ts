@@ -284,6 +284,38 @@ describe("i18n translation lookup", () => {
     expect(getKeys(hi).sort()).toEqual(enKeys);
     expect(getKeys(ptBR).sort()).toEqual(enKeys);
   });
+
+  it("verifies themeMenu and buddy dictionary parity across all locales", () => {
+    for (const section of ["themeMenu", "buddy"] as const) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const en = require("../messages/en.json")[section];
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const es = require("../messages/es.json")[section];
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const hi = require("../messages/hi.json")[section];
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const ptBR = require("../messages/pt-BR.json")[section];
+
+      const getKeys = (obj: Record<string, unknown>, prefix = ""): string[] => {
+        let keys: string[] = [];
+        for (const [k, v] of Object.entries(obj)) {
+          const full = prefix ? `${prefix}.${k}` : k;
+          if (v && typeof v === "object" && !Array.isArray(v)) {
+            keys = keys.concat(getKeys(v as Record<string, unknown>, full));
+          } else {
+            keys.push(full);
+          }
+        }
+        return keys;
+      };
+
+      const enKeys = getKeys(en).sort();
+      expect(enKeys.length).toBeGreaterThan(0);
+      expect(getKeys(es).sort()).toEqual(enKeys);
+      expect(getKeys(hi).sort()).toEqual(enKeys);
+      expect(getKeys(ptBR).sort()).toEqual(enKeys);
+    }
+  });
 });
 
 describe("detectLocale edge cases", () => {

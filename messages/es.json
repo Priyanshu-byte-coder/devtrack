@@ -1028,5 +1028,27 @@
       "celebration": "🎉 ¡Alcanzaste una racha de {streak} días! ¡Sigue así!",
       "dismiss": "Descartar banner de hito"
     }
+  },
+  "themeMenu": {
+    "label": "Tema",
+    "chooseTheme": "Elegir tema",
+    "triggerAria": "Tema: {name}. Elegir tema",
+    "optionsAria": "Opciones de tema",
+    "selectTheme": "Seleccionar tema",
+    "descriptions": {
+      "arcade": "Noche azul marino, neón azul",
+      "daylight": "Claro y nítido",
+      "terminal": "CRT fósforo verde",
+      "synthwave": "Noche púrpura, rosa y cian"
+    }
+  },
+  "buddy": {
+    "bringBack": "Traer de vuelta a Bit",
+    "dialogAria": "Bit dice, {stage}",
+    "close": "Cerrar",
+    "hide": "Ocultar a Bit",
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "buttonAria": "Bit, la guía de DevTrack. Consejo sobre {stage}"
   }
 }

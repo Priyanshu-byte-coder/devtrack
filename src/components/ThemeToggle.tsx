@@ -7,6 +7,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type SVGProps,
 } from "react";
+import { useTranslations } from "next-intl";
 import {
   THEME_OPTIONS,
   type ThemeDefinition,
@@ -108,6 +109,7 @@ function ThemeMenu({
   onSelect: (theme: ThemeId) => void;
   placement: "below" | "above";
 }) {
+  const t = useTranslations("themeMenu");
   const listRef = useRef<HTMLUListElement>(null);
 
   // Focus the active item when the menu opens.
@@ -139,7 +141,7 @@ function ThemeMenu({
   return (
     <div
       role="menu"
-      aria-label="Theme options"
+      aria-label={t("optionsAria")}
       className={`px-frame px-frame-accent absolute z-50 w-[232px] bg-[var(--card)] p-2 shadow-lg ${
         placement === "above"
           ? "bottom-full left-0 mb-3"
@@ -147,7 +149,7 @@ function ThemeMenu({
       }`}
     >
       <p className="px-2 pb-2 pt-1 font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-        Select theme
+        {t("selectTheme")}
       </p>
       <ul ref={listRef} onKeyDown={onKeyDown} className="space-y-1">
         {THEME_OPTIONS.map((option) => {
@@ -171,7 +173,7 @@ function ThemeMenu({
                     {option.name}
                   </span>
                   <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
-                    {option.description}
+                    {t(`descriptions.${option.id}`)}
                   </span>
                 </span>
                 {active && (
@@ -196,6 +198,7 @@ type ThemeToggleProps = {
 };
 
 export default function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
+  const t = useTranslations("themeMenu");
   const { theme, setTheme, themeDefinition } = useTheme();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -230,7 +233,7 @@ export default function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
           type="button"
           onClick={() => setOpen((value) => !value)}
           className="inline-flex h-8 w-8 items-center justify-center border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-          aria-label="Choose theme"
+          aria-label={t("chooseTheme")}
           aria-haspopup="menu"
           aria-expanded={open}
         >
@@ -241,7 +244,7 @@ export default function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
           ref={triggerRef}
           type="button"
           onClick={() => setOpen((value) => !value)}
-          aria-label={`Theme: ${themeDefinition.name}. Choose theme`}
+          aria-label={t("triggerAria", { name: themeDefinition.name })}
           aria-haspopup="menu"
           aria-expanded={open}
           className="px-frame flex w-full items-center gap-3 bg-[var(--card)] px-3 py-2 text-left text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
@@ -249,7 +252,7 @@ export default function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
           <ThemeSwatch theme={themeDefinition} />
           <span className="min-w-0 flex-1">
             <span className="block font-pixel text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-              Theme
+              {t("label")}
             </span>
             <span className="block truncate font-pixel text-xs uppercase tracking-[0.06em]">
               {themeDefinition.name}
