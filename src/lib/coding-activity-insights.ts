@@ -53,15 +53,19 @@ const DAY_NAMES = [
   "Saturday",
 ];
 
-function formatClockHour(hour: number): string {
+function formatClockHour(hour: number, locale = "en"): string {
   const normalizedHour = ((hour % 24) + 24) % 24;
-  const period = normalizedHour < 12 ? "AM" : "PM";
-  const displayHour = normalizedHour % 12 === 0 ? 12 : normalizedHour % 12;
-  return `${displayHour} ${period}`;
+  if (locale === "en") {
+    const period = normalizedHour < 12 ? "AM" : "PM";
+    const displayHour = normalizedHour % 12 === 0 ? 12 : normalizedHour % 12;
+    return `${displayHour} ${period}`;
+  }
+  const d = new Date(2023, 0, 1, normalizedHour, 0);
+  return new Intl.DateTimeFormat(locale, { hour: "numeric" }).format(d);
 }
 
-export function formatHourRange(hour: number): string {
-  return `${formatClockHour(hour)} – ${formatClockHour(hour + 1)}`;
+export function formatHourRange(hour: number, locale = "en"): string {
+  return `${formatClockHour(hour, locale)} \u2013 ${formatClockHour(hour + 1, locale)}`;
 }
 
 export function getHourInTimeZone(date: Date, timeZone: string): number {
@@ -84,13 +88,16 @@ function getDayNameInTimeZone(date: Date, timeZone: string): string {
     weekday: "long",
   }).formatToParts(date);
 
-  const dayPart = parts.find((part) => part.type === "weekday")?.value ?? "Sunday";
+  const dayPart =
+    parts.find((part) => part.type === "weekday")?.value ?? "Sunday";
   return DAY_NAMES.includes(dayPart) ? dayPart : "Sunday";
 }
 
 function normalizeOffsetLabel(value: string): string {
   const normalized = value.replace(/^GMT/, "UTC");
-  return /^UTC[+-]/.test(normalized) ? normalized.replace(/^UTC/, "UTC ") : normalized;
+  return /^UTC[+-]/.test(normalized)
+    ? normalized.replace(/^UTC/, "UTC ")
+    : normalized;
 }
 
 export function formatTimeZoneLabel(timeZone: string): string {
@@ -127,7 +134,9 @@ function pickHighestCount<T extends { count: number }>(items: T[]): T | null {
   }, items[0]);
 }
 
-function pickLowestNonZeroCount<T extends { count: number }>(items: T[]): T | null {
+function pickLowestNonZeroCount<T extends { count: number }>(
+  items: T[]
+): T | null {
   const nonZeroItems = items.filter((item) => item.count > 0);
 
   if (nonZeroItems.length === 0) {
@@ -151,9 +160,7 @@ function calculateConsistencyScore(
   return Math.round((activeDays / 7) * 100);
 }
 
-function calculateAverageDailyCommits(
-  totalActivities: number
-): number {
+function calculateAverageDailyCommits(totalActivities: number): number {
   return Number((totalActivities / 7).toFixed(1));
 }
 
@@ -191,9 +198,7 @@ function generateRecommendations(
   }
 
   if (recommendations.length === 0) {
-    recommendations.push(
-      "Your coding activity looks healthy and balanced."
-    );
+    recommendations.push("Your coding activity looks healthy and balanced.");
   }
 
   return recommendations;
@@ -212,20 +217,14 @@ function generateSummary(
     );
   }
 
-  summary.push(
-    `Your weekly consistency score is ${consistencyScore}%.`
-  );
+  summary.push(`Your weekly consistency score is ${consistencyScore}%.`);
 
-  summary.push(
-    `Overall productivity level: ${productivityLevel}.`
-  );
+  summary.push(`Overall productivity level: ${productivityLevel}.`);
 
   return summary;
 }
 
-function calculateWeeklyTrend(
-  dayCounts: CodingActivityInsightDayCount[]
-): {
+function calculateWeeklyTrend(dayCounts: CodingActivityInsightDayCount[]): {
   direction: "up" | "down" | "stable";
   percentage: number;
 } {
@@ -245,11 +244,10 @@ function calculateWeeklyTrend(
   }
 
   if (secondHalf > firstHalf) {
-    const percentage = firstHalf === 0
-      ? 100
-      : Math.round(
-          ((secondHalf - firstHalf) / firstHalf) * 100
-        );
+    const percentage =
+      firstHalf === 0
+        ? 100
+        : Math.round(((secondHalf - firstHalf) / firstHalf) * 100);
 
     return {
       direction: "up",
@@ -257,11 +255,10 @@ function calculateWeeklyTrend(
     };
   }
 
-  const percentage = secondHalf === 0
-    ? 100
-    : Math.round(
-        ((firstHalf - secondHalf) / firstHalf) * 100
-      );
+  const percentage =
+    secondHalf === 0
+      ? 100
+      : Math.round(((firstHalf - secondHalf) / firstHalf) * 100);
 
   return {
     direction: "down",
@@ -299,27 +296,23 @@ export function summarizeCodingActivity(
   }
 
   const mostActiveHour = pickHighestCount(hourlyCounts) ?? hourlyCounts[0];
-  const leastActiveHour = pickLowestNonZeroCount(hourlyCounts) ?? hourlyCounts[0];
+  const leastActiveHour =
+    pickLowestNonZeroCount(hourlyCounts) ?? hourlyCounts[0];
   const mostActiveDay = pickHighestCount(dayCounts);
 
-  const consistencyScore =
-    calculateConsistencyScore(dayCounts);
+  const consistencyScore = calculateConsistencyScore(dayCounts);
 
-  const averageDailyCommits =
-    calculateAverageDailyCommits(totalActivities);
+  const averageDailyCommits = calculateAverageDailyCommits(totalActivities);
 
-  const productivityLevel =
-    determineProductivityLevel(consistencyScore);
+  const productivityLevel = determineProductivityLevel(consistencyScore);
 
-  const recommendations =
-    generateRecommendations(
-      consistencyScore,
-      averageDailyCommits
-    );
+  const recommendations = generateRecommendations(
+    consistencyScore,
+    averageDailyCommits
+  );
 
-  const weeklyTrend =
-  calculateWeeklyTrend(dayCounts);
-  
+  const weeklyTrend = calculateWeeklyTrend(dayCounts);
+
   const summary = generateSummary(
     mostActiveDay && mostActiveDay.count > 0
       ? {
@@ -355,16 +348,14 @@ export function summarizeCodingActivity(
         ? { day: mostActiveDay.day, count: mostActiveDay.count }
         : undefined,
     totalActivities,
-    dayCounts: dayCounts.some((item) => item.count > 0) 
-    ? dayCounts 
-    : undefined,
+    dayCounts: dayCounts.some((item) => item.count > 0) ? dayCounts : undefined,
 
     consistencyScore,
     averageDailyCommits,
     productivityLevel,
     recommendations,
 
-     weeklyTrend,
+    weeklyTrend,
 
     summary,
     suggestedWeeklyTarget,

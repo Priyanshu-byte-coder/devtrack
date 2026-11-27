@@ -760,6 +760,11 @@ export default function ExportButton() {
         `devtrack-export-${reportName || "metrics"}-${new Date().toISOString().slice(0, 10)}.json`,
         "application/json"
       );
+      toast.success("JSON exported successfully.");
+    } catch (error) {
+      console.error("JSON export failed:", error);
+
+      toast.error("Failed to export JSON. Please try again.");
     } finally {
       setIsExportingJSON(false);
     }

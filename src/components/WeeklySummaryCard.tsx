@@ -2,6 +2,7 @@
 
 import { ChevronDown, Download, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccount } from "@/components/AccountContext";
 import { CopyFeedback } from "@/components/ui/copy-feedback";
@@ -41,6 +42,7 @@ interface AiSummaryState {
 }
 
 export default function WeeklySummaryCard() {
+  const t = useTranslations("activity.weeklySummary");
   const { selectedAccount } = useAccount();
   const [summary, setSummary] = useState<WeeklySummaryData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,13 +109,9 @@ export default function WeeklySummaryCard() {
         if (!data) return;
         setSummary(data);
       })
-      .catch(() =>
-        setError(
-          "We couldn't load your weekly summary right now. Please try again in a moment."
-        )
-      )
+      .catch(() => setError(t("errorMessage")))
       .finally(() => setLoading(false));
-  }, [selectedAccount]);
+  }, [selectedAccount, t]);
 
   useEffect(() => {
     fetchSummary();
@@ -223,9 +221,9 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
   const handleCopy = useCallback(async () => {
     if (!ai.text) return;
     if (!(await copy(ai.text))) {
-      toast.error("Failed to copy the summary.");
+      toast.error(t("copyFailed"));
     }
-  }, [ai.text, copy]);
+  }, [ai.text, copy, t]);
 
   const rateLimitMessage = (() => {
     if (!ai.rateLimitReset) return null;
@@ -235,16 +233,16 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
     const hours = Math.floor(resetMs / 3_600_000);
     const minutes = Math.floor((resetMs % 3_600_000) / 60_000);
     if (hours > 0) {
-      return `Summary already generated today. Next available in ${hours}h ${minutes}m.`;
+      return t("rateLimitHours", { hours, minutes });
     }
-    return `Summary already generated today. Next available in ${minutes}m.`;
+    return t("rateLimitMinutes", { minutes });
   })();
 
   return (
     <div className="px-frame bg-[var(--card)] p-6">
       <div className="flex items-center justify-between">
         <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-          This Week
+          {t("title")}
         </h2>
         <div className="flex items-center gap-2">
           {summary &&
@@ -256,11 +254,11 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 type="button"
                 onClick={handleGenerateSummary}
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] hover:text-[var(--card-foreground)]"
-                aria-label="Generate AI summary"
-                title="Generate AI summary"
+                aria-label={t("generateAria")}
+                title={t("generateAria")}
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Summarise</span>
+                <span>{t("summarise")}</span>
               </button>
             )}
           {summary && (
@@ -268,8 +266,8 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               type="button"
               onClick={handleDownload}
               className="text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--card-foreground)]"
-              aria-label="Download weekly report"
-              title="Download weekly report"
+              aria-label={t("downloadAria")}
+              title={t("downloadAria")}
             >
               <Download className="h-4 w-4" />
             </button>
@@ -279,9 +277,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             onClick={() => setIsCollapsed((value) => !value)}
             className="text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--card-foreground)]"
             aria-expanded={!isCollapsed}
-            aria-label={
-              isCollapsed ? "Expand weekly summary" : "Collapse weekly summary"
-            }
+            aria-label={isCollapsed ? t("expandAria") : t("collapseAria")}
             suppressHydrationWarning
           >
             <ChevronDown className="h-4 w-4" />
@@ -297,7 +293,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             aria-busy="true"
             className="mt-4 space-y-3"
           >
-            <span className="sr-only">Loading weekly summary</span>
+            <span className="sr-only">{t("loadingAria")}</span>
             {[1, 2, 3, 4, 5].map((i) => (
               <SkeletonBlock key={i} className="h-20 rounded-lg" />
             ))}
@@ -305,8 +301,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
         ) : githubAuthInvalid ? (
           <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-6 text-center space-y-3">
             <p className="text-sm text-[var(--muted-foreground)]">
-              Your GitHub connection is no longer valid. Reconnect your GitHub
-              account to continue syncing data.
+              {t("reconnectMessage")}
             </p>
             <button
               type="button"
@@ -317,7 +312,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               }}
               className="inline-flex items-center rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              Reconnect GitHub
+              {t("reconnectButton")}
             </button>
           </div>
         ) : error ? (
@@ -335,7 +330,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               >
                 <Sparkles className="h-4 w-4 animate-pulse text-[var(--muted-foreground)]" />
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  Generating summary…
+                  {t("generatingSummary")}
                 </span>
               </div>
             )}
@@ -357,18 +352,18 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 <div className="mb-2 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)]">
                     <Sparkles className="h-3.5 w-3.5" />
-                    AI Summary
+                    {t("aiSummaryHeading")}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopy}
                     className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--border)] hover:text-[var(--card-foreground)]"
-                    aria-label="Copy AI summary to clipboard"
-                    title="Copy to clipboard"
+                    aria-label={t("copyAria")}
+                    title={t("copyLabel")}
                   >
                     <CopyFeedback
                       copied={isCopied()}
-                      label="Copy"
+                      label={t("copyLabel")}
                       iconClassName="h-3 w-3"
                       className="gap-1"
                     />
@@ -384,7 +379,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             <div className="bg-[var(--control)] p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  Commits
+                  {t("commits")}
                 </span>
                 <span className="text-base font-semibold text-[var(--card-foreground)]">
                   {summary.commits.current}
@@ -407,7 +402,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                    Last week
+                    {t("lastWeek")}
                   </span>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -422,7 +417,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                    This week
+                    {t("thisWeek")}
                   </span>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -442,7 +437,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             <div className="bg-[var(--control)] p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  PRs Merged
+                  {t("prsMerged")}
                 </span>
                 <span className="text-base font-semibold text-[var(--card-foreground)]">
                   {summary.prs.thisWeek.merged}
@@ -451,7 +446,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                    Last week
+                    {t("lastWeek")}
                   </span>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -466,7 +461,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                    This week
+                    {t("thisWeek")}
                   </span>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -487,7 +482,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               <div className="bg-[var(--control)] p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-sm text-[var(--muted-foreground)]">
-                    Issues Resolved
+                    {t("issuesResolved")}
                   </span>
                   <span className="text-base font-semibold text-[var(--card-foreground)]">
                     {issuesThisWeek}
@@ -496,7 +491,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                      Last week
+                      {t("lastWeek")}
                     </span>
                     <div className="flex-1">
                       <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -511,7 +506,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                      This week
+                      {t("thisWeek")}
                     </span>
                     <div className="flex-1">
                       <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -532,7 +527,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             <div className="bg-[var(--control)] p-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  Active Days
+                  {t("activeDays")}
                 </span>
                 <span className="text-base font-semibold text-[var(--card-foreground)]">
                   {summary.activeDays.thisWeek} / 7
@@ -541,7 +536,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                    Last week
+                    {t("lastWeek")}
                   </span>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -556,7 +551,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-16 text-xs text-[var(--muted-foreground)]">
-                    This week
+                    {t("thisWeek")}
                   </span>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded bg-[var(--border)]">
@@ -577,7 +572,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
               <div className="bg-[var(--control)] p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-[var(--muted-foreground)]">
-                    Productivity Score
+                    {t("productivityScore")}
                   </span>
                   <span className="text-base font-semibold text-[var(--card-foreground)]">
                     {summary.productivityScore.current}
@@ -597,7 +592,7 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
                         : ""}
                       {summary.productivityScore.current -
                         summary.productivityScore.previous}{" "}
-                      vs last week
+                      {t("vsLastWeek")}
                     </span>
                   </span>
                 </div>
@@ -608,15 +603,15 @@ ${ai.text ? `\nAI Summary\n----------\n${ai.text}` : ""}
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-[var(--control)] p-4">
                 <span className="text-sm text-[var(--muted-foreground)]">
-                  Streak
+                  {t("streak")}
                 </span>
                 <span className="text-base font-semibold text-[var(--card-foreground)]">
-                  {summary.streak} day streak
+                  {t("dayStreak", { count: summary.streak })}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-3 bg-[var(--control)] p-4">
                 <span className="shrink-0 text-sm text-[var(--muted-foreground)]">
-                  Top repo
+                  {t("topRepo")}
                 </span>
                 <span
                   className="min-w-0 truncate text-base font-semibold text-[var(--card-foreground)]"
