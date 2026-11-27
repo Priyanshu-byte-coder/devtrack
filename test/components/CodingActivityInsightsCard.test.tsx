@@ -9,12 +9,31 @@ import {
   act,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import enMessages from "../../messages/en.json";
 import CodingActivityInsightsCard from "../../src/components/CodingActivityInsightsCard";
 import {
   AccountContext,
   AccountProvider,
 } from "../../src/components/AccountContext";
 import type { CodingActivityInsight } from "../../src/lib/coding-activity-insights";
+
+function renderWithIntl(ui: React.ReactElement) {
+  const result = render(
+    <NextIntlClientProvider locale="en" messages={enMessages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+  return {
+    ...result,
+    rerender: (newUi: React.ReactElement) =>
+      result.rerender(
+        <NextIntlClientProvider locale="en" messages={enMessages}>
+          {newUi}
+        </NextIntlClientProvider>
+      ),
+  };
+}
 
 function createJsonResponse(status: number, body: unknown) {
   return Promise.resolve(
@@ -88,7 +107,7 @@ describe("CodingActivityInsightsCard", () => {
     // Keep request pending
     fetchMock.mockImplementation(() => new Promise(() => {}));
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -114,7 +133,7 @@ describe("CodingActivityInsightsCard", () => {
       return createJsonResponse(200, realisticInsightFixture);
     });
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -157,7 +176,7 @@ describe("CodingActivityInsightsCard", () => {
       createJsonResponse(200, emptyFixture)
     );
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -175,7 +194,7 @@ describe("CodingActivityInsightsCard", () => {
       createJsonResponse(200, { error: "github_unavailable" })
     );
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -193,7 +212,7 @@ describe("CodingActivityInsightsCard", () => {
       createJsonResponse(200, realisticInsightFixture)
     );
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -267,7 +286,7 @@ describe("CodingActivityInsightsCard", () => {
       createJsonResponse(200, decliningFixture)
     );
 
-    const { rerender } = render(
+    const { rerender } = renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -309,7 +328,7 @@ describe("CodingActivityInsightsCard", () => {
       });
     });
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -337,7 +356,7 @@ describe("CodingActivityInsightsCard", () => {
       createJsonResponse(200, realisticInsightFixture)
     );
 
-    render(
+    renderWithIntl(
       <AccountProvider>
         <CodingActivityInsightsCard />
       </AccountProvider>
@@ -357,7 +376,7 @@ describe("CodingActivityInsightsCard", () => {
       createJsonResponse(200, realisticInsightFixture)
     );
 
-    render(
+    renderWithIntl(
       <AccountContext.Provider
         value={{
           selectedAccount: "github-acc-999",

@@ -273,7 +273,20 @@ export default function Footer() {
 
         <div className="mt-6 flex flex-col gap-3 font-mono text-[12px] text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} DevTrack. Built for open-source contributors.</p>
-          <p>MIT License · Self-hostable</p>
+          <p>
+            MIT License · Self-hostable
+            {process.env.NEXT_PUBLIC_HOSTED_ON === "netlify" && (
+              <>
+                {" · "}
+                <a
+                  href="https://www.netlify.com"
+                  className="underline underline-offset-2 hover:text-[var(--foreground)]"
+                >
+                  This site is powered by Netlify
+                </a>
+              </>
+            )}
+          </p>
         </div>
         <p className="mt-3 text-[11px] leading-5 text-[var(--muted-foreground)]">
           DevTrack is an independent open-source project and is not affiliated
