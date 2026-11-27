@@ -669,5 +669,50 @@
         "recentActivity": "Actividad reciente"
       }
     }
+  },
+  "projectTutor": {
+    "title": "Tutor de proyectos",
+    "description": "Pega un repositorio de GitHub para obtener una visión general, posibles preguntas de entrevista y un tutor al que puedes consultar.",
+    "repoUrlLabel": "URL del repositorio de GitHub",
+    "repoUrlPlaceholder": "https://github.com/owner/repo",
+    "analyze": "Analizar",
+    "analyzing": "Analizando…",
+    "analyzingAria": "Analizando repositorio",
+    "emptyState": "Funciona mejor con tus propios proyectos: el tutor lee el README, los lenguajes y la estructura.",
+    "tabs": {
+      "ariaLabel": "Secciones del tutor de proyectos",
+      "overview": "Visión general",
+      "interviewQuestions": "Preguntas de entrevista",
+      "askTutor": "Preguntar al tutor"
+    },
+    "analysis": {
+      "empty": "No se generó ninguna visión general para este repositorio."
+    },
+    "questions": {
+      "levels": {
+        "easy": "Calentamiento",
+        "medium": "Principal",
+        "advanced": "Profundización"
+      },
+      "empty": "No se generaron preguntas para este repositorio."
+    },
+    "chat": {
+      "empty": "Pregunta sobre decisiones de diseño, ventajas y desventajas, o cómo funciona una parte del proyecto.",
+      "thinking": "Pensando…",
+      "questionLabel": "Tu pregunta",
+      "questionPlaceholder": "Pregunta sobre este proyecto…",
+      "sendAria": "Enviar",
+      "noResponse": "Sin respuesta."
+    },
+    "errors": {
+      "analyzeFailed": "No se pudo analizar el repositorio. Inténtalo de nuevo.",
+      "chatFailed": "No se pudo obtener una respuesta. Inténtalo de nuevo.",
+      "tutorUnavailable": "El tutor no está disponible en este momento.",
+      "unauthorized": "No autorizado",
+      "rateLimitExceeded": "Límite de velocidad excedido. Inténtalo más tarde.",
+      "repoUrlRequired": "Se requiere la URL del repositorio",
+      "invalidGithubUrl": "URL de GitHub no válida",
+      "somethingWentWrong": "Algo salió mal"
+    }
   }
 }

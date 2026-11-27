@@ -8,7 +8,17 @@ import {
   cleanup,
 } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import enMessages from "../../messages/en.json";
 import ProjectTutorClient from "../../src/components/ProjectTutorClient";
+
+function renderWithIntl(ui: React.ReactElement = <ProjectTutorClient />) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={enMessages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 function mockResponse(body: unknown, status = 200) {
   return Promise.resolve(
@@ -52,7 +62,7 @@ describe("ProjectTutorClient", () => {
   });
 
   it("renders the initial form with disabled analyze button and helpful placeholder note", () => {
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Project tutor" })
@@ -86,7 +96,7 @@ describe("ProjectTutorClient", () => {
   });
 
   it("enables the analyze button when a non-empty repository URL is entered", () => {
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     const analyzeButton = screen.getByRole("button", { name: "Analyze" });
@@ -119,7 +129,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -159,7 +169,7 @@ describe("ProjectTutorClient", () => {
   it("displays an alert error message when the API request fails with a network error", async () => {
     fetchMock.mockRejectedValue(new Error("Network connection lost"));
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -181,7 +191,7 @@ describe("ProjectTutorClient", () => {
       )
     );
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -200,7 +210,7 @@ describe("ProjectTutorClient", () => {
       Promise.resolve(new Response("Internal Server Error", { status: 500 }))
     );
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -224,7 +234,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -255,7 +265,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -307,7 +317,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -337,7 +347,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -367,7 +377,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const input = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(input, {
@@ -402,7 +412,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     // Analyze first
     const repoInput = screen.getByLabelText("GitHub repository URL");
@@ -486,7 +496,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const repoInput = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(repoInput, {
@@ -523,7 +533,7 @@ describe("ProjectTutorClient", () => {
       return mockResponse({});
     });
 
-    render(<ProjectTutorClient />);
+    renderWithIntl(<ProjectTutorClient />);
 
     const repoInput = screen.getByLabelText("GitHub repository URL");
     fireEvent.change(repoInput, {
