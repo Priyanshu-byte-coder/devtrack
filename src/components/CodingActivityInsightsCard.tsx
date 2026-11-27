@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { RefreshCw, Loader2 } from "lucide-react";
 import {
   Bar,
@@ -48,12 +49,24 @@ function InsightRow({
     </div>
   );
 }
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 function TrendBadge({
   direction,
   percentage,
+  t,
 }: {
   direction: "up" | "down" | "stable";
   percentage: number;
+  t: any;
 }) {
   const styles =
     direction === "up"
@@ -64,10 +77,10 @@ function TrendBadge({
 
   const label =
     direction === "up"
-      ? `↑ ${percentage}% Improving`
+      ? t("trends.improving", { percent: percentage })
       : direction === "down"
-        ? `↓ ${percentage}% Declining`
-        : "Stable Activity";
+        ? t("trends.declining", { percent: percentage })
+        : t("trends.stable");
 
   return (
     <div
@@ -78,7 +91,7 @@ function TrendBadge({
   );
 }
 
-function HourTooltip({ active, payload }: any) {
+function HourTooltip({ active, payload, t, locale }: any) {
   if (!active || !payload || payload.length === 0) {
     return null;
   }
@@ -93,15 +106,20 @@ function HourTooltip({ active, payload }: any) {
 
   return (
     <div className="rounded-md border border-[var(--border)] bg-[var(--tooltip)] px-3 py-2 text-sm text-[var(--tooltip-foreground)] shadow-lg">
-      <div className="font-medium">{formatHourRange(entry.hour)}</div>
+      <div className="font-medium">{formatHourRange(entry.hour, locale)}</div>
       <div className="mt-1 text-xs text-[var(--muted-foreground)]">
-        {formatCommitCount(count)}
+        {count === 1
+          ? t("commitCount", { count })
+          : t("commitsCount", { count })}
       </div>
     </div>
   );
 }
 
 export default function CodingActivityInsightsCard() {
+  const t = useTranslations("activity.codingActivityInsights");
+  const locale = useLocale();
+
   const { selectedAccount } = useAccount();
   const [timezone, setTimezone] = useState<string | null>(null);
   const [data, setData] = useState<CodingActivityInsight | null>(null);
@@ -155,9 +173,7 @@ export default function CodingActivityInsightsCard() {
           return;
         }
 
-        setError(
-          "We couldn't load your AI Productivity Insights right now. Please try again in a moment."
-        );
+        setError(t("error"));
       })
       .finally(() => {
         if (requestId !== requestIdRef.current) {
@@ -166,7 +182,7 @@ export default function CodingActivityInsightsCard() {
 
         setLoading(false);
       });
-  }, [selectedAccount, timezone]);
+  }, [selectedAccount, timezone, t]);
 
   useEffect(() => {
     if (!timezone) {
@@ -194,71 +210,103 @@ export default function CodingActivityInsightsCard() {
       return [];
     }
 
+    const mostActiveLabel =
+      typeof data.mostActiveHour.hour === "number"
+        ? formatHourRange(data.mostActiveHour.hour, locale)
+        : data.mostActiveHour.label;
+    const leastActiveLabel =
+      typeof data.leastActiveHour.hour === "number"
+        ? formatHourRange(data.leastActiveHour.hour, locale)
+        : data.leastActiveHour.label;
+
+    const formatCommits = (count: number) =>
+      count === 1 ? t("commitCount", { count }) : t("commitsCount", { count });
+
     const rows: { label: string; value: string; ariaLabel?: string }[] = [
       {
-        label: "Most active",
-        value: `${data.mostActiveHour.label} with ${formatCommitCount(data.mostActiveHour.count)}`,
+        label: t("mostActive"),
+        value: t("withCommits", {
+          time: mostActiveLabel,
+          commits: formatCommits(data.mostActiveHour.count),
+        }),
       },
       {
-        label: "Least active",
-        value: `${data.leastActiveHour.label} with ${formatCommitCount(data.leastActiveHour.count)}`,
+        label: t("leastActive"),
+        value: t("withCommits", {
+          time: leastActiveLabel,
+          commits: formatCommits(data.leastActiveHour.count),
+        }),
       },
       {
-        label: "Consistency",
-        value: `${data.consistencyScore ?? 0}% weekly consistency`,
+        label: t("consistency"),
+        value: t("weeklyConsistency", {
+          score: data.consistencyScore ?? 0,
+        }),
       },
 
       {
-        label: "Productivity",
+        label: t("productivity"),
         value:
           data.productivityLevel === "Excellent"
-            ? "🟢 Excellent"
+            ? t("productivityLevels.Excellent")
             : data.productivityLevel === "Very Good"
-              ? "🔵 Very Good"
+              ? t("productivityLevels.Very Good")
               : data.productivityLevel === "Good"
-                ? "🟡 Good"
+                ? t("productivityLevels.Good")
                 : data.productivityLevel === "Moderate"
-                  ? "🟠 Moderate"
-                  : "🔴 Low",
-        ariaLabel: `Productivity level: ${data.productivityLevel ?? "Low"}`,
+                  ? t("productivityLevels.Moderate")
+                  : t("productivityLevels.Low"),
+        ariaLabel: `${t("productivity")} level: ${data.productivityLevel ?? "Low"}`,
       },
 
       {
-        label: "Daily Average",
-        value: `${data.averageDailyCommits ?? 0} commits/day`,
+        label: t("dailyAverage"),
+        value: t("commitsPerDay", {
+          count: data.averageDailyCommits ?? 0,
+        }),
       },
     ];
 
     if (data.mostActiveDay) {
+      const dayIndex = DAY_NAMES.indexOf(data.mostActiveDay.day);
+      const localizedDay =
+        dayIndex >= 0
+          ? new Intl.DateTimeFormat(locale, { weekday: "long" }).format(
+              new Date(2023, 0, 1 + dayIndex)
+            )
+          : data.mostActiveDay.day;
+
       rows.push({
-        label: "Best day",
-        value: `${data.mostActiveDay.day} with ${formatCommitCount(data.mostActiveDay.count)}`,
+        label: t("bestDay"),
+        value: t("withCommits", {
+          time: localizedDay,
+          commits: formatCommits(data.mostActiveDay.count),
+        }),
       });
     }
 
     return rows;
-  }, [data]);
+  }, [data, locale, t]);
 
-  const dataWindowLabel = `Last ${DATA_WINDOW_DAYS} days`;
+  const dataWindowLabel = t("lastDays", { days: DATA_WINDOW_DAYS });
+  const commitsByHourLabel = t("commitsByHour");
+  const tzLabel = data?.timezone ?? timezone ?? t("localTimezone");
 
-  const subtitle = data
-    ? `${dataWindowLabel} · Commits by hour · ${data.timezone}`
-    : timezone
-      ? `${dataWindowLabel} · Commits by hour · ${timezone}`
-      : `${dataWindowLabel} · Commits by hour · Local timezone`;
+  const subtitle = `${dataWindowLabel} · ${commitsByHourLabel} · ${tzLabel}`;
 
   return (
     <div className="px-frame bg-[var(--card)] p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-            Coding Activity Insights
+            {t("title")}
           </h2>
           {data?.weeklyTrend ? (
             <div className="mt-2">
               <TrendBadge
                 direction={data.weeklyTrend.direction}
                 percentage={data.weeklyTrend.percentage}
+                t={t}
               />
             </div>
           ) : null}
@@ -270,7 +318,7 @@ export default function CodingActivityInsightsCard() {
           type="button"
           onClick={fetchInsights}
           disabled={loading}
-          aria-label="Refresh coding activity insights"
+          aria-label={t("refreshAria")}
           className="flex items-center gap-2 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? (
@@ -279,10 +327,10 @@ export default function CodingActivityInsightsCard() {
                 aria-hidden="true"
                 className="h-3.5 w-3.5 animate-spin"
               />
-              Refreshing
+              {t("refreshing")}
             </>
           ) : (
-            "Refresh"
+            t("refresh")
           )}
         </button>
       </div>
@@ -294,7 +342,7 @@ export default function CodingActivityInsightsCard() {
           aria-busy="true"
           className="space-y-4"
         >
-          <span className="sr-only">Loading coding activity insights</span>
+          <span className="sr-only">{t("loadingAria")}</span>
           <Skeleton className="h-[260px] lg:h-[300px] w-full rounded-lg" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((item) => (
@@ -310,14 +358,13 @@ export default function CodingActivityInsightsCard() {
             onClick={fetchInsights}
             className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
-            Try again
+            {t("tryAgain")}
           </button>
         </div>
       ) : !hasData ? (
         <div className="flex min-h-[320px] items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card-muted)] px-4 text-center">
           <p className="text-sm text-[var(--muted-foreground)]">
-            Not enough coding activity was detected to generate AI-powered
-            productivity insights yet.
+            {t("emptyState")}
           </p>
         </div>
       ) : (
@@ -355,7 +402,11 @@ export default function CodingActivityInsightsCard() {
                     fontSize: "0.75rem",
                   }}
                 />
-                <Tooltip content={HourTooltip} />
+                <Tooltip
+                  content={(props: any) => (
+                    <HourTooltip {...props} t={t} locale={locale} />
+                  )}
+                />
                 <Bar
                   dataKey="count"
                   fill="var(--accent)"
@@ -388,7 +439,7 @@ export default function CodingActivityInsightsCard() {
               {data.summary?.length ? (
                 <div>
                   <h3 className="mb-2 text-sm font-semibold text-[var(--card-foreground)]">
-                    AI Productivity Summary
+                    {t("productivitySummary")}
                   </h3>
 
                   <div className="space-y-2">
@@ -407,7 +458,7 @@ export default function CodingActivityInsightsCard() {
               {data.recommendations?.length ? (
                 <div>
                   <h3 className="mb-2 text-sm font-semibold text-[var(--card-foreground)]">
-                    Smart Recommendations
+                    {t("recommendations")}
                   </h3>
 
                   <div className="space-y-2">

@@ -31,7 +31,63 @@
     "signInCta": "Sign in",
     "signOutCta": "Sign out",
     "openDashboard": "Open dashboard",
-    "compare": "Compare"
+    "compare": "Compare",
+    "dashboard": "Dashboard",
+    "sections": {
+      "play": "Play",
+      "stats": "Stats",
+      "powerUps": "Power-ups",
+      "options": "Options"
+    },
+    "items": {
+      "hq": "HQ",
+      "leaderboard": "Leaderboard",
+      "duel": "Duel a friend",
+      "topDevs": "Top devs",
+      "yearInCode": "Year in Code",
+      "activity": "Activity",
+      "pullRequests": "Pull requests",
+      "repositories": "Repositories",
+      "goals": "Goals",
+      "careerIntelligence": "AI resume",
+      "personality": "Personality",
+      "projectTutor": "Project tutor",
+      "settings": "Settings"
+    },
+    "tabs": {
+      "hq": "HQ",
+      "board": "Board",
+      "duel": "Duel",
+      "goals": "Goals",
+      "menu": "Menu",
+      "openMenuAria": "Open the full menu",
+      "quickNavAria": "Quick navigation"
+    },
+    "playerChip": {
+      "player1": "Player 1",
+      "viewCard": "View your player card",
+      "goPublic": "Go public to get a card"
+    },
+    "lookup": {
+      "aria": "Look up a developer",
+      "srLabel": "GitHub username to look up",
+      "placeholder": "Look up a dev",
+      "submitAria": "Look up",
+      "invalid": "That isn't a valid GitHub username."
+    },
+    "accountMenu": {
+      "aria": "Account menu",
+      "defaultName": "Account",
+      "publicProfile": "Public profile",
+      "settings": "Settings",
+      "signOut": "Sign out"
+    },
+    "shell": {
+      "featuredAria": "Featured",
+      "navigationDialogAria": "Navigation",
+      "closeNavAria": "Close navigation",
+      "openNavAria": "Open navigation"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Dashboard overview",
@@ -713,6 +769,247 @@
       "repoUrlRequired": "repo URL required",
       "invalidGithubUrl": "Invalid GitHub URL",
       "somethingWentWrong": "Something went wrong"
+    }
+  },
+  "activity": {
+    "title": "Activity",
+    "description": "How often, how consistently and when you code.",
+    "sections": {
+      "contributions": "Contributions",
+      "streaksAndConsistency": "Streaks & consistency",
+      "whenYouCode": "When you code"
+    },
+    "widgets": {
+      "contributionHeatmap": {
+        "regionTitle": "Contribution Heatmap"
+      },
+      "weeklySummary": {
+        "regionTitle": "Weekly Summary"
+      },
+      "streakTracker": {
+        "regionTitle": "Streak Tracker"
+      },
+      "consistencyScore": {
+        "regionTitle": "Consistency Score"
+      },
+      "codingActivityInsights": {
+        "regionTitle": "Coding Activity Insights"
+      },
+      "productiveHours": {
+        "regionTitle": "Productive Hours"
+      }
+    },
+    "contributionHeatmap": {
+      "title": "Contribution Heatmap",
+      "subtitle": "Last {days} days of commit activity.",
+      "rangeGroupAria": "Range",
+      "showRangeAria": "Show {days}-day range",
+      "customButton": "Custom…",
+      "customPopoverTitle": "Custom range",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "apply": "Apply",
+      "errors": {
+        "selectBoth": "Please select both dates.",
+        "startBeforeEnd": "Start date must be before end date.",
+        "futureDate": "End date can't be in the future.",
+        "maxRange": "Max range is 2 years."
+      },
+      "themeDefault": "Default",
+      "themeColourBlind": "Colour-blind",
+      "themeCustom": "Theme",
+      "filterLabel": "Filter:",
+      "filterRepoAria": "Filter by repository",
+      "filterLangAria": "Filter by language",
+      "allRepos": "All Repositories",
+      "allLangs": "All Languages",
+      "legendLess": "Less",
+      "legendMore": "More",
+      "commitsSummary": "Contribution heatmap showing {commits} across {days} days.",
+      "commitsShown": "{commits} commits shown across {days} days.",
+      "updatedJustNow": "Updated just now",
+      "updatedMinAgo": "Updated {minutes} min ago",
+      "refreshPrompt": "Please try refreshing.",
+      "errorLoading": "Failed to load contribution heatmap.",
+      "futureDateAria": "Future date on {date}",
+      "cellAria": "{commits} on {date}",
+      "days": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      },
+      "insights": {
+        "title": "Contribution Insights",
+        "panelAria": "Contribution Insights Panel",
+        "noData": "No contribution data available for this range.",
+        "mostProductiveDay": "Most Productive Day",
+        "mostProductiveDayDesc": "Day with highest average commits",
+        "avgWeekly": "Avg Weekly Contributions",
+        "avgWeeklyDesc": "Commits per 7 calendar days",
+        "longestStreak": "Longest Streak",
+        "longestStreakDesc": "Max consecutive active days",
+        "longestInactive": "Longest Inactive Period",
+        "longestInactiveDesc": "Max consecutive days with zero commits",
+        "monthlyTrend": "Monthly Trend",
+        "monthlyTrendDesc": "Recent month vs preceding month",
+        "bestMonth": "Best Month",
+        "bestMonthDesc": "Highest total ({commits} commits)",
+        "trendIncreasing": "Increasing",
+        "trendDecreasing": "Decreasing",
+        "trendStable": "Stable",
+        "dayUnit": "day",
+        "daysUnit": "days"
+      }
+    },
+    "dailyBreakdown": {
+      "title": "Daily Breakdown",
+      "ariaLabel": "Daily breakdown for {date}",
+      "closePanel": "Close panel",
+      "empty": "No commit data available for this day.",
+      "commitCount": "{count} commit",
+      "commitsCount": "{count} commits"
+    },
+    "weeklySummary": {
+      "title": "This Week",
+      "summarise": "Summarise",
+      "generateAria": "Generate AI summary",
+      "downloadAria": "Download weekly report",
+      "expandAria": "Expand weekly summary",
+      "collapseAria": "Collapse weekly summary",
+      "loadingAria": "Loading weekly summary",
+      "reconnectMessage": "Your GitHub connection is no longer valid. Reconnect your GitHub account to continue syncing data.",
+      "reconnectButton": "Reconnect GitHub",
+      "errorMessage": "We couldn't load your weekly summary right now. Please try again in a moment.",
+      "generatingSummary": "Generating summary…",
+      "copyFailed": "Failed to copy the summary.",
+      "aiSummaryHeading": "AI Summary",
+      "copyAria": "Copy AI summary to clipboard",
+      "copyLabel": "Copy",
+      "rateLimitHours": "Summary already generated today. Next available in {hours}h {minutes}m.",
+      "rateLimitMinutes": "Summary already generated today. Next available in {minutes}m.",
+      "commits": "Commits",
+      "prsMerged": "PRs Merged",
+      "issuesResolved": "Issues Resolved",
+      "activeDays": "Active Days",
+      "lastWeek": "Last week",
+      "thisWeek": "This week",
+      "productivityScore": "Productivity Score",
+      "vsLastWeek": "vs last week",
+      "streak": "Streak",
+      "dayStreak": "{count} day streak",
+      "topRepo": "Top repo"
+    },
+    "consistencyScore": {
+      "title": "Consistency Score",
+      "loadingAria": "Loading consistency score",
+      "errorMessage": "We couldn't load your consistency score right now. Please try again in a moment.",
+      "tryAgain": "Try again",
+      "empty": "No contribution activity available.",
+      "weeklyConsistency": "Weekly Consistency",
+      "streakQuality": "Streak Quality",
+      "longestGap": "Longest Gap",
+      "recentActivity": "Recent Activity",
+      "active": "Active",
+      "inactive": "Inactive",
+      "days": "{count} days",
+      "activeDays": "Active Days"
+    },
+    "productiveHours": {
+      "title": "Most Productive Hours",
+      "aboutChart": "About this chart",
+      "chartDescription": "Shows your average commits per hour and day of week over the selected date range, adjusted to your local timezone.",
+      "subtitle": "Last {days} days — commit activity by hour & day",
+      "rangeGroupAria": "Range",
+      "showRangeAria": "Show {days}-day range",
+      "customButton": "Custom…",
+      "customPopoverTitle": "Custom range",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "apply": "Apply",
+      "errors": {
+        "selectBoth": "Please select both dates.",
+        "startBeforeEnd": "Start date must be before end date.",
+        "futureDate": "End date can't be in the future.",
+        "maxRange": "Max range is 2 years."
+      },
+      "themeDefault": "Default",
+      "themeColourBlind": "Colour-blind",
+      "themeCustom": "Theme",
+      "legendLess": "Less",
+      "legendMore": "More",
+      "errorLoading": "Failed to load productive hours data.",
+      "refreshPrompt": "Please try refreshing.",
+      "commitsAnalysed": "{total} commits analysed.",
+      "peakBanner": "🔥 Peak: {day} {hour} — avg {avg} commits",
+      "updatedJustNow": "Updated just now",
+      "updatedMinAgo": "Updated {minutes} min ago",
+      "tooltip": "{day} {hour} — avg {avg} {unit}",
+      "commitUnit": "commit",
+      "commitsUnit": "commits",
+      "days": {
+        "Sun": "Sun",
+        "Mon": "Mon",
+        "Tue": "Tue",
+        "Wed": "Wed",
+        "Thu": "Thu",
+        "Fri": "Fri",
+        "Sat": "Sat"
+      },
+      "daysFull": {
+        "Sunday": "Sunday",
+        "Monday": "Monday",
+        "Tuesday": "Tuesday",
+        "Wednesday": "Wednesday",
+        "Thursday": "Thursday",
+        "Friday": "Friday",
+        "Saturday": "Saturday"
+      }
+    },
+    "codingActivityInsights": {
+      "title": "Coding Activity Insights",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing",
+      "refreshAria": "Refresh coding activity insights",
+      "loadingAria": "Loading coding activity insights",
+      "error": "We couldn't load your AI Productivity Insights right now. Please try again in a moment.",
+      "tryAgain": "Try again",
+      "emptyState": "Not enough coding activity was detected to generate AI-powered productivity insights yet.",
+      "lastDays": "Last {days} days",
+      "commitsByHour": "Commits by hour",
+      "localTimezone": "Local timezone",
+      "mostActive": "Most active",
+      "leastActive": "Least active",
+      "consistency": "Consistency",
+      "weeklyConsistency": "{score}% weekly consistency",
+      "productivity": "Productivity",
+      "dailyAverage": "Daily Average",
+      "commitsPerDay": "{count} commits/day",
+      "bestDay": "Best day",
+      "withCommits": "{time} with {commits}",
+      "productivitySummary": "AI Productivity Summary",
+      "recommendations": "Smart Recommendations",
+      "trends": {
+        "improving": "↑ {percent}% Improving",
+        "declining": "↓ {percent}% Declining",
+        "stable": "Stable Activity"
+      },
+      "productivityLevels": {
+        "Excellent": "🟢 Excellent",
+        "Very Good": "🔵 Very Good",
+        "Good": "🟡 Good",
+        "Moderate": "🟠 Moderate",
+        "Low": "🔴 Low"
+      },
+      "commitCount": "{count} commit",
+      "commitsCount": "{count} commits"
+    },
+    "streakMilestone": {
+      "celebration": "🎉 You reached a {streak}-day streak! Keep it up!",
+      "dismiss": "Dismiss milestone banner"
     }
   }
 }
