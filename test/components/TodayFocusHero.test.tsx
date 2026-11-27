@@ -32,13 +32,17 @@ describe("TodayFocusHero", () => {
     render(<TodayFocusHero />);
 
     // Wait for component to mount
-    const input = await screen.findByRole("textbox");
+    const input = (await screen.findByRole("textbox")) as HTMLInputElement;
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute("placeholder", "e.g. Fix the login bug…");
 
-    // Check visible label text above input
-    const label = screen.getByText(/today\?/i);
-    expect(label).toBeInTheDocument();
+    const prompt = input.getAttribute("aria-label");
+    expect(prompt).toBeTruthy();
+
+    const label = screen.getByText(prompt as string, {
+      selector: "label",
+    });
+    expect(label).toBeVisible();
     expect(label).toHaveAttribute("for", "today-focus-input");
   });
 

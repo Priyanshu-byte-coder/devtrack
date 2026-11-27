@@ -341,3 +341,169 @@ test("[Goals E2E] deleting a goal removes it from the list", async ({
     page.getByText("Goal to Delete", { exact: true })
   ).not.toBeVisible({ timeout: 10_000 });
 });
+
+test("[Goals E2E] full lifecycle: create goal, mark progress, delete via confirmation modal, and verify empty state", async ({
+  page,
+}) => {
+  await setupGoalsMocks(page);
+
+  interface MockGoal {
+    id: string;
+    title: string;
+    target: number;
+    current: number;
+    unit: string;
+    recurrence: string;
+    category?: string | null;
+    period_start: string;
+    last_synced_at: string;
+  }
+
+  let goalsStore: MockGoal[] = [];
+
+  // Route /api/goals (GET list, POST create)
+  await page.route(/\/api\/goals(\?|$)/, async (route) => {
+    if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON() as Record<string, unknown> | null;
+      if (!body) {
+        return route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify({ ok: true }),
+        });
+      }
+      const newGoal: MockGoal = {
+        id: `g-test-${Date.now()}`,
+        title: body.title as string,
+        target: Number(body.target),
+        current: 0,
+        unit: body.unit as string,
+        recurrence: (body.recurrence as string) ?? "none",
+        category: (body.category as string) ?? null,
+        period_start: new Date().toISOString(),
+        last_synced_at: new Date().toISOString(),
+      };
+      goalsStore.push(newGoal);
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, goal: newGoal }),
+      });
+    }
+
+    return route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ goals: goalsStore }),
+    });
+  });
+
+  // Route /api/goals/:id (PATCH progress/target, DELETE goal)
+  await page.route("**/api/goals/**", async (route) => {
+    const url = route.request().url();
+    const id = url.split("/api/goals/")[1]?.split("?")[0];
+
+    if (route.request().method() === "DELETE") {
+      goalsStore = goalsStore.filter((g) => g.id !== id);
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
+      });
+    }
+
+    if (route.request().method() === "PATCH") {
+      const body = route.request().postDataJSON() as Record<string, unknown> | null;
+      const goalIndex = goalsStore.findIndex((g) => g.id === id);
+      if (goalIndex !== -1 && body) {
+        if (typeof body.current === "number") {
+          goalsStore[goalIndex].current = body.current;
+        }
+        if (typeof body.target === "number") {
+          goalsStore[goalIndex].target = body.target;
+        }
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({ ok: true, goal: goalsStore[goalIndex] }),
+        });
+      }
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
+      });
+    }
+
+    return route.fallback();
+  });
+
+  // Navigate to Goals dashboard
+  await openGoalsWidget(page);
+
+  // 1. Verify initial empty state
+  const emptyState = page.getByText(/no goals yet/i);
+  await expect(emptyState).toBeVisible({ timeout: 10_000 });
+
+  // 2. Create a manual goal (unit: "hours" renders manual progress increment +1 button)
+  const titleInput = page.getByLabel("Goal title");
+  await titleInput.scrollIntoViewIfNeeded();
+  await titleInput.waitFor({ state: "visible", timeout: 10_000 });
+
+  await titleInput.fill("Study Distributed Systems");
+  await page.getByLabel("Target").fill("5");
+  await page.getByLabel("Unit", { exact: true }).selectOption("hours");
+  await page.getByRole("button", { name: "Create goal" }).click();
+
+  // Verify the created goal appears in the list
+  const createdGoalTitle = page.getByText("Study Distributed Systems");
+  await expect(createdGoalTitle).toBeVisible({ timeout: 10_000 });
+  await expect(emptyState).not.toBeVisible();
+
+  // Initial progress should be 0/5 hours
+  const progressText = page.getByText("0/5 hours");
+  await expect(progressText).toBeVisible({ timeout: 10_000 });
+
+  /**
+   * Note on Issue #3804 Step 2 ("Edit its target"):
+   * GoalTracker component (src/components/GoalTracker.tsx) only exposes the target
+   * input during goal creation. It currently has no edit-target control, modal, or
+   * inline edit, although PATCH /api/goals/:id supports updating the target.
+   * Therefore, this E2E test covers the supported create, progress, and delete
+   * flows, but cannot cover target editing through the current UI.
+   */
+
+  // 3. Mark progress: click the "+1" button for manual unit goal
+  const incrementButton = page.getByRole("button", {
+    name: /increment "study distributed systems" progress by 1/i,
+  });
+  await expect(incrementButton).toBeVisible();
+  await incrementButton.click();
+
+  // Verify progress updates to 1/5 hours
+  await expect(page.getByText("1/5 hours")).toBeVisible({ timeout: 10_000 });
+
+  // Increment once more to verify further progress tracking
+  await incrementButton.click();
+  await expect(page.getByText("2/5 hours")).toBeVisible({ timeout: 10_000 });
+
+  // 4. Delete goal using confirmation modal
+  const deleteButton = page.getByRole("button", {
+    name: /delete goal: study distributed systems/i,
+  });
+  await expect(deleteButton).toBeVisible();
+  await deleteButton.click();
+
+  // Verify confirmation modal opens
+  const confirmModalHeading = page.getByRole("heading", {
+    name: "Delete Tracking Goal",
+  });
+  await expect(confirmModalHeading).toBeVisible({ timeout: 5_000 });
+
+  // Click "Permanently Delete" in the modal
+  const confirmDeleteButton = page.getByRole("button", {
+    name: /permanently delete/i,
+  });
+  await expect(confirmDeleteButton).toBeVisible();
+  await confirmDeleteButton.click();
+
+  // 5. Verify the goal is removed and the empty state is displayed again
+  await expect(createdGoalTitle).not.toBeVisible({ timeout: 10_000 });
+  await expect(emptyState).toBeVisible({ timeout: 10_000 });
+});
