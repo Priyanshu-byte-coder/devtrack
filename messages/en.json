@@ -31,7 +31,24 @@
     "signInCta": "Sign in",
     "signOutCta": "Sign out",
     "openDashboard": "Open dashboard",
-    "compare": "Compare"
+    "compare": "Compare",
+    "shortcuts": {
+      "buttonLabel": "Shortcuts",
+      "buttonAria": "Show keyboard shortcuts",
+      "modalTitle": "Keyboard Shortcuts",
+      "closeAria": "Close shortcuts",
+      "gotIt": "Got it",
+      "themeAnnouncement": "{name} enabled",
+      "actions": {
+        "toggleTheme": "Toggle theme",
+        "toggleChart": "Toggle chart",
+        "reloadData": "Reload data",
+        "goToDashboard": "Go to Dashboard",
+        "goToGoals": "Go to Goals",
+        "closeModal": "Close modal/dialog",
+        "showShortcuts": "Show shortcuts"
+      }
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Dashboard overview",

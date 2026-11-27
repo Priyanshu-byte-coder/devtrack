@@ -31,7 +31,24 @@
     "signInCta": "Entrar",
     "signOutCta": "Sair",
     "openDashboard": "Abrir painel",
-    "compare": "Comparar"
+    "compare": "Comparar",
+    "shortcuts": {
+      "buttonLabel": "Atalhos",
+      "buttonAria": "Mostrar atalhos de teclado",
+      "modalTitle": "Atalhos de teclado",
+      "closeAria": "Fechar atalhos",
+      "gotIt": "Entendido",
+      "themeAnnouncement": "{name} ativado",
+      "actions": {
+        "toggleTheme": "Alternar tema",
+        "toggleChart": "Alternar gráfico",
+        "reloadData": "Recarregar dados",
+        "goToDashboard": "Ir para o painel",
+        "goToGoals": "Ir para metas",
+        "closeModal": "Fechar modal/diálogo",
+        "showShortcuts": "Mostrar atalhos"
+      }
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Visão geral do painel",
