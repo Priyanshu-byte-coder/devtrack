@@ -49,7 +49,7 @@
       "loading": "Loading notifications…",
       "failedToLoad": "Failed to load notifications",
       "retry": "Retry",
-      "noResults": "No results for '{query}'",
+      "noResults": "No results for ''{query}''",
       "noNotificationsYet": "No notifications yet",
       "failedToMarkRead": "Failed to mark notifications as read",
       "timeJustNow": "just now",

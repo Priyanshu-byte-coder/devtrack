@@ -49,7 +49,7 @@
       "loading": "Carregando notificações…",
       "failedToLoad": "Falha ao carregar notificações",
       "retry": "Tentar novamente",
-      "noResults": "Nenhum resultado para '{query}'",
+      "noResults": "Nenhum resultado para ''{query}''",
       "noNotificationsYet": "Nenhuma notificação ainda",
       "failedToMarkRead": "Falha ao marcar notificações como lidas",
       "timeJustNow": "agora mesmo",

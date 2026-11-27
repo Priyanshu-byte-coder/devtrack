@@ -49,7 +49,7 @@
       "loading": "सूचनाएं लोड हो रही हैं…",
       "failedToLoad": "सूचनाएं लोड करने में विफल",
       "retry": "पुनः प्रयास करें",
-      "noResults": "'{query}' के लिए कोई परिणाम नहीं",
+      "noResults": "''{query}'' के लिए कोई परिणाम नहीं",
       "noNotificationsYet": "अभी कोई सूचना नहीं है",
       "failedToMarkRead": "सूचनाओं को पढ़ा हुआ चिह्नित करने में विफल",
       "timeJustNow": "अभी-अभी",
