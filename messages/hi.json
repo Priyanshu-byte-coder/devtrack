@@ -112,6 +112,23 @@
       "timeMinutesAgo": "{count} मिनट पहले",
       "timeHoursAgo": "{count} घंटे पहले",
       "timeDaysAgo": "{count} दिन पहले"
+    },
+    "shortcuts": {
+      "buttonLabel": "शॉर्टकट",
+      "buttonAria": "कीबोर्ड शॉर्टकट दिखाएं",
+      "modalTitle": "कीबोर्ड शॉर्टकट",
+      "closeAria": "शॉर्टकट बंद करें",
+      "gotIt": "समझ गया",
+      "themeAnnouncement": "{name} सक्षम",
+      "actions": {
+        "toggleTheme": "थीम बदलें",
+        "toggleChart": "चार्ट टॉगल करें",
+        "reloadData": "डेटा पुनः लोड करें",
+        "goToDashboard": "डैशबोर्ड पर जाएं",
+        "goToGoals": "लक्ष्यों पर जाएं",
+        "closeModal": "मोडल/संवाद बंद करें",
+        "showShortcuts": "शॉर्टकट दिखाएं"
+      }
     }
   },
   "dashboard": {

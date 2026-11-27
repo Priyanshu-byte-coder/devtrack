@@ -112,6 +112,23 @@
       "timeMinutesAgo": "há {count}m",
       "timeHoursAgo": "há {count}h",
       "timeDaysAgo": "há {count}d"
+    },
+    "shortcuts": {
+      "buttonLabel": "Atalhos",
+      "buttonAria": "Mostrar atalhos de teclado",
+      "modalTitle": "Atalhos de teclado",
+      "closeAria": "Fechar atalhos",
+      "gotIt": "Entendido",
+      "themeAnnouncement": "{name} ativado",
+      "actions": {
+        "toggleTheme": "Alternar tema",
+        "toggleChart": "Alternar gráfico",
+        "reloadData": "Recarregar dados",
+        "goToDashboard": "Ir para o painel",
+        "goToGoals": "Ir para metas",
+        "closeModal": "Fechar modal/diálogo",
+        "showShortcuts": "Mostrar atalhos"
+      }
     }
   },
   "dashboard": {
