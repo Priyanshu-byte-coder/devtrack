@@ -31,7 +31,63 @@
     "signInCta": "Sign in",
     "signOutCta": "Sign out",
     "openDashboard": "Open dashboard",
-    "compare": "Compare"
+    "compare": "Compare",
+    "dashboard": "Dashboard",
+    "sections": {
+      "play": "Play",
+      "stats": "Stats",
+      "powerUps": "Power-ups",
+      "options": "Options"
+    },
+    "items": {
+      "hq": "HQ",
+      "leaderboard": "Leaderboard",
+      "duel": "Duel a friend",
+      "topDevs": "Top devs",
+      "yearInCode": "Year in Code",
+      "activity": "Activity",
+      "pullRequests": "Pull requests",
+      "repositories": "Repositories",
+      "goals": "Goals",
+      "careerIntelligence": "AI resume",
+      "personality": "Personality",
+      "projectTutor": "Project tutor",
+      "settings": "Settings"
+    },
+    "tabs": {
+      "hq": "HQ",
+      "board": "Board",
+      "duel": "Duel",
+      "goals": "Goals",
+      "menu": "Menu",
+      "openMenuAria": "Open the full menu",
+      "quickNavAria": "Quick navigation"
+    },
+    "playerChip": {
+      "player1": "Player 1",
+      "viewCard": "View your player card",
+      "goPublic": "Go public to get a card"
+    },
+    "lookup": {
+      "aria": "Look up a developer",
+      "srLabel": "GitHub username to look up",
+      "placeholder": "Look up a dev",
+      "submitAria": "Look up",
+      "invalid": "That isn't a valid GitHub username."
+    },
+    "accountMenu": {
+      "aria": "Account menu",
+      "defaultName": "Account",
+      "publicProfile": "Public profile",
+      "settings": "Settings",
+      "signOut": "Sign out"
+    },
+    "shell": {
+      "featuredAria": "Featured",
+      "navigationDialogAria": "Navigation",
+      "closeNavAria": "Close navigation",
+      "openNavAria": "Open navigation"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Dashboard overview",

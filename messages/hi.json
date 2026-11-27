@@ -31,7 +31,63 @@
     "signInCta": "साइन इन करें",
     "signOutCta": "साइन आउट करें",
     "openDashboard": "डैशबोर्ड खोलें",
-    "compare": "तुलना करें"
+    "compare": "तुलना करें",
+    "dashboard": "डैशबोर्ड",
+    "sections": {
+      "play": "खेलें",
+      "stats": "आंकड़े",
+      "powerUps": "पावर-अप",
+      "options": "विकल्प"
+    },
+    "items": {
+      "hq": "मुख्यालय",
+      "leaderboard": "लीडरबोर्ड",
+      "duel": "मित्र से मुकाबला",
+      "topDevs": "शीर्ष डेवलपर्स",
+      "yearInCode": "ईयर इन कोड",
+      "activity": "गतिविधि",
+      "pullRequests": "पुल अनुरोध",
+      "repositories": "रिपॉजिटरी",
+      "goals": "लक्ष्य",
+      "careerIntelligence": "एआई रिज्यूमे",
+      "personality": "व्यक्तित्व",
+      "projectTutor": "प्रोजेक्ट ट्यूटर",
+      "settings": "सेटिंग्स"
+    },
+    "tabs": {
+      "hq": "मुख्यालय",
+      "board": "बोर्ड",
+      "duel": "मुकाबला",
+      "goals": "लक्ष्य",
+      "menu": "मेनू",
+      "openMenuAria": "पूरा मेनू खोलें",
+      "quickNavAria": "त्वरित नेविगेशन"
+    },
+    "playerChip": {
+      "player1": "खिलाड़ी 1",
+      "viewCard": "अपना खिलाड़ी कार्ड देखें",
+      "goPublic": "कार्ड पाने के लिए सार्वजनिक हों"
+    },
+    "lookup": {
+      "aria": "डेवलपर खोजें",
+      "srLabel": "खोजने के लिए गिटहब उपयोगकर्ता नाम",
+      "placeholder": "डेवलपर खोजें",
+      "submitAria": "खोजें",
+      "invalid": "यह एक मान्य गिटहब उपयोगकर्ता नाम नहीं है।"
+    },
+    "accountMenu": {
+      "aria": "खाता मेनू",
+      "defaultName": "खाता",
+      "publicProfile": "सार्वजनिक प्रोफ़ाइल",
+      "settings": "सेटिंग्स",
+      "signOut": "साइन आउट करें"
+    },
+    "shell": {
+      "featuredAria": "विशेष रुप से प्रदर्शित",
+      "navigationDialogAria": "नेविगेशन",
+      "closeNavAria": "नेविगेशन बंद करें",
+      "openNavAria": "नेविगेशन खोलें"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "डैशबोर्ड अवलोकन",

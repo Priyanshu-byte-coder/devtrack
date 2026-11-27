@@ -31,7 +31,63 @@
     "signInCta": "Iniciar sesión",
     "signOutCta": "Cerrar sesión",
     "openDashboard": "Abrir panel",
-    "compare": "Comparar"
+    "compare": "Comparar",
+    "dashboard": "Panel",
+    "sections": {
+      "play": "Jugar",
+      "stats": "Estadísticas",
+      "powerUps": "Mejoras",
+      "options": "Opciones"
+    },
+    "items": {
+      "hq": "Sede",
+      "leaderboard": "Clasificación",
+      "duel": "Retar a un amigo",
+      "topDevs": "Top devs",
+      "yearInCode": "Año en código",
+      "activity": "Actividad",
+      "pullRequests": "Pull requests",
+      "repositories": "Repositorios",
+      "goals": "Objetivos",
+      "careerIntelligence": "CV con IA",
+      "personality": "Personalidad",
+      "projectTutor": "Tutor de proyectos",
+      "settings": "Configuración"
+    },
+    "tabs": {
+      "hq": "Sede",
+      "board": "Tabla",
+      "duel": "Duelo",
+      "goals": "Metas",
+      "menu": "Menú",
+      "openMenuAria": "Abrir el menú completo",
+      "quickNavAria": "Navegación rápida"
+    },
+    "playerChip": {
+      "player1": "Jugador 1",
+      "viewCard": "Ver tu tarjeta de jugador",
+      "goPublic": "Hazte público para obtener una tarjeta"
+    },
+    "lookup": {
+      "aria": "Buscar un desarrollador",
+      "srLabel": "Usuario de GitHub a buscar",
+      "placeholder": "Buscar un dev",
+      "submitAria": "Buscar",
+      "invalid": "Ese no es un usuario de GitHub válido."
+    },
+    "accountMenu": {
+      "aria": "Menú de cuenta",
+      "defaultName": "Cuenta",
+      "publicProfile": "Perfil público",
+      "settings": "Configuración",
+      "signOut": "Cerrar sesión"
+    },
+    "shell": {
+      "featuredAria": "Destacado",
+      "navigationDialogAria": "Navegación",
+      "closeNavAria": "Cerrar navegación",
+      "openNavAria": "Abrir navegación"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "Resumen del panel",
