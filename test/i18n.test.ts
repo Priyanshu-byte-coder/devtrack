@@ -162,6 +162,35 @@ describe("i18n translation lookup", () => {
     expect(getKeys(ptBR).sort()).toEqual(enKeys);
   });
 
+  it("verifies navigation dictionary parity across all locales", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const en = require("../messages/en.json").navigation;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const es = require("../messages/es.json").navigation;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const hi = require("../messages/hi.json").navigation;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ptBR = require("../messages/pt-BR.json").navigation;
+
+    const getKeys = (obj: Record<string, unknown>, prefix = ""): string[] => {
+      let keys: string[] = [];
+      for (const [k, v] of Object.entries(obj)) {
+        const full = prefix ? `${prefix}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          keys = keys.concat(getKeys(v as Record<string, unknown>, full));
+        } else {
+          keys.push(full);
+        }
+      }
+      return keys;
+    };
+
+    const enKeys = getKeys(en).sort();
+    expect(getKeys(es).sort()).toEqual(enKeys);
+    expect(getKeys(hi).sort()).toEqual(enKeys);
+    expect(getKeys(ptBR).sort()).toEqual(enKeys);
+  });
+
   it("verifies shortcuts dictionary parity across all locales", () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const en = require("../messages/en.json").navigation.shortcuts;
@@ -209,6 +238,51 @@ describe("i18n translation lookup", () => {
     await expect(translateMessage("es", "missing.example")).resolves.toBe(
       "missing.example"
     );
+  });
+
+  it("renders activity strings in Spanish and Hindi", async () => {
+    await expect(translateMessage("es", "activity.title")).resolves.toBe(
+      "Actividad"
+    );
+    await expect(
+      translateMessage("es", "activity.contributionHeatmap.title")
+    ).resolves.toBe("Mapa de calor de contribuciones");
+    await expect(translateMessage("hi", "activity.title")).resolves.toBe(
+      "गतिविधि"
+    );
+    await expect(
+      translateMessage("hi", "activity.contributionHeatmap.title")
+    ).resolves.toBe("योगदान हीटमैप");
+  });
+
+  it("verifies activity dictionary parity across all locales including pt-BR", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const en = require("../messages/en.json").activity;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const es = require("../messages/es.json").activity;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const hi = require("../messages/hi.json").activity;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ptBR = require("../messages/pt-BR.json").activity;
+
+    const getKeys = (obj: Record<string, unknown>, prefix = ""): string[] => {
+      let keys: string[] = [];
+      for (const [k, v] of Object.entries(obj)) {
+        const full = prefix ? `${prefix}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          keys = keys.concat(getKeys(v as Record<string, unknown>, full));
+        } else {
+          keys.push(full);
+        }
+      }
+      return keys;
+    };
+
+    const enKeys = getKeys(en).sort();
+    expect(enKeys.length).toBe(193);
+    expect(getKeys(es).sort()).toEqual(enKeys);
+    expect(getKeys(hi).sort()).toEqual(enKeys);
+    expect(getKeys(ptBR).sort()).toEqual(enKeys);
   });
 });
 

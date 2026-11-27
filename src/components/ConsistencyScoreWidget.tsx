@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -85,11 +86,12 @@ function CircularProgress({
 }
 
 function ConsistencyScoreSkeleton() {
+  const t = useTranslations("activity.consistencyScore");
   return (
     <div
       role="status"
       aria-busy="true"
-      aria-label="Loading consistency score"
+      aria-label={t("loadingAria")}
       className="px-frame bg-[var(--card)] p-6 flex flex-col h-full"
     >
       <div
@@ -116,6 +118,7 @@ function ConsistencyScoreSkeleton() {
 }
 
 export default function ConsistencyScoreWidget() {
+  const t = useTranslations("activity.consistencyScore");
   const { selectedAccount } = useAccount();
   const [data, setData] = useState<ConsistencyScoreResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -140,13 +143,11 @@ export default function ConsistencyScoreWidget() {
       setData(json);
     } catch (err) {
       console.error("Failed to fetch consistency score:", err);
-      setError(
-        "We couldn't load your consistency score right now. Please try again in a moment."
-      );
+      setError(t("errorMessage"));
     } finally {
       setLoading(false);
     }
-  }, [selectedAccount]);
+  }, [selectedAccount, t]);
 
   useEffect(() => {
     fetchScore();
@@ -167,7 +168,7 @@ export default function ConsistencyScoreWidget() {
   if (error) {
     return (
       <div className="px-frame bg-[var(--card)] p-6">
-        <SectionHeader title="Consistency Score" />
+        <SectionHeader title={t("title")} />
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-[var(--destructive)]">
           <p>{error}</p>
           <button
@@ -175,7 +176,7 @@ export default function ConsistencyScoreWidget() {
             onClick={fetchScore}
             className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
-            Try again
+            {t("tryAgain")}
           </button>
         </div>
       </div>
@@ -185,15 +186,13 @@ export default function ConsistencyScoreWidget() {
   if (!data) {
     return (
       <div className="px-frame bg-[var(--card)] p-6">
-        <SectionHeader title="Consistency Score" />
+        <SectionHeader title={t("title")} />
         <div className="flex h-[320px] flex-col items-center justify-center text-center">
           <BarChart3
             className="mb-3 h-8 w-8 text-[var(--muted-foreground)]"
             aria-hidden="true"
           />
-          <p className="text-sm text-[var(--muted-foreground)]">
-            No contribution activity available.
-          </p>
+          <p className="text-sm text-[var(--muted-foreground)]">{t("empty")}</p>
         </div>
       </div>
     );
@@ -201,27 +200,27 @@ export default function ConsistencyScoreWidget() {
 
   const stats = [
     {
-      label: "Weekly Consistency",
+      label: t("weeklyConsistency"),
       value: `${data.weeklyConsistency}%`,
     },
     {
-      label: "Streak Quality",
+      label: t("streakQuality"),
       value: `${Math.round(data.streakQuality * 100)}%`,
     },
     {
-      label: "Longest Gap",
-      value: `${data.longestGap} days`,
+      label: t("longestGap"),
+      value: t("daysUnit", { count: data.longestGap }),
     },
     {
-      label: "Recent Activity",
-      value: isRecentlyActiveFromScore(data) ? "Active" : "Inactive",
+      label: t("recentActivity"),
+      value: isRecentlyActiveFromScore(data) ? t("active") : t("inactive"),
     },
   ];
 
   return (
     <div className="px-frame bg-[var(--card)] p-6">
       <div className="mb-4 flex items-center justify-between">
-        <SectionHeader title="Consistency Score" />
+        <SectionHeader title={t("title")} />
         <span
           className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-bold ${GRADE_COLORS[data.grade]}`}
         >
@@ -277,7 +276,10 @@ export default function ConsistencyScoreWidget() {
                 borderRadius: "8px",
                 color: "var(--card-foreground)",
               }}
-              formatter={(value: number) => [`${value} days`, "Active Days"]}
+              formatter={(value: any) => [
+                t("daysUnit", { count: Number(value) }),
+                t("activeDaysTooltip"),
+              ]}
             />
             <Bar
               dataKey="activeDays"
