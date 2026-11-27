@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 export default function Error({
   error,
   reset,
@@ -7,11 +9,12 @@ export default function Error({
   error: Error;
   reset: () => void;
 }) {
+  const t = useTranslations("repoComparison.error");
   return (
     <div style={{ padding: 20 }}>
-      <h2>Something went wrong</h2>
+      <h2>{t("heading")}</h2>
       <p>{error.message}</p>
-      <button onClick={() => reset()}>Try again</button>
+      <button onClick={() => reset()}>{t("tryAgain")}</button>
     </div>
   );
 }

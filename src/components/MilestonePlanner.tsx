@@ -334,12 +334,16 @@ export default function MilestonePlanner() {
               </label>
               <input
                 id="milestone-title"
+                name="title"
+                type="text"
+                autoComplete="off"
                 value={form.title}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, title: e.target.value }))
                 }
                 placeholder="e.g. Reach 500 commits"
                 maxLength={100}
+                aria-label="Title"
                 className={fieldClass}
               />
             </div>
@@ -349,6 +353,8 @@ export default function MilestonePlanner() {
               </label>
               <select
                 id="milestone-category"
+                name="category"
+                aria-label="Category"
                 value={form.category}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -371,11 +377,14 @@ export default function MilestonePlanner() {
               </label>
               <input
                 id="milestone-date"
+                name="targetDate"
                 type="date"
+                autoComplete="off"
                 value={form.targetDate}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, targetDate: e.target.value }))
                 }
+                aria-label="Target date"
                 className={fieldClass}
               />
             </div>
@@ -385,13 +394,17 @@ export default function MilestonePlanner() {
               </label>
               <input
                 id="milestone-target"
+                name="targetValue"
                 type="number"
+                inputMode="numeric"
+                autoComplete="off"
                 value={form.targetValue}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, targetValue: e.target.value }))
                 }
                 placeholder="100"
                 min={1}
+                aria-label="Target value"
                 className={fieldClass}
               />
             </div>
@@ -401,13 +414,17 @@ export default function MilestonePlanner() {
               </label>
               <input
                 id="milestone-current"
+                name="currentValue"
                 type="number"
+                inputMode="numeric"
+                autoComplete="off"
                 value={form.currentValue}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, currentValue: e.target.value }))
                 }
                 placeholder="0"
                 min={0}
+                aria-label="Current value"
                 className={fieldClass}
               />
             </div>
