@@ -256,7 +256,7 @@ export default function CodingActivityInsightsCard() {
                 : data.productivityLevel === "Moderate"
                   ? t("productivityLevels.Moderate")
                   : t("productivityLevels.Low"),
-        ariaLabel: `${t("productivity")}: ${data.productivityLevel ?? "Low"}`,
+        ariaLabel: `${t("productivity")} level: ${data.productivityLevel ?? "Low"}`,
       },
 
       {

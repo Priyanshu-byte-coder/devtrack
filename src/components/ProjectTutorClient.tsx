@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MessageSquare, ListChecks, FileText, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import PageHeader from "@/components/shell/PageHeader";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,16 +15,16 @@ interface Questions {
 
 type Tab = "analysis" | "questions" | "chat";
 
-const TABS: { id: Tab; label: string; icon: typeof FileText }[] = [
-  { id: "analysis", label: "Overview", icon: FileText },
-  { id: "questions", label: "Interview questions", icon: ListChecks },
-  { id: "chat", label: "Ask the tutor", icon: MessageSquare },
+const TAB_CONFIG: { id: Tab; icon: typeof FileText }[] = [
+  { id: "analysis", icon: FileText },
+  { id: "questions", icon: ListChecks },
+  { id: "chat", icon: MessageSquare },
 ];
 
-const LEVELS: { id: keyof Questions; label: string; dot: string }[] = [
-  { id: "easy", label: "Warm-up", dot: "bg-success" },
-  { id: "medium", label: "Core", dot: "bg-warning" },
-  { id: "advanced", label: "Deep dive", dot: "bg-destructive" },
+const LEVEL_CONFIG: { id: keyof Questions; dot: string }[] = [
+  { id: "easy", dot: "bg-success" },
+  { id: "medium", dot: "bg-warning" },
+  { id: "advanced", dot: "bg-destructive" },
 ];
 
 async function postTutor(body: Record<string, string>) {
@@ -47,6 +48,8 @@ const inputClass =
   "h-9 min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]";
 
 export default function ProjectTutorClient() {
+  const t = useTranslations("projectTutor");
+
   const [repoUrl, setRepoUrl] = useState("");
   const [analyzedRepo, setAnalyzedRepo] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,6 +62,50 @@ export default function ProjectTutorClient() {
   const [chatLoading, setChatLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("analysis");
+
+  const getTranslatedError = (
+    serverMessage: string,
+    fallbackKey: "analyzeFailed" | "chatFailed"
+  ) => {
+    switch (serverMessage) {
+      case "Unauthorized":
+        return t("errors.unauthorized");
+      case "Rate limit exceeded. Try again later.":
+        return t("errors.rateLimitExceeded");
+      case "repo URL required":
+        return t("errors.repoUrlRequired");
+      case "Invalid GitHub URL":
+        return t("errors.invalidGithubUrl");
+      case "Something went wrong":
+        return t("errors.somethingWentWrong");
+      case "The tutor is unavailable right now.":
+        return t("errors.tutorUnavailable");
+      default:
+        return serverMessage || t(`errors.${fallbackKey}`);
+    }
+  };
+
+  const getTabLabel = (id: Tab) => {
+    switch (id) {
+      case "analysis":
+        return t("tabs.overview");
+      case "questions":
+        return t("tabs.interviewQuestions");
+      case "chat":
+        return t("tabs.askTutor");
+    }
+  };
+
+  const getLevelLabel = (id: keyof Questions) => {
+    switch (id) {
+      case "easy":
+        return t("questions.levels.easy");
+      case "medium":
+        return t("questions.levels.medium");
+      case "advanced":
+        return t("questions.levels.advanced");
+    }
+  };
 
   const handleAnalyze = async () => {
     const url = repoUrl.trim();
@@ -81,8 +128,8 @@ export default function ProjectTutorClient() {
     } catch (err) {
       setError(
         err instanceof Error
-          ? err.message
-          : "Failed to analyze repository. Please try again."
+          ? getTranslatedError(err.message, "analyzeFailed")
+          : t("errors.analyzeFailed")
       );
     } finally {
       setLoading(false);
@@ -104,7 +151,7 @@ export default function ProjectTutorClient() {
       });
       setChatHistory((prev) => [
         ...prev,
-        { role: "ai", text: data.answer ?? "No response." },
+        { role: "ai", text: data.answer ?? t("chat.noResponse") },
       ]);
     } catch (err) {
       setChatHistory((prev) => [
@@ -113,8 +160,8 @@ export default function ProjectTutorClient() {
           role: "ai",
           text:
             err instanceof Error
-              ? err.message
-              : "Failed to get a response. Please try again.",
+              ? getTranslatedError(err.message, "chatFailed")
+              : t("errors.chatFailed"),
         },
       ]);
     } finally {
@@ -126,10 +173,7 @@ export default function ProjectTutorClient() {
 
   return (
     <div className="max-w-4xl">
-      <PageHeader
-        title="Project tutor"
-        description="Paste a GitHub repository to get an overview, likely interview questions and a tutor you can quiz."
-      />
+      <PageHeader title={t("title")} description={t("description")} />
 
       <form
         className="flex flex-wrap gap-2"
@@ -139,7 +183,7 @@ export default function ProjectTutorClient() {
         }}
       >
         <label htmlFor="tutor-repo" className="sr-only">
-          GitHub repository URL
+          {t("repoUrlLabel")}
         </label>
         <input
           id="tutor-repo"
@@ -147,11 +191,11 @@ export default function ProjectTutorClient() {
           inputMode="url"
           value={repoUrl}
           onChange={(e) => setRepoUrl(e.target.value)}
-          placeholder="https://github.com/owner/repo"
+          placeholder={t("repoUrlPlaceholder")}
           className={inputClass}
         />
         <Button type="submit" disabled={loading || !repoUrl.trim()}>
-          {loading ? "Analyzing…" : "Analyze"}
+          {loading ? t("analyzing") : t("analyze")}
         </Button>
       </form>
 
@@ -166,7 +210,7 @@ export default function ProjectTutorClient() {
 
       {loading && (
         <div className="mt-6 space-y-3" aria-busy="true" aria-live="polite">
-          <span className="sr-only">Analyzing repository</span>
+          <span className="sr-only">{t("analyzingAria")}</span>
           {[0, 1, 2].map((i) => (
             <div
               key={i}
@@ -178,8 +222,7 @@ export default function ProjectTutorClient() {
 
       {!loading && !hasResults && !error && (
         <div className="mt-6 rounded-xl border border-dashed border-[var(--border)] px-6 py-10 text-center text-sm text-[var(--muted-foreground)]">
-          Works best with your own projects: the tutor reads the README,
-          languages and structure.
+          {t("emptyState")}
         </div>
       )}
 
@@ -187,10 +230,10 @@ export default function ProjectTutorClient() {
         <div className="mt-6">
           <div
             role="tablist"
-            aria-label="Project tutor sections"
+            aria-label={t("tabs.ariaLabel")}
             className="mb-4 inline-flex rounded-lg border border-[var(--border)] bg-[var(--card)] p-0.5"
           >
-            {TABS.map(({ id, label, icon: Icon }) => (
+            {TAB_CONFIG.map(({ id, icon: Icon }) => (
               <button
                 key={id}
                 type="button"
@@ -205,7 +248,7 @@ export default function ProjectTutorClient() {
                 )}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
-                {label}
+                {getTabLabel(id)}
               </button>
             ))}
           </div>
@@ -218,7 +261,7 @@ export default function ProjectTutorClient() {
                 </div>
               ) : (
                 <p className="text-sm text-[var(--muted-foreground)]">
-                  No overview was generated for this repository.
+                  {t("analysis.empty")}
                 </p>
               )}
             </div>
@@ -227,14 +270,14 @@ export default function ProjectTutorClient() {
           {activeTab === "questions" && (
             <div className="grid gap-4">
               {questions ? (
-                LEVELS.map(({ id, label, dot }) => (
+                LEVEL_CONFIG.map(({ id, dot }) => (
                   <section key={id} className="px-frame bg-[var(--card)] p-5">
                     <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
                       <span
                         className={cn("h-2 w-2 rounded-full", dot)}
                         aria-hidden="true"
                       />
-                      {label}
+                      {getLevelLabel(id)}
                     </h2>
                     <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-[var(--card-foreground)]">
                       {(questions[id] ?? []).map((q, i) => (
@@ -245,7 +288,7 @@ export default function ProjectTutorClient() {
                 ))
               ) : (
                 <p className="text-sm text-[var(--muted-foreground)]">
-                  No questions were generated for this repository.
+                  {t("questions.empty")}
                 </p>
               )}
             </div>
@@ -259,8 +302,7 @@ export default function ProjectTutorClient() {
               >
                 {chatHistory.length === 0 && (
                   <p className="m-auto max-w-sm text-center text-sm text-[var(--muted-foreground)]">
-                    Ask about design decisions, trade-offs or how a part of the
-                    project works.
+                    {t("chat.empty")}
                   </p>
                 )}
                 {chatHistory.map((msg, i) => (
@@ -285,7 +327,7 @@ export default function ProjectTutorClient() {
                 ))}
                 {chatLoading && (
                   <div className="w-fit rounded-lg bg-[var(--control)] px-3 py-2 text-sm text-[var(--muted-foreground)]">
-                    Thinking…
+                    {t("chat.thinking")}
                   </div>
                 )}
               </div>
@@ -297,20 +339,20 @@ export default function ProjectTutorClient() {
                 }}
               >
                 <label htmlFor="tutor-question" className="sr-only">
-                  Your question
+                  {t("chat.questionLabel")}
                 </label>
                 <input
                   id="tutor-question"
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask about this project…"
+                  placeholder={t("chat.questionPlaceholder")}
                   className={inputClass}
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  aria-label="Send"
+                  aria-label={t("chat.sendAria")}
                   disabled={chatLoading || !chatInput.trim()}
                 >
                   <Send aria-hidden="true" />

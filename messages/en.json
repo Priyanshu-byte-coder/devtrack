@@ -670,6 +670,51 @@
       }
     }
   },
+  "projectTutor": {
+    "title": "Project tutor",
+    "description": "Paste a GitHub repository to get an overview, likely interview questions and a tutor you can quiz.",
+    "repoUrlLabel": "GitHub repository URL",
+    "repoUrlPlaceholder": "https://github.com/owner/repo",
+    "analyze": "Analyze",
+    "analyzing": "Analyzing…",
+    "analyzingAria": "Analyzing repository",
+    "emptyState": "Works best with your own projects: the tutor reads the README, languages and structure.",
+    "tabs": {
+      "ariaLabel": "Project tutor sections",
+      "overview": "Overview",
+      "interviewQuestions": "Interview questions",
+      "askTutor": "Ask the tutor"
+    },
+    "analysis": {
+      "empty": "No overview was generated for this repository."
+    },
+    "questions": {
+      "levels": {
+        "easy": "Warm-up",
+        "medium": "Core",
+        "advanced": "Deep dive"
+      },
+      "empty": "No questions were generated for this repository."
+    },
+    "chat": {
+      "empty": "Ask about design decisions, trade-offs or how a part of the project works.",
+      "thinking": "Thinking…",
+      "questionLabel": "Your question",
+      "questionPlaceholder": "Ask about this project…",
+      "sendAria": "Send",
+      "noResponse": "No response."
+    },
+    "errors": {
+      "analyzeFailed": "Failed to analyze repository. Please try again.",
+      "chatFailed": "Failed to get a response. Please try again.",
+      "tutorUnavailable": "The tutor is unavailable right now.",
+      "unauthorized": "Unauthorized",
+      "rateLimitExceeded": "Rate limit exceeded. Try again later.",
+      "repoUrlRequired": "repo URL required",
+      "invalidGithubUrl": "Invalid GitHub URL",
+      "somethingWentWrong": "Something went wrong"
+    }
+  },
   "activity": {
     "title": "Activity",
     "description": "How often, how consistently and when you code.",
