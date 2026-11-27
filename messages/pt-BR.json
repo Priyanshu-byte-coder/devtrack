@@ -123,6 +123,23 @@
           "description": "Suba no ranking, mostre seus emblemas no README e desafie amigos para duelos."
         }
       }
+    },
+    "shortcuts": {
+      "buttonLabel": "Atalhos",
+      "buttonAria": "Mostrar atalhos de teclado",
+      "modalTitle": "Atalhos de teclado",
+      "closeAria": "Fechar atalhos",
+      "gotIt": "Entendido",
+      "themeAnnouncement": "{name} ativado",
+      "actions": {
+        "toggleTheme": "Alternar tema",
+        "toggleChart": "Alternar gráfico",
+        "reloadData": "Recarregar dados",
+        "goToDashboard": "Ir para o painel",
+        "goToGoals": "Ir para metas",
+        "closeModal": "Fechar modal/diálogo",
+        "showShortcuts": "Mostrar atalhos"
+      }
     }
   },
   "dashboard": {

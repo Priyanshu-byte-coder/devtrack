@@ -21,7 +21,7 @@ test("a duel scores two developers round by round", async ({ page }) => {
   ).toHaveCount(1);
   await expect(page.getByRole("link", { name: "Post on X" })).toHaveAttribute(
     "href",
-    /x\.com\/intent\/tweet/
+    /^(?:https?:\/\/)?(?:www\.)?x\.com\/intent\/tweet(?:\?.*)?$/
   );
 });
 
