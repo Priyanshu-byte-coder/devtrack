@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/components/Link";
+import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
   Menu,
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 const TABS: Array<{
   href: string;
+  key: "hq" | "board" | "duel" | "goals";
   label: string;
   icon: LucideIcon;
   /** Also lights up on these routes. */
@@ -20,13 +22,14 @@ const TABS: Array<{
 }> = [
   {
     href: "/dashboard",
+    key: "hq",
     label: "HQ",
     icon: LayoutDashboard,
     match: (p) => p === "/dashboard",
   },
-  { href: "/leaderboard", label: "Board", icon: Trophy },
-  { href: "/compare", label: "Duel", icon: Swords },
-  { href: "/dashboard/goals", label: "Goals", icon: Target },
+  { href: "/leaderboard", key: "board", label: "Board", icon: Trophy },
+  { href: "/compare", key: "duel", label: "Duel", icon: Swords },
+  { href: "/dashboard/goals", key: "goals", label: "Goals", icon: Target },
 ];
 
 const tabClass =
@@ -45,12 +48,14 @@ export default function MobileTabBar({
   onMenu: () => void;
   menuOpen: boolean;
 }) {
+  const t = useTranslations("navigation");
+
   return (
     <nav
-      aria-label="Quick navigation"
+      aria-label={t("tabs.quickNavAria")}
       className="mobile-tabbar fixed inset-x-0 bottom-0 z-40 flex border-t-4 border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_94%,transparent)] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
-      {TABS.map(({ href, label, icon: Icon, match }) => {
+      {TABS.map(({ href, key, label, icon: Icon, match }) => {
         const active = match
           ? match(pathname)
           : pathname === href || pathname.startsWith(`${href}/`);
@@ -74,7 +79,7 @@ export default function MobileTabBar({
               />
             )}
             <Icon className="h-5 w-5" aria-hidden="true" />
-            {label}
+            {t(`tabs.${key}`) || label}
           </Link>
         );
       })}
@@ -82,14 +87,14 @@ export default function MobileTabBar({
         type="button"
         onClick={onMenu}
         aria-expanded={menuOpen}
-        aria-label="Open the full menu"
+        aria-label={t("tabs.openMenuAria")}
         className={cn(
           tabClass,
           "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
         )}
       >
         <Menu className="h-5 w-5" aria-hidden="true" />
-        Menu
+        {t("tabs.menu")}
       </button>
     </nav>
   );
