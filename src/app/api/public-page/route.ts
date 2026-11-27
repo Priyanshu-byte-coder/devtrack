@@ -24,11 +24,29 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * The site this renders from. A literal, not configuration or the request:
- * the handler only runs in production (lib/public-page-cache.ts), and a
- * fixed host is what keeps the fetch below from going anywhere else.
+ * The site this renders from. Never taken from the request alone: the fetch
+ * below may only go to devtrack.live, or to a host named in configuration.
+ * PUBLIC_PAGE_RENDER_HOST lets a second production copy (e.g. the Netlify
+ * project, devtrack-984.netlify.app) render its own pages, along with its
+ * per-deploy addresses (<deploy id>--devtrack-984.netlify.app). Rendering
+ * from devtrack.live there would serve another build's HTML, whose CSS and
+ * JS files don't exist on that deploy.
  */
-const ORIGIN = "https://devtrack.live";
+const DEFAULT_ORIGIN = "https://devtrack.live";
+
+function renderOrigin(req: NextRequest): string {
+  const allowed = process.env.PUBLIC_PAGE_RENDER_HOST?.trim().toLowerCase();
+  const host = req.nextUrl.host.toLowerCase();
+  if (
+    allowed &&
+    (host === allowed ||
+      (host.endsWith(`--${allowed}`) &&
+        /^[a-z0-9]+$/.test(host.slice(0, -`--${allowed}`.length))))
+  ) {
+    return `https://${host}`;
+  }
+  return DEFAULT_ORIGIN;
+}
 
 /** Headers worth keeping from the rendered page. Set-Cookie never is. */
 const PASS_THROUGH = [
@@ -68,6 +86,7 @@ function notFound() {
 }
 
 export async function GET(req: NextRequest) {
+  const ORIGIN = renderOrigin(req);
   const source = req.nextUrl.searchParams.get(PUBLIC_PAGE_SOURCE_PARAM);
   if (!source?.startsWith("/")) return notFound();
   let target: URL;
@@ -83,7 +102,7 @@ export async function GET(req: NextRequest) {
   target.searchParams.set(PUBLIC_CACHE_PARAM, "1");
   let pageUrl: string;
   try {
-    pageUrl = `https://devtrack.live/${encodedPath(target)}?${encodedQuery(target)}`;
+    pageUrl = `${ORIGIN}/${encodedPath(target)}?${encodedQuery(target)}`;
   } catch {
     // A malformed %-escape in the path.
     return notFound();
