@@ -7,6 +7,7 @@
  */
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import LazyWidget from "@/components/LazyWidget";
 import WidgetErrorBoundary from "@/components/WidgetErrorBoundary";
 import WidgetRegion from "@/components/dashboard/WidgetRegion";
@@ -96,13 +97,25 @@ const slot = (
   id: string,
   title: string,
   render: () => ReactNode,
-  deferred = false
+  deferred = false,
+  titleKey?: string
 ) => {
-  const Widget = () => (
-    <Slot id={id} title={title} deferred={deferred}>
-      {render()}
-    </Slot>
-  );
+  const Widget = () => {
+    let resolvedTitle = title;
+    try {
+      const t = useTranslations("activity");
+      if (titleKey && t.has(titleKey as any)) {
+        resolvedTitle = t(titleKey as any);
+      }
+    } catch {
+      // Fall back safely to default title
+    }
+    return (
+      <Slot id={id} title={resolvedTitle} deferred={deferred}>
+        {render()}
+      </Slot>
+    );
+  };
   Widget.displayName = title.replace(/[^A-Za-z]/g, "");
   return Widget;
 };
@@ -116,11 +129,17 @@ export const ContributionGraph = slot(
 export const ContributionHeatmap = slot(
   "contribution-heatmap",
   "Contribution Heatmap",
-  () => <ContributionHeatmapChart />
+  () => <ContributionHeatmapChart />,
+  false,
+  "widgets.contributionHeatmap.regionTitle"
 );
-export const WeeklySummary = slot("weekly-summary", "Weekly Summary", () => (
-  <WeeklySummaryCard />
-));
+export const WeeklySummary = slot(
+  "weekly-summary",
+  "Weekly Summary",
+  () => <WeeklySummaryCard />,
+  false,
+  "widgets.weeklySummary.regionTitle"
+);
 export const PersonalRecords = slot(
   "personal-records",
   "Personal Records",
@@ -133,26 +152,33 @@ export const AIMentor = slot(
   () => <AIMentorWidget />,
   true
 );
-export const StreakTracker = slot("streak-tracker", "Streak Tracker", () => (
-  <StreakTrackerWidget />
-));
+export const StreakTracker = slot(
+  "streak-tracker",
+  "Streak Tracker",
+  () => <StreakTrackerWidget />,
+  false,
+  "widgets.streakTracker.regionTitle"
+);
 export const ConsistencyScore = slot(
   "consistency-score",
   "Consistency Score",
   () => <ConsistencyScoreWidget />,
-  true
+  true,
+  "widgets.consistencyScore.regionTitle"
 );
 export const CodingActivityInsights = slot(
   "coding-activity-insights",
   "Coding Activity Insights",
   () => <CodingActivityInsightsCard />,
-  true
+  true,
+  "widgets.codingActivityInsights.regionTitle"
 );
 export const ProductiveHours = slot(
   "productive-hours",
   "Productive Hours",
   () => <ProductiveHoursChart />,
-  true
+  true,
+  "widgets.productiveHours.regionTitle"
 );
 
 // Pull requests

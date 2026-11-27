@@ -31,7 +31,63 @@
     "signInCta": "साइन इन करें",
     "signOutCta": "साइन आउट करें",
     "openDashboard": "डैशबोर्ड खोलें",
-    "compare": "तुलना करें"
+    "compare": "तुलना करें",
+    "dashboard": "डैशबोर्ड",
+    "sections": {
+      "play": "खेलें",
+      "stats": "आंकड़े",
+      "powerUps": "पावर-अप",
+      "options": "विकल्प"
+    },
+    "items": {
+      "hq": "मुख्यालय",
+      "leaderboard": "लीडरबोर्ड",
+      "duel": "मित्र से मुकाबला",
+      "topDevs": "शीर्ष डेवलपर्स",
+      "yearInCode": "ईयर इन कोड",
+      "activity": "गतिविधि",
+      "pullRequests": "पुल अनुरोध",
+      "repositories": "रिपॉजिटरी",
+      "goals": "लक्ष्य",
+      "careerIntelligence": "एआई रिज्यूमे",
+      "personality": "व्यक्तित्व",
+      "projectTutor": "प्रोजेक्ट ट्यूटर",
+      "settings": "सेटिंग्स"
+    },
+    "tabs": {
+      "hq": "मुख्यालय",
+      "board": "बोर्ड",
+      "duel": "मुकाबला",
+      "goals": "लक्ष्य",
+      "menu": "मेनू",
+      "openMenuAria": "पूरा मेनू खोलें",
+      "quickNavAria": "त्वरित नेविगेशन"
+    },
+    "playerChip": {
+      "player1": "खिलाड़ी 1",
+      "viewCard": "अपना खिलाड़ी कार्ड देखें",
+      "goPublic": "कार्ड पाने के लिए सार्वजनिक हों"
+    },
+    "lookup": {
+      "aria": "डेवलपर खोजें",
+      "srLabel": "खोजने के लिए गिटहब उपयोगकर्ता नाम",
+      "placeholder": "डेवलपर खोजें",
+      "submitAria": "खोजें",
+      "invalid": "यह एक मान्य गिटहब उपयोगकर्ता नाम नहीं है।"
+    },
+    "accountMenu": {
+      "aria": "खाता मेनू",
+      "defaultName": "खाता",
+      "publicProfile": "सार्वजनिक प्रोफ़ाइल",
+      "settings": "सेटिंग्स",
+      "signOut": "साइन आउट करें"
+    },
+    "shell": {
+      "featuredAria": "विशेष रुप से प्रदर्शित",
+      "navigationDialogAria": "नेविगेशन",
+      "closeNavAria": "नेविगेशन बंद करें",
+      "openNavAria": "नेविगेशन खोलें"
+    }
   },
   "dashboard": {
     "overviewEyebrow": "डैशबोर्ड अवलोकन",
@@ -713,6 +769,247 @@
       "repoUrlRequired": "रिपॉजिटरी URL आवश्यक है",
       "invalidGithubUrl": "अमान्य GitHub URL",
       "somethingWentWrong": "कुछ गलत हो गया"
+    }
+  },
+  "activity": {
+    "title": "गतिविधि",
+    "description": "आप कितनी बार, कितनी निरंतरता से और कब कोड करते हैं।",
+    "sections": {
+      "contributions": "योगदान",
+      "streaksAndConsistency": "क्रम और निरंतरता",
+      "whenYouCode": "जब आप कोड करते हैं"
+    },
+    "widgets": {
+      "contributionHeatmap": {
+        "regionTitle": "योगदान हीटमैप"
+      },
+      "weeklySummary": {
+        "regionTitle": "साप्ताहिक सारांश"
+      },
+      "streakTracker": {
+        "regionTitle": "क्रम ट्रैकर"
+      },
+      "consistencyScore": {
+        "regionTitle": "निरंतरता स्कोर"
+      },
+      "codingActivityInsights": {
+        "regionTitle": "कोडिंग गतिविधि इनसाइट्स"
+      },
+      "productiveHours": {
+        "regionTitle": "उत्पादक घंटे"
+      }
+    },
+    "contributionHeatmap": {
+      "title": "योगदान हीटमैप",
+      "subtitle": "कमिट गतिविधि के पिछले {days} दिन।",
+      "rangeGroupAria": "सीमा",
+      "showRangeAria": "{days}-दिन की सीमा दिखाएं",
+      "customButton": "कस्टम…",
+      "customPopoverTitle": "कस्टम सीमा",
+      "startDate": "प्रारंभ तिथि",
+      "endDate": "समाप्ति तिथि",
+      "apply": "लागू करें",
+      "errors": {
+        "selectBoth": "कृपया दोनों तिथियों का चयन करें।",
+        "startBeforeEnd": "प्रारंभ तिथि समाप्ति तिथि से पहले होनी चाहिए।",
+        "futureDate": "समाप्ति तिथि भविष्य में नहीं हो सकती।",
+        "maxRange": "अधिकतम सीमा 2 वर्ष है।"
+      },
+      "themeDefault": "डिफ़ॉल्ट",
+      "themeColourBlind": "कलर-ब्लाइंड",
+      "themeCustom": "थीम",
+      "filterLabel": "फ़िल्टर:",
+      "filterRepoAria": "रिपॉजिटरी द्वारा फ़िल्टर करें",
+      "filterLangAria": "भाषा द्वारा फ़िल्टर करें",
+      "allRepos": "सभी रिपॉजिटरी",
+      "allLangs": "सभी भाषाएं",
+      "legendLess": "कम",
+      "legendMore": "अधिक",
+      "commitsSummary": "योगदान हीटमैप जो {days} दिनों में {commits} दिखाता है।",
+      "commitsShown": "{days} दिनों में {commits} कमिट दिखाए गए।",
+      "updatedJustNow": "अभी अपडेट किया गया",
+      "updatedMinAgo": "{minutes} मिनट पहले अपडेट किया गया",
+      "refreshPrompt": "कृपया रीफ़्रेश करने का प्रयास करें।",
+      "errorLoading": "योगदान हीटमैप लोड करने में विफल।",
+      "futureDateAria": "{date} को भविष्य की तिथि",
+      "cellAria": "{date} को {commits}",
+      "days": {
+        "sun": "रवि",
+        "mon": "सोम",
+        "tue": "मंगल",
+        "wed": "बुध",
+        "thu": "गुरु",
+        "fri": "शुक्र",
+        "sat": "शनि"
+      },
+      "insights": {
+        "title": "योगदान इनसाइट्स",
+        "panelAria": "योगदान इनसाइट्स पैनल",
+        "noData": "इस सीमा के लिए कोई योगदान डेटा उपलब्ध नहीं है।",
+        "mostProductiveDay": "सबसे उत्पादक दिन",
+        "mostProductiveDayDesc": "उच्चतम औसत कमिट वाला दिन",
+        "avgWeekly": "औसत साप्ताहिक योगदान",
+        "avgWeeklyDesc": "प्रति 7 कैलेंडर दिनों में कमिट",
+        "longestStreak": "सबसे लंबा क्रम",
+        "longestStreakDesc": "अधिकतम लगातार सक्रिय दिन",
+        "longestInactive": "सबसे लंबी निष्क्रिय अवधि",
+        "longestInactiveDesc": "शून्य कमिट वाले अधिकतम लगातार दिन",
+        "monthlyTrend": "मासिक रुझान",
+        "monthlyTrendDesc": "पिछले महीने की तुलना में हाल का महीना",
+        "bestMonth": "सर्वश्रेष्ठ महीना",
+        "bestMonthDesc": "उच्चतम कुल ({commits} कमिट)",
+        "trendIncreasing": "बढ़ रहा है",
+        "trendDecreasing": "घट रहा है",
+        "trendStable": "स्थिर",
+        "dayUnit": "दिन",
+        "daysUnit": "दिन"
+      }
+    },
+    "dailyBreakdown": {
+      "title": "दैनिक विवरण",
+      "ariaLabel": "{date} के लिए दैनिक विवरण",
+      "closePanel": "पैनल बंद करें",
+      "empty": "इस दिन के लिए कोई कमिट डेटा उपलब्ध नहीं है।",
+      "commitCount": "{count} कमिट",
+      "commitsCount": "{count} कमिट"
+    },
+    "weeklySummary": {
+      "title": "इस सप्ताह",
+      "summarise": "संक्षेप करें",
+      "generateAria": "AI सारांश जनरेट करें",
+      "downloadAria": "साप्ताहिक रिपोर्ट डाउनलोड करें",
+      "expandAria": "साप्ताहिक सारांश विस्तृत करें",
+      "collapseAria": "साप्ताहिक सारांश संक्षिप्त करें",
+      "loadingAria": "साप्ताहिक सारांश लोड हो रहा है",
+      "reconnectMessage": "आपका GitHub कनेक्शन अब मान्य नहीं है। डेटा सिंक करना जारी रखने के लिए अपने GitHub खाते को फिर से कनेक्ट करें।",
+      "reconnectButton": "GitHub फिर से कनेक्ट करें",
+      "errorMessage": "हम अभी आपका साप्ताहिक सारांश लोड नहीं कर सके। कृपया कुछ देर में पुनः प्रयास करें।",
+      "generatingSummary": "सारांश जनरेट हो रहा है…",
+      "copyFailed": "सारांश कॉपी करने में विफल।",
+      "aiSummaryHeading": "AI सारांश",
+      "copyAria": "AI सारांश क्लिपबोर्ड पर कॉपी करें",
+      "copyLabel": "कॉपी करें",
+      "rateLimitHours": "सारांश आज पहले ही जनरेट हो चुका है। अगला {hours} घंटे {minutes} मिनट में उपलब्ध होगा।",
+      "rateLimitMinutes": "सारांश आज पहले ही जनरेट हो चुका है। अगला {minutes} मिनट में उपलब्ध होगा।",
+      "commits": "कमिट",
+      "prsMerged": "मर्ज किए गए PR",
+      "issuesResolved": "सुलझाए गए मुद्दे",
+      "activeDays": "सक्रिय दिन",
+      "lastWeek": "पिछला सप्ताह",
+      "thisWeek": "इस सप्ताह",
+      "productivityScore": "उत्पादकता स्कोर",
+      "vsLastWeek": "पिछले सप्ताह की तुलना में",
+      "streak": "क्रम",
+      "dayStreak": "{count} दिन का क्रम",
+      "topRepo": "शीर्ष रिपॉजिटरी"
+    },
+    "consistencyScore": {
+      "title": "निरंतरता स्कोर",
+      "loadingAria": "निरंतरता स्कोर लोड हो रहा है",
+      "errorMessage": "हम अभी आपका निरंतरता स्कोर लोड नहीं कर सके। कृपया कुछ देर में पुनः प्रयास करें।",
+      "tryAgain": "पुनः प्रयास करें",
+      "empty": "कोई योगदान गतिविधि उपलब्ध नहीं है।",
+      "weeklyConsistency": "साप्ताहिक निरंतरता",
+      "streakQuality": "क्रम गुणवत्ता",
+      "longestGap": "सबसे बड़ा अंतराल",
+      "recentActivity": "हाल की गतिविधि",
+      "active": "सक्रिय",
+      "inactive": "निष्क्रिय",
+      "days": "{count} दिन",
+      "activeDays": "सक्रिय दिन"
+    },
+    "productiveHours": {
+      "title": "सबसे उत्पादक घंटे",
+      "aboutChart": "इस चार्ट के बारे में",
+      "chartDescription": "चयनित तिथि सीमा में आपके स्थानीय समय क्षेत्र के अनुसार समायोजित प्रति घंटे और सप्ताह के दिन औसत कमिट दिखाता है।",
+      "subtitle": "पिछले {days} दिन — घंटे और दिन के अनुसार कमिट गतिविधि",
+      "rangeGroupAria": "सीमा",
+      "showRangeAria": "{days}-दिन की सीमा दिखाएं",
+      "customButton": "कस्टम…",
+      "customPopoverTitle": "कस्टम सीमा",
+      "startDate": "प्रारंभ तिथि",
+      "endDate": "समाप्ति तिथि",
+      "apply": "लागू करें",
+      "errors": {
+        "selectBoth": "कृपया दोनों तिथियों का चयन करें।",
+        "startBeforeEnd": "प्रारंभ तिथि समाप्ति तिथि से पहले होनी चाहिए।",
+        "futureDate": "समाप्ति तिथि भविष्य में नहीं हो सकती।",
+        "maxRange": "अधिकतम सीमा 2 वर्ष है।"
+      },
+      "themeDefault": "डिफ़ॉल्ट",
+      "themeColourBlind": "कलर-ब्लाइंड",
+      "themeCustom": "थीम",
+      "legendLess": "कम",
+      "legendMore": "अधिक",
+      "errorLoading": "उत्पादक घंटे का डेटा लोड करने में विफल।",
+      "refreshPrompt": "कृपया रीफ़्रेश करने का प्रयास करें।",
+      "commitsAnalysed": "{total} कमिट का विश्लेषण किया गया।",
+      "peakBanner": "🔥 शीर्ष: {day} {hour} — औसत {avg} कमिट",
+      "updatedJustNow": "अभी अपडेट किया गया",
+      "updatedMinAgo": "{minutes} मिनट पहले अपडेट किया गया",
+      "tooltip": "{day} {hour} — औसत {avg} {unit}",
+      "commitUnit": "कमिट",
+      "commitsUnit": "कमिट",
+      "days": {
+        "Sun": "रवि",
+        "Mon": "सोम",
+        "Tue": "मंगल",
+        "Wed": "बुध",
+        "Thu": "गुरु",
+        "Fri": "शुक्र",
+        "Sat": "शनि"
+      },
+      "daysFull": {
+        "Sunday": "रविवार",
+        "Monday": "सोमवार",
+        "Tuesday": "मंगलवार",
+        "Wednesday": "बुधवार",
+        "Thursday": "गुरुवार",
+        "Friday": "शुक्रवार",
+        "Saturday": "शनिवार"
+      }
+    },
+    "codingActivityInsights": {
+      "title": "कोडिंग गतिविधि इनसाइट्स",
+      "refresh": "रीफ़्रेश करें",
+      "refreshing": "रीफ़्रेश हो रहा है",
+      "refreshAria": "कोडिंग गतिविधि इनसाइट्स रीफ़्रेश करें",
+      "loadingAria": "कोडिंग गतिविधि इनसाइट्स लोड हो रही हैं",
+      "error": "हम अभी आपकी AI उत्पादकता इनसाइट्स लोड नहीं कर सके। कृपया कुछ देर में पुनः प्रयास करें।",
+      "tryAgain": "पुनः प्रयास करें",
+      "emptyState": "AI-संचालित उत्पादकता इनसाइट्स जनरेट करने के लिए अभी पर्याप्त कोडिंग गतिविधि का पता नहीं चला है।",
+      "lastDays": "पिछले {days} दिन",
+      "commitsByHour": "घंटे के अनुसार कमिट",
+      "localTimezone": "स्थानीय समय क्षेत्र",
+      "mostActive": "सबसे सक्रिय",
+      "leastActive": "सबसे कम सक्रिय",
+      "consistency": "निरंतरता",
+      "weeklyConsistency": "{score}% साप्ताहिक निरंतरता",
+      "productivity": "उत्पादकता",
+      "dailyAverage": "दैनिक औसत",
+      "commitsPerDay": "{count} कमिट/दिन",
+      "bestDay": "सर्वश्रेष्ठ दिन",
+      "withCommits": "{time} में {commits}",
+      "productivitySummary": "AI उत्पादकता सारांश",
+      "recommendations": "स्मार्ट सिफारिशें",
+      "trends": {
+        "improving": "↑ {percent}% सुधार",
+        "declining": "↓ {percent}% गिरावट",
+        "stable": "स्थिर गतिविधि"
+      },
+      "productivityLevels": {
+        "Excellent": "🟢 उत्कृष्ट",
+        "Very Good": "🔵 बहुत अच्छा",
+        "Good": "🟡 अच्छा",
+        "Moderate": "🟠 मध्यम",
+        "Low": "🔴 कम"
+      },
+      "commitCount": "{count} कमिट",
+      "commitsCount": "{count} कमिट"
+    },
+    "streakMilestone": {
+      "celebration": "🎉 आपने {streak}-दिनों की लकीर हासिल कर ली! इसे जारी रखें!",
+      "dismiss": "मील का पत्थर बैनर खारिज करें"
     }
   }
 }

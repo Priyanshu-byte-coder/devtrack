@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 interface DailyBreakdownSheetProps {
   date: string | null;
@@ -25,6 +26,9 @@ export default function DailyBreakdownSheet({
   selectedLanguage = "all",
   reposData = [],
 }: DailyBreakdownSheetProps) {
+  const t = useTranslations("activity.dailyBreakdown");
+  const locale = useLocale();
+
   const [rawCommits, setRawCommits] = useState<RepoCommit[]>([]);
   const [loading, setLoading] = useState(false);
   const isOpen = date !== null;
@@ -99,7 +103,7 @@ export default function DailyBreakdownSheet({
   if (!isOpen) return null;
 
   const formattedDate = date
-    ? new Date(date + "T00:00:00").toLocaleDateString("en-US", {
+    ? new Date(date + "T00:00:00").toLocaleDateString(locale, {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -118,13 +122,13 @@ export default function DailyBreakdownSheet({
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
-        aria-label={`Daily breakdown for ${formattedDate}`}
+        aria-label={t("ariaLabel", { date: formattedDate })}
         className="fixed right-0 top-0 z-50 flex h-full w-80 flex-col border-l border-[var(--border)] bg-[var(--card)] shadow-xl"
       >
         <div className="flex items-center justify-between border-b border-[var(--border)] p-4">
           <div>
             <h2 className="font-semibold text-[var(--card-foreground)]">
-              Daily Breakdown
+              {t("title")}
             </h2>
             <p className="text-xs text-[var(--muted-foreground)]">
               {formattedDate}
@@ -133,7 +137,7 @@ export default function DailyBreakdownSheet({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close panel"
+            aria-label={t("closePanel")}
             className="rounded p-1 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
           >
             ✕
@@ -152,7 +156,7 @@ export default function DailyBreakdownSheet({
           ) : commits.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="text-sm text-[var(--muted-foreground)]">
-                No commit data available for this day.
+                {t("empty")}
               </p>
             </div>
           ) : (
@@ -169,7 +173,9 @@ export default function DailyBreakdownSheet({
                     {item.repo}
                   </span>
                   <span className="ml-2 shrink-0 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-semibold text-[var(--accent-foreground)]">
-                    {item.count} commit{item.count === 1 ? "" : "s"}
+                    {item.count === 1
+                      ? t("commitCount", { count: item.count })
+                      : t("commitsCount", { count: item.count })}
                   </span>
                 </a>
               ))}
