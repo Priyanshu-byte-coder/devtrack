@@ -714,5 +714,246 @@
       "invalidGithubUrl": "URL de GitHub no válida",
       "somethingWentWrong": "Algo salió mal"
     }
+  },
+  "activity": {
+    "title": "Actividad",
+    "description": "Con qué frecuencia, con qué constancia y cuándo programas.",
+    "sections": {
+      "contributions": "Contribuciones",
+      "streaksAndConsistency": "Rachas y constancia",
+      "whenYouCode": "Cuándo programas"
+    },
+    "widgets": {
+      "contributionHeatmap": {
+        "regionTitle": "Mapa de calor de contribuciones"
+      },
+      "weeklySummary": {
+        "regionTitle": "Resumen semanal"
+      },
+      "streakTracker": {
+        "regionTitle": "Seguimiento de rachas"
+      },
+      "consistencyScore": {
+        "regionTitle": "Puntuación de constancia"
+      },
+      "codingActivityInsights": {
+        "regionTitle": "Estadísticas de actividad de código"
+      },
+      "productiveHours": {
+        "regionTitle": "Horas productivas"
+      }
+    },
+    "contributionHeatmap": {
+      "title": "Mapa de calor de contribuciones",
+      "subtitle": "Últimos {days} días de actividad de commits.",
+      "rangeGroupAria": "Rango",
+      "showRangeAria": "Mostrar rango de {days} días",
+      "customButton": "Personalizado…",
+      "customPopoverTitle": "Rango personalizado",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de finalización",
+      "apply": "Aplicar",
+      "errors": {
+        "selectBoth": "Selecciona ambas fechas.",
+        "startBeforeEnd": "La fecha de inicio debe ser anterior a la de finalización.",
+        "futureDate": "La fecha de finalización no puede ser futura.",
+        "maxRange": "El rango máximo es de 2 años."
+      },
+      "themeDefault": "Predeterminado",
+      "themeColourBlind": "Para daltónicos",
+      "themeCustom": "Tema",
+      "filterLabel": "Filtro:",
+      "filterRepoAria": "Filtrar por repositorio",
+      "filterLangAria": "Filtrar por lenguaje",
+      "allRepos": "Todos los repositorios",
+      "allLangs": "Todos los lenguajes",
+      "legendLess": "Menos",
+      "legendMore": "Más",
+      "commitsSummary": "Mapa de calor de contribuciones que muestra {commits} en {days} días.",
+      "commitsShown": "{commits} commits mostrados en {days} días.",
+      "updatedJustNow": "Actualizado recién",
+      "updatedMinAgo": "Actualizado hace {minutes} min",
+      "refreshPrompt": "Intenta actualizar la página.",
+      "errorLoading": "No se pudo cargar el mapa de calor de contribuciones.",
+      "futureDateAria": "Fecha futura en {date}",
+      "cellAria": "{commits} el {date}",
+      "days": {
+        "sun": "Dom",
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mié",
+        "thu": "Jue",
+        "fri": "Vie",
+        "sat": "Sáb"
+      },
+      "insights": {
+        "title": "Estadísticas de contribución",
+        "panelAria": "Panel de estadísticas de contribución",
+        "noData": "No hay datos de contribución disponibles para este rango.",
+        "mostProductiveDay": "Día más productivo",
+        "mostProductiveDayDesc": "Día con mayor promedio de commits",
+        "avgWeekly": "Contribuciones semanales promedio",
+        "avgWeeklyDesc": "Commits por cada 7 días naturales",
+        "longestStreak": "Racha más larga",
+        "longestStreakDesc": "Máximo de días activos consecutivos",
+        "longestInactive": "Período inactivo más largo",
+        "longestInactiveDesc": "Máximo de días consecutivos sin commits",
+        "monthlyTrend": "Tendencia mensual",
+        "monthlyTrendDesc": "Mes reciente en comparación con el mes anterior",
+        "bestMonth": "Mejor mes",
+        "bestMonthDesc": "Mayor total ({commits} commits)",
+        "trendIncreasing": "En aumento",
+        "trendDecreasing": "En descenso",
+        "trendStable": "Estable",
+        "dayUnit": "día",
+        "daysUnit": "días"
+      }
+    },
+    "dailyBreakdown": {
+      "title": "Desglose diario",
+      "ariaLabel": "Desglose diario para {date}",
+      "closePanel": "Cerrar panel",
+      "empty": "No hay datos de commits disponibles para este día.",
+      "commitCount": "{count} commit",
+      "commitsCount": "{count} commits"
+    },
+    "weeklySummary": {
+      "title": "Esta semana",
+      "summarise": "Resumir",
+      "generateAria": "Generar resumen con IA",
+      "downloadAria": "Descargar informe semanal",
+      "expandAria": "Expandir resumen semanal",
+      "collapseAria": "Contraer resumen semanal",
+      "loadingAria": "Cargando resumen semanal",
+      "reconnectMessage": "Tu conexión con GitHub ya no es válida. Vuelve a conectar tu cuenta de GitHub para continuar sincronizando datos.",
+      "reconnectButton": "Reconectar GitHub",
+      "errorMessage": "No pudimos cargar tu resumen semanal en este momento. Inténtalo de nuevo en unos instantes.",
+      "generatingSummary": "Generando resumen…",
+      "copyFailed": "No se pudo copiar el resumen.",
+      "aiSummaryHeading": "Resumen de IA",
+      "copyAria": "Copiar resumen de IA al portapapeles",
+      "copyLabel": "Copiar",
+      "rateLimitHours": "El resumen ya se generó hoy. Próximo disponible en {hours}h {minutes}m.",
+      "rateLimitMinutes": "El resumen ya se generó hoy. Próximo disponible en {minutes}m.",
+      "commits": "Commits",
+      "prsMerged": "PRs fusionados",
+      "issuesResolved": "Problemas resueltos",
+      "activeDays": "Días activos",
+      "lastWeek": "La semana pasada",
+      "thisWeek": "Esta semana",
+      "productivityScore": "Puntuación de productividad",
+      "vsLastWeek": "en comparación con la semana pasada",
+      "streak": "Racha",
+      "dayStreak": "Racha de {count} días",
+      "topRepo": "Repositorio principal"
+    },
+    "consistencyScore": {
+      "title": "Puntuación de constancia",
+      "loadingAria": "Cargando puntuación de constancia",
+      "errorMessage": "No pudimos cargar tu puntuación de constancia en este momento. Inténtalo de nuevo en unos instantes.",
+      "tryAgain": "Intentar de nuevo",
+      "empty": "No hay actividad de contribución disponible.",
+      "weeklyConsistency": "Constancia semanal",
+      "streakQuality": "Calidad de la racha",
+      "longestGap": "Brecha más larga",
+      "recentActivity": "Actividad reciente",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "days": "{count} días",
+      "activeDays": "Días activos"
+    },
+    "productiveHours": {
+      "title": "Horas más productivas",
+      "aboutChart": "Acerca de este gráfico",
+      "chartDescription": "Muestra tu promedio de commits por hora y día de la semana en el rango seleccionado, ajustado a tu zona horaria local.",
+      "subtitle": "Últimos {days} días — actividad de commits por hora y día",
+      "rangeGroupAria": "Rango",
+      "showRangeAria": "Mostrar rango de {days} días",
+      "customButton": "Personalizado…",
+      "customPopoverTitle": "Rango personalizado",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de finalización",
+      "apply": "Aplicar",
+      "errors": {
+        "selectBoth": "Selecciona ambas fechas.",
+        "startBeforeEnd": "La fecha de inicio debe ser anterior a la de finalización.",
+        "futureDate": "La fecha de finalización no puede ser futura.",
+        "maxRange": "El rango máximo es de 2 años."
+      },
+      "themeDefault": "Predeterminado",
+      "themeColourBlind": "Para daltónicos",
+      "themeCustom": "Tema",
+      "legendLess": "Menos",
+      "legendMore": "Más",
+      "errorLoading": "No se pudieron cargar los datos de horas productivas.",
+      "refreshPrompt": "Intenta actualizar la página.",
+      "commitsAnalysed": "{total} commits analizados.",
+      "peakBanner": "🔥 Pico: {day} {hour} — prom. {avg} commits",
+      "updatedJustNow": "Actualizado recién",
+      "updatedMinAgo": "Actualizado hace {minutes} min",
+      "tooltip": "{day} {hour} — prom. {avg} {unit}",
+      "commitUnit": "commit",
+      "commitsUnit": "commits",
+      "days": {
+        "Sun": "Dom",
+        "Mon": "Lun",
+        "Tue": "Mar",
+        "Wed": "Mié",
+        "Thu": "Jue",
+        "Fri": "Vie",
+        "Sat": "Sáb"
+      },
+      "daysFull": {
+        "Sunday": "Domingo",
+        "Monday": "Lunes",
+        "Tuesday": "Martes",
+        "Wednesday": "Miércoles",
+        "Thursday": "Jueves",
+        "Friday": "Viernes",
+        "Saturday": "Sábado"
+      }
+    },
+    "codingActivityInsights": {
+      "title": "Estadísticas de actividad de código",
+      "refresh": "Actualizar",
+      "refreshing": "Actualizando",
+      "refreshAria": "Actualizar estadísticas de actividad de código",
+      "loadingAria": "Cargando estadísticas de actividad de código",
+      "error": "No pudimos cargar tus estadísticas de productividad con IA en este momento. Inténtalo de nuevo en unos instantes.",
+      "tryAgain": "Intentar de nuevo",
+      "emptyState": "Aún no se detectó suficiente actividad de programación para generar estadísticas de productividad con IA.",
+      "lastDays": "Últimos {days} días",
+      "commitsByHour": "Commits por hora",
+      "localTimezone": "Zona horaria local",
+      "mostActive": "Más activo",
+      "leastActive": "Menos activo",
+      "consistency": "Constancia",
+      "weeklyConsistency": "{score}% de constancia semanal",
+      "productivity": "Productividad",
+      "dailyAverage": "Promedio diario",
+      "commitsPerDay": "{count} commits/día",
+      "bestDay": "Mejor día",
+      "withCommits": "{time} con {commits}",
+      "productivitySummary": "Resumen de productividad con IA",
+      "recommendations": "Recomendaciones inteligentes",
+      "trends": {
+        "improving": "↑ {percent}% Mejorando",
+        "declining": "↓ {percent}% En descenso",
+        "stable": "Actividad estable"
+      },
+      "productivityLevels": {
+        "Excellent": "🟢 Excelente",
+        "Very Good": "🔵 Muy bueno",
+        "Good": "🟡 Bueno",
+        "Moderate": "🟠 Moderado",
+        "Low": "🔴 Bajo"
+      },
+      "commitCount": "{count} commit",
+      "commitsCount": "{count} commits"
+    },
+    "streakMilestone": {
+      "celebration": "🎉 ¡Alcanzaste una racha de {streak} días! ¡Sigue así!",
+      "dismiss": "Descartar banner de hito"
+    }
   }
 }
