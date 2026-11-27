@@ -66,16 +66,32 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build and deploy
+      # Build and upload are separate steps so the build log stays visible
+      # (deploy --json swallows it) and a broken build never goes live.
+      - name: Build with the Netlify project's environment variables
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          PRODUCTION: ${{ inputs.production }}
         run: |
           if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
             echo "::error::Add the NETLIFY_AUTH_TOKEN repository secret first."
             exit 1
           fi
-          flags=(--build --json --message "main ${GITHUB_SHA::7}")
+          npx --yes netlify-cli@27.20.1 build --context production
+
+      - name: Check the build output
+        run: |
+          echo "Publish directory contents:"; ls -la .netlify 2>/dev/null || true
+          for d in .netlify/static/_next/static .next/static; do
+            echo "$d: $(find "$d" -type f 2>/dev/null | wc -l) files"
+          done
+          grep -rl "powered by Netlify" .next/server/chunks .next/static 2>/dev/null | head -3             || echo "::warning::Footer link not found in the build (NEXT_PUBLIC_HOSTED_ON missing at build time?)"
+
+      - name: Deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          PRODUCTION: ${{ inputs.production }}
+        run: |
+          flags=(--no-build --json --message "main ${GITHUB_SHA::7}")
           if [ "$PRODUCTION" = "true" ]; then flags+=(--prod); fi
           npx --yes netlify-cli@27.20.1 deploy "${flags[@]}" > deploy.json
           url=$(jq -r 'if .url then .url else .deploy_url end' deploy.json)
