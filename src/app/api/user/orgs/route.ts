@@ -60,7 +60,7 @@ export async function GET() {
               id: 9999,
               login: "devtrack-org",
               avatarUrl: "https://avatars.githubusercontent.com/u/9919?v=4",
-            }
+            },
           ],
           hasOrgScope: false,
           mocked: true,
@@ -135,7 +135,10 @@ export async function GET() {
     if (githubLimit) return githubLimit;
 
     console.error("Error in /api/user/orgs GET:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -147,12 +150,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRow = await resolveAppUser(session.githubId, session.githubLogin);
-    const { config } = (await req.json()) as { config: Record<string, any> };
-
-    if (!config || typeof config !== "object") {
-      return NextResponse.json({ error: "Invalid configuration" }, { status: 400 });
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
+
+    const config = body?.config;
+
+    if (!config || typeof config !== "object" || Array.isArray(config)) {
+      return NextResponse.json(
+        { error: "Invalid configuration" },
+        { status: 400 }
+      );
+    }
+
+    const userRow = await resolveAppUser(session.githubId, session.githubLogin);
 
     if (!userRow) {
       // Graceful fallback if Supabase is unavailable (e.g. local dev mock login)
@@ -169,7 +183,10 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("Error updating organizations_config:", error);
-      return NextResponse.json({ error: "Failed to save configuration" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to save configuration" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });
@@ -178,6 +195,9 @@ export async function POST(req: NextRequest) {
     if (githubLimit) return githubLimit;
 
     console.error("Error in /api/user/orgs POST:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
