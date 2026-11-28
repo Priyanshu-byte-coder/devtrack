@@ -9,7 +9,17 @@ import {
   act,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import enMessages from "../../messages/en.json";
 import NotificationBell from "../../src/components/NotificationBell";
+
+function renderWithIntl(ui: React.ReactElement = <NotificationBell />) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={enMessages}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 function createJsonResponse(status: number, body: unknown) {
   return Promise.resolve(
@@ -62,7 +72,7 @@ describe("NotificationBell", () => {
     // Keep the promise pending
     fetchMock.mockImplementation(() => new Promise(() => {}));
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     // Open bell dropdown
     fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
@@ -86,7 +96,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     // Open dropdown to see error UI
     fireEvent.click(screen.getByRole("button", { name: "Notifications" }));
@@ -117,7 +127,7 @@ describe("NotificationBell", () => {
       return createJsonResponse(200, { notifications: [], unreadCount: 0 });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
@@ -154,7 +164,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     // Bell announcement and badge before opening
     expect(
@@ -200,7 +210,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     expect(await screen.findByText("9+")).toBeInTheDocument();
     expect(screen.getByText("15 unread notifications")).toBeInTheDocument();
@@ -214,7 +224,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
@@ -268,7 +278,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
@@ -329,7 +339,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     expect(await screen.findByText("2")).toBeInTheDocument();
 
@@ -368,7 +378,7 @@ describe("NotificationBell", () => {
       });
     });
 
-    render(<NotificationBell />);
+    renderWithIntl();
 
     // Wait for initial notifications to load
     await waitFor(() => {
