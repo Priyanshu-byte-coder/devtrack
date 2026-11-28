@@ -1111,5 +1111,37 @@
     "skip": "छोड़ें",
     "next": "अगला",
     "buttonAria": "Bit, DevTrack मार्गदर्शक। {stage} के बारे में सुझाव"
+  },
+  "repositories": {
+    "analyticsSheet": {
+      "title": "रेपो एनालिटिक्स",
+      "repository": "रिपॉज़िटरी",
+      "sheetAria": "{name} एनालिटिक्स",
+      "close": "बंद करें",
+      "loading": "रिपॉज़िटरी एनालिटिक्स लोड हो रहा है",
+      "rateLimitError": "GitHub अभी आपके खाते को सीमित कर रहा है। कुछ मिनटों में पुनः प्रयास करें।",
+      "loadError": "इस रिपॉज़िटरी को अभी लोड नहीं किया जा सकता।",
+      "stars": "स्टार्स",
+      "forks": "फ़ोर्क्स",
+      "openIssues": "खुले इश्यूज़",
+      "prs": "PRs",
+      "branch": "ब्रांच {branch}",
+      "created": "बनाया गया {date}",
+      "updated": "अपडेट किया गया {date}",
+      "commitsPerWeek": "प्रति सप्ताह कमिट",
+      "statsBuilding": "GitHub अभी इस रिपॉज़िटरी के आँकड़े तैयार कर रहा है। एक मिनट में फिर देखें।",
+      "noCommits": "पिछले 12 हफ़्तों में कोई कमिट नहीं।",
+      "timelineAria": "प्रति सप्ताह कमिट: {entries}",
+      "timelineEntry": "{date} के सप्ताह में {count}",
+      "weekTitle": "{date} का सप्ताह: {count, plural, one {# कमिट} other {# कमिट}}",
+      "commitsIn12Weeks": "12 हफ़्तों में {count, plural, one {# कमिट} other {# कमिट}}",
+      "languages": "भाषाएँ",
+      "noLanguageData": "कोई भाषा डेटा नहीं।",
+      "topContributors": "शीर्ष योगदानकर्ता",
+      "noContributorData": "अभी तक कोई योगदानकर्ता डेटा नहीं।",
+      "commitsCount": "{count, plural, one {# कमिट} other {# कमिट}}",
+      "fullHealthCheck": "पूर्ण स्वास्थ्य जाँच",
+      "openOnGitHub": "GitHub पर खोलें"
+    }
   }
 }

@@ -1111,5 +1111,37 @@
     "skip": "Skip",
     "next": "Next",
     "buttonAria": "Bit, the DevTrack guide. Tip about {stage}"
+  },
+  "repositories": {
+    "analyticsSheet": {
+      "title": "Repo analytics",
+      "repository": "Repository",
+      "sheetAria": "{name} analytics",
+      "close": "Close",
+      "loading": "Loading repository analytics",
+      "rateLimitError": "GitHub is rate limiting your account right now. Try again in a few minutes.",
+      "loadError": "Unable to load this repository right now.",
+      "stars": "Stars",
+      "forks": "Forks",
+      "openIssues": "Open issues",
+      "prs": "PRs",
+      "branch": "Branch {branch}",
+      "created": "Created {date}",
+      "updated": "Updated {date}",
+      "commitsPerWeek": "Commits per week",
+      "statsBuilding": "GitHub is still computing this repository's stats. Check back in a minute.",
+      "noCommits": "No commits in the last 12 weeks.",
+      "timelineAria": "Commits per week: {entries}",
+      "timelineEntry": "week of {date} {count}",
+      "weekTitle": "Week of {date}: {count, plural, one {# commit} other {# commits}}",
+      "commitsIn12Weeks": "{count, plural, one {# commit} other {# commits}} in 12 weeks",
+      "languages": "Languages",
+      "noLanguageData": "No language data.",
+      "topContributors": "Top contributors",
+      "noContributorData": "No contributor data yet.",
+      "commitsCount": "{count, plural, one {# commit} other {# commits}}",
+      "fullHealthCheck": "Full health check",
+      "openOnGitHub": "Open on GitHub"
+    }
   }
 }
