@@ -1,68 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { driver, type DriveStep } from "driver.js";
 import "driver.js/dist/driver.css";
 
 /** Set as soon as the tour starts, so it never shows twice in one browser. */
 export const TOUR_SEEN_KEY = "devtrack:onboarding-seen";
 
-const STEPS: DriveStep[] = [
-  {
-    popover: {
-      title: "Player 1 ready",
-      description:
-        "Your GitHub activity is now a game: streaks, XP, tiers and a global leaderboard. Want a 20-second tour?",
-    },
-  },
-  {
-    element: '[data-tour="stats"]',
-    popover: {
-      title: "Your week",
-      description:
-        "Streak, commits, merged PRs and active days, compared with last week. They update on their own.",
-    },
-  },
-  {
-    element: '[data-tour="rank"]',
-    popover: {
-      title: "Rank, tier and XP",
-      description:
-        "Your place this season, your tier, and XP toward the next level. Ranks update every day.",
-    },
-  },
-  {
-    element: '[data-tour="activity"]',
-    popover: {
-      title: "Activity",
-      description:
-        "Your commits over time. Switch the range or the chart type to spot your rhythm.",
-    },
-  },
-  {
-    element: '[data-tour="focus"]',
-    popover: {
-      title: "Today's focus",
-      description:
-        "Write down what you're building today. Small goals keep streaks alive.",
-    },
-  },
-  {
-    element: '[data-tour="nav"]',
-    popover: {
-      title: "More modes",
-      description:
-        "Pull requests, repos, goals, Year in Code and your public profile all live here.",
-    },
-  },
-  {
-    popover: {
-      title: "Game on",
-      description:
-        "Climb the leaderboard, flex your badges in your README, and challenge friends to duels.",
-    },
-  },
+type StepKey =
+  "welcome" | "stats" | "rank" | "activity" | "focus" | "nav" | "gameOn";
+
+interface TourStepDefinition {
+  element?: string;
+  key: StepKey;
+}
+
+const TOUR_STEP_DEFINITIONS: TourStepDefinition[] = [
+  { key: "welcome" },
+  { element: '[data-tour="stats"]', key: "stats" },
+  { element: '[data-tour="rank"]', key: "rank" },
+  { element: '[data-tour="activity"]', key: "activity" },
+  { element: '[data-tour="focus"]', key: "focus" },
+  { element: '[data-tour="nav"]', key: "nav" },
+  { key: "gameOn" },
 ];
 
 function isVisible(selector: string) {
@@ -100,6 +62,22 @@ function alreadySeen() {
  */
 export default function OnboardingTour() {
   const pathname = usePathname();
+  const t = useTranslations("navigation.onboarding");
+
+  const steps = useMemo<DriveStep[]>(() => {
+    return TOUR_STEP_DEFINITIONS.map((def) => {
+      const step: DriveStep = {
+        popover: {
+          title: t(`steps.${def.key}.title`),
+          description: t(`steps.${def.key}.description`),
+        },
+      };
+      if (def.element) {
+        step.element = def.element;
+      }
+      return step;
+    });
+  }, [t]);
 
   useEffect(() => {
     if (pathname !== "/dashboard") return;
@@ -108,17 +86,17 @@ export default function OnboardingTour() {
     // Let the widgets render first, so the steps have something to point at.
     const timer = window.setTimeout(() => {
       if (alreadySeen()) return;
-      const steps = STEPS.filter(
+      const visibleSteps = steps.filter(
         (step) => typeof step.element !== "string" || isVisible(step.element)
       );
       markSeen();
       const tour = driver({
-        steps,
+        steps: visibleSteps,
         showProgress: true,
         progressText: "{{current}} / {{total}}",
-        nextBtnText: "Next ▶",
-        prevBtnText: "◀ Back",
-        doneBtnText: "Start playing",
+        nextBtnText: t("nextBtnText"),
+        prevBtnText: t("prevBtnText"),
+        doneBtnText: t("doneBtnText"),
         popoverClass: "devtrack-tour",
         overlayColor: "#05070f",
         stagePadding: 6,
@@ -128,7 +106,7 @@ export default function OnboardingTour() {
       tour.drive();
     }, 1200);
     return () => window.clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, steps, t]);
 
   return null;
 }
