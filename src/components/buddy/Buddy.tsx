@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { fillLine, scriptFor } from "@/lib/buddy-lines";
 import PixelSprite from "./PixelSprite";
 import type { FrameName } from "./sprites";
@@ -43,6 +44,7 @@ function writeStorage(
  * in lib/buddy-lines.ts). On the leaderboard he's less helpful.
  */
 export default function Buddy() {
+  const t = useTranslations("buddy");
   const pathname = usePathname() ?? "/";
   const { data: session } = useSession();
   const login = session?.githubLogin;
@@ -224,8 +226,8 @@ export default function Buddy() {
       <button
         type="button"
         onClick={unhide}
-        aria-label="Bring back Bit"
-        title="Bring back Bit"
+        aria-label={t("bringBack")}
+        title={t("bringBack")}
         className="buddy-peek fixed bottom-0 right-24 z-40 h-4 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       >
         <PixelSprite frame="idle" scale={2} />
@@ -251,7 +253,7 @@ export default function Buddy() {
       {open && (
         <div
           role="dialog"
-          aria-label={`Bit says, ${script.stage}`}
+          aria-label={t("dialogAria", { stage: script.stage })}
           className="buddy-bubble px-frame absolute bottom-full right-0 mb-3 w-[min(20rem,calc(100vw-7rem))] bg-[var(--card)] p-3 text-[var(--card-foreground)]"
         >
           <div className="mb-1.5 flex items-center justify-between gap-2">
@@ -261,7 +263,7 @@ export default function Buddy() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Close"
+              aria-label={t("close")}
               className="font-pixel text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             >
               ✕
@@ -277,14 +279,14 @@ export default function Buddy() {
               onClick={hide}
               className="text-[11px] text-[var(--muted-foreground)] underline-offset-2 hover:underline"
             >
-              Hide Bit
+              {t("hide")}
             </button>
             <button
               type="button"
               onClick={() => (typing ? setTyped(text.length) : nextLine())}
               className="font-pixel text-[10px] uppercase tracking-[0.12em] text-[var(--accent)]"
             >
-              {typing ? "Skip" : "Next"}{" "}
+              {typing ? t("skip") : t("next")}{" "}
               <span className={typing ? "" : "px-blink"} aria-hidden="true">
                 ▶
               </span>
@@ -296,7 +298,7 @@ export default function Buddy() {
       <button
         type="button"
         onClick={onBuddyClick}
-        aria-label={`Bit, the DevTrack guide. Tip about ${script.stage}`}
+        aria-label={t("buttonAria", { stage: script.stage })}
         aria-expanded={open}
         className="relative block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       >

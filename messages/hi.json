@@ -88,6 +88,48 @@
       "closeNavAria": "नेविगेशन बंद करें",
       "openNavAria": "नेविगेशन खोलें"
     },
+    "notifications": {
+      "title": "सूचनाएं",
+      "bellAria": "सूचनाएं",
+      "bellTitle": "सूचनाएं",
+      "statusUnread": "{count, plural, one {# न पढ़ी गई सूचना} other {# न पढ़ी गई सूचनाएं}}",
+      "statusNoUnread": "कोई न पढ़ी गई सूचना नहीं",
+      "allCaughtUp": "सब कुछ देख लिया",
+      "clearAll": "सभी हटाएं",
+      "clearing": "हटाया जा रहा है…",
+      "clearAllAria": "सभी सूचनाएं हटाएं",
+      "closeAria": "सूचनाएं बंद करें",
+      "searchPlaceholder": "सूचनाएं खोजें…",
+      "searchAria": "सूचनाएं खोजें",
+      "clearSearchAria": "खोज साफ़ करें",
+      "loading": "सूचनाएं लोड हो रही हैं…",
+      "failedToLoad": "सूचनाएं लोड करने में विफल",
+      "retry": "पुनः प्रयास करें",
+      "noResults": "''{query}'' के लिए कोई परिणाम नहीं",
+      "noNotificationsYet": "अभी कोई सूचना नहीं है",
+      "failedToMarkRead": "सूचनाओं को पढ़ा हुआ चिह्नित करने में विफल",
+      "timeJustNow": "अभी-अभी",
+      "timeMinutesAgo": "{count} मिनट पहले",
+      "timeHoursAgo": "{count} घंटे पहले",
+      "timeDaysAgo": "{count} दिन पहले"
+    },
+    "shortcuts": {
+      "buttonLabel": "शॉर्टकट",
+      "buttonAria": "कीबोर्ड शॉर्टकट दिखाएं",
+      "modalTitle": "कीबोर्ड शॉर्टकट",
+      "closeAria": "शॉर्टकट बंद करें",
+      "gotIt": "समझ गया",
+      "themeAnnouncement": "{name} सक्षम",
+      "actions": {
+        "toggleTheme": "थीम बदलें",
+        "toggleChart": "चार्ट टॉगल करें",
+        "reloadData": "डेटा पुनः लोड करें",
+        "goToDashboard": "डैशबोर्ड पर जाएं",
+        "goToGoals": "लक्ष्यों पर जाएं",
+        "closeModal": "मोडल/संवाद बंद करें",
+        "showShortcuts": "शॉर्टकट दिखाएं"
+      }
+    },
     "onboarding": {
       "nextBtnText": "आगे ▶",
       "prevBtnText": "◀ पीछे",
@@ -122,23 +164,6 @@
           "title": "खेल शुरू",
           "description": "लीडरबोर्ड पर चढ़ें, अपने README में अपने बैज दिखाएं और दोस्तों को मुकाबले की चुनौती दें।"
         }
-      }
-    },
-    "shortcuts": {
-      "buttonLabel": "शॉर्टकट",
-      "buttonAria": "कीबोर्ड शॉर्टकट दिखाएं",
-      "modalTitle": "कीबोर्ड शॉर्टकट",
-      "closeAria": "शॉर्टकट बंद करें",
-      "gotIt": "समझ गया",
-      "themeAnnouncement": "{name} सक्षम",
-      "actions": {
-        "toggleTheme": "थीम बदलें",
-        "toggleChart": "चार्ट टॉगल करें",
-        "reloadData": "डेटा पुनः लोड करें",
-        "goToDashboard": "डैशबोर्ड पर जाएं",
-        "goToGoals": "लक्ष्यों पर जाएं",
-        "closeModal": "मोडल/संवाद बंद करें",
-        "showShortcuts": "शॉर्टकट दिखाएं"
       }
     }
   },
@@ -1064,5 +1089,27 @@
       "celebration": "🎉 आपने {streak}-दिनों की लकीर हासिल कर ली! इसे जारी रखें!",
       "dismiss": "मील का पत्थर बैनर खारिज करें"
     }
+  },
+  "themeMenu": {
+    "label": "थीम",
+    "chooseTheme": "थीम चुनें",
+    "triggerAria": "थीम: {name}. थीम चुनें",
+    "optionsAria": "थीम विकल्प",
+    "selectTheme": "थीम चुनें",
+    "descriptions": {
+      "arcade": "गहरी नीली रात, नीला नियॉन",
+      "daylight": "हल्का और स्पष्ट",
+      "terminal": "हरा फॉस्फर CRT",
+      "synthwave": "बैंगनी रात, गुलाबी और सियान"
+    }
+  },
+  "buddy": {
+    "bringBack": "Bit को वापस लाएं",
+    "dialogAria": "Bit कहता है, {stage}",
+    "close": "बंद करें",
+    "hide": "Bit को छिपाएं",
+    "skip": "छोड़ें",
+    "next": "अगला",
+    "buttonAria": "Bit, DevTrack मार्गदर्शक। {stage} के बारे में सुझाव"
   }
 }

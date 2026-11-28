@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 
 import { useNotifications } from "@/hooks/useNotifications";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { toast } from "sonner";
 const EMPTY_NOTIFICATIONS: any[] = [];
 
 export default function NotificationBell() {
+  const t = useTranslations("navigation.notifications");
   const { data, loading, error, refetch } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -133,7 +135,7 @@ export default function NotificationBell() {
               );
             }
 
-            toast.error("Failed to mark notifications as read");
+            toast.error(t("failedToMarkRead"));
           })
           .finally(() => {
             void refetch();
@@ -142,18 +144,18 @@ export default function NotificationBell() {
 
       return next;
     });
-  }, [unreadCount, refetch]);
+  }, [unreadCount, refetch, t]);
 
   function timeAgo(iso: string): string {
     const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
 
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t("timeJustNow");
+    if (mins < 60) return t("timeMinutesAgo", { count: mins });
 
     const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
+    if (hrs < 24) return t("timeHoursAgo", { count: hrs });
 
-    return `${Math.floor(hrs / 24)}d ago`;
+    return t("timeDaysAgo", { count: Math.floor(hrs / 24) });
   }
 
   const [clearing, setClearing] = useState(false);
@@ -189,8 +191,8 @@ export default function NotificationBell() {
         aria-atomic="true"
       >
         {unreadCount > 0
-          ? `${unreadCount} unread notifications`
-          : "No unread notifications"}
+          ? t("statusUnread", { count: unreadCount })
+          : t("statusNoUnread")}
       </div>
 
       {/* Bell button */}
@@ -199,8 +201,8 @@ export default function NotificationBell() {
         type="button"
         onClick={handleOpen}
         className="relative rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-[background-color,color,opacity,transform] hover:opacity-90 active:scale-95"
-        aria-label="Notifications"
-        title="Notifications"
+        aria-label={t("bellAria")}
+        title={t("bellTitle")}
         suppressHydrationWarning
       >
         {/* icon */}
@@ -243,12 +245,12 @@ export default function NotificationBell() {
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
               <h3 className="text-sm font-semibold text-[var(--card-foreground)]">
-                Notifications
+                {t("title")}
               </h3>
               <div className="flex items-center gap-2">
                 {unreadCount === 0 && (
                   <span className="text-xs text-[var(--muted-foreground)]">
-                    All caught up
+                    {t("allCaughtUp")}
                   </span>
                 )}
                 {notifications.length > 0 && (
@@ -257,17 +259,17 @@ export default function NotificationBell() {
                     onClick={handleClearAll}
                     disabled={clearing}
                     className="text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Clear all notifications"
-                    title="Clear all notifications"
+                    aria-label={t("clearAllAria")}
+                    title={t("clearAllAria")}
                   >
-                    {clearing ? "Clearing…" : "Clear all"}
+                    {clearing ? t("clearing") : t("clearAll")}
                   </button>
                 )}
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] transition-colors"
-                  aria-label="Close notifications"
+                  aria-label={t("closeAria")}
                 >
                   <svg
                     width="16"
@@ -292,8 +294,8 @@ export default function NotificationBell() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search notifications…"
-                aria-label="Search notifications"
+                placeholder={t("searchPlaceholder")}
+                aria-label={t("searchAria")}
                 className="w-full pl-3 pr-8 py-1.5 text-sm bg-[var(--control)] text-[var(--card-foreground)] placeholder:text-[var(--muted-foreground)] border border-[var(--border)] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] transition-shadow"
               />
               {searchQuery && (
@@ -301,7 +303,7 @@ export default function NotificationBell() {
                   type="button"
                   onClick={() => setSearchQuery("")}
                   className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-[var(--card-foreground)] text-lg leading-none p-1"
-                  aria-label="Clear search"
+                  aria-label={t("clearSearchAria")}
                 >
                   ×
                 </button>
@@ -311,12 +313,12 @@ export default function NotificationBell() {
             <ul className="max-h-72 overflow-y-auto divide-y divide-[var(--border)] scrollbar-thin">
               {loading ? (
                 <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
-                  Loading notifications…
+                  {t("loading")}
                 </li>
               ) : error ? (
                 <li className="px-4 py-6 text-center">
                   <p className="text-sm text-[var(--destructive)]">
-                    Failed to load notifications
+                    {t("failedToLoad")}
                   </p>
 
                   <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -328,14 +330,14 @@ export default function NotificationBell() {
                     onClick={() => void refetch()}
                     className="mt-2 text-xs underline"
                   >
-                    Retry
+                    {t("retry")}
                   </button>
                 </li>
               ) : filteredNotifications.length === 0 ? (
                 <li className="px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
                   {debouncedSearchQuery
-                    ? `No results for '${debouncedSearchQuery}'`
-                    : "No notifications yet"}
+                    ? t("noResults", { query: debouncedSearchQuery })
+                    : t("noNotificationsYet")}
                 </li>
               ) : (
                 filteredNotifications.map((n) => (

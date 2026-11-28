@@ -88,6 +88,48 @@
       "closeNavAria": "Close navigation",
       "openNavAria": "Open navigation"
     },
+    "notifications": {
+      "title": "Notifications",
+      "bellAria": "Notifications",
+      "bellTitle": "Notifications",
+      "statusUnread": "{count, plural, one {# unread notification} other {# unread notifications}}",
+      "statusNoUnread": "No unread notifications",
+      "allCaughtUp": "All caught up",
+      "clearAll": "Clear all",
+      "clearing": "Clearing…",
+      "clearAllAria": "Clear all notifications",
+      "closeAria": "Close notifications",
+      "searchPlaceholder": "Search notifications…",
+      "searchAria": "Search notifications",
+      "clearSearchAria": "Clear search",
+      "loading": "Loading notifications…",
+      "failedToLoad": "Failed to load notifications",
+      "retry": "Retry",
+      "noResults": "No results for ''{query}''",
+      "noNotificationsYet": "No notifications yet",
+      "failedToMarkRead": "Failed to mark notifications as read",
+      "timeJustNow": "just now",
+      "timeMinutesAgo": "{count}m ago",
+      "timeHoursAgo": "{count}h ago",
+      "timeDaysAgo": "{count}d ago"
+    },
+    "shortcuts": {
+      "buttonLabel": "Shortcuts",
+      "buttonAria": "Show keyboard shortcuts",
+      "modalTitle": "Keyboard Shortcuts",
+      "closeAria": "Close shortcuts",
+      "gotIt": "Got it",
+      "themeAnnouncement": "{name} enabled",
+      "actions": {
+        "toggleTheme": "Toggle theme",
+        "toggleChart": "Toggle chart",
+        "reloadData": "Reload data",
+        "goToDashboard": "Go to Dashboard",
+        "goToGoals": "Go to Goals",
+        "closeModal": "Close modal/dialog",
+        "showShortcuts": "Show shortcuts"
+      }
+    },
     "onboarding": {
       "nextBtnText": "Next ▶",
       "prevBtnText": "◀ Back",
@@ -122,23 +164,6 @@
           "title": "Game on",
           "description": "Climb the leaderboard, flex your badges in your README, and challenge friends to duels."
         }
-      }
-    },
-    "shortcuts": {
-      "buttonLabel": "Shortcuts",
-      "buttonAria": "Show keyboard shortcuts",
-      "modalTitle": "Keyboard Shortcuts",
-      "closeAria": "Close shortcuts",
-      "gotIt": "Got it",
-      "themeAnnouncement": "{name} enabled",
-      "actions": {
-        "toggleTheme": "Toggle theme",
-        "toggleChart": "Toggle chart",
-        "reloadData": "Reload data",
-        "goToDashboard": "Go to Dashboard",
-        "goToGoals": "Go to Goals",
-        "closeModal": "Close modal/dialog",
-        "showShortcuts": "Show shortcuts"
       }
     }
   },
@@ -1064,5 +1089,27 @@
       "celebration": "🎉 You reached a {streak}-day streak! Keep it up!",
       "dismiss": "Dismiss milestone banner"
     }
+  },
+  "themeMenu": {
+    "label": "Theme",
+    "chooseTheme": "Choose theme",
+    "triggerAria": "Theme: {name}. Choose theme",
+    "optionsAria": "Theme options",
+    "selectTheme": "Select theme",
+    "descriptions": {
+      "arcade": "Navy night, blue neon",
+      "daylight": "Light and crisp",
+      "terminal": "Green phosphor CRT",
+      "synthwave": "Purple night, pink and cyan"
+    }
+  },
+  "buddy": {
+    "bringBack": "Bring back Bit",
+    "dialogAria": "Bit says, {stage}",
+    "close": "Close",
+    "hide": "Hide Bit",
+    "skip": "Skip",
+    "next": "Next",
+    "buttonAria": "Bit, the DevTrack guide. Tip about {stage}"
   }
 }

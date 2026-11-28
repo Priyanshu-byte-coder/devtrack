@@ -88,6 +88,48 @@
       "closeNavAria": "Cerrar navegación",
       "openNavAria": "Abrir navegación"
     },
+    "notifications": {
+      "title": "Notificaciones",
+      "bellAria": "Notificaciones",
+      "bellTitle": "Notificaciones",
+      "statusUnread": "{count, plural, one {# notificación no leída} other {# notificaciones no leídas}}",
+      "statusNoUnread": "No hay notificaciones sin leer",
+      "allCaughtUp": "Al día",
+      "clearAll": "Borrar todas",
+      "clearing": "Borrando…",
+      "clearAllAria": "Borrar todas las notificaciones",
+      "closeAria": "Cerrar notificaciones",
+      "searchPlaceholder": "Buscar notificaciones…",
+      "searchAria": "Buscar notificaciones",
+      "clearSearchAria": "Limpiar búsqueda",
+      "loading": "Cargando notificaciones…",
+      "failedToLoad": "Error al cargar las notificaciones",
+      "retry": "Reintentar",
+      "noResults": "No hay resultados para ''{query}''",
+      "noNotificationsYet": "Aún no hay notificaciones",
+      "failedToMarkRead": "Error al marcar las notificaciones como leídas",
+      "timeJustNow": "ahora mismo",
+      "timeMinutesAgo": "hace {count}m",
+      "timeHoursAgo": "hace {count}h",
+      "timeDaysAgo": "hace {count}d"
+    },
+    "shortcuts": {
+      "buttonLabel": "Atajos",
+      "buttonAria": "Mostrar atajos de teclado",
+      "modalTitle": "Atajos de teclado",
+      "closeAria": "Cerrar atajos",
+      "gotIt": "Entendido",
+      "themeAnnouncement": "{name} activado",
+      "actions": {
+        "toggleTheme": "Cambiar tema",
+        "toggleChart": "Alternar gráfico",
+        "reloadData": "Recargar datos",
+        "goToDashboard": "Ir al panel",
+        "goToGoals": "Ir a objetivos",
+        "closeModal": "Cerrar modal/diálogo",
+        "showShortcuts": "Mostrar atajos"
+      }
+    },
     "onboarding": {
       "nextBtnText": "Siguiente ▶",
       "prevBtnText": "◀ Atrás",
@@ -122,23 +164,6 @@
           "title": "A jugar",
           "description": "Sube en la clasificación, luce tus insignias en tu README y desafía a tus amigos a duelos."
         }
-      }
-    },
-    "shortcuts": {
-      "buttonLabel": "Atajos",
-      "buttonAria": "Mostrar atajos de teclado",
-      "modalTitle": "Atajos de teclado",
-      "closeAria": "Cerrar atajos",
-      "gotIt": "Entendido",
-      "themeAnnouncement": "{name} activado",
-      "actions": {
-        "toggleTheme": "Cambiar tema",
-        "toggleChart": "Alternar gráfico",
-        "reloadData": "Recargar datos",
-        "goToDashboard": "Ir al panel",
-        "goToGoals": "Ir a objetivos",
-        "closeModal": "Cerrar modal/diálogo",
-        "showShortcuts": "Mostrar atajos"
       }
     }
   },
@@ -1064,5 +1089,27 @@
       "celebration": "🎉 ¡Alcanzaste una racha de {streak} días! ¡Sigue así!",
       "dismiss": "Descartar banner de hito"
     }
+  },
+  "themeMenu": {
+    "label": "Tema",
+    "chooseTheme": "Elegir tema",
+    "triggerAria": "Tema: {name}. Elegir tema",
+    "optionsAria": "Opciones de tema",
+    "selectTheme": "Seleccionar tema",
+    "descriptions": {
+      "arcade": "Noche azul marino, neón azul",
+      "daylight": "Claro y nítido",
+      "terminal": "CRT fósforo verde",
+      "synthwave": "Noche púrpura, rosa y cian"
+    }
+  },
+  "buddy": {
+    "bringBack": "Traer de vuelta a Bit",
+    "dialogAria": "Bit dice, {stage}",
+    "close": "Cerrar",
+    "hide": "Ocultar a Bit",
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "buttonAria": "Bit, la guía de DevTrack. Consejo sobre {stage}"
   }
 }

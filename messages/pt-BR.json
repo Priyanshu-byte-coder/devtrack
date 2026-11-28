@@ -88,6 +88,48 @@
       "closeNavAria": "Fechar navegação",
       "openNavAria": "Abrir navegação"
     },
+    "notifications": {
+      "title": "Notificações",
+      "bellAria": "Notificações",
+      "bellTitle": "Notificações",
+      "statusUnread": "{count, plural, one {# notificação não lida} other {# notificações não lidas}}",
+      "statusNoUnread": "Nenhuma notificação não lida",
+      "allCaughtUp": "Tudo em dia",
+      "clearAll": "Limpar tudo",
+      "clearing": "Limpando…",
+      "clearAllAria": "Limpar todas as notificações",
+      "closeAria": "Fechar notificações",
+      "searchPlaceholder": "Buscar notificações…",
+      "searchAria": "Buscar notificações",
+      "clearSearchAria": "Limpar busca",
+      "loading": "Carregando notificações…",
+      "failedToLoad": "Falha ao carregar notificações",
+      "retry": "Tentar novamente",
+      "noResults": "Nenhum resultado para ''{query}''",
+      "noNotificationsYet": "Nenhuma notificação ainda",
+      "failedToMarkRead": "Falha ao marcar notificações como lidas",
+      "timeJustNow": "agora mesmo",
+      "timeMinutesAgo": "há {count}m",
+      "timeHoursAgo": "há {count}h",
+      "timeDaysAgo": "há {count}d"
+    },
+    "shortcuts": {
+      "buttonLabel": "Atalhos",
+      "buttonAria": "Mostrar atalhos de teclado",
+      "modalTitle": "Atalhos de teclado",
+      "closeAria": "Fechar atalhos",
+      "gotIt": "Entendido",
+      "themeAnnouncement": "{name} ativado",
+      "actions": {
+        "toggleTheme": "Alternar tema",
+        "toggleChart": "Alternar gráfico",
+        "reloadData": "Recarregar dados",
+        "goToDashboard": "Ir para o painel",
+        "goToGoals": "Ir para metas",
+        "closeModal": "Fechar modal/diálogo",
+        "showShortcuts": "Mostrar atalhos"
+      }
+    },
     "onboarding": {
       "nextBtnText": "Avançar ▶",
       "prevBtnText": "◀ Voltar",
@@ -122,23 +164,6 @@
           "title": "Jogo iniciado",
           "description": "Suba no ranking, mostre seus emblemas no README e desafie amigos para duelos."
         }
-      }
-    },
-    "shortcuts": {
-      "buttonLabel": "Atalhos",
-      "buttonAria": "Mostrar atalhos de teclado",
-      "modalTitle": "Atalhos de teclado",
-      "closeAria": "Fechar atalhos",
-      "gotIt": "Entendido",
-      "themeAnnouncement": "{name} ativado",
-      "actions": {
-        "toggleTheme": "Alternar tema",
-        "toggleChart": "Alternar gráfico",
-        "reloadData": "Recarregar dados",
-        "goToDashboard": "Ir para o painel",
-        "goToGoals": "Ir para metas",
-        "closeModal": "Fechar modal/diálogo",
-        "showShortcuts": "Mostrar atalhos"
       }
     }
   },
@@ -1064,5 +1089,27 @@
       "celebration": "🎉 Você alcançou uma sequência de {streak} dias! Continue assim!",
       "dismiss": "Dispensar banner de marco"
     }
+  },
+  "themeMenu": {
+    "label": "Tema",
+    "chooseTheme": "Escolher tema",
+    "triggerAria": "Tema: {name}. Escolher tema",
+    "optionsAria": "Opções de tema",
+    "selectTheme": "Selecionar tema",
+    "descriptions": {
+      "arcade": "Noite azul-marinho, neon azul",
+      "daylight": "Claro e nítido",
+      "terminal": "CRT fósforo verde",
+      "synthwave": "Noite roxa, rosa e ciano"
+    }
+  },
+  "buddy": {
+    "bringBack": "Trazer o Bit de volta",
+    "dialogAria": "Bit diz, {stage}",
+    "close": "Fechar",
+    "hide": "Ocultar Bit",
+    "skip": "Pular",
+    "next": "Próximo",
+    "buttonAria": "Bit, o guia do DevTrack. Dica sobre {stage}"
   }
 }
