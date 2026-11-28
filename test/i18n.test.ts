@@ -426,6 +426,48 @@ describe("i18n translation lookup", () => {
       translateMessage("hi", "dashboard.syncButton.syncedToast")
     ).resolves.toBe("डैशबोर्ड डेटा सिंक हो गया");
   });
+
+  it("verifies repositories analyticsSheet dictionary parity across all locales", () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const en = require("../messages/en.json").repositories.analyticsSheet;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const es = require("../messages/es.json").repositories.analyticsSheet;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const hi = require("../messages/hi.json").repositories.analyticsSheet;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ptBR = require("../messages/pt-BR.json").repositories.analyticsSheet;
+
+    const getKeys = (obj: Record<string, unknown>, prefix = ""): string[] => {
+      let keys: string[] = [];
+      for (const [k, v] of Object.entries(obj)) {
+        const full = prefix ? `${prefix}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          keys = keys.concat(getKeys(v as Record<string, unknown>, full));
+        } else {
+          keys.push(full);
+        }
+      }
+      return keys;
+    };
+
+    const enKeys = getKeys(en).sort();
+    expect(enKeys.length).toBe(28);
+    expect(getKeys(es).sort()).toEqual(enKeys);
+    expect(getKeys(hi).sort()).toEqual(enKeys);
+    expect(getKeys(ptBR).sort()).toEqual(enKeys);
+  });
+
+  it("renders repositories analyticsSheet strings in Spanish and Hindi", async () => {
+    await expect(
+      translateMessage("es", "repositories.analyticsSheet.title")
+    ).resolves.toBe("Analítica del repositorio");
+    await expect(
+      translateMessage("hi", "repositories.analyticsSheet.title")
+    ).resolves.toBe("रेपो एनालिटिक्स");
+    await expect(
+      translateMessage("es", "repositories.analyticsSheet.close")
+    ).resolves.toBe("Cerrar");
+  });
 });
 
 describe("detectLocale edge cases", () => {
