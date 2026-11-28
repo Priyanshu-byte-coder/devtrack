@@ -110,7 +110,7 @@ describe("code-review-for-beginners guide (#3802)", () => {
     const guide = findGuide("code-review-for-beginners");
     expect(guide).toBeDefined();
     const html = renderToStaticMarkup(guide!.body() as any);
-    const text = html.replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     const words = text.split(" ").filter(Boolean);
     expect(words.length).toBeGreaterThanOrEqual(700);
     expect(words.length).toBeLessThanOrEqual(1200);
