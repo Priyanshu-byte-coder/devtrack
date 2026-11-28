@@ -115,7 +115,7 @@ describe("github-badges-on-your-website guide (#3803)", () => {
     const guide = findGuide("github-badges-on-your-website");
     expect(guide).toBeDefined();
     const html = renderToStaticMarkup(guide!.body() as any);
-    const text = html.replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     const words = text.split(" ").filter(Boolean);
     expect(words.length).toBeGreaterThanOrEqual(700);
     expect(words.length).toBeLessThanOrEqual(1200);
