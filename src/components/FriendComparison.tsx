@@ -55,7 +55,10 @@ function FriendComparison() {
   // Fetch my data on mount
   useEffect(() => {
     fetch("/api/metrics/compare?username=me")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch comparison data");
+        return res.json();
+      })
       .then((data) => {
         if (!data.error) setMyData(data);
       })
@@ -96,7 +99,10 @@ function FriendComparison() {
     setSuggestLoading(true);
 
     fetch(`/api/users/search?q=${encodeURIComponent(q)}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to search users");
+        return res.json();
+      })
       .then((data) => {
         if (cancelled) return;
         const users = Array.isArray(data?.users) ? data.users : [];
