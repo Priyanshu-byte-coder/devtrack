@@ -1119,7 +1119,8 @@ Could you please assign this issue to me?`}
           <code>s-maxage=3600</code> for shared caches, with
           <code>stale-while-revalidate=86400</code>. The rank badge uses the
           shared default of a five-minute browser lifetime and a 30-minute
-          shared-cache lifetime, with the same stale-while-revalidate window.
+          shared-cache lifetime (<code>s-maxage=1800</code>), with the same
+          stale-while-revalidate window.
           This lets a cache reuse a recent image instead of asking DevTrack to
           regenerate it for every page view.
         </p>
