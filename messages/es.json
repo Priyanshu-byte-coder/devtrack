@@ -87,6 +87,23 @@
       "navigationDialogAria": "Navegación",
       "closeNavAria": "Cerrar navegación",
       "openNavAria": "Abrir navegación"
+    },
+    "shortcuts": {
+      "buttonLabel": "Atajos",
+      "buttonAria": "Mostrar atajos de teclado",
+      "modalTitle": "Atajos de teclado",
+      "closeAria": "Cerrar atajos",
+      "gotIt": "Entendido",
+      "themeAnnouncement": "{name} activado",
+      "actions": {
+        "toggleTheme": "Cambiar tema",
+        "toggleChart": "Alternar gráfico",
+        "reloadData": "Recargar datos",
+        "goToDashboard": "Ir al panel",
+        "goToGoals": "Ir a objetivos",
+        "closeModal": "Cerrar modal/diálogo",
+        "showShortcuts": "Mostrar atajos"
+      }
     }
   },
   "dashboard": {
