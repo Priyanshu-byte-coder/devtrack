@@ -33,3 +33,18 @@ test("unknown guides are not found", async ({ page }) => {
   const res = await page.goto("/guides/not-a-guide");
   expect(res?.status()).toBe(404);
 });
+
+
+test("the code review guide is reachable from the guides index", async ({ page }) => {
+  await page.goto("/guides");
+  await page
+    .getByRole("link", {
+      name: /Reviewing other people's pull requests/,
+    })
+    .click();
+  await expect(page).toHaveURL(/\\/guides\\/code-review-for-beginners$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Reviewing other people's pull requests"
+  );
+  await expect(page.getByText("Quick answers")).toBeVisible();
+});
