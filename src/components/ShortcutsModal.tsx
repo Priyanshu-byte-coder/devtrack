@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 
 interface ShortcutsModalProps {
   isOpen: boolean;
@@ -10,23 +11,31 @@ interface ShortcutsModalProps {
 
 interface ShortcutItem {
   key: string;
-  action: string;
+  actionKey:
+    | "toggleTheme"
+    | "toggleChart"
+    | "reloadData"
+    | "goToDashboard"
+    | "goToGoals"
+    | "closeModal"
+    | "showShortcuts";
 }
 
 const SHORTCUTS: ShortcutItem[] = [
-  { key: "Alt + T", action: "Toggle theme" },
-  { key: "B", action: "Toggle chart" },
-  { key: "R", action: "Reload data" },
-  { key: "G + D", action: "Go to Dashboard" },
-  { key: "G + P", action: "Go to Goals" },
-  { key: "Esc", action: "Close modal/dialog" },
-  { key: "?", action: "Show shortcuts" },
+  { key: "Alt + T", actionKey: "toggleTheme" },
+  { key: "B", actionKey: "toggleChart" },
+  { key: "R", actionKey: "reloadData" },
+  { key: "G + D", actionKey: "goToDashboard" },
+  { key: "G + P", actionKey: "goToGoals" },
+  { key: "Esc", actionKey: "closeModal" },
+  { key: "?", actionKey: "showShortcuts" },
 ];
 export default function ShortcutsModal({
   isOpen,
   onClose,
   anchorRef,
 }: ShortcutsModalProps & { anchorRef?: React.RefObject<HTMLElement | null> }) {
+  const t = useTranslations("navigation.shortcuts");
   const modalRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -161,14 +170,14 @@ export default function ShortcutsModal({
           id="shortcuts-title"
           className="text-sm font-semibold text-[var(--card-foreground)]"
         >
-          Keyboard Shortcuts
+          {t("modalTitle")}
         </h2>
         <button
           ref={closeBtnRef}
           type="button"
           onClick={onClose}
           className="rounded-lg p-1 text-[var(--muted-foreground)] transition-[background-color,color,opacity,transform] hover:bg-[var(--control)] hover:text-[var(--card-foreground)] hover:opacity-90 active:scale-95"
-          aria-label="Close shortcuts"
+          aria-label={t("closeAria")}
         >
           ✕
         </button>
@@ -181,7 +190,7 @@ export default function ShortcutsModal({
             className="flex items-center justify-between border-b border-border/50 py-2 last:border-0"
           >
             <span className="text-sm text-[var(--muted-foreground)]">
-              {item.action}
+              {t(`actions.${item.actionKey}`)}
             </span>
             <kbd className="min-w-[28px] rounded-md border border-[var(--border)] bg-[var(--control)] px-2 py-1 text-center text-xs font-semibold text-[var(--card-foreground)] shadow-sm">
               {item.key === "T" ? (isMac ? "Option + T" : "Alt + T") : item.key}
@@ -196,7 +205,7 @@ export default function ShortcutsModal({
           onClick={onClose}
           className="rounded-lg bg-[var(--control)] px-4 py-2 text-sm font-medium text-[var(--card-foreground)] transition-[background-color,color,opacity,transform] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] hover:opacity-90 active:scale-95"
         >
-          Got it
+          {t("gotIt")}
         </button>
       </div>
     </div>
