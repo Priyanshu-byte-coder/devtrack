@@ -33,3 +33,22 @@ test("unknown guides are not found", async ({ page }) => {
   const res = await page.goto("/guides/not-a-guide");
   expect(res?.status()).toBe(404);
 });
+
+
+test("the portfolio GitHub badges guide is discoverable and renders", async ({ page }) => {
+  await page.goto("/guides");
+  await page
+    .getByRole("link", {
+      name: /Show your GitHub stats on your portfolio site/,
+    })
+    .click();
+  await expect(page).toHaveURL(/\/guides\/github-badges-on-your-website$/);
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Show your GitHub stats on your portfolio site",
+    })
+  ).toBeVisible();
+  await expect(page.getByText("Quick answers")).toBeVisible();
+  await expect(page.getByText(/s-maxage=3600/)).toBeVisible();
+});
