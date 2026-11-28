@@ -53,6 +53,9 @@ describe("TodayFocusHero", () => {
     const input = await screen.findByRole("textbox");
     expect(input).toHaveAttribute("placeholder", "e.g. Fix the login bug…");
     expect(input).toHaveAccessibleName();
+    const label = document.querySelector('label[for="today-focus-input"]');
+    expect(label).toBeVisible();
+    expect(label?.textContent).toBeTruthy();
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
   });
 
