@@ -1011,14 +1011,14 @@ Could you please assign this issue to me?`}
         </ul>
         <p>
           Do not assume every preference is a defect. A different naming choice
-          or formatting style may be harmless if it follows the repository's
+          or formatting style may be harmless if it follows the repository&apos;s
           conventions. Prioritize correctness, security, data loss, accessibility,
           and regressions over personal style.
         </p>
 
         <h2>2. Run the change when you can</h2>
         <p>
-          Read the project's contribution instructions before running commands.
+          Read the project&apos;s contribution instructions before running commands.
           If setup is practical, install the documented dependencies, run the
           relevant tests, and try the behavior described by the author. Report
           what you actually ran, including the command and whether it passed.
@@ -1037,17 +1037,17 @@ Could you please assign this issue to me?`}
         <p>
           A useful review comment identifies a specific location, explains the
           consequence, and suggests a direction. For example, instead of saying
-          <em> "This is wrong"</em>, explain: <em>"If this value is empty, the
+          <em> &quot;This is wrong&quot;</em>, explain: <em>&quot;If this value is empty, the
           request still reaches the database. Could we validate it before this
-          call? That would keep invalid records from being created."</em>
+          call? That would keep invalid records from being created.&quot;</em>
         </p>
         <ul>
           <li><strong>Be specific:</strong> Point to the affected line and describe
             a reproducible scenario.</li>
           <li><strong>Explain impact:</strong> Say what could break and who or
             what is affected.</li>
-          <li><strong>Ask, do not belittle:</strong> "Could we handle the timeout
-            here?" invites discussion; "You forgot error handling" attacks the
+          <li><strong>Ask, do not belittle:</strong> &quot;Could we handle the timeout
+            here?&quot; invites discussion; &quot;You forgot error handling&quot; attacks the
             author.</li>
           <li><strong>Separate blockers from suggestions:</strong> Mark a
             correctness or security issue clearly. Label optional polish as
@@ -1058,16 +1058,16 @@ Could you please assign this issue to me?`}
         <p>
           When a small replacement is obvious, GitHub supports suggested changes
           in review comments. See
-          <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request">GitHub's guide to incorporating feedback and suggested changes</A>.
+          <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request">GitHub&apos;s guide to incorporating feedback and suggested changes</A>.
           Suggestions should remain easy to understand and should not hide a
           larger design decision inside a one-click edit.
         </p>
 
         <h2>4. Choose the right review submission</h2>
         <p>
-          GitHub's pull request review flow offers three submission types:
+          GitHub&apos;s pull request review flow offers three submission types:
           Comment, Approve, and Request changes. Read
-          <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews">GitHub's documentation about pull request reviews</A>
+          <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews">GitHub&apos;s documentation about pull request reviews</A>
           for how these work. Use a comment when you have observations or
           questions but no approval decision. Approve only when you have reviewed
           the change and are comfortable with it. Request changes when you have
@@ -1078,14 +1078,14 @@ Could you please assign this issue to me?`}
           can satisfy a merge requirement. If you are a new contributor and do
           not have the authority to approve, you can still leave a constructive
           comment or report your findings to the maintainers. Never use
-          "Request changes" just to express a preference.
+          &quot;Request changes&quot; just to express a preference.
         </p>
 
         <h2>5. How reviews appear on your GitHub profile</h2>
         <p>
           GitHub can include pull request reviews in your contribution activity,
           but eligibility has an important condition: the review must be made in
-          a standalone repository, not a fork. GitHub's
+          a standalone repository, not a fork. GitHub&apos;s
           <A href="https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference">profile contributions reference</A>
           explains which activities count and the repository requirements.
           Therefore, do not assume that every review on every public repository
@@ -1101,7 +1101,7 @@ Could you please assign this issue to me?`}
 
         <h2>6. How reviews affect your DevTrack stats</h2>
         <p>
-          DevTrack's score v2 gives the Impact signal 30% of the overall score.
+          DevTrack&apos;s score v2 gives the Impact signal 30% of the overall score.
           Within that signal, pull requests contribute one unit each and reviews
           contribute half a unit each. This means reviews are recognized, but
           they do not count as much as a pull request in the impact calculation.
@@ -1110,7 +1110,7 @@ Could you please assign this issue to me?`}
           the other contributors being ranked.
         </p>
         <p>
-          DevTrack's lifetime XP system awards 15 XP per review. XP is separate
+          DevTrack&apos;s lifetime XP system awards 15 XP per review. XP is separate
           from the rolling leaderboard score: it accumulates from lifetime
           activity and contributes to your level. You can read more in the
           <A href="/guides/devtrack-score">guide to the DevTrack score</A>.
