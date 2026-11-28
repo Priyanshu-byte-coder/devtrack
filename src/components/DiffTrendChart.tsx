@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -18,9 +19,6 @@ import {
 } from "@/lib/diff-trend";
 import { SkeletonBlock } from "./WidgetSkeleton";
 
-const count = new Intl.NumberFormat("en-US");
-const compact = new Intl.NumberFormat("en-US", { notation: "compact" });
-
 type ChartWeek = DiffTrendWeek & { label: string };
 
 type State =
@@ -32,23 +30,33 @@ type State =
 function ChartTooltip({
   active,
   payload,
+  locale,
+  t,
 }: {
   active?: boolean;
   payload?: Array<{ payload?: ChartWeek }>;
+  locale: string;
+  t: (key: string, values?: Record<string, string | number>) => string;
 }) {
   const week = active ? payload?.[0]?.payload : undefined;
   if (!week) return null;
 
+  const countFormatter = new Intl.NumberFormat(locale);
+
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-sm shadow-lg">
       <p className="font-medium text-[var(--card-foreground)]">
-        Week ending {week.label}
+        {t("diffTrend.chartTooltipWeekEnding", { date: week.label })}
       </p>
       <p className="text-[var(--success)]">
-        +{count.format(week.additions)} added
+        {t("diffTrend.chartTooltipAdded", {
+          count: countFormatter.format(week.additions),
+        })}
       </p>
       <p className="text-[var(--destructive)]">
-        −{count.format(week.deletions)} removed
+        {t("diffTrend.chartTooltipRemoved", {
+          count: countFormatter.format(week.deletions),
+        })}
       </p>
     </div>
   );
@@ -76,6 +84,15 @@ function Stat({
 }
 
 export default function DiffTrendChart() {
+  const t = useTranslations("repositories");
+  const locale = useLocale();
+
+  const count = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+  const compact = useMemo(
+    () => new Intl.NumberFormat(locale, { notation: "compact" }),
+    [locale]
+  );
+
   const [state, setState] = useState<State>({ status: "loading" });
 
   const load = useCallback(() => {
@@ -83,10 +100,7 @@ export default function DiffTrendChart() {
 
     fetch("/api/metrics/diff-trend")
       .then(async (r) => {
-        if (r.status === 429)
-          throw new Error(
-            "GitHub is rate limiting your account right now. Try again in a few minutes."
-          );
+        if (r.status === 429) throw new Error(t("diffTrend.rateLimited"));
         const data = (await r.json()) as Partial<DiffTrendResponse> & {
           computing?: boolean;
         };
@@ -101,12 +115,10 @@ export default function DiffTrendChart() {
       .catch((e: Error) =>
         setState({
           status: "error",
-          message:
-            e.message ||
-            "We couldn't load your line changes right now. Please try again in a moment.",
+          message: e.message || t("diffTrend.failedToLoad"),
         })
       );
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -142,32 +154,34 @@ export default function DiffTrendChart() {
     <section className="px-frame bg-[var(--card)] p-5">
       <div className="mb-5">
         <h2 className="font-pixel text-sm uppercase tracking-[0.12em] text-[var(--card-foreground)]">
-          Lines Changed
+          {t("diffTrend.title")}
         </h2>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {repos.length > 0
-            ? `Lines you added and removed per week in ${repos.join(", ")}, last ${DIFF_TREND_WEEKS} weeks.`
-            : `Lines you added and removed per week in your top repositories, last ${DIFF_TREND_WEEKS} weeks.`}
+            ? t("diffTrend.descriptionSpecific", {
+                repos: repos.join(", "),
+                weeks: DIFF_TREND_WEEKS,
+              })
+            : t("diffTrend.descriptionGeneral", {
+                weeks: DIFF_TREND_WEEKS,
+              })}
         </p>
       </div>
 
       {state.status === "loading" ? (
         <div role="status" aria-live="polite" aria-busy="true">
-          <span className="sr-only">Loading line changes</span>
+          <span className="sr-only">{t("diffTrend.loading")}</span>
           <SkeletonBlock className="h-72" />
         </div>
       ) : state.status === "computing" ? (
         <div className="flex h-72 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[var(--border)] px-4 text-center text-sm text-[var(--muted-foreground)]">
-          <p role="status">
-            Computing stats… GitHub is preparing line counts for your
-            repositories. Check again in a minute.
-          </p>
+          <p role="status">{t("diffTrend.computingStats")}</p>
           <button
             type="button"
             onClick={load}
             className="rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--card-foreground)] transition-colors hover:bg-[var(--control)]"
           >
-            Check again
+            {t("actions.checkAgain")}
           </button>
         </div>
       ) : state.status === "error" ? (
@@ -178,34 +192,35 @@ export default function DiffTrendChart() {
             onClick={load}
             className="mt-3 rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-destructive/10"
           >
-            Try again
+            {t("actions.tryAgain")}
           </button>
         </div>
       ) : totals.additions + totals.deletions === 0 && pending.length === 0 ? (
         <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-[var(--border)] px-4 text-center text-sm text-[var(--muted-foreground)]">
-          No line changes in the last {DIFF_TREND_WEEKS} weeks.
+          {t("diffTrend.noChanges", { weeks: DIFF_TREND_WEEKS })}
         </div>
       ) : (
         <>
           {pending.length > 0 && (
             <p className="mb-4 text-xs text-[var(--muted-foreground)]">
-              Still computing stats for {pending.join(", ")}. Check again in a
-              minute.
+              {t("diffTrend.stillComputingPending", {
+                repos: pending.join(", "),
+              })}
             </p>
           )}
           <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
             <Stat
-              label="Added"
+              label={t("diffTrend.addedStat")}
               value={`+${compact.format(totals.additions)}`}
               className="text-[var(--success)]"
             />
             <Stat
-              label="Removed"
+              label={t("diffTrend.removedStat")}
               value={`−${compact.format(totals.deletions)}`}
               className="text-[var(--destructive)]"
             />
             <Stat
-              label="Net"
+              label={t("diffTrend.netStat")}
               value={`${net < 0 ? "−" : "+"}${compact.format(Math.abs(net))}`}
               className="text-[var(--card-foreground)]"
             />
@@ -214,7 +229,11 @@ export default function DiffTrendChart() {
           <div
             className="h-64 w-full"
             role="img"
-            aria-label={`Lines added and removed per week: ${count.format(totals.additions)} added and ${count.format(totals.deletions)} removed over the last ${DIFF_TREND_WEEKS} weeks.`}
+            aria-label={t("diffTrend.chartAriaLabel", {
+              additions: count.format(totals.additions),
+              deletions: count.format(totals.deletions),
+              weeks: DIFF_TREND_WEEKS,
+            })}
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeks}>
@@ -232,18 +251,18 @@ export default function DiffTrendChart() {
                   width={48}
                 />
                 <Tooltip
-                  content={<ChartTooltip />}
+                  content={<ChartTooltip locale={locale} t={t} />}
                   cursor={{ fill: "var(--control)" }}
                 />
                 <Bar
                   dataKey="additions"
-                  name="Added"
+                  name={t("diffTrend.addedStat")}
                   stackId="lines"
                   fill="var(--success)"
                 />
                 <Bar
                   dataKey="deletions"
-                  name="Removed"
+                  name={t("diffTrend.removedStat")}
                   stackId="lines"
                   fill="var(--destructive)"
                   radius={[4, 4, 0, 0]}

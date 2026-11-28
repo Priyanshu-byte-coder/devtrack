@@ -533,238 +533,113 @@
     "empty": "अभी तक कोई सार्वजनिक GitHub उपलब्धियां उपलब्ध नहीं हैं।",
     "badgeAlt": "{title} GitHub उपलब्धि बैज"
   },
-  "personality": {
-    "header": {
-      "title": "पर्सनालिटी",
-      "description": "आपका डेवलपर आर्कटाइप, कमिट समय, स्ट्रीक्स, PR आदतों और शीर्ष रिपॉजिटरी से निर्धारित।"
-    },
-    "card": {
-      "badge": "कोड पर्सनालिटी रिपोर्ट",
-      "downloadPng": "PNG के रूप में डाउनलोड करें",
-      "downloadAria": "पर्सनालिटी कार्ड को PNG के रूप में डाउनलोड करें",
-      "generating": "तैयार किया जा रहा है…",
-      "traits": {
-        "workingStyle": "कार्य शैली",
-        "commitPattern": "कमिट पैटर्न",
-        "collaboration": "सहयोग"
-      }
-    },
-    "enums": {
-      "workingStyle": {
-        "Night Owl": "नाईट आउल",
-        "Early Bird": "अर्ली बर्ड",
-        "9-to-5 Developer": "9-से-5 डेवलपर"
-      },
-      "commitPattern": {
-        "Sprinter": "स्प्रिंटर",
-        "Marathoner": "मैराथनर"
-      },
-      "collaborationStyle": {
-        "Solo Coder": "सोलो कोडर",
-        "Team Player": "टीम प्लेयर",
-        "Open Source Hero": "ओपन सोर्स हीरो"
-      }
-    },
-    "radar": {
-      "title": "आपका पर्सनालिटी रडार",
-      "description": "पांच आयामों में आपके लक्षणों की तुलना।",
-      "ariaLabel": "डेवलपर पर्सनालिटी रडार चार्ट",
-      "scoreLabel": "स्कोर",
-      "metrics": {
-        "nightOwl": "नाईट आउल",
-        "sprintEnergy": "स्प्रिंट एनर्जी",
-        "collaboration": "सहयोग",
-        "perfectionism": "परफेक्शनिज़्म",
-        "consistency": "निरंतरता"
-      }
-    },
-    "initial": {
-      "title": "अपने डेवलपर आर्कटाइप की खोज करें",
-      "description": "DevTrack में पहले से ट्रैक किए गए आपके मौजूदा GitHub आंकड़ों का उपयोग करता है — कोई अतिरिक्त सेटअप नहीं, कोई नई अनुमति नहीं।",
-      "generateButton": "मेरी पर्सनालिटी रिपोर्ट जनरेट करें"
-    },
-    "loading": {
-      "title": "आपके कोडिंग पैटर्न का विश्लेषण किया जा रहा है…",
-      "subtitle": "कमिट समय, PR इतिहास और स्ट्रीक्स का विश्लेषण जारी है।"
-    },
-    "ready": {
-      "regenerate": "रिपोर्ट फिर से जनरेट करें",
-      "successToast": "आपकी कोड पर्सनालिटी रिपोर्ट तैयार है!"
-    },
-    "errors": {
-      "errorPrefix": "त्रुटि:",
-      "rateLimitWithRetry": "दर सीमा पार हो गई। {minutes} मिनट में पुनः प्रयास करें।",
-      "rateLimit": "दर सीमा पार हो गई। कृपया बाद में पुन: प्रयास करें।",
-      "generateFailed": "आपकी पर्सनालिटी रिपोर्ट जनरेट करने में विफल"
-    }
-  },
-  "repoHealth": {
-    "explorer": {
-      "backToDashboard": "डैशबोर्ड पर वापस जाएं",
-      "dashboard": "डैशबोर्ड",
-      "title": "रिपॉजिटरी हेल्थ एक्सप्लोरर",
-      "description": "आपकी सबसे सक्रिय रिपॉजिटरी के लिए इंटरैक्टिव स्वास्थ्य विश्लेषण",
-      "analysisWindow": "विश्लेषण विंडो",
-      "windowOptions": {
-        "7": "पिछले 7 दिन",
-        "30": "पिछले 30 दिन",
-        "90": "पिछले 90 दिन"
-      },
-      "refreshAria": "हेल्थ स्कोर रिफ्रेश करें",
-      "refresh": "रिफ्रेश करें",
-      "loadError": "रिपॉजिटरी हेल्थ डेटा लोड करने में असमर्थ। कृपया पुनः प्रयास करें।",
+  "repositories": {
+    "pageTitle": "रिपॉजिटरीज़",
+    "pageDescription": "आपका काम कहाँ जाता है, आप किन भाषाओं का उपयोग करते हैं और किस पर ध्यान देने की आवश्यकता है।",
+    "actions": {
+      "repoHealth": "रिपो स्वास्थ्य",
+      "compareRepos": "रिपो तुलना",
+      "refresh": "रिफ्रेश",
       "tryAgain": "पुनः प्रयास करें",
-      "repoListAria": "रिपॉजिटरी सूची",
-      "repositories": "रिपॉजिटरी",
-      "noRepos": "इस अवधि के लिए कोई रिपॉजिटरी नहीं मिली। व्यापक विश्लेषण विंडो आज़माएं।",
-      "detailAria": "रिपॉजिटरी हेल्थ विवरण",
-      "selectPromptTitle": "एक रिपॉजिटरी चुनें",
-      "selectPromptDesc": "पूर्ण स्वास्थ्य विश्लेषण और सिफारिशें देखने के लिए बाईं ओर की सूची से एक रिपॉजिटरी चुनें।"
-    },
-    "card": {
-      "selectAria": "{repo} चुनें — हेल्थ स्कोर {score}, {label}",
-      "points": "अंक"
-    },
-    "detail": {
-      "openOnGithub": "GitHub पर {repo} खोलें",
-      "github": "GitHub",
-      "gradeAria": "ग्रेड: {letter}, {label}",
-      "scoreLabel": "स्कोर: {score}/{max}"
-    },
-    "grades": {
-      "green": "स्वस्थ",
-      "yellow": "ध्यान देने योग्य",
-      "red": "जोखिम में"
-    },
-    "gauge": {
-      "ariaLabel": "रिपॉजिटरी हेल्थ स्कोर: {max} में से {score}",
-      "outOf": "{max} में से"
-    },
-    "radar": {
-      "ariaLabel": "हेल्थ स्कोर रडार चार्ट",
-      "title": "आयाम अवलोकन",
-      "description": "दृश्य संतुलन के लिए प्रत्येक अक्ष को 0–100 पर सामान्यीकृत किया गया है।",
-      "scoreLabel": "स्कोर",
-      "metrics": {
-        "commits": "कमिट्स",
-        "prRate": "PR दर",
-        "prSpeed": "PR गति",
-        "issues": "इश्यूज़",
-        "activity": "गतिविधि"
+      "checkAgain": "फिर से जाँचें",
+      "createRepository": "रिपॉजिटरी बनाएं",
+      "clearSearch": "खोज साफ़ करें",
+      "openInGithub": "GitHub पर खोलें",
+      "allRecommended": "सभी अनुशंसित",
+      "savedProjects": "सहेजे गए प्रोजेक्ट्स",
+      "timeRanges": {
+        "last7d": "पिछले 7 दिन",
+        "last30d": "पिछले 30 दिन",
+        "last90d": "पिछले 90 दिन"
       }
     },
-    "breakdown": {
-      "sectionAria": "स्कोर विश्लेषण",
-      "heading": "स्कोर विश्लेषण",
-      "footer": "लक्ष्य सीमा देखने के लिए मीट्रिक नामों पर माउस ले जाएं। कुल वेटेज: 100 अंक।",
-      "measuredValueAria": "मापा गया मान: {value}",
-      "pointsAria": "{max} में से {earned} अंक",
-      "metrics": {
-        "commitFrequency": {
-          "label": "कमिट आवृत्ति",
-          "tip": "लक्ष्य: विश्लेषण विंडो में 10 या अधिक कमिट",
-          "rawSingular": "{count} कमिट",
-          "rawPlural": "{count} कमिट्स"
-        },
-        "prMergeRate": {
-          "label": "PR मर्ज दर",
-          "tip": "लक्ष्य: 100% खोले गए PR मर्ज हुए"
-        },
-        "prTurnaround": {
-          "label": "PR टर्नअराउंड समय",
-          "tip": "लक्ष्य: औसत 24 घंटे से कम",
-          "noPrs": "कोई PR नहीं",
-          "hoursAvg": "{hours}घं औसत"
-        },
-        "openIssues": {
-          "label": "खुले इश्यूज़",
-          "tip": "लक्ष्य: 0 खुले इश्यूज़",
-          "rawSingular": "{count} खुला इश्यू",
-          "rawPlural": "{count} खुले इश्यूज़"
-        },
-        "recentActivity": {
-          "label": "हालिया गतिविधि",
-          "tip": "लक्ष्य: पिछले 7 दिनों के भीतर कमिट",
-          "unknown": "अज्ञात",
-          "today": "आज",
-          "daysAgo": "{days} दिन पहले"
-        }
-      }
+    "sections": {
+      "commitsDestination": "आपके कमिट कहाँ जाते हैं",
+      "languagesAndShowcase": "भाषाएँ और शोकेस",
+      "needsAttention": "ध्यान देने की आवश्यकता है"
     },
-    "insights": {
-      "heading": "सिफारिशें",
-      "empty": "इस समय कोई सिफारिश नहीं है — सभी मीट्रिक्स अच्छे दिख रहे हैं।",
-      "actionsBadgeSingle": "{count} कार्रवाई",
-      "actionsBadgePlural": "{count} कार्रवाइयां",
-      "rules": {
-        "noCommits": {
-          "title": "कोई हालिया कमिट नहीं",
-          "description": "विश्लेषण विंडो में कोई कमिट नहीं मिला। नियमित कमिट रिपॉजिटरी को सक्रिय और स्कोर को स्वस्थ रखते हैं।"
-        },
-        "lowCommits": {
-          "title": "कम कमिट आवृत्ति",
-          "description": "विश्लेषण विंडो में केवल {count} कमिट। पूर्ण कमिट स्कोर तक पहुंचने के लिए प्रति अवधि 10 या अधिक का लक्ष्य रखें।"
-        },
-        "goodCommits": {
-          "title": "मजबूत कमिट गतिविधि",
-          "description": "विश्लेषण विंडो में {count} कमिट — 10 की स्वस्थ सीमा पर या उससे ऊपर।"
-        },
-        "lowMergeRate": {
-          "title": "कम PR मर्ज दर",
-          "description": "खोले गए केवल {rate}% PR मर्ज किए गए। इस सिग्नल को बेहतर बनाने के लिए पुराने पुल अनुरोधों की समीक्षा करें और बंद करें।"
-        },
-        "goodMergeRate": {
-          "title": "उत्कृष्ट PR मर्ज दर",
-          "description": "खोले गए {rate}% PR मर्ज किए गए — सक्रिय कोड समीक्षा का स्वस्थ संकेतक।"
-        },
-        "slowPrs": {
-          "title": "लंबा PR समीक्षा चक्र",
-          "description": "औसत PR खुला समय {days} दिन है। तेज़ समीक्षाएं एकीकरण जोखिम को कम करती हैं और गति में सुधार करती हैं।"
-        },
-        "moderatePrs": {
-          "title": "PR समीक्षा समय औसत से ऊपर",
-          "description": "औसत PR खुला समय {hours} घंटे है। स्वस्थ समीक्षा चक्र के लिए 48 घंटे से कम का लक्ष्य रखें।"
-        },
-        "fastPrs": {
-          "title": "तेज़ PR टर्नअराउंड",
-          "description": "PR की समीक्षा और समापन औसतन 24 घंटे से कम समय में होता है — उत्कृष्ट समीक्षा गति।"
-        },
-        "highIssues": {
-          "title": "अधिक खुले इश्यूज़",
-          "description": "{count} खुले इश्यूज़ मिले। बैकलॉग दबाव को कम करने के लिए हल किए गए या डुप्लिकेट मुद्दों को छांटें और बंद करें।"
-        },
-        "moderateIssues": {
-          "title": "इश्यू बैकलॉग बढ़ रहा है",
-          "description": "{count} खुले इश्यूज़। पुराने टिकटों के लिए एक ट्राइएज सत्र निर्धारित करने पर विचार करें।"
-        },
-        "noIssues": {
-          "title": "कोई खुला इश्यू नहीं",
-          "description": "इश्यू बैकलॉग साफ है — रिपोर्ट की गई सभी समस्याओं का समाधान कर दिया गया है या बंद कर दिया गया है।"
-        },
-        "noCommitData": {
-          "title": "कमिट इतिहास अनुपलब्ध",
-          "description": "अंतिम कमिट की तारीख निर्धारित नहीं की जा सकी। रिपॉजिटरी एक्सेस अनुमतियों को सत्यापित करें।"
-        },
-        "staleRepo": {
-          "title": "रिपॉजिटरी पुरानी हो सकती है",
-          "description": "अंतिम कमिट {days} दिन पहले था। यदि यह प्रोजेक्ट अभी भी सक्रिय है तो एक अपडेट पुश करें।"
-        },
-        "lowActivity": {
-          "title": "कम हुई हालिया गतिविधि",
-          "description": "अंतिम कमिट {days} दिन पहले था। निरंतर गतिविधि से रेसेंसी स्कोर ऊंचा रहता है।"
-        },
-        "activeRepo": {
-          "title": "सक्रिय रूप से प्रबंधित",
-          "descriptionToday": "अंतिम कमिट आज था — उत्कृष्ट रेसेंसी सिग्नल।",
-          "descriptionDays": "अंतिम कमिट {days} दिन पहले था — उत्कृष्ट रेसेंसी सिग्नल।"
-        }
-      },
-      "metricNames": {
-        "commitFrequency": "कमिट आवृत्ति",
-        "prMergeRate": "PR मर्ज दर",
-        "prTurnaround": "PR टर्नअराउंड",
-        "openIssues": "खुले इश्यूज़",
-        "recentActivity": "हालिया गतिविधि"
+    "analytics": {
+      "title": "रिपो विश्लेषण",
+      "description": "हाल की गतिविधि के अनुसार आपकी रिपॉजिटरीज़। योगदानकर्ताओं, समयरेखा, स्वास्थ्य और भाषाओं के लिए एक खोलें।",
+      "loading": "रिपॉजिटरीज़ लोड हो रही हैं"
+    },
+    "topRepos": {
+      "title": "शीर्ष रिपॉजिटरीज़",
+      "titleWithCount": "शीर्ष रिपॉजिटरीज़ ({count})",
+      "partialHistoryNotice": "रिपॉजिटरी गणना आंशिक इतिहास का उपयोग करती है: {reason}",
+      "timeRangeAria": "शीर्ष रिपॉजिटरीज़ के लिए समय सीमा चुनें",
+      "filterTabsAria": "दिखाने के लिए रिपॉजिटरीज़",
+      "loading": "शीर्ष रिपॉजिटरीज़ लोड हो रही हैं",
+      "noReposFound": "कोई रिपॉजिटरी नहीं मिली",
+      "noReposFoundDesc": "शुरू करने और रिपॉजिटरी गतिविधि यहाँ देखने के लिए GitHub पर अपना पहला कमिट पुश करें।",
+      "searchPlaceholder": "रिपॉजिटरीज़ खोजें…",
+      "searchAria": "नाम से रिपॉजिटरीज़ खोजें",
+      "sortByRepoName": "रिपॉजिटरी नाम से क्रमबद्ध करें",
+      "sortByCommitCount": "कमिट संख्या से क्रमबद्ध करें",
+      "tableHeaderRepo": "रिपॉजिटरी",
+      "tableHeaderCommits": "कमिट्स",
+      "noReposMatch": "आपकी खोज से कोई रिपो मेल नहीं खाता।",
+      "commitsCount": "{count, plural, one {# कमिट} other {# कमिट्स}}",
+      "pinnedBadge": "पिन किया गया",
+      "bookmarkAddAria": "{name} को बुकमार्क करें",
+      "bookmarkRemoveAria": "{name} को बुकमार्क से हटाएं",
+      "pinAddAria": "{name} को पिन करें",
+      "pinRemoveAria": "{name} को अनपिन करें",
+      "pinAddTitle": "{name} रिपॉजिटरी पिन करें",
+      "pinRemoveTitle": "{name} रिपॉजिटरी अनपिन करें",
+      "maxPinsError": "अधिकतम 3 पिन की अनुमति है",
+      "viewHealthAria": "{name} के लिए स्वास्थ्य विवरण देखें",
+      "noHealthDataTitle": "स्वास्थ्य स्कोर की गणना के लिए पर्याप्त डेटा नहीं है",
+      "healthBadgeTitle": "कमिट्स: {commitFrequency} | PR मर्ज दर: {prMergeRate}% | औसत PR समय: {avgPrTime}घंटे | खुली समस्याएँ: {openIssues} | अंतिम कमिट: {daysSinceLastCommit} दिन पहले",
+      "codebaseSizeSmall": "छोटा कोडबेस",
+      "codebaseSizeMedium": "मध्यम कोडबेस",
+      "codebaseSizeLarge": "बड़ा कोडबेस",
+      "codebaseSizeSmallAria": "छोटा कोडबेस, कुल 50KB से कम कोड",
+      "codebaseSizeMediumAria": "मध्यम कोडबेस, 50KB और 500KB के बीच कुल कोड",
+      "codebaseSizeLargeAria": "बड़ा कोडबेस, 500KB से अधिक कुल कोड",
+      "otherLanguage": "अन्य",
+      "noDescription": "कोई विवरण नहीं",
+      "languageTooltip": "भाषा: {language}",
+      "failedToLoad": "हम अभी आपकी शीर्ष रिपॉजिटरीज़ लोड नहीं कर सके। कृपया कुछ देर बाद पुनः प्रयास करें।",
+      "updatedJustNow": "अभी अपडेट किया गया",
+      "updatedMinAgo": "{minutes} मिनट पहले अपडेट किया गया"
+    },
+    "diffTrend": {
+      "title": "बदली गई लाइनें",
+      "descriptionSpecific": "{repos} में प्रति सप्ताह आपके द्वारा जोड़ी और हटाई गई लाइनें, पिछले {weeks} सप्ताह।",
+      "descriptionGeneral": "आपकी शीर्ष रिपॉजिटरीज़ में प्रति सप्ताह आपके द्वारा जोड़ी और हटाई गई लाइनें, पिछले {weeks} सप्ताह।",
+      "loading": "लाइन परिवर्तन लोड हो रहे हैं",
+      "computingStats": "आँकड़ों की गणना हो रही है… GitHub आपकी रिपॉजिटरीज़ के लिए लाइन गणना तैयार कर रहा है। एक मिनट में फिर से जाँचें।",
+      "stillComputingPending": "{repos} के लिए आँकड़ों की गणना अभी जारी है। एक मिनट में फिर से जाँचें।",
+      "noChanges": "पिछले {weeks} सप्ताहों में कोई लाइन परिवर्तन नहीं।",
+      "addedStat": "जोड़ी गईं",
+      "removedStat": "हटाई गईं",
+      "netStat": "नेट",
+      "chartAriaLabel": "प्रति सप्ताह जोड़ी और हटाई गई लाइनें: पिछले {weeks} सप्ताहों में {additions} जोड़ी गईं और {deletions} हटाई गईं।",
+      "chartTooltipWeekEnding": "सप्ताह समाप्ति {date}",
+      "chartTooltipAdded": "+{count} जोड़ी गईं",
+      "chartTooltipRemoved": "−{count} हटाई गईं",
+      "failedToLoad": "हम अभी आपके लाइन परिवर्तन लोड नहीं कर सके। कृपया कुछ देर बाद पुनः प्रयास करें।",
+      "rateLimited": "GitHub अभी आपके खाते को दर-सीमित कर रहा है। कुछ मिनटों में पुनः प्रयास करें।"
+    },
+    "inactiveRepos": {
+      "title": "निष्क्रिय रिपॉजिटरी रिमाइंडर",
+      "description": "आपकी चुनी हुई अवधि में हालिया पुश के बिना रिपॉजिटरीज़",
+      "thresholdAria": "निष्क्रियता सीमा चुनें",
+      "thresholdOption": "{days} दिन",
+      "refreshAria": "निष्क्रिय रिपॉजिटरीज़ रिफ्रेश करें",
+      "loading": "निष्क्रिय रिपॉजिटरीज़ लोड हो रही हैं",
+      "failedToLoad": "हम अभी निष्क्रिय रिपॉजिटरीज़ लोड नहीं कर सके। कृपया कुछ देर बाद पुनः प्रयास करें।",
+      "noInactive": "बढ़िया! इस अवधि के लिए कोई निष्क्रिय रिपॉजिटरी नहीं है।",
+      "openOnGithub": "GitHub पर खोलें",
+      "lastActive": "अंतिम सक्रिय: {date}",
+      "unknownDate": "अज्ञात तिथि",
+      "inactiveDays": "{days} निष्क्रिय दिन",
+      "visibility": {
+        "public": "सार्वजनिक",
+        "private": "निजी",
+        "internal": "आंतरिक",
+        "unknown": "अज्ञात"
       }
     }
   },

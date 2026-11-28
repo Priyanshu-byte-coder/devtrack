@@ -533,238 +533,113 @@
     "empty": "No public GitHub achievements available yet.",
     "badgeAlt": "{title} GitHub achievement badge"
   },
-  "personality": {
-    "header": {
-      "title": "Personality",
-      "description": "Your developer archetype, read from commit times, streaks, PR habits and top repos."
-    },
-    "card": {
-      "badge": "Code Personality Report",
-      "downloadPng": "Download as PNG",
-      "downloadAria": "Download personality card as PNG",
-      "generating": "Generating…",
-      "traits": {
-        "workingStyle": "Working Style",
-        "commitPattern": "Commit Pattern",
-        "collaboration": "Collaboration"
-      }
-    },
-    "enums": {
-      "workingStyle": {
-        "Night Owl": "Night Owl",
-        "Early Bird": "Early Bird",
-        "9-to-5 Developer": "9-to-5 Developer"
-      },
-      "commitPattern": {
-        "Sprinter": "Sprinter",
-        "Marathoner": "Marathoner"
-      },
-      "collaborationStyle": {
-        "Solo Coder": "Solo Coder",
-        "Team Player": "Team Player",
-        "Open Source Hero": "Open Source Hero"
-      }
-    },
-    "radar": {
-      "title": "Your Personality Radar",
-      "description": "How your traits compare across five dimensions.",
-      "ariaLabel": "Developer personality radar chart",
-      "scoreLabel": "Score",
-      "metrics": {
-        "nightOwl": "Night Owl",
-        "sprintEnergy": "Sprint Energy",
-        "collaboration": "Collaboration",
-        "perfectionism": "Perfectionism",
-        "consistency": "Consistency"
-      }
-    },
-    "initial": {
-      "title": "Discover Your Developer Archetype",
-      "description": "Uses your existing GitHub stats already tracked in DevTrack — no extra setup, no new permissions.",
-      "generateButton": "Generate My Personality Report"
-    },
-    "loading": {
-      "title": "Analyzing your coding patterns…",
-      "subtitle": "Crunching commit times, PR history, and streaks."
-    },
-    "ready": {
-      "regenerate": "Regenerate report",
-      "successToast": "Your code personality report is ready!"
-    },
-    "errors": {
-      "errorPrefix": "Error:",
-      "rateLimitWithRetry": "Rate limit reached. Try again in {minutes} min.",
-      "rateLimit": "Rate limit reached. Try again later.",
-      "generateFailed": "Failed to generate your personality report"
-    }
-  },
-  "repoHealth": {
-    "explorer": {
-      "backToDashboard": "Back to dashboard",
-      "dashboard": "Dashboard",
-      "title": "Repository Health Explorer",
-      "description": "Interactive health breakdown for your most active repositories",
-      "analysisWindow": "Analysis window",
-      "windowOptions": {
-        "7": "Last 7 days",
-        "30": "Last 30 days",
-        "90": "Last 90 days"
-      },
-      "refreshAria": "Refresh health scores",
+  "repositories": {
+    "pageTitle": "Repositories",
+    "pageDescription": "Where your work goes, which languages you use and what needs attention.",
+    "actions": {
+      "repoHealth": "Repo health",
+      "compareRepos": "Compare repos",
       "refresh": "Refresh",
-      "loadError": "Unable to load repository health data. Please try again.",
       "tryAgain": "Try again",
-      "repoListAria": "Repository list",
-      "repositories": "Repositories",
-      "noRepos": "No repositories found for this period. Try a wider analysis window.",
-      "detailAria": "Repository health detail",
-      "selectPromptTitle": "Select a repository",
-      "selectPromptDesc": "Choose a repository from the list on the left to see its full health breakdown and recommendations."
-    },
-    "card": {
-      "selectAria": "Select {repo} — health score {score}, {label}",
-      "points": "pts"
-    },
-    "detail": {
-      "openOnGithub": "Open {repo} on GitHub",
-      "github": "GitHub",
-      "gradeAria": "Grade: {letter}, {label}",
-      "scoreLabel": "Score: {score}/{max}"
-    },
-    "grades": {
-      "green": "Healthy",
-      "yellow": "Needs Attention",
-      "red": "At Risk"
-    },
-    "gauge": {
-      "ariaLabel": "Repository health score: {score} out of {max}",
-      "outOf": "out of {max}"
-    },
-    "radar": {
-      "ariaLabel": "Health score radar chart",
-      "title": "Dimension Overview",
-      "description": "Each axis is normalised to 0–100 for visual balance.",
-      "scoreLabel": "Score",
-      "metrics": {
-        "commits": "Commits",
-        "prRate": "PR Rate",
-        "prSpeed": "PR Speed",
-        "issues": "Issues",
-        "activity": "Activity"
+      "checkAgain": "Check again",
+      "createRepository": "Create Repository",
+      "clearSearch": "Clear search",
+      "openInGithub": "Open in GitHub",
+      "allRecommended": "All Recommended",
+      "savedProjects": "Saved Projects",
+      "timeRanges": {
+        "last7d": "Last 7d",
+        "last30d": "Last 30d",
+        "last90d": "Last 90d"
       }
     },
-    "breakdown": {
-      "sectionAria": "Score breakdown",
-      "heading": "Score Breakdown",
-      "footer": "Hover metric names for target thresholds. Total weight: 100 pts.",
-      "measuredValueAria": "Measured value: {value}",
-      "pointsAria": "{earned} of {max} points",
-      "metrics": {
-        "commitFrequency": {
-          "label": "Commit Frequency",
-          "tip": "Target: 10 or more commits in the analysis window",
-          "rawSingular": "{count} commit",
-          "rawPlural": "{count} commits"
-        },
-        "prMergeRate": {
-          "label": "PR Merge Rate",
-          "tip": "Target: 100% of opened PRs merged"
-        },
-        "prTurnaround": {
-          "label": "PR Turnaround",
-          "tip": "Target: under 24 hours average",
-          "noPrs": "No PRs",
-          "hoursAvg": "{hours}h avg"
-        },
-        "openIssues": {
-          "label": "Open Issues",
-          "tip": "Target: 0 open issues",
-          "rawSingular": "{count} open issue",
-          "rawPlural": "{count} open issues"
-        },
-        "recentActivity": {
-          "label": "Recent Activity",
-          "tip": "Target: commit within the last 7 days",
-          "unknown": "Unknown",
-          "today": "Today",
-          "daysAgo": "{days}d ago"
-        }
-      }
+    "sections": {
+      "commitsDestination": "Where your commits go",
+      "languagesAndShowcase": "Languages & showcase",
+      "needsAttention": "Needs attention"
     },
-    "insights": {
-      "heading": "Recommendations",
-      "empty": "No recommendations at this time — all metrics look good.",
-      "actionsBadgeSingle": "{count} action",
-      "actionsBadgePlural": "{count} actions",
-      "rules": {
-        "noCommits": {
-          "title": "No recent commits",
-          "description": "No commits were detected in the analysis window. Regular commits keep the repository active and the score healthy."
-        },
-        "lowCommits": {
-          "title": "Low commit frequency",
-          "description": "Only {count} commit(s) in the analysis window. Aim for 10 or more per period to reach a full commit score."
-        },
-        "goodCommits": {
-          "title": "Strong commit activity",
-          "description": "{count} commits in the analysis window — at or above the healthy threshold of 10."
-        },
-        "lowMergeRate": {
-          "title": "Low PR merge rate",
-          "description": "Only {rate}% of opened PRs were merged. Review and close stale pull requests to improve this signal."
-        },
-        "goodMergeRate": {
-          "title": "Excellent PR merge rate",
-          "description": "{rate}% of opened PRs were merged — healthy indicator of active code review."
-        },
-        "slowPrs": {
-          "title": "Long PR review cycle",
-          "description": "Average PR open time is {days} day(s). Faster reviews reduce integration risk and improve velocity."
-        },
-        "moderatePrs": {
-          "title": "PR review time above average",
-          "description": "Average PR open time is {hours}h. Target under 48 hours for a healthy review cycle."
-        },
-        "fastPrs": {
-          "title": "Fast PR turnaround",
-          "description": "PRs are reviewed and closed in under 24 hours on average — excellent review velocity."
-        },
-        "highIssues": {
-          "title": "High open issue count",
-          "description": "{count} open issues detected. Triage and close resolved or duplicate issues to reduce backlog pressure."
-        },
-        "moderateIssues": {
-          "title": "Issue backlog growing",
-          "description": "{count} open issues. Consider scheduling a triage session for older tickets."
-        },
-        "noIssues": {
-          "title": "No open issues",
-          "description": "Issue backlog is clear — all reported problems have been addressed or closed."
-        },
-        "noCommitData": {
-          "title": "Commit history unavailable",
-          "description": "Could not determine the date of the last commit. Verify repository access permissions."
-        },
-        "staleRepo": {
-          "title": "Repository may be stale",
-          "description": "The last commit was {days} days ago. Push an update if this project is still active."
-        },
-        "lowActivity": {
-          "title": "Reduced recent activity",
-          "description": "Last commit was {days} days ago. Consistent activity keeps the recency score high."
-        },
-        "activeRepo": {
-          "title": "Actively maintained",
-          "descriptionToday": "Last commit was today — excellent recency signal.",
-          "descriptionDays": "Last commit was {days} day(s) ago — excellent recency signal."
-        }
-      },
-      "metricNames": {
-        "commitFrequency": "Commit Frequency",
-        "prMergeRate": "PR Merge Rate",
-        "prTurnaround": "PR Turnaround",
-        "openIssues": "Open Issues",
-        "recentActivity": "Recent Activity"
+    "analytics": {
+      "title": "Repo analytics",
+      "description": "Your repositories by recent activity. Open one for contributors, timeline, health and languages.",
+      "loading": "Loading repositories"
+    },
+    "topRepos": {
+      "title": "Top Repositories",
+      "titleWithCount": "Top Repositories ({count})",
+      "partialHistoryNotice": "Repository counts use partial history: {reason}",
+      "timeRangeAria": "Select time range for top repositories",
+      "filterTabsAria": "Repositories to show",
+      "loading": "Loading top repositories",
+      "noReposFound": "No repositories found",
+      "noReposFoundDesc": "Push your first commit on GitHub to get started and see repository activity here.",
+      "searchPlaceholder": "Search repositories…",
+      "searchAria": "Search repositories by name",
+      "sortByRepoName": "Sort by repository name",
+      "sortByCommitCount": "Sort by commit count",
+      "tableHeaderRepo": "Repository",
+      "tableHeaderCommits": "Commits",
+      "noReposMatch": "No repos match your search.",
+      "commitsCount": "{count, plural, one {# commit} other {# commits}}",
+      "pinnedBadge": "Pinned",
+      "bookmarkAddAria": "Bookmark {name}",
+      "bookmarkRemoveAria": "Remove {name} from bookmarks",
+      "pinAddAria": "Pin {name}",
+      "pinRemoveAria": "Unpin {name}",
+      "pinAddTitle": "Pin {name} repository",
+      "pinRemoveTitle": "Unpin {name} repository",
+      "maxPinsError": "Maximum 3 pins allowed",
+      "viewHealthAria": "View health breakdown for {name}",
+      "noHealthDataTitle": "Not enough data to calculate health score",
+      "healthBadgeTitle": "Commits: {commitFrequency} | PR Merge Rate: {prMergeRate}% | Avg PR Time: {avgPrTime}h | Open Issues: {openIssues} | Last Commit: {daysSinceLastCommit} days ago",
+      "codebaseSizeSmall": "Small Codebase",
+      "codebaseSizeMedium": "Medium Codebase",
+      "codebaseSizeLarge": "Large Codebase",
+      "codebaseSizeSmallAria": "Small codebase, under 50KB total code",
+      "codebaseSizeMediumAria": "Medium codebase, between 50KB and 500KB total code",
+      "codebaseSizeLargeAria": "Large codebase, over 500KB total code",
+      "otherLanguage": "Other",
+      "noDescription": "No description",
+      "languageTooltip": "Language: {language}",
+      "failedToLoad": "We couldn't load your top repositories right now. Please try again in a moment.",
+      "updatedJustNow": "Updated just now",
+      "updatedMinAgo": "Updated {minutes} min ago"
+    },
+    "diffTrend": {
+      "title": "Lines Changed",
+      "descriptionSpecific": "Lines you added and removed per week in {repos}, last {weeks} weeks.",
+      "descriptionGeneral": "Lines you added and removed per week in your top repositories, last {weeks} weeks.",
+      "loading": "Loading line changes",
+      "computingStats": "Computing stats… GitHub is preparing line counts for your repositories. Check again in a minute.",
+      "stillComputingPending": "Still computing stats for {repos}. Check again in a minute.",
+      "noChanges": "No line changes in the last {weeks} weeks.",
+      "addedStat": "Added",
+      "removedStat": "Removed",
+      "netStat": "Net",
+      "chartAriaLabel": "Lines added and removed per week: {additions} added and {deletions} removed over the last {weeks} weeks.",
+      "chartTooltipWeekEnding": "Week ending {date}",
+      "chartTooltipAdded": "+{count} added",
+      "chartTooltipRemoved": "−{count} removed",
+      "failedToLoad": "We couldn't load your line changes right now. Please try again in a moment.",
+      "rateLimited": "GitHub is rate limiting your account right now. Try again in a few minutes."
+    },
+    "inactiveRepos": {
+      "title": "Inactive Repository Reminder",
+      "description": "Repositories without recent pushes in your selected window",
+      "thresholdAria": "Select inactivity threshold",
+      "thresholdOption": "{days} days",
+      "refreshAria": "Refresh inactive repositories",
+      "loading": "Loading inactive repositories",
+      "failedToLoad": "We couldn't load inactive repositories right now. Please try again in a moment.",
+      "noInactive": "Nice! No inactive repositories for this period.",
+      "openOnGithub": "Open on GitHub",
+      "lastActive": "Last active: {date}",
+      "unknownDate": "Unknown date",
+      "inactiveDays": "{days} inactive days",
+      "visibility": {
+        "public": "public",
+        "private": "private",
+        "internal": "internal",
+        "unknown": "unknown"
       }
     }
   },
