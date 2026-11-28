@@ -1155,8 +1155,8 @@ Could you please assign this issue to me?`}
         a: "Be transparent. Review the diff, trace relevant code paths, inspect the tests and CI results, and state clearly that you performed a static review rather than runtime testing.",
       },
     ],
-  },
-,];
+  }
+];
 
 export function findGuide(slug: string) {
   return GUIDES.find((g) => g.slug === slug);
