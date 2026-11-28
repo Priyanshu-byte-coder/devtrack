@@ -1111,5 +1111,37 @@
     "skip": "Pular",
     "next": "Próximo",
     "buttonAria": "Bit, o guia do DevTrack. Dica sobre {stage}"
+  },
+  "repositories": {
+    "analyticsSheet": {
+      "title": "Análise do repositório",
+      "repository": "Repositório",
+      "sheetAria": "Análise de {name}",
+      "close": "Fechar",
+      "loading": "Carregando a análise do repositório",
+      "rateLimitError": "O GitHub está limitando sua conta no momento. Tente novamente em alguns minutos.",
+      "loadError": "Não foi possível carregar este repositório agora.",
+      "stars": "Stars",
+      "forks": "Forks",
+      "openIssues": "Issues abertas",
+      "prs": "PRs",
+      "branch": "Branch {branch}",
+      "created": "Criado em {date}",
+      "updated": "Atualizado em {date}",
+      "commitsPerWeek": "Commits por semana",
+      "statsBuilding": "O GitHub ainda está calculando as estatísticas deste repositório. Volte em um minuto.",
+      "noCommits": "Nenhum commit nas últimas 12 semanas.",
+      "timelineAria": "Commits por semana: {entries}",
+      "timelineEntry": "semana de {date} {count}",
+      "weekTitle": "Semana de {date}: {count, plural, one {# commit} other {# commits}}",
+      "commitsIn12Weeks": "{count, plural, one {# commit} other {# commits}} em 12 semanas",
+      "languages": "Linguagens",
+      "noLanguageData": "Sem dados de linguagens.",
+      "topContributors": "Principais contribuidores",
+      "noContributorData": "Ainda não há dados de contribuidores.",
+      "commitsCount": "{count, plural, one {# commit} other {# commits}}",
+      "fullHealthCheck": "Verificação completa de saúde",
+      "openOnGitHub": "Abrir no GitHub"
+    }
   }
 }
