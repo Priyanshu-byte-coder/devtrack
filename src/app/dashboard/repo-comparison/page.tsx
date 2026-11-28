@@ -134,7 +134,7 @@ export default function RepoComparisonPage() {
         <button
           onClick={addRepo}
           aria-label={t("addRepoAria")}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-accent text-accent-foreground px-4 py-2 rounded"
         >
           {t("addRepo")}
         </button>
@@ -145,7 +145,7 @@ export default function RepoComparisonPage() {
         {repos.map((repo) => (
           <div
             key={repo}
-            className="bg-gray-200 px-3 py-1 rounded flex gap-2 items-center"
+            className="bg-card-muted px-3 py-1 rounded flex gap-2 items-center"
           >
             <span>{repo}</span>
             <button
@@ -161,7 +161,7 @@ export default function RepoComparisonPage() {
       {/* COMPARE BUTTON */}
       <button
         onClick={fetchRepoData}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-success text-accent-foreground px-4 py-2 rounded"
         disabled={loading}
         aria-label={t("compareAria")}
       >
@@ -170,7 +170,7 @@ export default function RepoComparisonPage() {
 
       {/* EMPTY STATE */}
       {repos.length === 0 && (
-        <div className="text-gray-500">{t("emptyState")}</div>
+        <div className="text-muted-foreground">{t("emptyState")}</div>
       )}
 
       {/* RESULTS */}
@@ -216,22 +216,22 @@ export default function RepoComparisonPage() {
             aria-label={t("chartAria")}
           >
             <BarChart data={chartData} aria-label={t("chartAria")}>
-              <XAxis dataKey="name" tick={{ fill: "#7698fe", fontSize: 12 }} />
+              <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
               <YAxis />
               <Tooltip />
               <Bar
                 dataKey="stars"
-                fill="#3b82f6"
+                fill="var(--accent)"
                 name={t("chartSeries.stars")}
               />
               <Bar
                 dataKey="forks"
-                fill="#10b981"
+                fill="var(--success)"
                 name={t("chartSeries.forks")}
               />
               <Bar
                 dataKey="watchers"
-                fill="#f59e0b"
+                fill="var(--warning)"
                 name={t("chartSeries.watchers")}
               />
             </BarChart>
