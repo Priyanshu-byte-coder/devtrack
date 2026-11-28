@@ -1053,5 +1053,27 @@
       "celebration": "🎉 You reached a {streak}-day streak! Keep it up!",
       "dismiss": "Dismiss milestone banner"
     }
+  },
+  "themeMenu": {
+    "label": "Theme",
+    "chooseTheme": "Choose theme",
+    "triggerAria": "Theme: {name}. Choose theme",
+    "optionsAria": "Theme options",
+    "selectTheme": "Select theme",
+    "descriptions": {
+      "arcade": "Navy night, blue neon",
+      "daylight": "Light and crisp",
+      "terminal": "Green phosphor CRT",
+      "synthwave": "Purple night, pink and cyan"
+    }
+  },
+  "buddy": {
+    "bringBack": "Bring back Bit",
+    "dialogAria": "Bit says, {stage}",
+    "close": "Close",
+    "hide": "Hide Bit",
+    "skip": "Skip",
+    "next": "Next",
+    "buttonAria": "Bit, the DevTrack guide. Tip about {stage}"
   }
 }

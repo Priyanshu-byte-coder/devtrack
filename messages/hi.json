@@ -1053,5 +1053,27 @@
       "celebration": "🎉 आपने {streak}-दिनों की लकीर हासिल कर ली! इसे जारी रखें!",
       "dismiss": "मील का पत्थर बैनर खारिज करें"
     }
+  },
+  "themeMenu": {
+    "label": "थीम",
+    "chooseTheme": "थीम चुनें",
+    "triggerAria": "थीम: {name}. थीम चुनें",
+    "optionsAria": "थीम विकल्प",
+    "selectTheme": "थीम चुनें",
+    "descriptions": {
+      "arcade": "गहरी नीली रात, नीला नियॉन",
+      "daylight": "हल्का और स्पष्ट",
+      "terminal": "हरा फॉस्फर CRT",
+      "synthwave": "बैंगनी रात, गुलाबी और सियान"
+    }
+  },
+  "buddy": {
+    "bringBack": "Bit को वापस लाएं",
+    "dialogAria": "Bit कहता है, {stage}",
+    "close": "बंद करें",
+    "hide": "Bit को छिपाएं",
+    "skip": "छोड़ें",
+    "next": "अगला",
+    "buttonAria": "Bit, DevTrack मार्गदर्शक। {stage} के बारे में सुझाव"
   }
 }

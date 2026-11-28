@@ -1053,5 +1053,27 @@
       "celebration": "🎉 Você alcançou uma sequência de {streak} dias! Continue assim!",
       "dismiss": "Dispensar banner de marco"
     }
+  },
+  "themeMenu": {
+    "label": "Tema",
+    "chooseTheme": "Escolher tema",
+    "triggerAria": "Tema: {name}. Escolher tema",
+    "optionsAria": "Opções de tema",
+    "selectTheme": "Selecionar tema",
+    "descriptions": {
+      "arcade": "Noite azul-marinho, neon azul",
+      "daylight": "Claro e nítido",
+      "terminal": "CRT fósforo verde",
+      "synthwave": "Noite roxa, rosa e ciano"
+    }
+  },
+  "buddy": {
+    "bringBack": "Trazer o Bit de volta",
+    "dialogAria": "Bit diz, {stage}",
+    "close": "Fechar",
+    "hide": "Ocultar Bit",
+    "skip": "Pular",
+    "next": "Próximo",
+    "buttonAria": "Bit, o guia do DevTrack. Dica sobre {stage}"
   }
 }
