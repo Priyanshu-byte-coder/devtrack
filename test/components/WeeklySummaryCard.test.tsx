@@ -8,8 +8,18 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import en from "../../messages/en.json";
 import WeeklySummaryCard from "@/components/WeeklySummaryCard";
 import { signIn, signOut } from "next-auth/react";
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 vi.mock("next-auth/react", () => ({
   signOut: vi.fn().mockResolvedValue(undefined),
@@ -107,7 +117,7 @@ describe("WeeklySummaryCard", () => {
     });
     fetchMock.mockReturnValue(pendingPromise);
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
     expect(screen.getByText("Loading weekly summary")).toBeInTheDocument();
@@ -127,7 +137,7 @@ describe("WeeklySummaryCard", () => {
   it("displays error message on initial summary HTTP failure", async () => {
     fetchMock.mockReturnValue(reply(500, { error: "Internal Server Error" }));
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     expect(
       await screen.findByText(
@@ -139,7 +149,7 @@ describe("WeeklySummaryCard", () => {
   it("displays error message on initial summary network rejection", async () => {
     fetchMock.mockRejectedValue(new Error("Connection error"));
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     expect(
       await screen.findByText(
@@ -149,7 +159,7 @@ describe("WeeklySummaryCard", () => {
   });
 
   it("renders realistic summary metrics accurately", async () => {
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     expect(await screen.findByText("Commits")).toBeInTheDocument();
     expect(screen.getByText("14")).toBeInTheDocument();
@@ -175,7 +185,7 @@ describe("WeeklySummaryCard", () => {
       return reply(404, {});
     });
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     expect(await screen.findByText("Commits")).toBeInTheDocument();
     expect(screen.getByText("0 / 7")).toBeInTheDocument();
@@ -203,7 +213,7 @@ describe("WeeklySummaryCard", () => {
       }
     );
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const generateBtn = await screen.findByRole("button", {
       name: "Generate AI summary",
@@ -259,7 +269,7 @@ describe("WeeklySummaryCard", () => {
       }
     );
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const generateBtn = await screen.findByRole("button", {
       name: "Generate AI summary",
@@ -285,7 +295,7 @@ describe("WeeklySummaryCard", () => {
       }
     );
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const generateBtn = await screen.findByRole("button", {
       name: "Generate AI summary",
@@ -314,7 +324,7 @@ describe("WeeklySummaryCard", () => {
       }
     );
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const generateBtn = await screen.findByRole("button", {
       name: "Generate AI summary",
@@ -336,7 +346,7 @@ describe("WeeklySummaryCard", () => {
       },
     });
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const generateBtn = await screen.findByRole("button", {
       name: "Generate AI summary",
@@ -366,7 +376,7 @@ describe("WeeklySummaryCard", () => {
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(() => {});
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const downloadBtn = await screen.findByRole("button", {
       name: "Download weekly report",
@@ -383,7 +393,7 @@ describe("WeeklySummaryCard", () => {
   });
 
   it("collapses and expands summary content when toggle button is clicked", async () => {
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     await screen.findByText("Commits");
 
@@ -407,7 +417,7 @@ describe("WeeklySummaryCard", () => {
   it("handles token_expired error by presenting reconnect action", async () => {
     fetchMock.mockReturnValue(reply(200, { error: "token_expired" }));
 
-    render(<WeeklySummaryCard />);
+    renderWithIntl(<WeeklySummaryCard />);
 
     const reconnectBtn = await screen.findByRole("button", {
       name: "Reconnect GitHub",
