@@ -960,7 +960,203 @@ Could you please assign this issue to me?`}
       },
     ],
   },
-];
+
+  {
+    slug: "code-review-for-beginners",
+    title: "Reviewing other people's pull requests (and why it grows your profile)",
+    description: "Learn to review pull requests with clear, kind feedback, understand GitHub contribution credit, and track review impact in DevTrack.",
+    published: "2026-11-29",
+    updated: "2026-11-29",
+    body: () => (
+      <>
+        <p>
+          Open source is not only about writing code. Projects also need people
+          who read proposed changes carefully, try them out, ask useful questions,
+          and help authors make their work safer and easier to maintain. You do
+          not need to be a senior developer to start reviewing. A focused review
+          of a small change can help its author and teach you how a real codebase
+          works.
+        </p>
+        <p>
+          A review is not a contest to find the most comments. Your goal is to
+          understand what the pull request (PR) is trying to do, identify issues
+          that matter, and explain them in a way the author can act on. This guide
+          covers a repeatable review process, respectful feedback, GitHub
+          contribution credit, and the way DevTrack records review activity.
+        </p>
+
+        <h2>1. Understand the change before judging it</h2>
+        <p>
+          Start with the PR description and the issue or discussion it references.
+          Write down the intended behavior in one sentence. Then read the diff
+          from top to bottom. Look at nearby code when a function, component, or
+          data model is unfamiliar; the diff alone may not show the conventions
+          the project already follows.
+        </p>
+        <ul>
+          <li><strong>Check the scope:</strong> Does the change solve the stated
+            problem? Are unrelated refactors or generated files included?</li>
+          <li><strong>Trace the behavior:</strong> Follow inputs through the
+            changed code. Check empty values, unexpected types, boundary values,
+            permissions, and failure paths where relevant.</li>
+          <li><strong>Look at tests:</strong> Are important success and failure
+            cases covered? Do the tests assert the outcome rather than merely
+            repeating the implementation?</li>
+          <li><strong>Consider compatibility:</strong> Could the change break an
+            existing caller, API response, saved record, keyboard flow, or
+            supported platform?</li>
+          <li><strong>Check maintainability:</strong> Are names understandable?
+            Is the code consistent with nearby patterns? Is user-facing behavior
+            or configuration documented when needed?</li>
+        </ul>
+        <p>
+          Do not assume every preference is a defect. A different naming choice
+          or formatting style may be harmless if it follows the repository's
+          conventions. Prioritize correctness, security, data loss, accessibility,
+          and regressions over personal style.
+        </p>
+
+        <h2>2. Run the change when you can</h2>
+        <p>
+          Read the project's contribution instructions before running commands.
+          If setup is practical, install the documented dependencies, run the
+          relevant tests, and try the behavior described by the author. Report
+          what you actually ran, including the command and whether it passed.
+          If you cannot run the project, say so; a careful static review is still
+          useful, but it is not the same as runtime verification.
+        </p>
+        <p>
+          Treat automated checks as evidence, not a substitute for reading the
+          code. A green test suite cannot prove that every edge case is covered.
+          A failing check may also be unrelated to the PR, so compare the failure
+          with the base branch or ask the author for context before calling it a
+          regression.
+        </p>
+
+        <h2>3. Write comments an author can use</h2>
+        <p>
+          A useful review comment identifies a specific location, explains the
+          consequence, and suggests a direction. For example, instead of saying
+          <em> "This is wrong"</em>, explain: <em>"If this value is empty, the
+          request still reaches the database. Could we validate it before this
+          call? That would keep invalid records from being created."</em>
+        </p>
+        <ul>
+          <li><strong>Be specific:</strong> Point to the affected line and describe
+            a reproducible scenario.</li>
+          <li><strong>Explain impact:</strong> Say what could break and who or
+            what is affected.</li>
+          <li><strong>Ask, do not belittle:</strong> "Could we handle the timeout
+            here?" invites discussion; "You forgot error handling" attacks the
+            author.</li>
+          <li><strong>Separate blockers from suggestions:</strong> Mark a
+            correctness or security issue clearly. Label optional polish as
+            non-blocking or a nit.</li>
+          <li><strong>Acknowledge good work:</strong> Mention a clear test,
+            thoughtful edge-case fix, or helpful explanation when you see one.</li>
+        </ul>
+        <p>
+          When a small replacement is obvious, GitHub supports suggested changes
+          in review comments. See
+          <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request">GitHub's guide to incorporating feedback and suggested changes</A>.
+          Suggestions should remain easy to understand and should not hide a
+          larger design decision inside a one-click edit.
+        </p>
+
+        <h2>4. Choose the right review submission</h2>
+        <p>
+          GitHub's pull request review flow offers three submission types:
+          Comment, Approve, and Request changes. Read
+          <A href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/about-pull-request-reviews">GitHub's documentation about pull request reviews</A>
+          for how these work. Use a comment when you have observations or
+          questions but no approval decision. Approve only when you have reviewed
+          the change and are comfortable with it. Request changes when you have
+          identified a concrete issue that should be fixed before merge.
+        </p>
+        <p>
+          Repository permissions and branch protection determine whose approval
+          can satisfy a merge requirement. If you are a new contributor and do
+          not have the authority to approve, you can still leave a constructive
+          comment or report your findings to the maintainers. Never use
+          "Request changes" just to express a preference.
+        </p>
+
+        <h2>5. How reviews appear on your GitHub profile</h2>
+        <p>
+          GitHub can include pull request reviews in your contribution activity,
+          but eligibility has an important condition: the review must be made in
+          a standalone repository, not a fork. GitHub's
+          <A href="https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference">profile contributions reference</A>
+          explains which activities count and the repository requirements.
+          Therefore, do not assume that every review on every public repository
+          will add a square to your graph. The contribution settings also let
+          you control whether eligible private contributions are shown.
+        </p>
+        <p>
+          A submitted review is also visible in the pull request conversation,
+          where collaborators can read the comments and review decision. The
+          contribution graph is a summary, not a quality score: a thoughtful
+          review can be valuable even when it does not qualify for graph credit.
+        </p>
+
+        <h2>6. How reviews affect your DevTrack stats</h2>
+        <p>
+          DevTrack's score v2 gives the Impact signal 30% of the overall score.
+          Within that signal, pull requests contribute one unit each and reviews
+          contribute half a unit each. This means reviews are recognized, but
+          they do not count as much as a pull request in the impact calculation.
+          The scoring model also uses period targets and cohort-relative scoring,
+          so the exact points shown on a leaderboard depend on the period and
+          the other contributors being ranked.
+        </p>
+        <p>
+          DevTrack's lifetime XP system awards 15 XP per review. XP is separate
+          from the rolling leaderboard score: it accumulates from lifetime
+          activity and contributes to your level. You can read more in the
+          <A href="/guides/devtrack-score">guide to the DevTrack score</A>.
+          Review activity is one part of a broader profile; it does not guarantee
+          a particular rank, badge, or invitation to maintain a project.
+        </p>
+
+        <h2>A simple review routine</h2>
+        <ol>
+          <li>Pick a small, active PR in a project whose purpose you understand.</li>
+          <li>Read the issue, description, diff, and relevant surrounding code.</li>
+          <li>Check tests and run the documented commands if possible.</li>
+          <li>Write only actionable comments, with impact and evidence.</li>
+          <li>Submit the appropriate review type and respond kindly if the author
+            asks a follow-up question.</li>
+        </ol>
+        <p>
+          If you are preparing your own contribution too, use the
+          <A href="/guides/pull-request-checklist">pull request checklist</A>
+          to make it easier for someone else to review your work. Good reviewers
+          and good PR authors help create the same kind of welcoming project:
+          one where feedback is specific, respectful, and focused on improving
+          the software together.
+        </p>
+      </>
+    ),
+    faq: [
+      {
+        q: "Do reviews on every public GitHub repository count on my contribution graph?",
+        a: "No. GitHub's contribution rules require reviews to be made in a standalone repository, not a fork. Other contribution eligibility rules and your profile settings can also affect what is displayed.",
+      },
+      {
+        q: "Can I review a pull request if I am not a maintainer?",
+        a: "You can still read the diff, test the change where practical, and leave useful feedback. Whether your approval can satisfy a merge requirement depends on the repository's permissions and branch protection settings.",
+      },
+      {
+        q: "How much does a review add to DevTrack?",
+        a: "A review contributes half a unit to the Impact signal, which is 30% of DevTrack's score, and earns 15 lifetime XP. Leaderboard score is period- and cohort-dependent, while XP accumulates over time.",
+      },
+      {
+        q: "What should I do if I cannot run the project locally?",
+        a: "Be transparent. Review the diff, trace relevant code paths, inspect the tests and CI results, and state clearly that you performed a static review rather than runtime testing.",
+      },
+    ],
+  },
+,];
 
 export function findGuide(slug: string) {
   return GUIDES.find((g) => g.slug === slug);
