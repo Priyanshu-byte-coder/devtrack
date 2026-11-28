@@ -129,6 +129,42 @@
         "closeModal": "Close modal/dialog",
         "showShortcuts": "Show shortcuts"
       }
+    },
+    "onboarding": {
+      "nextBtnText": "Next ▶",
+      "prevBtnText": "◀ Back",
+      "doneBtnText": "Start playing",
+      "progressText": "{current} / {total}",
+      "steps": {
+        "welcome": {
+          "title": "Player 1 ready",
+          "description": "Your GitHub activity is now a game: streaks, XP, tiers and a global leaderboard. Want a 20-second tour?"
+        },
+        "stats": {
+          "title": "Your week",
+          "description": "Streak, commits, merged PRs and active days, compared with last week. They update on their own."
+        },
+        "rank": {
+          "title": "Rank, tier and XP",
+          "description": "Your place this season, your tier, and XP toward the next level. Ranks update every day."
+        },
+        "activity": {
+          "title": "Activity",
+          "description": "Your commits over time. Switch the range or the chart type to spot your rhythm."
+        },
+        "focus": {
+          "title": "Today's focus",
+          "description": "Write down what you're building today. Small goals keep streaks alive."
+        },
+        "nav": {
+          "title": "More modes",
+          "description": "Pull requests, repos, goals, Year in Code and your public profile all live here."
+        },
+        "gameOn": {
+          "title": "Game on",
+          "description": "Climb the leaderboard, flex your badges in your README, and challenge friends to duels."
+        }
+      }
     }
   },
   "dashboard": {
