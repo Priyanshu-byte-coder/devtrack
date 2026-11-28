@@ -979,10 +979,8 @@ Could you please assign this issue to me?`}
           GitHub data in the browser.
         </p>
         <p>
-          This guide uses DevTrack&apos;s live badge routes and shows the same
-          pattern in HTML, Markdown, and React. It also explains which badge is
-          available for which profile, how the response is cached, and how to give
-          the image a useful text alternative.
+          Below are copy-ready examples for HTML, Markdown, and React, plus the
+          exact caching behaviour and accessible image labels to use.
         </p>
 
         <h2>Choose the badge that tells the right story</h2>
@@ -998,9 +996,7 @@ Could you please assign this issue to me?`}
         </p>
         <p>
           These are DevTrack activity summaries, not official GitHub badges or a
-          measure of code quality. A streak is a consistency signal, a commit
-          count is a volume signal, and a rank is a comparison against other
-          opted-in profiles. Choose only the information you are comfortable
+          measure of code quality. Choose only metrics you are comfortable
           sharing, and let your projects and contributions do most of the talking.
         </p>
 
@@ -1128,13 +1124,10 @@ Could you please assign this issue to me?`}
           regenerate it for every page view.
         </p>
         <p>
-          The cache values are not a promise that every visitor sees a new
-          number at an exact minute. A cached badge can remain visible while a
-          fresh response is being fetched. That trade-off is intentional: a
-          portfolio badge does not need to update every second. Avoid adding a
-          timestamp to the image URL on each render, because doing so changes the
-          cache key and defeats the caching DevTrack already provides. Let the
-          normal cache lifetime do its job.
+          A cached badge can remain visible while a fresh response is being
+          fetched, so updates are not guaranteed at an exact minute. Avoid
+          adding a timestamp to the image URL on every render: that changes the
+          cache key and defeats the caching DevTrack already provides.
         </p>
         <p>
           For images below the fold, <code>loading=&quot;lazy&quot;</code> and
@@ -1168,10 +1161,9 @@ Could you please assign this issue to me?`}
           </li>
         </ul>
         <p>
-          Finally, use a small number of badges and put them near your GitHub
-          link or activity section. Your portfolio should still make your
-          projects, role in each project, and the problems you solved easy to
-          find. For more ways to read and compare activity, see the
+          Use a small number of badges near your activity section. Keep your
+          projects and the problems you solved easy to find. For more ways to
+          compare activity, see the
           <A href="/guides/github-activity-tracker">GitHub activity tracker guide</A>.
         </p>
       </>
@@ -1191,7 +1183,7 @@ Could you please assign this issue to me?`}
       },
       {
         q: "What alt text should I use for a DevTrack badge?",
-        a: "Describe both the person and the metric, for example: 'octocat current and longest DevTrack coding streak'. If the image is decorative and its information is repeated next to it, use an empty alt attribute instead.",
+        a: "Describe both the person and metric, for example: 'octocat current and longest DevTrack coding streak'. If the same information is already visible beside the image, an empty alt avoids reading it twice; make sure the surrounding link still has an accessible name.",
       },
     ],
   },
