@@ -42,7 +42,7 @@ test("the code review guide is reachable from the guides index", async ({ page }
       name: /Reviewing other people's pull requests/,
     })
     .click();
-  await expect(page).toHaveURL(/\\/guides\\/code-review-for-beginners$/);
+  await expect(page).toHaveURL("/guides/code-review-for-beginners");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Reviewing other people's pull requests"
   );
