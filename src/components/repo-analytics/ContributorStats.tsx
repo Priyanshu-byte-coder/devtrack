@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { RepoContributorData } from "@/lib/repo-analytics-types";
 
 export default function ContributorStats({
@@ -8,10 +9,11 @@ export default function ContributorStats({
 }: {
   contributors: RepoContributorData[];
 }) {
+  const t = useTranslations("repositories");
   if (contributors.length === 0) {
     return (
       <p className="text-sm text-[var(--muted-foreground)]">
-        No contributor data yet.
+        {t("analyticsSheet.noContributorData")}
       </p>
     );
   }
@@ -38,7 +40,9 @@ export default function ContributorStats({
                 {contributor.login}
               </a>
               <span className="shrink-0 text-[var(--muted-foreground)]">
-                {contributor.contributions.toLocaleString()} commits
+                {t("analyticsSheet.commitsCount", {
+                  count: contributor.contributions,
+                })}
               </span>
             </div>
             <div className="mt-1 h-2 bg-[var(--card)]">
