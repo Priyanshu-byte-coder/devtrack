@@ -9,6 +9,7 @@ interface ConfirmModalProps {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmVariant?: React.ComponentProps<typeof Button>["variant"];
   onConfirm: () => void;
   onCancel: () => void;
   disabled?: boolean;
@@ -20,6 +21,7 @@ export default function ConfirmModal({
   message,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  confirmVariant = "default",
   onConfirm,
   onCancel,
   disabled = false,
@@ -81,7 +83,7 @@ export default function ConfirmModal({
             {cancelLabel}
           </Button>
           <Button
-            variant="default"
+            variant={confirmVariant}
             onClick={onConfirm}
             className="w-full sm:w-auto shadow-lg shadow-accent/20"
           >

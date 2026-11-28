@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import ConfirmModal from "@/components/ConfirmModal";
 import { CopyFeedback } from "@/components/ui/copy-feedback";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 
@@ -114,6 +115,8 @@ export default function WebhookManager() {
     success: boolean;
     message: string;
   } | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingRotateId, setPendingRotateId] = useState<string | null>(null);
 
   const loadWebhooks = useCallback(async () => {
     try {
@@ -176,9 +179,7 @@ export default function WebhookManager() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this webhook?")) {
-      return;
-    }
+    setPendingDeleteId(null);
 
     try {
       await fetch(`/api/webhooks/custom/${id}`, { method: "DELETE" });
@@ -264,11 +265,7 @@ export default function WebhookManager() {
   }
 
   async function handleRotateSecret(id: string) {
-    if (
-      !confirm("Rotate secret key? Your endpoint will need to use the new key.")
-    ) {
-      return;
-    }
+    setPendingRotateId(null);
 
     try {
       const res = await fetch(`/api/webhooks/custom/${id}/rotate-secret`, {
@@ -737,7 +734,7 @@ export default function WebhookManager() {
                     {testingId === webhook.id ? "Testing…" : "Test"}
                   </button>
                   <button
-                    onClick={() => handleDelete(webhook.id)}
+                    onClick={() => setPendingDeleteId(webhook.id)}
                     className="p-2 rounded-lg border border-destructive/30 text-[var(--destructive)] hover:bg-destructive/10 transition-colors"
                     title="Delete webhook"
                   >
@@ -795,7 +792,7 @@ export default function WebhookManager() {
               {testingId === selectedWebhook ? "Sending…" : "Send Test"}
             </button>
             <button
-              onClick={() => handleRotateSecret(selectedWebhook)}
+              onClick={() => setPendingRotateId(selectedWebhook)}
               className="px-3 py-1.5 rounded-lg border border-[var(--border)] text-sm font-medium text-[var(--foreground)] hover:bg-[var(--control)] transition-colors"
             >
               Rotate Secret
@@ -840,6 +837,25 @@ export default function WebhookManager() {
           )}
         </div>
       )}
+      <ConfirmModal
+        isOpen={pendingDeleteId !== null}
+        title="Delete Webhook"
+        message="Are you sure you want to delete this webhook? This action cannot be undone."
+        confirmLabel="Delete Webhook"
+        cancelLabel="Keep Webhook"
+        confirmVariant="destructive"
+        onConfirm={() => { if (pendingDeleteId) handleDelete(pendingDeleteId); }}
+        onCancel={() => setPendingDeleteId(null)}
+      />
+      <ConfirmModal
+        isOpen={pendingRotateId !== null}
+        title="Rotate Secret Key"
+        message="Your endpoint will need to use the new key."
+        confirmLabel="Rotate Secret"
+        cancelLabel="Cancel"
+        onConfirm={() => { if (pendingRotateId) handleRotateSecret(pendingRotateId); }}
+        onCancel={() => setPendingRotateId(null)}
+      />
     </div>
   );
 }
