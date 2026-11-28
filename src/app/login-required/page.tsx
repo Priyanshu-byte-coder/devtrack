@@ -4,13 +4,13 @@ export default function LoginRequiredPage() {
   return (
     <main className="relative min-h-screen flex items-center justify-center bg-[var(--background)] px-4 overflow-hidden">
       {/* Dynamic Background Glow Accents */}
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-[120px] animate-pulse pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-[120px] animate-pulse [animation-delay:2s] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-accent/10 rounded-full blur-[120px] animate-pulse pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent-secondary/10 rounded-full blur-[120px] animate-pulse [animation-delay:2s] pointer-events-none" />
 
       {/* Main Interactive Card */}
       <div className="relative max-w-md w-full bg-card/80 backdrop-blur-md border border-[var(--border)] rounded-3xl p-10 shadow-2xl text-center group hover:border-muted-foreground/30 transition-[border-color] duration-500">
         {/* Floating Rocket Icon Container */}
-        <div className="relative inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-[var(--border)] rounded-2xl mb-6 text-4xl shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+        <div className="relative inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-accent/10 to-accent-secondary/10 border border-[var(--border)] rounded-2xl mb-6 text-4xl shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
           <span className="animate-bounce [animation-duration:3s]">🚀</span>
         </div>
 
