@@ -87,3 +87,37 @@ describe("first-open-source-issue guide (#3800)", () => {
     expect(html).toContain("/guides/pull-request-checklist");
   });
 });
+
+
+describe("code-review-for-beginners guide (#3802)", () => {
+  it("exists and is registered in GUIDES list", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide).toBeDefined();
+    expect(guide?.title).toBe(
+      "Reviewing other people's pull requests (and why it grows your profile)"
+    );
+    expect(GUIDES.some((g) => g.slug === "code-review-for-beginners")).toBe(true);
+  });
+
+  it("has a description under 160 characters and 2–4 FAQs", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide?.description.length).toBeLessThanOrEqual(160);
+    expect(guide?.faq.length).toBeGreaterThanOrEqual(2);
+    expect(guide?.faq.length).toBeLessThanOrEqual(4);
+  });
+
+  it("renders a 700–1,200 word guide with GitHub and DevTrack references", () => {
+    const guide = findGuide("code-review-for-beginners");
+    expect(guide).toBeDefined();
+    const html = renderToStaticMarkup(guide!.body() as any);
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
+    const words = text.split(" ").filter(Boolean);
+    expect(words.length).toBeGreaterThanOrEqual(700);
+    expect(words.length).toBeLessThanOrEqual(1200);
+    expect(html).toContain("https://docs.github.com/en/account-and-profile/reference/profile-contributions-reference");
+    expect(html).toContain("standalone repository");
+    expect(html).toContain("/guides/devtrack-score");
+    expect(html).toContain("/guides/pull-request-checklist");
+    expect(html).toContain("15 lifetime XP");
+  });
+});
