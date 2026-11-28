@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAccount } from "@/components/AccountContext";
 import CommitSearchPanel from "@/components/CommitSearchPanel";
 import type { CommitItem } from "@/lib/github";
@@ -52,10 +53,10 @@ const RANGES = [
   { label: "90d", days: 90 },
 ];
 
-const charts: { key: ViewMode; label: string }[] = [
-  { key: "bar", label: "Bar" },
-  { key: "line", label: "Line" },
-  { key: "area", label: "Area" },
+const charts: { key: ViewMode; labelKey: string }[] = [
+  { key: "bar", labelKey: "chartBar" },
+  { key: "line", labelKey: "chartLine" },
+  { key: "area", labelKey: "chartArea" },
 ];
 
 function normalizeCommitCount(count: unknown): number {
@@ -132,6 +133,7 @@ function mergeContributionSources(
 }
 
 export default function ContributionGraph() {
+  const t = useTranslations("dashboard");
   const { selectedAccount } = useAccount();
   const [partialReason, setPartialReason] = useState<string | null>(null);
   const [data, setData] = useState<DayData[]>([]);
@@ -262,7 +264,7 @@ export default function ContributionGraph() {
         setPartialReason(
           res.complete === false
             ? (res.partialReason ??
-                "Only part of your activity history is available.")
+                t("commitsChart.partialReasonDefault"))
             : null
         );
         setCommits(res.commits ?? []);
@@ -271,7 +273,7 @@ export default function ContributionGraph() {
         setMinutesAgo(0);
       } catch (err) {
         if (!active) return;
-        setError("Failed to load contribution data.");
+        setError(t("commitsChart.loadError"));
       } finally {
         if (active) {
           setLoading(false);
@@ -284,7 +286,7 @@ export default function ContributionGraph() {
     return () => {
       active = false;
     };
-  }, [days, selectedAccount, customFrom, customTo, customLabel, repo]);
+  }, [days, selectedAccount, customFrom, customTo, customLabel, repo, t]);
 
   // Fetch friend data when compare mode is on and compareUser changes
   useEffect(() => {
@@ -319,13 +321,13 @@ export default function ContributionGraph() {
         setFriendData(sorted);
       })
       .catch(() => {
-        setCompareError("Failed to load friend data");
+        setCompareError(t("commitsChart.friendLoadError"));
         setFriendData([]);
       })
       .finally(() => {
         setCompareLoading(false);
       });
-  }, [compareMode, compareUser, days, compareRequestId]);
+  }, [compareMode, compareUser, days, compareRequestId, t]);
 
   useEffect(() => {
     const onCompareUser = (event: Event) => {
@@ -418,15 +420,15 @@ export default function ContributionGraph() {
     const today = new Date().toISOString().slice(0, 10);
 
     if (!customFrom || !customTo) {
-      setCustomError("Please select both dates.");
+      setCustomError(t("commitsChart.selectBothDates"));
       return;
     }
     if (customFrom > customTo) {
-      setCustomError("Start date must be before end date.");
+      setCustomError(t("commitsChart.startBeforeEnd"));
       return;
     }
     if (customTo > today) {
-      setCustomError("End date can't be in the future.");
+      setCustomError(t("commitsChart.endNotFuture"));
       return;
     }
     const msPerDay = 1000 * 60 * 60 * 24;
@@ -434,7 +436,7 @@ export default function ContributionGraph() {
       (new Date(customTo).getTime() - new Date(customFrom).getTime()) /
       msPerDay;
     if (diff > 365 * 2) {
-      setCustomError("Max range is 2 years.");
+      setCustomError(t("commitsChart.maxRange"));
       return;
     }
 
@@ -464,7 +466,7 @@ export default function ContributionGraph() {
   if (loading) {
     return (
       <WidgetSkeleton
-        title="Your Commits"
+        title={t("commitsChart.title")}
         className="transition-[opacity,transform] duration-300 fade-in-up"
       >
         <div className="flex justify-between items-center mb-4">
@@ -485,8 +487,8 @@ export default function ContributionGraph() {
         <div className="min-w-0">
           <h2 className="text-sm md:text-base lg:text-lg font-semibold text-[var(--foreground)]">
             {compareMode && compareUser
-              ? `You vs ${compareUser}`
-              : "Your Commits"}
+              ? t("commitsChart.compareTitle", { user: compareUser })
+              : t("commitsChart.title")}
           </h2>
           {compareMode && compareError && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
@@ -495,15 +497,15 @@ export default function ContributionGraph() {
           )}
           {compareMode && compareLoading && (
             <p className="text-xs text-[var(--muted-foreground)] mt-1">
-              Loading friend data…
+              {t("commitsChart.loadingFriend")}
             </p>
           )}
           {!compareMode && !loading && !error && (
             <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-              {totalCommits} commit{totalCommits === 1 ? "" : "s"}
+              {t("commitsChart.totalCommits", { count: totalCommits })}
               {partialReason && (
                 <span className="block mt-1" role="status">
-                  Partial history: {partialReason}
+                  {t("commitsChart.partialHistory", { reason: partialReason })}
                 </span>
               )}
             </p>
@@ -517,7 +519,7 @@ export default function ContributionGraph() {
             onChange={(e) => setRepo(e.target.value)}
             className="bg-slate-700 text-slate-300 text-sm rounded-lg px-2 py-1 border border-slate-600"
           >
-            <option value="all">All repos</option>
+            <option value="all">{t("commitsChart.allRepos")}</option>
             {repoOptions.map((r) => (
               <option key={r} value={r}>
                 {r.split("/")[1]}
@@ -531,7 +533,7 @@ export default function ContributionGraph() {
               <button
                 key={r.days}
                 onClick={() => handleRangeChange(r.days)}
-                aria-label={`Show ${r.days}-day range`}
+                aria-label={t("commitsChart.rangeAria", { days: r.days })}
                 aria-pressed={days === r.days && !customLabel}
                 className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                   days === r.days && !customLabel
@@ -550,8 +552,8 @@ export default function ContributionGraph() {
               onClick={() => setShowPopover((v) => !v)}
               aria-label={
                 customLabel
-                  ? `Custom date range: ${customLabel}`
-                  : "Select custom date range"
+                  ? t("commitsChart.customAriaWithLabel", { label: customLabel })
+                  : t("commitsChart.customAria")
               }
               aria-expanded={showPopover}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors border border-[var(--border)] ${
@@ -560,17 +562,17 @@ export default function ContributionGraph() {
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
-              {customLabel ?? "Custom…"}
+              {customLabel ?? t("commitsChart.customButton")}
             </button>
 
             {showPopover && (
               <div className="absolute right-0 top-10 z-50 w-72 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-lg">
                 <p className="text-sm font-medium text-[var(--foreground)] mb-3">
-                  Custom range
+                  {t("commitsChart.customTitle")}
                 </p>
                 <div className="flex flex-col gap-2">
                   <label className="text-xs text-[var(--muted-foreground)]">
-                    Start date
+                    {t("commitsChart.startDate")}
                     <input
                       type="date"
                       value={customFrom}
@@ -585,7 +587,7 @@ export default function ContributionGraph() {
                     />
                   </label>
                   <label className="text-xs text-[var(--muted-foreground)]">
-                    End date
+                    {t("commitsChart.endDate")}
                     <input
                       type="date"
                       value={customTo}
@@ -610,14 +612,14 @@ export default function ContributionGraph() {
                       }}
                       className="w-full rounded-md border border-[var(--border)] py-1.5 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                     >
-                      Clear
+                      {t("commitsChart.clear")}
                     </button>
                   )}
                   <button
                     onClick={handleCustomApply}
                     className="mt-1 w-full rounded-md bg-[var(--accent)] py-1.5 text-sm font-medium text-[var(--background)] hover:opacity-90 transition-opacity active:scale-95"
                   >
-                    Apply
+                    {t("commitsChart.apply")}
                   </button>
                 </div>
               </div>
@@ -628,7 +630,7 @@ export default function ContributionGraph() {
           {displayData.length > 0 && !error && (
             <div
               role="group"
-              aria-label="Chart type"
+              aria-label={t("commitsChart.chartTypeAria")}
               className="flex gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1 text-sm"
             >
               {charts.map((chart) => (
@@ -643,7 +645,7 @@ export default function ContributionGraph() {
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
-                  {chart.label}
+                  {t(`commitsChart.${chart.labelKey}`)}
                   {chartType === chart.key && (
                     <span
                       aria-hidden="true"
@@ -659,10 +661,10 @@ export default function ContributionGraph() {
           {compareMode && (
             <button
               onClick={handleClearCompare}
-              aria-label="Clear comparison mode"
+              aria-label={t("commitsChart.clearCompareAria")}
               className="px-3 py-1 rounded-md text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors border border-[var(--border)]"
             >
-              Clear
+              {t("commitsChart.clear")}
             </button>
           )}
         </div>
@@ -671,12 +673,12 @@ export default function ContributionGraph() {
       {error ? (
         <div className="flex h-[220px] items-center rounded-lg border border-[var(--border)] bg-[var(--background)] px-4">
           <p className="text-sm text-[var(--muted-foreground)]">
-            {error} Please try refreshing.
+            {error} {t("commitsChart.tryRefreshing")}
           </p>
         </div>
       ) : displayData.length === 0 ? (
         <p className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--background)] px-4 text-sm text-[var(--muted-foreground)]">
-          No commits in the last {days} days.
+          {t("commitsChart.emptyState", { days })}
         </p>
       ) : (
         <div className="h-[220px] w-full overflow-hidden">
@@ -716,7 +718,7 @@ export default function ContributionGraph() {
                       dataKey="you"
                       fill="var(--accent)"
                       radius={[4, 4, 0, 0]}
-                      name="You"
+                      name={t("commitsChart.youSeries")}
                     />
                     <Bar
                       dataKey="friend"
@@ -771,7 +773,7 @@ export default function ContributionGraph() {
                       stroke="var(--accent)"
                       strokeWidth={2}
                       dot={false}
-                      name="You"
+                      name={t("commitsChart.youSeries")}
                     />
                     <Line
                       type="monotone"
@@ -830,7 +832,7 @@ export default function ContributionGraph() {
                       stroke="var(--accent)"
                       fill="var(--accent)"
                       fillOpacity={0.3}
-                      name="You"
+                      name={t("commitsChart.youSeries")}
                     />
                     <Area
                       type="monotone"
@@ -859,14 +861,14 @@ export default function ContributionGraph() {
       {lastUpdated && !compareMode && (
         <p className="mt-2 text-right text-xs text-[var(--muted-foreground)]">
           {minutesAgo === 0
-            ? "Updated just now"
-            : `Updated ${minutesAgo} min ago`}
+            ? t("commitsChart.updatedJustNow")
+            : t("commitsChart.updatedMinutesAgo", { minutes: minutesAgo })}
         </p>
       )}
 
       {compareMode && compareUser && !compareLoading && !compareError && (
         <p className="mt-2 text-right text-xs text-[var(--muted-foreground)]">
-          Comparing with {compareUser}
+          {t("commitsChart.comparingWith", { user: compareUser })}
         </p>
       )}
 

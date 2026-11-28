@@ -3,6 +3,24 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import ContributionGraph from '@/components/ContributionGraph';
 import { get, set } from 'idb-keyval';
+import { NextIntlClientProvider } from 'next-intl';
+import en from '../messages/en.json';
+
+// The .ts test file cannot use JSX, so the provider is built with
+// createElement. The cast keeps children optional in the props type so
+// they can be passed as an argument (passing children as a prop is
+// rejected by both the provider's types and eslint).
+const IntlProvider = NextIntlClientProvider as React.ComponentType<{
+  locale: string;
+  messages: typeof en;
+  children?: React.ReactNode;
+}>;
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    React.createElement(IntlProvider, { locale: "en", messages: en }, ui)
+  );
+}
 
 // Mock Recharts to avoid layout issues in JSDOM (using require('react').createElement for hoisting safety in pure .ts)
 vi.mock('recharts', () => ({
@@ -65,7 +83,7 @@ describe('ContributionGraph - private data isolation', () => {
   });
 
   it('fetches authenticated metrics without reading or persisting browser data', async () => {
-    render(React.createElement(ContributionGraph));
+    renderWithIntl(React.createElement(ContributionGraph));
     await waitFor(() => expect(screen.getByText('3 commits')).toBeTruthy());
     expect(get).not.toHaveBeenCalled();
     expect(set).not.toHaveBeenCalled();
@@ -100,7 +118,7 @@ describe('ContributionGraph - private data isolation', () => {
       } as Response);
     }));
 
-    render(React.createElement(ContributionGraph));
+    renderWithIntl(React.createElement(ContributionGraph));
 
     await waitFor(() => {
       expect(screen.getByText('0 commits')).toBeTruthy();
@@ -111,7 +129,7 @@ describe('ContributionGraph - private data isolation', () => {
 
   it.each([Date.now(), Date.now() - 90 * 60 * 1000])('ignores another account?s stored data with timestamp %i', async timestamp => {
     vi.mocked(get).mockResolvedValue({ data: [{day:'2026-05-30',commits:999}], commits:[], timestamp });
-    render(React.createElement(ContributionGraph));
+    renderWithIntl(React.createElement(ContributionGraph));
     await waitFor(() => expect(screen.getByText('3 commits')).toBeTruthy());
     expect(screen.queryByText('999 commits')).toBeNull();
     expect(get).not.toHaveBeenCalled();
@@ -121,7 +139,7 @@ describe('ContributionGraph - private data isolation', () => {
   it('shows a network error without exposing persisted private history', async () => {
     vi.mocked(get).mockResolvedValue({data:[{day:'2026-05-30',commits:999}],commits:[],timestamp:Date.now()});
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network unavailable')));
-    render(React.createElement(ContributionGraph));
+    renderWithIntl(React.createElement(ContributionGraph));
     await waitFor(() => expect(screen.getByText(/Failed to load contribution data/)).toBeTruthy());
     expect(screen.queryByText('999 commits')).toBeNull();
     expect(get).not.toHaveBeenCalled();

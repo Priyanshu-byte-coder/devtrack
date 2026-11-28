@@ -376,6 +376,56 @@ describe("i18n translation lookup", () => {
       expect(getKeys(ptBR).sort()).toEqual(enKeys);
     }
   });
+
+  it("verifies dashboard commitsChart and syncButton dictionary parity across all locales", () => {
+    const getKeys = (obj: Record<string, unknown>, prefix = ""): string[] => {
+      let keys: string[] = [];
+      for (const [k, v] of Object.entries(obj)) {
+        const full = prefix ? `${prefix}.${k}` : k;
+        if (v && typeof v === "object" && !Array.isArray(v)) {
+          keys = keys.concat(getKeys(v as Record<string, unknown>, full));
+        } else {
+          keys.push(full);
+        }
+      }
+      return keys;
+    };
+
+    let totalKeys = 0;
+    for (const section of ["commitsChart", "syncButton"] as const) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const en = require("../messages/en.json").dashboard[section];
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const es = require("../messages/es.json").dashboard[section];
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const hi = require("../messages/hi.json").dashboard[section];
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const ptBR = require("../messages/pt-BR.json").dashboard[section];
+
+      const enKeys = getKeys(en).sort();
+      totalKeys += enKeys.length;
+      expect(enKeys.length).toBeGreaterThan(0);
+      expect(getKeys(es).sort()).toEqual(enKeys);
+      expect(getKeys(hi).sort()).toEqual(enKeys);
+      expect(getKeys(ptBR).sort()).toEqual(enKeys);
+    }
+    expect(totalKeys).toBe(37);
+  });
+
+  it("renders commits chart and sync button strings in Spanish and Hindi", async () => {
+    await expect(
+      translateMessage("es", "dashboard.commitsChart.title")
+    ).resolves.toBe("Tus commits");
+    await expect(
+      translateMessage("hi", "dashboard.commitsChart.title")
+    ).resolves.toBe("आपके कमिट्स");
+    await expect(
+      translateMessage("es", "dashboard.syncButton.syncedToast")
+    ).resolves.toBe("Datos del panel sincronizados");
+    await expect(
+      translateMessage("hi", "dashboard.syncButton.syncedToast")
+    ).resolves.toBe("डैशबोर्ड डेटा सिंक हो गया");
+  });
 });
 
 describe("detectLocale edge cases", () => {
