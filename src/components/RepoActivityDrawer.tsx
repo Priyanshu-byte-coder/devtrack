@@ -77,7 +77,10 @@ export default function RepoActivityDrawer({ repoName, isOpen, onClose }: RepoAc
     const accountParam = selectedAccount ? `?accountId=${selectedAccount}` : "";
 
     fetch(`/api/metrics/repos/${repoName}/commits${accountParam}`)
-      .then(r => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to fetch repo commits");
+        return r.json();
+      })
       .then(d => {
         if (!active) return;
         if (d.error) {

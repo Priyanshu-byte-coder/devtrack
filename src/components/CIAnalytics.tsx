@@ -1,8 +1,9 @@
 "use client";
 
 import { metricCount, metricWithUnit } from "@/lib/format-metric";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { useAccount } from "@/components/AccountContext";
+import { SkeletonBlock } from "./WidgetSkeleton";
 
 interface CIAnalyticsData {
   successRate: number;
@@ -92,13 +93,26 @@ export default function CIAnalytics() {
 
   const stats = data
     ? [
-        { label: "Success Rate", value: metricWithUnit(data.successRate, "%") },
+        {
+          label: "Success Rate",
+          value: metricWithUnit(data.successRate, "%"),
+          color: "#34d399",
+        },
         {
           label: "Avg Duration",
           value: metricWithUnit(data.averageDurationMinutes, "m"),
+          color: "#6ba8ff",
         },
-        { label: "Runs (30d)", value: metricCount(data.totalRuns) },
-        { label: "Repos Checked", value: metricCount(data.reposChecked) },
+        {
+          label: "Runs (30d)",
+          value: metricCount(data.totalRuns),
+          color: "#fb923c",
+        },
+        {
+          label: "Repos Checked",
+          value: metricCount(data.reposChecked),
+          color: "#c77dff",
+        },
       ]
     : [];
 
@@ -131,7 +145,7 @@ export default function CIAnalytics() {
           title={
             isRateLimited ? "GitHub API rate limit reached" : "Refresh CI data"
           }
-          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-[background-color,opacity,transform] hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 active:scale-95"
+          className="inline-flex items-center gap-1.5 border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-[background-color,opacity,transform] hover:bg-[var(--control)] disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 active:scale-95"
         >
           {loading ? (
             <svg
@@ -164,15 +178,11 @@ export default function CIAnalytics() {
           role="status"
           aria-live="polite"
           aria-busy="true"
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           <span className="sr-only">Loading CI analytics</span>
           {[1, 2, 3, 4].map((item) => (
-            <div
-              key={item}
-              aria-hidden="true"
-              className="h-20 rounded-lg skeleton-shimmer"
-            />
+            <SkeletonBlock key={item} className="h-24" />
           ))}
         </div>
       ) : error ? (
@@ -217,11 +227,12 @@ export default function CIAnalytics() {
         </div>
       ) : data ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-children">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 stagger-children">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="stat-cell p-4 text-center animate-fade-in-up"
+                className="stat-cell min-w-0 p-4 text-center animate-fade-in-up"
+                style={{ "--stat-c": stat.color } as CSSProperties}
               >
                 <div className="stat-value text-2xl">{stat.value}</div>
                 <div className="mt-1 text-xs text-[var(--muted-foreground)]">

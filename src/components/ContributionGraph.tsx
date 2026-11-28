@@ -289,7 +289,10 @@ export default function ContributionGraph() {
   // Fetch friend data when compare mode is on and compareUser changes
   useEffect(() => {
     fetch("/api/metrics/repos?days=90")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to fetch repos");
+        return r.json();
+      })
       .then((d: { repos: { name: string }[] }) =>
         setRepoOptions(d.repos.map((r) => r.name))
       )

@@ -58,7 +58,10 @@ export default function StreakAtRiskBanner({
           : "/api/metrics/streak";
 
       fetch(url)
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error("Failed to fetch streak");
+          return r.json();
+        })
         .then((data) => {
           setLastCommitDate(data.lastCommitDate ?? null);
           setCurrentStreak(data.current);
@@ -74,7 +77,10 @@ export default function StreakAtRiskBanner({
   useEffect(() => {
     if (hasStreakFreeze === undefined) {
       fetch("/api/streak/freeze")
-        .then((r) => r.json())
+        .then((r) => {
+          if (!r.ok) throw new Error("Failed to fetch streak freeze");
+          return r.json();
+        })
         .then((data) => {
           setHasStreakFreezeState(data.hasFreeze);
         })

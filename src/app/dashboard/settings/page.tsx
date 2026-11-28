@@ -444,7 +444,10 @@ function SettingsPageContent() {
     if (status !== "authenticated") return;
     setLoadingRepos(true);
     fetch("/api/metrics/repos?days=90")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load user repos");
+        return r.json();
+      })
       .then((d) => {
         const names = (d.repos ?? []).map((r: any) => r.name);
         setUserRepos(names);
@@ -1166,9 +1169,9 @@ function SettingsPageContent() {
                 <div
                   className={`h-full transition-[width] ${
                     bioDraft.length >= 490
-                      ? "bg-red-500"
+                      ? "bg-destructive"
                       : bioDraft.length >= 450
-                        ? "bg-yellow-500"
+                        ? "bg-warning"
                         : "bg-[var(--accent)]"
                   }`}
                   style={{ width: `${(bioDraft.length / 500) * 100}%` }}
@@ -1803,8 +1806,8 @@ function SettingsPageContent() {
             ) : (
               <div className="space-y-6">
                 {orgAccounts.some((acc) => !acc.hasOrgScope) && (
-                  <div className="rounded-lg border border-amber-300/30 bg-amber-500/10 p-4">
-                    <p className="text-sm text-amber-200">
+                  <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
+                    <p className="text-sm text-warning">
                       <strong>Action Required:</strong> Organization access is
                       not fully authorized. To display private organization
                       contributions, please sign out and sign back in to grant

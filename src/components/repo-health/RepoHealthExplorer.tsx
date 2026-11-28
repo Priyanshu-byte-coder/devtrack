@@ -211,7 +211,10 @@ export default function RepoHealthExplorer() {
         : "";
 
     fetch(`/api/metrics/repo-health?days=${days}${accountParam}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load repo health");
+        return r.json();
+      })
       .then((d: { repos?: RepoHealthScore[]; error?: string }) => {
         if (d.error) throw new Error(d.error);
         const repos = (d.repos ?? []).sort((a, b) => b.score - a.score);
