@@ -118,6 +118,6 @@ describe("code-review-for-beginners guide (#3802)", () => {
     expect(html).toContain("standalone repository");
     expect(html).toContain("/guides/devtrack-score");
     expect(html).toContain("/guides/pull-request-checklist");
-    expect(html).toContain("15 lifetime XP");
+    expect(html).toContain("15 XP per review");
   });
 });
