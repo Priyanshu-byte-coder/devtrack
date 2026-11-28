@@ -8,7 +8,17 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextIntlClientProvider } from "next-intl";
+import en from "../../messages/en.json";
 import ProductiveHoursWidget from "@/components/ProductiveHoursWidget";
+
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={en}>
+      {ui}
+    </NextIntlClientProvider>
+  );
+}
 
 function reply(status: number, body: unknown) {
   return Promise.resolve(
@@ -70,7 +80,7 @@ describe("ProductiveHoursWidget", () => {
     });
     fetchMock.mockReturnValue(pendingPromise);
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     expect(
       screen.getByRole("heading", { name: "Most Productive Hours" })
@@ -97,7 +107,7 @@ describe("ProductiveHoursWidget", () => {
   it("displays error message on HTTP failure", async () => {
     fetchMock.mockReturnValue(reply(500, { error: "Server Error" }));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     expect(
       await screen.findByText(
@@ -110,7 +120,7 @@ describe("ProductiveHoursWidget", () => {
   it("displays error message on network rejection", async () => {
     fetchMock.mockRejectedValue(new Error("Network connection lost"));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     expect(
       await screen.findByText(
@@ -122,7 +132,7 @@ describe("ProductiveHoursWidget", () => {
   it("handles empty API data by displaying zero-commit grid and count", async () => {
     fetchMock.mockReturnValue(reply(200, mockZeroData));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     expect(await screen.findByText("0 commits analysed.")).toBeInTheDocument();
     expect(screen.queryByText(/Peak:/i)).not.toBeInTheDocument();
@@ -134,7 +144,7 @@ describe("ProductiveHoursWidget", () => {
   it("renders realistic data with peak information and accessible cell names", async () => {
     fetchMock.mockReturnValue(reply(200, mockSuccessData));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     expect(await screen.findByText("58 commits analysed.")).toBeInTheDocument();
     expect(
@@ -157,7 +167,7 @@ describe("ProductiveHoursWidget", () => {
   it("allows switching preset ranges and persists selection to localStorage", async () => {
     fetchMock.mockReturnValue(reply(200, mockSuccessData));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     await screen.findByText("58 commits analysed.");
 
@@ -180,7 +190,7 @@ describe("ProductiveHoursWidget", () => {
   it("supports custom date range selection and input validation", async () => {
     fetchMock.mockReturnValue(reply(200, mockSuccessData));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     await screen.findByText("58 commits analysed.");
 
@@ -222,7 +232,7 @@ describe("ProductiveHoursWidget", () => {
   it("allows switching heatmap themes without errors", async () => {
     fetchMock.mockReturnValue(reply(200, mockSuccessData));
 
-    render(<ProductiveHoursWidget />);
+    renderWithIntl(<ProductiveHoursWidget />);
 
     await screen.findByText("58 commits analysed.");
 
