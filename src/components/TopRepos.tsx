@@ -377,7 +377,10 @@ export default function TopRepos() {
 
   useEffect(() => {
     fetch("/api/user/settings")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load pinned repos");
+        return r.json();
+      })
       .then((d) => setPinnedRepos(d.pinned_repos || []))
       .catch((err) => console.error("Failed to load pinned repos", err));
   }, []);
@@ -455,7 +458,10 @@ export default function TopRepos() {
         ? `&accountId=${encodeURIComponent(selectedAccount)}`
         : "";
     fetch(`/api/metrics/repos?days=${days}${accountParam}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load top repositories");
+        return r.json();
+      })
       .then(
         (d: { repos: Repo[]; complete?: boolean; partialReason?: string }) => {
           setRepos(d.repos ?? []);
@@ -487,7 +493,10 @@ export default function TopRepos() {
     fetch(
       `/api/metrics/repo-health${accountParam}${accountParam ? "&" : "?"}days=${days}`
     )
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load repo health");
+        return r.json();
+      })
       .then((d: { repos: RepoHealthScore[] }) => {
         const map: Record<string, RepoHealthScore> = {};
         for (const item of d.repos ?? []) {

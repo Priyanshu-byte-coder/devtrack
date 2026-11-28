@@ -43,7 +43,10 @@ export default function DailyBreakdownSheet({
     }
     setLoading(true);
     fetch(`/api/metrics/contributions/daily?date=${date}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch daily contributions");
+        return res.json();
+      })
       .then((result) => {
         setRawCommits(result.repos ?? []);
       })

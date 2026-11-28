@@ -444,7 +444,10 @@ function SettingsPageContent() {
     if (status !== "authenticated") return;
     setLoadingRepos(true);
     fetch("/api/metrics/repos?days=90")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load user repos");
+        return r.json();
+      })
       .then((d) => {
         const names = (d.repos ?? []).map((r: any) => r.name);
         setUserRepos(names);
